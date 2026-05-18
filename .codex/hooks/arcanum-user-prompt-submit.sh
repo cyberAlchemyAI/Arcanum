@@ -27,10 +27,13 @@ command_file="$commands_dir/$command_name.md"
 capability_id="$(sed -n 's/^<!-- arcanum:capability-id \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 capability_kind="$(sed -n 's/^<!-- arcanum:capability-kind \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 capability_tier="$(sed -n 's/^<!-- arcanum:capability-tier \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
+capability_alias="$(sed -n 's/^<!-- arcanum:capability-alias \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
+marked_command="$(sed -n 's/^<!-- arcanum:command \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 
 if [[ -z "$capability_id" ]]; then capability_id="$command_name"; fi
 if [[ -z "$capability_kind" ]]; then capability_kind="skill"; fi
 if [[ -z "$capability_tier" ]]; then capability_tier="runtime"; fi
+if [[ -z "$marked_command" ]]; then marked_command="$command_name"; fi
 
 safe_turn="${turn_id//[^A-Za-z0-9._-]/-}"
 run_id="arcanum-hook-$safe_turn"
@@ -47,7 +50,9 @@ jq -n \
   --arg capability_id "$capability_id" \
   --arg capability_kind "$capability_kind" \
   --arg capability_tier "$capability_tier" \
+  --arg capability_alias "$capability_alias" \
   --arg command_name "$command_name" \
+  --arg marked_command "$marked_command" \
   --arg command_file ".codex/commands/$command_name.md" \
   --arg prompt "$prompt" \
   '{
@@ -61,7 +66,12 @@ jq -n \
       id: $capability_id,
       kind: $capability_kind,
       tier: $capability_tier,
-      mode: "command"
+      mode: "command",
+      alias: (if $capability_alias == "" then null else $capability_alias end)
+    },
+    command: {
+      name: $marked_command,
+      file: $command_file
     },
     request: {
       raw: $prompt,

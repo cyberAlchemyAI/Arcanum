@@ -2,7 +2,7 @@
 
 ## Implementation Objective
 
-Make OIL command-surface-baseline-ready by closing the remaining reliability gaps in managed reflection routing, threshold scoping, dedupe finalization, strict telemetry closeout, hook closeout status, and legacy ledger migration.
+Make OIL command-surface-baseline-ready by closing the remaining reliability gaps in managed reflection routing, threshold scoping, dedupe finalization and recovery, strict telemetry closeout, hook closeout status, command identity parity, and legacy ledger migration.
 
 ## Delivery Slices
 
@@ -13,6 +13,7 @@ Make OIL command-surface-baseline-ready by closing the remaining reliability gap
 | L2 Atomic dedupe | Dedupe key is committed after successful telemetry append/index/counter path. | Duplicate skips; failed pre-commit path can retry. |
 | L3 Status and migration | Stop hook derives status from evidence; migration check avoids anonymous summaries. | Completed, failed, blocked, partial fixtures plus migration check pass. |
 | L4 Strict and alias cleanup | Strict telemetry blocks failed observation; alias telemetry is explicit without changing canonical capability ID. | Strict-mode failure fixture and `/interrogation` command envelope include alias metadata. |
+| L5 Promotion parity and recovery | Native hooks match wrapper command identity, and central ledger suppresses crash-window retries. | UserPromptSubmit/Stop fixtures preserve alias and command metadata; dedupe retry fixture leaves one ledger row. |
 
 ## Task Decomposition
 
@@ -24,6 +25,7 @@ Make OIL command-surface-baseline-ready by closing the remaining reliability gap
 | T-REM-004 | Improve Stop hook status inference. | Codex Stop hook scripts | tool failures produce failed/fail; existing partial/blocked state is preserved when appropriate. |
 | T-REM-005 | Add migration validation. | observability scripts | legacy rows summarize through fallback without anonymous capability groups. |
 | T-REM-006 | Finish strict telemetry and alias cleanup. | observer, `tools/arcanum`, Stop hooks | strict mode blocks observation failure; standard mode preserves result; aliases are recorded in command-surface envelopes. |
+| T-REM-007 | Finish native hook parity and dedupe recovery. | UserPromptSubmit hooks, observer, evidence docs | native hooks record alias/command metadata; central-ledger duplicate check suppresses retry without dedupe marker. |
 | T-REM-VERIFY | Validate syntax, JSON, behavior, and migration. | validation commands and fixture evidence | all listed checks pass. |
 
 ## Smallest Working Units
@@ -39,7 +41,9 @@ Make OIL command-surface-baseline-ready by closing the remaining reliability gap
 | SWU-OIL-REM-007 | T-REM-005 | Add migration check script. | check reports `MIGRATION_CHECK=pass` and `ANONYMOUS=0`. |
 | SWU-OIL-REM-008 | T-REM-006 | Implement strict telemetry closeout behavior. | standard mode preserves failed observation; strict mode blocks. |
 | SWU-OIL-REM-009 | T-REM-006 | Record command alias identity. | `/interrogation` envelope carries canonical capability and alias metadata. |
-| SWU-OIL-REM-010 | T-REM-VERIFY | Run full verification. | syntax, JSON, fixture, and migration checks pass. |
+| SWU-OIL-REM-010 | T-REM-007 | Add native hook command identity parity. | UserPromptSubmit and Stop fixtures preserve canonical id, alias, and command metadata. |
+| SWU-OIL-REM-011 | T-REM-007 | Add central-ledger dedupe recovery. | retry after missing dedupe marker skips with one central ledger row. |
+| SWU-OIL-REM-012 | T-REM-VERIFY | Run full verification. | syntax, JSON, fixture, and migration checks pass. |
 
 ## Validation Strategy
 
@@ -61,6 +65,8 @@ Fixture checks:
 - Stop hook completed, failed, and partial evidence paths.
 - strict-mode observation failure behavior.
 - `/interrogation` command-surface alias metadata.
+- native hook `/interrogation` alias and command metadata.
+- central-ledger dedupe recovery when the dedupe marker is missing.
 
 ## Invoke Result
 
@@ -72,7 +78,7 @@ Fixture checks:
 - Mode contract: spells/invoke/plan.md
 - Outputs: REMAINING-IMPLEMENTATION-PLAN.md, REMAINING-WORK-PACK.md
 - Complexity: medium
-- Per-layer planning: L0, L1, L2, L3
+- Per-layer planning: L0, L1, L2, L3, L4, L5
 - Implementation detail: task specs complete
 - Smallest working units: complete
 - Next route: task-session

@@ -12,6 +12,7 @@
   - `framework/observability/scripts/record-hook-operation.sh`
   - `framework/observability/scripts/reflect-invocation-signals.sh`
   - `tools/arcanum`
+  - `.codex/hooks/arcanum-user-prompt-submit.sh`
   - `.codex/hooks/arcanum-stop.sh`
   - `framework/observability/scripts/check-observability-migration.sh`
 
@@ -23,7 +24,7 @@
 ## Readiness Verdict
 
 - Verdict: pass
-- Reason: validation evidence now captures static checks, observer/reflection fixtures, partial/blocked Stop-hook fixtures, migration checks, strict telemetry behavior, command alias identity, and the README states the command-surface `baseline-ready` boundary.
+- Reason: validation evidence now captures static checks, observer/reflection fixtures, partial/blocked Stop-hook fixtures, migration checks, strict telemetry behavior, command alias identity across wrapper and native hook paths, central-ledger dedupe recovery, and the README states the command-surface `baseline-ready` boundary.
 
 ## Findings
 
@@ -34,6 +35,8 @@
 | INT-OIL-REM-003 | resolved | `baseline-ready` status is now bounded to repository-local Codex command-surface readiness. | README status boundary explicitly excludes the old `.arcanum/runtimes/` folder model. | No further action. |
 | INT-OIL-REM-004 | resolved | Dedupe and observer hook failures remain non-blocking in standard mode and block in strict mode. | Strict fixture returns block while standard mode preserves observation result. | No further action. |
 | INT-OIL-REM-005 | resolved | Interrogation command resolution preserves the canonical `structured-interview-kits` capability and records alias metadata. | Alias fixture records `structured-interview-kits:interrogation:interrogation`. | No further action. |
+| INT-OIL-REM-006 | resolved | Native Codex hooks now preserve command identity metadata. | UserPromptSubmit and Stop fixtures record `structured-interview-kits`, `sigil`, `interrogation`, `interrogation`, and `.codex/commands/interrogation.md`. | No further action. |
+| INT-OIL-REM-007 | resolved | Retry after a central ledger append but missing dedupe marker no longer duplicates telemetry. | Dedupe recovery fixture returns `skipped:duplicate observer emission in central ledger:1`. | No further action. |
 
 ## Decisions Recorded
 
@@ -43,6 +46,7 @@
 | Is implementation scope aligned with the stated plan? | Yes. |
 | Is promotion to baseline readiness safe? | Yes, for repository-local Codex command-surface baseline readiness. |
 | Should reflection remain non-mutating? | Yes; no contradiction found. |
+| Are the latest promotion blockers closed? | Yes; native hook parity and central-ledger dedupe recovery are proven. |
 
 ## Remaining Ambiguities
 
@@ -55,7 +59,7 @@
 - Target scope: Observed Invocation Loop remaining-items invoke pack
 - Mode: artifact-readiness interrogation
 - Questions asked: 0
-- Decisions recorded: 4
+- Decisions recorded: 5
 - Artifacts updated: `spells/observed-invocation-loop/development/REMAINING-INTERROGATION.md`
 - Remaining ambiguities: none for repository-local Codex command-surface baseline readiness
 - Verdict: pass

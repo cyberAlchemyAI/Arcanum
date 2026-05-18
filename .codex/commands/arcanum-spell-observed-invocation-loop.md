@@ -159,7 +159,7 @@ Adapter controls:
 - `OBSERVED_INVOCATION_STRICT=1`: telemetry append failure blocks closeout.
 - `OBSERVED_REFLECT=off|auto|always`: controls reflection report execution.
 - Manual observer calls are allowed for diagnostics only and do not satisfy hook-enforcement evidence.
-- `signals/sigil-invocations.jsonl` is the telemetry source of truth. `by-sigil/` and `by-capability/` contain compact indexes that can be rebuilt from the central ledger.
+- `signals/sigil-invocations.jsonl` is the telemetry and dedupe recovery source of truth. `by-sigil/` and `by-capability/` contain compact indexes that can be rebuilt from the central ledger.
 
 ## Automatic Attachment
 
@@ -171,6 +171,7 @@ Recommended generated marker:
 <!-- arcanum:capability-id <id> -->
 <!-- arcanum:capability-kind <skill|sigil|spell> -->
 <!-- arcanum:capability-tier <tier> -->
+<!-- arcanum:capability-alias <alias> -->
 <!-- arcanum:command <command> -->
 ```
 

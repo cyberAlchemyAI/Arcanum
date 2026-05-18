@@ -117,10 +117,12 @@ Acceptance covered:
 
 ## Command Alias Telemetry Fixture
 
-Temporary observer fixture for `/interrogation` command metadata:
+Temporary observer and native hook fixtures for `/interrogation` command metadata:
 
 ```text
-structured-interview-kits:interrogation:interrogation
+tools-arcanum=structured-interview-kits:interrogation:interrogation
+native-pending=structured-interview-kits	sigil	interrogation	interrogation	.codex/commands/interrogation.md
+native-ledger=structured-interview-kits	sigil	interrogation	interrogation	.codex/commands/interrogation.md
 ```
 
 Acceptance covered:
@@ -128,6 +130,21 @@ Acceptance covered:
 - canonical capability remains `structured-interview-kits`,
 - alias metadata records `interrogation`,
 - command metadata records `interrogation`.
+- native UserPromptSubmit and Stop hook paths preserve the same metadata as `tools/arcanum`.
+
+## Central-Ledger Dedupe Recovery Fixture
+
+Temporary observer fixture simulating a process that appended the central ledger row before committing `hooks/dedupe.jsonl`:
+
+```text
+skipped:duplicate observer emission in central ledger:1
+```
+
+Acceptance covered:
+
+- central ledger is checked before append,
+- retry without a committed dedupe marker skips,
+- the central ledger remains at one row.
 
 ## Result
 

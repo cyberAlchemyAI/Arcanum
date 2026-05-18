@@ -218,6 +218,19 @@ if [[ "$hook_status" == "skipped" ]]; then
 	exit 0
 fi
 
+if jq -e --arg dedupe_key "$dedupe_key" 'select(.dedupe_key == $dedupe_key)' "$ledger" >/dev/null 2>&1; then
+	record_hook append completed false "central ledger duplicate check" "$(( $(date +%s%3N) - hook_started_at_ms ))" none >/dev/null
+	printf 'OBSERVATION=skipped\n'
+	printf 'REASON=duplicate observer emission in central ledger\n'
+	printf 'LEDGER=%s\n' "$ledger"
+	printf 'DEDUPE_KEY=%s\n' "$dedupe_key"
+	printf 'CAPABILITY=%s\n' "$(printf '%s\n' "$event" | jq -r '.capability.id')"
+	printf 'CAPABILITY_KIND=%s\n' "$(printf '%s\n' "$event" | jq -r '.capability.kind')"
+	printf 'REFLECTION_TRIGGER=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
+	printf 'RECOMMENDATION=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.recommendation')"
+	exit 0
+fi
+
 reflection_trigger="$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
 if [[ -f "$reflection_state" && -f "$observability_config" && "$reflection_trigger" == "none" ]]; then
 	threshold_trigger="$(

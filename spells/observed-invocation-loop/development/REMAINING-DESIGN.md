@@ -21,10 +21,10 @@ The remaining work sits inside the existing OIL command surface. The observer re
 | Component | Responsibility |
 | --- | --- |
 | Generic observer | Validate envelope, append telemetry, update counters, emit recommendation. |
-| Dedupe recorder | Check duplicate keys before append and commit keys only after success. |
+| Dedupe recorder | Check duplicate keys before append, fall back to the central ledger for crash-window recovery, and commit keys only after success. |
 | Reflection runner | Analyze scoped signal ledger and write non-mutating reports. |
 | Managed command wrapper | Honor `OBSERVED_REFLECT` and strict telemetry after observer closeout. |
-| Codex Stop hook | Close hook envelope, derive status, and honor `OBSERVED_REFLECT`. |
+| Codex hooks | Open envelopes with command identity metadata, close hook envelope, derive status, and honor `OBSERVED_REFLECT`. |
 | Migration check | Verify legacy rows summarize through capability fallback. |
 
 ### 3. Low-Level Components View
@@ -41,7 +41,7 @@ The remaining work sits inside the existing OIL command surface. The observer re
 ### 4. Workflow Process View
 
 1. Managed invocation writes or closes an envelope.
-2. Observer checks dedupe without committing it.
+2. Observer checks dedupe without committing it, then checks the central ledger for an existing `dedupe_key`.
 3. Observer evaluates thresholds against signals since `last_reflection_at`, with severe gaps evaluated from the current event.
 4. Observer appends ledger row, writes indexes, updates counters, then commits dedupe.
 5. Managed closeout checks `OBSERVED_REFLECT`.
@@ -55,7 +55,7 @@ The remaining work sits inside the existing OIL command surface. The observer re
 | --- | --- |
 | Should reflection run? | `off` never runs, `auto` runs on `reflect-now`, `always` runs regardless and may skip with reason. |
 | Should threshold trigger? | Count ordinary thresholds since last reflection; severe-gap checks current event immediately. |
-| Should dedupe suppress? | Suppress only committed dedupe keys. |
+| Should dedupe suppress? | Suppress committed dedupe keys or an existing central-ledger row with the same `dedupe_key`. |
 | What status should Stop report? | Tool failure means failed; existing blocked/interrupted/partial is preserved unless final assistant output supports completion. |
 | Can legacy rows summarize? | Use `capability.id/kind` when present, otherwise `sigil` and default kind fallback. |
 
@@ -75,6 +75,7 @@ The remaining work sits inside the existing OIL command surface. The observer re
 | --- | --- | --- |
 | Reflection report loops on same threshold. | Noise and stale reports. | Scope analysis since `last_reflection_at`. |
 | Dedupe check rows look like signal emissions. | Confusing hook operations. | Append commit row is the authoritative emitted-signal row. |
+| Process dies after ledger append before dedupe commit. | Retry could duplicate central telemetry. | Central-ledger duplicate check suppresses retry before append. |
 | Hook status inference misses a command failure. | Over-optimistic telemetry. | Prefer explicit tool failure and preserved pending status over blind completion. |
 | Legacy rows remain mixed-shape. | Summary drift. | Migration check validates fallback grouping. |
 
@@ -82,6 +83,6 @@ The remaining work sits inside the existing OIL command surface. The observer re
 
 - Phase status: pass
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
-- Implementation layering: L0 reflection route, L1 threshold scoping, L2 atomic dedupe, L3 status and migration
+- Implementation layering: L0 reflection route, L1 threshold scoping, L2 atomic dedupe, L3 status and migration, L4 strict/alias cleanup, L5 promotion parity/recovery
 - Work-pack: required
 - Next route: plan

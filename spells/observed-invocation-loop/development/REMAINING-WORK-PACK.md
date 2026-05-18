@@ -15,7 +15,7 @@
 
 ## Objective Summary
 
-Finish OIL maturity hardening without rewriting the completed original OIL work-pack. The work-pack targets reflection routing, threshold cooling, dedupe safety, strict telemetry behavior, accurate hook closeout status, command-surface alias identity, and legacy ledger migration checks.
+Finish OIL maturity hardening without rewriting the completed original OIL work-pack. The work-pack targets reflection routing, threshold cooling, dedupe safety and recovery, strict telemetry behavior, accurate hook closeout status, command-surface alias identity, native hook parity, and legacy ledger migration checks.
 
 ## Task Status Board
 
@@ -27,7 +27,8 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 | T-REM-004 | Stop hook status inference | L3 | implemented |
 | T-REM-005 | Migration validation | L3 | implemented |
 | T-REM-006 | Strict telemetry and command alias cleanup | L4 | completed |
-| T-REM-VERIFY | Verification | L3 | completed |
+| T-REM-007 | Native hook parity and central-ledger dedupe recovery | L5 | completed |
+| T-REM-VERIFY | Verification | L5 | completed |
 
 ## Smallest Working Units
 
@@ -42,7 +43,9 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 | SWU-OIL-REM-007 | T-REM-005 | implemented |
 | SWU-OIL-REM-008 | T-REM-006 | completed |
 | SWU-OIL-REM-009 | T-REM-006 | completed |
-| SWU-OIL-REM-010 | T-REM-VERIFY | completed |
+| SWU-OIL-REM-010 | T-REM-007 | completed |
+| SWU-OIL-REM-011 | T-REM-007 | completed |
+| SWU-OIL-REM-012 | T-REM-VERIFY | completed |
 
 ## Acceptance Gates
 
@@ -55,6 +58,8 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 7. Reflection remains non-mutating.
 8. Strict telemetry mode blocks failed observation while standard mode preserves the primary result.
 9. Command alias telemetry records `/interrogation` as an alias of `structured-interview-kits`.
+10. Native Codex hooks and `tools/arcanum` produce equivalent command identity metadata.
+11. Central-ledger dedupe recovery prevents duplicate rows when the dedupe marker is missing.
 
 ## Promotion Evidence
 
@@ -80,3 +85,5 @@ framework/observability/scripts/check-observability-migration.sh
 | Early dedupe commit | resolved | Hook recorder supports check and commit modes. |
 | Over-optimistic Stop telemetry | resolved | Stop hook derives status from evidence. |
 | Anonymous legacy summaries | resolved | Migration check validates fallback grouping. |
+| Native hook alias metadata gap | resolved | UserPromptSubmit hook envelopes include `capability.alias` and `command`. |
+| Dedupe crash-window retry | resolved | Observer checks the central ledger before append. |
