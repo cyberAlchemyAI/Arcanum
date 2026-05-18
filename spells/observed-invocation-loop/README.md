@@ -7,7 +7,7 @@
 - Scope: library
 - Status: baseline-ready
 
-Status boundary: `baseline-ready` means the repository-local Codex runtime path, generic observer, reflection routing, threshold scoping, dedupe safety, Stop-hook closeout status, and legacy ledger migration checks have passing evidence. External runtime rollout remains a separate adapter-coverage concern.
+Status boundary: `baseline-ready` means the repository-local Codex command surface, generic observer, reflection routing, threshold scoping, dedupe safety, Stop-hook closeout status, and legacy ledger migration checks have passing evidence. The old `.arcanum/runtimes/` adapter-folder model is not part of this status boundary.
 
 ## Purpose
 
@@ -112,7 +112,7 @@ Adapter controls:
 
 ## Automatic Attachment
 
-OIL should be attached through Arcanum command generation, not by hand-editing each sigil command. The propagation owner is `sigil-runtime-installer`: when it creates or refreshes a Codex command, the command must include observer envelope task-zero metadata and the installed hooks must be present.
+OIL should be attached through Arcanum command generation, not by hand-editing each sigil command. The propagation owner is the command-surface installer/generator: when it creates or refreshes a Codex command, the command must include observer envelope task-zero metadata and the installed hooks must be present.
 
 Recommended generated marker:
 

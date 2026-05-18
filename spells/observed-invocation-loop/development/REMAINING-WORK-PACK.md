@@ -11,11 +11,11 @@
 | defineRef | `spells/observed-invocation-loop/development/REMAINING-DEFINE-SPEC.md` |
 | designRef | `spells/observed-invocation-loop/development/REMAINING-DESIGN.md` |
 | validationEvidenceRef | `spells/observed-invocation-loop/development/REMAINING-VALIDATION-EVIDENCE.md` |
-| readinessProfile | runtime-hardening |
+| readinessProfile | command-surface-hardening |
 
 ## Objective Summary
 
-Finish OIL maturity hardening without rewriting the completed original OIL work-pack. The work-pack targets reflection routing, threshold cooling, dedupe safety, accurate hook closeout status, and legacy ledger migration checks.
+Finish OIL maturity hardening without rewriting the completed original OIL work-pack. The work-pack targets reflection routing, threshold cooling, dedupe safety, strict telemetry behavior, accurate hook closeout status, command-surface alias identity, and legacy ledger migration checks.
 
 ## Task Status Board
 
@@ -26,6 +26,7 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 | T-REM-003 | Managed reflection routing | L0 | implemented |
 | T-REM-004 | Stop hook status inference | L3 | implemented |
 | T-REM-005 | Migration validation | L3 | implemented |
+| T-REM-006 | Strict telemetry and command alias cleanup | L4 | completed |
 | T-REM-VERIFY | Verification | L3 | completed |
 
 ## Smallest Working Units
@@ -39,7 +40,9 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 | SWU-OIL-REM-005 | T-REM-003 | implemented |
 | SWU-OIL-REM-006 | T-REM-004 | implemented |
 | SWU-OIL-REM-007 | T-REM-005 | implemented |
-| SWU-OIL-REM-008 | T-REM-VERIFY | completed |
+| SWU-OIL-REM-008 | T-REM-006 | completed |
+| SWU-OIL-REM-009 | T-REM-006 | completed |
+| SWU-OIL-REM-010 | T-REM-VERIFY | completed |
 
 ## Acceptance Gates
 
@@ -50,12 +53,14 @@ Finish OIL maturity hardening without rewriting the completed original OIL work-
 5. Stop hook no longer blindly marks every closeout as completed/pass.
 6. Migration check reports no anonymous capability groups.
 7. Reflection remains non-mutating.
+8. Strict telemetry mode blocks failed observation while standard mode preserves the primary result.
+9. Command alias telemetry records `/interrogation` as an alias of `structured-interview-kits`.
 
 ## Promotion Evidence
 
 - Validation evidence: `spells/observed-invocation-loop/development/REMAINING-VALIDATION-EVIDENCE.md`
 - Interrogation result: `spells/observed-invocation-loop/development/REMAINING-INTERROGATION.md`
-- Promotion status: pass for repository-local Codex runtime baseline readiness.
+- Promotion status: pass for repository-local Codex command-surface baseline readiness.
 
 ## Validation Commands
 

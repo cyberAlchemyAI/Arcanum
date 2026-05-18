@@ -24,6 +24,7 @@ fi
 envelope=""
 observability_dir=""
 observer_version="0.1.0"
+strict_mode="${OBSERVED_INVOCATION_STRICT:-0}"
 
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
@@ -77,7 +78,7 @@ record_hook() {
 	local dedupe_mode="${6:-commit}"
 
 	if [[ -x "$hook_recorder" ]]; then
-		"$hook_recorder" \
+		if "$hook_recorder" \
 			--observability-dir "$observability_dir" \
 			--hook signal-observer \
 			--target-run-id "$target_run_id" \
@@ -91,8 +92,14 @@ record_hook() {
 			--duration-ms "$duration_ms" \
 			--dedupe-key "$dedupe_key" \
 			--dedupe-mode "$dedupe_mode" \
-			--observer-version "$observer_version" 2>/dev/null || true
+			--observer-version "$observer_version" 2>/dev/null; then
+			return 0
+		fi
+		if [[ "$strict_mode" == "1" ]]; then
+			return 1
+		fi
 	fi
+	return 0
 }
 
 validate_filter='
@@ -163,8 +170,10 @@ event="$(
 				id: $capability_id,
 				kind: $capability_kind,
 				tier: $capability_tier,
-				mode: $capability_mode
+				mode: $capability_mode,
+				alias: (.capability.alias // null)
 			},
+			command: (.command // null),
 			request: {
 				raw: (.request.raw // null),
 				summary: (.request.summary // .request.intent),
@@ -310,7 +319,14 @@ if [[ -f "$reflection_state" ]]; then
 	fi
 fi
 
-record_hook append completed true "capability telemetry append committed" "$(( $(date +%s%3N) - hook_started_at_ms ))" commit >/dev/null
+if ! commit_output="$(record_hook append completed true "capability telemetry append committed" "$(( $(date +%s%3N) - hook_started_at_ms ))" commit)"; then
+	printf 'OBSERVATION=failed\n'
+	printf 'REASON=dedupe commit failed\n'
+	printf 'LEDGER=%s\n' "$ledger"
+	printf 'LEDGER_LINE=%s\n' "$ledger_line"
+	printf 'DEDUPE_KEY=%s\n' "$dedupe_key"
+	exit 1
+fi
 
 printf 'OBSERVATION=recorded\n'
 printf 'LEDGER=%s\n' "$ledger"

@@ -3,6 +3,7 @@
 <!-- arcanum:capability-id structured-interview-kits -->
 <!-- arcanum:capability-kind sigil -->
 <!-- arcanum:capability-tier arcana -->
+<!-- arcanum:capability-alias interrogation -->
 <!-- arcanum:command arcanum-sigil-interrogation -->
 
 ## Observer Envelope: Task Zero

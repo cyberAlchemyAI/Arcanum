@@ -90,10 +90,46 @@ Acceptance covered:
 - Interrogation finding `INT-OIL-REM-001`: resolved by this evidence artifact.
 - Interrogation finding `INT-OIL-REM-002`: resolved by partial and blocked Stop-hook fixture evidence.
 - Interrogation finding `INT-OIL-REM-003`: resolved by README status boundary note.
-- Interrogation finding `INT-OIL-REM-004`: accepted boundary for standard mode; strict-mode dedupe failure can be future hardening if strict mode becomes a release gate.
-- Interrogation finding `INT-OIL-REM-005`: accepted metadata cleanup follow-up; not a readiness blocker.
+- Interrogation finding `INT-OIL-REM-004`: resolved by strict telemetry fixture evidence.
+- Interrogation finding `INT-OIL-REM-005`: resolved by command alias telemetry evidence.
+
+## Strict Telemetry Fixture
+
+Temporary observer fixture with failing hook recorder:
+
+```text
+standard_exit=0
+standard_obs=recorded
+strict_exit=1
+```
+
+Temporary Stop-hook fixture with unavailable observer:
+
+```text
+standard=true
+strict=block
+```
+
+Acceptance covered:
+
+- standard mode preserves primary closeout when observer plumbing fails,
+- strict mode blocks failed observation closeout.
+
+## Command Alias Telemetry Fixture
+
+Temporary observer fixture for `/interrogation` command metadata:
+
+```text
+structured-interview-kits:interrogation:interrogation
+```
+
+Acceptance covered:
+
+- canonical capability remains `structured-interview-kits`,
+- alias metadata records `interrogation`,
+- command metadata records `interrogation`.
 
 ## Result
 
 - Validation status: pass
-- Promotion readiness: pass for repository-local Codex runtime baseline readiness
+- Promotion readiness: pass for repository-local Codex command-surface baseline readiness

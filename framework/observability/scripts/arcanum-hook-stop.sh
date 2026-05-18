@@ -11,6 +11,7 @@ repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 observability_dir="$repo_root/.arcanum/observability"
 observer="$repo_root/framework/observability/scripts/observe-invocation.sh"
 reflector="$repo_root/framework/observability/scripts/reflect-invocation-signals.sh"
+strict_mode="${OBSERVED_INVOCATION_STRICT:-0}"
 turn_id="$(printf '%s\n' "$input" | jq -r '.turn_id // "unknown-turn"')"
 safe_turn="${turn_id//[^A-Za-z0-9._-]/-}"
 run_id="arcanum-hook-$safe_turn"
@@ -63,10 +64,19 @@ jq \
   "$pending" > "$tmp" && mv "$tmp" "$closed"
 
 if [[ ! -x "$observer" ]]; then
-  jq -n --arg reason "Arcanum observer unavailable at framework/observability/scripts/observe-invocation.sh" '{
-    decision: "block",
-    reason: $reason
-  }'
+  if [[ "$strict_mode" == "1" ]]; then
+    jq -n --arg reason "Arcanum observer unavailable at framework/observability/scripts/observe-invocation.sh" '{
+      decision: "block",
+      reason: $reason
+    }'
+  else
+    jq -n --arg reason "Arcanum observer unavailable at framework/observability/scripts/observe-invocation.sh" '{
+      hookSpecificOutput: {
+        hookEventName: "Stop",
+        additionalContext: ("Arcanum observer closeout skipped.\nOBSERVATION=skipped\nREASON=" + $reason)
+      }
+    }'
+  fi
   exit 0
 fi
 
@@ -118,7 +128,16 @@ REPORT=n/a"
   exit 0
 fi
 
-jq -n --arg reason "Arcanum observer closeout did not complete. Inspect .arcanum/observability/runs/arcanum-hooks and finish telemetry before final closeout." '{
-  decision: "block",
-  reason: $reason
-}'
+if [[ "$strict_mode" == "1" ]]; then
+  jq -n --arg reason "Arcanum observer closeout did not complete. Inspect .arcanum/observability/runs/arcanum-hooks and finish telemetry before final closeout." '{
+    decision: "block",
+    reason: $reason
+  }'
+else
+  jq -n --arg context "$observe_output" '{
+    hookSpecificOutput: {
+      hookEventName: "Stop",
+      additionalContext: ("Arcanum observer closeout failed in standard mode; primary result preserved.\n" + $context)
+    }
+  }'
+fi

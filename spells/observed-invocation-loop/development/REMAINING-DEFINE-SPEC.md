@@ -2,7 +2,7 @@
 
 ## Intent Record
 
-- User goal: harden Observed Invocation Loop from a strong pilot into runtime baseline readiness.
+- User goal: harden Observed Invocation Loop from a strong pilot into command-surface baseline readiness.
 - Selected artifact type: follow-up invoke pack.
 - Existing baseline: the original OIL define, design, implementation plan, and work-pack remain historical evidence and are not rewritten.
 - Target capability: `observed-invocation-loop`.
@@ -19,7 +19,7 @@ The current OIL implementation proves generic telemetry append, hook-backed enve
 
 ## Capability Definition
 
-This follow-up pack makes OIL runtime-baseline-ready by adding:
+This follow-up pack makes OIL command-surface-baseline-ready by adding:
 
 - managed reflection execution policy through `OBSERVED_REFLECT=off|auto|always`,
 - threshold scoping since the last reflection while preserving immediate severe-gap triggers,
@@ -60,7 +60,7 @@ Excluded:
 
 | Gap | Severity | Route |
 | --- | --- | --- |
-| External runtime rollout is not verified here. | non-blocker | future adapter rollout pack |
+| The old `.arcanum/runtimes/` folder model is no longer a target. | accepted boundary | command-surface generation and hooks |
 | Stop hook status is inferred from available hook evidence, not full model-native run semantics. | accepted limitation | improve if richer hook payload becomes available |
 
 ## Invoke Result
@@ -74,5 +74,5 @@ Excluded:
 - Outputs: spells/observed-invocation-loop/development/REMAINING-DEFINE-SPEC.md
 - Template selection: invoke.spell follow-up hardening pack
 - Decisions: new remaining-items pack, hook/wrapper reflection routing, scoped thresholds, post-success dedupe
-- Unresolved gaps: external runtime rollout
+- Unresolved gaps: none for repository-local Codex command-surface baseline readiness
 - Next route: design

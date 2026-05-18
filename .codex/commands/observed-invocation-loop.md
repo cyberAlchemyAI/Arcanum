@@ -163,7 +163,7 @@ Adapter controls:
 
 ## Automatic Attachment
 
-OIL should be attached through Arcanum command generation, not by hand-editing each sigil command. The propagation owner is `sigil-runtime-installer`: when it creates or refreshes a Codex command, the command must include observer envelope task-zero metadata and the installed hooks must be present.
+OIL should be attached through Arcanum command generation, not by hand-editing each sigil command. The propagation owner is the command-surface installer/generator: when it creates or refreshes a Codex command, the command must include observer envelope task-zero metadata and the installed hooks must be present.
 
 Recommended generated marker:
 

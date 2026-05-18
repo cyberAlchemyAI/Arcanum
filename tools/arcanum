@@ -107,6 +107,18 @@ detect_tier() {
 	fi
 }
 
+detect_alias() {
+	local command_file="$1"
+	local command_name="$2"
+	local marked
+	marked="$(sed -n 's/^<!-- arcanum:capability-alias \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
+	if [[ -n "$marked" ]]; then
+		printf '%s' "$marked"
+	elif [[ "$command_name" == "interrogation" ]]; then
+		printf 'interrogation'
+	fi
+}
+
 resolve_command() {
 	local selected="$1"
 	local command_file="$commands_dir/$selected.md"
@@ -140,11 +152,15 @@ observe_result() {
 	local request="$3"
 	local status="$4"
 	local output_rel="$5"
-	local command_abs kind capability_id capability_tier run_id run_dir envelope timestamp recommendation
+	local command_abs kind capability_id capability_tier capability_alias run_id run_dir envelope timestamp recommendation strict_mode
+	strict_mode="${OBSERVED_INVOCATION_STRICT:-0}"
 
 	if [[ ! -x "$observer" || ! -d "$observability_dir" ]] || ! command -v jq >/dev/null 2>&1; then
 		printf 'OBSERVATION=skipped\n'
 		printf 'REASON=observer unavailable\n'
+		if [[ "$strict_mode" == "1" ]]; then
+			return 1
+		fi
 		return 0
 	fi
 
@@ -152,6 +168,7 @@ observe_result() {
 	kind="$(detect_kind "$command_abs" "$selected")"
 	capability_id="$(detect_capability_id "$command_abs" "$selected")"
 	capability_tier="$(detect_tier "$command_abs")"
+	capability_alias="$(detect_alias "$command_abs" "$selected")"
 	timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 	run_id="arcanum-command-$selected-$(date -u +%Y%m%dT%H%M%SZ)"
 	run_dir="$observability_dir/runs/arcanum-command/$run_id"
@@ -169,6 +186,7 @@ observe_result() {
 		--arg capability_id "$capability_id" \
 		--arg kind "$kind" \
 		--arg capability_tier "$capability_tier" \
+		--arg capability_alias "$capability_alias" \
 		--arg command_rel "$command_rel" \
 		--arg request "$request" \
 		--arg status "$status" \
@@ -185,7 +203,12 @@ observe_result() {
 				id: $capability_id,
 				kind: $kind,
 				tier: $capability_tier,
-				mode: "command"
+				mode: "command",
+				alias: (if $capability_alias == "" then null else $capability_alias end)
+			},
+			command: {
+				name: $selected,
+				file: $command_rel
 			},
 			request: {
 				raw: $request,
@@ -210,8 +233,17 @@ observe_result() {
 			target_artifact: $command_rel
 		}' > "$envelope"
 
-	observe_output="$("$observer" --envelope "$envelope" --observability-dir "$observability_dir")"
+	observe_output="$("$observer" --envelope "$envelope" --observability-dir "$observability_dir" 2>&1 || true)"
 	printf '%s\n' "$observe_output"
+	if ! printf '%s\n' "$observe_output" | grep -q '^OBSERVATION=\(recorded\|skipped\)'; then
+		if [[ "$strict_mode" == "1" ]]; then
+			return 1
+		fi
+		printf 'REFLECTION=skipped\n'
+		printf 'REASON=observation-failed\n'
+		printf 'REPORT=n/a\n'
+		return 0
+	fi
 
 	recommendation="$(printf '%s\n' "$observe_output" | sed -n 's/^RECOMMENDATION=//p' | tail -n 1)"
 	reflection_mode="${OBSERVED_REFLECT:-auto}"

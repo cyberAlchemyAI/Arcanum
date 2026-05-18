@@ -14,7 +14,7 @@
 
 ### 1. Context View
 
-The remaining work sits inside the existing OIL runtime path. The observer remains the source of telemetry append and recommendation. Managed closeout layers execute reflection policy because they know whether the invocation is a full managed run and can preserve the primary result.
+The remaining work sits inside the existing OIL command surface. The observer remains the source of telemetry append and recommendation. Managed closeout layers execute reflection policy because they know whether the invocation is a full managed run and can preserve the primary result.
 
 ### 2. High-Level Structure View
 
@@ -23,7 +23,7 @@ The remaining work sits inside the existing OIL runtime path. The observer remai
 | Generic observer | Validate envelope, append telemetry, update counters, emit recommendation. |
 | Dedupe recorder | Check duplicate keys before append and commit keys only after success. |
 | Reflection runner | Analyze scoped signal ledger and write non-mutating reports. |
-| Managed command wrapper | Honor `OBSERVED_REFLECT` after observer closeout. |
+| Managed command wrapper | Honor `OBSERVED_REFLECT` and strict telemetry after observer closeout. |
 | Codex Stop hook | Close hook envelope, derive status, and honor `OBSERVED_REFLECT`. |
 | Migration check | Verify legacy rows summarize through capability fallback. |
 
@@ -34,7 +34,7 @@ The remaining work sits inside the existing OIL runtime path. The observer remai
 | `record-hook-operation.sh` | hook action, dedupe key, dedupe mode | hook row and optional committed dedupe key |
 | `observe-invocation.sh` | envelope and observability dir | ledger row, indexes, counters, recommendation |
 | `reflect-invocation-signals.sh` | ledger, state, optional scope | reflection report and updated `last_reflection_at` |
-| `tools/arcanum` reflection closeout | observer output and env controls | reflection status fields |
+| `tools/arcanum` reflection closeout | observer output and env controls | reflection status fields and strict telemetry failures |
 | Stop hook reflection closeout | observer output and env controls | hook additional context and reflection output file |
 | `check-observability-migration.sh` | ledger | anonymous-group migration result |
 
@@ -64,6 +64,7 @@ The remaining work sits inside the existing OIL runtime path. The observer remai
 | Interface | Producer | Consumer | Contract |
 | --- | --- | --- | --- |
 | `OBSERVED_REFLECT` | environment | wrappers/hooks | `off`, `auto`, or `always`; default `auto` |
+| `OBSERVED_INVOCATION_STRICT` | environment | wrappers/hooks/observer | `1` blocks failed observation closeout; unset preserves primary result |
 | observer machine output | observer | wrappers/hooks | `OBSERVATION`, `REFLECTION_TRIGGER`, `RECOMMENDATION`, `DEDUPE_KEY` |
 | reflection machine output | reflector | wrappers/hooks | `REFLECTION`, `REASON`, `SIGNALS_ANALYZED`, `REPORT`, `STATE` |
 | migration summary | migration check | maintainers/validation | no anonymous capability groups |
@@ -74,7 +75,7 @@ The remaining work sits inside the existing OIL runtime path. The observer remai
 | --- | --- | --- |
 | Reflection report loops on same threshold. | Noise and stale reports. | Scope analysis since `last_reflection_at`. |
 | Dedupe check rows look like signal emissions. | Confusing hook operations. | Append commit row is the authoritative emitted-signal row. |
-| Hook status inference misses a runtime failure. | Over-optimistic telemetry. | Prefer explicit tool failure and preserved pending status over blind completion. |
+| Hook status inference misses a command failure. | Over-optimistic telemetry. | Prefer explicit tool failure and preserved pending status over blind completion. |
 | Legacy rows remain mixed-shape. | Summary drift. | Migration check validates fallback grouping. |
 
 ## Design Result
