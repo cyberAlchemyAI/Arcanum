@@ -58,7 +58,7 @@ Canonical source: https://github.com/cyberAlchemyAI/arcanum/blob/main/spells/obs
 - Canonical ID: `observed-invocation-loop`
 - Aliases: Capability Observability Loop
 - Scope: library
-- Status: candidate
+- Status: baseline-ready
 
 ## Purpose
 
