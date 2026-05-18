@@ -2,7 +2,7 @@
 
 ## The Core Concept
 
-In the context of the Necronomicon Ontology Harness and Arcanum's Ontology Vault, a **Business Ontology** represents the pure domain intent, language, rules, policies, premises, and expected outcomes of a software system. It is strictly separated from how that system is implemented.
+In the context of Arcanum's Ontology Harness and Ontology Vault, a **Business Ontology** represents the pure domain intent, language, rules, policies, premises, and expected outcomes of a software system. It is strictly separated from how that system is implemented.
 
 This separation creates a branch-aware ontology model consisting of three distinct layers:
 
@@ -52,7 +52,7 @@ Necronomicon is designed to act on domain intent rather than just document it. B
 
 - **Preventing Drift:** By treating the Business Ontology as an executable baseline rather than static documentation, Necronomicon can continuously compare the System Ontology against it. If the implementation diverges from the domain intent, it's flagged as architectural drift.
 - **Governed Traceability:** The ontology harness maps every runtime artifact back to a business premise. If a component exists in the System Ontology but lacks a corresponding link in the Business Ontology, it represents untracked technical debt or unauthorized scope.
-- **Deterministic Context for Agents:** When AI agents (or human operators) interact via the Necronomicon session harness, the Business Ontology provides a strict, unambiguous glossary and rule set. This prevents hallucinations and ensures all executed tasks align with the approved domain model.
+- **Deterministic Context for Agents:** When AI agents (or human operators) interact via the Necronomicon harness, the Business Ontology provides a strict, unambiguous glossary and rule set. This prevents hallucinations and ensures all executed tasks align with the approved domain model.
 
 ## Integration with Ontology Vault
 

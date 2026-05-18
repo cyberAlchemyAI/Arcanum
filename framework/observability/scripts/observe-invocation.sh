@@ -74,6 +74,7 @@ record_hook() {
 	local emitted_signal="$3"
 	local reason="$4"
 	local duration_ms="${5:-0}"
+	local dedupe_mode="${6:-commit}"
 
 	if [[ -x "$hook_recorder" ]]; then
 		"$hook_recorder" \
@@ -89,6 +90,7 @@ record_hook() {
 			--reason "$reason" \
 			--duration-ms "$duration_ms" \
 			--dedupe-key "$dedupe_key" \
+			--dedupe-mode "$dedupe_mode" \
 			--observer-version "$observer_version" 2>/dev/null || true
 	fi
 }
@@ -191,34 +193,8 @@ event="$(
 )"
 event="$(printf '%s\n' "$event" | jq -c --arg run_id "$target_run_id" --arg session_id "$target_session_id" --arg dedupe_key "$dedupe_key" '.run_id = $run_id | .session_id = $session_id | .dedupe_key = $dedupe_key')"
 
-reflection_trigger="$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
-if [[ -f "$reflection_state" && -f "$observability_config" && "$reflection_trigger" == "none" ]]; then
-	threshold_trigger="$(
-		printf '%s\n' "$event" | jq -r \
-			--slurpfile state "$reflection_state" \
-			--slurpfile config "$observability_config" \
-			'
-			. as $event
-			| ($state[0].counters // {}) as $c
-			| ($config[0].thresholds // {}) as $t
-			| (($c.meaningful_executions // 0) + 1) as $meaningful
-			| (($c.generated_outputs // 0) + (($event.execution.outputs // []) | length)) as $outputs
-			| (($c.related_workflow_gaps // 0) + (if $event.observer.quality_bar_status == "partial" then 1 else 0 end)) as $related
-			| (($c.severe_workflow_gaps // 0) + ([ ($event.observer.workflow_gaps // [])[]? | select(.severity == "severe" or .severity == "high") ] | length)) as $severe
-			| if (($t.severe_workflow_gaps // 1) > 0 and $severe >= ($t.severe_workflow_gaps // 1)) then "severe-gap"
-			  elif (($t.related_workflow_gaps // 3) > 0 and $related >= ($t.related_workflow_gaps // 3)) then "gap-threshold"
-			  elif (($t.generated_outputs // 10) > 0 and $outputs >= ($t.generated_outputs // 10)) then "output-threshold"
-			  elif (($t.meaningful_executions // 5) > 0 and $meaningful >= ($t.meaningful_executions // 5)) then "usage-threshold"
-			  else "none" end
-			'
-	)"
-	if [[ "$threshold_trigger" != "none" ]]; then
-		event="$(printf '%s\n' "$event" | jq -c --arg trigger "$threshold_trigger" '.observer.reflection_trigger = $trigger | .observer.recommendation = "reflect-now"')"
-	fi
-fi
-
 dedupe_probe="$(
-	record_hook append completed true "capability telemetry append" "$(( $(date +%s%3N) - hook_started_at_ms ))"
+	record_hook append completed false "capability telemetry duplicate check" "$(( $(date +%s%3N) - hook_started_at_ms ))" check
 )"
 hook_status="$(printf '%s\n' "$dedupe_probe" | sed -n 's/^HOOK_OPERATION=//p' | tail -n 1)"
 if [[ "$hook_status" == "skipped" ]]; then
@@ -231,6 +207,34 @@ if [[ "$hook_status" == "skipped" ]]; then
 	printf 'REFLECTION_TRIGGER=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
 	printf 'RECOMMENDATION=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.recommendation')"
 	exit 0
+fi
+
+reflection_trigger="$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
+if [[ -f "$reflection_state" && -f "$observability_config" && "$reflection_trigger" == "none" ]]; then
+	threshold_trigger="$(
+		printf '%s\n' "$event" | jq -r \
+			--slurpfile state "$reflection_state" \
+			--slurpfile config "$observability_config" \
+			--slurpfile signals "$ledger" \
+			'
+			. as $event
+			| ($state[0].last_reflection_at // "") as $last_reflection_at
+			| ($config[0].thresholds // {}) as $t
+			| [$signals[]? | select(($last_reflection_at == "") or ((.timestamp // "") > $last_reflection_at))] as $recent
+			| (($recent | length) + 1) as $meaningful
+			| (([$recent[]? | (.execution.outputs // []) | length] | add // 0) + (($event.execution.outputs // []) | length)) as $outputs
+			| (([$recent[]? | if (.observer.quality_bar_status // "") == "partial" then 1 else 0 end] | add // 0) + (if $event.observer.quality_bar_status == "partial" then 1 else 0 end)) as $related
+			| ([ ($event.observer.workflow_gaps // [])[]? | select(.severity == "severe" or .severity == "high") ] | length) as $severe
+			| if (($t.severe_workflow_gaps // 1) > 0 and $severe >= ($t.severe_workflow_gaps // 1)) then "severe-gap"
+			  elif (($t.related_workflow_gaps // 3) > 0 and $related >= ($t.related_workflow_gaps // 3)) then "gap-threshold"
+			  elif (($t.generated_outputs // 10) > 0 and $outputs >= ($t.generated_outputs // 10)) then "output-threshold"
+			  elif (($t.meaningful_executions // 5) > 0 and $meaningful >= ($t.meaningful_executions // 5)) then "usage-threshold"
+			  else "none" end
+			'
+	)"
+	if [[ "$threshold_trigger" != "none" ]]; then
+		event="$(printf '%s\n' "$event" | jq -c --arg trigger "$threshold_trigger" '.observer.reflection_trigger = $trigger | .observer.recommendation = "reflect-now"')"
+	fi
 fi
 
 printf '%s\n' "$event" >> "$ledger"
@@ -305,6 +309,8 @@ if [[ -f "$reflection_state" ]]; then
 		record_hook update-counters failed false "reflection counter update failed" "$(( $(date +%s%3N) - hook_started_at_ms ))" >/dev/null
 	fi
 fi
+
+record_hook append completed true "capability telemetry append committed" "$(( $(date +%s%3N) - hook_started_at_ms ))" commit >/dev/null
 
 printf 'OBSERVATION=recorded\n'
 printf 'LEDGER=%s\n' "$ledger"

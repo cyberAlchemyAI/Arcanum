@@ -61,6 +61,10 @@ ledger="$observability_dir/signals/sigil-invocations.jsonl"
 reflection_state="$observability_dir/reflection-state.json"
 reports_dir="$observability_dir/reflections"
 
+if [[ -z "$since" && -f "$reflection_state" ]]; then
+	since="$(jq -r '.last_reflection_at // ""' "$reflection_state" 2>/dev/null || true)"
+fi
+
 if [[ ! -f "$ledger" ]]; then
 	printf 'REFLECTION=failed\n'
 	printf 'REASON=ledger not found\n'
@@ -108,17 +112,16 @@ signals_analyzed="$(printf '%s\n' "$analysis" | jq -r '.count')"
 thresholds_csv="$(printf '%s\n' "$analysis" | jq -r 'if (.thresholds | length) == 0 then "none" else (.thresholds | join(",")) end')"
 reflect_now_count="$(printf '%s\n' "$analysis" | jq -r '.reflect_now')"
 
-if [[ "$signals_analyzed" -lt "$min_signals" ]]; then
-	printf 'REFLECTION=skipped\n'
-	printf 'REASON=insufficient-signals\n'
-	printf 'SIGNALS_ANALYZED=%s\n' "$signals_analyzed"
-	printf 'THRESHOLDS_TRIGGERED=%s\n' "$thresholds_csv"
-	printf 'REPORT=n/a\n'
-	printf 'STATE=unchanged\n'
-	exit 0
-fi
-
 if [[ "$thresholds_csv" == "none" && "$reflect_now_count" -eq 0 ]]; then
+	if [[ "$signals_analyzed" -lt "$min_signals" ]]; then
+		printf 'REFLECTION=skipped\n'
+		printf 'REASON=insufficient-signals\n'
+		printf 'SIGNALS_ANALYZED=%s\n' "$signals_analyzed"
+		printf 'THRESHOLDS_TRIGGERED=%s\n' "$thresholds_csv"
+		printf 'REPORT=n/a\n'
+		printf 'STATE=unchanged\n'
+		exit 0
+	fi
 	printf 'REFLECTION=skipped\n'
 	printf 'REASON=no-threshold\n'
 	printf 'SIGNALS_ANALYZED=%s\n' "$signals_analyzed"

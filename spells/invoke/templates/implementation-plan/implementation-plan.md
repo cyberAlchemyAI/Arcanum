@@ -23,6 +23,8 @@ promotion_decision: pending
 validation_rules:
   - source design refs present
   - delivery slices mapped
+  - implementation details present for medium/high execution tasks
+  - smallest working units present for medium/high work-packs
   - validation strategy present
   - standalone companion handoffs recorded
 validation_examples:
@@ -74,6 +76,46 @@ updated_at: 2026-05-16
 | Task ID | Slice ID | Task | Done When |
 | --- | --- | --- | --- |
 | T-001 | S-001 | {task} | {completion check} |
+
+## Implementation Detail Specs
+
+Required for medium/high complexity execution tasks. Low complexity plans may keep these details inline when the task is self-evident.
+
+| Task ID | Detail Status | Inputs | Outputs | Implementation Notes | Edge Cases | Validation Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| T-001 | complete, gap, or n/a | {inputs} | {outputs} | {algorithm, pseudocode, state transition, data flow, or concrete implementation steps} | {edge cases or failure modes} | {checks proving the intended implementation} |
+
+Algorithmic or domain-logic tasks must describe purpose, inputs, outputs, data model or state, step-by-step algorithm or pseudocode, precedence/scoring/classification/transition rules, edge cases, failure modes, and acceptance checks. A task that only says to implement a bundle, component, or outcome is not execution-ready.
+
+## Smallest Working Units
+
+Required for medium/high work-packs. SWUs sit below tasks and identify the smallest executable implementation step that can be assigned and verified independently.
+
+Shared manifest:
+
+| SWU ID | Parent Task | Goal | Write Scope | Acceptance Evidence | Verification Command |
+| --- | --- | --- | --- | --- | --- |
+| SWU-{FEATURE-CODE}-001 | T-001 | {small executable goal} | {files, modules, or docs this SWU may change} | {evidence required to accept the SWU} | {command or reviewable check} |
+
+Task-local mapping:
+
+```markdown
+## Smallest Working Units
+
+- SWU-{FEATURE-CODE}-001: {goal}
+- SWU-{FEATURE-CODE}-002: {goal}
+```
+
+Closure-only task exemption:
+
+```markdown
+## Smallest Working Unit Exemption
+
+- Reason: closure-only verification task
+- Allowed because task ID contains: VERIFY, AUDIT, SIGNAL, or READINESS
+```
+
+Every SWU must map to exactly one parent task. Medium/high implementation handoff should target one SWU at a time; if a task has multiple SWUs and no SWU is selected, the execution route must ask for the SWU before mutation-capable work starts.
 
 ## Blocker Ledger
 

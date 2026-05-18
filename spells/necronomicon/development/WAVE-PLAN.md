@@ -1,8 +1,8 @@
-# Necronomicon Session UX Wave Plan
+# Necronomicon UX Wave Plan
 
 ## Purpose
 
-This plan turns the Necronomicon project harness UX vision into implementation waves. The target is to evolve `necronomicon-session` from a command router with memory into a guided project harness that helps users set up inventory, ontology, research, checkpoints, common routes, and maintenance workflows.
+This plan turns the Necronomicon project harness UX vision into implementation waves. The target is to evolve `necronomicon` from a command router with memory into a guided project harness that helps users set up inventory, ontology, research, checkpoints, common routes, and maintenance workflows.
 
 The plan is intentionally wave-based so each slice can be implemented, validated, and shipped without requiring the entire harness to exist at once.
 
@@ -21,7 +21,7 @@ Necronomicon should be the project harness shell for a repository. It should hel
 
 ## Existing Inputs
 
-- [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md) - current session harness spell.
+- [spells/necronomicon/README.md](../../../spells/necronomicon/README.md) - current session harness spell.
 - [spells/ontology-harness/README.md](../../../spells/ontology-harness/README.md) - ontology harness and Necronomicon alias contract.
 - [arcana/inventory/SKILL.md](../../../arcana/inventory/SKILL.md) - inventory-first compiled knowledge layer.
 - [arcana/ontology-vault/SKILL.md](../../../arcana/ontology-vault/SKILL.md) - ontology governance, premises, confidence, branch mapping, and session distillation.
@@ -85,7 +85,7 @@ The first implementation should not attempt a full local CLI engine for `setup`,
 | Wave | Name                           | Primary Outcome                                                      | Ships Runtime Behavior? |
 | ---- | ------------------------------ | -------------------------------------------------------------------- | ----------------------- |
 | 0    | Baseline And Safety            | Confirm current contracts, dirty state, and validation gates.        | No                      |
-| 1    | Spell Contract Reshape         | Update `necronomicon-session` with profiles, modes, and UX contract. | Partial                 |
+| 1    | Spell Contract Reshape         | Update `necronomicon` with profiles, modes, and UX contract. | Partial                 |
 | 2    | Manifest Schema And Profiles   | Add setup profile schema and dependency rules to bootstrap output.   | Yes                     |
 | 3    | Interactive Setup Wizard       | Add setup questions and option cards to runtime adapters.            | Yes                     |
 | 4    | Checkpoints And Memory         | Add checkpoint mode, memory policy, and checkpoint artifacts.        | Yes                     |
@@ -106,12 +106,12 @@ Establish a clean implementation baseline and avoid trampling unrelated local ch
 1. Check status in root and nested repositories.
 2. Read current versions of the core source files.
 3. Confirm which generated consumer examples should be regenerated.
-4. Re-run the current validation suite used for the prior Necronomicon session work.
+4. Re-run the current validation suite used for the prior Necronomicon work.
 5. Record any unrelated dirty files to avoid accidental edits.
 
 ### Files To Inspect
 
-- [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md)
+- [spells/necronomicon/README.md](../../../spells/necronomicon/README.md)
 - [spells/ontology-harness/README.md](../../../spells/ontology-harness/README.md)
 - [tools/bootstrap_arcanum.sh](../../../tools/bootstrap_arcanum.sh)
 - [arcana/sigil-runtime-installer/SKILL.md](../../../arcana/sigil-runtime-installer/SKILL.md)
@@ -132,7 +132,7 @@ Establish a clean implementation baseline and avoid trampling unrelated local ch
 
 ### Objective
 
-Make `necronomicon-session` describe the intended product UX before modifying runtime generation.
+Make `necronomicon` describe the intended product UX before modifying runtime generation.
 
 ### Work Items
 
@@ -141,7 +141,7 @@ Make `necronomicon-session` describe the intended product UX before modifying ru
    - `ontology-harness`,
    - `custom`.
 2. Add a `Dependency Rules` section:
-   - selecting `necronomicon-session` includes `structured-interview-kits` for human-gated flows,
+   - selecting `necronomicon` includes `structured-interview-kits` for human-gated flows,
    - selecting `ontology-vault` adds `inventory` and `context-builder`,
    - selecting `ontology-harness` adds `ontology-vault`, `inventory`, and `context-builder`,
    - selecting the `research` sigil adds `inventory` and `context-builder` when missing and recommends `robot-talks` as escalation only,
@@ -168,7 +168,7 @@ Make `necronomicon-session` describe the intended product UX before modifying ru
 
 ### Deliverables
 
-- Updated [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md).
+- Updated [spells/necronomicon/README.md](../../../spells/necronomicon/README.md).
 - Updated output contract with profile, selected sigils, checkpoint, research, route preset, maintenance fields, invoke route status, web fallback status, and per-sigil signal coverage flags.
 
 ### Validation
@@ -206,7 +206,7 @@ Make bootstrap capable of generating profile-aware and capability-aware Necronom
    - optional `--fallback-policy suggest-only|ask-before-add|guarded-auto`,
    - optional `--checkpoint-policy manual|standard|strict`.
 2. Implement dependency auto-add logic.
-   - `necronomicon-session` auto-adds `structured-interview-kits` when setup, checkpoint, research clarification, or maintenance modes are enabled.
+   - `necronomicon` auto-adds `structured-interview-kits` when setup, checkpoint, research clarification, or maintenance modes are enabled.
    - selecting the `research` sigil auto-adds `inventory` and `context-builder` when missing.
    - Each auto-add is recorded in `dependency_auto_adds` with the triggering requester, added capability, reason, and source rule.
 3. Extend `.arcanum/necronomicon/capabilities.json` with an explicit manifest contract. The manifest should be both human-inspectable and machine-readable, with enough detail to explain why each capability is active.
@@ -288,7 +288,7 @@ Make runtime setup understandable to users by explaining choices and trade-offs.
 
 ### Work Items
 
-1. Update generated `arcanum-necronomicon-session` adapters for GitHub Copilot, Claude, and Codex.
+1. Update generated `arcanum-necronomicon` adapters for GitHub Copilot, Claude, and Codex.
 2. Add setup process for `setup` and `start --setup`.
    - Model setup as a `structured-interview-kits` mode named `setup-profile`.
    - Ask exactly one setup question at a time.
@@ -380,7 +380,7 @@ Add explicit checkpoint behavior so session distillation becomes reliable and on
 
 ### Deliverables
 
-- Updated [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md).
+- Updated [spells/necronomicon/README.md](../../../spells/necronomicon/README.md).
 - Generated checkpoint folder in setup where appropriate.
 - Optional checkpoint template under a future templates location if needed.
 
@@ -449,7 +449,7 @@ Create `research` as a bounded Necronomicon sigil that transforms information ga
 
 ### Deliverables
 
-- Updated [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md).
+- Updated [spells/necronomicon/README.md](../../../spells/necronomicon/README.md).
 - New Necronomicon-owned `research` sigil contract.
 - Research sigil manifest policy with per-session run artifact path template.
 - Adapter copy that explains research as a bounded selected sigil.
@@ -888,7 +888,7 @@ Planned route preset fields:
 | Research mode can become unbounded.             | Agent spends time searching without conclusion. | Require question, scope, budget, source plan, and synthesis checkpoint.                                                                                  |
 | Robot Talks is too expensive for normal use.    | Multi-agent research can add noise.             | Make it escalation-only for cross-layer contradictions.                                                                                                  |
 | Checkpoints create false authority.             | Session summaries may outrank source evidence.  | Separate facts, inference, decisions, and candidates; require evidence links for promotion.                                                              |
-| New memory sigils may overfit early.            | Premature abstraction creates maintenance cost. | Implement checkpoint behavior inside `necronomicon-session` first; extract later if reused.                                                              |
+| New memory sigils may overfit early.            | Premature abstraction creates maintenance cost. | Implement checkpoint behavior inside `necronomicon` first; extract later if reused.                                                              |
 | Common routes can become stale.                 | Bad routing persists.                           | Track last-used, miss count, and validation status; review during maintenance.                                                                           |
 | Maintenance loop can create bloat.              | Too many local or library artifacts.            | Propose local-first changes and require approval before spell/sigil creation.                                                                            |
 

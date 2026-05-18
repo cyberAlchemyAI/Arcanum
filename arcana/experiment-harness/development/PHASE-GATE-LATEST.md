@@ -1,6 +1,6 @@
 # Experiment Harness Phase Gate Latest
 
-- Latest run: `20260518T083859Z`
+- Latest run: `20260518T120720Z`
 - Runner: `arcanum/arcana/experiment-harness/development/run-phase-gates.sh`
 - Status: `pass`
 - Evidence type: deterministic controls and mocked live-loop gates
@@ -9,7 +9,7 @@
 
 | Phase | Status | Summary |
 | --- | --- | --- |
-| Phase 0 | `pass` | baseline controls, syntax checks, generic validation, and temp observation ran |
+| Phase 0 | `pass` | baseline controls, syntax checks, generic validation, observation, and threshold reflection signal ran |
 | Phase 1 | `pass` | invoke live regime files validate |
 | Phase 2 | `pass` | single-attempt loop creates a valid attempt bundle |
 | Phase 3 | `pass` | pass streak resets after failure and succeeds after two consecutive passes |

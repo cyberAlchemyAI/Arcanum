@@ -27,7 +27,9 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || cd "$script_dir/../.." && pwd)"
+if ! repo_root="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null)"; then
+	repo_root="$(cd "$script_dir/../.." && pwd)"
+fi
 if [[ -z "$observability_dir" ]]; then
 	observability_dir="$repo_root/.arcanum/observability"
 fi

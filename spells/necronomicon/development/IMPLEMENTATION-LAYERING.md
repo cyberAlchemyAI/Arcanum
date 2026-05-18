@@ -1,24 +1,24 @@
 ---
-title: Necronomicon Session UX Implementation Layering
+title: Necronomicon UX Implementation Layering
 status: draft
 updatedAt: 2026-05-15
 owner: Arcanum maintainers
 scope: workflow
 ---
 
-# Necronomicon Session UX Implementation Layering
+# Necronomicon UX Implementation Layering
 
-This document defines a progressive implementation layering model for the Necronomicon Session UX harness.
+This document defines a progressive implementation layering model for the Necronomicon UX harness.
 
 Scope note: Layer 0 is the minimum working unit POC that proves the concept with the smallest useful end-to-end slice. Every later layer must explicitly improve and preserve the guarantees from previous layers.
 
 ## Context
 
-- Target: Necronomicon Session UX harness
+- Target: Necronomicon UX harness
 - Current state: partially implemented planning and spell-contract work
 - Primary user/operator: a repository user or assistant running Arcanum through generated local runtime adapters
 - Primary constraint: reliable adapter-mediated state without turning `.arcanum/necronomicon/` into a copied canonical definition store
-- Source references: [WAVE-PLAN.md](WAVE-PLAN.md), [spells/necronomicon-session/README.md](../../../spells/necronomicon-session/README.md), [tools/bootstrap_arcanum.sh](../../../tools/bootstrap_arcanum.sh)
+- Source references: [WAVE-PLAN.md](WAVE-PLAN.md), [spells/necronomicon/README.md](../../../spells/necronomicon/README.md), [tools/bootstrap_arcanum.sh](../../../tools/bootstrap_arcanum.sh)
 
 ## Layering Method
 
@@ -84,7 +84,7 @@ Prove that Necronomicon can act as a project harness shell through generated loc
 
 ### Included Scope
 
-- Update the authoritative `necronomicon-session` UX contract to describe setup profiles, dependency rules, route behavior, and output fields.
+- Update the authoritative `necronomicon` UX contract to describe setup profiles, dependency rules, route behavior, and output fields.
 - Generate a profile-aware `capabilities.json`, `setup-decisions.md`, `gaps.json`, and route folder for one GitHub Copilot runtime scenario.
 - Preserve lifecycle authoring routing to `invoke` when installed and capability-gap guidance when missing.
 

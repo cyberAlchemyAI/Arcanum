@@ -25,7 +25,7 @@ They are used when a single bounded transformation is not enough. Arcana coordin
 - a local deterministic check would answer the question,
 - a single artifact synthesis is enough,
 - the user wants immediate implementation of a well-scoped change,
-- the workflow lacks a human gate for consequential interpretation.
+- the workflow lacks a human gate for consequ/home/vrondelli/projects/domainspec-core/arcanum/spells/invokeential interpretation.
 
 ## Example Sigil
 

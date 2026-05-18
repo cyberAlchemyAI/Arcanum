@@ -3,19 +3,19 @@
 ## Identity
 
 - Canonical ID: `ontology-harness`
-- Primary alias: `Necronomicon`
+- Primary alias: `Ontology Harness`
 - Aliases: `Necronomicon Vault`, `Ontology Codex`
 - Scope: library
 
 ## Purpose
 
-Ontology Harness, invoked by the human-facing alias Necronomicon, composes `inventory`, `ontology-vault`, and `context-builder` so a repository can turn vault-like knowledge material into a reusable ontology governance layer.
+Ontology Harness composes `inventory`, `ontology-vault`, and `context-builder` so a repository can turn vault-like knowledge material into a reusable ontology governance layer.
 
 It is designed for repositories with sessions, discoveries, premises, conventions, confidence rules, or delegated research artifacts that need traceable distillation and promotion gates.
 
-When a repository has both business/domain material and system/runtime material, Necronomicon can run a branch-aware path that maps business ontology, maps system ontology, and validates the bridge between intent and implementation.
+When a repository has both business/domain material and system/runtime material, Ontology Harness can run a branch-aware path that maps business ontology, maps system ontology, and validates the bridge between intent and implementation.
 
-For long-running repository work, use `necronomicon-session` as the durable operational harness. The session spell keeps memory, selected capability routing, fallback discovery, and capability updates while delegating ontology mapping and bridge validation back to this spell.
+For long-running repository work, use `necronomicon` as the durable operational harness. The session spell keeps memory, selected capability routing, fallback discovery, and capability updates while delegating ontology mapping and bridge validation back to this spell.
 
 ## Trigger Conditions
 

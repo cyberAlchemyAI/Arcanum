@@ -22,7 +22,7 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 | ---------- | ---------------- | ------------------------------------------ | ------------------------------------------------------ |
 | `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with Module Formulae baseline coverage, standalone companions, and candidate family scaffolds. |
 | `design`   | implemented (L1 contract) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts; validation examples still gate promotion. |
-| `plan`     | deferred         | [plan.md](./plan.md)         | Activate at L2 after design artifacts are stable.      |
+| `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
 | `full`     | deferred         | [full.md](./full.md)         | Composite execution mode, pending L2 and L3 readiness. |
 | `validate` | deferred         | [validate.md](./validate.md) | Lifecycle validation mode, pending L3.                 |
 
@@ -42,7 +42,7 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 | `spellcraft`                     | Approved invoke output targets spell authoring or spell revision.    | Invoke prepares handoff context; Spellcraft owns spell lifecycle execution.        |
 | `sigil-development`              | Approved invoke output targets sigil authoring or sigil revision.    | Invoke prepares handoff context; Sigil Development owns sigil lifecycle execution. |
 | `architecture-pattern-inventory` | Design-stage work needs reusable pattern evidence or alternatives.    | Optional design-mode evidence source; does not override design gates.              |
-| `task-session`                   | Plan or execution-stage work is active.                              | Deferred until plan/full modes are implemented.                                    |
+| `task-session`                   | Plan output is ready for bounded execution.                          | Invoke emits handoff context; Task Session owns execution.                         |
 
 ## Cross-Cutting Transmutations
 
@@ -72,9 +72,11 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 | design artifact             | spell | `invoke design`                                 | downstream plan routing and validation |
 | glossary consistency report | spell | `invoke design`                                 | design validation and gap routing     |
 | implementation layering artifact | spell | `invoke design`, `invoke plan`, and `invoke full` | plan validation, execution handoff, and release checks |
+| implementation plan artifact | spell | `invoke plan` and `invoke full` | work-pack mapping, validation strategy, and execution handoff |
 | work-pack artifact          | spell | `invoke plan` and `invoke full`                 | stable planning manifest and execution handoff |
-| define transport report     | spell | `invoke define`                                 | Necronomicon session context          |
-| design transport report     | spell | `invoke design`                                 | Necronomicon session context          |
+| define transport report     | spell | `invoke define`                                 | Necronomicon context          |
+| design transport report     | spell | `invoke design`                                 | Necronomicon context          |
+| plan transport report       | spell | `invoke plan`                                   | Necronomicon context          |
 | unresolved gap ledger entry | spell | `invoke define`, `invoke design`, and optional `decision-gate` | follow-up routing                     |
 
 ## Mode Router
@@ -83,18 +85,38 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 2. Execute the mode contract phases and collect mode outputs.
 3. Apply global gates, observability, and handoff policy from this root contract.
 
+## Target Artifact Provenance
+
+Invoke may author artifacts for another capability, module, spell, sigil, or repository feature. In those cases, invoke remains the observed authoring capability, but the produced artifact belongs to the target development cycle.
+
+Every invoke run that targets another artifact should record:
+
+- observed capability: always `invoke`,
+- invoke mode: `define`, `design`, `plan`, `full`, `validate`, or a composed mode,
+- target artifact name and type,
+- target artifact owner or lifecycle cycle,
+- output paths owned by the target artifact,
+- invoke-specific gaps,
+- target-artifact gaps,
+- recommended next route for the target artifact.
+
+Reflection and telemetry from such a run should preserve both layers. If the gap is caused by invoke behavior, template routing, output contract drift, or missing invoke guidance, route the follow-up through the invoke development cycle. If the gap is in the authored subject matter, state schema, design, plan, or implementation readiness of the target artifact, route the follow-up through the target artifact's development cycle.
+
 ## Global Handoff Artifacts
 
 - define context summary
+- target artifact name, type, owner, and lifecycle cycle
 - mode artifact paths
 - design artifact paths and six-view coverage
 - glossary consistency report
 - mode selection evidence
+- implementation plan artifact path
 - implementation layering artifact path and layer decision snapshot
+- per-layer planning slice coverage when complexity is medium or high
 - work-pack artifact path and output mode (single-file or split)
 - unresolved gaps and blocker decisions
 - Necronomicon transport report
-- recommended next route (`spellcraft`, `sigil-development`, or deferred follow-up)
+- recommended next route (`task-session`, `full`, `spellcraft`, `sigil-development`, or deferred follow-up)
 
 ## Global Gates
 
@@ -102,9 +124,16 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 - Template or recipe selection must show eligibility evidence and explicit user choice on ties.
 - `plan`, `full`, and `validate` must include an implementation-layering artifact; `define` and `design` may emit a seed or explicit gap.
 - `plan`, `full`, and `validate` must include a work-pack artifact mapped from implementation-plan tasks and layer decisions.
+- `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
+- Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
+- Medium/high complexity plans must include implementation-detail specs for execution tasks, and algorithmic or domain-logic tasks must document inputs, outputs, ordered rules or pseudocode, edge cases, failure modes, and validation evidence.
+- Medium/high complexity work-packs must include Smallest Working Units: a shared SWU manifest, task-local SWU lists, one parent task per SWU, write scope, acceptance evidence, and verification command or reviewable check.
+- Vague task labels such as "implement this bundle" are not execution-ready unless backed by implementation-detail specs.
+- Layer promotion requires evidence from the previous layer, not preference alone.
 - Candidate glossary or registry promotion is never automatic.
 - No silent upstream mutation; direct upstream edits require explicit approval.
 - Stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
+- Reflection provenance must distinguish invoke telemetry ownership from target artifact ownership.
 
 ## Global Failure Policy
 
@@ -130,8 +159,14 @@ When `.arcanum/observability/` exists, record:
 - artifact paths produced,
 - unresolved gaps and blocker decisions,
 - handoff target recommendation,
+- target artifact name, type, owner, and lifecycle cycle,
+- gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
 - design view coverage and glossary consistency status,
+- plan complexity and output mode,
+- implementation layer coverage and per-layer planning slice status,
+- implementation-detail coverage status,
+- SWU coverage status,
 - validation and follow-up action.
 
 ## Root Output Contract
@@ -152,10 +187,15 @@ Return:
 - Glossary consistency: <pass | flag | block | n/a>
 - Implementation layering: <artifact path | seed emitted | gap recorded>
 - Work-pack: <artifact path | single-file | split>
+- Complexity: <low | medium | high | n/a>
+- Per-layer planning: <compact | L0, L1, L2, L3 | blocked | n/a>
+- Implementation detail: <inline | task specs complete | detail gaps recorded | blocked | n/a>
+- Smallest working units: <n/a | complete | gaps recorded | blocked>
+- Target artifact: <name, type, owner/cycle>
 - Template or recipe selection: <summary>
 - Decisions: <summary>
-- Unresolved gaps: <summary>
-- Next route: spellcraft | sigil-development | deferred
+- Unresolved gaps: <invoke gaps; target artifact gaps>
+- Next route: task-session | full | spellcraft | sigil-development | deferred
 ```
 
 Mode-specific execution phases and mode-level output contracts are defined in [define.md](./define.md), [design.md](./design.md), [plan.md](./plan.md), [full.md](./full.md), and [validate.md](./validate.md).

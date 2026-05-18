@@ -5,7 +5,9 @@
 - Canonical ID: `observed-invocation-loop`
 - Aliases: Capability Observability Loop
 - Scope: library
-- Status: candidate
+- Status: baseline-ready
+
+Status boundary: `baseline-ready` means the repository-local Codex runtime path, generic observer, reflection routing, threshold scoping, dedupe safety, Stop-hook closeout status, and legacy ledger migration checks have passing evidence. External runtime rollout remains a separate adapter-coverage concern.
 
 ## Purpose
 

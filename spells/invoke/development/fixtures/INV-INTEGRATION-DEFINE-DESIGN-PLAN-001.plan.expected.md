@@ -1,0 +1,23 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001
+- User request: Plan the Mars rover maintenance log module from approved design outputs.
+- Mode: plan
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: pass
+- Mode contract: arcanum/spells/invoke/plan.md
+- Outputs: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-plan.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-layering.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.work-pack.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.plan-transport.md
+- Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
+- Glossary consistency: pass
+- Implementation layering: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-layering.md with global L0-L3 decision boundaries
+- Work-pack: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.work-pack.md, single-file
+- Complexity: low
+- Per-layer planning: compact
+- Template/profile selection: implementation-plan plus standalone implementation-layering and work-pack companions
+- Validation strategy: fixture replay and markdown contract checks mapped to every delivery slice
+- Decisions: consume approved design outputs; preserve define glossary terms; keep execution deferred
+- Unresolved gaps: component status severity remains a non-blocking execution detail
+- Next route: task-session
+

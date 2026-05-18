@@ -6,7 +6,9 @@ The experiment validates:
 
 - `define` as a standalone phase,
 - `design` as a standalone phase,
+- `plan` as a standalone phase,
 - `define -> design` as an integration chain,
+- `define -> design -> plan` as an integration chain,
 - Quality Bar and Anti-Pattern behavior,
 - required live Codex execution for the current implemented scope.
 
@@ -38,7 +40,9 @@ Then run the live regimes as the blocking promotion evidence:
 ```bash
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-DEFINE-001
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-DESIGN-001
+arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-PLAN-001
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-DEFINE-DESIGN-001
+arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-DEFINE-DESIGN-PLAN-001
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-OBSERVABILITY-001
 ```
 
@@ -47,7 +51,9 @@ Direct single-run Codex prompts remain useful for development smoke tests:
 ```bash
 RERUN=1 arcanum/spells/invoke/development/run-template-example-with-codex.sh invoke-define-live-pass
 RERUN=1 arcanum/spells/invoke/development/run-template-example-with-codex.sh invoke-design-live-pass
+RERUN=1 arcanum/spells/invoke/development/run-template-example-with-codex.sh invoke-plan-live-pass
 RERUN=1 arcanum/spells/invoke/development/run-template-example-with-codex.sh invoke-define-design-live-pass
+RERUN=1 arcanum/spells/invoke/development/run-template-example-with-codex.sh invoke-define-design-plan-live-pass
 ```
 
 Finally emit observability from the latest live loop report:
@@ -170,6 +176,87 @@ Evidence paths:
 - tracked integration fixture bundle in `development/fixtures/`,
 - generated control report in `development/runs/`.
 
+## CTRL-PLAN-001: Plan Phase Control
+
+Goal: prove `invoke plan` consumes approved design outputs and produces governed planning artifacts without executing implementation.
+
+Inputs:
+
+- `fixtures/INV-PLAN-PASS-001.md`
+- `fixtures/INV-PLAN-SPLIT-001.md`
+- `fixtures/INV-PLAN-BLOCK-001.md`
+
+Expected outputs:
+
+- pass for low complexity with global implementation layering, compact layer mapping, single-file work-pack, validation strategy, and plan transport,
+- pass for medium/high complexity with split work-pack, execution-pack handoff, and explicit L0-L3 per-layer planning slices,
+- block when approved design refs or required companions are missing.
+
+Pass criteria:
+
+- approved design refs are required,
+- implementation-plan, implementation-layering, and work-pack companions are present,
+- low complexity keeps compact layer mapping,
+- medium/high complexity includes L0-L3 per-layer planning slices,
+- medium/high complexity includes implementation-detail specs for execution tasks,
+- medium/high complexity includes SWU manifest and task-local SWU mappings,
+- algorithmic or domain-logic tasks include ordered rules, pseudocode, state-transition, classification, data-flow, edge-case, or failure-mode details,
+- validation strategy is mapped to delivery slices,
+- plan mode does not execute tasks.
+
+Failure examples:
+
+- plan proceeds without approved design refs,
+- medium/high complexity omits per-layer planning,
+- task descriptions stay vague, such as "implement this bundle", without implementation details,
+- medium/high work-packs omit SWU decomposition,
+- an algorithmic task lacks inputs, outputs, ordered rules, edge cases, and validation evidence,
+- layer promotion is based on preference rather than evidence,
+- output executes implementation tasks.
+
+Evidence paths:
+
+- tracked expected outputs in `development/fixtures/`,
+- generated control report in `development/runs/`.
+
+## CTRL-INTEGRATION-002: Define To Design To Plan Control
+
+Goal: prove plan consumes design artifacts without inventing upstream authority.
+
+Input:
+
+- `fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md`
+
+Expected outputs:
+
+- define expected output names spec, glossary, and define transport artifacts,
+- design expected output names architecture, glossary consistency, and design transport artifacts,
+- plan expected output names implementation plan, implementation layering, work-pack, validation strategy, and plan transport artifacts,
+- plan preserves define glossary terms through design authority,
+- plan includes implementation details for task-level execution handoff,
+- plan routes next to `task-session`.
+
+Pass criteria:
+
+- plan consumes approved design output,
+- implementation layering contains global L0-L3 decision boundaries,
+- low-complexity work-pack contains compact layer mapping,
+- validation strategy is present,
+- implementation detail is explicit enough that task-session does not receive vague bundle-level task labels,
+- execution remains deferred.
+
+Failure examples:
+
+- plan introduces design approvals not present in evidence,
+- plan removes glossary uncertainty from prior phases,
+- plan emits vague task bundles without implementation details,
+- plan executes tasks or mutates source code.
+
+Evidence paths:
+
+- tracked integration fixture bundle in `development/fixtures/`,
+- generated control report in `development/runs/`.
+
 ## CTRL-CONTRACT-001: Quality Bar And Anti-Patterns Control
 
 Goal: prove experiment validation distinguishes real success from polished-looking boundary violations.
@@ -267,6 +354,41 @@ Failure examples:
 - output mutates downstream spell/sigil contracts,
 - output creates work-pack tasks.
 
+## LIVE-PLAN-001: Live Codex Plan Loop
+
+Goal: prove a real Codex execution produces governed planning artifacts from approved design outputs.
+
+Input:
+
+- `example-prompts/invoke-plan-live-pass.md`
+
+Command:
+
+```bash
+arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-PLAN-001
+```
+
+Expected output:
+
+- `example-outputs/invoke-plan-live-pass.output.md`
+
+Pass criteria:
+
+- output contains `## Invoke Result`,
+- output contains `Mode: plan`,
+- output contains `Phase status: pass`,
+- output includes implementation plan, implementation layering, work-pack, validation strategy, blocker ledger, plan transport, and next route evidence,
+- medium/high complexity output includes L0-L3 per-layer planning slices,
+- medium/high complexity output includes SWU manifest and task-local SWU lists,
+- output is not a save-summary.
+
+Failure examples:
+
+- output plans without approved design refs,
+- output omits implementation-layering or work-pack evidence,
+- output omits per-layer planning for medium/high complexity,
+- output claims task execution.
+
 ## LIVE-DEFINE-DESIGN-001: Live Codex Define To Design Loop
 
 Goal: prove a real Codex execution can produce an inspectable define-to-design chain in one output.
@@ -297,6 +419,41 @@ Failure examples:
 
 - design output does not reference define artifacts,
 - source contracts are invented or silently approved,
+- output collapses the chain into a summary instead of real artifacts.
+
+## LIVE-DEFINE-DESIGN-PLAN-001: Live Codex Define To Design To Plan Loop
+
+Goal: prove a real Codex execution can produce an inspectable define-to-design-to-plan chain in one output.
+
+Input:
+
+- `example-prompts/invoke-define-design-plan-live-pass.md`
+
+Command:
+
+```bash
+arcanum/arcana/experiment-harness/scripts/loop-harness.sh arcanum/spells/invoke LIVE-DEFINE-DESIGN-PLAN-001
+```
+
+Expected output:
+
+- `example-outputs/invoke-define-design-plan-live-pass.output.md`
+
+Pass criteria:
+
+- output contains `## Invoke Result`,
+- output contains define, design, and plan phase sections,
+- define section includes spec, glossary, and define transport evidence,
+- design section includes approved source contract references, six views, glossary consistency, design transport, and next route,
+- plan section includes implementation plan, global implementation-layering artifact, work-pack, validation strategy, plan transport, and next route,
+- output states that plan consumes approved design outputs instead of inventing approvals,
+- output is not a save-summary.
+
+Failure examples:
+
+- plan output does not reference design artifacts,
+- implementation-layering evidence is missing,
+- output routes directly to execution without work-pack gates,
 - output collapses the chain into a summary instead of real artifacts.
 
 ## LIVE-OBSERVABILITY-001: Live Observability Loop

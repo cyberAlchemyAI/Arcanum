@@ -2,7 +2,7 @@
 
 **Arcanum** is a framework and registry for reusable agent capabilities.
 
-The framework defines how sigils are designed, validated, composed, observed, and maintained. The registry catalogs the reusable sigils and spells that can be exposed through repository-local runtime commands. Necronomicon is the human-facing alias for the Ontology Harness: the spell for vault-like knowledge, ontology branches, session distillation, premise review, and business-system bridge validation.
+The framework defines how sigils are designed, validated, composed, observed, and maintained. The registry catalogs the reusable sigils and spells that can be exposed through repository-local runtime commands. Necronomicon is the persistent repository harness for durable memory, selected capability routing, checkpoints, research, and maintenance.
 
 Start with the [Sigil Registry](registry/SIGILS.md) when you know the kind of work you need. Start with the [Framework](framework/) when you are authoring, reviewing, or maintaining sigils. For workflows that combine multiple sigils, use the [Spell Registry](registry/SPELLS.md).
 
@@ -18,21 +18,21 @@ arcanum/
 	spells/          reusable workflow compositions
 ```
 
-## Necronomicon Ontology Harness
+## Necronomicon Repository Harness
 
-Necronomicon is not a generated runtime registry folder. It is the Ontology Harness invocation surface and, when session mode is enabled, the repository-local harness for durable memory and selected capability routing.
+Necronomicon is not a generated runtime registry folder. It is the repository-local harness for durable memory and selected capability routing.
 
 Use Necronomicon when a repository needs to:
 
-- map vault-like knowledge into ontology concepts,
-- distill sessions, discoveries, premises, decisions, contradictions, and open questions,
-- manage confidence promotion and convention-change gates,
-- branch business/domain ontology from system/runtime ontology,
-- validate bridge edges between intent and implementation evidence.
+- preserve resumable session memory,
+- route first through selected local sigils and spells,
+- checkpoint discoveries, decisions, contradictions, and open questions,
+- run bounded research with an evidence trail,
+- propose maintenance from route misses, gaps, and telemetry.
 
-Runtime adapters should expose `arcanum-necronomicon` as an alias for the canonical `ontology-harness` spell when that spell is selected. Bootstrap does not copy sigil or spell definitions into `.arcanum/necronomicon/`; generated commands carry the necessary runtime instructions and observability handoff.
+Runtime adapters should expose `arcanum-necronomicon` as the friendly command for the canonical `necronomicon` spell. Bootstrap does not copy sigil or spell definitions into `.arcanum/necronomicon/`; generated commands carry the necessary runtime instructions and observability handoff.
 
-Use `arcanum-necronomicon` for a single ontology harness run. Use `arcanum-necronomicon-session` to create, resume, route within, update, or close a persistent repository harness session. Session state may live under `.arcanum/necronomicon/`, but that folder is only for harness memory, selected capability manifests, route ledgers, decisions, handoffs, and capability update reports.
+Use `arcanum-necronomicon` to create, resume, route within, update, or close a persistent repository harness. Use `ontology-harness`, `arcanum-ontology-harness`, or `arcanum-spell-ontology-harness` for a single ontology governance run. Harness state may live under `.arcanum/necronomicon/`, but that folder is only for harness memory, selected capability manifests, route ledgers, decisions, handoffs, and capability update reports.
 
 ## Framework
 
@@ -130,7 +130,17 @@ tools/bootstrap_arcanum.sh --target <repo> --sigils all --spells all --runtime g
 
 Both paths install Arcanum runtime support under `.arcanum/`, with observability under `.arcanum/observability/` and runtime adapters under `.arcanum/runtimes/`. GitHub Copilot, Claude, and Codex may still require tiny discovery bridges in their platform-specific folders, but canonical local runtime behavior lives inside `.arcanum/runtimes/`. Use `--sigils <comma-separated-list>` and `--spells <comma-separated-list>` to choose which runtime commands are generated.
 
-When a runtime is selected, bootstrap installs the general `arcanum-orchestrate` adapter and individual adapters for every selected sigil and spell. Individual adapter names use `arcanum-sigil-<id>` and `arcanum-spell-<id>`. When `ontology-harness` is selected, bootstrap also installs `arcanum-necronomicon` as the friendly alias command and `arcanum-necronomicon-session` as the persistent repository harness command unless session harness generation is disabled.
+When a runtime is selected, bootstrap installs the general `arcanum-orchestrate` adapter and individual adapters for every selected sigil and spell. Prefixed names such as `arcanum-sigil-<id>` and `arcanum-spell-<id>` remain stable compatibility names, while bare aliases such as `invoke` and `interrogation` are the preferred user-facing commands when no collision exists. When `necronomicon` is selected or harness generation is enabled, bootstrap installs `arcanum-necronomicon` as the persistent repository harness command. When `ontology-harness` is selected, bootstrap installs `arcanum-ontology-harness` as its friendly alias command.
+
+For Codex-style local invocation, use the repository command surface:
+
+```bash
+tools/arcanum /invoke define a new sigil
+tools/arcanum --exec invoke define a new sigil
+tools/arcanum --list
+```
+
+The command surface resolves `.codex/commands/<alias>.md` into the canonical adapter under `.arcanum/runtimes/codex/commands/`. With `--exec`, it runs the Codex CLI and appends Observed Invocation Loop telemetry under `.arcanum/observability/`.
 
 ## Research And Proofs
 

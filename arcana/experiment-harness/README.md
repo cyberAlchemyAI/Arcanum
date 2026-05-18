@@ -51,6 +51,7 @@ The harness closes the development cycle with observability:
 4. `observe-harness.sh` appends one signal-observer-compatible event to `.arcanum/observability/signals/sigil-invocations.jsonl` when the repository observability package exists.
 5. Observer hook activity is recorded in `.arcanum/observability/hooks/hook-operations.jsonl`.
 6. Reflection counters are updated for later `sigil-development` or `workflow-reflect` review.
+7. Reflection thresholds from `.arcanum/observability/config.json` are evaluated during observation; threshold hits emit `usage-threshold`, `output-threshold`, `gap-threshold`, or `severe-gap` with recommendation `reflect-now`.
 
 Set `EXPERIMENT_OBSERVE=0` when a report should not emit telemetry.
 

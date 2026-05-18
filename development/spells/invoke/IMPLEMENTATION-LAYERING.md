@@ -148,7 +148,7 @@ Prove that `invoke define` can convert a vague development goal into a governed 
 - Feature-spec authorship remains in dedicated feature-spec commands; `invoke` remains a generic Arcanum lifecycle spell.
 - Candidate templates cannot auto-promote to canonical.
 - Candidate glossary terms and conflicts require `decision-gate` or `ontology-vault` approval before canonical promotion.
-- Approved stage transport appends reports under the active Necronomicon session and complements summaries only when matching sections already exist.
+- Approved stage transport appends reports under the active Necronomicon and complements summaries only when matching sections already exist.
 - `full` mode stops on blocked gates and returns remediation guidance.
 - Registry entry is added only after validation passes.
 

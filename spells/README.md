@@ -42,9 +42,9 @@ Each spell has one stable canonical ID in kebab-case, such as `repository-harnes
 
 Spells may also define aliases: memorable names, local nicknames, or branded invocation names. For example, a local repository may invoke `repository-harness` as `Repository Codex` while keeping the canonical file and registry entry stable.
 
-`Necronomicon` is the primary human-facing alias for the `ontology-harness` spell. Use it for ontology governance, vault-like knowledge, session distillation, premise review, branch-aware business/system mapping, and bridge validation.
+`Ontology Harness` is the spell for ontology governance, vault-like knowledge, session distillation, premise review, branch-aware business/system mapping, and bridge validation.
 
-`Necronomicon Session` is the persistent repository harness mode. Use `necronomicon-session` when a repository should keep durable session memory, route first through selected local sigils and spells, offer Arcanum fallback candidates, and update the selected capability set with an audit trail.
+`Necronomicon` is the persistent repository harness. Use `necronomicon` when a repository should keep durable session memory, route first through selected local sigils and spells, offer Arcanum fallback candidates, and update the selected capability set with an audit trail.
 
 Alias rules:
 

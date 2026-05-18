@@ -15,6 +15,7 @@ Options:
   --reason <text>
   --duration-ms <number>
   --dedupe-key <key>
+  --dedupe-mode check|commit|none
   --observer-version <version>
 
 Statuses: started | completed | skipped | failed
@@ -38,6 +39,7 @@ reason=""
 duration_ms="0"
 dedupe_key=""
 observer_version="0.1.0"
+dedupe_mode="commit"
 inputs=()
 outputs=()
 
@@ -56,6 +58,7 @@ while [[ "$#" -gt 0 ]]; do
 		--reason) reason="$2"; shift 2 ;;
 		--duration-ms) duration_ms="$2"; shift 2 ;;
 		--dedupe-key) dedupe_key="$2"; shift 2 ;;
+		--dedupe-mode) dedupe_mode="$2"; shift 2 ;;
 		--observer-version) observer_version="$2"; shift 2 ;;
 		--help|-h) usage; exit 0 ;;
 		*)
@@ -86,6 +89,13 @@ case "$emitted_signal" in
 		exit 2
 		;;
 esac
+case "$dedupe_mode" in
+	check|commit|none) ;;
+	*)
+		printf 'ERROR: --dedupe-mode must be check, commit, or none\n' >&2
+		exit 2
+		;;
+esac
 
 mkdir -p "$observability_dir/hooks/reflections"
 operations="$observability_dir/hooks/hook-operations.jsonl"
@@ -105,14 +115,14 @@ if [[ -z "$dedupe_key" ]]; then
 	dedupe_key="$target_run_id:$hook:$observer_version"
 fi
 
-if [[ "$status" == "completed" && "$emitted_signal" == "true" ]]; then
+if [[ "$status" == "completed" && "$dedupe_mode" != "none" && ( "$emitted_signal" == "true" || "$dedupe_mode" == "check" ) ]]; then
 	if jq -e --arg key "$dedupe_key" 'select(.dedupe_key == $key)' "$dedupe" >/dev/null 2>&1; then
 		status="skipped"
 		emitted_signal="false"
 		if [[ -z "$reason" ]]; then
 			reason="duplicate observer emission"
 		fi
-	else
+	elif [[ "$dedupe_mode" == "commit" ]]; then
 		jq -cn \
 			--arg timestamp "$timestamp" \
 			--arg dedupe_key "$dedupe_key" \

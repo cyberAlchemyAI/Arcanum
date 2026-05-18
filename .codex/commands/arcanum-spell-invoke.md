@@ -138,9 +138,27 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 2. Execute the mode contract phases and collect mode outputs.
 3. Apply global gates, observability, and handoff policy from this root contract.
 
+## Target Artifact Provenance
+
+Invoke may author artifacts for another capability, module, spell, sigil, or repository feature. In those cases, invoke remains the observed authoring capability, but the produced artifact belongs to the target development cycle.
+
+Every invoke run that targets another artifact should record:
+
+- observed capability: always `invoke`,
+- invoke mode: `define`, `design`, `plan`, `full`, `validate`, or a composed mode,
+- target artifact name and type,
+- target artifact owner or lifecycle cycle,
+- output paths owned by the target artifact,
+- invoke-specific gaps,
+- target-artifact gaps,
+- recommended next route for the target artifact.
+
+Reflection and telemetry from such a run should preserve both layers. If the gap is caused by invoke behavior, template routing, output contract drift, or missing invoke guidance, route the follow-up through the invoke development cycle. If the gap is in the authored subject matter, state schema, design, plan, or implementation readiness of the target artifact, route the follow-up through the target artifact's development cycle.
+
 ## Global Handoff Artifacts
 
 - define context summary
+- target artifact name, type, owner, and lifecycle cycle
 - mode artifact paths
 - design artifact paths and six-view coverage
 - glossary consistency report
@@ -168,6 +186,7 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 - Candidate glossary or registry promotion is never automatic.
 - No silent upstream mutation; direct upstream edits require explicit approval.
 - Stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
+- Reflection provenance must distinguish invoke telemetry ownership from target artifact ownership.
 
 ## Global Failure Policy
 
@@ -193,6 +212,8 @@ When `.arcanum/observability/` exists, record:
 - artifact paths produced,
 - unresolved gaps and blocker decisions,
 - handoff target recommendation,
+- target artifact name, type, owner, and lifecycle cycle,
+- gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
 - design view coverage and glossary consistency status,
 - plan complexity and output mode,
@@ -223,9 +244,10 @@ Return:
 - Per-layer planning: <compact | L0, L1, L2, L3 | blocked | n/a>
 - Implementation detail: <inline | task specs complete | detail gaps recorded | blocked | n/a>
 - Smallest working units: <n/a | complete | gaps recorded | blocked>
+- Target artifact: <name, type, owner/cycle>
 - Template or recipe selection: <summary>
 - Decisions: <summary>
-- Unresolved gaps: <summary>
+- Unresolved gaps: <invoke gaps; target artifact gaps>
 - Next route: task-session | full | spellcraft | sigil-development | deferred
 ```
 

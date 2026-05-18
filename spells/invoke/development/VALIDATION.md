@@ -7,8 +7,8 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 - Artifact: `invoke`
 - Scope: library spell
 - Validation date: 2026-05-18
-- Validated layer: L0 define, L1 design, and define-to-design live loop readiness
-- Promotion target: proceed to L2 planning work after loop-first evidence passes
+- Validated layer: L0 define, L1 design, L2 plan contract, and define-to-design-to-plan live loop readiness
+- Promotion target: proceed to `full` and `validate` mode work after L2 plan evidence
 - Verdict: `pass`
 - Latest deterministic control report: generated under ignored `runs/`
 
@@ -25,13 +25,18 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Example output coverage | pass | Saved example outputs under `example-outputs/` are checked for real `Invoke Result` shape and rejected if they are save-summary responses; architecture outputs must include a full architecture artifact with all required sections. |
 | Define gate coverage | pass | [../define.md](../define.md) blocks missing core goals, flags unapproved candidate-template cases, gates glossary promotion, and defines transport behavior. |
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
+| Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-plan, implementation-layering, work-pack, validation strategy, complexity-based output mode, per-layer planning slices for medium/high complexity, implementation-detail specs, and SWU decomposition for execution tasks. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Codex adapter readiness | pass | Root-level `.arcanum/runtimes/codex/commands/arcanum-spell-invoke.md` and `.codex/commands/arcanum-spell-invoke.md` exist and route Codex to canonical `arcanum/spells/invoke` contracts. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
 | Integration replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-001` proves define artifacts feed design inputs, preserve glossary terms, emit six views, and route next to `plan`. |
+| Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high per-layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. |
+| Define-design-plan replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-PLAN-001` proves plan consumes design inputs, preserves define glossary terms, emits implementation plan/layering/work-pack/transport artifacts, and routes next to `task-session`. |
 | Live define loop | pass | [live-evidence/LIVE-DEFINE-001/loop-report.md](live-evidence/LIVE-DEFINE-001/loop-report.md) reached two consecutive passing Codex attempts; [output.md](live-evidence/LIVE-DEFINE-001/output.md) preserves the real artifact body. |
 | Live design loop | pass | [live-evidence/LIVE-DESIGN-001/loop-report.md](live-evidence/LIVE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts after correcting overly broad placeholder/blocker detection in the harness validator; [output.md](live-evidence/LIVE-DESIGN-001/output.md) preserves the real artifact body. |
 | Live define-to-design loop | pass | [live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts and preserved the define-to-design authority boundary; [output.md](live-evidence/LIVE-DEFINE-DESIGN-001/output.md) preserves the real artifact body. |
+| Live plan loop | pass | [live-evidence/LIVE-PLAN-001/loop-report.md](live-evidence/LIVE-PLAN-001/loop-report.md) reached two consecutive passing Codex attempts with implementation plan, implementation layering, work-pack, implementation-detail specs, SWU manifest/task-local mappings, validation strategy, transport, and next-route evidence. |
+| Live define-to-design-to-plan loop | pass | [live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md) reached two consecutive passing Codex attempts and preserved define, design, and plan authority boundaries. |
 | Observability loop | pass | `.arcanum/observability/signals/sigil-invocations.jsonl` records completed observer telemetry with `quality_bar_status`, `anti_pattern_hits`, `workflow_gaps`, and `reflection_trigger`; hook rows in `.arcanum/observability/hooks/hook-operations.jsonl` carry `observe: false` and duplicate observer emission skips cleanly. |
 
 ## Loop Validation
@@ -42,11 +47,15 @@ Live Codex loop validation is now required promotion evidence for the implemente
 | --- | --- | --- |
 | `CTRL-DEFINE-001` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
 | `CTRL-DESIGN-001` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
+| `CTRL-PLAN-001` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
 | `CTRL-INTEGRATION-001` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
+| `CTRL-INTEGRATION-002` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
 | `CTRL-CONTRACT-001` | pass | `run-validation-fixtures.sh` latest generated report under ignored `runs/` |
 | `LIVE-DEFINE-001` | pass | [live-evidence/LIVE-DEFINE-001/loop-report.md](live-evidence/LIVE-DEFINE-001/loop-report.md), [output.md](live-evidence/LIVE-DEFINE-001/output.md), [validation.json](live-evidence/LIVE-DEFINE-001/validation.json) |
 | `LIVE-DESIGN-001` | pass | [live-evidence/LIVE-DESIGN-001/loop-report.md](live-evidence/LIVE-DESIGN-001/loop-report.md), [output.md](live-evidence/LIVE-DESIGN-001/output.md), [validation.json](live-evidence/LIVE-DESIGN-001/validation.json) |
+| `LIVE-PLAN-001` | pass | [live-evidence/LIVE-PLAN-001/loop-report.md](live-evidence/LIVE-PLAN-001/loop-report.md), [output.md](live-evidence/LIVE-PLAN-001/output.md), [validation.json](live-evidence/LIVE-PLAN-001/validation.json) |
 | `LIVE-DEFINE-DESIGN-001` | pass | [live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md), [output.md](live-evidence/LIVE-DEFINE-DESIGN-001/output.md), [validation.json](live-evidence/LIVE-DEFINE-DESIGN-001/validation.json) |
+| `LIVE-DEFINE-DESIGN-PLAN-001` | pass | [live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md), [output.md](live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/output.md), [validation.json](live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/validation.json) |
 | `LIVE-OBSERVABILITY-001` | pass | Observer emissions recorded for define, design, and define-to-design loop reports with observer version `0.1.1`; duplicate design observation skipped by dedupe. |
 
 Latest live loop machine summaries:
@@ -55,6 +64,8 @@ Latest live loop machine summaries:
 LIVE-DEFINE-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTERN_HITS_JSON=[] WORKFLOW_GAPS_JSON=[]
 LIVE-DESIGN-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTERN_HITS_JSON=[] WORKFLOW_GAPS_JSON=[]
 LIVE-DEFINE-DESIGN-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTERN_HITS_JSON=[] WORKFLOW_GAPS_JSON=[]
+LIVE-PLAN-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTERN_HITS_JSON=[] WORKFLOW_GAPS_JSON=[] DETAIL_SPECS=present SWU=present
+LIVE-DEFINE-DESIGN-PLAN-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTERN_HITS_JSON=[] WORKFLOW_GAPS_JSON=[]
 ```
 
 Failure/improvement evidence: an earlier generated `LIVE-DESIGN-001` partial loop produced non-pass attempts with `robot-talks.md` and `improvement-argument.md` artifacts. That loop exposed overly broad harness checks for Mermaid decision braces and benign missing-field decision rules; after tightening the validator, the design regime passed with two consecutive live attempts.
@@ -77,6 +88,10 @@ Registry release remains blocked for `plan`, `full`, and `validate` modes until 
 | [INV-DESIGN-FLAG-001](fixtures/INV-DESIGN-FLAG-001.md) | pass | Dry-run with contradictory evidence selects the `research` companion, carries claim status into design decisions, and flags unless the ambiguity affects a required design decision, in which case it blocks. |
 | [INV-DESIGN-HANDOFF-001](fixtures/INV-DESIGN-HANDOFF-001.md) | pass | Dry-run for spell and sigil targets emits handoff context only, routes lifecycle execution to `spellcraft` or `sigil-development`, and does not take lifecycle ownership. |
 | [INV-INTEGRATION-DEFINE-DESIGN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-001.md) | pass | Integration dry-run chains define output artifacts into design inputs and verifies glossary preservation, six-view design output, transport, and next route `plan`. |
+| [INV-PLAN-PASS-001](fixtures/INV-PLAN-PASS-001.md) | pass | Dry-run from approved design outputs emits implementation plan, global implementation layering, compact layer mapping, single-file work-pack, validation strategy, plan transport, and next route `task-session`. |
+| [INV-PLAN-SPLIT-001](fixtures/INV-PLAN-SPLIT-001.md) | pass | Dry-run for medium complexity emits split work-pack, execution-pack handoff, explicit L0-L3 per-layer planning slices, implementation-detail specs, and SWU manifest/task-local mappings. |
+| [INV-PLAN-BLOCK-001](fixtures/INV-PLAN-BLOCK-001.md) | pass | Dry-run with missing approved design refs and companion status blocks at the plan activation gate. |
+| [INV-INTEGRATION-DEFINE-DESIGN-PLAN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md) | pass | Integration dry-run chains define and design artifacts into plan, preserves glossary terms, emits plan artifacts and transport, and keeps execution deferred. |
 
 ## Runner Output
 
@@ -102,7 +117,11 @@ PASS: INV-DESIGN-PASS-001
 PASS: INV-DESIGN-BLOCK-001
 PASS: INV-DESIGN-FLAG-001
 PASS: INV-DESIGN-HANDOFF-001
+PASS: INV-PLAN-PASS-001
+PASS: INV-PLAN-SPLIT-001
+PASS: INV-PLAN-BLOCK-001
 PASS: INV-INTEGRATION-DEFINE-DESIGN-001
+PASS: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001
 PASS: INV-QUALITY-ANTI-PATTERN-001
 RESULT: pass
 ```
@@ -195,14 +214,72 @@ The runner checks both the realistic user-request fixture files and their expect
 4. L1 design fixtures produce recorded dry-run evidence and pass.
 5. The define-to-design integration fixture proves cross-stage handoff at the artifact level.
 
+### INV-PLAN-PASS-001
+
+```markdown
+## Invoke Validation Fixture Result
+
+- Fixture: INV-PLAN-PASS-001
+- Mode: plan
+- Phase status: pass
+- Inputs present: approved design outputs, source design refs, delivery boundary, lifecycle owner approval, companion creation approval
+- Template/profile selection: implementation-plan plus standalone implementation-layering and work-pack companions
+- Implementation layering: global L0-L3 decision boundaries
+- Work-pack: single-file with compact layer mapping
+- Complexity: low
+- Per-layer planning: compact
+- Validation strategy: mapped to every delivery slice
+- Expected next route: task-session
+- Verdict: pass
+```
+
+### INV-PLAN-SPLIT-001
+
+```markdown
+## Invoke Validation Fixture Result
+
+- Fixture: INV-PLAN-SPLIT-001
+- Mode: plan
+- Phase status: pass
+- Inputs present: approved design outputs, dependency/interface map, delivery boundary, validation strategy, lifecycle owner approval
+- Template/profile selection: implementation-plan, implementation-layering, work-pack, and execution-pack companions
+- Implementation layering: global L0-L3 decision boundaries
+- Work-pack: split
+- Complexity: medium
+- Per-layer planning: L0, L1, L2, L3
+- Implementation detail: task specs complete with concrete implementation notes, edge cases, and validation evidence
+- Smallest working units: complete
+- Validation strategy: mapped to every delivery slice and promotion criterion
+- Expected next route: task-session
+- Verdict: pass
+```
+
+### INV-PLAN-BLOCK-001
+
+```markdown
+## Invoke Validation Fixture Result
+
+- Fixture: INV-PLAN-BLOCK-001
+- Mode: plan
+- Phase status: block
+- Inputs present: planning request only; approved design refs, companion status, validation strategy, and lifecycle approval missing
+- Template/profile selection: none finalized
+- Implementation layering: blocked
+- Work-pack: blocked
+- Complexity: n/a
+- Per-layer planning: blocked
+- Expected next route: deferred
+- Verdict: pass
+```
+
 ## Decision
 
-Promote `invoke` from L1 validation to L2 planning work.
+Promote `invoke` from L1 design validation to L2 plan validation.
 
-Do not register `invoke` in the spell registry yet. Registry release still requires `plan`, `full`, `validate`, examples, deterministic controls, live loop regimes, and release validation.
+Do not register `invoke` in the spell registry yet. Registry release still requires `full`, `validate`, examples, deterministic controls, live loop regimes, and release validation.
 
 ## Next Actions
 
-1. Implement the L2 `plan` contract.
-2. Extend Codex dry-run validation to `plan` low-complexity, `plan` medium/high-complexity, and blocked planning gates.
+1. Implement the `full` mode contract from define/design/plan evidence.
+2. Implement the `validate` mode contract and release checks.
 3. Keep registry release blocked until `full` and `validate` mode evidence exists.

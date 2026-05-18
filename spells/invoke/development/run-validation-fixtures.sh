@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 INVOKE_DIR="$ROOT_DIR/arcanum/spells/invoke"
 DEFINE_CONTRACT="$INVOKE_DIR/define.md"
 DESIGN_CONTRACT="$INVOKE_DIR/design.md"
+PLAN_CONTRACT="$INVOKE_DIR/plan.md"
 FIXTURE_DIR="$INVOKE_DIR/development/fixtures"
 TEMPLATE_TASKS="$INVOKE_DIR/development/TEMPLATE-VALIDATION-TASKS.md"
 EXPERIMENT_REGIMES="$INVOKE_DIR/development/EXPERIMENT-REGIMES.md"
@@ -120,6 +121,7 @@ write_report() {
 		printf -- '- Fixture directory: `arcanum/spells/invoke/development/fixtures/`\n'
 		printf -- '- Define contract: `arcanum/spells/invoke/define.md`\n'
 		printf -- '- Design contract: `arcanum/spells/invoke/design.md`\n\n'
+		printf -- '- Plan contract: `arcanum/spells/invoke/plan.md`\n\n'
 		printf -- '- Experiment regimes: `arcanum/spells/invoke/development/EXPERIMENT-REGIMES.md`\n\n'
 		printf -- '- Template task matrix: `arcanum/spells/invoke/development/TEMPLATE-VALIDATION-TASKS.md`\n\n'
 		printf -- '- Example prompts: `arcanum/spells/invoke/development/example-prompts/`\n\n'
@@ -230,7 +232,7 @@ run_prompt_selector_checks() {
 	pair="$("$PROMPT_SELECTOR" sigil medium)"
 	next="$("$PROMPT_SELECTOR" next)"
 
-	if [[ "$exact" != *'TASK_ID=sigil-medium'* ]] || [[ "$exact" != *'PROMPT=arcanum/spells/invoke/development/example-prompts/sigil-medium.md'* ]]; then
+	if [[ "$exact" != *'TASK_ID=sigil-medium'* ]] || [[ "$exact" != *'PROMPT=arcanum/spells/invoke/development/example-prompts/sigil-medium.md'* && "$exact" != *'PROMPT=spells/invoke/development/example-prompts/sigil-medium.md'* ]]; then
 		record 'FAIL: prompt selector exact task lookup failed'
 		failed_checks+=('prompt selector exact task lookup failed')
 		failures=$((failures + 1))
@@ -477,8 +479,143 @@ run_quality_antipattern_fixture() {
 	fi
 }
 
+run_plan_split_fixture() {
+	local fixture="$1"
+	local expected="$2"
+	local label="$3"
+
+	require_file "$fixture"
+	require_file "$expected"
+
+	require_pattern "$fixture" 'Phase status: `pass`' "$label fixture expected status"
+	require_pattern "$fixture" 'Per-layer planning: L0, L1, L2, L3' "$label fixture per-layer expected"
+	require_pattern "$expected" '## Invoke Validation Fixture Result' "$label expected output heading"
+	require_pattern "$expected" 'Phase status: pass' "$label expected output status"
+	require_pattern "$expected" 'User request:' "$label expected user request"
+	require_pattern "$expected" 'Mode contract: arcanum/spells/invoke/plan.md' "$label expected mode contract"
+	require_pattern "$expected" 'Work-pack: .*split' "$label expected split work-pack"
+	require_pattern "$expected" 'Complexity: medium|Complexity: high' "$label expected complexity"
+	require_pattern "$expected" 'Per-layer planning: L0, L1, L2, L3' "$label expected per-layer planning"
+	require_pattern "$expected" 'Implementation detail: task specs complete' "$label expected implementation detail status"
+	require_pattern "$expected" 'Smallest working units: complete' "$label expected SWU status"
+	require_pattern "$expected" 'Execution-pack|execution-pack' "$label expected execution-pack handoff"
+	require_pattern "$expected" '## Per-Layer Planning Slices' "$label per-layer slice heading"
+	require_pattern "$expected" '## Implementation Detail Specs' "$label implementation detail specs heading"
+	require_pattern "$expected" '## Smallest Working Units' "$label SWU heading"
+	require_pattern "$expected" '\| L0 \|' "$label L0 slice"
+	require_pattern "$expected" '\| L1 \|' "$label L1 slice"
+	require_pattern "$expected" '\| L2 \|' "$label L2 slice"
+	require_pattern "$expected" '\| L3 \|' "$label L3 slice"
+	require_pattern "$expected" 'Validation Evidence' "$label validation evidence column"
+	require_pattern "$expected" 'Promotion Criteria' "$label promotion criteria column"
+	require_pattern "$expected" 'Inputs \| Outputs \| Implementation Notes \| Edge Cases \| Validation Evidence' "$label implementation detail columns"
+	require_pattern "$expected" 'Classify item category first, then apply urgency triage' "$label algorithm detail example"
+	require_pattern "$expected" 'SWU ID \| Parent Task \| Goal \| Write Scope \| Acceptance Evidence \| Verification Command' "$label SWU board columns"
+	require_pattern "$expected" 'SWU-MHS-001' "$label first SWU id"
+	require_pattern "$expected" 'TASK-L1-review' "$label SWU parent task"
+	require_pattern "$expected" 'run category classification fixture' "$label SWU verification command"
+	require_pattern "$expected" 'Next route: task-session' "$label expected next route"
+	require_pattern "$PLAN_CONTRACT" 'Medium and high complexity plans must include explicit per-layer planning slices' "$label contract per-layer gate"
+	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' "$label contract implementation detail gate"
+	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include SWU decomposition for non-exempt execution tasks' "$label contract SWU gate"
+	require_pattern "$PLAN_CONTRACT" 'Each SWU maps to exactly one parent task' "$label contract SWU parent gate"
+	require_pattern "$PLAN_CONTRACT" 'Algorithmic or domain-logic tasks must include algorithm steps or pseudocode' "$label contract algorithm detail gate"
+	require_pattern "$PLAN_CONTRACT" 'Layer promotion must cite evidence from the previous layer' "$label contract promotion evidence"
+
+	if [[ "$failures" -eq 0 ]]; then
+		passed_fixtures+=("$label")
+		output_artifacts+=("${expected#$ROOT_DIR/}")
+		record "PASS: $label"
+	fi
+}
+
+run_plan_integration_fixture() {
+	local fixture="$1"
+	local define_expected="$2"
+	local design_expected="$3"
+	local plan_expected="$4"
+	local spec="$5"
+	local glossary="$6"
+	local architecture="$7"
+	local implementation_plan="$8"
+	local layering="$9"
+	local work_pack="${10}"
+	local plan_transport="${11}"
+	local label="${12}"
+	local implementation_plan_name
+	local layering_name
+	local work_pack_name
+	local plan_transport_name
+	implementation_plan_name="$(basename "$implementation_plan")"
+	layering_name="$(basename "$layering")"
+	work_pack_name="$(basename "$work_pack")"
+	plan_transport_name="$(basename "$plan_transport")"
+
+	require_file "$fixture"
+	require_file "$define_expected"
+	require_file "$design_expected"
+	require_file "$plan_expected"
+	require_file "$spec"
+	require_file "$glossary"
+	require_file "$architecture"
+	require_file "$implementation_plan"
+	require_file "$layering"
+	require_file "$work_pack"
+	require_file "$plan_transport"
+
+	require_pattern "$fixture" 'define-to-design-to-plan handoff' "$label fixture scenario"
+	require_pattern "$fixture" "$implementation_plan_name" "$label fixture implementation plan reference"
+	require_pattern "$fixture" "$layering_name" "$label fixture layering reference"
+	require_pattern "$fixture" "$work_pack_name" "$label fixture work-pack reference"
+	require_pattern "$fixture" "$plan_transport_name" "$label fixture plan transport reference"
+
+	require_pattern "$define_expected" 'Mode: define' "$label define mode"
+	require_pattern "$define_expected" 'Next route: design' "$label define next route"
+	require_pattern "$design_expected" 'Mode: design' "$label design mode"
+	require_pattern "$design_expected" 'Next route: plan' "$label design next route"
+
+	require_pattern "$plan_expected" 'Mode: plan' "$label plan mode"
+	require_pattern "$plan_expected" 'Phase status: pass' "$label plan status"
+	require_pattern "$plan_expected" "$implementation_plan_name" "$label plan output implementation plan"
+	require_pattern "$plan_expected" "$layering_name" "$label plan output layering"
+	require_pattern "$plan_expected" "$work_pack_name" "$label plan output work-pack"
+	require_pattern "$plan_expected" "$plan_transport_name" "$label plan output transport"
+	require_pattern "$plan_expected" 'Implementation layering: .*global L0-L3 decision boundaries' "$label plan global layering"
+	require_pattern "$plan_expected" 'Per-layer planning: compact' "$label plan compact layer mapping"
+	require_pattern "$plan_expected" 'Validation strategy:' "$label plan validation strategy"
+	require_pattern "$plan_expected" 'preserve define glossary terms' "$label plan authority boundary"
+	require_pattern "$plan_expected" 'Next route: task-session' "$label plan next route"
+
+	require_pattern "$implementation_plan" '## Source Design References' "$label implementation plan source refs"
+	require_pattern "$implementation_plan" 'INV-INTEGRATION-DEFINE-DESIGN-001.architecture.md' "$label implementation plan architecture ref"
+	require_pattern "$implementation_plan" 'daily inspection note' "$label implementation plan glossary term"
+	require_pattern "$implementation_plan" '## Validation Strategy' "$label implementation plan validation"
+	require_pattern "$implementation_plan" '## Implementation Detail Specs' "$label implementation detail specs"
+	require_pattern "$implementation_plan" 'Implementation Notes' "$label implementation detail notes column"
+	require_pattern "$layering" '\| L0 \(POC\) \|' "$label layering L0"
+	require_pattern "$layering" '\| L1 \|' "$label layering L1"
+	require_pattern "$layering" '\| L2 \|' "$label layering L2"
+	require_pattern "$layering" '\| L3 \|' "$label layering L3"
+	require_pattern "$work_pack" 'Compact Layer Mapping' "$label work-pack compact mapping"
+	require_pattern "$work_pack" 'outputMode \| single-file' "$label work-pack single-file"
+	require_pattern "$plan_transport" 'Plan Context Transported' "$label plan transport context"
+	require_pattern "$plan_transport" 'No source code or upstream design mutation occurred' "$label plan non-mutating"
+	require_pattern "$PLAN_CONTRACT" 'Plan mode must not execute tasks' "$label contract no execution"
+
+	if [[ "$failures" -eq 0 ]]; then
+		passed_fixtures+=("$label")
+		output_artifacts+=("${plan_expected#$ROOT_DIR/}")
+		output_artifacts+=("${implementation_plan#$ROOT_DIR/}")
+		output_artifacts+=("${layering#$ROOT_DIR/}")
+		output_artifacts+=("${work_pack#$ROOT_DIR/}")
+		output_artifacts+=("${plan_transport#$ROOT_DIR/}")
+		record "PASS: $label"
+	fi
+}
+
 require_file "$DEFINE_CONTRACT"
 require_file "$DESIGN_CONTRACT"
+require_file "$PLAN_CONTRACT"
 require_file "$TEMPLATE_TASKS"
 require_file "$EXPERIMENT_REGIMES"
 require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 contract, candidate template-family scaffold coverage\)' 'define contract status'
@@ -490,6 +627,13 @@ require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract, validatio
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
 require_pattern "$DESIGN_CONTRACT" 'Design-stage transport' 'design transport coverage'
+require_pattern "$PLAN_CONTRACT" 'Status: implemented \(L2 contract, per-layer planning evidence pending\)' 'plan contract status'
+require_pattern "$PLAN_CONTRACT" 'Plan blocks without approved design outputs and source design refs' 'plan missing design block'
+require_pattern "$PLAN_CONTRACT" 'Low complexity plans must include compact layer mapping' 'plan low compact mapping'
+require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include explicit L0-L3 per-layer planning slices' 'plan medium high per-layer gate'
+require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' 'plan medium high implementation detail gate'
+require_pattern "$PLAN_CONTRACT" 'Task descriptions that only say to implement a bundle' 'plan vague task gate'
+require_pattern "$PLAN_CONTRACT" 'Plan-stage transport appends stage reports' 'plan transport coverage'
 
 run_template_task_matrix "$TEMPLATE_TASKS"
 run_prompt_selector_checks
@@ -575,6 +719,31 @@ run_fixture \
 	'Spell and sigil lifecycle work routes to `spellcraft` or `sigil-development`' \
 	'INV-DESIGN-HANDOFF-001'
 
+run_fixture \
+	"$FIXTURE_DIR/INV-PLAN-PASS-001.md" \
+	"$FIXTURE_DIR/INV-PLAN-PASS-001.expected.md" \
+	'Phase status: `pass`' \
+	'Phase status: pass' \
+	"$PLAN_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/plan.md' \
+	'Low complexity plans must include compact layer mapping' \
+	'INV-PLAN-PASS-001'
+
+run_plan_split_fixture \
+	"$FIXTURE_DIR/INV-PLAN-SPLIT-001.md" \
+	"$FIXTURE_DIR/INV-PLAN-SPLIT-001.expected.md" \
+	'INV-PLAN-SPLIT-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-PLAN-BLOCK-001.md" \
+	"$FIXTURE_DIR/INV-PLAN-BLOCK-001.expected.md" \
+	'Phase status: `block`' \
+	'Phase status: block' \
+	"$PLAN_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/plan.md' \
+	'Plan blocks without approved design outputs and source design refs' \
+	'INV-PLAN-BLOCK-001'
+
 run_integration_fixture \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.md" \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.define.expected.md" \
@@ -586,6 +755,20 @@ run_integration_fixture \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.glossary-consistency.md" \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.design-transport.md" \
 	'INV-INTEGRATION-DEFINE-DESIGN-001'
+
+run_plan_integration_fixture \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.define.expected.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.design.expected.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.plan.expected.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.spec.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.glossary.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.architecture.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-plan.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-layering.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.work-pack.md" \
+	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.plan-transport.md" \
+	'INV-INTEGRATION-DEFINE-DESIGN-PLAN-001'
 
 run_quality_antipattern_fixture \
 	"$FIXTURE_DIR/INV-QUALITY-ANTI-PATTERN-001.md" \

@@ -26,6 +26,7 @@ repo_root="$(cd "$script_dir/.." && pwd)"
 commands_dir="$repo_root/.codex/commands"
 observability_dir="$repo_root/.arcanum/observability"
 observer="$repo_root/framework/observability/scripts/observe-invocation.sh"
+reflector="$repo_root/framework/observability/scripts/reflect-invocation-signals.sh"
 
 mode="prompt"
 output_path=""
@@ -209,7 +210,41 @@ observe_result() {
 			target_artifact: $command_rel
 		}' > "$envelope"
 
-	"$observer" --envelope "$envelope" --observability-dir "$observability_dir"
+	observe_output="$("$observer" --envelope "$envelope" --observability-dir "$observability_dir")"
+	printf '%s\n' "$observe_output"
+
+	recommendation="$(printf '%s\n' "$observe_output" | sed -n 's/^RECOMMENDATION=//p' | tail -n 1)"
+	reflection_mode="${OBSERVED_REFLECT:-auto}"
+	case "$reflection_mode" in
+		off)
+			printf 'REFLECTION=skipped\n'
+			printf 'REASON=reflection-disabled\n'
+			printf 'REPORT=n/a\n'
+			;;
+		auto)
+			if [[ "$recommendation" == "reflect-now" && -x "$reflector" ]]; then
+				"$reflector" --capability "$capability_id" --kind "$kind" --observability-dir "$observability_dir"
+			else
+				printf 'REFLECTION=skipped\n'
+				printf 'REASON=no-recommendation\n'
+				printf 'REPORT=n/a\n'
+			fi
+			;;
+		always)
+			if [[ -x "$reflector" ]]; then
+				"$reflector" --capability "$capability_id" --kind "$kind" --observability-dir "$observability_dir"
+			else
+				printf 'REFLECTION=failed\n'
+				printf 'REASON=reflector-unavailable\n'
+				printf 'REPORT=n/a\n'
+			fi
+			;;
+		*)
+			printf 'REFLECTION=failed\n'
+			printf 'REASON=invalid OBSERVED_REFLECT: %s\n' "$reflection_mode"
+			printf 'REPORT=n/a\n'
+			;;
+	esac
 }
 
 if [[ "$#" -eq 0 ]]; then

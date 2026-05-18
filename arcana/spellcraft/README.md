@@ -4,7 +4,7 @@ Spellcraft is an Arcana sigil for designing, installing, validating, observing, 
 
 It helps users combine existing sigils into localized workflows without copying or mutating the sigils themselves. A spell defines orchestration: phases, shared state, gates, handoffs, failure policy, local customization, and observability.
 
-Spellcraft also manages spell aliases. A spell keeps a stable canonical ID for filenames and automation, while users can invoke it through memorable aliases such as `Repository Codex`. The name `Necronomicon` is the primary human-facing alias for the Ontology Harness.
+Spellcraft also manages spell aliases. A spell keeps a stable canonical ID for filenames and automation, while users can invoke it through memorable aliases such as `Repository Codex`. The name `Necronomicon` is reserved for the persistent repository harness.
 
 ## Problem It Solves
 

@@ -40,6 +40,7 @@ Actors and systems:
 - Codex CLI runs the actual prompt against the artifact definition.
 - Target spell or sigil provides the contract being validated.
 - Signal Observer records capability telemetry after each attempt or loop summary.
+- Reflection thresholds turn accumulated telemetry into `reflect-now` signals when usage, output, gap, or severe-gap thresholds are reached.
 - Hook Ledger records background observer, extraction, and reflection actions with `observe: false`.
 - Robot-Talks provides structured improvement reasoning when attempts fail.
 - Git worktree is the rollback boundary for auto-improvement patches.
@@ -61,6 +62,7 @@ Major parts:
 - Attempt Executor calls Codex CLI and saves `prompt.md`, `output.md`, raw logs, and metadata without editing generated output to force a pass.
 - Validation Engine runs output shape checks, Quality Bar checks, Anti-Pattern checks, regime-specific checks, and writes `validation.json`.
 - Observer Adapter emits signal-observer telemetry, records hook operation rows, and relies on dedupe to prevent duplicate observer emissions.
+- Reflection Threshold Evaluator reads observability config and reflection state, then emits `usage-threshold`, `output-threshold`, `gap-threshold`, or `severe-gap` in the observer envelope when thresholds are crossed.
 - Robot-Talks Improvement Gate runs after failed, partial, or blocked attempts and produces `robot-talks.md` plus `improvement-argument.md`.
 - Patch And Rollback Manager captures pre-patch state, applies bounded patches, compares the next attempt against the prior attempt, and reverts if the output gets worse.
 
@@ -231,7 +233,8 @@ Rollback:
 | R-004 | Every patch must be reversible. | Patch manager | Require rollback patch before applying. |
 | R-005 | Worse next output reverts the patch. | Patch manager | Compare validation severity and anti-patterns. |
 | R-006 | Observer hook operations are not capability telemetry. | Observer adapter | Always write hook rows with `observe: false`. |
-| R-007 | Generated evidence must not be committed. | Artifact layout | `.gitignore` covers loop outputs, logs, and reports. |
+| R-007 | Reflection thresholds must be emitted as observer signals. | Observer adapter | Emit threshold trigger and `reflect-now` recommendation before counter update. |
+| R-008 | Generated evidence must not be committed. | Artifact layout | `.gitignore` covers loop outputs, logs, and reports. |
 
 ## Decision Log
 
