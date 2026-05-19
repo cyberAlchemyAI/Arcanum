@@ -23,7 +23,8 @@ Stable execution manifest for developing Concept Layer Optimizer from approved d
 | executionPackRef | [work-pack/waves/](work-pack/waves/) | Wave files act as execution-pack handoff. |
 | layeringArtifactRef | [IMPLEMENTATION-LAYERING.md](IMPLEMENTATION-LAYERING.md) | Global layer decisions. |
 | activeLayerWindow | L0 | Start with candidate package. |
-| lastUpdatedAt | 2026-05-19 | Initial plan. |
+| nestedLayeringStatus | enabled | Micro-layers are mapped in the plan, waves, tasks, traceability, and SWUs. |
+| lastUpdatedAt | 2026-05-19 | Nested layering refresh. |
 | readinessProfile | pilot | Candidate package and examples before registry release. |
 
 ## Objective Summary
@@ -34,16 +35,16 @@ Stable execution manifest for developing Concept Layer Optimizer from approved d
 
 ## Task Status Board
 
-| Task ID | Goal | Layer | Complexity | Waves | Gate Status | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| TASK-CLO-001 | Author README. | L0 | medium | W1 | ready | not-started |
-| TASK-CLO-002 | Author SKILL. | L0 | medium | W1 | ready | not-started |
-| TASK-CLO-003 | Build validation examples. | L1 | medium | W2 | ready-after-package | not-started |
-| TASK-CLO-004 | Run manual validation. | L1 | medium | W2 | ready-after-examples | not-started |
-| TASK-CLO-005 | Define observability and reflection artifacts. | L2 | medium | W3 | ready-after-validation | not-started |
-| TASK-CLO-006 | Add runtime command adapter. | L2 | medium | W3 | blocked-by-B-CLO-001 | not-started |
-| TASK-CLO-007 | Prepare registry candidate and docs links. | L3 | medium | W4 | blocked-by-B-CLO-002 | not-started |
-| TASK-CLO-008 | Final readiness, release, and maintenance review. | L4 | medium | W4 | ready-after-runtime | not-started |
+| Task ID | Goal | Layer | Micro-Layers | Complexity | Waves | Gate Status | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TASK-CLO-001 | Author README. | L0 | L0.1, L0.4 | medium | W1 | ready | not-started |
+| TASK-CLO-002 | Author SKILL. | L0 | L0.2, L0.3, L0.4 | medium | W1 | ready | not-started |
+| TASK-CLO-003 | Build validation examples. | L1 | L1.1, L1.2, L1.3 | medium | W2 | ready-after-package | not-started |
+| TASK-CLO-004 | Run manual validation. | L1 | L1.4 | medium | W2 | ready-after-examples | not-started |
+| TASK-CLO-005 | Define observability and reflection artifacts. | L2/L4 | L2.3, L4.1 | medium | W3 | ready-after-validation | not-started |
+| TASK-CLO-006 | Add runtime command adapter. | L2 | L2.1, L2.2, L2.4 | medium | W3 | blocked-by-B-CLO-001 | not-started |
+| TASK-CLO-007 | Prepare registry candidate and docs links. | L3 | L3.1, L3.2, L3.3 | medium | W4 | blocked-by-B-CLO-002 | not-started |
+| TASK-CLO-008 | Final readiness, release, and maintenance review. | L4 | L4.1, L4.2, L4.3 | medium | W4 | ready-after-runtime | not-started |
 
 ## Blockers
 
@@ -69,6 +70,8 @@ Stable execution manifest for developing Concept Layer Optimizer from approved d
 
 Use the SWU manifest in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md#smallest-working-units). Execution should target one SWU at a time.
 
+Every SWU now maps to a micro-layer. Execution handoff should select the smallest unfinished SWU inside the active micro-layer rather than selecting a whole top-level layer.
+
 ## Gate Checks
 
 1. L0 package tasks may start now.
@@ -76,6 +79,7 @@ Use the SWU manifest in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md#smallest
 3. L2 runtime requires L1 validation evidence.
 4. L3 registry requires runtime evidence and explicit approval.
 5. L4 reflection requires meaningful execution definition and signal schema.
+6. Nested layers may not promote unless their parent layer's decision question remains true.
 
 ## Handoff To Execution
 
@@ -87,4 +91,7 @@ Use the SWU manifest in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md#smallest
 
 | Date | Change | Author |
 | --- | --- | --- |
+| 2026-05-19 | Moved execution detail authority into task files and reduced implementation-plan duplication. | Codex |
+| 2026-05-19 | SWU numbering normalized into execution handoff order and observer signal recorded. | Codex |
+| 2026-05-19 | Nested layering refresh mapped micro-layers into tasks, SWUs, waves, and traceability. | Codex |
 | 2026-05-19 | Initial work-pack created from invoke plan pass. | Codex |

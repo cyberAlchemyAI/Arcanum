@@ -14,6 +14,8 @@ Develop Concept Layer Optimizer from approved design packet into a reusable Arca
 
 The plan uses Concept Layer Optimizer's own optimization rule: begin with the smallest coherent candidate package that can be manually executed, then layer validation, runtime, registry, and maintenance only when evidence justifies promotion.
 
+This refresh also applies nested implementation layering inside each top-level layer. Nested layers are used only where they clarify sequencing, validation, or handoff boundaries; they stop when the next unit is directly executable as a Smallest Working Unit.
+
 ## Source Design References
 
 | Ref ID | Source | Required | Notes |
@@ -70,53 +72,76 @@ The plan uses Concept Layer Optimizer's own optimization rule: begin with the sm
 - Selected start layer: L0 Candidate Package
 - Selected stop layer: L4 Reflection And Maintenance
 - Layer deferrals: runtime, registry, and reflection are deferred until earlier evidence passes.
+- Nested layering: enabled for L0, L1, and L2 by default; scoped for L3 and L4 where approval, governance, or maintenance decisions would otherwise be hidden.
+- Maximum default nesting depth: top-level layer plus one micro-layer.
+- Nested stop condition: stop when the remaining work is directly executable as a listed SWU.
+
+## Nested Layer Coverage
+
+| Layer | Micro-Layers Covered | Planning Treatment |
+| --- | --- | --- |
+| L0 Candidate Package | L0.1 README Surface, L0.2 SKILL Execution Contract, L0.3 Balance And Complexity Contract, L0.4 Navigation Closeout | Task/SWU mapping must prove README and SKILL are independently navigable and mutually consistent. |
+| L1 Behavior Validation | L1.1 Golden Runs, L1.2 Technique Trigger Runs, L1.3 Drift And Failure Runs, L1.4 Validation Report | Examples are grouped by behavior evidence instead of one undifferentiated examples bundle. |
+| L2 Runtime And Observability | L2.1 Command Surface, L2.2 Role Execution Policy, L2.3 Signal Schema, L2.4 Runtime Validation | Runtime access, role policy, telemetry, and representative run evidence are gated independently. |
+| L3 Registry Candidate | L3.1 Candidate Metadata, L3.2 Routing And Link Check, L3.3 Promotion Decision | Registry work remains blocked until evidence exists, then proceeds through metadata, navigation, and approval. |
+| L4 Reflection And Maintenance | L4.1 Reflection Signals, L4.2 Maintenance Change Classes, L4.3 Evolution Loop | Maintenance is planned as an evidence loop, not a final prose afterthought. |
 
 ## Task Decomposition
 
-| Task ID | Slice ID | Task | Done When |
+| Task ID | Slice ID | Micro-Layers | Task | Done When |
+| --- | --- | --- | --- | --- |
+| TASK-CLO-001 | S-CLO-001 | L0.1, L0.4 | Author user-facing README. | README explains problem, use conditions, modes, inputs, outputs, lifecycle, examples pointer, non-use conditions, and start-here navigation. |
+| TASK-CLO-002 | S-CLO-001 | L0.2, L0.3, L0.4 | Author executable SKILL contract. | SKILL includes objective, logic type, applicability, inputs, process, technique pack, quality bar, anti-patterns, output contract, observability, origin, complexity balance, and navigable closeout. |
+| TASK-CLO-003 | S-CLO-002 | L1.1, L1.2, L1.3 | Build validation examples and runbook. | Passing, technique-trigger, and negative example prompts/outputs exist with expected pass/flag/block verdicts. |
+| TASK-CLO-004 | S-CLO-002 | L1.4 | Run manual validation and record findings. | Validation report cites examples, gaps, micro-layer coverage, and promotion decision. |
+| TASK-CLO-005 | S-CLO-003 | L2.3, L4.1 | Define observability and reflection artifacts. | Usage telemetry schema, meaningful execution definition, thresholds, and reflection path are documented. |
+| TASK-CLO-006 | S-CLO-003 | L2.1, L2.2, L2.4 | Add runtime command adapter after manual behavior passes. | Adapter resolves through local command surface, states role policy, and preserves output/observability contracts. |
+| TASK-CLO-007 | S-CLO-004 | L3.1, L3.2, L3.3 | Prepare registry candidate and docs links. | Registry/docs updates are staged behind explicit approval, link validation passes, and promotion status is recorded. |
+| TASK-CLO-008 | S-CLO-005 | L4.1, L4.2, L4.3 | Final readiness, release, and maintenance review. | End-to-end review confirms package, examples, runtime, observability, registry decision, reflection loop, and maintenance change classes. |
+
+## Execution Detail Authority
+
+Execution detail lives in the task files under [work-pack/tasks/](work-pack/tasks/). This implementation plan keeps lifecycle structure, dependency logic, shared SWU identity, and promotion gates. It should not duplicate the full execution instructions owned by each task file.
+
+| Task ID | Execution Detail File | Micro-Layers | Detail Status |
 | --- | --- | --- | --- |
-| TASK-CLO-001 | S-CLO-001 | Author user-facing README. | README explains problem, use conditions, modes, inputs, outputs, lifecycle, examples pointer, and non-use conditions. |
-| TASK-CLO-002 | S-CLO-001 | Author executable SKILL contract. | SKILL includes objective, logic type, applicability, inputs, process, technique pack, quality bar, anti-patterns, output contract, observability, and origin. |
-| TASK-CLO-003 | S-CLO-002 | Build validation examples and runbook. | Passing and negative example prompts/outputs exist with expected pass/flag/block verdicts. |
-| TASK-CLO-004 | S-CLO-002 | Run manual validation and record findings. | Validation report cites examples, gaps, and promotion decision. |
-| TASK-CLO-005 | S-CLO-003 | Define observability and reflection artifacts. | Usage telemetry schema, meaningful execution definition, thresholds, and reflection path are documented. |
-| TASK-CLO-006 | S-CLO-003 | Add runtime command adapter after manual behavior passes. | Adapter resolves through local command surface and preserves output/observability contracts. |
-| TASK-CLO-007 | S-CLO-004 | Prepare registry candidate and docs links. | Registry/docs updates are staged behind explicit approval and link validation passes. |
-| TASK-CLO-008 | S-CLO-005 | Final readiness, release, and maintenance review. | End-to-end review confirms package, examples, runtime, observability, registry decision, and reflection loop. |
-
-## Implementation Detail Specs
-
-| Task ID | Detail Status | Inputs | Outputs | Implementation Notes | Edge Cases | Validation Evidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| TASK-CLO-001 | complete | design packet, glossary, CyberAlchemy method | `README.md` | Write human-facing narrative: purpose, use/do-not-use, first prompt, modes, technique overview, lifecycle. | Avoid duplicating full SKILL process; keep navigable. | README has clear entrypoint and links. |
-| TASK-CLO-002 | complete | README draft, handoff, technique specs | `SKILL.md` | Encode executable process with finite modes, objective-output setup, discovery baseline, role loop, technique hooks, closeout, output contract. | Do not omit cycle guards or navigable result check. | SKILL passes quality-bar review. |
-| TASK-CLO-003 | complete | SKILL draft, output contract | example files | Create Standard pass, Tournament pass, Validate flag, infinite-reduction block, objective-output drift, navigable-result downgrade. | Examples must include real output bodies, not summaries. | Examples map to expected verdicts. |
-| TASK-CLO-004 | complete | examples, README, SKILL | `development/VALIDATION.md` | Run manual review against examples; record pass/flag/block and gaps. | If examples reveal contract mismatch, route back to TASK-CLO-001/002. | Validation report with decision. |
-| TASK-CLO-005 | complete | sigil-development observability model | telemetry templates | Define meaningful execution, signal fields, thresholds, reflection triggers. | Avoid telemetry that cannot drive iteration. | Telemetry schema/review present. |
-| TASK-CLO-006 | complete | validated SKILL, runtime conventions | command adapter | Add adapter only after manual validation; support true subagent when available and role simulation fallback. | Do not make true subagents mandatory. | `tools/arcanum --resolve` and representative run closeout. |
-| TASK-CLO-007 | complete | validated package, runtime evidence | registry/docs updates | Prepare candidate entry and docs links; require explicit approval before promotion. | No silent global glossary or registry promotion. | Link validation and approval record. |
-| TASK-CLO-008 | complete | all prior outputs | readiness report | Verify end-to-end lifecycle and reflection policy. | Do not mark ready if observability or validation evidence is missing. | Final readiness verdict. |
+| TASK-CLO-001 | [TASK-CLO-001.md](work-pack/tasks/TASK-CLO-001.md) | L0.1, L0.4 | task-local detail complete |
+| TASK-CLO-002 | [TASK-CLO-002.md](work-pack/tasks/TASK-CLO-002.md) | L0.2, L0.3, L0.4 | task-local detail complete |
+| TASK-CLO-003 | [TASK-CLO-003.md](work-pack/tasks/TASK-CLO-003.md) | L1.1, L1.2, L1.3 | task-local detail complete |
+| TASK-CLO-004 | [TASK-CLO-004.md](work-pack/tasks/TASK-CLO-004.md) | L1.4 | task-local detail complete |
+| TASK-CLO-005 | [TASK-CLO-005.md](work-pack/tasks/TASK-CLO-005.md) | L2.3, L4.1 | task-local detail complete |
+| TASK-CLO-006 | [TASK-CLO-006.md](work-pack/tasks/TASK-CLO-006.md) | L2.1, L2.2, L2.4 | task-local detail complete |
+| TASK-CLO-007 | [TASK-CLO-007.md](work-pack/tasks/TASK-CLO-007.md) | L3.1, L3.2, L3.3 | task-local detail complete |
+| TASK-CLO-008 | [TASK-CLO-008.md](work-pack/tasks/TASK-CLO-008.md) | L4.1, L4.2, L4.3 | task-local detail complete |
 
 ## Smallest Working Units
 
 Shared manifest:
 
-| SWU ID | Parent Task | Goal | Write Scope | Acceptance Evidence | Verification Command |
-| --- | --- | --- | --- | --- | --- |
-| SWU-CLO-001 | TASK-CLO-001 | Draft README usage surface. | `arcana/concept-layer-optimizer/README.md` | README has purpose, use/do-not-use, mode summary, and next route. | `rg -n "Use When|Do Not Use|Modes|Next" arcana/concept-layer-optimizer/README.md` |
-| SWU-CLO-002 | TASK-CLO-001 | Add README navigation and links. | `arcana/concept-layer-optimizer/README.md` | Links point to development packet and examples. | `rg -n "development|examples|SIGIL-HANDOFF" arcana/concept-layer-optimizer/README.md` |
-| SWU-CLO-003 | TASK-CLO-002 | Draft SKILL core process. | `arcana/concept-layer-optimizer/SKILL.md` | Process includes setup, discovery, Proposer/Balancer, techniques, verdict, handoff. | `rg -n "objective-output|Proposer|Balancer|Technique|output-contract" arcana/concept-layer-optimizer/SKILL.md` |
-| SWU-CLO-004 | TASK-CLO-002 | Add Quality Bar, Anti-Patterns, and output contract. | `arcana/concept-layer-optimizer/SKILL.md` | Reviewable success and failure criteria exist. | `rg -n "<quality-bar>|<anti-patterns>|<output-contract>" arcana/concept-layer-optimizer/SKILL.md` |
-| SWU-CLO-005 | TASK-CLO-003 | Create passing examples. | `arcana/concept-layer-optimizer/development/examples/` | Standard and Tournament examples include expected outputs. | review example files |
-| SWU-CLO-006 | TASK-CLO-003 | Create negative and drift examples. | `arcana/concept-layer-optimizer/development/examples/` | Infinite reduction, objective-output drift, and navigation downgrade examples exist. | review example files |
-| SWU-CLO-007 | TASK-CLO-004 | Write validation report. | `arcana/concept-layer-optimizer/development/VALIDATION.md` | Report records examples, verdicts, and gaps. | review report |
-| SWU-CLO-008 | TASK-CLO-005 | Define usage telemetry. | `arcana/concept-layer-optimizer/templates/usage-telemetry.md` | Meaningful execution and signal fields are named. | review template |
-| SWU-CLO-009 | TASK-CLO-005 | Define reflection thresholds. | `arcana/concept-layer-optimizer/README.md`, `templates/` | Manual, threshold, and gap triggers are documented. | review docs |
-| SWU-CLO-010 | TASK-CLO-006 | Add runtime adapter. | `.codex/commands/` or runtime adapter path | Adapter points to canonical SKILL and preserves closeout. | `tools/arcanum --resolve /concept-layer-optimizer` |
-| SWU-CLO-011 | TASK-CLO-006 | Validate runtime representative run. | `development/` and observability ledgers | Closeout includes observation fields and output contract. | representative run review |
-| SWU-CLO-012 | TASK-CLO-007 | Prepare registry/docs candidate. | `registry/`, `README.md`, `framework/README.md` if applicable | Candidate entry and links exist behind approval. | link validation/review |
-| SWU-CLO-013 | TASK-CLO-008 | Final readiness review. | `development/READINESS-REVIEW.md` | Pass/flag/block readiness recorded. | review readiness report |
-| SWU-CLO-014 | TASK-CLO-008 | Define maintenance handoff. | `README.md`, `SKILL.md`, `templates/` | Reflection route and lifecycle owner are explicit. | review maintenance section |
+SWU IDs are ordered by execution handoff sequence. Micro-layer IDs remain the conceptual coverage map and may be non-contiguous when a task intentionally proves a later micro-layer before another task begins.
+
+| SWU ID | Parent Task | Micro-Layer | Goal | Write Scope | Acceptance Evidence | Verification Command |
+| --- | --- | --- | --- | --- | --- | --- |
+| SWU-CLO-001 | TASK-CLO-001 | L0.1 | Draft README usage surface. | `arcana/concept-layer-optimizer/README.md` | README has purpose, use/do-not-use, mode summary, objective-output artifact, and next route. | `rg -n "Use When|Do Not Use|Modes|Output Artifact|Next" arcana/concept-layer-optimizer/README.md` |
+| SWU-CLO-002 | TASK-CLO-001 | L0.4 | Add README navigation and links. | `arcana/concept-layer-optimizer/README.md` | Links point to development packet, examples, validation, and start-here path. | `rg -n "Start Here|development|examples|SIGIL-HANDOFF|VALIDATION" arcana/concept-layer-optimizer/README.md` |
+| SWU-CLO-003 | TASK-CLO-002 | L0.2 | Draft SKILL core process. | `arcana/concept-layer-optimizer/SKILL.md` | Process includes setup, discovery, Proposer/Balancer, techniques, verdict, handoff. | `rg -n "objective-output|Proposer|Balancer|Technique|output-contract" arcana/concept-layer-optimizer/SKILL.md` |
+| SWU-CLO-004 | TASK-CLO-002 | L0.3 | Add Quality Bar, Anti-Patterns, complexity balance, and output contract. | `arcana/concept-layer-optimizer/SKILL.md` | Reviewable success/failure criteria and complexity exception rule exist. | `rg -n "<quality-bar>|<anti-patterns>|complexity|evolution profile|<output-contract>" arcana/concept-layer-optimizer/SKILL.md` |
+| SWU-CLO-005 | TASK-CLO-002 | L0.4 | Add navigable result closeout to SKILL. | `arcana/concept-layer-optimizer/SKILL.md` | Closeout requires start-here, artifact use, decisions, unresolved tensions, and next action. | `rg -n "Navigable|start-here|next action|unresolved" arcana/concept-layer-optimizer/SKILL.md` |
+| SWU-CLO-006 | TASK-CLO-003 | L1.1 | Create golden passing examples. | `arcana/concept-layer-optimizer/development/examples/` | Standard and Compact or Tournament examples include real expected outputs. | review example files |
+| SWU-CLO-007 | TASK-CLO-003 | L1.2 | Create technique trigger examples. | `arcana/concept-layer-optimizer/development/examples/` | Technique examples show activation reason, contribution, and deferral/deactivation when relevant. | review example files |
+| SWU-CLO-008 | TASK-CLO-003 | L1.3 | Create negative and drift examples. | `arcana/concept-layer-optimizer/development/examples/` | Infinite reduction, objective-output drift, premature complexity, missing evolution profile, and navigation downgrade examples exist. | review example files |
+| SWU-CLO-009 | TASK-CLO-004 | L1.4 | Write validation report. | `arcana/concept-layer-optimizer/development/VALIDATION.md` | Report records examples, micro-layer coverage, verdicts, gaps, and L2 promotion decision. | review report |
+| SWU-CLO-010 | TASK-CLO-005 | L2.3 | Define usage telemetry. | `arcana/concept-layer-optimizer/templates/usage-telemetry.md` | Meaningful execution and signal fields are named. | review template |
+| SWU-CLO-011 | TASK-CLO-005 | L4.1 | Define reflection thresholds. | `arcana/concept-layer-optimizer/README.md`, `templates/` | Manual, threshold, drift, navigation, and gap triggers are documented. | review docs |
+| SWU-CLO-012 | TASK-CLO-006 | L2.1 | Add runtime adapter. | `.codex/commands/` or runtime adapter path | Adapter points to canonical SKILL and preserves closeout. | `tools/arcanum --resolve /concept-layer-optimizer` |
+| SWU-CLO-013 | TASK-CLO-006 | L2.2 | Define runtime role execution policy. | runtime adapter docs or `arcana/concept-layer-optimizer/README.md` | Runtime states true-subagent support, role simulation fallback, and tournament limits. | review policy section |
+| SWU-CLO-014 | TASK-CLO-006 | L2.4 | Validate runtime representative run. | `development/` and observability ledgers | Closeout includes observation fields, role policy, and output contract. | representative run review |
+| SWU-CLO-015 | TASK-CLO-007 | L3.1 | Prepare registry/docs candidate metadata. | `registry/`, `README.md`, `framework/README.md` if applicable | Candidate entry and package links exist behind approval. | link validation/review |
+| SWU-CLO-016 | TASK-CLO-007 | L3.2 | Run routing and link check. | registry/docs links | README, SKILL, examples, validation, and adapter links are reachable. | link validation/review |
+| SWU-CLO-017 | TASK-CLO-007 | L3.3 | Record promotion decision. | `development/REGISTRY-PROMOTION.md` or equivalent | Decision names promote, hold, or revise with evidence and approval status. | review promotion record |
+| SWU-CLO-018 | TASK-CLO-008 | L4.2 | Define maintenance handoff. | `README.md`, `SKILL.md`, `templates/` | Maintenance change classes, reflection route, and lifecycle owner are explicit. | review maintenance section |
+| SWU-CLO-019 | TASK-CLO-008 | L4.3 | Define evolution loop. | `README.md`, `SKILL.md`, `development/READINESS-REVIEW.md` | Observability, reflection report, design update, validation rerun, and release note are linked. | review evolution loop |
+| SWU-CLO-020 | TASK-CLO-008 | L4.3 | Final readiness review. | `development/READINESS-REVIEW.md` | Pass/flag/block readiness recorded with end-to-end evidence. | review readiness report |
 
 ## Blocker Ledger
 
@@ -168,4 +193,4 @@ Shared manifest:
 ## Gate Result
 
 - Status: pass
-- Reason: Plan covers the complete sigil-development lifecycle with layer boundaries, task details, SWUs, validation strategy, and gated runtime/registry promotion.
+- Reason: Plan covers the complete sigil-development lifecycle with parent layer boundaries, nested micro-layer coverage, task details, SWUs, validation strategy, and gated runtime/registry promotion.

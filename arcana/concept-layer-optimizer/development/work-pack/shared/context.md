@@ -9,7 +9,8 @@ Develop Concept Layer Optimizer into a validated reusable Arcana sigil.
 1. Read [IMPLEMENTATION-LAYERING.md](../../IMPLEMENTATION-LAYERING.md) to understand layer promotion.
 2. Read [IMPLEMENTATION-PLAN.md](../../IMPLEMENTATION-PLAN.md) for tasks and SWUs.
 3. Read [WORK-PACK.md](../../WORK-PACK.md) for current gate status.
-4. Execute [W0](../waves/W0.md), then [W1](../waves/W1.md).
+4. Read [traceability.md](traceability.md) for micro-layer to SWU mapping.
+5. Execute [W0](../waves/W0.md), then [W1](../waves/W1.md).
 
 ## Source Contracts
 
@@ -24,6 +25,7 @@ Develop Concept Layer Optimizer into a validated reusable Arcana sigil.
 ## Current Gate State
 
 - L0 package work: ready.
+- L0 nested micro-layers: L0.1, L0.2, L0.3, and L0.4 ready.
 - L1 example work: ready after L0.
 - L2 runtime work: blocked until L1 validation.
 - L3 registry work: blocked until runtime evidence and approval.
@@ -38,4 +40,5 @@ Develop Concept Layer Optimizer into a validated reusable Arcana sigil.
 - Technique pack trace.
 - Closure and recomposition proof.
 - Navigable result check before pass readiness.
+- Nested layers stop at executable SWUs and preserve the parent layer decision question.
 - No automatic registry or glossary promotion.

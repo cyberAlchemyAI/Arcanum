@@ -163,4 +163,4 @@ This section applies implementation layering inside each top-level layer. It is 
 ## Gate Result
 
 - Status: pass
-- Reason: Layer boundaries cover the full sigil-development lifecycle from package to validation, runtime, registry, and reflection while preserving the smallest responsible start.
+- Reason: Layer boundaries cover the full sigil-development lifecycle from package to validation, runtime, registry, and reflection while preserving the smallest responsible start. Nested micro-layers now refine execution detail without exceeding the default recursion budget.

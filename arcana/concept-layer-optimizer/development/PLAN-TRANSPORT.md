@@ -2,18 +2,20 @@
 
 ## Observer Envelope
 
-- run_id: arcanum-invoke-plan-concept-layer-optimizer-sigil-development-20260519
+- run_id: arcanum-invoke-plan-refresh-concept-layer-optimizer-nested-layering-20260519
 - capability.id: invoke
 - capability.kind: spell
 - capability.tier: spell
 - capability.mode: plan
 - target_artifact: arcana/concept-layer-optimizer/development/IMPLEMENTATION-PLAN.md
-- request summary: plan the full Concept Layer Optimizer sigil-development lifecycle using Concept Layer Optimizer itself plus implementation layering.
-- expected outputs: implementation layering, implementation plan, work-pack, task/SWU handoff, and plan transport report.
+- request summary: refresh the full Concept Layer Optimizer sigil-development plan using nested implementation layering inside each lifecycle layer.
+- expected outputs: refreshed implementation plan, refreshed work-pack, refreshed task/SWU handoff, traceability updates, and plan transport report.
 
 ## Planning Context Summary
 
 The design packet is ready for sigil-development, but the candidate package and validation path do not yet exist. This plan starts with the smallest coherent development unit: a manual candidate package (`README.md` and `SKILL.md`) that can run Standard mode before examples, runtime adapters, or registry machinery are added.
+
+The nested layering refresh keeps that top-level decision intact while adding micro-layer boundaries inside L0 through L4. The micro-layers clarify which SWUs prove README surface, SKILL execution, complexity balance, validation examples, runtime policy, registry approval, and reflection maintenance.
 
 ## Template Selection Evidence
 
@@ -23,6 +25,7 @@ The design packet is ready for sigil-development, but the candidate package and 
 - Output mode: split
 - Eligibility: scope has more than five tasks, multiple artifacts, runtime and registry gates, and validation examples.
 - Tie cases: low-complexity single-file plan rejected because runtime, examples, registry, and reflection exceed the low-complexity threshold.
+- Refresh evidence: nested layering did not change complexity class; it improved execution granularity inside the existing medium-complexity split plan.
 
 ## Concept Layer Optimizer Application
 
@@ -32,6 +35,7 @@ The design packet is ready for sigil-development, but the candidate package and 
 - Smallest coherent unit: manual executable candidate package.
 - Optimization point: L0 package before L1 examples, L2 runtime, L3 registry, and L4 maintenance.
 - Recomposition proof: package -> examples -> runtime -> registry -> reflection reconstructs the full reusable sigil lifecycle.
+- Nested layering proof: L0-L4 stay as the parent lifecycle layers, while L0.1-L4.3 micro-layers stop at SWUs instead of creating another open-ended planning recursion.
 - Navigable result: start with [IMPLEMENTATION-LAYERING.md](IMPLEMENTATION-LAYERING.md), then [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md), then [WORK-PACK.md](WORK-PACK.md).
 
 ## Outputs
@@ -49,6 +53,9 @@ The design packet is ready for sigil-development, but the candidate package and 
 
 - Use medium-complexity split planning.
 - Use L0 manual candidate package as the first implementation layer.
+- Use nested micro-layering for L0, L1, and L2 by default; use it for L3 and L4 where approval or maintenance decisions need explicit evidence.
+- Map every SWU to a micro-layer.
+- Keep task files as the execution-detail authority; the implementation plan keeps lifecycle structure and shared SWU identity.
 - Defer runtime adapter until validation examples pass.
 - Defer registry promotion until runtime and validation evidence exist.
 - Use role simulation fallback as the default runtime-safe assumption until true subagent behavior is validated.
@@ -59,6 +66,7 @@ The design packet is ready for sigil-development, but the candidate package and 
 - Target-artifact gap: examples and VALIDATION.md do not exist yet.
 - Target-artifact gap: runtime adapter strategy remains deferred to L2.
 - Target-artifact gap: registry approval remains deferred to L3.
+- Target-artifact gap: nested layering is planning-only until W0/W1 execution proves the README/SKILL package.
 - Invoke gap: none observed.
 
 ## Recommended Next Route
@@ -66,6 +74,8 @@ The design packet is ready for sigil-development, but the candidate package and 
 sigil-development
 
 Start with W0 and W1. Author README.md and SKILL.md before examples, runtime, registry, or reflection work.
+
+Within W1, execute SWUs in handoff order: README surface and navigation, then SKILL execution, balance, and navigation. Use the micro-layer map to confirm conceptual coverage without forcing SWU IDs to mirror micro-layer IDs.
 
 ## Invoke Result
 
@@ -78,14 +88,14 @@ Start with W0 and W1. Author README.md and SKILL.md before examples, runtime, re
 - Outputs: IMPLEMENTATION-PLAN.md, IMPLEMENTATION-LAYERING.md, WORK-PACK.md, PLAN-TRANSPORT.md
 - Design views: not applicable for plan mode
 - Glossary consistency: pass
-- Implementation layering: IMPLEMENTATION-LAYERING.md with L0-L4 coverage
+- Implementation layering: IMPLEMENTATION-LAYERING.md with L0-L4 coverage and L0.1-L4.3 nested micro-layer coverage
 - Work-pack: WORK-PACK.md split
 - Complexity: medium
-- Per-layer planning: L0, L1, L2, L3, L4
+- Per-layer planning: L0, L1, L2, L3, L4 plus nested micro-layer mapping
 - Implementation detail: task specs complete
-- Smallest working units: complete
+- Smallest working units: complete, with micro-layer mapping
 - Template/profile selection: invoke.implementation-plan plus implementation-layering and work-pack companions
 - Validation strategy: examples, validation report, runtime check, observability review, registry approval
-- Decisions: L0 candidate package first; runtime and registry deferred
+- Decisions: L0 candidate package first; nested layers stop at SWUs; runtime and registry deferred
 - Unresolved gaps: target artifact gaps only
 - Next route: sigil-development
