@@ -50,6 +50,7 @@ It defines:
 
 Important framework references:
 
+- [CyberAlchemy Method](framework/CYBERALCHEMY-METHOD.md) - governed synthesis method for creating and working with agent capabilities.
 - [Quality Bar](framework/QUALITY-BAR.md) - observable criteria for successful execution.
 - [Anti-Patterns](framework/ANTI-PATTERNS.md) - known misuse cases and failure modes to avoid.
 - [Sigil Development Workflow](framework/SIGIL-DEVELOPMENT-WORKFLOW.md) - lifecycle from candidate capture through maintenance.

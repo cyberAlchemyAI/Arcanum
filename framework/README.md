@@ -6,6 +6,7 @@ Use this folder when you are changing the rules of the system rather than adding
 
 ## Framework Documents
 
+- [CyberAlchemy Method](CYBERALCHEMY-METHOD.md) - governed synthesis method for creating and working with agent capabilities.
 - [Quality Bar](QUALITY-BAR.md) - observable completion criteria for sigil execution.
 - [Anti-Patterns](ANTI-PATTERNS.md) - failure modes and misuse boundaries.
 - [Validation Experiment Protocol](VALIDATION-EXPERIMENT-PROTOCOL.md) - repeatable release-gate experiments for spells, sigils, and canonical templates.

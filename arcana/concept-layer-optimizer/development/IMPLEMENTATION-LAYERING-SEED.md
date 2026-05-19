@@ -11,8 +11,11 @@ After this layer, we know whether the sigil concept is coherent enough for sigil
 Included:
 
 - Sigil handoff with identity, purpose, IO, modes, interaction contract, runtime expectations, observability, and validation examples.
+- Budget profiles, output contract, technique pack contract, and Balancer objection categories.
 - Local glossary for candidate concept terms.
 - Define transport notes.
+- Literature research addendum.
+- Interrogation review confirming design readiness for sigil-development.
 
 Deferred:
 
@@ -38,6 +41,10 @@ Included:
 - arcana/concept-layer-optimizer/README.md
 - arcana/concept-layer-optimizer/SKILL.md
 - compact, standard, tournament, deep, and validate mode definitions.
+- budget override rules, final result schema, and readiness verdict rules.
+- technique pack execution rules and role trace expectations.
+- mode/technique surface interfaces from arcana/concept-layer-optimizer/development/MODE-TECHNIQUE-SURFACE-DESIGN.md.
+- detailed technique contracts from arcana/concept-layer-optimizer/development/techniques/README.md.
 - quality bar, anti-patterns, output contract, and handoff routes.
 
 Deferred:
@@ -45,10 +52,11 @@ Deferred:
 - Runtime command adapter.
 - Registry promotion.
 - Automated telemetry scripts.
+- Formal code-level state schemas for ModeProfile and TechniqueSpec.
 
 Exit evidence:
 
-- Manual review confirms first-turn intent/budget confirmation, finite recursion, closure test, and cycle guards.
+- Manual review confirms first-turn intent/budget confirmation, finite recursion, closure test, technique pack execution, output contract, and cycle guards.
 
 ## Layer 2: Validation And Examples
 
@@ -61,7 +69,8 @@ After this layer, we know whether the sigil behaves consistently across small, b
 Included:
 
 - Passing examples for Standard and Tournament modes.
-- Negative examples for infinite reduction, premature complexity, and lost recomposition.
+- Negative examples for infinite reduction, premature complexity, lost recomposition, brittle minimalism, excessive cognitive load, and unsupported tournament convergence.
+- Technique-specific examples for recomposition proof, evolution profile, cognitive load check, requisite variety check, boundary-object check, concept-vs-knowledge status, premortem pass, and set-based tournament.
 - Validation notes for role simulation fallback.
 
 Deferred:
@@ -83,7 +92,7 @@ After this layer, we know whether the sigil can be invoked from the local comman
 Included:
 
 - Codex command adapter.
-- Observability signals for budget selection, reduction rounds, closure tests, cycle guards, and optimization point selection.
+- Observability signals for budget selection, reduction rounds, technique pack passes, closure tests, premortems, cycle guards, and optimization point selection.
 - Reflection trigger thresholds.
 
 Deferred:

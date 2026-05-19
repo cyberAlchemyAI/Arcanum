@@ -32,6 +32,18 @@ Default when the user does not choose a budget:
 - Pitch-off: disabled unless there are multiple proposal tracks
 - Human gate: required only when blocker ambiguity remains or the best optimization point is contested
 
+## Budget Profiles
+
+| Budget | Proposal Tracks | Role Conversations | Recursive Rounds | Technique Pack | Pitch-Off | Human Gates |
+| --- | --- | --- | --- | --- | --- | --- |
+| Compact | 1 | Proposer and Balancer | 1 | always-on gates only | no | blockers only |
+| Standard | 1 | Proposer and Balancer | 2 | always-on gates plus triggered Balancer checks | no | blockers or contested optimization point |
+| Tournament | 3 by default, configurable | Proposer and Balancer per track | 2 per track | always-on gates plus set-based tournament mechanics | yes | no justified winner or blocker tension |
+| Deep | 2 by default, configurable | Proposer and Balancer per track | 3 by default, configurable | always-on gates, triggered techniques, premortem, stronger cycle checks | optional | after each contested round and final synthesis |
+| Validate | 1 existing solution | Balancer-led review with optional Proposer repair | 1 to 2 | always-on gates plus risk-triggered checks | no | blocker ambiguity or readiness downgrade |
+
+Budget overrides must keep finite proposal tracks, finite recursive rounds, cycle guards, and a recorded reason for every skipped always-on or triggered technique.
+
 ## Inputs
 
 | Input | Required | Validation Rule |
@@ -51,12 +63,45 @@ Default when the user does not choose a budget:
 | Intent and budget record | User, downstream planner | Confirms seed point, target context, selected budget, and assumptions before recursive work begins. |
 | Concept layer map | User, designer, implementation-layering | Shows layers from broad frame to smaller concept units, including why each layer belongs together. |
 | Reduction trace | Reviewer, future sigil run | Records accepted splits, rejected splits, balancer objections, and reconciliation decisions. |
-| Technique pack trace | Reviewer, future sigil run | Records active techniques, skipped techniques, trigger reasons, and gate or addon outcomes. |
+| Role conversation trace | Reviewer, future sigil run | Records Proposer claims, Balancer objections, reconciliation decisions, and stable disagreements. |
+| Technique pack trace | Reviewer, future sigil run | Records active techniques, skipped techniques, trigger reasons, and gate or technique outcomes. |
 | Smallest coherent unit | User, implementation-layering, task-session | Names the smallest closed concept that remains meaningful in the target context. |
 | Composition model | User, architecture/design consumers | Explains how smaller concepts add or combine into the upper layer without hidden glue. |
 | Tension ledger | User, robot-talks, decision-gate | Preserves unresolved conflicts, premature-complexity risks, and contested optimization points. |
 | Proposal comparison | User, downstream planner | Required when multiple proposal tracks are enabled; compares candidates by fit, cost, depth, and risk. |
 | Next-route recommendation | invoke, sigil-development, task-session | Recommends implementation-layering, robot-talks, decision-gate, design, plan, or task-session. |
+
+## Output Contract
+
+The sigil should return this shape:
+
+```markdown
+## Concept Layer Optimizer Result
+
+- Target context: <context summary>
+- Mode and budget: <compact | standard | tournament | deep | validate>
+- Proposal tracks: <count and role summary>
+- Recursive rounds: <count completed / budget>
+- Verdict: pass | flag | block
+- Role conversation trace: <Proposer claims, Balancer objections, reconciliation decisions>
+- Current smallest coherent unit: <unit name and responsibility>
+- Optimization point: <why this unit is the best size for the target context>
+- Concept layer map: <broad layer to selected unit>
+- Technique pack trace: <techniques run, skipped, triggered, and outcomes>
+- Closure and recomposition proof: <how the unit closes and recomposes upward>
+- Evolution profile: <expected evolution and smallest extension boundary>
+- Deferred complexity: <what was deferred and why>
+- Tension ledger: <resolved and unresolved tensions>
+- Premortem: <likely failure reason and guardrail | skipped with reason>
+- Frame-expiry note: <context change that invalidates this optimization point>
+- Next route: implementation-layering | robot-talks | decision-gate | invoke design | invoke plan | task-session | deferred
+```
+
+Readiness rules:
+
+- `pass`: the selected unit is closed, recomposable, proportionate, and has no blocker tension.
+- `flag`: the selected unit is usable, but a non-blocker tension, deferred decision, or validation gap remains.
+- `block`: no responsible optimization point can be selected without a user decision, missing evidence, or cross-layer investigation.
 
 ## Modes
 
@@ -65,7 +110,7 @@ Default when the user does not choose a budget:
 | standard | Default run or one proposal requested | Uses one Proposer and one Balancer, two recursive rounds, and one reconciliation pass. |
 | compact | User asks for a quick bounded pass | Uses one proposal track, one recursive round, always-on gates only, and strict deferral of uncertain complexity. |
 | tournament | User wants multiple possible designs | Runs set-based proposal tracks, each with Proposer and Balancer roles, then performs evidence-based pitch-off and synthesis. |
-| deep | User approves higher reasoning budget | Allows more recursive rounds, proposal tracks, conditional addons, stronger cycle checks, premortem pass, and periodic human gates. |
+| deep | User approves higher reasoning budget | Allows more recursive rounds, proposal tracks, conditional techniques, stronger cycle checks, premortem pass, and periodic human gates. |
 | validate | Existing design needs optimization review | Tests a provided architecture, model, or plan against coherence, closure, recomposition, and premature-complexity rules. |
 
 ## Mode And Technique Model
@@ -76,9 +121,14 @@ Techniques are internal instruments attached to phases. They do not become separ
 
 - Gate: must pass, flag, or block before the run can claim readiness.
 - Lens: perspective used by the Proposer, Balancer, or Orchestrator.
-- Addon: conditional method enabled by context, risk, budget, or user request.
 - Classifier: label that prevents cross-level or evidence-status confusion.
+- Check: conditional method enabled by context, risk, budget, or user request.
+- Closeout: final synthesis method that affects readiness or route.
 - Mode mechanic: required behavior for a specific mode.
+
+Surface interface design is captured in arcana/concept-layer-optimizer/development/MODE-TECHNIQUE-SURFACE-DESIGN.md. Sigil-development should treat that artifact as the contract between the invocation surface, mode surface, technique surface, core sigil engine, trace surface, and handoff surface.
+
+Detailed technique behavior is specified in arcana/concept-layer-optimizer/development/techniques/README.md. Sigil-development should treat the Technique Pack Contract below as the summary and techniques/README.md as the detailed technique source.
 
 ## Technique Pack Contract
 
@@ -90,9 +140,9 @@ Techniques are internal instruments attached to phases. They do not become separ
 | Frame-expiry note | always-on closeout | final synthesis | optimization point selected | context change that would invalidate the current smallest coherent unit | Flag brittle finality if no expiry condition can be stated. |
 | Cognitive load check | Balancer check | reduction balancing | a split creates several parts, roles, rules, or coordination paths | whether the split reduced or increased what the user must hold in mind | Merge, defer, or reject fragments that increase coordination burden without value. |
 | Requisite variety check | Balancer check | complexity balance | risk of underbuilding or overbuilding appears | external variety, internal variety, fit verdict, smallest adjustment | Adjust the unit or record overfit/underfit tension. |
-| Boundary-object check | conditional addon | multi-actor framing | multiple roles, teams, institutions, or audiences must share the concept | stable shared meaning plus local-variation allowance | Flag stakeholder-boundary tension or route to robot-talks. |
-| Concept-vs-knowledge status | uncertainty addon | candidate assessment | a unit depends on weak evidence, novelty, or unresolved domain knowledge | status: concept claim or knowledge-backed unit | Route blocker uncertainty to research, decision-gate, or deferred gap. |
-| Premortem pass | closeout addon | final synthesis | standard, tournament, deep, or medium/high-risk validate runs | likely failure reason for the selected optimization point | Add guardrail, route tension, or downgrade readiness. |
+| Boundary-object check | conditional check | multi-actor framing | multiple roles, teams, institutions, or audiences must share the concept | stable shared meaning plus local-variation allowance | Flag stakeholder-boundary tension or route to robot-talks. |
+| Concept-vs-knowledge status | uncertainty classifier | candidate assessment | a unit depends on weak evidence, novelty, or unresolved domain knowledge | status: concept claim or knowledge-backed unit | Route blocker uncertainty to research, decision-gate, or deferred gap. |
+| Premortem pass | closeout | final synthesis | standard, tournament, deep, or medium/high-risk validate runs | likely failure reason for the selected optimization point | Add guardrail, route tension, or downgrade readiness. |
 | Set-based tournament | mode mechanic | tournament mode | multiple proposal tracks are enabled | assumptions, option value, elimination condition, and convergence rationale for each track | Keep options open or ask for a human gate if no winner is justified. |
 
 ## Balancer Objection Categories
@@ -113,6 +163,18 @@ The Balancer should not object vaguely. Every objection should name at least one
 - premature complexity,
 - brittle minimalism.
 
+## Role Trace Contract
+
+Each proposal track should record:
+
+- Proposer claim: candidate layer split, selected unit, and rationale.
+- Evidence or assumption: what the claim depends on.
+- Balancer objection: category, concrete concern, and affected unit.
+- Reconciliation decision: accept, revise, reject, defer, or route.
+- Stable disagreement: any repeated tension that did not change after a round.
+
+Stable disagreement is not a failure by itself. It becomes a block only when it prevents selecting a responsible optimization point.
+
 ## Interaction Contract
 
 | Interaction | Producer | Consumer | Failure Behavior |
@@ -132,11 +194,11 @@ The Balancer should not object vaguely. Every objection should name at least one
 3. Identify the broadest concept layer that can reasonably contain the frame and label its abstraction level.
 4. Ask what smaller concepts must combine to make that layer work.
 5. For each candidate smaller concept, test whether it has a coherent responsibility, inputs, outputs, abstraction level, evolution profile, and recomposition path.
-6. Run always-on Technique Pack gates and any triggered conditional addons.
+6. Run always-on Technique Pack gates and any triggered conditional techniques.
 7. Reject reductions that only create naming fragments, hidden glue, premature optimization, context-free abstractions, or unnecessary cognitive load.
 8. Continue recursive rounds within the approved budget.
 9. Select the optimization point where the unit is smallest enough to work with but large enough to remain meaningful in context.
-10. Run closeout addons, including frame-expiry and premortem when enabled.
+10. Run closeout techniques, including frame-expiry and premortem when enabled.
 11. Recompose the selected unit upward and verify that adding or combining units explains the original layer.
 12. Return the concept map, technique pack trace, smallest coherent unit, deferred complexity, tensions, and next route.
 
@@ -192,7 +254,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | Configurable role conversations | yes | Default is two role conversations: Proposer and Balancer. |
 | Multiple proposal tracks | yes | Required for tournament mode; optional elsewhere. |
 | Recursive round budget | yes | Each run must have a finite round limit. |
-| Technique pack execution | yes | Adapter must run always-on techniques and record conditional addons that were triggered or skipped. |
+| Technique pack execution | yes | Adapter must run always-on techniques and record conditional techniques that were triggered or skipped. |
 | Balancer objection categories | yes | Objections must cite concrete categories, not generic skepticism. |
 | Set-based tournament behavior | yes for tournament mode | Proposal tracks must state assumptions, option value, and elimination conditions. |
 | Premortem support | yes | Required for standard, tournament, deep, and medium/high-risk validate runs; skipped in compact unless requested. |
@@ -207,7 +269,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | --- | --- | --- |
 | budget_selected | After setup | Selected profile, proposal tracks, role conversations, recursive rounds, pitch-off setting. |
 | reduction_round_completed | After each recursive round | Layer count, candidate units, accepted splits, rejected splits, balancer objections. |
-| technique_pack_completed | After each technique pack pass | Techniques run, techniques skipped, triggers, and gate/addon outcomes. |
+| technique_pack_completed | After each technique pack pass | Techniques run, techniques skipped, triggers, and gate/technique outcomes. |
 | closure_test_completed | For each candidate smallest unit | Closure result, failure reasons, recomposition evidence. |
 | premortem_completed | When premortem runs | Likely failure reason, added guardrail, downgraded readiness, or routed tension. |
 | cycle_guard_triggered | Any guard fires | Guard type, repeated state summary, selected remediation. |

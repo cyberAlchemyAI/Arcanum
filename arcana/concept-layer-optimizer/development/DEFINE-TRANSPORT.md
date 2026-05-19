@@ -41,6 +41,7 @@ The sigil needs explicit safeguards against:
 - Default recursive rounds: two.
 - Multi-solution comparison: available through Tournament mode.
 - Complexity balance must include an evolution-profile check so natural extensibility is not mistaken for speculative overbuilding.
+- Literature-backed techniques were promoted into a Technique Pack contract with always-on gates, Balancer checks, conditional techniques, classifiers, and tournament mechanics.
 - Robot-Talks route: optional handoff when unresolved tensions span layers and need independent investigation.
 - Decision-Gate route: optional handoff when a blocker decision prevents optimization-point selection.
 
@@ -51,12 +52,17 @@ The sigil needs explicit safeguards against:
 - Implementation layering seed: arcana/concept-layer-optimizer/development/IMPLEMENTATION-LAYERING-SEED.md
 - Define transport report: arcana/concept-layer-optimizer/development/DEFINE-TRANSPORT.md
 - Literature research addendum: arcana/concept-layer-optimizer/development/LITERATURE-RESEARCH.md
+- Interrogation review: arcana/concept-layer-optimizer/development/INTERROGATION-REVIEW.md
+- Design-stage surface architecture: arcana/concept-layer-optimizer/development/MODE-TECHNIQUE-SURFACE-DESIGN.md
+- Detailed technique specifications: arcana/concept-layer-optimizer/development/techniques/README.md
+- Design-stage glossary consistency: arcana/concept-layer-optimizer/development/SURFACE-GLOSSARY-CONSISTENCY.md
+- Design-stage transport report: arcana/concept-layer-optimizer/development/SURFACE-DESIGN-TRANSPORT.md
 
 ## Glossary Linking
 
 - linked: Robot-Talks handoff, Decision-Gate handoff.
-- partial: target context, smallest coherent unit, proposer, balancer, tension ledger, premature complexity.
-- no-match: seed point, concept layer, concept unit, closed system, optimization point, proposal track, recursive round, composition model, evolution profile, open-endedness, cycle guard, pitch-off.
+- partial: target context, smallest coherent unit, proposer, balancer, tension ledger, premature complexity, requisite variety check, boundary-object check.
+- no-match: seed point, concept layer, concept unit, closed system, optimization point, role conversation trace, stable disagreement, proposal track, recursive round, composition model, evolution profile, open-endedness, technique pack, abstraction-level guard, recomposition proof, frame-expiry note, cognitive load check, concept-vs-knowledge status, premortem pass, set-based tournament, hidden glue, brittle minimalism, cycle guard, pitch-off.
 
 Candidate glossary promotion is not automatic and was not performed.
 
@@ -72,7 +78,7 @@ Candidate glossary promotion is not automatic and was not performed.
 - Non-blocking: final name can be changed during sigil-development.
 - Non-blocking: exact budget labels can be refined after first validation examples.
 - Non-blocking: runtime adapter must decide whether to spawn true subagents or simulate role conversations when subagents are unavailable.
-- Non-blocking: research-backed candidate additions in LITERATURE-RESEARCH.md have not yet been promoted into the sigil handoff.
+- Non-blocking: README.md, SKILL.md, command adapter, and validation fixtures still need to be authored through sigil-development.
 
 ## Recommended Next Route
 
