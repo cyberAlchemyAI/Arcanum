@@ -7,6 +7,7 @@ Design the surface layers and interface rules that let Concept Layer Optimizer k
 The design must make these properties possible:
 
 - Modes change orchestration budget and run shape without rewriting the core sigil.
+- Every run keeps the objective-output artifact pair visible so discovery can adjust the target result without losing orientation.
 - Techniques attach to explicit phases as gates, lenses, classifiers, checks, closeout passes, or mode mechanics.
 - The core sigil owns concept state, closure, recomposition, tension routing, and readiness verdicts.
 - Runtime adapters can either spawn true subagents or simulate Proposer and Balancer roles while preserving the same trace contract.
@@ -22,10 +23,11 @@ The design must make these properties possible:
 | SC-004 | arcana/concept-layer-optimizer/development/INTERROGATION-REVIEW.md | yes | Confirms broad design readiness and identifies lifecycle packaging as the next route. |
 | SC-005 | spells/invoke/design.md | yes | Requires six design views, source contracts, interface rules, decision log, risks, and design transport notes. |
 | SC-006 | arcana/concept-layer-optimizer/development/techniques/README.md | yes | Defines detailed TechniqueSpec contracts for each included technique. |
+| SC-007 | framework/CYBERALCHEMY-METHOD.md | yes | Adds objective-output orientation, discovery baseline, and navigable work surface expectations. |
 
 ## View 1: Context View
 
-Concept Layer Optimizer sits between user intent and downstream lifecycle routes. It is not an implementation executor. It is a planning optimizer that receives a seed point, target context, constraints, and optional artifacts, then returns a proportionate concept structure and route recommendation.
+Concept Layer Optimizer sits between user intent and downstream lifecycle routes. It is not an implementation executor. It is a planning optimizer that receives a seed point, target context, objective-output artifact pair, constraints, and optional artifacts, then returns a proportionate concept structure and route recommendation.
 
 External actors and neighboring systems:
 
@@ -81,7 +83,7 @@ User intent
 
 | Object | Fields | Owner |
 | --- | --- | --- |
-| RunFrame | seed point, target context, optimization goal, constraints, evidence boundary, selected mode, active techniques | Core sigil engine |
+| RunFrame | seed point, target context, objective, output artifact, optimization goal, discovery baseline, constraints, evidence boundary, selected mode, active techniques | Core sigil engine |
 | ModeProfile | mode id, proposal tracks, role conversations, recursive round budget, technique policy, pitch-off policy, human-gate policy, closeout policy | Mode surface |
 | TechniqueSpec | technique id, type, phase, trigger, input contract, output contract, failure behavior, trace fields | Technique surface |
 | PhaseHook | hook id, phase, allowed technique types, required state, emitted trace | Technique surface |
@@ -89,14 +91,15 @@ User intent
 | ConceptLayer | label, abstraction level, responsibility, child units, recomposition note | Core sigil engine |
 | CandidateUnit | name, responsibility, inputs, outputs, abstraction level, closure result, evolution profile, risks | Core sigil engine |
 | TensionEntry | category, source role, affected unit, severity, reconciliation decision, route | Trace surface |
-| ResultEnvelope | mode, budget, tracks, rounds, verdict, selected unit, traces, proofs, deferred complexity, next route | Trace surface |
+| ResultEnvelope | mode, budget, objective, output artifact, tracks, rounds, verdict, selected unit, traces, proofs, deferred complexity, navigation guide, next route | Trace surface |
 
 ### Surface Components
 
 | Component | Responsibility | Interface |
 | --- | --- | --- |
-| IntentNormalizer | Converts raw request into seed point, target context, optimization goal, and constraints. | Produces RunFrame draft. |
+| IntentNormalizer | Converts raw request into seed point, target context, objective, output artifact, optimization goal, and constraints. | Produces RunFrame draft. |
 | ModeResolver | Selects Compact, Standard, Tournament, Deep, or Validate from user choice or safe default. | Produces ModeProfile. |
+| DiscoveryBaselineBuilder | Records provided evidence, searched sources, blocker unknowns, non-blocker unknowns, and assumptions before recursive reduction. | Updates RunFrame discovery baseline. |
 | TechniqueSelector | Activates always-on techniques and triggered conditional techniques. | Produces ordered TechniqueSpec list by phase. |
 | RoleRunner | Runs Proposer and Balancer turns through true subagents or role simulation. | Produces Role conversation trace. |
 | ReductionLoop | Runs recursive rounds within ModeProfile limits. | Produces ConceptLayer and CandidateUnit updates. |
@@ -108,22 +111,23 @@ User intent
 
 ### Main Flow
 
-1. Invocation surface captures seed point, target context, optimization goal, and constraints.
+1. Invocation surface captures seed point, target context, objective, output artifact, optimization goal, and constraints.
 2. Invocation surface confirms design intent and offers budget profiles.
-3. Mode surface resolves ModeProfile.
-4. Technique surface resolves always-on techniques and mode-required techniques.
-5. Core engine creates RunFrame.
-6. For each proposal track, RoleRunner runs Proposer pass.
-7. Technique surface runs phase hooks that apply after proposal formation.
-8. RoleRunner runs Balancer pass with named objection categories.
-9. Core engine reconciles accept, revise, reject, defer, or route decisions.
-10. GateEvaluator applies closure, recomposition, cycle, and complexity rules.
-11. ReductionLoop continues until round budget, closure, cycle guard, or blocker gate ends the track.
-12. Tournament mode runs PitchOffResolver when more than one track remains viable.
-13. Closeout techniques run: frame-expiry always, premortem when required.
-14. Core engine selects verdict and optimization point.
-15. Trace surface emits ResultEnvelope.
-16. Handoff surface recommends next route.
+3. DiscoveryBaselineBuilder records provided evidence, searched sources, blocker unknowns, non-blocker unknowns, and assumptions.
+4. Mode surface resolves ModeProfile.
+5. Technique surface resolves always-on techniques and mode-required techniques.
+6. Core engine creates RunFrame.
+7. For each proposal track, RoleRunner runs Proposer pass.
+8. Technique surface runs phase hooks that apply after proposal formation.
+9. RoleRunner runs Balancer pass with named objection categories.
+10. Core engine reconciles accept, revise, reject, defer, or route decisions.
+11. GateEvaluator applies closure, recomposition, cycle, and complexity rules.
+12. ReductionLoop continues until round budget, closure, cycle guard, or blocker gate ends the track.
+13. Tournament mode runs PitchOffResolver when more than one track remains viable.
+14. Closeout techniques run: frame-expiry always, premortem when required, and navigable result check.
+15. Core engine selects verdict and optimization point.
+16. Trace surface emits ResultEnvelope.
+17. Handoff surface recommends next route.
 
 ### Failure And Compensation Paths
 
@@ -163,6 +167,7 @@ User intent
 | Concept-vs-knowledge status | Triggered when a unit depends on weak evidence or unresolved domain knowledge. |
 | Premortem pass | Active in Standard, Tournament, Deep, and medium/high-risk Validate; skipped in Compact unless requested. |
 | Set-based tournament | Active only in Tournament mode. |
+| Navigable result check | Active in every mode before verdict. |
 
 ### Readiness Decision
 
@@ -219,6 +224,8 @@ Detailed contracts for each included technique live in arcana/concept-layer-opti
 Every run must emit:
 
 - mode profile snapshot,
+- objective-output artifact pair and revision reason when changed,
+- discovery baseline,
 - technique activation list,
 - role conversation trace,
 - reduction trace,
@@ -237,6 +244,7 @@ Trace entries should be append-only within a run. Later reconciliation may super
 | Techniques are phase-bound | SIGIL-HANDOFF.md and LITERATURE-RESEARCH.md | Techniques must have triggers, outputs, and failure behavior. |
 | Core owns verdicts | SIGIL-HANDOFF.md | Techniques and modes can flag conditions but cannot independently declare readiness. |
 | No unbounded recursion | SIGIL-HANDOFF.md | All mode profiles must keep finite tracks and finite rounds. |
+| Objective-output pair remains visible | CYBERALCHEMY-METHOD.md | The run may revise the target artifact, but must record why. |
 | No silent promotion | invoke design contract | Registry, glossary, and runtime adapter promotion remain explicit downstream decisions. |
 
 ## Dependency And Interface Rules
@@ -250,6 +258,7 @@ Trace entries should be append-only within a run. Later reconciliation may super
 | R-005 | Mode mechanics may orchestrate tracks but cannot alter closure rules. | Mode surface | GateEvaluator owns closure and verdict. |
 | R-006 | Role traces must preserve claims and objections even when reconciled. | Trace surface | Append-only trace entries. |
 | R-007 | Handoff routes must follow verdict and tension ownership. | Handoff surface | Robot-Talks for cross-layer tension; Decision-Gate for blocker choice; implementation-layering or invoke plan only after usable optimization point. |
+| R-008 | Result envelopes must be navigable. | Trace surface | Include where to start, what changed, unresolved gaps, and next action before pass readiness. |
 
 ## Decision Log
 
@@ -258,6 +267,7 @@ Trace entries should be append-only within a run. Later reconciliation may super
 | D-001 | Use layered surface architecture. | Monolithic sigil process, separate mode sigils, layered surfaces. | Layered surfaces let sigil-development implement modes and techniques without blurring responsibilities. |
 | D-002 | Treat modes as ModeProfiles. | Modes as commands, modes as freeform prompts, modes as profiles. | Profiles are finite, traceable, and adapter-friendly. |
 | D-003 | Treat techniques as TechniqueSpecs attached to hooks. | Techniques as modes, techniques as loose advice, techniques as hook specs. | Hook specs preserve phase boundaries and auditability. |
+| D-004 | Add objective-output and navigation as design-level contracts. | Leave them implicit, add as optional notes, or make them required setup and closeout evidence. | Required evidence keeps the optimizer oriented toward a usable final artifact while still allowing discovery to revise the target result. |
 | D-004 | Keep verdict authority in the core engine. | Techniques decide readiness, modes decide readiness, core decides readiness. | Closure and recomposition require global run state. |
 | D-005 | Require append-only traces within a run. | Mutable summary only, append-only trace, separate external log. | The sigil needs auditable role and technique reasoning. |
 

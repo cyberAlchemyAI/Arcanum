@@ -1,5 +1,12 @@
 # Concept Layer Optimizer Implementation Layering Seed
 
+This seed captured the first lifecycle outline during define/design. The execution-ready plan now lives in:
+
+- [IMPLEMENTATION-LAYERING.md](IMPLEMENTATION-LAYERING.md)
+- [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md)
+- [WORK-PACK.md](WORK-PACK.md)
+- [PLAN-TRANSPORT.md](PLAN-TRANSPORT.md)
+
 ## Layer 0: Define Handoff
 
 Decision question:
@@ -11,7 +18,7 @@ After this layer, we know whether the sigil concept is coherent enough for sigil
 Included:
 
 - Sigil handoff with identity, purpose, IO, modes, interaction contract, runtime expectations, observability, and validation examples.
-- Budget profiles, output contract, technique pack contract, and Balancer objection categories.
+- Budget profiles, objective-output artifact confirmation, output contract, technique pack contract, navigation closeout, and Balancer objection categories.
 - Local glossary for candidate concept terms.
 - Define transport notes.
 - Literature research addendum.
@@ -42,6 +49,9 @@ Included:
 - arcana/concept-layer-optimizer/SKILL.md
 - compact, standard, tournament, deep, and validate mode definitions.
 - budget override rules, final result schema, and readiness verdict rules.
+- objective-output artifact pair confirmation and revision rules.
+- discovery baseline rules for evidence, blocker unknowns, non-blocker unknowns, and assumptions.
+- navigable result check and final navigation guide.
 - technique pack execution rules and role trace expectations.
 - mode/technique surface interfaces from arcana/concept-layer-optimizer/development/MODE-TECHNIQUE-SURFACE-DESIGN.md.
 - detailed technique contracts from arcana/concept-layer-optimizer/development/techniques/README.md.
@@ -71,6 +81,7 @@ Included:
 - Passing examples for Standard and Tournament modes.
 - Negative examples for infinite reduction, premature complexity, lost recomposition, brittle minimalism, excessive cognitive load, and unsupported tournament convergence.
 - Technique-specific examples for recomposition proof, evolution profile, cognitive load check, requisite variety check, boundary-object check, concept-vs-knowledge status, premortem pass, and set-based tournament.
+- Examples where the expected output artifact changes after discovery, and examples where a result is downgraded until it includes a navigation guide.
 - Validation notes for role simulation fallback.
 
 Deferred:

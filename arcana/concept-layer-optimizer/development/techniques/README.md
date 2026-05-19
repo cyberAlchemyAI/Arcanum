@@ -39,6 +39,7 @@ failure_behavior: pass | flag | block | skip-with-reason | route
 | `concept_vs_knowledge_status` | Concept-vs-Knowledge Status | classifier | `after_proposer_pass`, `before_accept_split` | condition | [concept-vs-knowledge-status.md](concept-vs-knowledge-status.md) |
 | `premortem_pass` | Premortem Pass | closeout | `before_verdict` | mode-required outside Compact when risk is medium/high | [premortem-pass.md](premortem-pass.md) |
 | `set_based_tournament` | Set-Based Tournament | mode mechanic | `before_pitch_off` | Tournament mode | [set-based-tournament.md](set-based-tournament.md) |
+| `navigable_result_check` | Navigable Result Check | closeout | `before_verdict` | always | [navigable-result-check.md](navigable-result-check.md) |
 
 ## Mode Compatibility
 
@@ -54,6 +55,7 @@ failure_behavior: pass | flag | block | skip-with-reason | route
 | `concept_vs_knowledge_status` | trigger only | trigger only | trigger only | trigger only | trigger only |
 | `premortem_pass` | skipped unless requested | required | required | required | required for medium/high risk |
 | `set_based_tournament` | not applicable | not applicable | required | optional only if multiple tracks | not applicable |
+| `navigable_result_check` | required | required | required | required | required |
 
 ## Trace Aggregation Rules
 

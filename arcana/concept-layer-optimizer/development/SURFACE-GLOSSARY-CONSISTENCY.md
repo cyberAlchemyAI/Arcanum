@@ -20,6 +20,9 @@ This report checks the mode/technique surface design terms against the define gl
 | PhaseHook | consistent | Added to glossary as a local interface term. |
 | RunFrame | consistent | Added to glossary as a local interface term. |
 | ResultEnvelope | consistent | Added to glossary as a local interface term. |
+| Output artifact | consistent | Added to glossary as a local setup and result-orientation term. |
+| Objective-output pair | consistent | Added to glossary as a CyberAlchemy-derived setup term; local use preserves revision-with-reason behavior. |
+| Discovery baseline | consistent | Added to glossary as the evidence and unknowns record before recursive reduction. |
 | Invocation surface | consistent | Added to glossary as a local interface term. |
 | Mode surface | consistent | Added to glossary as a local interface term. |
 | Technique surface | consistent | Added to glossary as a local interface term. |
@@ -30,6 +33,7 @@ This report checks the mode/technique surface design terms against the define gl
 | Role conversation trace | consistent | Existing glossary meaning matches surface design. |
 | Stable disagreement | consistent | Existing glossary meaning matches surface design. |
 | Recomposition proof | consistent | Existing glossary meaning matches surface design. |
+| Navigable result check | consistent | Added to glossary and technique registry as a closeout readiness check. |
 | TechniqueSpec ids | consistent | techniques/README.md indexes stable ids for all included technique pack entries and each linked file preserves its id. |
 
 ## Gate Result

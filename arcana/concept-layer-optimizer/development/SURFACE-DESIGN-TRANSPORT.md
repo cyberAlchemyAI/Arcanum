@@ -15,6 +15,8 @@
 
 The Concept Layer Optimizer handoff already defines modes and a technique pack. The missing design layer is the interface architecture that prevents modes, techniques, runtime adapters, and the core sigil loop from collapsing into one tangled process.
 
+CyberAlchemy method review added one additional design concern after the first surface pass: every optimizer run must keep the objective-output artifact pair visible and make the final result navigable for humans and future agents.
+
 This design uses layered surfaces:
 
 - invocation surface,
@@ -37,6 +39,7 @@ This design uses layered surfaces:
 - Detailed technique specifications: arcana/concept-layer-optimizer/development/techniques/README.md
 - Glossary consistency report: arcana/concept-layer-optimizer/development/SURFACE-GLOSSARY-CONSISTENCY.md
 - Design transport report: arcana/concept-layer-optimizer/development/SURFACE-DESIGN-TRANSPORT.md
+- Design continuation review: arcana/concept-layer-optimizer/development/DESIGN-CONTINUATION-REVIEW.md
 
 ## Design Views
 
@@ -55,6 +58,8 @@ This design uses layered surfaces:
 - Core sigil engine owns concept state, closure, recomposition, and readiness verdicts.
 - Trace surface preserves role and technique reasoning as append-only run evidence.
 - Handoff surface routes outcomes based on verdict and tension ownership.
+- Objective-output artifact pair is captured before recursive reduction and may be revised only with a recorded discovery reason.
+- Navigable result check runs before verdict so the result explains where to start, what changed, what remains unresolved, and how to continue.
 
 ## Glossary Consistency
 
@@ -70,7 +75,7 @@ This design uses layered surfaces:
 
 - Non-blocking: choose representation for ModeProfile and TechniqueSpec during sigil-development.
 - Non-blocking: runtime adapter still needs true-subagent versus role-simulation decision.
-- Non-blocking: validation examples must prove Compact, Standard, Tournament, and technique-trigger behavior using techniques/README.md.
+- Non-blocking: validation examples must prove Compact, Standard, Tournament, technique-trigger behavior, objective-output artifact drift, and navigable-result downgrade behavior using techniques/README.md.
 
 ## Recommended Next Route
 

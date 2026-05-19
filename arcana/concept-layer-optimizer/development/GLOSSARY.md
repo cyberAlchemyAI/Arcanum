@@ -6,6 +6,9 @@
 | --- | --- | --- | --- |
 | Seed point | The initial idea, model, architecture, design, plan, or problem the user wants to optimize. | no-match | Candidate local term for this sigil. |
 | Target context | The working size and purpose of the problem space the optimized concept must serve. | partial | Related to bounded context and implementation-layering scope, but narrower here. |
+| Output artifact | The concrete result shape the run is optimizing toward, such as a data model, architecture design, implemented code structure, plan, decision record, research map, or technique spec. | partial | Related to CyberAlchemy artifact orientation; local to this sigil's setup contract. |
+| Objective-output pair | The paired statement of what the run is trying to solve and what artifact shape should exist when the run is done. | partial | The pair is a guide, not an immutable contract; discovery can revise it with a recorded reason. |
+| Discovery baseline | The starting evidence, searched sources, blocker unknowns, non-blocker unknowns, and assumptions used before recursive reduction begins. | partial | Aligns with CyberAlchemy discovery-first synthesis. |
 | Concept layer | A level of abstraction where concepts make sense together and can be decomposed into smaller cooperating concepts. | no-match | Candidate local term. |
 | Concept unit | A candidate smaller concept produced during recursive reduction. | no-match | Candidate local term. |
 | Smallest coherent unit | The smallest concept that remains meaningful, testable, and recomposable inside the target context. | partial | Related to Smallest Working Unit, but conceptual rather than execution-task oriented. |
@@ -43,6 +46,7 @@
 | Concept-vs-knowledge status | A label distinguishing a speculative concept claim from a knowledge-backed unit. | no-match | Prevents uncertain ideas from being treated as settled design facts. |
 | Premortem pass | A closeout technique that imagines why the selected optimization point failed and adds a guardrail or downgraded readiness. | no-match | Required outside Compact unless explicitly skipped by risk profile. |
 | Set-based tournament | A tournament mode mechanic that keeps multiple proposal tracks open until evidence justifies convergence. | no-match | Proposal tracks need assumptions, option value, and elimination conditions. |
+| Navigable result check | A closeout technique that verifies the result tells a human or future agent where to start, what changed, what remains unresolved, and what route comes next. | partial | Applies CyberAlchemy ergonomics as a readiness condition for this sigil. |
 | Hidden glue | Unnamed coordination, adapter work, policy, or interpretation required for decomposed units to recombine. | no-match | A sign that a split is not closed. |
 | Brittle minimalism | A unit made so small that it cannot absorb known natural evolution pressure. | no-match | Counterbalance to premature complexity. |
 | Cycle guard | A rule that stops infinite reduction, repeated renaming, or unresolved role argument loops. | no-match | Required runtime safety rule. |

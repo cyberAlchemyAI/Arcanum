@@ -42,6 +42,8 @@ The sigil needs explicit safeguards against:
 - Multi-solution comparison: available through Tournament mode.
 - Complexity balance must include an evolution-profile check so natural extensibility is not mistaken for speculative overbuilding.
 - Literature-backed techniques were promoted into a Technique Pack contract with always-on gates, Balancer checks, conditional techniques, classifiers, and tournament mechanics.
+- Later CyberAlchemy method review added objective-output artifact confirmation as a setup requirement so the optimizer can keep the final product visible while still allowing discovery to revise it.
+- Later CyberAlchemy method review added navigable result check as a closeout requirement so dense concept maps remain usable by humans and future agents.
 - Robot-Talks route: optional handoff when unresolved tensions span layers and need independent investigation.
 - Decision-Gate route: optional handoff when a blocker decision prevents optimization-point selection.
 
@@ -57,6 +59,7 @@ The sigil needs explicit safeguards against:
 - Detailed technique specifications: arcana/concept-layer-optimizer/development/techniques/README.md
 - Design-stage glossary consistency: arcana/concept-layer-optimizer/development/SURFACE-GLOSSARY-CONSISTENCY.md
 - Design-stage transport report: arcana/concept-layer-optimizer/development/SURFACE-DESIGN-TRANSPORT.md
+- Design continuation review: arcana/concept-layer-optimizer/development/DESIGN-CONTINUATION-REVIEW.md
 
 ## Glossary Linking
 
@@ -79,6 +82,7 @@ Candidate glossary promotion is not automatic and was not performed.
 - Non-blocking: exact budget labels can be refined after first validation examples.
 - Non-blocking: runtime adapter must decide whether to spawn true subagents or simulate role conversations when subagents are unavailable.
 - Non-blocking: README.md, SKILL.md, command adapter, and validation fixtures still need to be authored through sigil-development.
+- Non-blocking: validation examples should include objective-output artifact drift and navigation-guide downgrade cases.
 
 ## Recommended Next Route
 

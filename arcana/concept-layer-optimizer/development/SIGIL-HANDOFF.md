@@ -16,7 +16,12 @@ The sigil should act like planning before committing to a solution. Its first mo
 Recommended first prompt shape:
 
 ```text
-I understand the design intent as: <seed point and target context>.
+I understand the design intent as: <seed point>.
+Target context: <context size and purpose>.
+Expected output artifact: <data model, architecture design, implemented code structure,
+plan, decision record, research map, technique spec, or other concrete result>.
+Optimization goal: <clarity, scope, architecture, planning depth, model quality,
+implementation readiness, or other explicit goal>.
 Recommended budget: Standard - one proposal track, two role conversations
 (Proposer and Balancer), two recursive rounds, then reconciliation.
 Do you want Compact, Standard, Tournament, or Deep?
@@ -50,6 +55,7 @@ Budget overrides must keep finite proposal tracks, finite recursive rounds, cycl
 | --- | --- | --- |
 | Seed point | yes | A starting model, architecture, design, plan, problem, or concept is stated. |
 | Target context | yes | The user states or implies the context size the design must serve. |
+| Output artifact | yes | The run names the concrete result it is optimizing toward, such as a data model, architecture design, implemented code structure, plan, decision record, research map, or technique spec. The artifact may be revised when discovery shows a better shape. |
 | Optimization goal | yes | The run names what should be optimized: clarity, scope, architecture, planning depth, model quality, implementation readiness, or another explicit goal. |
 | Budget profile | no | Defaults to Standard; must resolve proposal tracks, role conversations, recursive rounds, and pitch-off behavior. |
 | Constraints | no | Any cost, time, implementation, governance, quality, or domain constraints are recorded and cannot be silently optimized away. |
@@ -60,7 +66,8 @@ Budget overrides must keep finite proposal tracks, finite recursive rounds, cycl
 
 | Output | Consumer | Contract |
 | --- | --- | --- |
-| Intent and budget record | User, downstream planner | Confirms seed point, target context, selected budget, and assumptions before recursive work begins. |
+| Intent and budget record | User, downstream planner | Confirms seed point, target context, output artifact, selected budget, and assumptions before recursive work begins. |
+| Discovery baseline | User, Proposer, Balancer | Names available evidence, blocker unknowns, non-blocker unknowns, and assumptions before recursive reduction begins. |
 | Concept layer map | User, designer, implementation-layering | Shows layers from broad frame to smaller concept units, including why each layer belongs together. |
 | Reduction trace | Reviewer, future sigil run | Records accepted splits, rejected splits, balancer objections, and reconciliation decisions. |
 | Role conversation trace | Reviewer, future sigil run | Records Proposer claims, Balancer objections, reconciliation decisions, and stable disagreements. |
@@ -79,6 +86,7 @@ The sigil should return this shape:
 ## Concept Layer Optimizer Result
 
 - Target context: <context summary>
+- Objective and output artifact: <objective being solved; artifact shape currently being optimized>
 - Mode and budget: <compact | standard | tournament | deep | validate>
 - Proposal tracks: <count and role summary>
 - Recursive rounds: <count completed / budget>
@@ -94,6 +102,7 @@ The sigil should return this shape:
 - Tension ledger: <resolved and unresolved tensions>
 - Premortem: <likely failure reason and guardrail | skipped with reason>
 - Frame-expiry note: <context change that invalidates this optimization point>
+- Navigation guide: <where to start, what changed, what remains unresolved, and how to use the result>
 - Next route: implementation-layering | robot-talks | decision-gate | invoke design | invoke plan | task-session | deferred
 ```
 
@@ -144,6 +153,7 @@ Detailed technique behavior is specified in arcana/concept-layer-optimizer/devel
 | Concept-vs-knowledge status | uncertainty classifier | candidate assessment | a unit depends on weak evidence, novelty, or unresolved domain knowledge | status: concept claim or knowledge-backed unit | Route blocker uncertainty to research, decision-gate, or deferred gap. |
 | Premortem pass | closeout | final synthesis | standard, tournament, deep, or medium/high-risk validate runs | likely failure reason for the selected optimization point | Add guardrail, route tension, or downgrade readiness. |
 | Set-based tournament | mode mechanic | tournament mode | multiple proposal tracks are enabled | assumptions, option value, elimination condition, and convergence rationale for each track | Keep options open or ask for a human gate if no winner is justified. |
+| Navigable result check | closeout | final synthesis | every run | where to start, what changed, unresolved gaps, and how to use the result | Flag outputs that are technically complete but hard for a user or future agent to act on. |
 
 ## Balancer Objection Categories
 
@@ -190,17 +200,19 @@ Stable disagreement is not a failure by itself. It becomes a block only when it 
 ## Operating Model
 
 1. Confirm design intent and budget.
-2. Normalize the seed point into a working frame with target context, desired outcome, and constraints.
-3. Identify the broadest concept layer that can reasonably contain the frame and label its abstraction level.
-4. Ask what smaller concepts must combine to make that layer work.
-5. For each candidate smaller concept, test whether it has a coherent responsibility, inputs, outputs, abstraction level, evolution profile, and recomposition path.
-6. Run always-on Technique Pack gates and any triggered conditional techniques.
-7. Reject reductions that only create naming fragments, hidden glue, premature optimization, context-free abstractions, or unnecessary cognitive load.
-8. Continue recursive rounds within the approved budget.
-9. Select the optimization point where the unit is smallest enough to work with but large enough to remain meaningful in context.
-10. Run closeout techniques, including frame-expiry and premortem when enabled.
-11. Recompose the selected unit upward and verify that adding or combining units explains the original layer.
-12. Return the concept map, technique pack trace, smallest coherent unit, deferred complexity, tensions, and next route.
+2. Confirm the objective-output artifact pair: what problem is being solved and what artifact shape should exist after the run.
+3. Build a cheap discovery baseline from provided artifacts, known constraints, blocker unknowns, and assumptions.
+4. Normalize the seed point into a working frame with target context, desired outcome, output artifact, and constraints.
+5. Identify the broadest concept layer that can reasonably contain the frame and label its abstraction level.
+6. Ask what smaller concepts must combine to make that layer work.
+7. For each candidate smaller concept, test whether it has a coherent responsibility, inputs, outputs, abstraction level, evolution profile, and recomposition path.
+8. Run always-on Technique Pack gates and any triggered conditional techniques.
+9. Reject reductions that only create naming fragments, hidden glue, premature optimization, context-free abstractions, or unnecessary cognitive load.
+10. Continue recursive rounds within the approved budget.
+11. Select the optimization point where the unit is smallest enough to work with but large enough to remain meaningful in context.
+12. Run closeout techniques, including frame-expiry, premortem when enabled, and navigable result check.
+13. Recompose the selected unit upward and verify that adding or combining units explains the original layer.
+14. Return the concept map, technique pack trace, smallest coherent unit, deferred complexity, tensions, navigation guide, and next route.
 
 ## Closure Test
 
@@ -251,6 +263,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | Expectation | Required | Notes |
 | --- | --- | --- |
 | First-turn intent and budget confirmation | yes | Must occur before recursive decomposition. |
+| Objective-output artifact confirmation | yes | Must name what the run is solving and what artifact shape the result should support. |
 | Configurable role conversations | yes | Default is two role conversations: Proposer and Balancer. |
 | Multiple proposal tracks | yes | Required for tournament mode; optional elsewhere. |
 | Recursive round budget | yes | Each run must have a finite round limit. |
@@ -268,6 +281,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | Signal | Trigger | Payload Summary |
 | --- | --- | --- |
 | budget_selected | After setup | Selected profile, proposal tracks, role conversations, recursive rounds, pitch-off setting. |
+| objective_output_confirmed | After setup | Objective, output artifact, whether it was user-stated or inferred, and any revision reason. |
 | reduction_round_completed | After each recursive round | Layer count, candidate units, accepted splits, rejected splits, balancer objections. |
 | technique_pack_completed | After each technique pack pass | Techniques run, techniques skipped, triggers, and gate/technique outcomes. |
 | closure_test_completed | For each candidate smallest unit | Closure result, failure reasons, recomposition evidence. |
@@ -287,6 +301,8 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | A split turns one meaningful workflow into six fragments and more coordination rules. | Cognitive load check flags increased burden; sigil merges or defers fragments. |
 | A multi-team governance design has different meanings for policy, operations, and review roles. | Boundary-object check records stable shared meaning and local variation, or routes unresolved tension. |
 | A tournament proposal remains attractive but cannot name its elimination condition. | Set-based tournament keeps it open only if budget allows; otherwise asks for a human gate or records the gap. |
+| User starts by asking for an architecture, but discovery shows the first responsible output is a decision record. | Sigil revises the objective-output pair, records the reason, and optimizes toward the decision record before downstream architecture. |
+| Final output contains a correct concept map but no reading path or next action. | Navigable result check flags the result and adds a navigation guide before pass readiness is claimed. |
 
 ## Sigil-Development Handoff
 
