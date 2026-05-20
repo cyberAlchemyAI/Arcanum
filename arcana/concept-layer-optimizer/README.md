@@ -1,6 +1,6 @@
 # Concept Layer Optimizer
 
-Status: candidate Arcana sigil, in development.
+Status: candidate Arcana sigil, package-ready pending validation and final promotion approval.
 
 Concept Layer Optimizer is an interactive planning sigil for finding the best optimization point between a tiny working unit and the larger context a user is trying to reason about.
 
@@ -16,9 +16,9 @@ For users and future agents:
 2. Read [development/SIGIL-HANDOFF.md](development/SIGIL-HANDOFF.md) for the full design contract.
 3. Read [development/IMPLEMENTATION-LAYERING.md](development/IMPLEMENTATION-LAYERING.md) for the development layer plan.
 4. Read [development/IMPLEMENTATION-PLAN.md](development/IMPLEMENTATION-PLAN.md) for task and SWU handoff.
-5. Use `development/examples/` and `development/VALIDATION.md` when they are created during validation.
+5. Use [development/examples/](development/examples/) and [development/VALIDATION.md](development/VALIDATION.md) after validation is created.
 
-The executable `SKILL.md` is planned in the implementation work-pack. Until it exists, this README is an orientation surface, not the runtime contract.
+The executable contract lives in [SKILL.md](SKILL.md). Runtime adapters should point to that canonical contract instead of duplicating the sigil internals.
 
 ## Use When
 
@@ -31,7 +31,7 @@ Use Concept Layer Optimizer when:
 - multiple possible designs need to be compared before convergence,
 - the work needs a clear relationship between concept layers, smallest coherent unit, and next implementation route.
 
-## Do Not Use
+## Do Not Use When
 
 Do not use this sigil when:
 
@@ -124,6 +124,20 @@ Core techniques include:
 
 See [development/techniques/README.md](development/techniques/README.md) for the current TechniqueSpec index.
 
+## Runtime Role Policy
+
+Concept Layer Optimizer is subagent-first.
+
+When the active runtime supports subagents, run separate Proposer and Balancer conversations for each proposal track. When the active runtime does not support subagents, run labeled Proposer and Balancer passes in one agent while preserving the same role trace contract.
+
+Both paths must record:
+
+- Proposer claim,
+- evidence or assumption,
+- Balancer objection category,
+- reconciliation decision,
+- stable disagreement when one remains.
+
 ## Complexity Balance
 
 The sigil should not introduce complexity because it is elegant, reusable, or theoretically complete.
@@ -171,6 +185,7 @@ Concept Layer Optimizer does not execute the implementation itself. It routes th
 
 Current development artifacts:
 
+- [SKILL.md](SKILL.md)
 - [development/SIGIL-HANDOFF.md](development/SIGIL-HANDOFF.md)
 - [development/MODE-TECHNIQUE-SURFACE-DESIGN.md](development/MODE-TECHNIQUE-SURFACE-DESIGN.md)
 - [development/techniques/README.md](development/techniques/README.md)
@@ -178,16 +193,29 @@ Current development artifacts:
 - [development/IMPLEMENTATION-PLAN.md](development/IMPLEMENTATION-PLAN.md)
 - [development/WORK-PACK.md](development/WORK-PACK.md)
 - [development/PLAN-TRANSPORT.md](development/PLAN-TRANSPORT.md)
+- [development/examples/](development/examples/)
+- [development/VALIDATION.md](development/VALIDATION.md)
+- [development/REGISTRY-PROMOTION.md](development/REGISTRY-PROMOTION.md)
+- [development/READINESS-REVIEW.md](development/READINESS-REVIEW.md)
 
-Planned validation artifacts:
+Runtime and observability artifacts:
 
-- `development/examples/`
-- `development/VALIDATION.md`
+- [templates/usage-telemetry.md](templates/usage-telemetry.md)
+- `.codex/commands/concept-layer-optimizer.md`
 
-Planned package artifact:
+## Maintenance
 
-- `SKILL.md`
+Lifecycle maintenance is owned by sigil-development until final registry approval.
+
+Use the reflection route when repeated runs show:
+
+- objective-output drift,
+- blocked runs caused by unclear contract language,
+- repeated navigation failures,
+- technique overuse or underuse,
+- missing evolution profiles,
+- runtime traces that diverge between true subagents and role simulation.
 
 ## Next
 
-The next implementation step is to author the executable `SKILL.md`, then build validation examples and a validation report before runtime adapter or registry promotion work begins.
+The next lifecycle step is final `B-CLO-002` approval. The package may prepare registry candidate metadata, but it must not be promoted as a reusable registry entry until the lifecycle owner approves the promotion recommendation.

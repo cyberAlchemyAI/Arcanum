@@ -14,9 +14,9 @@ L2 Runtime And Observability
 - L2.2 Role Execution Policy
 - L2.4 Runtime Validation
 
-## Blocker
+## Resolved Runtime Policy
 
-- B-CLO-001: decide true subagents versus role simulation fallback.
+- B-CLO-001 is resolved: use true subagents when the runtime supports them. If the runtime does not support subagents, use labeled Proposer/Balancer role simulation with the same trace contract.
 
 ## Source Contracts
 
@@ -30,7 +30,7 @@ L2 Runtime And Observability
 - validated SKILL from TASK-CLO-002,
 - validation report from TASK-CLO-004,
 - telemetry contract from TASK-CLO-005,
-- runtime adapter decision for role simulation versus true subagents.
+- resolved runtime role policy: subagent-first, role simulation fallback.
 
 ## Output Artifacts
 
@@ -43,24 +43,25 @@ L2 Runtime And Observability
 1. Confirm TASK-CLO-004 permits L2 runtime work.
 2. Choose the runtime path that matches local command conventions.
 3. Add an adapter that points to the canonical SKILL instead of duplicating the sigil process.
-4. State whether runtime uses role simulation, true subagents, or a configurable fallback.
+4. Implement the subagent-first role policy: use true subagents when supported by the runtime; otherwise use labeled role simulation.
 5. Preserve finite recursion, budget confirmation, technique trace, output contract, and navigable result closeout.
 6. Run a representative resolution check.
 7. Compare the representative runtime behavior with L1 golden behavior.
 
 ## Edge Cases
 
-- Do not make true subagents mandatory.
+- Do not make true subagents mandatory for runtimes that do not support them.
+- Do not choose role simulation when the active runtime can support true subagents for the Proposer/Balancer roles.
 - Do not allow runtime access to weaken the manual SKILL contract.
 - Do not promote registry work merely because the command resolves.
-- If adapter conventions are unclear, keep B-CLO-001 open and return a flag.
+- If adapter conventions are unclear, return a flag without reopening B-CLO-001 unless both true subagents and role simulation are impossible.
 
 ## Smallest Working Units
 
 | SWU | Micro-Layer | Work | Acceptance |
 | --- | --- | --- | --- |
 | SWU-CLO-012 | L2.1 | Add runtime adapter. | Adapter points to canonical SKILL and preserves closeout. |
-| SWU-CLO-013 | L2.2 | Define runtime role execution policy. | Runtime states true-subagent support, role simulation fallback, and tournament limits. |
+| SWU-CLO-013 | L2.2 | Define runtime role execution policy. | Runtime states subagent-first execution, role simulation fallback, and tournament limits. |
 | SWU-CLO-014 | L2.4 | Validate runtime representative run. | Closeout includes observation fields, role policy, and output contract. |
 
 ## Verification

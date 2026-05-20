@@ -60,7 +60,7 @@ These are not design blockers; they belong to sigil-development:
 - create passing and negative examples,
 - include examples for objective-output artifact drift,
 - include examples for navigable-result downgrade behavior,
-- decide runtime adapter behavior for true subagents versus role simulation,
+- implement the resolved runtime policy: true subagents when supported, role simulation fallback when unavailable,
 - add command adapter only after candidate behavior is validated.
 
 ## Readiness Verdict
@@ -68,7 +68,7 @@ These are not design blockers; they belong to sigil-development:
 - Verdict: pass
 - Reason: The only missing design concerns were setup orientation and result ergonomics; both are now patched into the design packet.
 - Blocking ambiguity: none
-- Non-blocking gaps: candidate package, examples, runtime adapter, registry approval.
+- Non-blocking gaps: candidate package, examples, runtime adapter, final registry approval.
 
 ## Invoke Result
 

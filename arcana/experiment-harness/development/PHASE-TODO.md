@@ -63,8 +63,23 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 
 ## Phase 7: Generalize To All Spells And Sigils
 
-- [ ] Update `init-harness.sh` to create loop-ready layout and starter regimes.
-- [ ] Update runtime command adapters to expose `experiment-loop`.
-- [ ] Update `spellcraft` and `sigil-development` lifecycle plans.
-- [ ] Validate a toy spell loop.
-- [ ] Validate a toy sigil loop.
+- [x] Design the shared lifecycle experiment profile boundary.
+- [x] Plan Spellcraft and Sigil Development integration layers.
+- [x] Define Sigil Development as the first generalized harness test case.
+- [x] Interrogate the generalization plan and close resolvable blockers.
+- [x] Fill design gaps with a generalized profile contract.
+- [x] Refresh implementation plan around the profile contract.
+- [ ] S1: update `init-harness.sh` to support `--profile` while preserving `--type spell|sigil`.
+- [ ] S1: block invalid profile/type combinations.
+- [ ] S2: generate `development/EXPERIMENT-PROFILE.md` during initialization.
+- [ ] S2: generate profile starter prompts, fixtures, and regimes for `generic-sigil` and `sigil-development`.
+- [ ] S2: generate profile starter prompts, fixtures, and regimes for `generic-spell` and `spellcraft`.
+- [ ] S3: add profile drift validation against target lifecycle contracts.
+- [ ] S3: validate generated prompt and regime ids against the selected profile.
+- [ ] S3: emit `PROFILE_VALIDATION` and profile report fields.
+- [ ] S4: update runtime command adapters to expose `experiment-loop`.
+- [ ] S4: update `spellcraft` and `sigil-development` lifecycle plans.
+- [ ] S5: run the Sigil Development test case against a sandbox copy of a target sigil.
+- [ ] S6: select a toy spell target for the Spellcraft proof.
+- [ ] S6: validate a toy spell loop.
+- [ ] S6: validate a toy sigil loop.

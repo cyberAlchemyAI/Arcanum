@@ -58,14 +58,15 @@ The nested layering refresh keeps that top-level decision intact while adding mi
 - Keep task files as the execution-detail authority; the implementation plan keeps lifecycle structure and shared SWU identity.
 - Defer runtime adapter until validation examples pass.
 - Defer registry promotion until runtime and validation evidence exist.
-- Use role simulation fallback as the default runtime-safe assumption until true subagent behavior is validated.
+- Resolve runtime role policy as subagent-first: use true subagents when the runtime supports them; otherwise use labeled role simulation with the same trace contract.
+- Treat registry promotion approval as the final lifecycle gate, not as a blocker to preparing candidate metadata.
 
 ## Unresolved Gaps
 
 - Target-artifact gap: README.md and SKILL.md are not authored yet.
 - Target-artifact gap: examples and VALIDATION.md do not exist yet.
-- Target-artifact gap: runtime adapter strategy remains deferred to L2.
-- Target-artifact gap: registry approval remains deferred to L3.
+- Target-artifact gap: runtime adapter implementation remains deferred to L2, but the role policy is decided.
+- Target-artifact gap: registry approval remains deferred to the final lifecycle gate.
 - Target-artifact gap: nested layering is planning-only until W0/W1 execution proves the README/SKILL package.
 - Invoke gap: none observed.
 

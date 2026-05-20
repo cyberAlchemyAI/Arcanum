@@ -80,7 +80,7 @@ Candidate glossary promotion is not automatic and was not performed.
 
 - Non-blocking: final name can be changed during sigil-development.
 - Non-blocking: exact budget labels can be refined after first validation examples.
-- Non-blocking: runtime adapter must decide whether to spawn true subagents or simulate role conversations when subagents are unavailable.
+- Non-blocking: runtime adapter must implement the resolved policy: true subagents when supported, role simulation fallback when unavailable.
 - Non-blocking: README.md, SKILL.md, command adapter, and validation fixtures still need to be authored through sigil-development.
 - Non-blocking: validation examples should include objective-output artifact drift and navigation-guide downgrade cases.
 

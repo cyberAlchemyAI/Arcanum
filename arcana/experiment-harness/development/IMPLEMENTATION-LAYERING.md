@@ -154,17 +154,36 @@ Exit criteria:
 
 Goal: make loop-first harness the default development path.
 
+Design references:
+
+- [GENERALIZATION-DESIGN.md](GENERALIZATION-DESIGN.md)
+- [GENERALIZATION-IMPLEMENTATION-PLAN.md](GENERALIZATION-IMPLEMENTATION-PLAN.md)
+- [GENERALIZATION-PROFILE-CONTRACT.md](GENERALIZATION-PROFILE-CONTRACT.md)
+- [SIGIL-DEVELOPMENT-TEST-CASE.md](SIGIL-DEVELOPMENT-TEST-CASE.md)
+- [GENERALIZATION-INTERROGATION-REVIEW.md](GENERALIZATION-INTERROGATION-REVIEW.md)
+
 Implementation tasks:
 
-- Update `init-harness.sh` to create `regimes/` and loop docs.
-- Update runtime command adapters to expose `experiment-loop`.
-- Update `spellcraft` and `sigil-development` planning so new artifacts initialize loop regimes.
-- Document external repo installation.
+- S1: update `init-harness.sh` to support lifecycle experiment profiles while preserving the existing `--type spell|sigil` interface.
+- S1: infer `generic-spell` or `generic-sigil` from `--type`, while allowing explicit `--profile spellcraft|sigil-development` override.
+- S2: generate `development/EXPERIMENT-PROFILE.md` as the durable profile boundary record.
+- S2: add Spellcraft and Sigil Development starter profiles that generate lifecycle-appropriate prompts, regimes, fixtures, and validation expectations.
+- S3: add profile drift validation against the target lifecycle contract's `SKILL.md` Quality Bar, Anti-Patterns, and output contract.
+- S3: validate generated prompt and regime ids against the selected profile.
+- S4: update runtime command adapters to expose `experiment-loop`.
+- S4: update `spellcraft` and `sigil-development` planning so new artifacts initialize profile-aware loop regimes.
+- S5: run the Sigil Development test case against a sandbox copy before treating the generalized profile path as reusable.
+- S5: use `arcana/concept-layer-optimizer` as the first real sigil target after sandbox proof or explicit write-scope approval.
+- S6: run a Spellcraft proof against a toy spell target.
+- S6: document external repo installation.
 
 Exit criteria:
 
-- New spell/sigil harness includes loop-ready layout.
+- New spell/sigil harness includes profile-aware loop-ready layout.
+- `development/EXPERIMENT-PROFILE.md` exists and matches generated prompts/regimes.
+- Generated profiles keep Experiment Harness as mechanics owner while Spellcraft or Sigil Development remains lifecycle owner.
 - External repo install exposes Codex command bridge.
+- The Sigil Development test case produces a reviewable pass/flag/block report.
 - At least one toy spell and one toy sigil pass live loop validation.
 
 ## Non-Regression Guardrails

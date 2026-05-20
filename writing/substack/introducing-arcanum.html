@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Introducing Arcanum, a CyberAlchemy framework for turning skills and agent workflows into reusable, observable, improvable capabilities."
+    />
+    <meta name="author" content="CyberAlchemy" />
+    <meta name="robots" content="index, follow" />
+    <meta
+      property="og:title"
+      content="Arcanum: When Agent Skills Become Infrastructure"
+    />
+    <meta
+      property="og:description"
+      content="A framework for turning skills and agent workflows into reusable, observable, improvable capabilities."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content="2026-05-19" />
+    <meta property="article:tag" content="AI agents" />
+    <meta property="article:tag" content="Agent engineering" />
+    <meta property="article:tag" content="CyberAlchemy" />
+    <meta property="article:tag" content="Observability" />
+    <title>Arcanum: When Agent Skills Become Infrastructure</title>
+    <style>
+      :root {
+        --cyberalchemy-bg: #fdfaf3;
+        --cyberalchemy-surface: #f6f2e6;
+        --cyberalchemy-surface-strong: #efe8d4;
+        --cyberalchemy-text: #1a1a1a;
+        --cyberalchemy-muted: #62625b;
+        --cyberalchemy-border: #e5e5e0;
+        --cyberalchemy-red: #e60023;
+        --cyberalchemy-red-deep: #cc0000;
+        --cyberalchemy-orange: #ea580c;
+        --cyberalchemy-gold: #b7791f;
+        --cyberalchemy-teal: #0f766e;
+        --cyberalchemy-blue: #2563eb;
+        --cyberalchemy-violet: #7c3aed;
+        --cyberalchemy-green: #15803d;
+        --article-width: 760px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cyberalchemy-bg: #000000;
+          --cyberalchemy-surface: #111111;
+          --cyberalchemy-surface-strong: #1a1a1a;
+          --cyberalchemy-text: #ededed;
+          --cyberalchemy-muted: #9a9a9a;
+          --cyberalchemy-border: #333333;
+          --cyberalchemy-red: #e60023;
+          --cyberalchemy-red-deep: #ff4d4d;
+          --cyberalchemy-orange: #fb923c;
+          --cyberalchemy-gold: #fbbf24;
+          --cyberalchemy-teal: #2dd4bf;
+          --cyberalchemy-blue: #60a5fa;
+          --cyberalchemy-violet: #a78bfa;
+          --cyberalchemy-green: #4ade80;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--cyberalchemy-bg);
+        color: var(--cyberalchemy-text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.65;
+      }
+
+      body::before {
+        content: "";
+        display: block;
+        height: 8px;
+        background: linear-gradient(
+          90deg,
+          var(--cyberalchemy-red),
+          var(--cyberalchemy-red-deep) 44%,
+          var(--cyberalchemy-orange)
+        );
+      }
+
+      a {
+        color: var(--cyberalchemy-red-deep);
+        text-decoration-color: var(--cyberalchemy-orange);
+        text-underline-offset: 0.18em;
+      }
+
+      a:hover {
+        color: var(--cyberalchemy-orange);
+      }
+
+      .page {
+        width: min(100%, 1080px);
+        margin: 0 auto;
+        padding: 28px 18px 72px;
+      }
+
+      .article-shell {
+        overflow: hidden;
+        border: 1px solid var(--cyberalchemy-border);
+        border-radius: 8px;
+        background: var(--cyberalchemy-bg);
+        box-shadow: 0 26px 80px rgba(26, 26, 26, 0.12);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .article-shell {
+          box-shadow: 0 26px 80px rgba(0, 0, 0, 0.72);
+        }
+      }
+
+      .hero {
+        padding: 54px 64px 46px;
+        border-bottom: 1px solid var(--cyberalchemy-border);
+        background:
+          linear-gradient(
+            180deg,
+            var(--cyberalchemy-surface) 0%,
+            var(--cyberalchemy-bg) 100%
+          );
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 42px;
+      }
+
+      .brand-mark {
+        width: 66px;
+        height: 66px;
+        flex: 0 0 auto;
+        filter: drop-shadow(0 12px 20px rgba(230, 0, 35, 0.22));
+      }
+
+      .brand-label {
+        display: block;
+        color: var(--cyberalchemy-muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .brand-name {
+        display: block;
+        margin-top: 2px;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+
+      .section-kicker {
+        margin: 0 0 12px;
+        color: var(--cyberalchemy-red-deep);
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        letter-spacing: 0;
+      }
+
+      h1 {
+        max-width: 900px;
+        margin: 0;
+        color: var(--cyberalchemy-text);
+        font-size: 4.4rem;
+        line-height: 0.98;
+      }
+
+      .gradient-title {
+        background: linear-gradient(
+          90deg,
+          var(--cyberalchemy-red),
+          var(--cyberalchemy-red-deep) 46%,
+          var(--cyberalchemy-orange)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        max-width: 780px;
+        margin: 24px 0 0;
+        color: var(--cyberalchemy-text);
+        font-size: 1.32rem;
+        line-height: 1.55;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+        margin-top: 26px;
+        color: var(--cyberalchemy-muted);
+        font-size: 0.95rem;
+        font-weight: 650;
+      }
+
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+      }
+
+      .content {
+        max-width: var(--article-width);
+        margin: 0 auto;
+        padding: 52px 0 64px;
+      }
+
+      .lede {
+        font-size: 1.24rem;
+        line-height: 1.62;
+      }
+
+      p {
+        margin: 0 0 1.15rem;
+        font-size: 1.05rem;
+      }
+
+      h2 {
+        margin: 2.6rem 0 1rem;
+        padding-left: 14px;
+        border-left: 4px solid var(--cyberalchemy-red);
+        font-size: 2rem;
+        line-height: 1.18;
+      }
+
+      h3 {
+        margin: 2rem 0 0.8rem;
+        color: var(--cyberalchemy-red-deep);
+        font-size: 1.3rem;
+        line-height: 1.25;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 1.3rem;
+        padding-left: 1.35rem;
+      }
+
+      li {
+        margin-bottom: 0.48rem;
+      }
+
+      strong {
+        font-weight: 800;
+      }
+
+      code {
+        border: 1px solid var(--cyberalchemy-border);
+        border-radius: 6px;
+        background: var(--cyberalchemy-surface);
+        color: var(--cyberalchemy-red-deep);
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.93em;
+        padding: 0.08rem 0.28rem;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 1.4rem 0;
+        padding: 18px;
+        border: 1px solid var(--cyberalchemy-border);
+        border-left: 4px solid var(--cyberalchemy-red);
+        border-radius: 0 8px 8px 0;
+        background: var(--cyberalchemy-surface-strong);
+      }
+
+      pre code {
+        display: block;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--cyberalchemy-text);
+        line-height: 1.6;
+        padding: 0;
+        white-space: pre;
+      }
+
+      .callout {
+        margin: 1.55rem 0 1.75rem;
+        padding: 20px 22px;
+        border: 1px solid var(--cyberalchemy-border);
+        border-left: 4px solid var(--cyberalchemy-orange);
+        border-radius: 0 8px 8px 0;
+        background: var(--cyberalchemy-surface);
+      }
+
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+
+      .anchor-table-wrap {
+        overflow-x: auto;
+        margin: 1.5rem 0 1.8rem;
+        border: 1px solid var(--cyberalchemy-border);
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 640px;
+        border-collapse: collapse;
+        background: var(--cyberalchemy-surface);
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--cyberalchemy-border);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      tr:last-child th,
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      th {
+        color: var(--cyberalchemy-red-deep);
+        font-size: 0.92rem;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .signal-list {
+        padding: 0;
+        list-style: none;
+      }
+
+      .signal-list li {
+        position: relative;
+        margin-bottom: 0.55rem;
+        padding-left: 1.1rem;
+      }
+
+      .signal-list li::before {
+        content: "";
+        position: absolute;
+        top: 0.76em;
+        left: 0;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--cyberalchemy-red);
+      }
+
+      .signal-list li:nth-child(2n)::before {
+        background: var(--cyberalchemy-orange);
+      }
+
+      .signal-list li:nth-child(3n)::before {
+        background: var(--cyberalchemy-teal);
+      }
+
+      .closing-question {
+        margin-top: 2rem;
+        padding: 24px;
+        border: 1px solid var(--cyberalchemy-border);
+        border-top: 4px solid var(--cyberalchemy-red);
+        border-radius: 8px;
+        background: var(--cyberalchemy-surface);
+        font-size: 1.2rem;
+        line-height: 1.55;
+      }
+
+      .footer {
+        padding: 24px 64px 32px;
+        border-top: 1px solid var(--cyberalchemy-border);
+        color: var(--cyberalchemy-muted);
+        font-size: 0.92rem;
+      }
+
+      .footer strong {
+        color: var(--cyberalchemy-text);
+      }
+
+      @media (max-width: 840px) {
+        .page {
+          padding: 12px;
+        }
+
+        .hero {
+          padding: 34px 24px 32px;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+
+        .subtitle {
+          font-size: 1.16rem;
+        }
+
+        .content {
+          padding: 34px 24px 46px;
+        }
+
+        .footer {
+          padding: 22px 24px 28px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .brand {
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 32px;
+        }
+
+        .brand-mark {
+          width: 54px;
+          height: 54px;
+        }
+
+        h1 {
+          font-size: 2.35rem;
+          line-height: 1.04;
+        }
+
+        h2 {
+          font-size: 1.62rem;
+        }
+
+        .lede {
+          font-size: 1.12rem;
+        }
+      }
+
+      @media print {
+        body::before {
+          display: none;
+        }
+
+        .page {
+          padding: 0;
+        }
+
+        .article-shell {
+          border: 0;
+          box-shadow: none;
+        }
+
+        .hero,
+        .content,
+        .footer {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article-shell">
+        <header class="hero">
+          <div class="brand" aria-label="CyberAlchemy identity">
+            <svg
+              class="brand-mark"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 120 120"
+              role="img"
+              aria-labelledby="cyberalchemy-mark-title cyberalchemy-mark-desc"
+            >
+              <title id="cyberalchemy-mark-title">CyberAlchemy Mark</title>
+              <desc id="cyberalchemy-mark-desc">
+                A circular convergence loop, alchemical triangle, feedback arc,
+                and central meaning kernel in the CyberAlchemy red-to-orange
+                gradient.
+              </desc>
+              <defs>
+                <linearGradient
+                  id="arcanum-cyberalchemy-mark-gradient"
+                  x1="0"
+                  x2="1"
+                  y1="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stop-color="#e60023" />
+                  <stop offset="62%" stop-color="#cc0000" />
+                  <stop offset="100%" stop-color="#ea580c" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                stroke="url(#arcanum-cyberalchemy-mark-gradient)"
+                stroke-width="8"
+              />
+              <path
+                d="M24 65c18-26 54-34 78-10"
+                fill="none"
+                stroke="url(#arcanum-cyberalchemy-mark-gradient)"
+                stroke-linecap="round"
+                stroke-width="8"
+              />
+              <path
+                d="M33 88 60 26l27 62H33Z"
+                fill="none"
+                stroke="url(#arcanum-cyberalchemy-mark-gradient)"
+                stroke-linejoin="round"
+                stroke-width="7"
+              />
+              <circle
+                cx="60"
+                cy="61"
+                r="8"
+                fill="url(#arcanum-cyberalchemy-mark-gradient)"
+              />
+            </svg>
+            <div>
+              <span class="brand-label">CyberAlchemy</span>
+              <span class="brand-name">Agent capability infrastructure</span>
+            </div>
+          </div>
+
+          <p class="section-kicker">Introducing Arcanum</p>
+          <h1>
+            <span class="gradient-title"
+              >Arcanum: When Agent Skills Become Infrastructure</span
+            >
+          </h1>
+          <p class="subtitle">
+            A framework for turning skills and agent workflows into reusable,
+            observable, improvable capabilities.
+          </p>
+          <div class="meta" aria-label="Article metadata">
+            <span>CyberAlchemy</span>
+            <span>May 19, 2026</span>
+            <span>AI agents</span>
+            <span>Agent engineering</span>
+            <span>Observability</span>
+          </div>
+        </header>
+
+        <div class="content">
+          <p class="lede">
+            Agent builders are in the middle of discovering what skills are
+            really for.
+          </p>
+
+          <p>
+            At first, a skill can look like a better prompt: a reusable
+            instruction, a little local knowledge, maybe a tool workflow. But
+            once people start building with skills, the harder questions appear
+            quickly.
+          </p>
+
+          <p>
+            How should a skill be structured? When is it reusable? How does it
+            fail? How does another agent know when to use it? How does a team
+            validate that it works? How does the system remember which behaviors
+            are good, which ones drift, and which ones should evolve?
+          </p>
+
+          <p>
+            Without answers to those questions, skills become easy to create
+            but hard to govern. A user asks for help, the model reasons, writes,
+            edits, searches, plans, or codes, and maybe the session produces a
+            strong artifact. But once the thread moves on, the actual method is
+            hard to reuse. The next agent has to infer what happened from
+            scattered context. The next human has to remember what worked.
+          </p>
+
+          <div class="callout">
+            <p>
+              Arcanum is Cyber Alchemy's attempt to make that work visible.
+            </p>
+          </div>
+
+          <p>
+            Arcanum is a framework for turning skills and agent workflows into
+            reusable capabilities through governed synthesis. It gives a shape
+            to the work of turning vague intent into artifacts that humans and
+            agents can understand, reuse, validate, observe, and improve.
+          </p>
+
+          <p>It is not just a prompt library.</p>
+
+          <p>
+            A prompt says what to do once. An Arcanum capability should explain
+            when to use it, when not to use it, how it reasons, what it
+            produces, how it fails, how it is validated, how it is observed, and
+            who owns the next lifecycle step.
+          </p>
+
+          <h2>Why This Exists</h2>
+
+          <p>
+            The more Cyber Alchemy works with agents, the clearer the pattern
+            becomes: the interesting part is not a single answer. It is the
+            emergence of reusable ways of thinking.
+          </p>
+
+          <p>
+            An agent can help define a product, critique an architecture, design
+            a planning process, interrogate a spec, decompose implementation
+            layers, validate an artifact, run experiments, or preserve a
+            development trace. These are not just tasks. They are repeatable
+            behaviors.
+          </p>
+
+          <p>But repeatable behaviors need structure.</p>
+
+          <p>
+            They need names. They need boundaries. They need quality bars. They
+            need anti-patterns. They need output contracts. They need validation
+            examples. They need observability. They need maintenance.
+          </p>
+
+          <p>
+            Without that structure, agent work becomes a pile of clever moments.
+            Useful, but hard to govern.
+          </p>
+
+          <p>Arcanum tries to turn those moments into capabilities.</p>
+
+          <h2>The Cyber Alchemy Method</h2>
+
+          <p>
+            The working method behind Arcanum is called the Cyber Alchemy
+            Method.
+          </p>
+
+          <p>
+            The core idea is simple: good agent systems are built by turning
+            vague intent and discovered evidence into governed artifacts.
+          </p>
+
+          <p>Every serious run keeps five anchors visible:</p>
+
+          <div class="anchor-table-wrap" role="region" aria-label="Five anchors">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Anchor</th>
+                  <th scope="col">Question</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Objective</th>
+                  <td>What is the work trying to solve?</td>
+                </tr>
+                <tr>
+                  <th scope="row">Output artifact</th>
+                  <td>What should exist when this work is done?</td>
+                </tr>
+                <tr>
+                  <th scope="row">Discovery</th>
+                  <td>
+                    What must be learned before the artifact can responsibly
+                    close?
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Tension</th>
+                  <td>
+                    What could make the artifact brittle, oversized,
+                    misleading, or unsafe?
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Route</th>
+                  <td>Who or what owns the next lifecycle step?</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Those anchors matter because agent work can drift very easily.
+          </p>
+
+          <p>
+            If the objective is unclear, the agent can produce beautiful output
+            that solves the wrong problem. If the output artifact is unnamed,
+            the middle of the work becomes mushy. If discovery is skipped, the
+            system just rearranges what it already knows. If tension is absent,
+            the plan becomes overconfident. If route ownership is missing, the
+            result lands with no responsible next step.
+          </p>
+
+          <p>
+            Cyber Alchemy treats the agent as a collaborator, not a passive
+            executor. The agent helps shape the problem, gather evidence, expose
+            tension, revise the artifact, and make the path forward legible.
+          </p>
+
+          <h2>Sigils And Spells</h2>
+
+          <p>Arcanum uses two main capability shapes: sigils and spells.</p>
+
+          <p>A sigil is one reusable agent capability.</p>
+
+          <p>Examples of sigil-shaped work include:</p>
+
+          <ul class="signal-list">
+            <li>implementation layering,</li>
+            <li>decision gates,</li>
+            <li>structured interviews,</li>
+            <li>workflow reflection,</li>
+            <li>experiment harnessing,</li>
+            <li>sigil development itself.</li>
+          </ul>
+
+          <p>A spell is a composition of sigils into a workflow.</p>
+
+          <p>
+            Where a sigil is an atomic capability, a spell is a recipe. It
+            defines which capabilities run, in what order, what state they
+            share, which artifacts move between phases, what gates can stop the
+            workflow, and how the run is observed.
+          </p>
+
+          <p>
+            This distinction is important because agents need lifecycle
+            boundaries. A capability that defines a sigil should not silently
+            become the authority for maintaining all sigils. A planning workflow
+            should not quietly become an execution workflow. A spell can
+            coordinate, but it should not copy and blur the internals of the
+            capabilities it composes.
+          </p>
+
+          <p>Arcanum tries to preserve those boundaries.</p>
+
+          <h2>Capabilities Need A Lifecycle</h2>
+
+          <p>
+            In Arcanum, a reusable capability is not done when the first draft
+            exists.
+          </p>
+
+          <p>It moves through a lifecycle:</p>
+
+          <ol>
+            <li>Define the intent and local vocabulary.</li>
+            <li>Design the behavior, boundaries, interfaces, and failure modes.</li>
+            <li>Plan the implementation path.</li>
+            <li>Build the smallest responsible unit.</li>
+            <li>Validate with examples and expected outputs.</li>
+            <li>Observe real usage.</li>
+            <li>Reflect when evidence accumulates.</li>
+            <li>Revise without losing the original contract.</li>
+          </ol>
+
+          <p>This is slower than writing a clever prompt.</p>
+
+          <p>It is also more honest.</p>
+
+          <p>
+            If a capability is going to be reused by humans and agents across
+            sessions, it needs more than vibes. It needs enough structure that a
+            future run can tell whether it is succeeding.
+          </p>
+
+          <h3>Invoke And Interrogation</h3>
+
+          <p>
+            Two of the most practical Arcanum entry points are
+            <code>invoke</code> and <code>interrogation</code>.
+          </p>
+
+          <p>
+            <code>invoke</code> is the authoring spell. It turns unclear
+            development intent into governed artifacts: definitions, design
+            packets, implementation plans, work-packs, transport notes, and
+            lifecycle handoffs. When an idea does not yet have a clear route,
+            <code>invoke</code> helps decide whether the work needs a spec,
+            architecture, plan, validation path, or lifecycle handoff.
+          </p>
+
+          <p>
+            <code>interrogation</code> is the pressure-testing sigil. It reviews
+            an artifact, plan, or development packet and asks whether the work
+            is actually ready to continue. It looks for missing context, weak
+            boundaries, premature complexity, hidden blockers, and places where
+            the artifact sounds complete but cannot yet support the next
+            lifecycle step.
+          </p>
+
+          <p>Together, they create a useful rhythm:</p>
+
+          <pre><code>invoke creates the governed artifact
+interrogation challenges whether it is ready
+the artifact is revised
+the lifecycle route becomes clearer</code></pre>
+
+          <p>
+            That rhythm matters because agent work often looks polished before
+            it is structurally sound. <code>invoke</code> gives the work form.
+            <code>interrogation</code> gives it resistance.
+          </p>
+
+          <h2>Observability Is Already Implemented</h2>
+
+          <p>
+            One of the most important parts of Arcanum is the observability
+            layer.
+          </p>
+
+          <p>
+            The repository-local observability package is already implemented.
+            It stores invocation signals, run envelopes, lookup indexes, hook
+            operation records, reflection state, and reflection reports under
+            <code>.arcanum/observability/</code>.
+          </p>
+
+          <p>That means a capability can leave evidence behind after it runs.</p>
+
+          <p>The system can record:</p>
+
+          <ul class="signal-list">
+            <li>which capability ran,</li>
+            <li>what mode it used,</li>
+            <li>what artifact it targeted,</li>
+            <li>which gates passed, flagged, or blocked,</li>
+            <li>what output contract drift appeared,</li>
+            <li>what workflow gaps were found,</li>
+            <li>whether reflection should be triggered.</li>
+          </ul>
+
+          <p>
+            This matters because agents need memory that is not just chat
+            memory.
+          </p>
+
+          <p>
+            Chat memory is conversational. Observability is operational. It
+            gives the system a way to notice repeated failures, confusing
+            handoffs, overused techniques, missing validation, or output drift.
+          </p>
+
+          <p>The point is not surveillance. The point is maintenance.</p>
+
+          <p>A reusable capability should be able to learn from use.</p>
+
+          <h2>Experiment Harness Is Also Implemented</h2>
+
+          <p>Arcanum also includes an implemented experiment harness.</p>
+
+          <p>
+            The experiment harness gives reusable spells and sigils an
+            artifact-local test loop. Realistic fixtures go in. User-facing
+            outputs come out. Validation reports record whether the capability
+            actually satisfies its contract.
+          </p>
+
+          <p>The harness supports:</p>
+
+          <ul class="signal-list">
+            <li>fixture and expected-output checks,</li>
+            <li>bounded Codex example runs,</li>
+            <li>generated example prompts,</li>
+            <li>captured example outputs,</li>
+            <li>validation reports,</li>
+            <li>quality bar and anti-pattern checks,</li>
+            <li>observability emission after experiment reports.</li>
+          </ul>
+
+          <p>
+            This is where the framework starts to feel less like a philosophy
+            and more like infrastructure.
+          </p>
+
+          <p>
+            If a capability claims it can define a sigil, produce an
+            implementation plan, validate an artifact, or coordinate a workflow,
+            the experiment harness gives Cyber Alchemy a way to ask: did it
+            actually do that?
+          </p>
+
+          <p>Not in theory. In a run. With evidence.</p>
+
+          <h2>The Smallest Responsible Unit</h2>
+
+          <p>
+            A recurring theme in Arcanum is the smallest responsible unit.
+          </p>
+
+          <p>
+            This is not the smallest possible unit. Tiny fragments can be
+            meaningless. It is the smallest unit that still has a purpose,
+            boundary, input, output, and recomposition path.
+          </p>
+
+          <p>
+            For example, when designing a new sigil, the smallest responsible
+            unit might be a README and SKILL contract that can be run manually
+            before any runtime adapter or registry promotion exists.
+          </p>
+
+          <p>
+            That unit is small enough to validate, but complete enough to mean
+            something.
+          </p>
+
+          <p>
+            Then later layers can add examples, runtime adapters, observability,
+            registry candidacy, and reflection policy.
+          </p>
+
+          <p>The goal is to avoid two common failures:</p>
+
+          <ul class="signal-list">
+            <li>
+              premature complexity, where the system designs for future scale
+              before the current unit works,
+            </li>
+            <li>
+              brittle minimalism, where the system is so small that it cannot
+              evolve naturally.
+            </li>
+          </ul>
+
+          <p>Arcanum tries to hold the tension between those two.</p>
+
+          <h2>Why This Matters</h2>
+
+          <p>The future of agent work is not just better models.</p>
+
+          <p>
+            Better models matter, obviously. But model capability alone does not
+            answer the lifecycle question:
+          </p>
+
+          <p>How can useful agent behavior become durable?</p>
+
+          <p>
+            How can a community inspect it, reuse it, improve it, and know when
+            it should not be trusted?
+          </p>
+
+          <p>How can the reasoning method be preserved, not just the output?</p>
+
+          <p>How can agent systems evolve without becoming a maze?</p>
+
+          <p>Arcanum is one answer Cyber Alchemy is exploring.</p>
+
+          <p>
+            It is a framework for making agent capability explicit. It is also a
+            working style: research first, name the artifact, expose tension,
+            validate the result, observe usage, and route the next owner.
+          </p>
+
+          <h2>What Exists Now</h2>
+
+          <p>Arcanum currently includes:</p>
+
+          <ul class="signal-list">
+            <li>the Cyber Alchemy Method,</li>
+            <li>a framework for sigil and spell lifecycle governance,</li>
+            <li>a tier model for Formulae, Transmutations, and Arcana,</li>
+            <li>registries for reusable sigils and spells,</li>
+            <li>an implemented repository-local observability layer,</li>
+            <li>an implemented experiment harness,</li>
+            <li>
+              lifecycle capabilities such as invoke, interrogation,
+              sigil-development, spellcraft, implementation-layering, and
+              task-session,
+            </li>
+            <li>
+              development workflows for creating and validating new
+              capabilities.
+            </li>
+          </ul>
+
+          <p>
+            Some parts are still evolving. That is expected. The point is not to
+            freeze the system early. The point is to make the system
+            understandable enough that it can evolve in public.
+          </p>
+
+          <h2>Invitation</h2>
+
+          <p>
+            Cyber Alchemy is sharing Arcanum because agent builders need better
+            language for the work between "prompt" and "product."
+          </p>
+
+          <p>
+            There is a growing space of agent capabilities that are not quite
+            apps, not quite prompts, not quite workflows, and not quite tests.
+            They are reusable reasoning behaviors with lifecycle needs.
+          </p>
+
+          <p>Arcanum gives Cyber Alchemy a way to name and build those.</p>
+
+          <p>
+            If you are building agents, tools for thought, coding assistants,
+            research workflows, design systems, or long-running human-agent
+            collaborations, Cyber Alchemy would love to know what resonates and
+            what feels missing.
+          </p>
+
+          <div class="closing-question">
+            What would agent work look like if every useful behavior could
+            become a clear, validated, observable, improvable capability?
+          </div>
+
+          <p>
+            That is the direction Arcanum is trying to explore.
+          </p>
+        </div>
+
+        <footer class="footer">
+          <strong>CyberAlchemy</strong> publication build for Arcanum. Visual
+          identity follows the reusable CyberAlchemy mark and color system.
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>

@@ -10,7 +10,7 @@ The design must make these properties possible:
 - Every run keeps the objective-output artifact pair visible so discovery can adjust the target result without losing orientation.
 - Techniques attach to explicit phases as gates, lenses, classifiers, checks, closeout passes, or mode mechanics.
 - The core sigil owns concept state, closure, recomposition, tension routing, and readiness verdicts.
-- Runtime adapters can either spawn true subagents or simulate Proposer and Balancer roles while preserving the same trace contract.
+- Runtime adapters use true subagents when available; when unavailable, they simulate Proposer and Balancer roles while preserving the same trace contract.
 - Every mode and technique leaves auditable evidence in the final result and observability signals.
 
 ## Source Contracts
@@ -101,7 +101,7 @@ User intent
 | ModeResolver | Selects Compact, Standard, Tournament, Deep, or Validate from user choice or safe default. | Produces ModeProfile. |
 | DiscoveryBaselineBuilder | Records provided evidence, searched sources, blocker unknowns, non-blocker unknowns, and assumptions before recursive reduction. | Updates RunFrame discovery baseline. |
 | TechniqueSelector | Activates always-on techniques and triggered conditional techniques. | Produces ordered TechniqueSpec list by phase. |
-| RoleRunner | Runs Proposer and Balancer turns through true subagents or role simulation. | Produces Role conversation trace. |
+| RoleRunner | Runs Proposer and Balancer turns through true subagents when supported, or role simulation when unsupported. | Produces Role conversation trace. |
 | ReductionLoop | Runs recursive rounds within ModeProfile limits. | Produces ConceptLayer and CandidateUnit updates. |
 | GateEvaluator | Applies closure, recomposition, cycle, and readiness rules. | Produces pass, flag, or block decisions. |
 | PitchOffResolver | Compares proposal tracks in Tournament mode. | Produces proposal comparison and convergence rationale. |
@@ -276,7 +276,7 @@ Trace entries should be append-only within a run. Later reconciliation may super
 | Risk ID | Risk | Mitigation | Owner |
 | --- | --- | --- | --- |
 | RK-001 | Technique surface becomes too heavy for Compact mode. | Compact runs always-on gates only and records skipped triggered techniques. | Sigil-development |
-| RK-002 | True subagents and role simulation produce different trace quality. | Require the same Role Trace Contract in both paths. | Runtime adapter |
+| RK-002 | True subagents and role simulation produce different trace quality. | Prefer true subagents when available and require the same Role Trace Contract in both paths. | Runtime adapter |
 | RK-003 | Tournament mode becomes a debate without convergence. | Require option value, elimination condition, pitch-off rationale, and human gate when no winner is justified. | Core sigil engine |
 | RK-004 | Techniques mutate concept state implicitly. | Restrict techniques to hook-allowed state and require emitted outputs. | Technique surface |
 | RK-005 | Surface design over-specifies implementation. | Keep interfaces conceptual and defer code mechanics to sigil-development. | Invoke design |

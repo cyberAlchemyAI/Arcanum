@@ -50,7 +50,7 @@ Remaining non-blocker work:
 - author arcana/concept-layer-optimizer/README.md,
 - author arcana/concept-layer-optimizer/SKILL.md,
 - create passing and negative examples,
-- decide runtime adapter behavior for true subagents versus role simulation,
+- implement the resolved runtime policy: true subagents when supported, role simulation fallback when unavailable,
 - add command adapter only after manual candidate behavior is stable.
 
 Decision: route to sigil-development.
@@ -60,7 +60,7 @@ Decision: route to sigil-development.
 - Verdict: pass
 - Reason: The handoff is now design-ready for sigil-development. It should not be promoted or registered yet.
 - Blocking ambiguity: none
-- Non-blocking gaps: README.md, SKILL.md, validation examples, runtime adapter, registry approval.
+- Non-blocking gaps: README.md, SKILL.md, validation examples, runtime adapter, final registry approval.
 
 ## Structured Interview Result
 

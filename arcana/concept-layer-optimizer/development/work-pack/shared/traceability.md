@@ -29,7 +29,7 @@
 | L2.4 Runtime Validation | SWU-CLO-014 |
 | L3.1 Candidate Metadata | SWU-CLO-015 |
 | L3.2 Routing And Link Check | SWU-CLO-016 |
-| L3.3 Promotion Decision | SWU-CLO-017 |
+| L3.3 Promotion Recommendation | SWU-CLO-017 |
 | L4.1 Reflection Signals | SWU-CLO-011 |
 | L4.2 Maintenance Change Classes | SWU-CLO-018 |
 | L4.3 Evolution Loop | SWU-CLO-019, SWU-CLO-020 |
@@ -41,7 +41,7 @@
 | L0 -> L1 | README.md and SKILL.md exist and pass package review. |
 | L1 -> L2 | Examples and VALIDATION.md show pass/flag/block behavior. |
 | L2 -> L3 | Runtime adapter resolves and representative run records observability closeout. |
-| L3 -> L4 | Registry decision is recorded and docs links validate. |
+| L3 -> L4 | Registry recommendation is recorded and docs links validate. |
 
 ## Micro-Layer Promotion Rule
 
@@ -51,6 +51,6 @@ Nested micro-layers promote only when their evidence still satisfies the parent 
 
 - If objective-output setup is omitted, return to TASK-CLO-002.
 - If examples reveal unclear mode behavior, return to TASK-CLO-001 and TASK-CLO-002.
-- If runtime adapter requires true subagents to function, record a blocker and keep role simulation fallback.
-- If registry approval is not explicit, do not promote.
+- If runtime supports true subagents, use them; if it does not, preserve the same trace through labeled role simulation.
+- If registry approval is not explicit at the final gate, do not promote.
 - If a nested layer creates new artifacts without improving execution, collapse it back into the parent SWU.

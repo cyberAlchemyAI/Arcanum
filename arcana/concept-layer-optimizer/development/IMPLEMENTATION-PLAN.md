@@ -3,7 +3,7 @@ template_id: invoke.implementation-plan
 template_type: implementation-plan
 module: concept-layer-optimizer
 status: draft
-updatedAt: 2026-05-19
+updatedAt: 2026-05-20
 ---
 
 # Implementation Plan: Concept Layer Optimizer Sigil Development
@@ -39,12 +39,13 @@ This refresh also applies nested implementation layering inside each top-level l
 - Excluded:
   - Immediate registry promotion before examples pass.
   - Global glossary promotion.
-  - Runtime adapter behavior that requires unvalidated true-subagent orchestration.
+  - Runtime adapter behavior that requires true subagents without role simulation fallback.
   - Any application/source-code implementation outside this sigil package.
 - Deferral rules:
   - Defer runtime adapter until manual candidate examples pass.
-  - Defer registry until runtime and validation evidence exists.
-  - Defer advanced multi-agent orchestration until role simulation behavior is stable.
+  - Defer registry candidate work until runtime and validation evidence exists.
+  - Defer registry promotion until the final lifecycle approval gate.
+  - Runtime role policy is subagent-first: use true subagents when the runtime supports them; otherwise use labeled role simulation with the same trace contract.
 
 ## Delivery Slices
 
@@ -53,7 +54,7 @@ This refresh also applies nested implementation layering inside each top-level l
 | S-CLO-001 | Candidate package exists and is manually executable. | SD-001 through SD-005 | README/SKILL review against sigil-development quality bar. |
 | S-CLO-002 | Behavior examples prove pass, flag, and block outcomes. | S-CLO-001 | Validation examples include real output bodies and expected verdicts. |
 | S-CLO-003 | Runtime and observability are ready for representative invocation. | S-CLO-002 | Command resolves, signal schema exists, representative closeout is recorded. |
-| S-CLO-004 | Registry candidate is ready for approval. | S-CLO-003 | Link validation, registry diff review, explicit promotion decision. |
+| S-CLO-004 | Registry candidate is ready for final approval. | S-CLO-003 | Link validation, registry diff review, and approval-ready promotion recommendation. |
 | S-CLO-005 | Reflection and maintenance loop is defined. | S-CLO-003 | Reflection thresholds and iteration policy are documented. |
 
 ## Dependency Plan
@@ -62,9 +63,9 @@ This refresh also applies nested implementation layering inside each top-level l
 | --- | --- | --- | --- |
 | Approved design packet | all slices | ready | Low; design continuation review passes. |
 | Sigil-development contract | S-CLO-001, S-CLO-005 | ready | Low; existing lifecycle owner. |
-| Runtime adapter decision | S-CLO-003 | partial | Medium; true subagent versus role simulation must be decided. |
+| Runtime adapter decision | S-CLO-003 | ready | Low; policy is subagent-first with role simulation fallback when runtime subagents are unavailable. |
 | Validation examples | S-CLO-003, S-CLO-004 | missing | Medium; promotion must wait for real outputs. |
-| Registry approval | S-CLO-004 | missing | Low; explicit user/lifecycle approval required. |
+| Registry approval | S-CLO-004, S-CLO-005 | final gate | Low; explicit user/lifecycle approval is the last step after readiness evidence exists. |
 
 ## Layer Window
 
@@ -83,7 +84,7 @@ This refresh also applies nested implementation layering inside each top-level l
 | L0 Candidate Package | L0.1 README Surface, L0.2 SKILL Execution Contract, L0.3 Balance And Complexity Contract, L0.4 Navigation Closeout | Task/SWU mapping must prove README and SKILL are independently navigable and mutually consistent. |
 | L1 Behavior Validation | L1.1 Golden Runs, L1.2 Technique Trigger Runs, L1.3 Drift And Failure Runs, L1.4 Validation Report | Examples are grouped by behavior evidence instead of one undifferentiated examples bundle. |
 | L2 Runtime And Observability | L2.1 Command Surface, L2.2 Role Execution Policy, L2.3 Signal Schema, L2.4 Runtime Validation | Runtime access, role policy, telemetry, and representative run evidence are gated independently. |
-| L3 Registry Candidate | L3.1 Candidate Metadata, L3.2 Routing And Link Check, L3.3 Promotion Decision | Registry work remains blocked until evidence exists, then proceeds through metadata, navigation, and approval. |
+| L3 Registry Candidate | L3.1 Candidate Metadata, L3.2 Routing And Link Check, L3.3 Promotion Recommendation | Registry candidate work waits for evidence, then proceeds through metadata, navigation, and an approval-ready recommendation. Final approval is handled as the last lifecycle gate. |
 | L4 Reflection And Maintenance | L4.1 Reflection Signals, L4.2 Maintenance Change Classes, L4.3 Evolution Loop | Maintenance is planned as an evidence loop, not a final prose afterthought. |
 
 ## Task Decomposition
@@ -95,9 +96,9 @@ This refresh also applies nested implementation layering inside each top-level l
 | TASK-CLO-003 | S-CLO-002 | L1.1, L1.2, L1.3 | Build validation examples and runbook. | Passing, technique-trigger, and negative example prompts/outputs exist with expected pass/flag/block verdicts. |
 | TASK-CLO-004 | S-CLO-002 | L1.4 | Run manual validation and record findings. | Validation report cites examples, gaps, micro-layer coverage, and promotion decision. |
 | TASK-CLO-005 | S-CLO-003 | L2.3, L4.1 | Define observability and reflection artifacts. | Usage telemetry schema, meaningful execution definition, thresholds, and reflection path are documented. |
-| TASK-CLO-006 | S-CLO-003 | L2.1, L2.2, L2.4 | Add runtime command adapter after manual behavior passes. | Adapter resolves through local command surface, states role policy, and preserves output/observability contracts. |
-| TASK-CLO-007 | S-CLO-004 | L3.1, L3.2, L3.3 | Prepare registry candidate and docs links. | Registry/docs updates are staged behind explicit approval, link validation passes, and promotion status is recorded. |
-| TASK-CLO-008 | S-CLO-005 | L4.1, L4.2, L4.3 | Final readiness, release, and maintenance review. | End-to-end review confirms package, examples, runtime, observability, registry decision, reflection loop, and maintenance change classes. |
+| TASK-CLO-006 | S-CLO-003 | L2.1, L2.2, L2.4 | Add runtime command adapter after manual behavior passes. | Adapter resolves through local command surface, uses subagent-first role policy with role simulation fallback, and preserves output/observability contracts. |
+| TASK-CLO-007 | S-CLO-004 | L3.1, L3.2, L3.3 | Prepare registry candidate and docs links. | Registry/docs candidate metadata and link validation are prepared without final promotion approval. |
+| TASK-CLO-008 | S-CLO-005 | L4.1, L4.2, L4.3 | Final readiness, release, and maintenance review. | End-to-end review confirms package, examples, runtime, observability, registry recommendation, reflection loop, maintenance classes, and final approval state. |
 
 ## Execution Detail Authority
 
@@ -134,21 +135,21 @@ SWU IDs are ordered by execution handoff sequence. Micro-layer IDs remain the co
 | SWU-CLO-010 | TASK-CLO-005 | L2.3 | Define usage telemetry. | `arcana/concept-layer-optimizer/templates/usage-telemetry.md` | Meaningful execution and signal fields are named. | review template |
 | SWU-CLO-011 | TASK-CLO-005 | L4.1 | Define reflection thresholds. | `arcana/concept-layer-optimizer/README.md`, `templates/` | Manual, threshold, drift, navigation, and gap triggers are documented. | review docs |
 | SWU-CLO-012 | TASK-CLO-006 | L2.1 | Add runtime adapter. | `.codex/commands/` or runtime adapter path | Adapter points to canonical SKILL and preserves closeout. | `tools/arcanum --resolve /concept-layer-optimizer` |
-| SWU-CLO-013 | TASK-CLO-006 | L2.2 | Define runtime role execution policy. | runtime adapter docs or `arcana/concept-layer-optimizer/README.md` | Runtime states true-subagent support, role simulation fallback, and tournament limits. | review policy section |
+| SWU-CLO-013 | TASK-CLO-006 | L2.2 | Define runtime role execution policy. | runtime adapter docs or `arcana/concept-layer-optimizer/README.md` | Runtime states subagent-first execution when supported, role simulation fallback when unavailable, and tournament limits. | review policy section |
 | SWU-CLO-014 | TASK-CLO-006 | L2.4 | Validate runtime representative run. | `development/` and observability ledgers | Closeout includes observation fields, role policy, and output contract. | representative run review |
-| SWU-CLO-015 | TASK-CLO-007 | L3.1 | Prepare registry/docs candidate metadata. | `registry/`, `README.md`, `framework/README.md` if applicable | Candidate entry and package links exist behind approval. | link validation/review |
+| SWU-CLO-015 | TASK-CLO-007 | L3.1 | Prepare registry/docs candidate metadata. | `registry/`, `README.md`, `framework/README.md` if applicable | Candidate entry and package links exist without silently promoting the sigil. | link validation/review |
 | SWU-CLO-016 | TASK-CLO-007 | L3.2 | Run routing and link check. | registry/docs links | README, SKILL, examples, validation, and adapter links are reachable. | link validation/review |
-| SWU-CLO-017 | TASK-CLO-007 | L3.3 | Record promotion decision. | `development/REGISTRY-PROMOTION.md` or equivalent | Decision names promote, hold, or revise with evidence and approval status. | review promotion record |
+| SWU-CLO-017 | TASK-CLO-007 | L3.3 | Record promotion recommendation. | `development/REGISTRY-PROMOTION.md` or equivalent | Recommendation names promote, hold, or revise with evidence and final approval marked pending unless already granted. | review promotion record |
 | SWU-CLO-018 | TASK-CLO-008 | L4.2 | Define maintenance handoff. | `README.md`, `SKILL.md`, `templates/` | Maintenance change classes, reflection route, and lifecycle owner are explicit. | review maintenance section |
 | SWU-CLO-019 | TASK-CLO-008 | L4.3 | Define evolution loop. | `README.md`, `SKILL.md`, `development/READINESS-REVIEW.md` | Observability, reflection report, design update, validation rerun, and release note are linked. | review evolution loop |
-| SWU-CLO-020 | TASK-CLO-008 | L4.3 | Final readiness review. | `development/READINESS-REVIEW.md` | Pass/flag/block readiness recorded with end-to-end evidence. | review readiness report |
+| SWU-CLO-020 | TASK-CLO-008 | L4.3 | Final readiness review. | `development/READINESS-REVIEW.md` | Pass/flag/block readiness and B-CLO-002 approval state recorded with end-to-end evidence. | review readiness report |
 
-## Blocker Ledger
+## Blocker And Gate Ledger
 
-| Blocker ID | Blocker | Impact | Resolution |
-| --- | --- | --- | --- |
-| B-CLO-001 | Runtime adapter strategy: true subagents versus role simulation. | Blocks L2 adapter details, not L0/L1 package work. | Decide after manual validation; default to role simulation fallback. |
-| B-CLO-002 | Registry approval. | Blocks L3 promotion only. | Ask user/lifecycle owner after validation evidence exists. |
+| ID | Status | Scope | Impact | Resolution |
+| --- | --- | --- | --- | --- |
+| B-CLO-001 | resolved | Runtime role execution policy. | No longer blocks L2 adapter details. | Always use true subagents when the runtime supports them; if the runtime does not support subagents, use labeled Proposer/Balancer role simulation with the same trace contract. |
+| B-CLO-002 | final gate | Registry promotion approval. | Blocks only final promotion/release, not candidate metadata or link preparation. | Ask user/lifecycle owner as the last step after readiness evidence exists; record promote, hold, or revise. |
 
 ## Validation Strategy
 
@@ -159,13 +160,13 @@ SWU IDs are ordered by execution handoff sequence. Micro-layer IDs remain the co
 | V-CLO-003 | Technique trigger examples. | technique pack | Examples for closure, recomposition, evolution, navigation, tournament. |
 | V-CLO-004 | Output contract review. | SKILL and examples | Output follows Concept Layer Optimizer Result shape. |
 | V-CLO-005 | Observability review. | telemetry templates and representative run | Signal fields and reflection triggers present. |
-| V-CLO-006 | Registry readiness. | registry/docs links | Link validation and explicit approval. |
+| V-CLO-006 | Registry readiness. | registry/docs links | Link validation, promotion recommendation, and final approval status. |
 
 ## Work-Pack Handoff
 
 - Work-pack companion: [WORK-PACK.md](WORK-PACK.md)
 - Required manifest entries: all TASK-CLO tasks and SWU-CLO manifest.
-- Deferred entries: runtime adapter and registry remain blocked until validation evidence exists.
+- Deferred entries: runtime adapter waits for validation evidence; registry promotion waits for the final approval gate.
 
 ## Execution-Pack Handoff
 
@@ -178,7 +179,9 @@ SWU IDs are ordered by execution handoff sequence. Micro-layer IDs remain the co
   - W4 registry and reflection.
 - Parallelization boundary:
   - README and SKILL can be drafted in parallel only after W0.
-  - Runtime and registry must not begin before validation evidence.
+  - Runtime must not begin before validation evidence.
+  - Registry candidate metadata must not begin before runtime evidence.
+  - Registry promotion must not happen before the final approval gate.
 
 ## Closure Criteria
 
@@ -186,9 +189,9 @@ SWU IDs are ordered by execution handoff sequence. Micro-layer IDs remain the co
 | --- | --- |
 | Candidate package is self-contained. | README.md and SKILL.md exist and pass quality-bar review. |
 | Behavior is validated. | Examples and VALIDATION.md show pass/flag/block cases. |
-| Runtime is safe to install. | Adapter preserves SKILL contract and role simulation fallback. |
+| Runtime is safe to install. | Adapter preserves SKILL contract and subagent-first role policy with role simulation fallback. |
 | Observability supports reflection. | Usage telemetry and reflection thresholds exist. |
-| Registry promotion is governed. | Approval record and link validation exist. |
+| Registry promotion is governed. | Final approval record, promotion recommendation, and link validation exist. |
 
 ## Gate Result
 

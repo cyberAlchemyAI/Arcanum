@@ -74,7 +74,7 @@ This design uses layered surfaces:
 ## Unresolved Gaps
 
 - Non-blocking: choose representation for ModeProfile and TechniqueSpec during sigil-development.
-- Non-blocking: runtime adapter still needs true-subagent versus role-simulation decision.
+- Non-blocking: runtime adapter still needs implementation of the resolved subagent-first policy.
 - Non-blocking: validation examples must prove Compact, Standard, Tournament, technique-trigger behavior, objective-output artifact drift, and navigable-result downgrade behavior using techniques/README.md.
 
 ## Recommended Next Route

@@ -2,7 +2,7 @@
 module: concept-layer-optimizer
 version: current
 status: draft
-updatedAt: 2026-05-19
+updatedAt: 2026-05-20
 docType: implementation-layering
 ---
 
@@ -38,7 +38,8 @@ This artifact applies Concept Layer Optimizer to its own development plan: it ch
 - Closure and recomposition proof: the candidate package is closed because it contains user-facing usage, executable process, quality bar, anti-patterns, and output contract. It recomposes upward because examples validate behavior, runtime adapts it, registry exposes it, and reflection maintains it.
 - Evolution profile: expected evolution is additional modes, refined technique triggers, runtime-specific subagent support, and telemetry-driven tuning.
 - Deferred complexity: command adapter, registry promotion, and automated reflection are deferred until manual examples show pass/flag/block behavior.
-- Tension ledger: runtime adapter strategy remains a later decision; validation examples must include objective-output drift and navigable-result downgrade cases.
+- Runtime role policy: subagent-first. Use true subagents when the runtime supports them; otherwise use labeled role simulation with the same trace contract.
+- Tension ledger: runtime implementation must prove the subagent-first/fallback policy preserves the same output contract; validation examples must include objective-output drift and navigable-result downgrade cases.
 - Navigation guide: start at Layer 0, then promote only when exit evidence is present.
 - Next route: sigil-development.
 
@@ -94,9 +95,9 @@ Default recursion budget:
 | --- | --- | --- | --- | --- | --- | --- |
 | L0 Candidate Package | After this layer, we know whether the sigil can be run manually from its own package. | `README.md` + `SKILL.md` with modes, technique pack, objective-output setup, navigation closeout, quality bar, anti-patterns, and output contract. | User-facing README, executable SKILL, tier rationale, lifecycle expectations, local links. | Examples, runtime adapter, observability hook, registry. | Human review confirms package can guide a manual Standard run. | Promote to examples when package is navigable and contract-complete. |
 | L1 Behavior Validation | After this layer, we know whether the sigil behaves consistently across compact, standard, tournament, validate, and failure cases. | Validation examples with real output bodies for pass, flag, and block. | Passing examples, negative examples, technique-trigger examples, validation runbook, validation report. | Runtime adapter and registry. | Examples demonstrate objective-output drift, finite recursion, closure/recomposition, navigation check, and pass/flag/block readiness. | Promote to runtime only when examples reveal no blocker contract gaps. |
-| L2 Runtime And Observability | After this layer, we know whether the sigil can be invoked through local command surfaces and observed after meaningful use. | Runtime adapter plus observability signal model. | Codex command adapter, optional role-simulation policy, signal schema, usage telemetry, reflection thresholds. | Registry promotion and release. | `tools/arcanum --resolve` can find adapter and representative run records observability closeout. | Promote to registry only when manual and runtime behavior agree. |
-| L3 Registry Candidate | After this layer, we know whether Concept Layer Optimizer should become a listed reusable Arcana sigil. | Registry candidate entry with validation evidence. | Registry update, README links, install/routing check, promotion decision record. | Wider ecosystem rollout. | Registry validation passes and user approves promotion. | Promote to reusable listing or keep as local candidate. |
-| L4 Reflection And Maintenance | After this layer, we know whether usage signals can improve the sigil without breaking its core contract. | Reflection-ready telemetry loop. | Usage thresholds, reflection report template or link, maintenance trigger, iteration policy. | Future technique expansion. | Reflection policy can identify output drift, repeated gaps, and targeted updates. | Maintain through sigil-development observe/reflect mode. |
+| L2 Runtime And Observability | After this layer, we know whether the sigil can be invoked through local command surfaces and observed after meaningful use. | Runtime adapter plus observability signal model. | Codex command adapter, subagent-first role policy with simulation fallback, signal schema, usage telemetry, reflection thresholds. | Registry promotion and release. | `tools/arcanum --resolve` can find adapter and representative run records observability closeout. | Promote to registry candidate work only when manual and runtime behavior agree. |
+| L3 Registry Candidate | After this layer, we know whether Concept Layer Optimizer has enough evidence for a final promotion decision. | Registry candidate entry with validation evidence. | Candidate metadata, README links, install/routing check, promotion recommendation record. | Final promotion approval and wider ecosystem rollout. | Registry links validate and recommendation names promote, hold, or revise. | Route final approval to L4 readiness as the last gate. |
+| L4 Reflection And Maintenance | After this layer, we know whether usage signals can improve the sigil without breaking its core contract and whether final promotion is approved. | Reflection-ready telemetry loop plus final approval record. | Usage thresholds, reflection report template or link, maintenance trigger, iteration policy, final promotion gate. | Future technique expansion. | Reflection policy can identify output drift, repeated gaps, and targeted updates; B-CLO-002 approval state is explicit. | Maintain through sigil-development observe/reflect mode. |
 
 ## Layer Micro-Layering Plan
 
@@ -125,7 +126,7 @@ This section applies implementation layering inside each top-level layer. It is 
 | Micro-Layer | Decision Question | Smallest Unit | Exit Evidence | Stop Condition |
 | --- | --- | --- | --- | --- |
 | L2.1 Command Surface | After this micro-layer, we know whether local invocation can resolve the sigil. | Command adapter or routing entry for Concept Layer Optimizer. | `tools/arcanum --resolve` or equivalent route finds the sigil surface. | Stop when the command can find the package without changing behavior. |
-| L2.2 Role Execution Policy | After this micro-layer, we know whether Proposer/Balancer behavior is simulated or delegated. | Runtime policy for single-agent simulation, two-agent default, and optional tournament configuration. | Runtime states when it is simulating roles versus using multiple agents. | Stop when role behavior is honest and reproducible. |
+| L2.2 Role Execution Policy | After this micro-layer, we know whether Proposer/Balancer behavior is delegated or simulated for the active runtime. | Runtime policy for subagent-first execution, simulation fallback, two-agent default, and optional tournament configuration. | Runtime uses true subagents when supported and states when it falls back to role simulation. | Stop when role behavior is honest, reproducible, and trace-equivalent across both paths. |
 | L2.3 Signal Schema | After this micro-layer, we know whether useful usage signals can be collected. | Observability schema for objective-output confirmation, mode, techniques, recursion rounds, verdict, drift, and navigation result. | Representative run can emit or document expected signal fields. | Stop when telemetry supports reflection without collecting noisy trivia. |
 | L2.4 Runtime Validation | After this micro-layer, we know whether runtime behavior matches manual behavior. | One representative runtime run compared to L1 golden behavior. | Runtime result preserves objective-output pair, recursion budget, technique trace, and navigation closeout. | Stop when runtime adds access without changing the sigil contract. |
 
@@ -135,7 +136,7 @@ This section applies implementation layering inside each top-level layer. It is 
 | --- | --- | --- | --- | --- |
 | L3.1 Candidate Metadata | After this micro-layer, we know whether the sigil is describable as a reusable Arcana entry. | Registry candidate entry with name, purpose, route, tier, dependencies, and validation links. | Candidate entry is complete enough for review. | Stop when metadata does not require behavior changes. |
 | L3.2 Routing And Link Check | After this micro-layer, we know whether the listed sigil is navigable. | Link and route verification for README, SKILL, examples, validation, and adapter. | Review can reach every referenced artifact from the registry path. | Stop when registry navigation is reliable. |
-| L3.3 Promotion Decision | After this micro-layer, we know whether to promote or keep local. | Promotion record with evidence, risks, and user approval status. | Decision names promote, hold, or revise. | Stop when registry status is explicit. |
+| L3.3 Promotion Recommendation | After this micro-layer, we know what recommendation should go to the final approval gate. | Promotion recommendation with evidence, risks, and approval-pending status. | Recommendation names promote, hold, or revise. | Stop when registry candidate status is explicit without silently promoting. |
 
 ### L4 Reflection And Maintenance Micro-Layers
 

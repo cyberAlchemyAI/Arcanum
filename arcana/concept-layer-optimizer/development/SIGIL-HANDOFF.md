@@ -265,6 +265,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | First-turn intent and budget confirmation | yes | Must occur before recursive decomposition. |
 | Objective-output artifact confirmation | yes | Must name what the run is solving and what artifact shape the result should support. |
 | Configurable role conversations | yes | Default is two role conversations: Proposer and Balancer. |
+| Subagent-first role execution | yes | Use true subagents whenever the runtime supports them for the selected run. |
 | Multiple proposal tracks | yes | Required for tournament mode; optional elsewhere. |
 | Recursive round budget | yes | Each run must have a finite round limit. |
 | Technique pack execution | yes | Adapter must run always-on techniques and record conditional techniques that were triggered or skipped. |
@@ -272,7 +273,7 @@ When a guard triggers, the sigil records the reason and either chooses the curre
 | Set-based tournament behavior | yes for tournament mode | Proposal tracks must state assumptions, option value, and elimination conditions. |
 | Premortem support | yes | Required for standard, tournament, deep, and medium/high-risk validate runs; skipped in compact unless requested. |
 | Cycle detection | yes | Adapter must track repeated concepts, repeated tensions, and budget exhaustion. |
-| Role simulation fallback | yes | If subagents are unavailable, run labeled Proposer and Balancer passes in one agent. |
+| Role simulation fallback | yes | If runtime subagents are unavailable, run labeled Proposer and Balancer passes in one agent using the same trace contract. |
 | Robot-Talks handoff | no | Use when unresolved tensions span multiple layers or need independent investigation. |
 | Decision-Gate handoff | no | Use when a blocker-level choice prevents selecting an optimization point. |
 
