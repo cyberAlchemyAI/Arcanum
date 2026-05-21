@@ -1,6 +1,6 @@
 # Experiment Harness Phase Gate Latest
 
-- Latest run: `20260521T122458Z`
+- Latest run: `20260521T131937Z`
 - Runner: `arcanum/arcana/experiment-harness/development/run-phase-gates.sh`
 - Status: `pass`
 - Evidence type: deterministic controls and mocked live-loop gates

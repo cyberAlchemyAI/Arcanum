@@ -65,6 +65,14 @@ sigil-development owns lifecycle work-pack
 
 Codex Goal evidence can prove that one bounded implementation unit completed. It does not replace the experiment harness. A reusable sigil is not promotion-ready until experiment evidence checks realistic prompts, output shape, Quality Bar, Anti-Patterns, and observability.
 
+For sigil lifecycle proof, initialize the harness with the Sigil Development profile:
+
+```bash
+arcana/experiment-harness/scripts/init-harness.sh <sigil-path> --type sigil --profile sigil-development
+```
+
+This keeps Experiment Harness responsible for mechanics while Sigil Development remains responsible for lifecycle judgment.
+
 ## Lifecycle Model
 
 Sigil Development uses a closed lifecycle:

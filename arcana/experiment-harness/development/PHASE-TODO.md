@@ -77,9 +77,9 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] S3: add profile drift validation against target lifecycle contracts.
 - [x] S3: validate generated prompt and regime ids against the selected profile.
 - [x] S3: emit `PROFILE_VALIDATION` and profile report fields.
-- [ ] S4: update runtime command adapters to expose `experiment-loop`.
-- [ ] S4: update `spellcraft` and `sigil-development` lifecycle plans.
-- [ ] S5: run the Sigil Development test case against a sandbox copy of a target sigil.
-- [ ] S6: select a toy spell target for the Spellcraft proof.
-- [ ] S6: validate a toy spell loop.
-- [ ] S6: validate a toy sigil loop.
+- [x] S4: update runtime command adapters to expose `experiment-loop`.
+- [x] S4: update `spellcraft` and `sigil-development` lifecycle plans.
+- [x] S5: run the Sigil Development test case against a sandbox copy of a target sigil.
+- [x] S6: select a toy spell target for the Spellcraft proof.
+- [x] S6: validate a toy spell loop.
+- [x] S6: validate a toy sigil loop.

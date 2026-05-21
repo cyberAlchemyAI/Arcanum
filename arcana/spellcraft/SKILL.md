@@ -120,6 +120,7 @@ spells/<spell-name>/README.md
 6. If the source is an Invoke handoff, record the handoff path and preserve Invoke's decisions, gaps, and target-artifact provenance without treating Invoke as the lifecycle owner.
 7. If designing a reusable spell, initialize or preserve an experiment harness through `experiment-harness`:
    - create `development/VALIDATION-EXPERIMENT.md`, `VALIDATION.md`, fixtures, and runner scripts,
+   - use `--profile spellcraft` when validating the Spellcraft lifecycle around a target spell,
    - add low, medium, and complex examples when the spell has reusable modes or phases,
    - keep live Codex CLI execution explicit and bounded.
 8. When implementation tasks are executed through Task Session or Codex Goal, require the runtime evidence shape and route reusable-behavior proof through Experiment Harness before promotion readiness.

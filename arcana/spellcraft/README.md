@@ -65,6 +65,14 @@ spellcraft owns lifecycle work-pack
 
 Codex Goal evidence can prove that one bounded implementation or adaptation unit completed. It does not replace spell experiments. A reusable spell is not promotion-ready until experiment evidence checks realistic prompts, phase outputs, gates, handoffs, Quality Bar, Anti-Patterns, and observability.
 
+For spell lifecycle proof, initialize the harness with the Spellcraft profile:
+
+```bash
+arcana/experiment-harness/scripts/init-harness.sh <spell-path> --type spell --profile spellcraft
+```
+
+This keeps Experiment Harness responsible for mechanics while Spellcraft remains responsible for spell lifecycle judgment.
+
 ## Default Output
 
 Repository-local spells should live at:

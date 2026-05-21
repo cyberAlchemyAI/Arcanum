@@ -584,6 +584,40 @@ EOF
   [[ "$dry_run" == "true" ]] || append_sigil_snapshot "$sigil" "$tier" "$dst"
 }
 
+write_experiment_harness_mode_command() {
+  local command="$1"
+  local mode="$2"
+  local argument_hint="$3"
+  local body
+  body="$(cat <<EOF
+## Objective
+
+Run Experiment Harness in \`$mode\` mode.
+
+## Command Shape
+
+\`\`\`text
+/$command <artifact-path> $argument_hint
+\`\`\`
+
+## Process
+
+1. Resolve the target artifact path.
+2. Use the installed \`experiment-harness\` command contract as the authoritative behavior source.
+3. Run or explain the equivalent script operation for \`$mode\` mode.
+4. Preserve profile metadata, validation fields, observability rules, and live-loop budget gates.
+5. Return artifact used, mode, command or script path, validation result, observation result, and next action.
+
+## Guardrails
+
+- Keep this adapter focused on Experiment Harness \`$mode\` mode.
+- Do not bypass \`development/EXPERIMENT-PROFILE.md\` validation.
+- Do not run live Codex loops unless the user explicitly approved the live-loop budget.
+EOF
+)"
+  write_command_file "$command" "Experiment Harness: $mode" "experiment-harness" "sigil" "arcana" "$body"
+}
+
 write_spell_command() {
   local command="$1"
   local spell="$2"
@@ -669,6 +703,13 @@ write_codex_commands() {
     tier="${installed_sigil_tiers[$index]}"
     write_sigil_command "arcanum-sigil-$sigil" "$sigil" "$tier"
     write_sigil_command "$sigil" "$sigil" "$tier"
+    if [[ "$sigil" == "experiment-harness" ]]; then
+      write_experiment_harness_mode_command "experiment-next" "next" ""
+      write_experiment_harness_mode_command "experiment-run" "run" "<example-id|next|--all>"
+      write_experiment_harness_mode_command "experiment-validate" "validate" ""
+      write_experiment_harness_mode_command "experiment-observe" "observe" "[report-path]"
+      write_experiment_harness_mode_command "experiment-loop" "loop" "<regime-id>"
+    fi
     if alias_command="$(sigil_alias_command "$sigil")"; then
       write_sigil_command "$alias_command" "$sigil" "$tier"
       write_sigil_command "${alias_command#arcanum-sigil-}" "$sigil" "$tier"

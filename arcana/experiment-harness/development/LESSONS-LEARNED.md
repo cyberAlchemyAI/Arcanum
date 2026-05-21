@@ -110,3 +110,14 @@
 - **Phase 5:** Rollback should be validated in isolation before enabling broad full-artifact edits.
 - **Phase 6:** Mocked invoke loops prove harness control flow, but real Codex loops are still required for promotion evidence.
 - **Phase 7:** Loop-ready layout and profile metadata can be installed at artifact creation time without running live Codex.
+
+## Phase Gate Run 20260521T131937Z
+
+- **Phase 0:** The deterministic baseline can stay green while loop-first features are added behind separate gates.
+- **Phase 1:** Explicit prompt paths and required output patterns make regimes both readable and scriptable.
+- **Phase 2:** Mocked execution lets us verify bundle shape without spending live Codex calls.
+- **Phase 3:** Two consecutive passes catch instability that a two-total-pass rule would miss.
+- **Phase 4:** Reflection artifacts can be generated deterministically before richer subagent-based robot-talks exists.
+- **Phase 5:** Rollback should be validated in isolation before enabling broad full-artifact edits.
+- **Phase 6:** Mocked invoke loops prove harness control flow, but real Codex loops are still required for promotion evidence.
+- **Phase 7:** Loop-ready layout and profile metadata can be installed at artifact creation time without running live Codex.

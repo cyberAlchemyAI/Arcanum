@@ -138,6 +138,7 @@ If no subagent mechanism is available, run the observer pass as a separate clear
 5. Design or revise `SKILL.md`: objective, logic type, applicability, inputs, process, Quality Bar, Anti-Patterns, output contract, and origin.
 6. Ensure a reusable sigil has an experiment harness:
    - initialize `development/` through `experiment-harness` when creating a new sigil,
+   - use `--profile sigil-development` when validating the Sigil Development lifecycle around a target sigil,
    - add or preserve low, medium, and complex task examples when the sigil will be promoted,
    - keep Codex CLI runs explicit through `development/run-example-with-codex.sh`,
    - require real output bodies, not save-summary evidence.

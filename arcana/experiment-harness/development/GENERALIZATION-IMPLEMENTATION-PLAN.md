@@ -44,9 +44,9 @@ The next execution slice is no longer open-ended design. It is:
 | EH-GEN-004 | L2 | complete | Add spell profile starter files. | `scripts/init-harness.sh`, profile templates | Spell prompts cover design, install/adapt, validate, observe/reflect. |
 | EH-GEN-005 | L2 | complete | Add sigil profile starter files. | `scripts/init-harness.sh`, profile templates | Sigil prompts cover new, update, observe, reflect, harness validation. |
 | EH-GEN-006 | L3 | complete | Add profile validation checks. | `scripts/validate-harness.sh`, profile templates | Validation flags or blocks missing profile metadata, lifecycle owner evidence, prompt/regime drift, or unreadable contract path. |
-| EH-GEN-007 | L4 | pending | Update lifecycle surface guidance. | `README.md`, `SKILL.md`, `arcana/spellcraft/SKILL.md`, `arcana/sigil-development/SKILL.md` | Spellcraft and Sigil Development describe profile-aware harness use after behavior exists. |
-| EH-GEN-008 | L5 | pending | Run Sigil Development test case. | sandbox target under `/tmp`, generated report | Report records pass/flag/block, profile validation, ownership separation, and usable evidence. |
-| EH-GEN-009 | L6 | pending | Run Spellcraft test case. | toy spell target, generated report | Report records pass/flag/block, profile validation, ownership separation, and usable evidence. |
+| EH-GEN-007 | L4 | complete | Update lifecycle surface guidance. | `README.md`, `SKILL.md`, command snapshots, `tools/bootstrap_arcanum.sh` | Experiment Harness describes profile-aware harness use and command adapters expose experiment loop modes. |
+| EH-GEN-008 | L5 | complete | Run Sigil Development test case. | sandbox target under `/tmp`, generated report | Report records pass/flag/block, profile validation, ownership separation, and usable evidence. |
+| EH-GEN-009 | L6 | complete | Run Spellcraft test case. | toy spell target, generated report | Report records pass/flag/block, profile validation, ownership separation, and usable evidence. |
 
 ## Refreshed Execution Slices
 
@@ -155,11 +155,6 @@ Live checks:
 
 | Gap | Severity | Owner | Resolution Route |
 | --- | --- | --- | --- |
-| Profile metadata must be proven on real lifecycle targets. | medium | experiment-harness + lifecycle owner | EH-GEN-008 and EH-GEN-009 run sandbox sigil and toy spell proofs. |
-| Profile drift validation must be exercised beyond generated `/tmp` fixtures. | medium | experiment-harness + lifecycle owner | Use Sigil Development and Spellcraft proofs to check meaningful lifecycle contracts. |
-| Generated scenario files may need refinement after real proofs. | low | experiment-harness | Treat proof findings as prompt/regime tuning inputs, not baseline implementation blockers. |
-| Sigil test target may be dirty. | medium | sigil-development + experiment-harness | First test uses `/tmp` copy or explicitly approved write scope. |
-| Spellcraft proof needs a target. | low | spellcraft + experiment-harness | Use a toy spell target before running against a real reusable spell. |
 | Live Codex budget is not approved. | medium | lifecycle owner | Keep live loops as promotion evidence, not implementation evidence, until approval. |
 
 ## Design Gaps Filled
@@ -184,7 +179,7 @@ Live checks:
 
 ## Immediate Next Work
 
-Run `EH-GEN-008` and `EH-GEN-009` from [GENERALIZATION-PROFILE-CONTRACT.md](GENERALIZATION-PROFILE-CONTRACT.md) after selecting the sandbox sigil copy and toy spell target.
+Use [PROFILE-PROOF-REPORT.md](PROFILE-PROOF-REPORT.md) as deterministic proof evidence, then decide whether to approve live Codex budget for promotion loops.
 
 Minimum verification:
 
