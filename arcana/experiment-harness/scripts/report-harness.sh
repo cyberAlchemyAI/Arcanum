@@ -42,14 +42,44 @@ artifact_type="$(printf '%s\n' "$validation_output" | sed -n 's/^ARTIFACT_TYPE=/
 contract_path="$(printf '%s\n' "$validation_output" | sed -n 's/^CONTRACT_PATH=//p' | tail -n 1)"
 prompt_set="$(printf '%s\n' "$validation_output" | sed -n 's/^PROMPT_SET=//p' | tail -n 1)"
 regime_set="$(printf '%s\n' "$validation_output" | sed -n 's/^REGIME_SET=//p' | tail -n 1)"
+profile_file="$dev_dir/EXPERIMENT-PROFILE.md"
+metadata_value() {
+	local label="$1"
+	local file="$2"
+	sed -n "s/^- $label: //p" "$file" | head -n 1
+}
 if [[ -z "$validation" ]]; then
 	validation="$(printf '%s\n' "$validation_output" | sed -n 's/^RESULT: //p' | sed 's/ .*//' | tail -n 1)"
 fi
 if [[ -z "$validation" ]]; then
 	validation="block"
 fi
+if [[ -f "$profile_file" ]]; then
+	if [[ -z "$profile_id" ]]; then
+		profile_id="$(metadata_value "Profile ID" "$profile_file")"
+	fi
+	if [[ -z "$lifecycle_owner" ]]; then
+		lifecycle_owner="$(metadata_value "Lifecycle owner" "$profile_file")"
+	fi
+	if [[ -z "$artifact_type" ]]; then
+		artifact_type="$(metadata_value "Artifact type" "$profile_file")"
+	fi
+	if [[ -z "$contract_path" ]]; then
+		contract_path="$(metadata_value "Contract path" "$profile_file")"
+	fi
+	if [[ -z "$prompt_set" ]]; then
+		prompt_set="$(metadata_value "Prompt set" "$profile_file")"
+	fi
+	if [[ -z "$regime_set" ]]; then
+		regime_set="$(metadata_value "Regime set" "$profile_file")"
+	fi
+fi
 if [[ -z "$profile_validation" ]]; then
-	profile_validation="block"
+	if [[ -n "$profile_id" && -n "$lifecycle_owner" && -n "$artifact_type" && -n "$contract_path" && -n "$prompt_set" && -n "$regime_set" ]]; then
+		profile_validation="pass"
+	else
+		profile_validation="block"
+	fi
 fi
 
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"

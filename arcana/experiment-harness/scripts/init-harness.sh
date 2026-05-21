@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 usage() {
 	cat <<'USAGE'
 Usage:
-  init-harness.sh <artifact-path> --type spell|sigil [--profile generic-spell|spellcraft|generic-sigil|sigil-development]
+  init-harness.sh <artifact-path> --type spell|sigil [--profile generic-spell|spellcraft|invoke-live|generic-sigil|sigil-development]
 USAGE
 }
 

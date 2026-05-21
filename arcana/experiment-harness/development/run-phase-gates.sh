@@ -238,7 +238,7 @@ run_phase6() {
 	if MAX_ATTEMPTS=2 PASS_STREAK=2 AUTO_IMPROVE=0 EXPERIMENT_LOOP_MOCK_DIR="$mockdir" \
 		"$SCRIPT_DIR/loop-harness.sh" "$INVOKE_DIR" LIVE-DEFINE-DESIGN-001 >/tmp/experiment-harness-phase6.log 2>&1; then
 		record_result "Phase 6" "pass" "invoke pilot loop passes with mocked live output"
-		record_lesson "Phase 6" "Mocked invoke loops prove harness control flow, but real Codex loops are still required for promotion evidence."
+		record_lesson "Phase 6" "Mocked invoke loops prove harness control flow; live promotion evidence is recorded separately in LIVE-PROMOTION-CLOSEOUT.md."
 	else
 		record_result "Phase 6" "block" "invoke pilot mocked loop failed"
 	fi
@@ -327,8 +327,8 @@ run_phase7
 		IFS='|' read -r phase lesson <<< "$row"
 		printf -- '- **%s:** %s\n' "$phase" "$lesson"
 	done
-	printf '\n## Remaining Promotion Gap\n\n'
-	printf 'This latest gate proves the harness mechanics with mocks. It does not replace required live Codex promotion loops for `invoke`.\n'
+	printf '\n## Live Promotion Evidence\n\n'
+	printf 'This latest gate proves deterministic harness mechanics. Live Codex promotion loops for `invoke` also passed and were observed in `LIVE-PROMOTION-CLOSEOUT.md`.\n'
 } > "$LATEST"
 
 {

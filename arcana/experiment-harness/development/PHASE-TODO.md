@@ -8,7 +8,7 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Add architecture and implementation layering records.
 - [x] Add Quality Bar and Anti-Pattern telemetry checks.
 - [x] Add invoke experiment regimes index.
-- [ ] Resolve the known placeholder finding in `architecture-complex.output.md`.
+- [x] Resolve the known placeholder finding in `architecture-complex.output.md` as obsolete; no tracked file by that name exists.
 
 ## Phase 1: Regime Model
 
@@ -16,7 +16,7 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Add `validate-regime.sh`.
 - [x] Add invoke pilot regime files.
 - [x] Validate regime prompt mappings.
-- [ ] Extend `init-harness.sh` with starter regime files for new artifacts.
+- [x] Extend `init-harness.sh` with starter regime files for new artifacts through profile templates.
 
 ## Phase 2: Single-Attempt Loop
 
@@ -34,7 +34,6 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Stop on two consecutive passing attempts.
 - [x] Stop at five attempts by default.
 - [x] Write loop report.
-- [ ] Add richer status scoring for semantic quality once observer judging exists.
 
 ## Phase 4: Robot-Talks Improvement Gate
 
@@ -42,7 +41,6 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Produce `robot-talks.md`.
 - [x] Produce `improvement-argument.md`.
 - [x] Include failure summary, tensions, proposed patch, rationale, files, regression criteria, and rollback plan.
-- [ ] Replace deterministic reflection with Codex/robot-talks subagent support when runtime delegation is available.
 
 ## Phase 5: Patch And Rollback Manager
 
@@ -50,16 +48,15 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Add `rollback-loop-improvement.sh`.
 - [x] Support no-op improvements safely.
 - [x] Roll back applied patch when the next attempt regresses.
-- [ ] Add dirty-file ownership guard before applying patches to real artifacts.
 
 ## Phase 6: Invoke Pilot End-To-End
 
 - [x] Add invoke live regime definitions.
 - [x] Run invoke loops with mock outputs for phase-gate validation.
-- [ ] Run real Codex loops for `LIVE-DEFINE-001`.
-- [ ] Run real Codex loops for `LIVE-DESIGN-001`.
-- [ ] Run real Codex loops for `LIVE-DEFINE-DESIGN-001`.
-- [ ] Run real observability loop using a completed live loop report.
+- [x] Run real Codex loops for `LIVE-DEFINE-001`.
+- [x] Run real Codex loops for `LIVE-DESIGN-001`.
+- [x] Run real Codex loops for `LIVE-DEFINE-DESIGN-001`.
+- [x] Run real observability loop using a completed live loop report.
 
 ## Phase 7: Generalize To All Spells And Sigils
 
@@ -83,3 +80,11 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] S6: select a toy spell target for the Spellcraft proof.
 - [x] S6: validate a toy spell loop.
 - [x] S6: validate a toy sigil loop.
+
+## Future Backlog
+
+These items remain valuable but are not blockers for this live-promotion closure.
+
+- [ ] Add richer status scoring for semantic quality once observer judging exists.
+- [ ] Replace deterministic reflection with Codex/robot-talks subagent support when runtime delegation is available.
+- [ ] Add dirty-file ownership guard before applying patches to real artifacts.

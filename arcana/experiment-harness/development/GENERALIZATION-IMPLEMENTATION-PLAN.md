@@ -95,6 +95,7 @@ The first implementation may encode profiles in shell-generated markdown. A sepa
 | --- | --- | --- | --- |
 | `generic-spell` | spell | experiment-harness with Spellcraft contract checks | low spell design, medium composition, complex lifecycle validation. |
 | `spellcraft` | spell | spellcraft | design, install/adapt, validate, observe/reflect. |
+| `invoke-live` | spell | invoke | define, design, define-design, observability promotion evidence. |
 | `generic-sigil` | sigil | experiment-harness with Sigil Development contract checks | low sigil run, medium update, complex reflection/promotion. |
 | `sigil-development` | sigil | sigil-development | new, update, observe, reflect, harness-validation. |
 
@@ -103,6 +104,7 @@ Default inference:
 - `--type spell` with no `--profile` infers `generic-spell`.
 - `--type sigil` with no `--profile` infers `generic-sigil`.
 - `--profile spellcraft` requires `--type spell`.
+- `--profile invoke-live` requires `--type spell`.
 - `--profile sigil-development` requires `--type sigil`.
 - unknown profile ids block initialization.
 
@@ -112,6 +114,7 @@ Default inference:
 | --- | --- | --- |
 | `generic-spell` | `spell-low`, `spell-medium`, `spell-complex` | `LIVE-SPELL-LOW-001`, `LIVE-SPELL-MEDIUM-001`, `LIVE-SPELL-COMPLEX-001` |
 | `spellcraft` | `spellcraft-design-low`, `spellcraft-install-medium`, `spellcraft-validate-complex`, `spellcraft-reflect-complex` | `LIVE-SPELLCRAFT-DESIGN-001`, `LIVE-SPELLCRAFT-INSTALL-001`, `LIVE-SPELLCRAFT-VALIDATE-001`, `LIVE-SPELLCRAFT-REFLECT-001` |
+| `invoke-live` | `invoke-define-live-pass`, `invoke-design-live-pass`, `invoke-define-design-live-pass`, `invoke-define-live-pass` | `LIVE-DEFINE-001`, `LIVE-DESIGN-001`, `LIVE-DEFINE-DESIGN-001`, `LIVE-OBSERVABILITY-001` |
 | `generic-sigil` | `sigil-low`, `sigil-medium`, `sigil-complex` | `LIVE-SIGIL-LOW-001`, `LIVE-SIGIL-MEDIUM-001`, `LIVE-SIGIL-COMPLEX-001` |
 | `sigil-development` | `sigil-new-low`, `sigil-update-medium`, `sigil-observe-medium`, `sigil-reflect-complex`, `sigil-harness-validation-complex` | `LIVE-SIGIL-NEW-001`, `LIVE-SIGIL-UPDATE-001`, `LIVE-SIGIL-OBSERVE-001`, `LIVE-SIGIL-REFLECT-001`, `LIVE-SIGIL-HARNESS-VALIDATION-001` |
 
@@ -149,13 +152,13 @@ Live checks:
 | --- | --- | --- |
 | EH-B-001 | resolved | Infer `generic-spell` or `generic-sigil` from `--type`; allow explicit `--profile` override. |
 | EH-B-002 | resolved | Use `arcana/concept-layer-optimizer` as the first real sigil target after profile initialization exists; use a `/tmp` copy first if the target has unrelated dirty changes. |
-| EH-B-003 | promotion gate | Approve live Codex budget before real loop runs. Mock phase gates are enough for implementation validation. |
+| EH-B-003 | resolved | Live Codex budget was approved for invoke promotion loops; closure evidence is recorded in `LIVE-PROMOTION-CLOSEOUT.md`. |
 
 ## Open Gaps
 
 | Gap | Severity | Owner | Resolution Route |
 | --- | --- | --- | --- |
-| Live Codex budget is not approved. | medium | lifecycle owner | Keep live loops as promotion evidence, not implementation evidence, until approval. |
+| None for the profile generalization and live-promotion closure cycle. | none | experiment-harness | Future improvements are tracked in `PHASE-TODO.md` backlog. |
 
 ## Design Gaps Filled
 
@@ -179,7 +182,7 @@ Live checks:
 
 ## Immediate Next Work
 
-Use [PROFILE-PROOF-REPORT.md](PROFILE-PROOF-REPORT.md) as deterministic proof evidence, then decide whether to approve live Codex budget for promotion loops.
+Use [PROFILE-PROOF-REPORT.md](PROFILE-PROOF-REPORT.md) as deterministic proof evidence and [LIVE-PROMOTION-CLOSEOUT.md](LIVE-PROMOTION-CLOSEOUT.md) as live promotion evidence.
 
 Minimum verification:
 

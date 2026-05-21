@@ -42,12 +42,14 @@ Inference rules:
 | `--type spell` | `generic-spell` |
 | `--type sigil` | `generic-sigil` |
 | `--type spell --profile spellcraft` | `spellcraft` |
+| `--type spell --profile invoke-live` | `invoke-live` |
 | `--type sigil --profile sigil-development` | `sigil-development` |
 
 Blocking rules:
 
 - unknown profile id blocks initialization,
 - `--profile spellcraft` with `--type sigil` blocks,
+- `--profile invoke-live` with `--type sigil` blocks,
 - `--profile sigil-development` with `--type spell` blocks,
 - missing or unreadable target artifact path blocks unless creation is explicitly allowed by the caller,
 - existing files are preserved unless an explicit future overwrite mode is added.
@@ -67,7 +69,7 @@ Minimum shape:
 
 - Profile ID: <profile-id>
 - Artifact type: spell | sigil
-- Lifecycle owner: experiment-harness | spellcraft | sigil-development
+- Lifecycle owner: experiment-harness | spellcraft | sigil-development | invoke
 - Artifact path: <artifact path>
 - Contract path: <artifact path>/SKILL.md or <artifact path>/README.md
 - Scenario pack: <scenario-pack-id>
@@ -211,6 +213,38 @@ Validation focus:
 - referenced sigils remain references, not copied processes,
 - local adaptation does not rewrite upstream contracts,
 - validation produces a clear next action.
+
+### `invoke-live`
+
+Use when Invoke needs live promotion evidence for its own define, design, composed define-to-design, and observability regimes.
+
+Required modes:
+
+- define,
+- design,
+- define-design,
+- observability.
+
+Prompt set:
+
+- `invoke-define-live-pass`,
+- `invoke-design-live-pass`,
+- `invoke-define-design-live-pass`,
+- `invoke-define-live-pass`.
+
+Regime set:
+
+- `LIVE-DEFINE-001`,
+- `LIVE-DESIGN-001`,
+- `LIVE-DEFINE-DESIGN-001`,
+- `LIVE-OBSERVABILITY-001`.
+
+Validation focus:
+
+- Invoke output contract is represented,
+- define and design authority boundaries are visible,
+- live loop reports pass without mock output,
+- observability records completed live evidence.
 
 ## Profile Validation Rules
 

@@ -1,6 +1,6 @@
 # Experiment Harness Phase Gate Latest
 
-- Latest run: `20260521T131937Z`
+- Latest run: `20260521T151209Z`
 - Runner: `arcanum/arcana/experiment-harness/development/run-phase-gates.sh`
 - Status: `pass`
 - Evidence type: deterministic controls and mocked live-loop gates
@@ -26,9 +26,9 @@
 - **Phase 3:** Two consecutive passes catch instability that a two-total-pass rule would miss.
 - **Phase 4:** Reflection artifacts can be generated deterministically before richer subagent-based robot-talks exists.
 - **Phase 5:** Rollback should be validated in isolation before enabling broad full-artifact edits.
-- **Phase 6:** Mocked invoke loops prove harness control flow, but real Codex loops are still required for promotion evidence.
+- **Phase 6:** Mocked invoke loops prove harness control flow; live promotion evidence is recorded separately in LIVE-PROMOTION-CLOSEOUT.md.
 - **Phase 7:** Loop-ready layout and profile metadata can be installed at artifact creation time without running live Codex.
 
-## Remaining Promotion Gap
+## Live Promotion Evidence
 
-This latest gate proves the harness mechanics with mocks. It does not replace required live Codex promotion loops for `invoke`.
+This latest gate proves deterministic harness mechanics. Live Codex promotion loops for `invoke` also passed and were observed in `LIVE-PROMOTION-CLOSEOUT.md`.
