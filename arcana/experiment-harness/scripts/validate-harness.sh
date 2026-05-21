@@ -23,7 +23,16 @@ artifact_abs="$(cd "$artifact" && pwd)"
 dev_dir="$artifact_abs/development"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 contract_checker="$script_dir/check-contract-output.sh"
+repo_root="${EXPERIMENT_REPO_ROOT:-$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || pwd)}"
+profile_dir="$script_dir/../templates/profiles"
 status="pass"
+profile_validation="pass"
+profile_id=""
+lifecycle_owner=""
+artifact_type=""
+contract_path=""
+prompt_set=""
+regime_set=""
 overall_quality_bar_status="not_checked"
 overall_anti_pattern_hits_json='[]'
 overall_workflow_gaps_json='[]'
@@ -54,6 +63,9 @@ flag() {
 
 block() {
 	status="block"
+	if [[ "${2:-}" == "profile" ]]; then
+		profile_validation="block"
+	fi
 	printf 'BLOCK: %s\n' "$1"
 }
 
@@ -74,6 +86,110 @@ require_file "$dev_dir/VALIDATION-EXPERIMENT.md"
 require_file "$dev_dir/VALIDATION.md"
 require_dir "$dev_dir/fixtures"
 require_dir "$dev_dir/runs"
+
+trim() {
+	local value="$1"
+	value="${value#"${value%%[![:space:]]*}"}"
+	value="${value%"${value##*[![:space:]]}"}"
+	printf '%s' "$value"
+}
+
+metadata_value() {
+	local label="$1"
+	local file="$2"
+	sed -n "s/^- $label: //p" "$file" | head -n 1
+}
+
+resolve_profile_path() {
+	local value="$1"
+	if [[ "$value" = /* ]]; then
+		printf '%s\n' "$value"
+	else
+		printf '%s\n' "$repo_root/$value"
+	fi
+}
+
+validate_profile() {
+	local profile_file="$dev_dir/EXPERIMENT-PROFILE.md"
+	if [[ ! -f "$profile_file" ]]; then
+		block "missing required profile metadata: development/EXPERIMENT-PROFILE.md" profile
+		return
+	fi
+
+	profile_id="$(metadata_value "Profile ID" "$profile_file")"
+	artifact_type="$(metadata_value "Artifact type" "$profile_file")"
+	lifecycle_owner="$(metadata_value "Lifecycle owner" "$profile_file")"
+	contract_path="$(metadata_value "Contract path" "$profile_file")"
+	prompt_set="$(metadata_value "Prompt set" "$profile_file")"
+	regime_set="$(metadata_value "Regime set" "$profile_file")"
+
+	if [[ -z "$profile_id" ]]; then
+		block "profile metadata is missing Profile ID" profile
+		return
+	fi
+
+	local profile_template="$profile_dir/$profile_id.profile.sh"
+	if [[ ! -f "$profile_template" ]]; then
+		block "unknown experiment profile: $profile_id" profile
+		return
+	fi
+
+	# shellcheck source=/dev/null
+	source "$profile_template"
+
+	if [[ "$artifact_type" != "$PROFILE_ARTIFACT_TYPE" ]]; then
+		block "profile $profile_id expects artifact type $PROFILE_ARTIFACT_TYPE but found $artifact_type" profile
+	fi
+	if [[ -z "$lifecycle_owner" ]]; then
+		block "profile metadata is missing Lifecycle owner" profile
+	elif [[ "$lifecycle_owner" != "$PROFILE_LIFECYCLE_OWNER" ]]; then
+		block "profile $profile_id expects lifecycle owner $PROFILE_LIFECYCLE_OWNER but found $lifecycle_owner" profile
+	fi
+	if [[ "$prompt_set" != "$PROFILE_PROMPT_SET" ]]; then
+		block "profile prompt set does not match template for $profile_id" profile
+	fi
+	if [[ "$regime_set" != "$PROFILE_REGIME_SET" ]]; then
+		block "profile regime set does not match template for $profile_id" profile
+	fi
+	if [[ -z "$contract_path" ]]; then
+		block "profile metadata is missing Contract path" profile
+	else
+		resolved_contract="$(resolve_profile_path "$contract_path")"
+		if [[ ! -f "$resolved_contract" ]]; then
+			block "profile contract path is unreadable: $contract_path" profile
+		fi
+	fi
+	if ! rg -q -- '^## Ownership Boundary' "$profile_file"; then
+		block "profile metadata is missing ownership boundary" profile
+	fi
+
+	for prompt_id in "${PROFILE_PROMPT_IDS[@]}"; do
+		prompt_file="$dev_dir/example-prompts/$prompt_id.md"
+		if [[ ! -f "$prompt_file" ]]; then
+			block "profile prompt missing: development/example-prompts/$prompt_id.md" profile
+			continue
+		fi
+		if ! rg -q -- "$PROFILE_LIFECYCLE_OWNER" "$prompt_file"; then
+			flag "profile prompt does not mention lifecycle owner $PROFILE_LIFECYCLE_OWNER: ${prompt_file#$artifact_abs/}"
+		fi
+	done
+
+	for regime_id in "${PROFILE_REGIME_IDS[@]}"; do
+		regime_file="$dev_dir/regimes/$regime_id.md"
+		if [[ ! -f "$regime_file" ]]; then
+			block "profile regime missing: development/regimes/$regime_id.md" profile
+			continue
+		fi
+		regime_result="$("$script_dir/validate-regime.sh" "$artifact_abs" "$regime_id" || true)"
+		printf '%s\n' "$regime_result"
+		regime_validation="$(printf '%s\n' "$regime_result" | sed -n 's/^REGIME_VALIDATION=//p' | tail -n 1)"
+		if [[ "$regime_validation" == "block" ]]; then
+			block "profile regime validation failed: $regime_id" profile
+		fi
+	done
+}
+
+validate_profile
 
 for optional_dir in example-prompts example-outputs example-runs; do
 	if [[ ! -d "$dev_dir/$optional_dir" ]]; then
@@ -177,9 +293,22 @@ else
 	if ! rg -q -- 'Validation: pass|Validation: flag|Validation: block|Status: pass|Status: flag|Status: block' "$latest_report"; then
 		flag "latest report does not expose a validation status: ${latest_report#$artifact_abs/}"
 	fi
+	if [[ -n "$profile_id" ]] && ! rg -q -- "PROFILE_ID=$profile_id|- Profile ID: $profile_id" "$latest_report"; then
+		flag "latest report does not expose profile id: ${latest_report#$artifact_abs/}"
+	fi
+	if [[ -n "$lifecycle_owner" ]] && ! rg -q -- "LIFECYCLE_OWNER=$lifecycle_owner|- Lifecycle owner: $lifecycle_owner" "$latest_report"; then
+		flag "latest report does not expose lifecycle owner: ${latest_report#$artifact_abs/}"
+	fi
 fi
 
 printf 'VALIDATION=%s\n' "$status"
+printf 'PROFILE_VALIDATION=%s\n' "$profile_validation"
+printf 'PROFILE_ID=%s\n' "$profile_id"
+printf 'LIFECYCLE_OWNER=%s\n' "$lifecycle_owner"
+printf 'ARTIFACT_TYPE=%s\n' "$artifact_type"
+printf 'CONTRACT_PATH=%s\n' "$contract_path"
+printf 'PROMPT_SET=%s\n' "$prompt_set"
+printf 'REGIME_SET=%s\n' "$regime_set"
 printf 'QUALITY_BAR_STATUS=%s\n' "$overall_quality_bar_status"
 printf 'ANTI_PATTERN_HITS_JSON=%s\n' "$overall_anti_pattern_hits_json"
 printf 'WORKFLOW_GAPS_JSON=%s\n' "$overall_workflow_gaps_json"

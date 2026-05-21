@@ -6,17 +6,49 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 usage() {
 	cat <<'USAGE'
 Usage:
-  init-harness.sh <artifact-path> --type spell|sigil
+  init-harness.sh <artifact-path> --type spell|sigil [--profile generic-spell|spellcraft|generic-sigil|sigil-development]
 USAGE
 }
 
-if [[ "$#" -ne 3 || "$2" != "--type" ]]; then
+if [[ "$#" -ne 3 && "$#" -ne 5 ]]; then
 	usage >&2
 	exit 2
 fi
 
 artifact="$1"
-artifact_type="$3"
+shift
+artifact_type=""
+profile_id=""
+
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+		--type)
+			if [[ "$#" -lt 2 ]]; then
+				usage >&2
+				exit 2
+			fi
+			artifact_type="$2"
+			shift 2
+			;;
+		--profile)
+			if [[ "$#" -lt 2 ]]; then
+				usage >&2
+				exit 2
+			fi
+			profile_id="$2"
+			shift 2
+			;;
+		*)
+			usage >&2
+			exit 2
+			;;
+	esac
+done
+
+if [[ -z "$artifact_type" ]]; then
+	usage >&2
+	exit 2
+fi
 
 case "$artifact_type" in
 	spell|sigil) ;;
@@ -26,10 +58,46 @@ case "$artifact_type" in
 		;;
 esac
 
-mkdir -p "$artifact"
+if [[ -z "$profile_id" ]]; then
+	case "$artifact_type" in
+		spell) profile_id="generic-spell" ;;
+		sigil) profile_id="generic-sigil" ;;
+	esac
+fi
+
+profile_dir="$SCRIPT_DIR/../templates/profiles"
+profile_file="$profile_dir/$profile_id.profile.sh"
+if [[ ! -f "$profile_file" ]]; then
+	printf 'ERROR: unknown experiment profile: %s\n' "$profile_id" >&2
+	exit 2
+fi
+
+# shellcheck source=/dev/null
+source "$profile_file"
+
+if [[ "${PROFILE_ARTIFACT_TYPE:-}" != "$artifact_type" ]]; then
+	printf 'ERROR: profile %s requires --type %s\n' "$profile_id" "${PROFILE_ARTIFACT_TYPE:-unknown}" >&2
+	exit 2
+fi
+
+if [[ ! -d "$artifact" ]]; then
+	printf 'ERROR: artifact path not found: %s\n' "$artifact" >&2
+	exit 1
+fi
+
 artifact_abs="$(cd "$artifact" && pwd)"
 dev_dir="$artifact_abs/development"
 repo_root="${EXPERIMENT_REPO_ROOT:-$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || pwd)}"
+
+contract_path=""
+if [[ -f "$artifact_abs/SKILL.md" ]]; then
+	contract_path="$artifact_abs/SKILL.md"
+elif [[ -f "$artifact_abs/README.md" ]]; then
+	contract_path="$artifact_abs/README.md"
+else
+	printf 'ERROR: profile-aware harness requires %s/SKILL.md or %s/README.md\n' "$artifact" "$artifact" >&2
+	exit 1
+fi
 
 mkdir -p \
 	"$dev_dir/fixtures" \
@@ -49,6 +117,15 @@ write_if_missing() {
 	fi
 	printf '%s\n' "$@" > "$path"
 	printf 'CREATE: %s\n' "${path#$repo_root/}"
+}
+
+display_path() {
+	local path="$1"
+	if [[ "$path" == "$repo_root/"* ]]; then
+		printf '%s\n' "${path#$repo_root/}"
+	else
+		printf '%s\n' "$path"
+	fi
 }
 
 write_if_missing "$dev_dir/VALIDATION-EXPERIMENT.md" \
@@ -116,75 +193,118 @@ write_if_missing "$dev_dir/example-runs/.gitkeep" ""
 write_if_missing "$dev_dir/experiment-loops/.gitkeep" ""
 write_if_missing "$dev_dir/runs/.gitkeep" ""
 
-write_if_missing "$dev_dir/fixtures/${artifact_type}-low.md" \
-	"# Fixture: ${artifact_type}-low" \
+write_if_missing "$dev_dir/EXPERIMENT-PROFILE.md" \
+	"# Experiment Profile" \
 	"" \
-	"## Request" \
+	"- Profile ID: $PROFILE_ID" \
+	"- Artifact type: $artifact_type" \
+	"- Lifecycle owner: $PROFILE_LIFECYCLE_OWNER" \
+	"- Artifact path: $(display_path "$artifact_abs")" \
+	"- Contract path: $(display_path "$contract_path")" \
+	"- Scenario pack: $PROFILE_SCENARIO_PACK" \
+	"- Required modes: $PROFILE_REQUIRED_MODES" \
+	"- Prompt set: $PROFILE_PROMPT_SET" \
+	"- Regime set: $PROFILE_REGIME_SET" \
+	"- Validation focus: $PROFILE_VALIDATION_FOCUS" \
+	"- Observability focus: $PROFILE_OBSERVABILITY_FOCUS" \
+	"- Promotion gate: $PROFILE_PROMOTION_GATE" \
 	"" \
-	"Create a small, realistic $artifact_type example." \
+	"## Ownership Boundary" \
 	"" \
-	"## Inputs" \
-	"" \
-	"- Replace this fixture with artifact-specific inputs before promotion."
+	"Experiment Harness owns experiment mechanics. The lifecycle owner owns artifact meaning and promotion judgment."
 
-write_if_missing "$dev_dir/fixtures/${artifact_type}-low.expected.md" \
-	"# Expected Output: ${artifact_type}-low" \
-	"" \
-	"## Result" \
-	"" \
-	"- Status: flag" \
-	"- Reason: starter expected output must be replaced with artifact-specific contract evidence."
+for i in "${!PROFILE_PROMPT_IDS[@]}"; do
+	prompt_id="${PROFILE_PROMPT_IDS[$i]}"
+	regime_id="${PROFILE_REGIME_IDS[$i]}"
+	prompt_request="${PROFILE_PROMPT_REQUESTS[$i]}"
+	regime_goal="${PROFILE_REGIME_GOALS[$i]}"
 
-write_if_missing "$dev_dir/example-prompts/${artifact_type}-low.md" \
-	"# Experiment Prompt: ${artifact_type}-low" \
-	"" \
-	"Run the target $artifact_type against this low-complexity validation request." \
-	"" \
-	"## Target Artifact" \
-	"" \
-	"${artifact_abs#$repo_root/}" \
-	"" \
-	"## User Request" \
-	"" \
-	"Create a small, realistic $artifact_type example and return the full user-facing result body. Do not summarize that you saved an output file." \
-	"" \
-	"## Required Capture" \
-	"" \
-	"Save only the final artifact result body to \`development/example-outputs/${artifact_type}-low.output.md\`."
+	write_if_missing "$dev_dir/fixtures/$prompt_id.md" \
+		"# Fixture: $prompt_id" \
+		"" \
+		"## Request" \
+		"" \
+		"$prompt_request" \
+		"" \
+		"## Inputs" \
+		"" \
+		"- Target artifact: $(display_path "$artifact_abs")" \
+		"- Contract path: $(display_path "$contract_path")" \
+		"- Lifecycle owner: $PROFILE_LIFECYCLE_OWNER"
 
-write_if_missing "$dev_dir/regimes/LIVE-${artifact_type^^}-LOW-001.md" \
-	"# Regime: LIVE-${artifact_type^^}-LOW-001" \
-	"" \
-	"## Goal" \
-	"" \
-	"Validate one live Codex loop for the starter $artifact_type prompt." \
-	"" \
-	"## Prompt" \
-	"" \
-	"- Prompt: \`example-prompts/${artifact_type}-low.md\`" \
-	"" \
-	"## Required Output Patterns" \
-	"" \
-	"- \`## .+Result|# .+Result\`" \
-	"- \`Status:|Validation:|Phase status:\`" \
-	"" \
-	"## Quality Bar" \
-	"" \
-	"- Output must be a real artifact body, not a save-summary." \
-	"" \
-	"## Anti-Patterns" \
-	"" \
-	"- Avoid accepting empty output or a summary that only says a file was saved." \
-	"" \
-	"## Observability" \
-	"" \
-	"- Attempt telemetry should record quality, anti-patterns, workflow gaps, and reflection trigger." \
-	"" \
-	"## Lessons To Capture" \
-	"" \
-	"- Missing output sections." \
-	"- Prompt ambiguity." \
-	"- Observer gaps."
+	write_if_missing "$dev_dir/fixtures/$prompt_id.expected.md" \
+		"# Expected Output: $prompt_id" \
+		"" \
+		"## Result" \
+		"" \
+		"- Status: flag" \
+		"- Profile ID: $PROFILE_ID" \
+		"- Lifecycle owner: $PROFILE_LIFECYCLE_OWNER" \
+		"- Reason: starter expected output must be replaced with artifact-specific contract evidence."
+
+	write_if_missing "$dev_dir/example-prompts/$prompt_id.md" \
+		"# Experiment Prompt: $prompt_id" \
+		"" \
+		"Run the target $artifact_type through the $PROFILE_ID experiment profile." \
+		"" \
+		"## Target Artifact" \
+		"" \
+		"$(display_path "$artifact_abs")" \
+		"" \
+		"## Contract" \
+		"" \
+		"$(display_path "$contract_path")" \
+		"" \
+		"## Lifecycle Owner" \
+		"" \
+		"$PROFILE_LIFECYCLE_OWNER" \
+		"" \
+		"## User Request" \
+		"" \
+		"$prompt_request Return the full user-facing result body. Do not summarize that you saved an output file." \
+		"" \
+		"## Required Capture" \
+		"" \
+		"Save only the final artifact result body to \`development/example-outputs/$prompt_id.output.md\`."
+
+	write_if_missing "$dev_dir/regimes/$regime_id.md" \
+		"# Regime: $regime_id" \
+		"" \
+		"## Goal" \
+		"" \
+		"$regime_goal" \
+		"" \
+		"## Prompt" \
+		"" \
+		"- Prompt: \`example-prompts/$prompt_id.md\`" \
+		"" \
+		"## Required Output Patterns" \
+		"" \
+		"- \`## .+Result|# .+Result\`" \
+		"- \`Status:|Validation:|Phase status:\`" \
+		"" \
+		"## Quality Bar" \
+		"" \
+		"- Output must satisfy the target contract at \`$(display_path "$contract_path")\`." \
+		"- Output must preserve lifecycle owner boundary: $PROFILE_LIFECYCLE_OWNER." \
+		"- Output must be a real artifact body, not a save-summary." \
+		"" \
+		"## Anti-Patterns" \
+		"" \
+		"- Avoid accepting empty output or a summary that only says a file was saved." \
+		"- Avoid replacing $PROFILE_LIFECYCLE_OWNER judgment with Experiment Harness mechanics." \
+		"" \
+		"## Observability" \
+		"" \
+		"- Attempt telemetry should record profile id $PROFILE_ID, lifecycle owner $PROFILE_LIFECYCLE_OWNER, quality, anti-patterns, workflow gaps, and reflection trigger." \
+		"" \
+		"## Lessons To Capture" \
+		"" \
+		"- Missing output sections." \
+		"- Prompt ambiguity." \
+		"- Observer gaps." \
+		"- Profile drift from the target contract."
+done
 
 write_if_missing "$dev_dir/select-example-prompt.sh" \
 	"#!/usr/bin/env bash" \
@@ -226,3 +346,5 @@ chmod +x \
 
 printf 'HARNESS=%s\n' "${dev_dir#$repo_root/}"
 printf 'TYPE=%s\n' "$artifact_type"
+printf 'PROFILE_ID=%s\n' "$PROFILE_ID"
+printf 'LIFECYCLE_OWNER=%s\n' "$PROFILE_LIFECYCLE_OWNER"

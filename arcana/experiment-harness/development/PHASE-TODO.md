@@ -69,14 +69,14 @@ This TODO tracks implementation and validation work for each phase. Lessons from
 - [x] Interrogate the generalization plan and close resolvable blockers.
 - [x] Fill design gaps with a generalized profile contract.
 - [x] Refresh implementation plan around the profile contract.
-- [ ] S1: update `init-harness.sh` to support `--profile` while preserving `--type spell|sigil`.
-- [ ] S1: block invalid profile/type combinations.
-- [ ] S2: generate `development/EXPERIMENT-PROFILE.md` during initialization.
-- [ ] S2: generate profile starter prompts, fixtures, and regimes for `generic-sigil` and `sigil-development`.
-- [ ] S2: generate profile starter prompts, fixtures, and regimes for `generic-spell` and `spellcraft`.
-- [ ] S3: add profile drift validation against target lifecycle contracts.
-- [ ] S3: validate generated prompt and regime ids against the selected profile.
-- [ ] S3: emit `PROFILE_VALIDATION` and profile report fields.
+- [x] S1: update `init-harness.sh` to support `--profile` while preserving `--type spell|sigil`.
+- [x] S1: block invalid profile/type combinations.
+- [x] S2: generate `development/EXPERIMENT-PROFILE.md` during initialization.
+- [x] S2: generate profile starter prompts, fixtures, and regimes for `generic-sigil` and `sigil-development`.
+- [x] S2: generate profile starter prompts, fixtures, and regimes for `generic-spell` and `spellcraft`.
+- [x] S3: add profile drift validation against target lifecycle contracts.
+- [x] S3: validate generated prompt and regime ids against the selected profile.
+- [x] S3: emit `PROFILE_VALIDATION` and profile report fields.
 - [ ] S4: update runtime command adapters to expose `experiment-loop`.
 - [ ] S4: update `spellcraft` and `sigil-development` lifecycle plans.
 - [ ] S5: run the Sigil Development test case against a sandbox copy of a target sigil.

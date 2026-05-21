@@ -35,11 +35,21 @@ fixture_count="$(find "$dev_dir/fixtures" -maxdepth 1 -type f -name '*.md' ! -na
 
 validation_output="$("$dev_dir/run-validation-fixtures.sh" 2>&1 || true)"
 validation="$(printf '%s\n' "$validation_output" | sed -n 's/^VALIDATION=//p' | tail -n 1)"
+profile_validation="$(printf '%s\n' "$validation_output" | sed -n 's/^PROFILE_VALIDATION=//p' | tail -n 1)"
+profile_id="$(printf '%s\n' "$validation_output" | sed -n 's/^PROFILE_ID=//p' | tail -n 1)"
+lifecycle_owner="$(printf '%s\n' "$validation_output" | sed -n 's/^LIFECYCLE_OWNER=//p' | tail -n 1)"
+artifact_type="$(printf '%s\n' "$validation_output" | sed -n 's/^ARTIFACT_TYPE=//p' | tail -n 1)"
+contract_path="$(printf '%s\n' "$validation_output" | sed -n 's/^CONTRACT_PATH=//p' | tail -n 1)"
+prompt_set="$(printf '%s\n' "$validation_output" | sed -n 's/^PROMPT_SET=//p' | tail -n 1)"
+regime_set="$(printf '%s\n' "$validation_output" | sed -n 's/^REGIME_SET=//p' | tail -n 1)"
 if [[ -z "$validation" ]]; then
 	validation="$(printf '%s\n' "$validation_output" | sed -n 's/^RESULT: //p' | sed 's/ .*//' | tail -n 1)"
 fi
 if [[ -z "$validation" ]]; then
 	validation="block"
+fi
+if [[ -z "$profile_validation" ]]; then
+	profile_validation="block"
 fi
 
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -51,16 +61,31 @@ fi
 {
 	printf '# Experiment Harness Run %s\n\n' "$timestamp"
 	printf '%s\n' "- Artifact: ${artifact_abs#$repo_root/}"
+	printf '%s\n' "- Profile ID: ${profile_id:-unknown}"
+	printf '%s\n' "- Lifecycle owner: ${lifecycle_owner:-unknown}"
+	printf '%s\n' "- Artifact type: ${artifact_type:-unknown}"
+	printf '%s\n' "- Contract path: ${contract_path:-unknown}"
 	printf '%s\n' "- Fixture inputs: $fixture_count"
 	printf '%s\n' "- Example prompts: $prompt_count"
 	printf '%s\n' "- Example outputs: $output_count"
 	printf '%s\n\n' "- Validation: $validation"
+	printf '## Profile Fields\n\n'
+	printf '```text\n'
+	printf 'PROFILE_ID=%s\n' "${profile_id:-unknown}"
+	printf 'LIFECYCLE_OWNER=%s\n' "${lifecycle_owner:-unknown}"
+	printf 'ARTIFACT_TYPE=%s\n' "${artifact_type:-unknown}"
+	printf 'CONTRACT_PATH=%s\n' "${contract_path:-unknown}"
+	printf 'PROMPT_SET=%s\n' "${prompt_set:-unknown}"
+	printf 'REGIME_SET=%s\n' "${regime_set:-unknown}"
+	printf 'PROFILE_VALIDATION=%s\n' "$profile_validation"
+	printf '```\n\n'
 	printf '## Validation Output\n\n'
 	printf '```text\n%s\n```\n' "$validation_output"
 } > "$report"
 
 printf 'REPORT=%s\n' "${report#$repo_root/}"
 printf 'VALIDATION=%s\n' "$validation"
+printf 'PROFILE_VALIDATION=%s\n' "$profile_validation"
 
 if [[ "${EXPERIMENT_OBSERVE:-1}" != "0" ]]; then
 	observer_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/observe-harness.sh"

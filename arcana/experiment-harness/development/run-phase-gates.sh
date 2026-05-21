@@ -33,6 +33,8 @@ record_lesson() {
 
 run_phase0() {
 	local tmpdir
+	local baseline_artifact
+	local baseline_report
 	tmpdir="$(mktemp -d)"
 	mkdir -p "$tmpdir/observability"
 	cat > "$tmpdir/observability/config.json" <<'JSON'
@@ -66,13 +68,32 @@ JSON
   "by_sigil": {}
 }
 JSON
+	baseline_artifact="$tmpdir/baseline-spell"
+	mkdir -p "$baseline_artifact"
+	cat > "$baseline_artifact/SKILL.md" <<'EOF'
+---
+name: baseline-spell
+---
+
+# Baseline Spell
+
+<quality-bar>
+- return a result
+</quality-bar>
+
+<anti-patterns>
+- save summary only
+</anti-patterns>
+EOF
 	if bash -n "$SCRIPT_DIR"/*.sh \
 		&& bash -n "$INVOKE_DIR"/development/*.sh \
 		&& "$INVOKE_DIR/development/run-validation-fixtures.sh" >/tmp/experiment-harness-phase0-invoke.log 2>&1 \
-		&& "$SCRIPT_DIR/validate-harness.sh" "$INVOKE_DIR" >/tmp/experiment-harness-phase0-validate.log 2>&1 \
-		&& EXPERIMENT_OBSERVABILITY_DIR="$tmpdir/observability" "$SCRIPT_DIR/observe-harness.sh" "$INVOKE_DIR" >/tmp/experiment-harness-phase0-observe.log 2>&1 \
+		&& "$SCRIPT_DIR/init-harness.sh" "$baseline_artifact" --type spell >/tmp/experiment-harness-phase0-init.log 2>&1 \
+		&& EXPERIMENT_OBSERVE=0 "$SCRIPT_DIR/report-harness.sh" "$baseline_artifact" >/tmp/experiment-harness-phase0-report.log 2>&1 \
+		&& baseline_report="$(sed -n 's/^REPORT=//p' /tmp/experiment-harness-phase0-report.log | tail -n 1)" \
+		&& EXPERIMENT_OBSERVABILITY_DIR="$tmpdir/observability" "$SCRIPT_DIR/observe-harness.sh" "$baseline_artifact" "$baseline_report" >/tmp/experiment-harness-phase0-observe.log 2>&1 \
 		&& jq -e 'select(.observer.reflection_trigger == "usage-threshold" and .observer.recommendation == "reflect-now")' "$tmpdir/observability/signals/sigil-invocations.jsonl" >/tmp/experiment-harness-phase0-reflection.log 2>&1; then
-		record_result "Phase 0" "pass" "baseline controls, syntax checks, generic validation, observation, and threshold reflection signal ran"
+		record_result "Phase 0" "pass" "baseline controls, syntax checks, profile-aware validation, observation, and threshold reflection signal ran"
 		record_lesson "Phase 0" "The deterministic baseline can stay green while loop-first features are added behind separate gates."
 	else
 		record_result "Phase 0" "block" "baseline controls, observation, or threshold reflection signal failed"
@@ -227,12 +248,29 @@ run_phase6() {
 run_phase7() {
 	local tmpdir
 	tmpdir="$(mktemp -d)"
+	mkdir -p "$tmpdir/toy-sigil"
+	cat > "$tmpdir/toy-sigil/SKILL.md" <<'EOF'
+---
+name: toy-sigil
+---
+
+# Toy Sigil
+
+<quality-bar>
+- return a sigil result
+</quality-bar>
+
+<anti-patterns>
+- save summary only
+</anti-patterns>
+EOF
 	if "$SCRIPT_DIR/init-harness.sh" "$tmpdir/toy-sigil" --type sigil >/tmp/experiment-harness-phase7-init.log 2>&1 \
 		&& test -d "$tmpdir/toy-sigil/development/regimes" \
+		&& test -f "$tmpdir/toy-sigil/development/EXPERIMENT-PROFILE.md" \
 		&& test -d "$tmpdir/toy-sigil/development/experiment-loops" \
 		&& test -x "$tmpdir/toy-sigil/development/run-experiment-loop.sh"; then
-		record_result "Phase 7" "pass" "new harness initialization creates loop-ready layout"
-		record_lesson "Phase 7" "Loop-ready layout can be installed at artifact creation time without running live Codex."
+		record_result "Phase 7" "pass" "new harness initialization creates profile-aware loop-ready layout"
+		record_lesson "Phase 7" "Loop-ready layout and profile metadata can be installed at artifact creation time without running live Codex."
 	else
 		record_result "Phase 7" "block" "loop-ready initialization failed"
 	fi

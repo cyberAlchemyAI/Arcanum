@@ -1,7 +1,7 @@
 ---
 name: experiment-harness
-description: "Use when initializing, running, looping, validating, reporting, or observing repeatable development experiments for Arcanum spells and sigils, especially through Codex CLI."
-argument-hint: "<init|next|run|loop|validate|report|observe> <artifact-path> [regime-id|example-id|report-path|--type spell|sigil|--all]"
+description: "Use when initializing, running, looping, validating, reporting, or observing repeatable profile-aware development experiments for Arcanum spells and sigils, especially through Codex CLI."
+argument-hint: "<init|next|run|loop|validate|report|observe> <artifact-path> [regime-id|example-id|report-path|--type spell|sigil|--profile <id>|--all]"
 tier: arcana
 domain: spell-sigil-validation
 version: 0.1.0
@@ -38,20 +38,21 @@ Expected inputs:
 - mode: `init`, `next`, `run`, `loop`, `validate`, `report`, or `observe`,
 - artifact path,
 - artifact type for init: `spell` or `sigil`,
+- optional profile for init: `generic-spell`, `spellcraft`, `generic-sigil`, or `sigil-development`,
 - optional example ID or `--all`,
 - optional `RERUN=1` when overwriting existing example outputs is intentional,
 - optional `CODEX_BIN` when Codex CLI is not on `PATH`.
 </inputs>
 
 <process>
-1. Resolve the artifact path and confirm the artifact exists or can be initialized.
-2. For `init`, create `development/` directories and starter validation files without overwriting existing files.
+1. Resolve the artifact path and confirm the artifact exists and has a readable `SKILL.md` or `README.md` contract.
+2. For `init`, infer a generic profile from `--type` unless `--profile` is explicit, then create `development/` directories, `EXPERIMENT-PROFILE.md`, profile prompts, regimes, fixtures, and starter validation files without overwriting existing files.
 3. For `next`, select the first prompt in `development/example-prompts/` without a matching `development/example-outputs/<task-id>.output.md`.
 4. For `run`, execute exactly one selected prompt through Codex CLI unless `--all` is explicitly provided.
 5. For `loop`, execute the selected regime until it reaches the required pass streak or max attempts.
 6. Save Codex's final user-facing message to generated evidence paths and raw logs to the attempt bundle.
 7. Reject empty outputs and self-referential save summaries such as `Saved the output to ...`.
-8. For `validate`, check required harness files, fixture pairs, example outputs, Quality Bar evidence, Anti-Pattern hits, and latest report shape.
+8. For `validate`, check profile metadata, profile prompt/regime drift, required harness files, fixture pairs, example outputs, Quality Bar evidence, Anti-Pattern hits, and latest report shape.
 9. For `report`, write a timestamped report under `development/runs/`.
 10. For `observe`, or after `report` when observability exists, append one JSONL signal under `.arcanum/observability/`, update reflection counters, and emit threshold-backed reflection triggers when configured thresholds are reached.
 11. Return the selected artifact, command mode, files touched, validation state, telemetry state, and next missing example.
@@ -64,6 +65,7 @@ When validating saved outputs, extract the target artifact's `SKILL.md` sections
 - `<anti-patterns>` defines known false-success boundaries that become `anti_pattern_hits`.
 - The first implementation uses structured section and keyword checks; semantic judging can be layered into the observer later.
 - Report machine fields must include `QUALITY_BAR_STATUS`, `ANTI_PATTERN_HITS_JSON`, and `WORKFLOW_GAPS_JSON` when findings exist.
+- Profile-aware validation must emit `PROFILE_ID`, `LIFECYCLE_OWNER`, `ARTIFACT_TYPE`, `CONTRACT_PATH`, `PROMPT_SET`, `REGIME_SET`, and `PROFILE_VALIDATION`.
 </validation-loop>
 
 <observability-loop>
@@ -113,6 +115,7 @@ Use `CODEX_BIN` when provided. Otherwise discover `codex` from `PATH` or known l
 A successful execution must:
 
 - create the standard harness layout for new reusable spells and sigils,
+- create and validate `development/EXPERIMENT-PROFILE.md` for every initialized harness,
 - preserve existing harness files unless overwrite is explicit,
 - select exactly one prompt for normal runs,
 - require explicit `--all` for batch model calls,
@@ -131,6 +134,7 @@ Avoid:
 - overwriting outputs without `RERUN=1`,
 - making artifact-local wrappers authoritative over the canonical sigil,
 - validating only markdown presence while ignoring output shape,
+- accepting a legacy harness without profile metadata as valid,
 - embedding invoke-specific assumptions in the generic harness.
 </anti-patterns>
 
@@ -143,10 +147,12 @@ Return:
 - Mode: init | next | run | loop | validate | report | observe
 - Artifact: <path>
 - Artifact type: spell | sigil | unknown
+- Profile: <profile-id | unknown>
 - Selection: <regime-id | task-id | none | not applicable>
 - Output: <path | none | not applicable>
 - Report: <path | none | not applicable>
 - Validation: pass | flag | block | not run
+- Profile validation: pass | flag | block | not run
 - Observation: recorded | skipped | failed
 - Next unrun: <task-id | none | unknown>
 ```

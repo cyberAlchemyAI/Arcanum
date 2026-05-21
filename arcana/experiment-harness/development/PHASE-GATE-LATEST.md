@@ -1,6 +1,6 @@
 # Experiment Harness Phase Gate Latest
 
-- Latest run: `20260518T120720Z`
+- Latest run: `20260521T122458Z`
 - Runner: `arcanum/arcana/experiment-harness/development/run-phase-gates.sh`
 - Status: `pass`
 - Evidence type: deterministic controls and mocked live-loop gates
@@ -9,14 +9,14 @@
 
 | Phase | Status | Summary |
 | --- | --- | --- |
-| Phase 0 | `pass` | baseline controls, syntax checks, generic validation, observation, and threshold reflection signal ran |
+| Phase 0 | `pass` | baseline controls, syntax checks, profile-aware validation, observation, and threshold reflection signal ran |
 | Phase 1 | `pass` | invoke live regime files validate |
 | Phase 2 | `pass` | single-attempt loop creates a valid attempt bundle |
 | Phase 3 | `pass` | pass streak resets after failure and succeeds after two consecutive passes |
 | Phase 4 | `pass` | failed attempt creates robot-talks and improvement argument artifacts |
 | Phase 5 | `pass` | patch application and rollback work in an isolated git repo |
 | Phase 6 | `pass` | invoke pilot loop passes with mocked live output |
-| Phase 7 | `pass` | new harness initialization creates loop-ready layout |
+| Phase 7 | `pass` | new harness initialization creates profile-aware loop-ready layout |
 
 ## Lessons Captured
 
@@ -27,7 +27,7 @@
 - **Phase 4:** Reflection artifacts can be generated deterministically before richer subagent-based robot-talks exists.
 - **Phase 5:** Rollback should be validated in isolation before enabling broad full-artifact edits.
 - **Phase 6:** Mocked invoke loops prove harness control flow, but real Codex loops are still required for promotion evidence.
-- **Phase 7:** Loop-ready layout can be installed at artifact creation time without running live Codex.
+- **Phase 7:** Loop-ready layout and profile metadata can be installed at artifact creation time without running live Codex.
 
 ## Remaining Promotion Gap
 

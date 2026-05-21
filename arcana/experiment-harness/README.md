@@ -22,7 +22,7 @@ It creates an artifact-local `development/` harness, selects realistic prompts, 
 ## Commands
 
 ```bash
-arcanum/arcana/experiment-harness/scripts/init-harness.sh <artifact-path> --type spell|sigil
+arcanum/arcana/experiment-harness/scripts/init-harness.sh <artifact-path> --type spell|sigil [--profile <profile-id>]
 arcanum/arcana/experiment-harness/scripts/select-prompt.sh <artifact-path> next
 arcanum/arcana/experiment-harness/scripts/run-with-codex.sh <artifact-path> <example-id|next|--all>
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh <artifact-path> <regime-id>
@@ -40,6 +40,24 @@ Codex command adapters expose the same workflow through:
 - `experiment-observe`
 
 `experiment-loop` is the live Codex stability loop. It uses regime definitions, repeated attempts, observability, robot-talks improvement reasoning, and rollback on regression. See [development/ARCHITECTURE.md](development/ARCHITECTURE.md).
+
+## Experiment Profiles
+
+Every new harness is profile-aware. `--type spell` infers `generic-spell`, and `--type sigil` infers `generic-sigil`. Lifecycle-specific profiles are available with `--profile spellcraft` and `--profile sigil-development`.
+
+Initialization writes `development/EXPERIMENT-PROFILE.md`, profile-specific prompts, regimes, and fixtures. It blocks when the target artifact has no readable `SKILL.md` or `README.md`, because profile validation needs a contract boundary.
+
+Validation treats missing profile metadata as a blocker and emits:
+
+```text
+PROFILE_ID=<profile-id>
+LIFECYCLE_OWNER=<owner>
+ARTIFACT_TYPE=<spell|sigil>
+CONTRACT_PATH=<path>
+PROMPT_SET=<ids>
+REGIME_SET=<ids>
+PROFILE_VALIDATION=pass|flag|block
+```
 
 ## Closed Loop
 
@@ -70,6 +88,7 @@ The reusable check step reads the target artifact's `SKILL.md` when present:
 <artifact-folder>/
   development/
     VALIDATION-EXPERIMENT.md
+    EXPERIMENT-PROFILE.md
     VALIDATION.md
     TASK-MATRIX.md
     regimes/
