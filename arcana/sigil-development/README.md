@@ -6,6 +6,8 @@ It turns sigil authoring into a governed lifecycle rather than a one-time file-w
 
 For reusable sigils, observability should include a post-run hook that can summarize the latest request and save one JSON event for later reflection.
 
+Sigil Development is the lifecycle owner for sigil artifacts. It may consume handoff packets produced by [Invoke](../../spells/invoke/), but Invoke does not replace this lifecycle.
+
 ## Problem It Solves
 
 Sigils can decay after they are written. A process can look clear in the first draft but later reveal ambiguous triggers, weak Quality Bars, missing Anti-Patterns, output drift, or repeated workflow gaps.
@@ -16,6 +18,7 @@ This sigil solves that by making observability part of the development lifecycle
 
 - creating a new sigil,
 - revising an existing sigil,
+- continuing from an Invoke handoff that targets sigil creation or revision,
 - adding observability or telemetry to a sigil,
 - evaluating whether a sigil is ready for promotion,
 - reflecting on usage signals after repeated executions,
@@ -26,17 +29,53 @@ This sigil solves that by making observability part of the development lifecycle
 - the task is only to run an already-defined sigil,
 - the requested change is a tiny typo fix with no behavior impact,
 - the user only needs a quick explanation of the library structure,
-- no reusable capability is being created or maintained.
+- no reusable capability is being created or maintained,
+- the work is only early intent discovery and has no sigil target yet; use Invoke first.
+
+## Chain Position
+
+Sigil Development sits after Invoke and before execution:
+
+```text
+invoke handoff -> sigil-development lifecycle work -> task-session for approved implementation tasks
+```
+
+Responsibilities:
+
+- Invoke owns discovery, authoring baseline, and handoff artifacts.
+- Sigil Development owns sigil contract mutation, experiment harness, validation, observability, reflection, and promotion readiness.
+- Task Session owns bounded execution of approved work-pack tasks or SWUs.
+- Experiment Harness owns repeatable test mechanics, live Codex examples, validation reports, and telemetry emission for reusable sigils.
+
+If a sigil needs a composed multi-sigil workflow, route that composition through Spellcraft instead of expanding this sigil's contract.
+
+## Codex Goal And Experiment Closure
+
+When sigil implementation work uses Codex native Goals, close the loop through both Task Session and Experiment Harness:
+
+```text
+sigil-development owns lifecycle work-pack
+  -> task-session selects one ready task/SWU
+  -> codex-goal adapter creates native /goal
+  -> Codex executes the bounded runtime goal
+  -> task-session reviews evidence and syncs the work-pack
+  -> experiment-harness validates reusable behavior
+  -> sigil-development consumes validation, telemetry, and reflection signals
+```
+
+Codex Goal evidence can prove that one bounded implementation unit completed. It does not replace the experiment harness. A reusable sigil is not promotion-ready until experiment evidence checks realistic prompts, output shape, Quality Bar, Anti-Patterns, and observability.
 
 ## Lifecycle Model
 
 Sigil Development uses a closed lifecycle:
 
 1. Design: define intent, tier, scope, and behavior.
-2. Validate: check folder structure, links, Quality Bar, Anti-Patterns, and output contract.
-3. Observe: define usage telemetry and emit a signal after meaningful usage.
-4. Reflect: synthesize usage signals manually, by threshold, or when workflow gaps appear.
-5. Iterate: apply targeted updates while preserving the sigil's core contract.
+2. Implement: execute approved work-pack tasks or SWUs through Task Session, optionally via Codex Goal.
+3. Experiment: run or preserve the artifact-local Experiment Harness for realistic examples and regimes.
+4. Validate: check folder structure, links, Quality Bar, Anti-Patterns, output contract, and experiment evidence.
+5. Observe: define usage telemetry and emit a signal after meaningful usage or experiment reports.
+6. Reflect: synthesize usage signals manually, by threshold, or when workflow gaps appear.
+7. Iterate: apply targeted updates while preserving the sigil's core contract.
 
 ## Subagent Observer
 

@@ -8,11 +8,10 @@ This directory contains invoke-owned template families and standalone companion 
 | --- | --- |
 | [module-formulae/](module-formulae/) | Composable module-first baseline bundle. |
 | [implementation-layering.md](implementation-layering.md) | Standalone layering companion for plan, full, and validate flows. |
-| [work-pack.md](work-pack.md) | Standalone planning manifest between implementation-plan and execution-pack. |
+| [work-pack.md](work-pack.md) | Canonical executable planning manifest and current state for plan, full, and validate flows. |
 | [generic/](generic/) | Neutral fallback family for broad lifecycle authoring requests. |
 | [research/](research/) | Evidence-first discovery family. |
 | [architecture/](architecture/) | Architecture planning family. |
-| [implementation-plan/](implementation-plan/) | Implementation planning family. |
 | [spell/](spell/) | Spell authoring handoff family. |
 | [sigil/](sigil/) | Sigil authoring handoff family. |
 | [ux-plan/](ux-plan/) | Experience planning family. |

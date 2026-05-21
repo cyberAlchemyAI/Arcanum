@@ -28,6 +28,53 @@ Arcana: cross-sigil workflow composition, local adaptation, validation, and life
 - `reflect`: improve a spell from accumulated telemetry or user feedback.
 </modes>
 
+<chain-boundary>
+Spellcraft is the lifecycle owner for spell artifacts.
+
+- `invoke` owns early discovery, definition, design, planning, and handoff packets.
+- `spellcraft` owns spell composition, phase/gate design, local installation/adaptation, validation, observability, reflection, and revision.
+- `sigil-development` owns changes to individual sigil contracts referenced by a spell.
+- `task-session` owns bounded execution from approved work-pack tasks or SWUs.
+- `experiment-harness` owns repeatable test mechanics, realistic prompts, live Codex examples, validation reports, and telemetry emission for reusable spells.
+
+When the input is an Invoke handoff, consume the handoff as source context, then take lifecycle ownership of the spell. Do not send the user back to Invoke unless the handoff is missing the workflow objective, target repository scope, or intended output artifact.
+</chain-boundary>
+
+<codex-goal-closure-loop>
+Codex Goal is a runtime execution lane, not a validation substitute.
+
+When implementation or adaptation work is delegated through Task Session and the `codex-goal` adapter:
+
+1. Spellcraft owns the lifecycle work-pack and promotion decision.
+2. Task Session selects one ready task/SWU and checks gates.
+3. The Codex Goal adapter generates or hands off one native `/goal`.
+4. Codex executes the bounded runtime goal.
+5. Task Session reviews the result against the original task/SWU and syncs work-pack evidence.
+6. Experiment Harness runs or validates the artifact-local examples/regimes.
+7. Spellcraft consumes the experiment report, observability signal, and reflection trigger state before marking lifecycle progress.
+
+Required runtime evidence shape:
+
+```yaml
+runtime: codex
+adapter: codex-goal
+source_swu: <id>
+result: pass | flag | block | interrupted
+files_touched:
+  - <path>
+validation:
+  - <command or review evidence>
+experiment_harness:
+  status: pass | flag | block | not_run
+  report: <path or none>
+remaining_blockers:
+  - <blocker or none>
+lifecycle_owner_next_step: validate | observe | reflect | iterate | promote
+```
+
+A spell implementation or adaptation SWU is not lifecycle-complete until runtime evidence is reviewed and the relevant experiment harness state is updated or explicitly blocked.
+</codex-goal-closure-loop>
+
 <default-output>
 For repository-local spells, write to:
 
@@ -70,12 +117,14 @@ spells/<spell-name>/README.md
    - gates,
    - failure policy,
    - observability needs.
-6. If designing a reusable spell, initialize or preserve an experiment harness through `experiment-harness`:
+6. If the source is an Invoke handoff, record the handoff path and preserve Invoke's decisions, gaps, and target-artifact provenance without treating Invoke as the lifecycle owner.
+7. If designing a reusable spell, initialize or preserve an experiment harness through `experiment-harness`:
    - create `development/VALIDATION-EXPERIMENT.md`, `VALIDATION.md`, fixtures, and runner scripts,
    - add low, medium, and complex examples when the spell has reusable modes or phases,
    - keep live Codex CLI execution explicit and bounded.
-7. If installing a library spell, adapt only local paths, thresholds, interaction mode, aliases, and gate strictness. Do not rewrite upstream sigil contracts.
-8. If validating, check:
+8. When implementation tasks are executed through Task Session or Codex Goal, require the runtime evidence shape and route reusable-behavior proof through Experiment Harness before promotion readiness.
+9. If installing a library spell, adapt only local paths, thresholds, interaction mode, aliases, and gate strictness. Do not rewrite upstream sigil contracts.
+10. If validating, check:
    - referenced sigils exist or are declared local/external,
    - aliases resolve to exactly one canonical spell,
    - every phase has input, output, gate, and failure policy,
@@ -83,9 +132,9 @@ spells/<spell-name>/README.md
    - spell does not copy full sigil instructions,
    - experiment harness evidence exists when the spell is expected to be reused,
    - observability is defined when the spell is expected to be reused.
-9. If observing, record spell-level telemetry using the repository observability package when available.
-10. If reflecting, review accumulated spell telemetry and propose targeted changes while preserving the spell's core purpose.
-11. Return the spell file path, validation state, canonical ID, alias used, and next recommended action.
+11. If observing, record spell-level telemetry using the repository observability package when available.
+12. If reflecting, review accumulated spell telemetry and propose targeted changes while preserving the spell's core purpose.
+13. Return the spell file path, validation state, canonical ID, alias used, and next recommended action.
 </process>
 
 <spell-contract>
@@ -138,6 +187,8 @@ A successful execution must:
 - preserve local customization without forking upstream sigils,
 - validate referenced sigils and handoff artifacts,
 - define or preserve an experiment harness for reusable spells,
+- treat Codex Goal evidence as SWU execution evidence, not as reusable-behavior validation,
+- require experiment harness evidence or a named block before promotion readiness,
 - define observability for reusable spells,
 - return a clear next action.
 </quality-bar>

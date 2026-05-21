@@ -45,8 +45,8 @@ Discovery-mode design is allowed only when the user explicitly approves a limite
 | --- | --- | --- |
 | `architecture-pattern-inventory` | Existing patterns, reusable architectures, or design alternatives need lookup. | Supplies evidence; does not override design gates. |
 | `decision-gate` | A blocker-level design decision cannot be resolved from available evidence. | Route only consequential unresolved choices. |
-| `spellcraft` | Approved design output targets spell authoring or spell revision. | Invoke emits handoff context; Spellcraft owns lifecycle execution. |
-| `sigil-development` | Approved design output targets sigil authoring or sigil revision. | Invoke emits handoff context; Sigil Development owns lifecycle execution. |
+| `spellcraft` | Approved design output targets spell authoring or spell revision. | Invoke emits handoff context; Spellcraft owns spell lifecycle mutation, validation, install/adaptation, observation, and reflection. |
+| `sigil-development` | Approved design output targets sigil authoring or sigil revision. | Invoke emits handoff context; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 
 ## Inputs
 

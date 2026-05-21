@@ -18,24 +18,24 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | --- | --- | --- |
 | Markdown links | pass | `find arcanum/spells/invoke -name '*.md' -print0 \| xargs -0 -n1 ./tools/check_markdown_links.sh` passed for all invoke markdown files. |
 | Spell contract structure | pass | [../README.md](../README.md), [../define.md](../define.md), and [../design.md](../design.md) define identity, modes, phases, gates, handoffs, failure policy, observability, and output contracts. |
-| Template scaffold coverage | pass | [../templates/README.md](../templates/README.md) declares family scaffold requirements; `generic`, `research`, `architecture`, `implementation-plan`, `spell`, `sigil`, and `ux-plan` folders include README, primary template, passing example, and missing-input example. |
+| Template scaffold coverage | pass | [../templates/README.md](../templates/README.md) declares family scaffold requirements; `generic`, `research`, `architecture`, `spell`, `sigil`, and `ux-plan` folders include README, primary template, passing example, and missing-input example. Historical `implementation-plan` scaffolding is no longer part of the active plan surface. |
 | Template task matrix coverage | pass | [TEMPLATE-VALIDATION-TASKS.md](TEMPLATE-VALIDATION-TASKS.md) lists low, medium, and complex tasks for Module Formulae, standalone companions, and each dedicated family. |
 | Template prompt coverage | pass | [TEMPLATE-EXAMPLE-RUNBOOK.md](TEMPLATE-EXAMPLE-RUNBOOK.md) explains how to run every generated prompt in Codex; `example-prompts/` contains one prompt per template task. |
 | Prompt selector coverage | pass | [select-template-example-prompt.sh](select-template-example-prompt.sh) resolves exact task IDs, template+complexity pairs, and `next`; Codex command bridges exist for `arcanum-sigil-invoke-example-runner`; [run-template-example-with-codex.sh](run-template-example-with-codex.sh) provides bounded `codex exec` automation. |
 | Example output coverage | pass | Saved example outputs under `example-outputs/` are checked for real `Invoke Result` shape and rejected if they are save-summary responses; architecture outputs must include a full architecture artifact with all required sections. |
 | Define gate coverage | pass | [../define.md](../define.md) blocks missing core goals, flags unapproved candidate-template cases, gates glossary promotion, and defines transport behavior. |
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
-| Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-plan, implementation-layering, work-pack, validation strategy, complexity-based output mode, per-layer planning slices for medium/high complexity, implementation-detail specs, and SWU decomposition for execution tasks. |
+| Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-layering, canonical work-pack, validation strategy, complexity-based output mode, layer-mapped waves for medium/high complexity, implementation-detail specs, SWU decomposition for execution tasks, navigable work-pack tables, artifact-boundary clarity, and subagent/local-fallback-ready SWU handoff fields. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Codex adapter readiness | pass | Root-level `.arcanum/runtimes/codex/commands/arcanum-spell-invoke.md` and `.codex/commands/arcanum-spell-invoke.md` exist and route Codex to canonical `arcanum/spells/invoke` contracts. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
 | Integration replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-001` proves define artifacts feed design inputs, preserve glossary terms, emit six views, and route next to `plan`. |
-| Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high per-layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. |
-| Define-design-plan replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-PLAN-001` proves plan consumes design inputs, preserves define glossary terms, emits implementation plan/layering/work-pack/transport artifacts, and routes next to `task-session`. |
+| Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. The canonical work-pack hierarchy, navigable table links, and new SWU handoff fields are a contract refresh and should be covered in the next plan fixture refresh. |
+| Define-design-plan replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-PLAN-001` proves plan consumes design inputs, preserves define glossary terms, emits layering/work-pack/transport artifacts, and routes next to `task-session`. Existing fixture evidence should be refreshed against the work-pack-only planning contract. |
 | Live define loop | pass | [live-evidence/LIVE-DEFINE-001/loop-report.md](live-evidence/LIVE-DEFINE-001/loop-report.md) reached two consecutive passing Codex attempts; [output.md](live-evidence/LIVE-DEFINE-001/output.md) preserves the real artifact body. |
 | Live design loop | pass | [live-evidence/LIVE-DESIGN-001/loop-report.md](live-evidence/LIVE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts after correcting overly broad placeholder/blocker detection in the harness validator; [output.md](live-evidence/LIVE-DESIGN-001/output.md) preserves the real artifact body. |
 | Live define-to-design loop | pass | [live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts and preserved the define-to-design authority boundary; [output.md](live-evidence/LIVE-DEFINE-DESIGN-001/output.md) preserves the real artifact body. |
-| Live plan loop | pass | [live-evidence/LIVE-PLAN-001/loop-report.md](live-evidence/LIVE-PLAN-001/loop-report.md) reached two consecutive passing Codex attempts with implementation plan, implementation layering, work-pack, implementation-detail specs, SWU manifest/task-local mappings, validation strategy, transport, and next-route evidence. |
+| Live plan loop | pass | [live-evidence/LIVE-PLAN-001/loop-report.md](live-evidence/LIVE-PLAN-001/loop-report.md) reached two consecutive passing Codex attempts with implementation layering, work-pack, implementation-detail specs, SWU manifest/task-local mappings, validation strategy, transport, and next-route evidence. Canonical work-pack hierarchy and new SWU subagent/local-fallback handoff fields require a follow-up live plan refresh. |
 | Live define-to-design-to-plan loop | pass | [live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md](live-evidence/LIVE-DEFINE-DESIGN-PLAN-001/loop-report.md) reached two consecutive passing Codex attempts and preserved define, design, and plan authority boundaries. |
 | Observability loop | pass | `.arcanum/observability/signals/sigil-invocations.jsonl` records completed observer telemetry with `quality_bar_status`, `anti_pattern_hits`, `workflow_gaps`, and `reflection_trigger`; hook rows in `.arcanum/observability/hooks/hook-operations.jsonl` carry `observe: false` and duplicate observer emission skips cleanly. |
 
@@ -88,8 +88,8 @@ Registry release remains blocked for `plan`, `full`, and `validate` modes until 
 | [INV-DESIGN-FLAG-001](fixtures/INV-DESIGN-FLAG-001.md) | pass | Dry-run with contradictory evidence selects the `research` companion, carries claim status into design decisions, and flags unless the ambiguity affects a required design decision, in which case it blocks. |
 | [INV-DESIGN-HANDOFF-001](fixtures/INV-DESIGN-HANDOFF-001.md) | pass | Dry-run for spell and sigil targets emits handoff context only, routes lifecycle execution to `spellcraft` or `sigil-development`, and does not take lifecycle ownership. |
 | [INV-INTEGRATION-DEFINE-DESIGN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-001.md) | pass | Integration dry-run chains define output artifacts into design inputs and verifies glossary preservation, six-view design output, transport, and next route `plan`. |
-| [INV-PLAN-PASS-001](fixtures/INV-PLAN-PASS-001.md) | pass | Dry-run from approved design outputs emits implementation plan, global implementation layering, compact layer mapping, single-file work-pack, validation strategy, plan transport, and next route `task-session`. |
-| [INV-PLAN-SPLIT-001](fixtures/INV-PLAN-SPLIT-001.md) | pass | Dry-run for medium complexity emits split work-pack, execution-pack handoff, explicit L0-L3 per-layer planning slices, implementation-detail specs, and SWU manifest/task-local mappings. |
+| [INV-PLAN-PASS-001](fixtures/INV-PLAN-PASS-001.md) | pass | Dry-run from approved design outputs emits global implementation layering, compact layer mapping, single-file work-pack, validation strategy, plan transport, and next route `task-session`. |
+| [INV-PLAN-SPLIT-001](fixtures/INV-PLAN-SPLIT-001.md) | pass | Dry-run for medium complexity emits split work-pack, execution-pack handoff, explicit L0-L3 layer-mapped waves, implementation-detail specs, and SWU manifest/task-local mappings. |
 | [INV-PLAN-BLOCK-001](fixtures/INV-PLAN-BLOCK-001.md) | pass | Dry-run with missing approved design refs and companion status blocks at the plan activation gate. |
 | [INV-INTEGRATION-DEFINE-DESIGN-PLAN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md) | pass | Integration dry-run chains define and design artifacts into plan, preserves glossary terms, emits plan artifacts and transport, and keeps execution deferred. |
 
@@ -223,7 +223,7 @@ The runner checks both the realistic user-request fixture files and their expect
 - Mode: plan
 - Phase status: pass
 - Inputs present: approved design outputs, source design refs, delivery boundary, lifecycle owner approval, companion creation approval
-- Template/profile selection: implementation-plan plus standalone implementation-layering and work-pack companions
+- Template/profile selection: standalone implementation-layering and work-pack companions
 - Implementation layering: global L0-L3 decision boundaries
 - Work-pack: single-file with compact layer mapping
 - Complexity: low
@@ -242,7 +242,7 @@ The runner checks both the realistic user-request fixture files and their expect
 - Mode: plan
 - Phase status: pass
 - Inputs present: approved design outputs, dependency/interface map, delivery boundary, validation strategy, lifecycle owner approval
-- Template/profile selection: implementation-plan, implementation-layering, work-pack, and execution-pack companions
+- Template/profile selection: implementation-layering, work-pack, and execution-pack companions
 - Implementation layering: global L0-L3 decision boundaries
 - Work-pack: split
 - Complexity: medium

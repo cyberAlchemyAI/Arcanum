@@ -1,11 +1,11 @@
 # Sigil Template Family
 
-Use this family when invoke needs to prepare context for creating or revising a sigil. This family prepares the handoff; sigil-development owns lifecycle execution and promotion.
+Use this family when invoke needs to prepare context for creating or revising a sigil. This family prepares the handoff; sigil-development owns sigil lifecycle mutation, validation, observability, reflection, iteration, and promotion readiness.
 
 ## Selection Rules
 
 1. Select `sigil` when the requested artifact is a reusable sigil, sigil mode, runtime adapter expectation, or interaction contract.
-2. Keep lifecycle execution outside this template family and hand off to sigil-development.
+2. Keep lifecycle mutation outside this template family and hand off to sigil-development.
 3. Record inputs, outputs, runtime expectations, validation examples, and observability before handoff.
 
 ## Templates

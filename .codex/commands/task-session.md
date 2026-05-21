@@ -4,6 +4,8 @@
 <!-- arcanum:capability-kind sigil -->
 <!-- arcanum:capability-tier arcana -->
 <!-- arcanum:command task-session -->
+<!-- arcanum:runtime codex -->
+<!-- arcanum:runtime-goal-adapter codex-goal -->
 
 ## Observer Envelope: Task Zero
 
@@ -32,6 +34,21 @@ If deterministic hook or wrapper telemetry is unavailable, preserve the result a
 ## Objective
 
 Run the installed Arcanum sigil `task-session` using the canonical definition snapshot embedded below.
+
+## Repository Runtime Interface
+
+This installed command runs in the `codex` runtime.
+
+Task Session is the stable Arcanum coordinator. Runtime goal-like execution is delegated through adapters under `arcana/task-session/runtime-adapters/`.
+
+For this repository, the current goal-like adapter is:
+
+- adapter: `codex-goal`
+- contract: `arcana/task-session/runtime-adapters/codex-goal.md`
+- profile transmutation: `transmutations/codex-goal-profile/`
+- native runtime command: `/goal`
+
+When the user asks Task Session to execute a work-pack through a goal-like runtime, resolve one task/SWU from the work-pack, check blockers, then use the `codex-goal` adapter to produce or hand off a native Codex `/goal`. Task Session still owns final evidence review and work-pack synchronization.
 
 ## Process
 

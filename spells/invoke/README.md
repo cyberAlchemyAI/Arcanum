@@ -10,6 +10,8 @@
 
 Invoke turns vague development intent into governed authoring artifacts. The root spell file stays intentionally compact and delegates mode behavior to per-mode contracts under `spells/invoke/`.
 
+Invoke is an authoring front door, not the lifecycle owner for every artifact it can describe. It discovers intent, shapes definitions, designs, and plans, then hands off to the capability that owns the target lifecycle.
+
 ## Trigger Conditions
 
 - The user has something to build but the authoring baseline is missing or inconsistent.
@@ -39,10 +41,43 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 | Sigil                            | Use When                                                             | Notes                                                                              |
 | -------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `decision-gate`                  | A blocker-level decision cannot be resolved from available evidence. | Route only consequential unresolved choices.                                       |
-| `spellcraft`                     | Approved invoke output targets spell authoring or spell revision.    | Invoke prepares handoff context; Spellcraft owns spell lifecycle execution.        |
-| `sigil-development`              | Approved invoke output targets sigil authoring or sigil revision.    | Invoke prepares handoff context; Sigil Development owns sigil lifecycle execution. |
+| `spellcraft`                     | Approved invoke output targets spell authoring or spell revision.    | Invoke prepares handoff context only; Spellcraft owns spell lifecycle mutation, validation, install, observation, and reflection. |
+| `sigil-development`              | Approved invoke output targets sigil authoring or sigil revision.    | Invoke prepares handoff context only; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 | `architecture-pattern-inventory` | Design-stage work needs reusable pattern evidence or alternatives.    | Optional design-mode evidence source; does not override design gates.              |
 | `task-session`                   | Plan output is ready for bounded execution.                          | Invoke emits handoff context; Task Session owns execution.                         |
+
+## Lifecycle Authority Chain
+
+Use this chain to avoid responsibility overlap:
+
+1. `invoke` owns intent-to-artifact authoring: define, design, plan, work-pack creation, and handoff context.
+2. `sigil-development` owns sigil lifecycle: create, revise, validate, observe, reflect, iterate, and prepare promotion evidence.
+3. `spellcraft` owns spell lifecycle: compose sigils, define phases and gates, install/adapt spells, validate, observe, reflect, and revise.
+4. `task-session` owns bounded execution from an approved work-pack task or SWU.
+
+Invoke may write handoff artifacts inside a target capability's `development/` folder, but it must not claim the target lifecycle is complete. The handoff route becomes the next owner.
+
+### Chaining Workflow
+
+For a new sigil:
+
+```text
+invoke define/design/plan -> sigil-development --new/--update -> task-session when implementation work-pack tasks are ready
+```
+
+For a new spell:
+
+```text
+invoke define/design/plan -> spellcraft design/install/validate -> task-session when implementation work-pack tasks are ready
+```
+
+For an ordinary feature or module:
+
+```text
+invoke define/design/plan -> task-session to WORK-PACK.md
+```
+
+When a target is already clearly a sigil or spell, Invoke should produce a compact handoff packet and route early instead of expanding into lifecycle execution.
 
 ## Cross-Cutting Transmutations
 

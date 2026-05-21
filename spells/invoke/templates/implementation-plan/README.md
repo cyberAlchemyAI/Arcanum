@@ -1,26 +1,36 @@
-# Implementation-Plan Template Family
+# Retired Implementation-Plan Template Family
 
-Use this family when invoke needs to translate approved design or architecture into delivery slices, validation strategy, and execution-ready handoff.
+This family is retained only as historical scaffolding for older validation fixtures. Active invoke planning no longer selects or emits an `IMPLEMENTATION-PLAN.md` artifact.
+
+The active plan surface is:
+
+```text
+IMPLEMENTATION-LAYERING.md
+WORK-PACK.md
+  -> work-pack/waves/W*.md
+  -> work-pack/tasks/TASK-*.md
+  -> SWUs
+```
 
 ## Selection Rules
 
-1. Select `implementation-plan` after architecture or design intent is stable enough to plan delivery.
-2. Compose the standalone companions instead of duplicating them: [../implementation-layering.md](../implementation-layering.md) and [../work-pack.md](../work-pack.md).
-3. Use [../module-formulae/execution-pack.md](../module-formulae/execution-pack.md) when the plan needs wave execution packaging.
+1. Do not select this family for new invoke plan work.
+2. Use [../implementation-layering.md](../implementation-layering.md) for layer governance.
+3. Use [../work-pack.md](../work-pack.md) for executable planning, state, waves, tasks, and SWUs.
+4. Use [../module-formulae/execution-pack.md](../module-formulae/execution-pack.md) when the plan needs wave execution packaging.
 
 ## Templates
 
 | Template | Purpose |
 | --- | --- |
-| [implementation-plan.md](implementation-plan.md) | Implementation planning contract. |
-| [examples/passing.md](examples/passing.md) | Minimal passing implementation-plan example. |
-| [examples/missing-input.md](examples/missing-input.md) | Missing-input negative example. |
+| [implementation-plan.md](implementation-plan.md) | Retired implementation-plan contract retained for historical reference. |
+| [examples/passing.md](examples/passing.md) | Historical passing implementation-plan example. |
+| [examples/missing-input.md](examples/missing-input.md) | Historical missing-input negative example. |
 
 ## Gates
 
-- Block when required source design refs are missing.
-- Block plan, full, and validate flows if required standalone layering or work-pack companions are absent without a recorded deferral.
-- Flag delivery slices that lack validation strategy.
+- Block new plan, full, and validate flows if they attempt to select this retired family as an active output.
+- Route planning work to implementation-layering and work-pack instead.
 
 ## Validation
 

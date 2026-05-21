@@ -6,6 +6,8 @@ Arcanum now treats `.codex/commands/` as the installed runtime surface. Generate
 
 For each selected install, the installer creates one general `arcanum-orchestrate` command plus individual commands for every selected sigil and spell. Prefixed names use `arcanum-sigil-<id>` and `arcanum-spell-<id>` as stable compatibility names. Bare-id aliases such as `interrogation` or `invoke` are also full command files unless the alias would collide. When `ontology-harness` is selected, it creates `arcanum-ontology-harness`. When Necronomicon harness generation is enabled, it creates `arcanum-necronomicon`.
 
+Generated Codex commands record their installed runtime with `arcanum:runtime codex`. Runtime-sensitive sigils may also declare adapter metadata. For example, `task-session` declares `arcanum:runtime-goal-adapter codex-goal` so it can translate a selected work-pack task or SWU into a native Codex `/goal` through the `codex-goal-profile` transmutation while preserving Task Session as the Arcanum coordinator.
+
 ## Problem It Solves
 
 Arcanum stores canonical sigils and spells as framework artifacts, but Codex discovers repository slash commands from `.codex/commands/`. A registry is useful only when the selected capabilities are invokable from that local command surface.
@@ -42,6 +44,7 @@ The sigil can produce:
 - install manifest,
 - Codex command files,
 - Codex hook files,
+- runtime metadata and runtime-goal adapter declarations,
 - validation report.
 
 ## Why This Is Arcana

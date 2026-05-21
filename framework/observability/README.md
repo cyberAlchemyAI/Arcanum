@@ -24,6 +24,8 @@ Useful signals include:
 - Anti-Pattern hits,
 - workflow gaps,
 - output-contract drift,
+- artifact redundancy,
+- navigation efficiency,
 - user corrections,
 - observer recommendations,
 - reflection trigger state.
@@ -63,6 +65,15 @@ Default reflection triggers:
 - 1 severe workflow gap.
 
 Sigils may override these defaults when their usage rate, risk level, or output size justifies a different threshold.
+
+## Cross-Cutting Reflection Signals
+
+Two workflow gaps should be available to every observed capability:
+
+- `artifact-redundancy`: duplicate artifacts, duplicate ownership, or stale compatibility surfaces make it unclear which artifact is authoritative.
+- `navigation-efficiency`: the artifact is hard to traverse because task IDs, SWUs, source contracts, next actions, or start-here links are missing.
+
+These signals matter because they often appear before a quality failure. A plan may be factually correct but still expensive for the next human or agent to use. Observers should record them whenever the output forces repository search, manual reconciliation, or repeated explanation to continue the work.
 
 ## Related Sigil
 

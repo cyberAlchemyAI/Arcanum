@@ -24,8 +24,7 @@ Use these templates when you need:
 | research-brief.md | Evidence-first discovery and decision framing before design. |
 | architecture-bundle.md | Required architecture view set with assumptions, risks, and decisions. |
 | [../implementation-layering.md](../implementation-layering.md) | Standalone invoke layering companion composed from the implementation-layering transmutation. |
-| implementation-plan.md | Delivery slices and layer progression from design to execution. |
-| [../work-pack.md](../work-pack.md) | Standalone invoke planning manifest that maps implementation-plan outputs into execution structure. |
+| [../work-pack.md](../work-pack.md) | Canonical invoke executable planning manifest that maps objectives, slices, waves, tasks, and SWUs. |
 | observability.md | Signal derivation and alert contract tied to source artifacts. |
 | execution-pack.md | Phased implementation planning, gates, and closure obligations. |
 | bundle-profile.md | Composable profile selection for discovery, architecture, implementation, and full runs. |
@@ -45,7 +44,7 @@ Use these templates when you need:
 - A consuming workflow can select a subset, but the full pack is the default for high-complexity work.
 - The glossary template is the terminology authority for all generated artifacts.
 - The standalone companion [../implementation-layering.md](../implementation-layering.md) is the default layering artifact for invoke plan/full/validate outputs.
-- The standalone companion [../work-pack.md](../work-pack.md) is the stable plan manifest between implementation-plan and execution-pack.
+- The standalone companion [../work-pack.md](../work-pack.md) is the canonical executable plan manifest between implementation-layering and execution-pack.
 
 ## Related Invoke Families
 
@@ -54,7 +53,6 @@ Dedicated family scaffolds live beside this pack and remain separate from Module
 - [../generic/](../generic/)
 - [../research/](../research/)
 - [../architecture/](../architecture/)
-- [../implementation-plan/](../implementation-plan/)
 - [../spell/](../spell/)
 - [../sigil/](../sigil/)
 - [../ux-plan/](../ux-plan/)

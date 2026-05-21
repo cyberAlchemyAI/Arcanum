@@ -26,7 +26,6 @@ Validate that live Codex execution can produce an inspectable define-to-design-t
 - `Dependency Interface View|dependency interface|View 6`
 - `Glossary consistency|glossary consistency`
 - `Design transport|design transport`
-- `Implementation plan|implementation plan`
 - `Implementation layering|implementation layering`
 - `Work-pack|work-pack`
 - `Validation strategy|validation strategy`

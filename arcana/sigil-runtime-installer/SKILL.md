@@ -24,6 +24,8 @@ Arcana: command generation, repository-local installation, validation, observer 
 - `none`: install observability and optional Necronomicon state without command files.
 
 Install the general `arcanum-orchestrate` command and individual artifact commands for each selected sigil and spell. Prefixed commands use `arcanum-sigil-<id>` and `arcanum-spell-<id>` as stable compatibility names. Bare aliases use the artifact id, such as `interrogation` or `invoke`, unless the alias would collide. When `ontology-harness` is selected, install `arcanum-ontology-harness`. When Necronomicon harness generation is enabled, install `arcanum-necronomicon`.
+
+Generated Codex commands should declare the installed runtime with `arcanum:runtime codex`. Runtime-sensitive sigils may also declare adapter metadata. `task-session` must declare `arcanum:runtime-goal-adapter codex-goal` when installed for Codex so work-pack tasks/SWUs can be delegated through native Codex `/goal` via the `codex-goal-profile` transmutation.
 </targets>
 
 <applicability>
@@ -73,26 +75,29 @@ codex -> .codex/commands/arcanum-orchestrate.md
 ## Step 2 - Build Command Plan
 
 5. Generate `.codex/commands/` files directly; do not generate `.arcanum/runtimes/`.
-6. Every command starts with observer envelope task zero.
-7. Every command embeds or references the canonical sigil/spell snapshot it needs to execute.
-8. Do not require generated `.arcanum/necronomicon/` registry files. If Necronomicon state exists there, treat it as harness memory and selected capability state only.
-9. Install Codex hooks for `UserPromptSubmit`, `PostToolUse`, and `Stop` so native slash-command usage is hook-backed.
+6. Add runtime metadata to generated Codex commands and adapter metadata to runtime-sensitive commands.
+7. Every command starts with observer envelope task zero.
+8. Every command embeds or references the canonical sigil/spell snapshot it needs to execute.
+9. Do not require generated `.arcanum/necronomicon/` registry files. If Necronomicon state exists there, treat it as harness memory and selected capability state only.
+10. Install Codex hooks for `UserPromptSubmit`, `PostToolUse`, and `Stop` so native slash-command usage is hook-backed.
 
 ## Step 3 - Install Or Dry Run
 
-10. In dry-run mode, return the files that would be created or updated.
-11. In install mode, create or update only `.codex/commands/`, `.codex/hooks.json`, `.codex/hooks/`, `.arcanum/observability/`, and optional `.arcanum/necronomicon/`.
-12. For sigil and spell artifact commands, install both the prefixed compatibility command and the bare-id command.
-13. If an existing command has unrelated local changes, stop and ask before overwriting unless overwrite was explicitly approved.
+11. In dry-run mode, return the files that would be created or updated.
+12. In install mode, create or update only `.codex/commands/`, `.codex/hooks.json`, `.codex/hooks/`, `.arcanum/observability/`, and optional `.arcanum/necronomicon/`.
+13. For sigil and spell artifact commands, install both the prefixed compatibility command and the bare-id command.
+14. If an existing command has unrelated local changes, stop and ask before overwriting unless overwrite was explicitly approved.
 
 ## Step 4 - Validate
 
-14. Check that command files exist.
-15. Check that each command contains observer task-zero metadata.
-16. Check that short aliases exist for installed sigil and spell commands unless explicitly conflicted.
-17. Check that `.codex/hooks.json` is valid JSON and hook scripts are executable.
-18. Check that no `.arcanum/runtimes/` or `.github/skills/` tree is generated.
-19. Return pass, flag, or block.
+15. Check that command files exist.
+16. Check that each command contains observer task-zero metadata.
+17. Check that generated Codex commands include runtime metadata.
+18. Check that runtime-sensitive commands include expected adapter metadata.
+19. Check that short aliases exist for installed sigil and spell commands unless explicitly conflicted.
+20. Check that `.codex/hooks.json` is valid JSON and hook scripts are executable.
+21. Check that no `.arcanum/runtimes/` or `.github/skills/` tree is generated.
+22. Return pass, flag, or block.
 </process>
 
 <quality-bar>
@@ -104,6 +109,7 @@ A successful execution must:
 - install the Necronomicon command when the repository harness is enabled,
 - avoid requiring generated `.arcanum/necronomicon/` definition files,
 - install observer hooks,
+- preserve runtime metadata and runtime-goal adapter declarations,
 - validate command and hook paths,
 - preserve unrelated local agent configuration,
 - report what was installed and how to invoke it.
@@ -129,6 +135,7 @@ When `.arcanum/observability/` exists, emit telemetry for:
 - files updated,
 - Necronomicon command status,
 - hook install status,
+- runtime metadata status,
 - validation result,
 - blockers.
 </observability>

@@ -1,10 +1,10 @@
 ---
 template_id: invoke.implementation-plan
 template_type: implementation-plan
+canonical_source: WORK-PACK.md
+retired: true
 applies_to:
-  - plan
-  - full
-  - validate
+  - historical-reference
 required_inputs:
   - implementation_objective
   - source_design_refs
@@ -16,7 +16,7 @@ optional_inputs:
   - execution_pack_ref
 output_files:
   - IMPLEMENTATION-PLAN.md
-status: candidate
+status: retired
 authority_level: invoke-local
 promotion_evidence: []
 promotion_decision: pending
@@ -34,7 +34,9 @@ created_at: 2026-05-16
 updated_at: 2026-05-16
 ---
 
-# Implementation Plan: {capability-name}
+# Retired Implementation Plan: {capability-name}
+
+This template is retained only as historical scaffolding. New invoke plan work must use `WORK-PACK.md` as the executable plan and `IMPLEMENTATION-LAYERING.md` as the governance lens.
 
 ## Implementation Objective
 
@@ -93,9 +95,9 @@ Required for medium/high work-packs. SWUs sit below tasks and identify the small
 
 Shared manifest:
 
-| SWU ID | Parent Task | Goal | Write Scope | Acceptance Evidence | Verification Command |
-| --- | --- | --- | --- | --- | --- |
-| SWU-{FEATURE-CODE}-001 | T-001 | {small executable goal} | {files, modules, or docs this SWU may change} | {evidence required to accept the SWU} | {command or reviewable check} |
+| SWU ID | Parent Task | Goal | Dependencies | Write Scope | Done Criteria | Acceptance Evidence | Verification Command | Execution Owner | Handoff Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SWU-{FEATURE-CODE}-001 | T-001 | {small executable goal} | {task ids, SWU ids, or none} | {files, modules, or docs this SWU may change} | {conditions that make this SWU done} | {evidence required to accept the SWU} | {command or reviewable check} | subagent, local-fallback, or manual | {context a worker/subagent needs and expected return shape} |
 
 Task-local mapping:
 
@@ -116,6 +118,29 @@ Closure-only task exemption:
 ```
 
 Every SWU must map to exactly one parent task. Medium/high implementation handoff should target one SWU at a time; if a task has multiple SWUs and no SWU is selected, the execution route must ask for the SWU before mutation-capable work starts.
+
+SWU handoff contract:
+
+```yaml
+swu_id: <id>
+parent_task: <task id>
+objective: <goal>
+dependencies:
+  - <task id, SWU id, or none>
+write_scope:
+  - <path or module>
+done_criteria:
+  - <criterion>
+validation:
+  - <command or reviewable check>
+execution_owner: subagent | local-fallback | manual
+expected_result:
+  result: pass | flag | block | interrupted
+  files_touched: []
+  validation: []
+  blockers: []
+  handoff_note: <summary>
+```
 
 ## Blocker Ledger
 

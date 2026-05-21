@@ -2,6 +2,8 @@
 
 Task Session is an Arcana sigil for executing one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, and synchronization.
 
+It is the stable Arcanum execution surface. Runtime-specific goal systems, such as Codex native `/goal`, are treated as adapters rather than as the task-session identity itself.
+
 It is useful when a task is too consequential for a quick edit but too narrow for a full planning workflow. The sigil keeps the session focused on one task, exposes trade-offs before action, blocks on unresolved gates, and leaves a concise record of what changed and why.
 
 ## Problem It Solves
@@ -33,10 +35,51 @@ Task Session solves this by turning one task into a guided execution loop: resol
 3. Build option cards for unresolved implementation choices.
 4. Ask the user or auto-select only when explicitly allowed.
 5. Evaluate blockers and dependency gates.
-6. Execute the chosen path.
-7. Validate against done criteria.
-8. Synchronize task state and related records.
-9. Return a compact session report.
+6. Select the execution runtime for this repository and task.
+7. Execute directly or delegate through a runtime-goal adapter.
+8. Validate against done criteria.
+9. Synchronize task state and related records.
+10. Return a compact session report.
+
+## Work-Pack Runtime Flow
+
+When the input is a `WORK-PACK.md`, Task Session should treat the work-pack as the executable dashboard:
+
+1. Resolve the target work-pack by explicit path or current context.
+2. Select exactly one ready task or SWU.
+3. Check dependencies, blocker rows, source links, write scope, done criteria, and validation surface.
+4. Choose the repository runtime from the installed command context or explicit user flag.
+5. If the runtime supports goal-like execution, translate the selected task/SWU through the matching runtime-goal adapter.
+6. Let the runtime own continuation while Task Session remains responsible for final evidence review and work-pack synchronization.
+
+The intended shorthand is:
+
+```text
+/task-session to <work-pack-path> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <runtime>] [--via goal]
+```
+
+Examples:
+
+```text
+/task-session to ./arcana/concept-layer-optimizer/development/WORK-PACK.md --swu SWU-CLO-003-001 --via goal
+```
+
+## Runtime Adapter Interface
+
+Task Session supports runtime adapters so the repository can use the best available execution system without hardcoding one vendor or command.
+
+An adapter defines:
+
+- runtime id,
+- capability kind, such as `goal`,
+- availability check,
+- input contract from the selected task/SWU,
+- transformation rule,
+- handoff command shape,
+- ownership boundary,
+- blocked fallback.
+
+The current Codex adapter is [runtime-adapters/codex-goal.md](runtime-adapters/codex-goal.md). It uses [Codex Goal Profile](../../transmutations/codex-goal-profile/) to turn one work-pack task or SWU into a native Codex `/goal` command.
 
 ## Output
 
@@ -49,6 +92,37 @@ The sigil produces:
 - validation results,
 - synchronized completion evidence,
 - follow-up items.
+
+For runtime-backed execution, the report also includes:
+
+- selected runtime,
+- adapter used,
+- generated runtime command or blocked reason,
+- runtime-owned lifecycle actions,
+- synchronization required after runtime completion.
+
+## Lifecycle Closure Evidence
+
+When Task Session executes a work-pack task or SWU for a spell or sigil lifecycle, it should return evidence that lifecycle owners and Experiment Harness can consume:
+
+```yaml
+runtime: codex | local
+adapter: codex-goal | none
+source_swu: <id or none>
+result: pass | flag | block | interrupted
+files_touched:
+  - <path>
+validation:
+  - <command or review evidence>
+experiment_harness:
+  status: pass | flag | block | not_run
+  report: <path or none>
+remaining_blockers:
+  - <blocker or none>
+lifecycle_owner_next_step: validate | observe | reflect | iterate | promote
+```
+
+Task Session may complete an execution unit, but it does not decide reusable spell or sigil promotion. That decision belongs to Spellcraft or Sigil Development after Experiment Harness evidence is reviewed.
 
 ## Why This Is Arcana
 

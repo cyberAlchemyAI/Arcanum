@@ -52,6 +52,8 @@ Apply these obligations when this execution pack is created:
 - `workPackManifest` must reference a valid work-pack artifact before execution starts.
 - Task IDs in this execution pack must match task IDs declared in the work-pack manifest.
 - Wave assignments in execution-pack must satisfy work-pack output mode and gate expectations.
+- Wave entries should reference SWU IDs when SWUs exist; the execution-pack schedules SWUs but does not redefine them.
+- Parallel SWU execution is allowed only when dependencies are satisfied and write scopes are disjoint or an explicit merge plan exists.
 - If work-pack and execution-pack diverge on task IDs, layer assignments, or blockers, set planning gate to block until reconciled.
 
 ## Design-Guided Task Directives

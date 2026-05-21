@@ -483,6 +483,13 @@ write_command_file() {
     printf '<!-- arcanum:capability-kind %s -->\n' "$capability_kind"
     printf '<!-- arcanum:capability-tier %s -->\n' "$capability_tier"
     printf '<!-- arcanum:command %s -->\n\n' "$command"
+    if [[ "$runtime" == "codex" ]]; then
+      printf '<!-- arcanum:runtime codex -->\n'
+      if [[ "$capability_id" == "task-session" ]]; then
+        printf '<!-- arcanum:runtime-goal-adapter codex-goal -->\n'
+      fi
+      printf '\n'
+    fi
     observer_task_zero_block "$capability_id" "$capability_kind" "$capability_tier" "$command"
     printf '\n\n%s\n' "$body"
   } > "$dst"
@@ -561,6 +568,18 @@ Run the installed Arcanum sigil \`$sigil\` using the canonical definition snapsh
 - Do not treat generated observer telemetry as a substitute for the primary result.
 EOF
 )"
+  if [[ "$sigil" == "task-session" && "$runtime" == "codex" ]]; then
+    body+=$'\n\n'
+    body+="## Repository Runtime Interface"$'\n\n'
+    body+="This installed command runs in the \`codex\` runtime."$'\n\n'
+    body+="Task Session is the stable Arcanum coordinator. Runtime goal-like execution is delegated through adapters under \`arcana/task-session/runtime-adapters/\`."$'\n\n'
+    body+="For this repository, the current goal-like adapter is:"$'\n\n'
+    body+="- adapter: \`codex-goal\`"$'\n'
+    body+="- contract: \`arcana/task-session/runtime-adapters/codex-goal.md\`"$'\n'
+    body+="- profile transmutation: \`transmutations/codex-goal-profile/\`"$'\n'
+    body+="- native runtime command: \`/goal\`"$'\n\n'
+    body+="When the user asks Task Session to execute a work-pack through a goal-like runtime, resolve one task/SWU from the work-pack, check blockers, then use the \`codex-goal\` adapter to produce or hand off a native Codex \`/goal\`. Task Session still owns final evidence review and work-pack synchronization."
+  fi
   write_command_file "$command" "Arcanum Sigil: $display_title" "$sigil" "sigil" "$tier" "$body"
   [[ "$dry_run" == "true" ]] || append_sigil_snapshot "$sigil" "$tier" "$dst"
 }

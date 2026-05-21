@@ -189,17 +189,20 @@ Inputs:
 Expected outputs:
 
 - pass for low complexity with global implementation layering, compact layer mapping, single-file work-pack, validation strategy, and plan transport,
-- pass for medium/high complexity with split work-pack, execution-pack handoff, and explicit L0-L3 per-layer planning slices,
+- pass for medium/high complexity with split work-pack, execution-pack handoff, and explicit layer-mapped waves,
 - block when approved design refs or required companions are missing.
 
 Pass criteria:
 
 - approved design refs are required,
-- implementation-plan, implementation-layering, and work-pack companions are present,
+- implementation-layering and canonical work-pack companions are present,
 - low complexity keeps compact layer mapping,
-- medium/high complexity includes L0-L3 per-layer planning slices,
+- medium/high complexity includes L0-L3 layer-mapped waves,
 - medium/high complexity includes implementation-detail specs for execution tasks,
 - medium/high complexity includes SWU manifest and task-local SWU mappings,
+- SWUs include dependencies, write scope, done criteria, validation, execution-owner recommendation, and handoff notes,
+- task-board task IDs and SWU parent tasks link to task contracts when split task files exist,
+- SWU rows include source context links needed by workers,
 - algorithmic or domain-logic tasks include ordered rules, pseudocode, state-transition, classification, data-flow, edge-case, or failure-mode details,
 - validation strategy is mapped to delivery slices,
 - plan mode does not execute tasks.
@@ -207,9 +210,13 @@ Pass criteria:
 Failure examples:
 
 - plan proceeds without approved design refs,
-- medium/high complexity omits per-layer planning,
+- medium/high complexity omits layer-mapped waves,
 - task descriptions stay vague, such as "implement this bundle", without implementation details,
 - medium/high work-packs omit SWU decomposition,
+- SWUs omit dependencies, done criteria, validation, or execution-owner handoff fields,
+- work-pack tables require repository searching because task IDs, parent tasks, or source context are not linked,
+- duplicate artifacts claim the same task, state, or SWU authority,
+- split task files are placeholders rather than useful task-local execution contracts,
 - an algorithmic task lacks inputs, outputs, ordered rules, edge cases, and validation evidence,
 - layer promotion is based on preference rather than evidence,
 - output executes implementation tasks.
@@ -231,7 +238,7 @@ Expected outputs:
 
 - define expected output names spec, glossary, and define transport artifacts,
 - design expected output names architecture, glossary consistency, and design transport artifacts,
-- plan expected output names implementation plan, implementation layering, work-pack, validation strategy, and plan transport artifacts,
+- plan expected output names implementation layering, canonical work-pack, validation strategy, and plan transport artifacts,
 - plan preserves define glossary terms through design authority,
 - plan includes implementation details for task-level execution handoff,
 - plan routes next to `task-session`.
@@ -377,16 +384,21 @@ Pass criteria:
 - output contains `## Invoke Result`,
 - output contains `Mode: plan`,
 - output contains `Phase status: pass`,
-- output includes implementation plan, implementation layering, work-pack, validation strategy, blocker ledger, plan transport, and next route evidence,
-- medium/high complexity output includes L0-L3 per-layer planning slices,
+- output includes implementation layering, canonical work-pack, validation strategy, blocker ledger, plan transport, and next route evidence,
+- medium/high complexity output includes L0-L3 layer-mapped waves,
 - medium/high complexity output includes SWU manifest and task-local SWU lists,
+- medium/high complexity output includes subagent/local-fallback-ready SWU handoff fields,
+- output links task-board task IDs, SWU parent tasks, and SWU source context for split work-packs,
 - output is not a save-summary.
 
 Failure examples:
 
 - output plans without approved design refs,
 - output omits implementation-layering or work-pack evidence,
-- output omits per-layer planning for medium/high complexity,
+- output omits layer-mapped waves for medium/high complexity,
+- output omits SWU dependencies, done criteria, validation, execution owner, or handoff note,
+- output omits task-contract or source-context links in split work-pack tables,
+- output creates split task files that are not useful execution contracts,
 - output claims task execution.
 
 ## LIVE-DEFINE-DESIGN-001: Live Codex Define To Design Loop
@@ -445,7 +457,7 @@ Pass criteria:
 - output contains define, design, and plan phase sections,
 - define section includes spec, glossary, and define transport evidence,
 - design section includes approved source contract references, six views, glossary consistency, design transport, and next route,
-- plan section includes implementation plan, global implementation-layering artifact, work-pack, validation strategy, plan transport, and next route,
+- plan section includes global implementation-layering artifact, canonical work-pack, validation strategy, plan transport, and next route,
 - output states that plan consumes approved design outputs instead of inventing approvals,
 - output is not a save-summary.
 

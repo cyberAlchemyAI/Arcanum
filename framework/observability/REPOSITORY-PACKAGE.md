@@ -162,9 +162,11 @@ This gives one reliable append path, compact per-artifact lookup, and a clean re
   "counters": {
     "meaningful_executions": 0,
     "generated_outputs": 0,
-    "related_workflow_gaps": 0,
-    "severe_workflow_gaps": 0,
-    "quality_bar_failures": 0,
+      "related_workflow_gaps": 0,
+      "severe_workflow_gaps": 0,
+      "artifact_redundancy_gaps": 0,
+      "navigation_efficiency_gaps": 0,
+      "quality_bar_failures": 0,
     "output_contract_drift_events": 0
   },
   "by_sigil": {},

@@ -49,7 +49,7 @@ The hook receives a Sigil Invocation Envelope:
     "anti_pattern_hits": ["<summary>"],
     "workflow_gaps": [
       {
-        "category": "trigger | input | process | quality-bar | anti-pattern | output-contract | template | observability | reflection",
+        "category": "trigger | input | process | quality-bar | anti-pattern | output-contract | template | artifact-redundancy | navigation-efficiency | observability | reflection",
         "severity": "low | medium | high | severe",
         "summary": "<gap summary>",
         "evidence": "<observable evidence>"
@@ -112,6 +112,31 @@ Use this prompt shape for the observer subagent:
 ```text
 You are the sigil observability observer. Read the invocation envelope and visible outputs. Return one JSON object that summarizes the user's request, execution outcome, Quality Bar status, Anti-Pattern hits, workflow gaps, output-contract drift, reflection trigger state, and recommendation. Do not edit files. Do not include secrets. If evidence is missing, use not_checked or an empty list rather than guessing.
 ```
+
+## Reflection Signal Taxonomy
+
+Observers should preserve repeated structural problems as named workflow gaps instead of flattening them into generic process notes.
+
+Use `artifact-redundancy` when the run shows duplicate ownership or duplicated planning surfaces, such as:
+
+- two artifacts claiming to own the same tasks, state, or SWUs,
+- optional compatibility artifacts becoming active sources of truth,
+- task files that only mirror a work-pack without adding execution value,
+- generated outputs that force maintainers to reconcile competing plans.
+
+Use `navigation-efficiency` when the run shows that humans or agents had to search for context that should have been linked, such as:
+
+- task-board rows without links to task contracts,
+- SWU rows without parent-task links or source-context links,
+- handoff artifacts that omit "start here" or next-action pointers,
+- tables that are technically complete but slow to traverse.
+
+Severity guidance:
+
+- `low`: small navigation friction in an otherwise clear artifact.
+- `medium`: maintainers need repository search or manual inference to continue.
+- `high`: duplicate artifacts or missing links create realistic execution drift.
+- `severe`: redundant ownership or navigation failure causes wrong execution, unsafe mutation, or invalid validation.
 
 ## Privacy And Safety Rules
 

@@ -20,6 +20,15 @@
 <!-- arcanum:capability-kind {capability-kind} -->
 <!-- arcanum:capability-tier {capability-tier} -->
 <!-- arcanum:command {command} -->
+<!-- arcanum:runtime {runtime} -->
+
+Optional runtime-sensitive metadata:
+
+```markdown
+<!-- arcanum:runtime-goal-adapter {adapter-id} -->
+```
+
+Use this for commands such as `task-session`, where the installed runtime needs an explicit goal-like adapter, for example `codex-goal`.
 
 ## Notes
 

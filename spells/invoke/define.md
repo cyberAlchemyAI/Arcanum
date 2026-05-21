@@ -30,8 +30,8 @@ Define mode produces or updates a governed specification and glossary baseline w
 | Sigil               | Use When                                                                    | Notes                                                                  |
 | ------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `decision-gate`     | A blocker-level define decision cannot be resolved from available evidence. | Route only consequential unresolved choices.                           |
-| `spellcraft`        | Approved define output targets spell authoring or spell revision.           | Invoke emits handoff pack; Spellcraft owns lifecycle execution.        |
-| `sigil-development` | Approved define output targets sigil authoring or sigil revision.           | Invoke emits handoff pack; Sigil Development owns lifecycle execution. |
+| `spellcraft`        | Approved define output targets spell authoring or spell revision.           | Invoke emits handoff pack; Spellcraft owns spell lifecycle mutation, validation, install/adaptation, observation, and reflection. |
+| `sigil-development` | Approved define output targets sigil authoring or sigil revision.           | Invoke emits handoff pack; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 
 ## Inputs
 

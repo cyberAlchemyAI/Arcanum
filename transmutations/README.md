@@ -41,6 +41,10 @@ It belongs here because it synthesizes terminology from source material into an 
 
 It belongs here because the procedure is bounded and structured, but still depends on judgment: the agent must identify the smallest useful proof, distinguish deferrals from requirements, and balance value against cost for each layer.
 
+[codex-goal-profile](codex-goal-profile/) turns an Arcanum work-pack task or SWU into a native Codex `/goal` profile with outcome, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
+
+It belongs here because the procedure transforms a structured execution unit into an operating contract for Codex without owning the runtime lifecycle.
+
 ## Quality Bar
 
 A Transmutation sigil is ready when:

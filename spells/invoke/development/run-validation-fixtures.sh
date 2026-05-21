@@ -131,7 +131,7 @@ write_report() {
 
 		printf '## Passed Fixtures\n\n'
 		if [[ "${#passed_fixtures[@]}" -eq 0 ]]; then
-			printf '- none\n'
+			printf -- '- none\n'
 		else
 			local fixture
 			for fixture in "${passed_fixtures[@]}"; do
@@ -515,7 +515,7 @@ run_plan_split_fixture() {
 	require_pattern "$expected" 'TASK-L1-review' "$label SWU parent task"
 	require_pattern "$expected" 'run category classification fixture' "$label SWU verification command"
 	require_pattern "$expected" 'Next route: task-session' "$label expected next route"
-	require_pattern "$PLAN_CONTRACT" 'Medium and high complexity plans must include explicit per-layer planning slices' "$label contract per-layer gate"
+	require_pattern "$PLAN_CONTRACT" 'Medium and high complexity plans must include explicit waves that map to layers' "$label contract layer-mapped wave gate"
 	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' "$label contract implementation detail gate"
 	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include SWU decomposition for non-exempt execution tasks' "$label contract SWU gate"
 	require_pattern "$PLAN_CONTRACT" 'Each SWU maps to exactly one parent task' "$label contract SWU parent gate"
@@ -627,10 +627,10 @@ require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract, validatio
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
 require_pattern "$DESIGN_CONTRACT" 'Design-stage transport' 'design transport coverage'
-require_pattern "$PLAN_CONTRACT" 'Status: implemented \(L2 contract, per-layer planning evidence pending\)' 'plan contract status'
+require_pattern "$PLAN_CONTRACT" 'Status: implemented \(L2 contract, work-pack hierarchy evidence pending\)' 'plan contract status'
 require_pattern "$PLAN_CONTRACT" 'Plan blocks without approved design outputs and source design refs' 'plan missing design block'
 require_pattern "$PLAN_CONTRACT" 'Low complexity plans must include compact layer mapping' 'plan low compact mapping'
-require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include explicit L0-L3 per-layer planning slices' 'plan medium high per-layer gate'
+require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include explicit waves that map to L0-L3 layer decisions' 'plan medium high layer-mapped wave gate'
 require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' 'plan medium high implementation detail gate'
 require_pattern "$PLAN_CONTRACT" 'Task descriptions that only say to implement a bundle' 'plan vague task gate'
 require_pattern "$PLAN_CONTRACT" 'Plan-stage transport appends stage reports' 'plan transport coverage'

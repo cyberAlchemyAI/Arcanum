@@ -4,13 +4,13 @@
 
 - Spell: `invoke`
 - Mode: `plan`
-- Status: implemented (L2 contract, per-layer planning evidence pending)
+- Status: implemented (L2 contract, work-pack hierarchy evidence pending)
 
 ## Purpose
 
-Plan mode converts approved design outputs into governed implementation planning artifacts without executing implementation work.
+Plan mode converts approved design outputs into a governed work-pack and implementation-layering artifact without executing implementation work.
 
-Plan mode makes implementation layering a first-class planning boundary: every plan has one global implementation-layering artifact, and medium or high complexity plans must include explicit per-layer planning slices before execution handoff.
+Plan mode makes implementation layering a first-class planning boundary: every plan has one global implementation-layering artifact, and the work-pack must map waves, tasks, and SWUs back to those layer decisions before execution handoff.
 
 Plan mode is non-mutating. It does not edit source code, update upstream design artifacts, promote glossary entries, or perform task execution. Corrections to upstream artifacts become patch requests, blocker decisions, or explicit gap-ledger entries.
 
@@ -18,12 +18,14 @@ Plan mode must also prevent vague execution handoffs. For medium and high comple
 
 For medium and high complexity work-packs, plan mode must decompose execution tasks into Smallest Working Units (SWUs). SWUs sit below tasks and above source edits: each SWU is the smallest executable implementation step that can be assigned, given a write scope, accepted with evidence, and verified with a command or reviewable check.
 
+Plan mode also owns the execution contract for those SWUs. If later execution uses subagents, `invoke plan` must have already defined the one-SWU handoff: explicit write scope, dependencies, done criteria, validation, source context, and expected result shape.
+
 ## Implementation Coverage
 
 - The L2 plan contract is implemented as a mode-level governance contract.
-- The authoritative planning baseline is the `implementation-plan` template plus the standalone `implementation-layering` and `work-pack` companions.
+- The authoritative executable planning baseline is `WORK-PACK.md` plus the standalone `IMPLEMENTATION-LAYERING.md` companion.
 - Low complexity plans may remain single-file when the scope stays inside the low-complexity threshold.
-- Medium and high complexity plans require split work-pack handoff, execution-pack handoff, and L0-L3 per-layer planning slices.
+- Medium and high complexity plans require split work-pack handoff, execution-pack handoff, and layer-mapped waves.
 - Medium and high complexity plans require implementation-detail specs for execution tasks, with algorithm details where the task contains domain logic, ranking, scoring, classification, policy evaluation, state transition, optimization, parsing, reconciliation, or data transformation.
 - Medium and high complexity plans require SWU decomposition for non-exempt execution tasks.
 - Runtime execution, registry release, `full`, and `validate` remain gated by validation evidence and explicit approval.
@@ -36,7 +38,7 @@ Normal plan mode requires:
 - source design references,
 - explicit delivery boundary,
 - implementation objective,
-- global implementation-layering artifact or approval to create it,
+- implementation-layering artifact or approval to create it,
 - work-pack artifact or approval to create it,
 - validation strategy,
 - lifecycle owner approval for L2 plan work,
@@ -50,7 +52,7 @@ Plan mode blocks when approved design references are missing, required standalon
 | --- | --- | --- |
 | `context-builder` | Build bounded planning context from approved design outputs, source design refs, constraints, and existing companion artifacts. | lean or standard |
 | `structured-interview-kits` | Clarify missing planning inputs one question at a time and capture approvals. | gap-check or equivalent one-question interview mode |
-| `inventory` | Resolve implementation-plan, implementation-layering, work-pack, and execution-pack templates and record selection evidence. | lookup, ingest, validate |
+| `inventory` | Resolve work-pack, implementation-layering, and execution-pack templates and record selection evidence. | lookup, ingest, validate |
 
 ## Optional Sigils
 
@@ -58,8 +60,8 @@ Plan mode blocks when approved design references are missing, required standalon
 | --- | --- | --- |
 | `decision-gate` | A blocker-level planning decision cannot be resolved from available evidence. | Route only consequential unresolved choices. |
 | `task-session` | Approved work-pack is ready for bounded execution outside invoke. | Invoke emits handoff context only. |
-| `spellcraft` | Planned work targets spell authoring or spell revision. | Invoke emits handoff context; Spellcraft owns lifecycle execution. |
-| `sigil-development` | Planned work targets sigil authoring or sigil revision. | Invoke emits handoff context; Sigil Development owns lifecycle execution. |
+| `spellcraft` | Planned work targets spell authoring or spell revision. | Invoke emits handoff context; Spellcraft owns spell lifecycle mutation, validation, install/adaptation, observation, and reflection. |
+| `sigil-development` | Planned work targets sigil authoring or sigil revision. | Invoke emits handoff context; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 
 ## Inputs
 
@@ -82,10 +84,23 @@ Plan mode blocks when approved design references are missing, required standalon
 
 | Selection | Use When | Required Output |
 | --- | --- | --- |
-| `implementation-plan` family | Approved design is stable enough to decompose into delivery slices. | implementation plan artifact with delivery slices, dependencies, tasks, blocker ledger, validation strategy, and closure criteria. |
 | standalone `implementation-layering` companion | Any `plan`, `full`, or `validate` flow is active. | global L0-L3 layer decision artifact. |
-| standalone `work-pack` companion | Any `plan` or `full` flow is active. | execution-ready planning manifest with single-file or split output mode. |
+| standalone `work-pack` companion | Any `plan` or `full` flow is active. | canonical executable plan with objective, delivery slices, tasks, SWUs, gates, validation, current state, and single-file or split output mode. |
 | `module-formulae` execution-pack | Medium/high complexity requires wave planning. | execution-pack handoff with wave and parallelization boundaries. |
+
+## Planning Artifact Boundary Policy
+
+Detailed boundary contract: [development/PLAN-ARTIFACT-BOUNDARIES.md](development/PLAN-ARTIFACT-BOUNDARIES.md).
+
+- `IMPLEMENTATION-LAYERING.md` owns L0-L3 decision boundaries, promotion evidence, and deferrals.
+- `WORK-PACK.md` owns the canonical executable plan and current execution state: objective, slices, tasks, SWUs, validation strategy, blockers, gate status, output mode, active layer window, task board, and links to split execution files.
+- `work-pack/tasks/TASK-*.md` owns one task's executable contract: task objective, dependencies, SWUs, write scope, done criteria, validation, subagent handoff, and synchronization notes.
+- `work-pack/waves/W*.md` owns execution ordering, layer mapping, wave gates, dependency order, and parallelization boundaries.
+- `EXECUTION-PACK.md` owns cross-task choreography for medium/high complexity, but not the source-of-truth SWU definitions.
+
+Split task files must be useful. If they only repeat task titles while the work-pack carries all execution detail, the work-pack is not execution-ready.
+
+Work-pack tables must be navigable. Task-board task IDs should link to task contracts when task files exist, and SWU manifest rows should link to the parent task contract plus source contract or local context needed to execute the SWU.
 
 ## Implementation Detail Policy
 
@@ -109,24 +124,61 @@ Plan mode blocks when approved design references are missing, required standalon
 - Medium and high complexity plans must include a shared SWU manifest and task-local SWU lists.
 - SWU IDs use `SWU-{FEATURE-CODE}-{NNN}` when a feature code is known; otherwise use a stable local code derived from the work-pack name.
 - Each SWU maps to exactly one parent task.
-- Each SWU must include goal, write scope, acceptance evidence, and verification command or reviewable check.
+- Each SWU must include goal, dependencies, write scope, done criteria, acceptance evidence, and verification command or reviewable check.
+- Each SWU must include an execution-owner recommendation: `subagent`, `local-fallback`, or `manual`.
+- Each SWU must include a handoff note with the exact context needed by a worker or subagent.
 - Each non-exempt execution task must list its SWUs in a `Smallest Working Units` section.
 - Closure-only tasks may use a `Smallest Working Unit Exemption` only when the task ID includes `VERIFY`, `AUDIT`, `SIGNAL`, or `READINESS`.
 - Medium/high implementation handoff should target one SWU at a time. If a task has multiple SWUs and no SWU is selected, the execution route must ask for a specific SWU before mutation-capable work starts.
 - Unknown SWU IDs, duplicate SWU IDs, missing acceptance evidence, missing verification commands, or invalid exemptions block execution handoff.
 
+## SWU Subagent Handoff Policy
+
+When a task is composed of SWUs, the SWU is the preferred execution boundary for later `goal`, `task-session`, or runtime subagent work.
+
+Invoke plan must make every non-exempt SWU assignable by providing:
+
+- one parent task,
+- one objective,
+- explicit dependencies,
+- explicit write scope,
+- done criteria,
+- validation command or reviewable check,
+- source contract links,
+- known blockers/gaps affecting the SWU,
+- expected execution owner,
+- expected result shape.
+
+The expected subagent result shape is:
+
+```yaml
+swu_id: <id>
+result: pass | flag | block | interrupted
+files_touched:
+  - <path>
+validation:
+  - <command or review check and result>
+blockers:
+  - <blocker or none>
+handoff_note: <what the parent coordinator needs next>
+```
+
+If subagents are unavailable at runtime, this same SWU contract is used by `task-session` or a labeled local fallback. Plan mode does not execute the SWU; it makes the SWU executable.
+
 ## Layering Policy
 
 - Every plan must include a global implementation-layering artifact defining L0, L1, L2, and L3 decision boundaries.
 - Low complexity plans keep layer mapping compact inside the single-file work-pack.
-- Medium and high complexity plans must include explicit per-layer planning slices.
+- Medium and high complexity plans must include explicit waves that map to layers.
+- The composability path is work-pack -> waves -> tasks -> SWUs.
 - The L0 slice defines the smallest proof and decision unlocked.
 - The L1 slice defines repeatability or hardening work.
 - The L2 slice defines governance, reliability, validation, or degraded-mode work.
 - The L3 slice defines packaging, scale, release, or rollout work.
-- Each per-layer slice maps tasks, dependencies, validation evidence, blockers, and promotion criteria.
-- Each medium/high per-layer slice must link its tasks to implementation-detail specs.
-- Each medium/high per-layer slice must map to one or more SWUs or an allowed closure-only exemption.
+- Each layer-mapped wave maps tasks, dependencies, validation evidence, blockers, and promotion criteria.
+- Each wave must name the layer question it answers and the promotion evidence it creates.
+- Each medium/high layer-mapped wave must link its tasks to implementation-detail specs.
+- Each medium/high layer-mapped wave must map to one or more SWUs or an allowed closure-only exemption.
 - Layer promotion must cite evidence from the previous layer; preference alone is not sufficient promotion evidence.
 
 ## Complexity Policy
@@ -147,8 +199,8 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 | --- | --- | --- | --- | --- | --- |
 | 1 | `context-builder` | approved design outputs, source design refs, constraints, companion state | bounded planning context | mandatory planning inputs are identified | block on missing approved design refs or contradictory delivery boundary |
 | 2 | `structured-interview-kits` | bounded planning context | approved planning intent and missing-input decisions | one-question cadence and explicit approvals captured | block on unresolved blocker ambiguity |
-| 3 | `inventory` | approved planning intent and local template inventory | implementation-plan, layering, work-pack, and execution-pack selection record | eligibility evidence is explicit and tie cases request user choice | flag when candidate template is usable but not promoted |
-| 4 | `invoke plan` | approved planning intent and template record | implementation plan, global layering artifact, work-pack, blocker ledger, validation strategy, plan transport report | required companions, complexity policy, and layer mapping are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
+| 3 | `inventory` | approved planning intent and local template inventory | work-pack, layering, and execution-pack selection record | eligibility evidence is explicit and tie cases request user choice | flag when candidate template is usable but not promoted |
+| 4 | `invoke plan` | approved planning intent and template record | work-pack, global layering artifact, blocker ledger, validation strategy, plan transport report | required companions, complexity policy, and layer mapping are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
 | 5 | optional `decision-gate` | unresolved planning blocker | decision record and next route | blocker resolved or explicitly deferred | keep blocker in gap ledger with recommended next action |
 | 6 | optional handoff (`task-session`, `spellcraft`, `sigil-development`, or `full`) | approved plan outputs | execution or lifecycle-authoring handoff context | target route is explicit and accepted | defer handoff if target authority is unavailable |
 
@@ -156,34 +208,38 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 
 - Plan blocks without approved design outputs and source design refs.
 - Template/profile selection must include eligibility evidence and explicit user choice on tie cases.
-- Implementation-plan, implementation-layering, and work-pack companions are required.
+- Implementation-layering and work-pack companions are required.
 - Work-pack output mode must follow the complexity policy.
 - Low complexity plans must include compact layer mapping in the single-file work-pack.
-- Medium/high complexity plans must include explicit L0-L3 per-layer planning slices.
+- Medium/high complexity plans must include explicit waves that map to L0-L3 layer decisions.
 - Medium/high complexity plans must include implementation-detail specs for execution tasks.
 - Medium/high complexity plans must include SWU decomposition for non-exempt execution tasks.
 - Algorithmic or domain-logic tasks must include algorithm steps or pseudocode, inputs, outputs, edge cases, failure modes, and validation evidence.
 - Medium/high complexity plans must include execution-pack handoff or a recorded blocker.
 - Validation strategy is required for every delivery slice.
 - SWUs must each include one parent task, write scope, acceptance evidence, and verification command or reviewable check.
+- SWUs must each include dependencies, done criteria, execution-owner recommendation, and subagent/local fallback handoff context.
+- SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
+- Split task files must contain useful task-local SWU execution contracts, not just task titles.
 - Task descriptions that only say to implement a bundle, layer, component, or outcome must block or flag until converted into implementation-detail specs.
 - Any blocker that affects acceptance criteria keeps phase status at `block`.
 - Candidate templates, glossary terms, registry entries, and Necronomicon concepts are never promoted automatically.
 - Plan-stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
 - Plan mode must not execute tasks, mutate source code, or silently edit upstream define/design artifacts.
 - Spell and sigil lifecycle work routes to `spellcraft` or `sigil-development`; plan only prepares handoff context.
+- If a plan output targets a spell or sigil lifecycle, the next route must name the lifecycle owner and stop before pretending Invoke completed that lifecycle.
 
 ## Handoff Artifacts
 
 - planning context summary,
 - source design refs,
-- implementation plan path,
 - global implementation-layering artifact path,
 - work-pack artifact path and output mode,
 - execution-pack handoff path or blocker,
-- compact layer mapping or per-layer planning slices,
+- compact layer mapping or layer-mapped waves,
 - implementation-detail specs for medium/high execution tasks,
 - SWU manifest and task-local SWU lists for medium/high work-packs,
+- subagent/local fallback handoff contract for each non-exempt SWU,
 - validation strategy,
 - dependency plan,
 - blocker and unresolved gap ledger entries,
@@ -200,10 +256,12 @@ When `.arcanum/observability/` exists, record:
 - selected templates,
 - complexity and output mode,
 - layer coverage status,
-- per-layer slice status for medium/high complexity,
+- layer-mapped wave status for medium/high complexity,
 - implementation-detail coverage status,
 - SWU coverage status,
 - gates passed, flagged, or blocked,
+- artifact-redundancy gaps,
+- navigation-efficiency gaps,
 - artifact paths produced,
 - transport status,
 - unresolved gaps and blocker decisions,
@@ -222,13 +280,13 @@ Return:
 - Scope: library
 - Phase status: pass | flag | block
 - Mode contract: spells/invoke/plan.md
-- Outputs: <implementation plan path>, <implementation-layering path>, <work-pack path>, <plan transport report path>
+- Outputs: <implementation-layering path>, <work-pack path>, <plan transport report path>
 - Design views: <coverage summary | n/a>
 - Glossary consistency: <pass | flag | block | n/a>
 - Implementation layering: <artifact path and layer coverage summary>
 - Work-pack: <artifact path and single-file | split>
 - Complexity: low | medium | high
-- Per-layer planning: compact | L0, L1, L2, L3 | blocked
+- Per-layer planning: compact | layer-mapped waves | blocked
 - Implementation detail: inline | task specs complete | detail gaps recorded | blocked
 - Smallest working units: n/a | complete | gaps recorded | blocked
 - Template/profile selection: <selected templates and eligibility evidence>
