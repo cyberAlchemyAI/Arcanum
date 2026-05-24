@@ -76,8 +76,7 @@ Implemented harness support includes:
 - bounded Codex example runs,
 - generated example prompts and captured example outputs,
 - validation reports under each artifact's `development/runs/`,
-- observability emission through `observe-harness.sh`,
-- command adapters such as `experiment-next`, `experiment-run`, `experiment-validate`, and `experiment-observe`.
+- observability emission through `observe-harness.sh`.
 
 The harness pairs with observability: validation proves whether a capability satisfies its contract in controlled examples, while observability records how it behaves in actual use.
 
@@ -125,6 +124,8 @@ Each sigil folder should include:
 - `templates/` - optional reusable artifacts.
 - `development/` - in-progress design, validation, planning, and reflection artifacts when needed.
 
+For Codex discovery, repository skills are exposed through `.agents/skills/`. In this repository that directory uses symlinked skill folders so the tiered Arcanum folders remain canonical while Codex can discover the skills from the official repo-scoped location.
+
 ### Spells
 
 [Spells](spells/) compose multiple sigils into a workflow.
@@ -157,35 +158,25 @@ The [registry](registry/) is the catalog of reusable Arcanum artifacts.
 
 Registry promotion is governed. A candidate capability should not become listed merely because it exists; it needs a clear contract, validation evidence, and lifecycle approval.
 
+## Using Arcanum With Codex
+
+Codex reads repository skills from `.agents/skills/` in the current working directory or parent directories up to the repository root. Arcanum exposes its reusable sigils there as symlinks to canonical capability folders:
+
+```text
+.agents/skills/experiment-harness -> ../../arcana/experiment-harness
+.agents/skills/context-builder -> ../../transmutations/context-builder
+.agents/skills/observability-setup -> ../../formulae/observability-setup
+```
+
+Invoke skills explicitly with `$skill-name`, or let Codex choose them implicitly when the request matches the `description` in `SKILL.md`.
+
+The older `.codex/commands/` files are compatibility adapters for slash-command-style experiments. They are not the canonical Codex skill surface. Prefer repository skills for normal Codex use.
+
 ## Installing Arcanum Into Another Repository
 
-Use the [Arcanum Bootstrap](spells/arcanum-bootstrap/README.md) spell or the bootstrap script to install Arcanum into a consuming repository:
+For local Codex use, copy or symlink the desired Arcanum capability folders into the target repository's `.agents/skills/` directory. Keep the original `README.md`, `SKILL.md`, `scripts/`, `templates/`, and `references/` together in the skill folder.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils all --spells all --runtime github-copilot
-```
-
-When working from a local checkout, use the repository bootstrap script directly:
-
-```bash
-tools/bootstrap_arcanum.sh --target <repo> --sigils all --spells all --runtime github-copilot
-```
-
-Both paths install runtime support under `.arcanum/`, with observability under `.arcanum/observability/` and runtime adapters under `.arcanum/runtimes/`. GitHub Copilot, Claude, and Codex may still require small discovery bridges in their platform-specific folders, but canonical local runtime behavior lives inside `.arcanum/runtimes/`.
-
-Use `--sigils <comma-separated-list>` and `--spells <comma-separated-list>` to choose which runtime commands are generated.
-
-When a runtime is selected, bootstrap installs the general `arcanum-orchestrate` adapter and individual adapters for selected sigils and spells. Prefixed names such as `arcanum-sigil-<id>` and `arcanum-spell-<id>` remain stable compatibility names, while bare aliases such as `invoke` and `interrogation` are preferred when no collision exists.
-
-For Codex-style local invocation, use the repository command surface:
-
-```bash
-tools/arcanum /invoke define a new sigil
-tools/arcanum --exec invoke define a new sigil
-tools/arcanum --list
-```
-
-The command surface resolves `.codex/commands/<alias>.md` into the canonical adapter under `.arcanum/runtimes/codex/commands/`. With `--exec`, it runs the Codex CLI and appends Observed Invocation Loop telemetry under `.arcanum/observability/`.
+Use the [Arcanum Bootstrap](spells/arcanum-bootstrap/README.md) spell or bootstrap scripts only when you intentionally need the legacy command-adapter and observability-hook package.
 
 ## Research And Proofs
 
