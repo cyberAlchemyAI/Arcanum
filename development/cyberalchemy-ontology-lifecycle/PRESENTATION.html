@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CyberAlchemy Ontology Lifecycle - Contributor Presentation</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #5b5f66;
+      --paper: #f8f6f1;
+      --panel: #ffffff;
+      --line: #dad4c8;
+      --gold: #b7791f;
+      --red: #b33a2f;
+      --teal: #23756d;
+      --blue: #345c9c;
+      --green: #3f7a42;
+      --shadow: 0 18px 45px rgba(35, 32, 27, 0.12);
+      --radius: 8px;
+      --max: 1180px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(179, 58, 47, 0.08), transparent 32%),
+        linear-gradient(180deg, #fffaf0 0, var(--paper) 360px, #f1f4f2 100%);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+      text-decoration: underline;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -60px;
+      z-index: 20;
+      background: var(--ink);
+      color: white;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+    }
+
+    .skip-link:focus {
+      top: 16px;
+    }
+
+    .shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(23, 23, 23, 0.12);
+      background: rgba(248, 246, 241, 0.92);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--red);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      position: relative;
+      background: #fffdf7;
+      box-shadow: inset 0 0 0 4px rgba(183, 121, 31, 0.12);
+    }
+
+    .mark::before,
+    .mark::after {
+      content: "";
+      position: absolute;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      inset: 6px;
+      transform: rotate(35deg) scaleX(1.45);
+    }
+
+    .mark::after {
+      transform: rotate(-35deg) scaleX(1.45);
+      border-color: var(--teal);
+    }
+
+    .mark-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      z-index: 1;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 0.9rem;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .nav a {
+      color: var(--ink);
+      font-size: 0.82rem;
+      padding: 7px 9px;
+      border-radius: var(--radius);
+    }
+
+    .nav a:hover,
+    .nav a:focus {
+      background: rgba(35, 117, 109, 0.1);
+      text-decoration: none;
+    }
+
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 36px 22px 76px;
+    }
+
+    .hero {
+      min-height: calc(100vh - 74px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(330px, 0.96fr);
+      gap: 32px;
+      align-items: center;
+      padding: 24px 0 42px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--red);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: var(--red);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.08;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 6vw, 5.8rem);
+      max-width: 980px;
+      margin-top: 18px;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+    }
+
+    h3 {
+      font-size: 1.18rem;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lead {
+      margin-top: 22px;
+      max-width: 680px;
+      color: #33363b;
+      font-size: clamp(1.08rem, 2vw, 1.28rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 16px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: transparent;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: white;
+    }
+
+    .button:hover,
+    .button:focus {
+      transform: translateY(-1px);
+      text-decoration: none;
+      box-shadow: 0 8px 18px rgba(23, 23, 23, 0.12);
+    }
+
+    .signal-card {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .signal-card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 18px;
+    }
+
+    .mini-flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid rgba(23, 23, 23, 0.12);
+      border-radius: var(--radius);
+      background: #fffdf8;
+    }
+
+    .flow-row strong {
+      display: block;
+      font-size: 0.92rem;
+    }
+
+    .flow-row span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 2px;
+    }
+
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--teal);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    section {
+      scroll-margin-top: 84px;
+      padding: 74px 0;
+      border-top: 1px solid rgba(23, 23, 23, 0.1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.42fr) minmax(0, 0.58fr);
+      gap: 34px;
+      margin-bottom: 30px;
+      align-items: end;
+    }
+
+    .section-head p {
+      color: #3b3e44;
+      font-size: 1.08rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tile {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 166px;
+    }
+
+    .tile p,
+    .callout p,
+    .step p {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(35, 117, 109, 0.11);
+      color: #15534d;
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .tag.red {
+      background: rgba(179, 58, 47, 0.12);
+      color: #8f271f;
+    }
+
+    .tag.gold {
+      background: rgba(183, 121, 31, 0.15);
+      color: #7b510f;
+    }
+
+    .diagram {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .model-flow {
+      min-width: 790px;
+      display: grid;
+      grid-template-columns: 1fr 64px 1.1fr 64px 1.35fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .model-box {
+      min-height: 126px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      border: 2px solid rgba(23, 23, 23, 0.14);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .model-box strong {
+      font-size: 1.04rem;
+    }
+
+    .model-box span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .arrow {
+      color: var(--red);
+      font-size: 2rem;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .branches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .branch {
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 230px;
+      background: white;
+      border-top: 5px solid var(--blue);
+      box-shadow: 0 8px 20px rgba(23, 23, 23, 0.06);
+    }
+
+    .branch:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .branch:nth-child(3) {
+      border-top-color: var(--teal);
+    }
+
+    .branch:nth-child(4) {
+      border-top-color: var(--gold);
+    }
+
+    .branch ul,
+    .checklist,
+    .source-list {
+      padding-left: 18px;
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+
+    .branch li,
+    .checklist li,
+    .source-list li {
+      margin: 6px 0;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--red);
+      background: rgba(255, 255, 255, 0.82);
+      padding: 18px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .callout.good {
+      border-left-color: var(--teal);
+    }
+
+    .quote {
+      font-size: clamp(1.35rem, 3vw, 2.25rem);
+      line-height: 1.18;
+      padding: 28px;
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: white;
+    }
+
+    .quote span {
+      color: #f2c66d;
+    }
+
+    .ladder {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 14px;
+      align-items: center;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .level {
+      display: grid;
+      place-items: center;
+      min-height: 52px;
+      border-radius: var(--radius);
+      background: rgba(52, 92, 156, 0.12);
+      color: #263f72;
+      font-weight: 800;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .timeline .tile {
+      min-height: 150px;
+    }
+
+    .artifact-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .artifact-table th,
+    .artifact-table td {
+      text-align: left;
+      vertical-align: top;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.94rem;
+    }
+
+    .artifact-table th {
+      background: #ede7dc;
+    }
+
+    .artifact-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .footer {
+      padding: 38px 0 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(23, 23, 23, 0.12);
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: rgba(23, 23, 23, 0.08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .section-head,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 46px;
+      }
+
+      .grid,
+      .grid.two,
+      .branches,
+      .timeline {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      main {
+        padding: 24px 16px 56px;
+      }
+
+      section {
+        padding: 50px 0;
+      }
+
+      .grid,
+      .grid.two,
+      .branches,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .topbar,
+      .hero-actions,
+      .skip-link {
+        display: none;
+      }
+
+      main {
+        max-width: none;
+        padding: 0;
+      }
+
+      section,
+      .hero {
+        break-inside: avoid;
+        min-height: auto;
+        padding: 28px 0;
+      }
+
+      .tile,
+      .branch,
+      .diagram,
+      .signal-card,
+      .callout {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to presentation</a>
+  <div class="shell">
+    <header class="topbar" aria-label="Presentation navigation">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"><div class="mark-dot"></div></div>
+          <div>
+            <strong>CyberAlchemy Ontology Lifecycle</strong>
+            <span>Contributor presentation</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Sections">
+          <a href="#why">Why</a>
+          <a href="#model">Model</a>
+          <a href="#branches">Branches</a>
+          <a href="#lifecycle">Lifecycle</a>
+          <a href="#contribute">Contribute</a>
+          <a href="#sources">Read</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <article>
+        <div class="hero">
+          <div>
+            <div class="eyebrow">Reviewed candidate package</div>
+            <h1>How CyberAlchemy lets agents learn without turning every trace into truth.</h1>
+            <p class="lead">
+              This presentation introduces the CyberAlchemy ontology lifecycle for new users and contributors:
+              what problem it solves, what the core model is, how knowledge gets promoted, and where your first contribution should land.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#model">Start with the model</a>
+              <a class="button" href="SUBSTACK-ARTICLE.md">Read the article</a>
+              <a class="button" href="INTERROGATION-VERDICT.md">Open final audit</a>
+            </div>
+          </div>
+
+          <aside class="signal-card" aria-label="Core lifecycle summary">
+            <h2>The short version</h2>
+            <div class="mini-flow">
+              <div class="flow-row">
+                <div class="num">1</div>
+                <div><strong>Observe work</strong><span>Runs, source files, decisions, telemetry, and lifecycle outcomes create evidence.</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="num">2</div>
+                <div><strong>Preserve evidence</strong><span>Inventory, source selectors, and reviewable signals keep context without claiming truth.</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="num">3</div>
+                <div><strong>Review a PromotionRecord</strong><span>One bounded claim gets provenance, confidence, owner, scope, and contradiction path.</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="num">4</div>
+                <div><strong>Use only what passed</strong><span>Promoted knowledge can guide operation; candidate knowledge can guide review.</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section id="why">
+          <div class="section-head">
+            <h2>Why This Exists</h2>
+            <p>
+              Agentic systems produce a lot of traces: tool calls, validations, route outcomes, failures, retries, and reflection notes.
+              Some are useful. Some are noise. None of them should become authority just because they were observed.
+            </p>
+          </div>
+
+          <div class="grid three">
+            <div class="tile">
+              <span class="tag red">Problem</span>
+              <h3>Memory is too soft</h3>
+              <p>Raw memory helps agents recall, but it does not decide what should govern future behavior.</p>
+            </div>
+            <div class="tile">
+              <span class="tag red">Problem</span>
+              <h3>Telemetry is not truth</h3>
+              <p>A trace proves that something happened. It does not prove what that event means for the ontology.</p>
+            </div>
+            <div class="tile">
+              <span class="tag gold">Need</span>
+              <h3>Knowledge needs gates</h3>
+              <p>Claims need evidence, confidence, scope, ownership, and a path for contradiction before agents rely on them.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="model">
+          <div class="section-head">
+            <h2>The Core Model</h2>
+            <p>
+              The selected architecture centers on one governance object: <code>PromotionRecord</code>.
+              It is the bridge between evidence and ontology state.
+            </p>
+          </div>
+
+          <div class="diagram" role="img" aria-label="Inputs flow into PromotionRecord, then into ontology outcomes">
+            <div class="model-flow">
+              <div class="model-box">
+                <strong>Review Inputs</strong>
+                <span>ReviewableSignal</span>
+                <span>InventoryEvidence</span>
+                <span>LifecycleEvidenceEnvelope</span>
+                <span>UserDecision</span>
+                <span>SourceSelector</span>
+              </div>
+              <div class="arrow" aria-hidden="true">→</div>
+              <div class="model-box">
+                <strong>PromotionRecord</strong>
+                <span>claim</span>
+                <span>evidence + provenance</span>
+                <span>confidence split</span>
+                <span>owner + contradiction path</span>
+              </div>
+              <div class="arrow" aria-hidden="true">→</div>
+              <div class="model-box">
+                <strong>Ontology Outcomes</strong>
+                <span>Candidate / Premise</span>
+                <span>PromotedEntry / Policy</span>
+                <span>Constitution / Axiom</span>
+                <span>Contradiction / Retirement</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="split" style="margin-top: 16px;">
+            <div class="callout good">
+              <h3>Candidate knowledge</h3>
+              <p>Can guide review. It stays visibly uncertain, scoped, and reviewable.</p>
+            </div>
+            <div class="callout">
+              <h3>Promoted knowledge</h3>
+              <p>Can guide operation only after evidence, confidence, owner, scope, and contradiction gates pass.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="branches">
+          <div class="section-head">
+            <h2>Four Ontology Areas</h2>
+            <p>
+              CyberAlchemy separates knowledge by authority boundary. Business, System, and Bridge are the stable baseline.
+              Operational Ontology remains a candidate extension until accepted.
+            </p>
+          </div>
+
+          <div class="branches">
+            <div class="branch">
+              <span class="tag">Stable</span>
+              <h3>Business Ontology</h3>
+              <ul>
+                <li>Domain language</li>
+                <li>Actors and value</li>
+                <li>Policies and business rules</li>
+                <li>Business-facing invariants</li>
+              </ul>
+            </div>
+            <div class="branch">
+              <span class="tag">Stable</span>
+              <h3>System Ontology</h3>
+              <ul>
+                <li>Codebase facts</li>
+                <li>Services, APIs, data flows</li>
+                <li>Tests and infrastructure</li>
+                <li>Runtime behavior</li>
+              </ul>
+            </div>
+            <div class="branch">
+              <span class="tag">Stable</span>
+              <h3>Bridge Ontology</h3>
+              <ul>
+                <li>Traceability</li>
+                <li>Drift and contradiction</li>
+                <li>Evidence links</li>
+                <li>Validation relationships</li>
+              </ul>
+            </div>
+            <div class="branch">
+              <span class="tag gold">Candidate</span>
+              <h3>Operational Ontology</h3>
+              <ul>
+                <li>Agent routes</li>
+                <li>Capability behavior</li>
+                <li>Workflow lessons</li>
+                <li>Route policies and context patterns</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="lifecycle">
+          <div class="section-head">
+            <h2>Promotion Lifecycle</h2>
+            <p>
+              The lifecycle gives contributors a safe path from discovery to use. The important move is that every meaningful
+              knowledge change passes through a PromotionRecord.
+            </p>
+          </div>
+
+          <div class="ladder">
+            <div class="step">
+              <div class="level">L0-L2</div>
+              <div>
+                <h3>Evidence before meaning</h3>
+                <p>Raw observations become source selectors, inventory evidence, reviewable signals, or lifecycle envelopes.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="level">Draft</div>
+              <div>
+                <h3>PromotionRecord draft</h3>
+                <p>A single claim receives source inputs, provenance, branch target, confidence fields, owner, and contradiction path.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="level">Review</div>
+              <div>
+                <h3>Evidence and confidence review</h3>
+                <p>Evidence confidence asks whether the claim is supported. Commitment confidence asks whether agents should rely on it now.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="level">Outcome</div>
+              <div>
+                <h3>Promote, defer, reject, contradict, or retire</h3>
+                <p>The model keeps uncertainty and contradiction visible instead of overwriting history.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="level">Feedback</div>
+              <div>
+                <h3>Operational use creates new evidence</h3>
+                <p>Observability feedback can start a new PromotionRecord, maintenance route, or contradiction review.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="guardrails">
+          <div class="section-head">
+            <h2>Contributor Guardrails</h2>
+            <p>
+              These rules keep the ontology useful without making it brittle. They are the habits new contributors should internalize first.
+            </p>
+          </div>
+
+          <div class="grid two">
+            <div class="tile">
+              <span class="tag red">Do not</span>
+              <h3>Promote from telemetry directly</h3>
+              <p>A <code>ReviewableSignal</code> can start or support review. It cannot create promoted knowledge by itself.</p>
+            </div>
+            <div class="tile">
+              <span class="tag red">Do not</span>
+              <h3>Hide candidate status</h3>
+              <p>If a claim is candidate, deferred, contradicted, or uncertain, its status must stay visible.</p>
+            </div>
+            <div class="tile">
+              <span class="tag gold">Always</span>
+              <h3>Split confidence</h3>
+              <p>Evidence confidence and commitment confidence answer different questions and must not collapse into one score.</p>
+            </div>
+            <div class="tile">
+              <span class="tag gold">Always</span>
+              <h3>Preserve contradiction paths</h3>
+              <p>Good ontology work does not erase failed claims. It records why they were rejected, deferred, or retired.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="contribute">
+          <div class="section-head">
+            <h2>How To Contribute</h2>
+            <p>
+              The reviewed package recommends a review-only first slice before canonical adoption. That gives contributors a concrete,
+              low-risk way to prove the model.
+            </p>
+          </div>
+
+          <div class="timeline">
+            <div class="tile">
+              <span class="tag">1</span>
+              <h3>Read the first slice</h3>
+              <p>Start with <a href="FIRST-WORKING-SLICE.md">FIRST-WORKING-SLICE.md</a> and its validation checklist.</p>
+            </div>
+            <div class="tile">
+              <span class="tag">2</span>
+              <h3>Create one fixture</h3>
+              <p>Represent one operational lesson as a review-only PromotionRecord.</p>
+            </div>
+            <div class="tile">
+              <span class="tag">3</span>
+              <h3>Validate fields</h3>
+              <p>Check claim, source inputs, confidence split, owner, branch target, use scope, and contradiction path.</p>
+            </div>
+            <div class="tile">
+              <span class="tag">4</span>
+              <h3>Run bridge review</h3>
+              <p>Decide whether evidence is aligned, partial, drifted, insufficient, or contradicted.</p>
+            </div>
+            <div class="tile">
+              <span class="tag">5</span>
+              <h3>Keep it non-canonical</h3>
+              <p>Do not mutate ontology, runtime, skill, sigil, spell, or observability files until acceptance.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="status">
+          <div class="section-head">
+            <h2>Current Status</h2>
+            <p>
+              CAOL-010 passed the package audit. This means the architecture package is coherent and complete as a reviewed candidate.
+              It does not mean the ontology has been canonically promoted.
+            </p>
+          </div>
+
+          <div class="quote">
+            <span>Pass:</span> package-completion verdict. <br>
+            <span>Not:</span> canonical ontology promotion.
+          </div>
+
+          <div class="grid two" style="margin-top: 16px;">
+            <div class="tile">
+              <h3>Still open for user review</h3>
+              <ul class="checklist">
+                <li>Whether Operational Ontology becomes a permanent fourth branch.</li>
+                <li>The implementation-ready PromotionRecord schema/template.</li>
+                <li>Named review owners and default signal thresholds.</li>
+                <li>Bridge-validation evidence templates.</li>
+              </ul>
+            </div>
+            <div class="tile">
+              <h3>Ready to use now</h3>
+              <ul class="checklist">
+                <li>Contributor onboarding and shared vocabulary.</li>
+                <li>Review-only first-slice planning.</li>
+                <li>Architecture discussion and acceptance review.</li>
+                <li>Evidence-grounded explanation for new agents and humans.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="sources">
+          <div class="section-head">
+            <h2>Where To Read Next</h2>
+            <p>
+              This presentation is a doorway. Use these artifacts when you need the evidence, full model, or implementation path.
+            </p>
+          </div>
+
+          <table class="artifact-table">
+            <thead>
+              <tr>
+                <th>Artifact</th>
+                <th>Use it for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="README.md">README.md</a></td>
+                <td>Package map, current verdict, and next route.</td>
+              </tr>
+              <tr>
+                <td><a href="SUBSTACK-ARTICLE.md">SUBSTACK-ARTICLE.md</a></td>
+                <td>Readable long-form explanation of the model.</td>
+              </tr>
+              <tr>
+                <td><a href="ONTOLOGY-ARCHITECTURE.md">ONTOLOGY-ARCHITECTURE.md</a></td>
+                <td>Branches, nodes, edges, authority levels, adapters, and use cases.</td>
+              </tr>
+              <tr>
+                <td><a href="PROMOTION-LIFECYCLE.md">PROMOTION-LIFECYCLE.md</a></td>
+                <td>Lifecycle states, gates, transition rules, evidence requirements, and bridge validation.</td>
+              </tr>
+              <tr>
+                <td><a href="INTERROGATION-VERDICT.md">INTERROGATION-VERDICT.md</a></td>
+                <td>Final audit, residual review items, and pass/flag/block history.</td>
+              </tr>
+              <tr>
+                <td><a href="FIRST-WORKING-SLICE.md">FIRST-WORKING-SLICE.md</a></td>
+                <td>First concrete review-only contributor task.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </article>
+
+      <footer class="footer">
+        <p>
+          CyberAlchemy Ontology Lifecycle presentation. Status: reviewed candidate package, CAOL-010 pass.
+          Generated from local package artifacts in <code>development/cyberalchemy-ontology-lifecycle/</code>.
+        </p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

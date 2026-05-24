@@ -303,7 +303,7 @@ A technique should define:
 - failure behavior,
 - anti-patterns.
 
-The Concept Layer Optimizer technique pack is an example of this method: recomposition proof, evolution profile, cognitive load check, requisite variety check, boundary-object check, premortem pass, and set-based tournament are all techniques attached to phase hooks.
+The Distill technique pack is an example of this method: recomposition proof, evolution profile, cognitive load check, requisite variety check, boundary-object check, premortem pass, and set-based tournament are all techniques attached to phase hooks.
 
 ## Development Packet Pattern
 
