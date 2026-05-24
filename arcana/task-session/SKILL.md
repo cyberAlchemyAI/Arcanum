@@ -1,10 +1,10 @@
 ---
 name: task-session
-description: "Use when: executing one bounded task end to end with explicit trade-offs, gate checks, completion criteria, validation, synchronized evidence, and optional runtime-goal delegation."
+description: "Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime-goal delegation."
 argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via goal] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.1.0
+version: 0.3.0
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -18,6 +18,14 @@ Execute one bounded task end to end while making trade-offs explicit, enforcing 
 <logic-type>
 Arcana: guided execution loop with human decision points, hard gates, and completion evidence.
 </logic-type>
+
+<required-sigils>
+
+| Sigil | Role In Task Session | Required Mode |
+| --- | --- | --- |
+| `context-builder` | Build a bounded context pack from the selected task/SWU, source links, constraints, related architecture/spec artifacts, write scope, and validation surface before decisions, gates, or runtime handoff. For `--via goal`, produce a strict Markdown plus JSON/index handoff pack stored as session evidence. | lean or standard |
+
+</required-sigils>
 
 <flags>
 - `--auto`: choose the recommended option for each non-blocking decision and record that it was auto-selected.
@@ -50,7 +58,7 @@ Expected inputs, if available:
 - deliverables,
 - done criteria,
 - relevant constraints,
-- validation commands or accepted substitutes.
+- validation commands or accepted substitutes,
 - optional `WORK-PACK.md` with task board, SWU manifest, waves, and task contracts,
 - optional runtime adapter selection from the installed repository command context.
 - optional lifecycle owner and experiment harness path when executing spell or sigil development work.
@@ -63,13 +71,22 @@ Expected inputs, if available:
 2. If the input is `to <target>`, resolve the target to an explicit work-pack path or current-context work-pack; otherwise return `BLOCK` with the missing work-pack path.
 3. If a work-pack is provided, select exactly one ready task or SWU using `--task`, `--swu`, or the next ready unit.
 4. If multiple tasks are implied, ask the user to choose one or return `BLOCK`.
-5. Parse the task objective, dependencies, deliverables, write scope, and done criteria.
+5. Parse the task objective, dependencies, deliverables, write scope, done criteria, and validation surface.
 6. Identify related artifacts that may need synchronization after completion.
 
-## Step 2 - Build Decision Pack
+## Step 2 - Build Context Pack
 
-7. Enumerate unresolved task decisions with more than one viable option.
-8. For each decision, build option cards with:
+10. Run `context-builder` in lean or standard mode for the selected task/SWU.
+11. Include the task contract, source links, architecture/spec references, work-pack row, dependency rows, blocker rows, write scope, done criteria, validation surface, and known repository conventions.
+12. When `--via goal` is set, request a `codex-goal` handoff pack from Context Builder, emitted as Markdown plus JSON/index and persisted under session/run evidence.
+13. Extract hard constraints and cross-artifact obligations from the context pack before selecting an implementation path.
+14. If linked context is missing, contradictory, stale, unsafe, too weak, missing write scope, missing validation, or lacks strict coverage for a runtime handoff, return `BLOCK` with the missing context or contradiction and stop before mutation.
+15. Record the context pack summary, handoff artifact paths, strict coverage status, and the source artifacts that controlled execution.
+
+## Step 3 - Build Decision Pack
+
+16. Enumerate unresolved task decisions with more than one viable option.
+17. For each decision, build option cards with:
    - what the option entails,
    - short-term consequence,
    - long-term consequence,
@@ -78,47 +95,48 @@ Expected inputs, if available:
    - risk impact,
    - maintenance impact,
    - recommended option with rationale.
-9. Ask the user to choose each blocker decision.
-10. If `--auto` is provided, auto-select only decisions that are non-blocking or where a recommendation is clearly safe, and record the auto-selection.
+19. Ask the user to choose each blocker decision.
+20. If `--auto` is provided, auto-select only decisions that are non-blocking or where a recommendation is clearly safe, and record the auto-selection.
 
-## Step 3 - Evaluate Gates
+## Step 4 - Evaluate Gates
 
-11. Check task dependencies, stated constraints, required approvals, source links, write scope, and available validation paths.
-12. If a blocker exists, return `BLOCK` with exact unblock actions and stop before mutation.
-13. If the task can proceed with assumptions, record those assumptions before mutation.
+21. Check task dependencies, stated constraints, required approvals, source links, context-pack obligations, strict handoff coverage when applicable, write scope, and available validation paths.
+22. If a blocker exists, return `BLOCK` with exact unblock actions and stop before mutation.
+23. If the task can proceed with assumptions, record those assumptions before mutation.
 
-## Step 4 - Select Runtime
+## Step 5 - Select Runtime
 
-14. Resolve the current repository runtime from the installed command context or `--runtime`.
-15. If `--via goal` is set, load the matching runtime-goal adapter from `arcana/task-session/runtime-adapters/`.
-16. For Codex native Goals, use the `codex-goal` adapter and the `codex-goal-profile` transmutation.
-17. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
+24. Resolve the current repository runtime from the installed command context or `--runtime`.
+25. If `--via goal` is set, load the matching runtime-goal adapter from `arcana/task-session/runtime-adapters/`.
+26. For Codex native Goals, use the `codex-goal` adapter and the `codex-goal-profile` transmutation.
+27. If `--via goal` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
+28. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
 
-## Step 5 - Execute Task
+## Step 6 - Execute Task
 
-18. Convert selected options and checklist items into an ordered execution path.
-19. If a runtime-goal adapter is used, produce or hand off the runtime command and preserve the Task Session synchronization obligations.
-20. If running locally, make only the changes required for the task scope.
-21. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
+29. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
+30. If a runtime-goal adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime command and preserve the Task Session synchronization obligations.
+31. If running locally, make only the changes required for the task scope.
+32. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
 
-## Step 6 - Validate Completion
+## Step 7 - Validate Completion
 
-22. Validate against every done criterion.
-23. Run relevant checks based on touched assets.
-24. If a runtime-goal adapter performed execution, review the runtime result against the original work-pack contract.
-25. If validation cannot be run, record why and provide the closest useful substitute.
-26. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
+35. Validate against every done criterion and context-pack obligation.
+36. Run relevant checks based on touched assets.
+37. If a runtime-goal adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
+38. If validation cannot be run, record why and provide the closest useful substitute.
+39. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
 
-## Step 7 - Synchronize Evidence
+## Step 8 - Synchronize Evidence
 
-27. Update the task record when evidence supports completion.
-28. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
-29. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
-30. If no synchronization is needed, report why.
+40. Update the task record when evidence supports completion.
+41. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
+42. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
+43. If no synchronization is needed, report why.
 
-## Step 8 - Report
+## Step 9 - Report
 
-31. Return a compact task-session report with decisions, runtime adapter, gate verdict, files updated, validations, experiment harness status, and remaining follow-up.
+44. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, files updated, validations, experiment harness status, and remaining follow-up.
 </process>
 
 <authority-rule>
@@ -131,6 +149,10 @@ For reusable use, emit a post-run invocation signal using the repository-local o
 Recommended signals:
 
 - task reference,
+- context pack status and source count,
+- handoff pack markdown and JSON/index paths when runtime delegation is used,
+- strict coverage status,
+- fallback exploration/search status,
 - decision count,
 - gate result,
 - files changed count,
@@ -149,6 +171,9 @@ A successful execution of this sigil must:
 
 - resolve exactly one task scope,
 - resolve exactly one work-pack task or SWU when the input is a work-pack,
+- build a bounded context pack before decisions, gates, runtime selection, or mutation,
+- require strict handoff-pack coverage before `--via goal` delegation,
+- block when required source context is missing, contradictory, or too weak to check constraints,
 - expose meaningful implementation trade-offs,
 - stop before mutation when blockers remain,
 - keep runtime-goal delegation behind an explicit adapter boundary,
@@ -163,6 +188,8 @@ A successful execution of this sigil must:
 Avoid:
 
 - using the sigil for many unrelated tasks at once,
+- executing from the task file alone when source links, architecture, or work-pack context can change the correct implementation choice,
+- delegating through `--via goal` without a complete session-evidence handoff pack and JSON/index,
 - treating `--auto` as permission to guess consequential user choices,
 - changing files outside the task scope without recording why,
 - marking completion without evidence,
@@ -182,6 +209,10 @@ Return:
 - Task: <task-reference>
 - Result: PASS | BLOCK | FLAG
 - Decisions: <resolved count and summary>
+- Context pack: <source count and controlling constraints | blocked reason>
+- Handoff pack: <markdown path and JSON/index path | none | blocked reason>
+- Strict coverage: pass | block | n/a
+- Fallback search: none | named gaps only | blocked
 - Runtime: <runtime id or local>
 - Adapter: <adapter id or none>
 - Gate verdict: <summary>

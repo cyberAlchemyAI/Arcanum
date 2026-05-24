@@ -12,7 +12,11 @@
 | Write scope | `src/` |
 | Done criteria | Improve the service. |
 | Validation | none |
-| Blockers | acceptance evidence missing |
+| Handoff pack | none |
+| Handoff index | none |
+| Strict coverage | block |
+| Fallback exploration | block |
+| Blockers | acceptance evidence and handoff pack missing |
 
 ## Output Profile
 
@@ -21,8 +25,8 @@ No runnable native Codex Goal should be generated.
 ## Blocked Result
 
 - Readiness: block
-- Reason: done criteria are vague, dependencies are unknown, write scope is broad, and no verification surface is available.
-- Unblock action: define exact outcome, bounded write scope, dependency state, and validation command or reviewable evidence.
+- Reason: done criteria are vague, dependencies are unknown, write scope is broad, no verification surface is available, no strict handoff pack/index exists, and fallback exploration cannot be bounded to named gaps.
+- Unblock action: define exact outcome, bounded write scope, dependency state, validation command or reviewable evidence, and a Context Builder handoff pack with strict coverage.
 
 ## Verdict
 

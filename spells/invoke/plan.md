@@ -20,6 +20,8 @@ For medium and high complexity work-packs, plan mode must decompose execution ta
 
 Plan mode also owns the execution contract for those SWUs. If later execution uses subagents, `invoke plan` must have already defined the one-SWU handoff: explicit write scope, dependencies, done criteria, validation, source context, and expected result shape.
 
+Plan mode should make future Task Session runs context-builder-ready. It should include source anchors, validation surfaces, write scope, and handoff notes, but it must not pre-generate task context packs. Context packs and runtime handoff packs are generated at execution time as session evidence.
+
 ## Implementation Coverage
 
 - The L2 plan contract is implemented as a mode-level governance contract.
@@ -127,6 +129,7 @@ Work-pack tables must be navigable. Task-board task IDs should link to task cont
 - Each SWU must include goal, dependencies, write scope, done criteria, acceptance evidence, and verification command or reviewable check.
 - Each SWU must include an execution-owner recommendation: `subagent`, `local-fallback`, or `manual`.
 - Each SWU must include a handoff note with the exact context needed by a worker or subagent.
+- Each SWU intended for Task Session or runtime-goal handoff must include enough source anchors for Context Builder to produce a strict Markdown plus JSON/index handoff pack at execution time.
 - Each non-exempt execution task must list its SWUs in a `Smallest Working Units` section.
 - Closure-only tasks may use a `Smallest Working Unit Exemption` only when the task ID includes `VERIFY`, `AUDIT`, `SIGNAL`, or `READINESS`.
 - Medium/high implementation handoff should target one SWU at a time. If a task has multiple SWUs and no SWU is selected, the execution route must ask for a specific SWU before mutation-capable work starts.
@@ -145,6 +148,9 @@ Invoke plan must make every non-exempt SWU assignable by providing:
 - done criteria,
 - validation command or reviewable check,
 - source contract links,
+- source anchors for Context Builder selection,
+- related-context hints for architecture, feature, or prior-decision context that should be considered before runtime exploration,
+- acceptance evidence required before task/work-pack synchronization,
 - known blockers/gaps affecting the SWU,
 - expected execution owner,
 - expected result shape.
@@ -220,6 +226,7 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - SWUs must each include one parent task, write scope, acceptance evidence, and verification command or reviewable check.
 - SWUs must each include dependencies, done criteria, execution-owner recommendation, and subagent/local fallback handoff context.
 - SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
+- SWUs intended for runtime-goal handoff must include source anchors, validation surface, write scope, and handoff notes; Invoke must not pre-generate context packs during planning.
 - Split task files must contain useful task-local SWU execution contracts, not just task titles.
 - Task descriptions that only say to implement a bundle, layer, component, or outcome must block or flag until converted into implementation-detail specs.
 - Any blocker that affects acceptance criteria keeps phase status at `block`.

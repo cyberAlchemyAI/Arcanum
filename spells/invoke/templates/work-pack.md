@@ -47,6 +47,7 @@ This template is standalone at invoke scope and is composed by Module Formulae i
 | Validation Strategy | Gate checks and evidence references | Reuse validation targets and expected evidence commands. |
 | SWU Manifest | Task files and traceability | Every non-exempt SWU keeps dependencies, write scope, done criteria, validation, and execution-owner recommendation. |
 | Source Contracts | Task board, SWU manifest, and task files | Link existing source context so workers can navigate without repository search. |
+| Context Builder Readiness | SWU handoff notes | Preserve source anchors, validation surfaces, and write scope so Context Builder can generate execution-time packs. Do not pre-generate context packs in Invoke planning. |
 
 ## Delivery Slices
 
@@ -82,7 +83,7 @@ When `outputMode = split`, each `work-pack/tasks/TASK-*.md` file must include:
 - dependencies,
 - blocker/gap state,
 - Smallest Working Units,
-- for each SWU: dependencies, write scope, done criteria, validation, execution owner, and handoff note,
+- for each SWU: dependencies, source anchors, related context hints, write scope, done criteria, acceptance evidence, validation surface, execution owner, and handoff note,
 - synchronization rules,
 - completion evidence.
 
@@ -90,9 +91,11 @@ Placeholder task files are not execution-ready. If task files exist but do not i
 
 ## SWU Execution Handoff
 
-| SWU ID | Parent Task | Source | Dependencies | Write Scope | Done Criteria | Validation | Execution Owner | Handoff Status |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| SWU-{FEATURE-CODE}-001 | [TASK-A](work-pack/tasks/TASK-A.md) | {source contract links} | {dependencies or none} | {paths/modules} | {done criteria} | {command or review check} | subagent, local-fallback, or manual | ready, blocked, or selected |
+| SWU ID | Parent Task | Source Anchors | Related Context | Dependencies | Write Scope | Done Criteria | Acceptance Evidence | Validation Surface | Execution Owner | Handoff Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SWU-{FEATURE-CODE}-001 | [TASK-A](work-pack/tasks/TASK-A.md) | {source contract links, headings, symbols, or selectors} | {related architecture/feature/context links or none} | {dependencies or none} | {paths/modules} | {done criteria} | {evidence required to mark complete} | {command or review check} | subagent, local-fallback, or manual | ready, blocked, or selected |
+
+For SWUs intended for Task Session or runtime-goal handoff, `Source Anchors` and `Related Context` must include enough selectors for Context Builder to produce a strict handoff pack at execution time. Invoke plans should not pre-generate context packs; Task Session/Context Builder stores generated handoff packs as session evidence.
 
 ## Blockers
 
@@ -123,9 +126,10 @@ Split mode:
 2. Medium/high complexity requires `executionPackRef` and baseline wave W0.
 3. Layer mappings must be consistent with `layeringArtifactRef` deferred scope and promotion decisions.
 4. Any unresolved blocker that affects acceptance criteria keeps gate status at block.
-5. Any non-exempt SWU missing dependencies, source context, write scope, done criteria, validation, or execution-owner recommendation keeps gate status at block.
-6. Any task with multiple SWUs must select one SWU before mutation-capable execution.
-7. Parallel SWUs must have disjoint write scopes or an explicit merge plan.
+5. Any non-exempt SWU missing dependencies, source anchors, write scope, done criteria, acceptance evidence, validation surface, or execution-owner recommendation keeps gate status at block.
+6. Any runtime-goal SWU missing source anchors or related-context hints needed for Context Builder handoff-pack generation keeps gate status at block.
+7. Any task with multiple SWUs must select one SWU before mutation-capable execution.
+8. Parallel SWUs must have disjoint write scopes or an explicit merge plan.
 
 ## Handoff To Execution Pack
 

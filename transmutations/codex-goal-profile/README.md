@@ -6,6 +6,8 @@ It does not implement `/goal`. Codex already owns the native Goal runtime: persi
 
 This transmutation exists because Arcanum work-packs contain rich execution context, while native Codex Goals need a compact operating contract.
 
+When used from Task Session, the profile also consumes a Context Builder handoff pack. That pack is stored as session evidence, emitted as Markdown plus JSON/index, and must pass strict coverage before a runnable native Goal is generated.
+
 ## Problem It Solves
 
 Work-packs are excellent dashboards:
@@ -16,7 +18,8 @@ Work-packs are excellent dashboards:
 - task contracts,
 - source links,
 - blockers,
-- validation.
+- validation,
+- handoff pack paths and strict coverage status.
 
 Native Codex Goals are excellent runtime objectives:
 
@@ -26,6 +29,7 @@ Native Codex Goals are excellent runtime objectives:
 - boundaries,
 - iteration policy,
 - blocked stop condition.
+- pack-first context boundary.
 
 The missing bridge is a faithful transformation from one selected work-pack task or SWU into a native `/goal` command that Codex can run without losing scope or overstating completion.
 
@@ -55,6 +59,10 @@ The missing bridge is a faithful transformation from one selected work-pack task
 - write scope,
 - done criteria,
 - validation command or reviewable evidence,
+- handoff pack Markdown path,
+- handoff pack JSON/index path,
+- strict coverage status,
+- fallback exploration rule,
 - blockers and budget constraints.
 
 ## Output
@@ -62,7 +70,7 @@ The missing bridge is a faithful transformation from one selected work-pack task
 The output is a ready-to-run native Codex Goal profile:
 
 ```text
-/goal <outcome>, verified by <evidence>, while preserving <constraints>. Use <allowed context and write scope>. Between iterations, <iteration policy>. If blocked or no valid paths remain, <stop condition and report shape>.
+/goal <outcome>, verified by <evidence>, while preserving <constraints>. Use the handoff pack at <markdown path> and structured index at <json path> as selected source context, plus <allowed write scope>. Broaden repository exploration only for named gaps from the pack. If you use extra sources, report the named gap, source path, and whether it changed the result. Between iterations, <iteration policy>. If blocked or no valid paths remain, <stop condition and report shape>.
 ```
 
 It may also include a short audit block explaining:
@@ -71,8 +79,14 @@ It may also include a short audit block explaining:
 - dependency status,
 - write scope,
 - validation surface,
+- handoff pack Markdown and JSON/index,
+- strict coverage status,
+- fallback exploration rule,
+- extra-source reporting requirement,
 - known blockers,
 - why a native Goal is or is not appropriate.
+
+The transmutation returns `block` instead of a runnable Goal when the handoff pack is missing, strict coverage failed, validation or write scope is absent, or fallback exploration would require broad unnamed discovery.
 
 ## Codex Runtime Boundary
 

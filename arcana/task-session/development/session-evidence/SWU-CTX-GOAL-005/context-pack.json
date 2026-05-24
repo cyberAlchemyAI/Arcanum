@@ -1,0 +1,75 @@
+{
+  "identity": {
+    "swu": "SWU-CTX-GOAL-005",
+    "source_work_pack": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+    "session_evidence_path": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-005/",
+    "runtime_handoff": "local-task-session",
+    "repository_revision": "b17b888",
+    "evidence_date": "2026-05-23"
+  },
+  "strict_coverage": "pass",
+  "fallback_exploration": "none",
+  "obligations": [
+    {
+      "id": "O1",
+      "status": "covered",
+      "summary": "Validate pack quality before goal delegation.",
+      "evidence": ["arcana/task-session/runtime-adapters/codex-goal.md#availability-check", "arcana/task-session/runtime-adapters/codex-goal.md#transformation"]
+    },
+    {
+      "id": "O2",
+      "status": "covered",
+      "summary": "Pass Markdown and JSON/index into goal objective.",
+      "evidence": ["arcana/task-session/runtime-adapters/codex-goal.md#input-contract", "arcana/task-session/runtime-adapters/codex-goal.md#handoff-shape"]
+    },
+    {
+      "id": "O3",
+      "status": "covered",
+      "summary": "Preserve pack reference in completion evidence.",
+      "evidence": ["arcana/task-session/runtime-adapters/codex-goal.md#result-evidence", "arcana/task-session/runtime-adapters/README.md#adapter-contract"]
+    },
+    {
+      "id": "O4",
+      "status": "covered",
+      "summary": "Block unsafe or non-strict handoff packs.",
+      "evidence": ["arcana/task-session/runtime-adapters/codex-goal.md#blocked-fallback", "arcana/task-session/runtime-adapters/README.md#current-adapters"]
+    },
+    {
+      "id": "O5",
+      "status": "covered",
+      "summary": "Record pack identity and gap-driven extra exploration.",
+      "evidence": ["arcana/task-session/runtime-adapters/codex-goal.md#result-evidence", "arcana/task-session/runtime-adapters/README.md#successful-delegation-evidence"]
+    }
+  ],
+  "selected_sources": [
+    {
+      "path": "arcana/task-session/runtime-adapters/codex-goal.md",
+      "selectors": ["Availability Check", "Input Contract", "Transformation", "Handoff Shape", "Result Evidence", "Blocked Fallback"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5"]
+    },
+    {
+      "path": "arcana/task-session/runtime-adapters/README.md",
+      "selectors": ["Adapter Contract", "Current Adapters", "successful delegation evidence"],
+      "obligations": ["O3", "O4", "O5"]
+    },
+    {
+      "path": "transmutations/codex-goal-profile/SKILL.md",
+      "selectors": ["readiness", "extra-source reporting"],
+      "obligations": ["O2", "O5"]
+    }
+  ],
+  "write_scope": [
+    "arcana/task-session/runtime-adapters/codex-goal.md",
+    "arcana/task-session/runtime-adapters/README.md"
+  ],
+  "validation_surface": [
+    "rg for missing, stale, contradictory, unsafe, missing validation, missing write, strict coverage, Markdown, JSON/index, pack identity, extra exploration, gap, create_goal.",
+    "jq empty on SWU-005 evidence index.",
+    "git diff --check on adapter files and SWU-005 evidence."
+  ],
+  "blockers": [],
+  "output_paths": {
+    "markdown": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-005/context-pack.md",
+    "json_index": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-005/context-pack.json"
+  }
+}

@@ -139,6 +139,7 @@ The six required design views are:
 - implementation-layering seed path or explicit layering gap,
 - design transport report,
 - source design refs for implementation-plan,
+- context-builder-readiness notes for downstream plan when runtime handoff may be used,
 - recommended next route (`plan`, `define`, `spellcraft`, `sigil-development`, or deferred follow-up).
 
 ## Observability

@@ -1,0 +1,82 @@
+{
+  "identity": {
+    "swu": "SWU-CTX-GOAL-006",
+    "source_work_pack": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+    "session_evidence_path": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-006/",
+    "runtime_handoff": "local-task-session",
+    "repository_revision": "b17b888",
+    "evidence_date": "2026-05-23"
+  },
+  "strict_coverage": "pass",
+  "fallback_exploration": "none",
+  "obligations": [
+    {
+      "id": "O1",
+      "status": "covered",
+      "summary": "Generated work-packs include source anchors.",
+      "evidence": ["spells/invoke/plan.md#smallest-working-unit-policy", "spells/invoke/templates/work-pack.md#swu-execution-handoff"]
+    },
+    {
+      "id": "O2",
+      "status": "covered",
+      "summary": "Generated work-packs include acceptance evidence and validation surface.",
+      "evidence": ["spells/invoke/plan.md#swu-subagent-handoff-policy", "spells/invoke/templates/work-pack.md#swu-execution-handoff"]
+    },
+    {
+      "id": "O3",
+      "status": "covered",
+      "summary": "Generated work-packs include write boundaries.",
+      "evidence": ["spells/invoke/plan.md#mode-gates", "spells/invoke/templates/work-pack.md#gate-checks"]
+    },
+    {
+      "id": "O4",
+      "status": "covered",
+      "summary": "Generated work-packs include related-context hints.",
+      "evidence": ["spells/invoke/plan.md#swu-subagent-handoff-policy", "spells/invoke/templates/work-pack.md#swu-execution-handoff"]
+    },
+    {
+      "id": "O5",
+      "status": "covered",
+      "summary": "Context packs generated at execution time.",
+      "evidence": ["spells/invoke/plan.md#purpose", "spells/invoke/templates/work-pack.md#planning-mapping"]
+    },
+    {
+      "id": "O6",
+      "status": "covered",
+      "summary": "Work-pack does not depend on stale generated packs.",
+      "evidence": ["spells/invoke/plan.md#mode-gates", "spells/invoke/templates/work-pack.md#swu-execution-handoff"]
+    }
+  ],
+  "selected_sources": [
+    {
+      "path": "spells/invoke/plan.md",
+      "selectors": ["Purpose", "Smallest Working Unit Policy", "SWU Subagent Handoff Policy", "Mode Gates"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5", "O6"]
+    },
+    {
+      "path": "spells/invoke/design.md",
+      "selectors": ["Purpose", "Handoff Artifacts"],
+      "obligations": ["O4"]
+    },
+    {
+      "path": "spells/invoke/templates/work-pack.md",
+      "selectors": ["Planning Mapping", "Split Task File Contract", "SWU Execution Handoff", "Gate Checks"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5", "O6"]
+    }
+  ],
+  "write_scope": [
+    "spells/invoke/plan.md",
+    "spells/invoke/design.md",
+    "spells/invoke/templates/work-pack.md"
+  ],
+  "validation_surface": [
+    "rg for source anchors, acceptance evidence, validation surface, write boundaries, write scope, related-context, handoff context, context packs generated, pre-generate, stale generated context.",
+    "jq empty on SWU-006 evidence index.",
+    "git diff --check on Invoke files and SWU-006 evidence."
+  ],
+  "blockers": [],
+  "output_paths": {
+    "markdown": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-006/context-pack.md",
+    "json_index": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-006/context-pack.json"
+  }
+}

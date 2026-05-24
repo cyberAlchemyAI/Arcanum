@@ -1,0 +1,94 @@
+{
+  "identity": {
+    "swu": "SWU-CTX-GOAL-003",
+    "source_work_pack": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+    "session_evidence_path": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-003/",
+    "runtime_handoff": "local-task-session",
+    "repository_revision": "b17b888",
+    "evidence_date": "2026-05-23"
+  },
+  "strict_coverage": "pass",
+  "fallback_exploration": "none",
+  "obligations": [
+    {
+      "id": "O1",
+      "status": "covered",
+      "summary": "Build handoff pack before gates and delegation.",
+      "evidence": ["arcana/task-session/SKILL.md#step-2-build-context-pack"]
+    },
+    {
+      "id": "O2",
+      "status": "covered",
+      "summary": "Allow delegated Context Builder and inline/local fallback.",
+      "evidence": ["arcana/task-session/SKILL.md#required-sigils", "arcana/task-session/README.md#context-builder-baseline"]
+    },
+    {
+      "id": "O3",
+      "status": "covered",
+      "summary": "Block on weak, stale, contradictory, or non-strict context.",
+      "evidence": ["arcana/task-session/SKILL.md#step-2-build-context-pack", "arcana/task-session/SKILL.md#step-4-evaluate-gates"]
+    },
+    {
+      "id": "O4",
+      "status": "covered",
+      "summary": "--via goal requires Markdown plus JSON/index and strict coverage.",
+      "evidence": ["arcana/task-session/SKILL.md#step-5-select-runtime", "arcana/task-session/README.md#runtime-adapter-interface"]
+    },
+    {
+      "id": "O5",
+      "status": "covered",
+      "summary": "Report includes pack artifacts, strict coverage, gaps, and fallback search.",
+      "evidence": ["arcana/task-session/SKILL.md#step-9-report", "arcana/task-session/SKILL.md#output-contract"]
+    },
+    {
+      "id": "O6",
+      "status": "covered",
+      "summary": "Installed command mirrors reflect canonical behavior.",
+      "evidence": [".codex/commands/task-session.md", ".codex/commands/arcanum-sigil-task-session.md"]
+    }
+  ],
+  "selected_sources": [
+    {
+      "path": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+      "selectors": ["SWU-CTX-GOAL-003", "Scope", "Acceptance", "Handoff Note"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5", "O6"]
+    },
+    {
+      "path": "arcana/task-session/SKILL.md",
+      "selectors": ["required-sigils", "Step 2", "Step 4", "Step 5", "Step 7", "Step 9", "output-contract"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5"]
+    },
+    {
+      "path": "arcana/task-session/README.md",
+      "selectors": ["Context Builder Baseline", "Work-Pack Runtime Flow", "Runtime Adapter Interface", "Output"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5"]
+    },
+    {
+      "path": ".codex/commands/task-session.md",
+      "selectors": ["Repository Runtime Interface", "Process", "Canonical README Snapshot", "Canonical SKILL Snapshot"],
+      "obligations": ["O6"]
+    },
+    {
+      "path": ".codex/commands/arcanum-sigil-task-session.md",
+      "selectors": ["Repository Runtime Interface", "Process", "Canonical README Snapshot", "Canonical SKILL Snapshot"],
+      "obligations": ["O6"]
+    }
+  ],
+  "write_scope": [
+    "arcana/task-session/SKILL.md",
+    "arcana/task-session/README.md",
+    ".codex/commands/task-session.md",
+    ".codex/commands/arcanum-sigil-task-session.md"
+  ],
+  "validation_surface": [
+    "rg for context-builder, --via goal, Markdown plus JSON/index, strict coverage, handoff pack, fallback, gaps, report.",
+    "rg for stale command mirror snapshot markers.",
+    "jq empty on SWU-003 evidence index.",
+    "git diff --check on Task Session files, command mirrors, and SWU-003 evidence."
+  ],
+  "blockers": [],
+  "output_paths": {
+    "markdown": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-003/context-pack.md",
+    "json_index": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-003/context-pack.json"
+  }
+}

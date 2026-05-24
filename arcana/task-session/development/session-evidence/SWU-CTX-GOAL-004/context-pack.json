@@ -1,0 +1,96 @@
+{
+  "identity": {
+    "swu": "SWU-CTX-GOAL-004",
+    "source_work_pack": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+    "session_evidence_path": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-004/",
+    "runtime_handoff": "local-task-session",
+    "repository_revision": "b17b888",
+    "evidence_date": "2026-05-23"
+  },
+  "strict_coverage": "pass",
+  "fallback_exploration": "none",
+  "obligations": [
+    {
+      "id": "O1",
+      "status": "covered",
+      "summary": "Require handoff Markdown and JSON/index inputs.",
+      "evidence": ["transmutations/codex-goal-profile/SKILL.md#argument-hint", "transmutations/codex-goal-profile/templates/codex-goal-profile.md#source"]
+    },
+    {
+      "id": "O2",
+      "status": "covered",
+      "summary": "Add fallback exploration rule.",
+      "evidence": ["transmutations/codex-goal-profile/SKILL.md#quality-bar", "transmutations/codex-goal-profile/README.md#output"]
+    },
+    {
+      "id": "O3",
+      "status": "covered",
+      "summary": "Require reporting context gaps and extra sources.",
+      "evidence": ["transmutations/codex-goal-profile/SKILL.md#process", "transmutations/codex-goal-profile/templates/codex-goal-profile.md#native-codex-goal"]
+    },
+    {
+      "id": "O4",
+      "status": "covered",
+      "summary": "Generated prompt uses pack first.",
+      "evidence": ["transmutations/codex-goal-profile/templates/codex-goal-profile.md#native-codex-goal", "transmutations/codex-goal-profile/examples/passing.md#output-profile"]
+    },
+    {
+      "id": "O5",
+      "status": "covered",
+      "summary": "Broad exploration only for named gaps.",
+      "evidence": ["transmutations/codex-goal-profile/SKILL.md#readiness", "transmutations/codex-goal-profile/templates/codex-goal-profile.md#native-codex-goal"]
+    },
+    {
+      "id": "O6",
+      "status": "covered",
+      "summary": "Missing strict coverage blocks profile generation.",
+      "evidence": ["transmutations/codex-goal-profile/SKILL.md#anti-patterns", "transmutations/codex-goal-profile/examples/blocked.md#blocked-result"]
+    }
+  ],
+  "selected_sources": [
+    {
+      "path": "transmutations/codex-goal-profile/SKILL.md",
+      "selectors": ["argument-hint", "inputs", "process", "quality-bar", "output-contract"],
+      "obligations": ["O1", "O2", "O3", "O5", "O6"]
+    },
+    {
+      "path": "transmutations/codex-goal-profile/README.md",
+      "selectors": ["Inputs", "Output", "block rule"],
+      "obligations": ["O1", "O2", "O3", "O5", "O6"]
+    },
+    {
+      "path": "transmutations/codex-goal-profile/templates/codex-goal-profile.md",
+      "selectors": ["Readiness", "Native Codex Goal", "Audit Notes"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5"]
+    },
+    {
+      "path": "transmutations/codex-goal-profile/examples/passing.md",
+      "selectors": ["Output Profile", "Verdict"],
+      "obligations": ["O4", "O5"]
+    },
+    {
+      "path": "transmutations/codex-goal-profile/examples/blocked.md",
+      "selectors": ["Blocked Result", "Unblock action"],
+      "obligations": ["O6"]
+    }
+  ],
+  "write_scope": [
+    "transmutations/codex-goal-profile/SKILL.md",
+    "transmutations/codex-goal-profile/README.md",
+    "transmutations/codex-goal-profile/templates/codex-goal-profile.md",
+    "transmutations/codex-goal-profile/examples/passing.md",
+    "transmutations/codex-goal-profile/examples/blocked.md",
+    ".codex/commands/codex-goal-profile.md",
+    ".codex/commands/arcanum-sigil-codex-goal-profile.md"
+  ],
+  "validation_surface": [
+    "rg for context-pack, context-index, pack-first, strict coverage, fallback, extra sources, Missing strict coverage, BLOCK.",
+    "jq empty on SWU-004 evidence index.",
+    "git diff --check on Codex Goal Profile files, command mirrors, and SWU-004 evidence."
+  ],
+  "blockers": [],
+  "output_paths": {
+    "markdown": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-004/context-pack.md",
+    "json_index": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-004/context-pack.json"
+  }
+}

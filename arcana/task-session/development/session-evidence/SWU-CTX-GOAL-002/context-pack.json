@@ -1,0 +1,106 @@
+{
+  "identity": {
+    "swu": "SWU-CTX-GOAL-002",
+    "source_work_pack": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+    "session_evidence_path": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-002/",
+    "runtime_handoff": "local-task-session",
+    "repository_revision": "b17b888",
+    "evidence_date": "2026-05-23"
+  },
+  "strict_coverage": "pass",
+  "fallback_exploration": "none",
+  "obligations": [
+    {
+      "id": "O1",
+      "status": "covered",
+      "summary": "Add handoff mode flag.",
+      "evidence": ["transmutations/context-builder/SKILL.md#flags"]
+    },
+    {
+      "id": "O2",
+      "status": "covered",
+      "summary": "Add session-evidence persistence option.",
+      "evidence": ["transmutations/context-builder/SKILL.md#flags", "transmutations/context-builder/README.md#output"]
+    },
+    {
+      "id": "O3",
+      "status": "covered",
+      "summary": "Emit Markdown plus JSON/index forms.",
+      "evidence": [
+        "transmutations/context-builder/SKILL.md#process",
+        "transmutations/context-builder/templates/codex-goal-handoff-pack.md",
+        "transmutations/context-builder/templates/codex-goal-handoff-index.json"
+      ]
+    },
+    {
+      "id": "O4",
+      "status": "covered",
+      "summary": "A task/SWU can produce a session-evidence handoff pack.",
+      "evidence": [
+        "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-002/context-pack.md",
+        "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-002/context-pack.json"
+      ]
+    },
+    {
+      "id": "O5",
+      "status": "covered",
+      "summary": "Pack includes source selectors and coverage summary.",
+      "evidence": [
+        "transmutations/context-builder/templates/codex-goal-handoff-pack.md#obligation-coverage",
+        "transmutations/context-builder/templates/codex-goal-handoff-index.json#obligations"
+      ]
+    },
+    {
+      "id": "O6",
+      "status": "covered",
+      "summary": "Pack records unresolved gaps.",
+      "evidence": [
+        "transmutations/context-builder/templates/codex-goal-handoff-pack.md#gaps-and-blockers",
+        "transmutations/context-builder/templates/codex-goal-handoff-index.json#gaps_and_blockers"
+      ]
+    }
+  ],
+  "selected_sources": [
+    {
+      "path": "arcana/task-session/development/CONTEXT-PACK-GOAL-HANDOFF-WORK-PACK.md",
+      "selectors": ["SWU-CTX-GOAL-002", "Scope", "Acceptance", "Handoff Note"],
+      "obligations": ["O1", "O2", "O3", "O4", "O5", "O6"]
+    },
+    {
+      "path": "transmutations/context-builder/SKILL.md",
+      "selectors": ["argument-hint", "flags", "process", "output-contract"],
+      "obligations": ["O1", "O2", "O3"]
+    },
+    {
+      "path": "transmutations/context-builder/README.md",
+      "selectors": ["Output", "Handoff Pack Schema"],
+      "obligations": ["O2", "O3"]
+    },
+    {
+      "path": "transmutations/context-builder/templates/codex-goal-handoff-pack.md",
+      "selectors": ["Obligation Coverage", "Selected Sources", "Gaps And Blockers", "Output Paths"],
+      "obligations": ["O3", "O4", "O5", "O6"]
+    },
+    {
+      "path": "transmutations/context-builder/templates/codex-goal-handoff-index.json",
+      "selectors": ["obligations", "selected_sources", "gaps_and_blockers", "output_paths"],
+      "obligations": ["O3", "O4", "O5", "O6"]
+    }
+  ],
+  "write_scope": [
+    "transmutations/context-builder/SKILL.md",
+    "transmutations/context-builder/README.md",
+    "transmutations/context-builder/templates/codex-goal-handoff-pack.md",
+    "transmutations/context-builder/templates/codex-goal-handoff-index.json"
+  ],
+  "validation_surface": [
+    "rg for --handoff, --persist, Markdown, JSON/index, source selectors, coverage summary, unresolved gaps, session evidence.",
+    "jq empty on Context Builder JSON template and SWU-002 evidence index.",
+    "git diff --check on Context Builder files and SWU-002 evidence."
+  ],
+  "blockers": [],
+  "output_paths": {
+    "markdown": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-002/context-pack.md",
+    "json_index": "arcana/task-session/development/session-evidence/SWU-CTX-GOAL-002/context-pack.json"
+  }
+}
