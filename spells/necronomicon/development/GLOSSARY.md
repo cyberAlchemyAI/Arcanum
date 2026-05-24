@@ -2,44 +2,48 @@
 module: necronomicon
 version: current
 status: draft
-updatedAt: 2026-05-18
+updatedAt: 2026-05-23
 docType: glossary
 ---
 
 # Necronomicon Glossary
 
+## Purpose
+
+This glossary defines the corrected Necronomicon vocabulary. The product center is knowledge substrate handling: inventory retrieval, authority classification, ontology candidate routing, and gap preservation.
+
 ## Terms
 
-| Term | Definition | Status | Source |
-| --- | --- | --- | --- |
-| Necronomicon | Repository-local harness for durable session memory, turn routing, checkpoints, research packets, side notes, unblockers, handoffs, and maintenance recommendations. | linked | `spells/necronomicon/README.md` |
-| Repository Harness | The persistent operating shell around selected repository-local Arcanum capabilities. | linked | `spells/necronomicon/README.md` |
-| Session Memory Router | MVP product shape that classifies turns, preserves active state, routes work, captures side notes, and checkpoints. | linked | `spells/necronomicon/development/USAGE-VISION.md` |
-| Workbench State Manager | Continuation product shape that manages lanes for main work, side notes, unblockers, research seeds, inventory candidates, ontology candidates, and deferred reminders. | linked | `spells/necronomicon/development/USAGE-VISION.md` |
-| Active Interaction | Current back-and-forth flow whose owning capability interprets the next user response. | linked | `spells/necronomicon/README.md` |
-| Turn Classification | Ordered decision process that determines whether a user turn is an interrupt, side note, pending response, handoff continuation, fresh route, or ambiguous turn. | linked | `spells/necronomicon/README.md` |
-| Side Note | Mid-run user input captured without derailing the active flow, such as a fact, reminder, research seed, contradiction, or related task. | linked | `spells/necronomicon/development/USAGE-VISION.md` |
-| Unblocker Task | Small bounded related task whose result can unblock an active decision, definition, design, plan, or implementation task. | linked | `spells/necronomicon/development/USAGE-VISION.md` |
-| Research Seed | Candidate research idea captured for later bounded research. | linked | `spells/necronomicon/development/USAGE-VISION.md` |
-| Inventory Candidate | Durable knowledge candidate that should route to `inventory` or `discovery-to-inventory` before becoming reusable compiled knowledge. | linked | `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` |
-| Ontology Candidate | Candidate concept, premise, confidence change, constitution, axiom, or bridge edge that must route through ontology governance before promotion. | linked | `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` |
-| Checkpoint | Durable session distillation separating facts, inferences, decisions, contradictions, unresolved questions, route patterns, and candidates. | linked | `spells/necronomicon/README.md` |
-| Gap | Unresolved question, contradiction, blocked decision, capability gap, route miss, or promotion gap. | linked | `spells/necronomicon/README.md` |
-| Route Decision | Recorded selection of a command or capability, including candidates, confidence, rationale, result, validation, and follow-up. | linked | `spells/necronomicon/README.md` |
-| Handoff | Context packet that transfers work to an owning capability such as `invoke`, `inventory`, `ontology-harness`, or `task-session`. | linked | `spells/necronomicon/README.md` |
-| Knowledge Substrate | Flow from raw interaction into session evidence, inventory, ontology candidates, premise/confidence review, and bridge-validated context. | linked | `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` |
-| Evidence Confidence | How well a claim is supported by source evidence or observed reality. | linked | `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` |
-| Commitment Confidence | How strongly the project should rely on a claim right now. | linked | `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` |
-
-## Glossary Rules
-
-- Necronomicon terms are descriptive until source-backed by runtime state or owning capability output.
-- Candidate terms do not promote inventory entries, ontology concepts, constitutions, or axioms.
-- Terms used by `invoke` define/design/plan handoffs should preserve gap status when unresolved.
-
-## Glossary Gaps
-
-| Gap | Impact | Next Step |
+| Term | Definition | Authority |
 | --- | --- | --- |
-| Exact state-machine vocabulary for unblocker execution is still draft. | Implementation schemas may drift. | Finalize during plan layer. |
-| Research packet vs research seed boundary needs implementation examples. | Agents may over-route to research. | Add examples in plan or validation fixtures. |
+| Necronomicon | Repository-local Arcanum harness that retrieves durable knowledge, classifies authority, preserves session evidence, records gaps, and routes work to owning capabilities. | canonical for this pack |
+| Knowledge Substrate | The layered flow from raw interaction to session evidence, inventory knowledge, ontology candidates, reviewed premises, confidence decisions, constitutions, axioms, and bridge evidence. | canonical for this pack |
+| Substrate Loop | The MVP loop: retrieve inventory, capture session evidence, classify authority, record gaps, and hand off to the owning capability. | canonical for this pack |
+| Inventory Retrieval | Querying reusable source-backed project knowledge before broad repository search for durable questions. | canonical for this pack |
+| Inventory Candidate | A source-backed or potentially durable item proposed for inventory ingestion, not yet promoted by `inventory`. | canonical for this pack |
+| Session Evidence | Low-authority distilled context from interaction, checkpoint, route record, or handoff. | canonical for this pack |
+| Source-Backed Fact | A claim supported by a cited source selector, inventory entry, code reference, document reference, or validated artifact. | canonical for this pack |
+| Ontology Candidate | A concept, relationship, bridge edge, convention, constitution, axiom, or governance-relevant claim proposed for ontology review. | canonical for this pack |
+| Premise Candidate | A working bet or assumption that needs ontology-vault premise review before it is relied on. | canonical for this pack |
+| Contradiction | A conflict between sources, inventory, ontology, session evidence, user correction, telemetry, or implementation. | canonical for this pack |
+| Gap Ledger | Machine-readable record of unresolved source gaps, contradiction gaps, decision gaps, capability gaps, and route gaps. | canonical for this pack |
+| Handoff Packet | Context bundle sent to the capability that owns promotion, authoring, governance, or execution. | canonical for this pack |
+| Authority Ladder | Ordered model that prevents low-authority session evidence from being treated as durable truth. | canonical for this pack |
+| Bridge Evidence | Evidence connecting domain intent, ontology claims, system behavior, implementation artifacts, tests, or telemetry. | canonical for this pack |
+| False Authority | Failure mode where Necronomicon treats memory, candidates, or unsupported claims as canonical knowledge. | canonical for this pack |
+| Route Decision | A recorded selection of the next owning capability and rationale. | supporting |
+| Active Interaction | Optional later state that remembers whether the next user turn continues an ongoing discovery, research, decision, or execution flow. | supporting |
+| Workbench State | Later extension that manages side notes, unblockers, research seeds, inventory candidates, ontology candidates, and deferred reminders. | supporting |
+
+## Governance Notes
+
+- Necronomicon may create candidates, gaps, and handoffs.
+- Necronomicon may not promote inventory entries, ontology concepts, premises, constitutions, axioms, glossary terms, or lifecycle artifacts.
+- "Known" means source-backed or inventory-backed, not merely remembered from conversation.
+- "Candidate" means useful enough to route, not authoritative enough to rely on.
+
+## Change History
+
+| Date | Change |
+| --- | --- |
+| 2026-05-23 | Re-authored terms around inventory and ontology substrate handling. |

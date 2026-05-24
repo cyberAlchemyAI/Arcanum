@@ -1,44 +1,39 @@
 # Invoke Define Transport: Necronomicon
 
-## Source Context
+## Source
 
-- `spells/necronomicon/README.md`
-- `spells/necronomicon/development/USAGE-VISION.md`
-- `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md`
-- `spells/necronomicon/development/RESEARCH-DISCOVERY.md`
+- Observed capability: `invoke`
+- Invoke mode: `define`
+- Target artifact: `necronomicon`
+- Target owner: Necronomicon spell development cycle
 
-## Define Outputs
+## Inputs
+
+- Existing Necronomicon development pack.
+- User correction: Necronomicon should start with ontology and inventory handling.
+- Existing knowledge substrate rationale in `KNOWLEDGE-SUBSTRATE-FLOW.md`.
+
+## Outputs
 
 - Spec: `spells/necronomicon/development/DEFINE.md`
 - Glossary: `spells/necronomicon/development/GLOSSARY.md`
-- Implementation layering seed: existing `spells/necronomicon/development/IMPLEMENTATION-LAYERING.md`
 
-## Template Selection Evidence
+## Transport Summary
 
-- Selected profile: Module Formulae module spec and glossary baseline.
-- Reason: Necronomicon now has a product/module boundary, first-class concepts, owned capabilities, external dependencies, and downstream design needs.
-- Candidate-template permission: not needed; existing Module Formulae profile is sufficient.
+Define mode re-centered Necronomicon around the Inventory And Ontology Substrate Loop. The MVP is now the authority-preserving flow from inventory retrieval and session evidence into candidates, gaps, and owner-correct handoffs.
 
-## Define Decisions
+## Decisions
 
-- MVP is Session Memory Router.
-- Continuation build is Workbench State Manager.
-- Side notes are first-class harness input.
-- Related unblockers can become bounded side tasks.
-- Inventory is the retrieval and durable knowledge surface.
-- Ontology promotion remains downstream.
-- Invoke is used for lifecycle authoring, not as the default research engine.
+| Decision | Status |
+| --- | --- |
+| MVP starts with substrate handling, not route/bootstrap proof. | selected |
+| Necronomicon may create candidates and gaps but not promote them. | selected |
+| Inventory retrieval precedes broad source search for durable knowledge questions. | selected |
+| Bootstrap configures the substrate after L0 proof. | selected |
 
-## Define Gaps
+## Gaps
 
-- `active-interaction.json` schema is not finalized.
-- `side-notes.jsonl` and unblocker task schemas are not finalized.
-- Inventory install/adoption path may vary by repository.
-
-## Define Deferred Decisions
-
-- Research extraction is deferred. Research remains a Necronomicon mode for MVP until repeated non-Necronomicon reuse justifies a reusable sigil.
-
-## Next Route
-
-`invoke design`
+| Gap | Owner | Next Route |
+| --- | --- | --- |
+| Exact L0 state schemas need plan detail. | Necronomicon | invoke plan |
+| Canonical README needs synchronization after development pack approval. | Necronomicon | task-session |

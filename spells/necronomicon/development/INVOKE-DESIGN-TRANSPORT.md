@@ -1,51 +1,39 @@
 # Invoke Design Transport: Necronomicon
 
-## Source Context
+## Source
 
-- Define spec: `spells/necronomicon/development/DEFINE.md`
-- Glossary: `spells/necronomicon/development/GLOSSARY.md`
-- Canonical spell contract: `spells/necronomicon/README.md`
-- UX vision: `spells/necronomicon/development/USAGE-VISION.md`
-- Knowledge substrate: `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md`
+- Observed capability: `invoke`
+- Invoke mode: `design`
+- Target artifact: `necronomicon`
+- Target owner: Necronomicon spell development cycle
 
-## Design Outputs
+## Outputs
 
 - Architecture bundle: `spells/necronomicon/development/DESIGN.md`
 - Glossary consistency report: `spells/necronomicon/development/GLOSSARY-CONSISTENCY.md`
-- Transport report: `spells/necronomicon/development/INVOKE-DESIGN-TRANSPORT.md`
+- Implementation layering: `spells/necronomicon/development/IMPLEMENTATION-LAYERING.md`
 
-## Six-View Coverage
+## Transport Summary
 
-| View | Status |
-| --- | --- |
-| Context view | pass |
-| High-level structure view | pass |
-| Low-level components view | pass |
-| Workflow process view | pass |
-| Decision flow view | pass |
-| Dependency interface view | pass |
+Design mode converted the corrected definition into a six-view substrate-first architecture. The design names inventory retrieval, session evidence capture, authority classification, gap ledger writing, and handoff construction as the central components.
 
 ## Design Decisions
 
-- File-backed state remains the first implementation architecture.
-- Turn classifier is deterministic and ordered before any adaptive routing.
-- Side notes are first-class non-derailing input.
-- Related unblockers can run or queue when small, safe, and blocking.
-- Full scheduler/parallel orchestration is deferred.
+| Decision | Status |
+| --- | --- |
+| Use explicit file-backed substrate state. | selected |
+| Keep adapter-mediated runtime acceptable for the first proof. | selected |
+| Treat missing inventory as a gap with fallback, not a global blocker. | selected |
+| Route governance-sensitive claims to ontology owners. | selected |
+| Defer setup wizard, route presets, research, and maintenance beyond L0. | selected |
 
-## Design Gaps
+## Target Artifact Gaps
 
-- Exact schemas for active interaction, side notes, routes, gaps, and checkpoints.
-- Fixture set for turn classification and workbench queue behavior.
-- Plan-layer breakdown for L0-L4 implementation slices.
+| Gap | Owner | Next Route |
+| --- | --- | --- |
+| State schemas need executable examples. | Necronomicon | invoke plan / task-session |
+| Canonical README and generated command snapshots need sync. | Necronomicon | task-session after approval |
 
-## Design-Carried Decisions
+## Invoke Gaps
 
-- Schema strictness: JSON schema drafts in plan; typed validator deferred.
-- Side-note processing: checkpoint plus user-triggered processing selected; automatic thresholds deferred.
-- Unblocker execution: run or queue when narrow and blocking; full side-task orchestration deferred.
-- Research extraction: keep as Necronomicon mode for MVP; reusable sigil extraction deferred.
-
-## Next Route
-
-`invoke plan`
+No invoke-specific blocker found.

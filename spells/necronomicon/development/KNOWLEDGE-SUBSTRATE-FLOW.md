@@ -46,7 +46,7 @@ Each state has a different authority level. The harness may collect, remember, a
 
 | Capability | Role In The Substrate |
 | --- | --- |
-| Necronomicon | Owns active interaction, session memory, route ledger, checkpoints, gaps, and handoffs. |
+| Necronomicon | Owns substrate coordination: inventory-first retrieval, session evidence, authority classification, gaps, and handoffs. Active interaction, route ledger, and checkpoints are continuation state layered on top. |
 | `discovery-to-inventory` | Converts vague or brownfield discovery into source-backed baseline, glossary, and inventory entries. |
 | `inventory` | Stores reusable source-backed knowledge and lookup entries. |
 | `feature-glossary` | Clarifies vocabulary so later ontology and define work use stable language. |

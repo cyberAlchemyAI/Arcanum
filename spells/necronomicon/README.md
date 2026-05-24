@@ -9,17 +9,39 @@
 
 ## Purpose
 
-Necronomicon creates, resumes, and maintains a repository-local harness session with explicit setup profiles, durable working memory, routing history, checkpoints, bounded research workflows (repository and web), and maintenance recommendations.
+Necronomicon is the repository-local knowledge harness for Arcanum. Its MVP is an Inventory And Ontology Substrate Loop: answer what the repository already knows, what is source-backed, what is only a candidate, what conflicts, and which owner should handle the next step.
 
-The spell makes Necronomicon the project harness shell for a repository without turning `.arcanum/necronomicon/` into a copied canonical definition store. Runtime adapters remain the first-pass execution surface. Session state records what was selected, why a route was chosen, which fallback candidates were offered, what unresolved gaps remain, and what should persist between turns and sessions.
+The spell can create, resume, and maintain a repository-local harness session, but setup profiles, routing history, checkpoints, bounded research workflows, and maintenance recommendations are support layers for that substrate. Runtime adapters remain the first-pass execution surface. Session state records what was selected, why a route was chosen, which candidates or gaps were identified, and what should persist between turns and sessions without turning `.arcanum/necronomicon/` into a copied canonical definition store.
 
 ## Conceptual Model
 
-Necronomicon is the persistent repository harness for Arcanum. It keeps durable session state, selected capability routing, checkpoints, research briefs, fallback discovery, and maintenance recommendations around the repository's installed sigils and spells.
+Necronomicon is a persistent repository harness organized around governed knowledge authority. It retrieves inventory before broad search for durable knowledge questions, captures low-authority session evidence, classifies source-backed facts and candidates, records contradictions and gaps, and builds handoffs for the capability that can safely promote, reject, or use the result.
 
 Use `arcanum-necronomicon`, `necronomicon`, or `arcanum-spell-necronomicon` when the repository needs a resumable operating shell with memory, routes, gaps, and handoffs. Use `ontology-harness`, `arcanum-ontology-harness`, or `arcanum-spell-ontology-harness` for a single ontology governance run.
 
-The harness spell does not replace the capabilities it routes to. It is a coordinator and memory boundary. Inventory remains responsible for reusable repository knowledge, ontology-vault remains responsible for ontology promotion, invoke remains responsible for define/design/plan/full/validate lifecycle authoring, and maintenance authoring still routes through `spellcraft` or `sigil-development`.
+The harness spell does not replace the capabilities it routes to. It is a coordinator, memory boundary, and substrate classifier. Inventory remains responsible for reusable repository knowledge and inventory promotion, ontology-vault remains responsible for ontology promotion, invoke remains responsible for define/design/plan/full/validate lifecycle authoring, and maintenance authoring still routes through `spellcraft` or `sigil-development`.
+
+## MVP: Inventory And Ontology Substrate Loop
+
+The first proof of value is not a session router. The MVP must turn a normal repository question or working note into retrieved knowledge, candidate knowledge, governance gaps, and the next safe route without false authority.
+
+The substrate loop is:
+
+1. Require an available inventory substrate before active Necronomicon substrate work begins.
+2. Search inventory before broad repository search for durable knowledge questions.
+3. Capture useful interaction material as session evidence with low authority.
+4. Classify outputs as source-backed fact, inventory candidate, ontology candidate, premise candidate, contradiction, decision gap, or route gap.
+5. Record unresolved gaps in a machine-readable gap ledger.
+6. Build handoffs to the owner that can safely act on the result.
+7. Preserve no-promotion guardrails.
+
+Routing, setup profiles, active interaction state, bounded research, checkpoints, and maintenance exist to carry this loop. They are support layers, not the starting proof of value.
+
+## No-Promotion Guardrails
+
+Necronomicon may create session evidence, inventory candidates, glossary candidates, ontology candidates, premise candidates, constitution candidates, axiom candidates, gap records, route records, and handoff packets.
+
+Necronomicon must not promote inventory entries, ontology concepts, premises, constitutions, axioms, glossary terms, lifecycle artifacts, or reusable artifacts by itself. Promotion belongs to the owning capability and must remain explicit in the handoff: inventory candidates route to inventory flows, ontology and premise candidates route to ontology-vault or ontology-harness flows, consequential choices route to decision-gate, and lifecycle authoring routes to invoke.
 
 ## Day-To-Day Use Vision
 
@@ -51,22 +73,26 @@ The target user experience is low-friction: the user should not need to remember
 
 ## Operating Model
 
-Necronomicon works in four layers:
+Necronomicon works as a substrate loop plus support layers:
 
 | Layer | Responsibility | Persistent State |
 | --- | --- | --- |
-| Harness setup | Select a base profile, dependencies, fallback policy, privacy policy, and runtime surface. | setup decisions, capability manifest |
-| Session memory | Keep compact durable memory, decisions, route history, checkpoints, and unresolved gaps. | session folder, route ledger, gap ledger |
-| Routed execution | Classify user intent and delegate to selected local sigils or spells through runtime adapters. | route records, validation status, follow-ups |
-| Maintenance | Read route misses, telemetry, stale signals, and repeated gaps to propose explicit harness improvements. | maintenance reports, capability update reports |
+| Inventory and ontology substrate | Retrieve inventory, capture evidence, classify authority, record gaps, and build safe handoffs. | inventory refs, session evidence, authority classification, gap ledger, handoffs |
+| Harness setup | Support the substrate by selecting dependencies, fallback policy, privacy policy, and runtime surface. | setup decisions, capability manifest |
+| Session memory | Support continuation with compact memory, decisions, route history, checkpoints, and unresolved gaps. | session folder, route ledger, gap ledger |
+| Routed execution | Support the substrate by delegating bounded work to selected local sigils or spells through runtime adapters. | route records, validation status, follow-ups |
+| Maintenance | Support substrate quality by reading route misses, telemetry, stale signals, and repeated gaps. | maintenance reports, capability update reports |
 
-The default flow is:
+The default substrate-first flow is:
 
-1. Load setup decisions, capability manifest, existing memory, route history, and gaps.
-2. Classify the request against explicit command names, aliases, selected profiles, and route presets.
-3. Delegate execution to the selected command adapter when a route is available.
-4. Record the route attempt, result, validation, unresolved gaps, and next action.
-5. Write checkpoints, research briefs, maintenance reports, or handoffs only when the selected mode requires them.
+1. Load setup decisions, capability manifest, existing memory, route history, gaps, and inventory availability.
+2. For durable knowledge questions, query inventory before broad repository search.
+3. If inventory is missing, block active substrate work and route to setup or inventory installation guidance.
+4. Capture useful session material as evidence, not truth.
+5. Classify the result into source-backed fact, candidate, contradiction, decision gap, or route gap.
+6. Delegate execution to the selected owner when action is needed.
+7. Record the route attempt, result, validation, unresolved gaps, and next action.
+8. Write checkpoints, research briefs, maintenance reports, or handoffs only when the selected mode requires them.
 
 ## Interaction State Model
 

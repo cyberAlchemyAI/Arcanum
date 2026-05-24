@@ -2,304 +2,142 @@
 
 ## Purpose
 
-Define how a repository user should experience Necronomicon during ordinary work, so implementation can iterate toward a concrete product shape instead of only a capability map.
+Define how a repository user should experience substrate-first Necronomicon during ordinary work. The product should feel like a working knowledge harness, not a command router with memory bolted on.
 
 ## Vision Statement
 
-Necronomicon is the repository's persistent working memory and routing desk.
+Necronomicon is the repository's governed working memory. It helps the user ask normal questions, recover what is already known, see what is unsupported or contradictory, and route the next step to the capability that owns it.
 
-It should let a user return to a repository, ask in normal language what they want to do next, and rely on the harness to recover relevant context, choose or suggest the right installed Arcanum capability, record what happened, and keep future sessions resumable.
+The default user feeling should be:
+
+> I can ask what this repo knows, and Necronomicon will distinguish fact, candidate, gap, contradiction, and next owner.
 
 ## Product Promise
 
-After Necronomicon is set up, the user should feel three things:
+After Necronomicon is set up, the user should feel four things:
 
-1. **Continuity:** "The repo remembers where we left off."
-2. **Routing relief:** "I do not need to remember every sigil or spell name."
-3. **Traceability:** "Important decisions, gaps, and routes are captured without turning chat into a source of truth."
+1. **Knowledge continuity:** "The repo remembers durable context without pretending chat is truth."
+2. **Authority clarity:** "I can see what is source-backed, candidate-only, contradictory, or undecided."
+3. **Governed routing:** "The next owner is named because of the claim's authority status, not because I memorized a command."
+4. **Traceability:** "Important gaps and handoffs are captured for later work."
 
 ## Primary User
 
-The primary user is a repository operator working with an agent across repeated sessions. They may be designing a feature, maintaining a framework, researching a decision, implementing a task, or cleaning up workflow drift.
+The primary user is a repository operator working with an agent across repeated sessions. They may be designing a feature, maintaining a framework, researching a decision, implementing a task, or reconciling workflow drift.
 
-They know the repository goal, but they should not need to know the whole Arcanum command catalog.
+They know the repository goal, but should not need to know where every durable fact, ontology claim, or command surface lives.
 
 ## Daily Loop
 
 | Moment | User Says | Necronomicon Should |
 | --- | --- | --- |
-| Start | "Resume Necronomicon." | Load setup decisions, active memory, recent route history, open gaps, and last checkpoint. |
-| Orient | "Where are we?" | Return a compact status: current focus, last decisions, blockers, suggested next route. |
-| Continue | "Keep going on the implementation plan." | Route to `invoke`, `implementation-readiness`, or `task-session` using prior memory. |
-| Clarify | "What is still unclear?" | Read gaps, route misses, contradictions, and candidate decisions. |
-| Research | "Check the evidence before we decide." | Create a bounded research brief, use local sources first, then web when available and allowed. |
-| Decide | "Which path should we take?" | Route consequential choices through `decision-gate` or the owning capability. |
-| Execute | "Implement the next slice." | Route to the task owner, then record result, validation, and follow-up. |
-| Preserve | "Checkpoint this." | Distill facts, inferred claims, decisions, contradictions, gaps, and promotion candidates. |
-| Improve | "This workflow keeps missing." | Run maintenance from route history, telemetry, gaps, and selected capability signals. |
-| Close | "Wrap this session." | Write handoff, memory update, route summary, validation status, and next action. |
+| Ask what is known | "What do we know about Necronomicon setup?" | Query inventory first, then cite source-backed context and gaps. |
+| Add working knowledge | "Side note: this should start from ontology and inventory." | Capture as session evidence, classify as product-boundary candidate, and route if needed. |
+| Detect missing memory | "I thought we had decided this." | Search inventory and session evidence, then record missing coverage if absent. |
+| Reconcile conflict | "This conflicts with the previous plan." | Record contradiction, name affected claims, and route to inventory lint, ontology review, or decision gate. |
+| Govern a claim | "This is a core rule." | Treat as premise/constitution/axiom candidate and route to ontology owner. |
+| Author a lifecycle artifact | "Define/design/plan this." | Hand grounded context and gaps to `invoke`. |
+| Execute | "Implement the next slice." | Route to `task-session` only when the slice is bounded and source-backed enough. |
+| Checkpoint | "Checkpoint this." | Distill source-backed facts, candidates, contradictions, decisions, gaps, and handoffs. |
+| Maintain | "This keeps missing." | Use gap and route patterns to propose local harness improvements. |
 
-## Everyday Commands
-
-These are the commands and natural-language forms the user should naturally reach for.
+## Everyday Commands And Natural Forms
 
 | User Form | Expected Mode | Expected Behavior |
 | --- | --- | --- |
-| `necronomicon start` | `start` | Create or select a session and seed memory. |
-| `necronomicon resume` | `resume` | Load prior state and summarize next options. |
-| `necronomicon route "..."` | `route` | Classify the request and delegate to the selected capability. |
-| `necronomicon research "..."` | `research` | Run bounded evidence gathering with a synthesis gate. |
-| `necronomicon checkpoint` | `checkpoint` | Write durable memory and update gaps. |
-| `necronomicon maintain` | `maintain` | Propose harness improvements from evidence. |
-| `necronomicon close` | `close` | Write final memory, handoff, and follow-up. |
-| "Where were we?" | `resume` | Summarize active state and recommended next route. |
-| "Continue this feature." | `route` | Use memory to route to implementation or planning owner. |
-| "What should I run for this?" | `fallback-discover` or `route` | Suggest 2-5 candidate capabilities with confidence. |
+| "What do we know about X?" | substrate lookup | Inventory-first retrieval with source refs and gaps. |
+| "Remember this for later." | evidence capture | Store low-authority session evidence and classify durability. |
+| "This should become durable." | inventorize candidate | Prepare inventory handoff; do not promote directly. |
+| "This is a governance claim." | ontology candidate | Prepare ontology-vault or ontology-harness handoff. |
+| "This contradicts Y." | contradiction handling | Record gap and recommend reconciliation owner. |
+| `necronomicon resume` | resume | Summarize known facts, candidates, open gaps, and next owner. |
+| `necronomicon checkpoint` | checkpoint | Distill facts, inference, decisions, candidates, contradictions, and gaps. |
+| `necronomicon route "..."` | route | Route after authority status is clear enough. |
+| `necronomicon maintain` | maintain | Propose improvements from repeated gaps, misses, and signals. |
 
 ## UX Principles
 
-- **Plain language first:** explicit commands are supported, but the harness should understand normal work requests.
-- **Continuation before routing:** when a capability is waiting for the user's answer, treat the next turn as part of that active interaction unless the user clearly interrupts.
-- **One question when stuck:** ask only one focused clarification when route confidence is tied or blocked.
-- **Owner routing:** Necronomicon records and coordinates; owning sigils and spells execute specialized work.
-- **Concise memory:** store durable summaries, decisions, gaps, and route evidence, not raw transcript dumps.
-- **Local-first evidence:** use session memory, inventory, ontology outputs, docs, and code before web research.
-- **Candidate-only promotion:** checkpointed insights are candidates until inventory, ontology-vault, or a gate promotes them.
-- **Side notes without derailment:** let users add project facts, research ideas, or reminders while another flow is active.
-- **No silent capability changes:** adding, removing, or refreshing capabilities requires an explicit decision record.
-- **Maintenance from evidence:** improve routes and capabilities from repeated misses, user corrections, gaps, and telemetry.
+- **Knowledge first:** for durable questions, retrieve inventory before broad search or command routing.
+- **Authority labels:** every durable answer should distinguish source-backed fact, candidate, gap, contradiction, or decision.
+- **Candidate-only promotion:** Necronomicon can propose inventory and ontology candidates; owners promote them.
+- **Plain language first:** users should ask natural questions rather than remember command names.
+- **One question when blocked:** ask a focused clarification only when authority or owner cannot be determined.
+- **Local-first evidence:** use inventory, session evidence, ontology outputs, docs, and code before web.
+- **Governed handoff:** the next route follows from ownership: inventory for durable knowledge, ontology for governed claims, invoke for lifecycle authoring, task-session for execution.
+- **Side notes without derailment:** capture notes and classify them without abandoning active work.
+- **No silent capability changes:** setup and capability changes require explicit decisions.
+- **Maintenance from evidence:** improve the harness from repeated gaps, corrections, route misses, and telemetry.
 
 ## State The User Should See
 
-Necronomicon should expose state in human terms:
-
 | State | User-Facing Meaning |
 | --- | --- |
-| Current focus | The work Necronomicon thinks the session is about. |
-| Last useful checkpoint | The latest durable summary worth resuming from. |
-| Open gaps | Questions, contradictions, missing evidence, or blocked decisions. |
-| Route history | What Necronomicon tried, why, and whether it worked. |
-| Suggested next routes | Likely next actions with confidence and rationale. |
-| Maintenance suggestions | Evidence-backed improvements to routes, capabilities, or profiles. |
+| Known facts | Source-backed or inventory-backed claims with selectors. |
+| Session evidence | Useful context that is not yet authoritative. |
+| Inventory candidates | Durable findings worth filing through `inventory`. |
+| Ontology candidates | Claims requiring governance review. |
+| Contradictions | Conflicts that need reconciliation. |
+| Open gaps | Missing sources, missing capabilities, unresolved choices, or route misses. |
+| Suggested next owner | Capability that can safely handle the next step. |
 
 ## Active Interaction Model
 
-Necronomicon needs an explicit turn-state model so it knows whether a user message is a new request or an answer inside an existing flow.
+The substrate loop still needs turn continuity. If Necronomicon or a routed capability is waiting for the user's answer, the next user turn should usually continue that interaction unless the user clearly interrupts.
 
-The default rule is: **continue the active interaction before routing fresh**.
-
-If Necronomicon or a routed capability has just asked the user for a research clarification, setup choice, decision approval, feature boundary, artifact path, or implementation choice, the next user turn belongs to that active interaction. A fresh route starts only when the user clearly names a new command, changes topic, cancels, asks to checkpoint/close, or gives an answer that cannot fit the pending prompt.
+The active interaction record exists to preserve context, not to outrank the authority ladder. A user answer may update session evidence, but it becomes durable only after source backing, inventory filing, ontology review, or decision approval.
 
 | Incoming Turn | Active Interaction Exists? | Default Interpretation |
 | --- | --- | --- |
-| "Yes, use option B." | yes, awaiting decision | Apply to active decision or interview. |
-| "The target user is a platform admin." | yes, awaiting feature clarification | Apply to active discovery/define flow. |
-| "Search the web too." | yes, active research | Update research scope and continue research. |
-| "Actually checkpoint this first." | yes | Interrupt active flow, checkpoint, then offer to resume. |
-| "`invoke define` this now." | yes or no | Explicit command wins; hand off or ask whether to abandon active flow if risky. |
-| "What were we doing?" | yes | Summarize active interaction and pending prompt. |
-| "Start a new task." | yes | Ask one confirmation before abandoning or pausing active flow. |
-| "Side note: the billing API has a daily export limit." | yes | Capture as a side note, link if relevant, and keep active flow running. |
-| "Research idea for later: compare queue backoff policies." | yes | Add to research backlog unless the user says to switch now. |
-
-An active interaction should record:
-
-| Field | Example |
-| --- | --- |
-| Owning capability | `necronomicon research`, `invoke define`, `structured-interview-kits`, `decision-gate` |
-| Pending prompt | "Which source scope should research include?" |
-| Expected answer | option choice, free text, approval, correction, artifact path |
-| Current artifact | research brief, define intent record, decision record, checkpoint candidate |
-| Handoff target | `invoke define`, `invoke plan`, `task-session`, `deferred` |
-| Side note queue | durable facts, research seeds, reminders, contradictions, follow-up ideas |
-
-This applies to any sigil or spell that can ask the user something. Necronomicon owns the active interaction record; the owning capability owns the semantics of the answer.
+| "Yes, use option B." | yes | Apply to active decision/interview and record decision status. |
+| "The target user is a platform admin." | yes | Attach to active discovery/define context as session evidence. |
+| "Side note: this conflicts with the ontology plan." | yes | Capture as contradiction candidate without derailing active flow. |
+| "`invoke define` this now." | yes or no | Explicit lifecycle command wins, but handoff includes current gaps. |
+| "What were we doing?" | yes | Summarize known facts, candidates, pending prompt, and gaps. |
 
 ## Side Note Ergonomics
 
-Sometimes the user is waiting for work to finish, thinking out loud, or adding a related fact that should not hijack the active flow.
-
-Necronomicon should support lightweight side notes:
+The ergonomic rule is: **capture first, switch only on intent**.
 
 | Side Note Type | Example | Default Handling |
 | --- | --- | --- |
-| Project fact | "Side note: the billing API has a daily export limit." | Capture as session evidence, suggest inventory if durable. |
-| Research seed | "Research idea: compare webhook retry strategies." | Add to research backlog with source/scope gaps. |
-| Related unblocker | "Can you get current API prices while this runs?" | Create a bounded side task if it unblocks a decision or plan. |
-| Contradiction | "This conflicts with what we said about admin roles." | Record contradiction and route to inventory lint, ontology, or decision review if consequential. |
-| Reminder | "Remember to check the migration guide later." | Add follow-up item without changing the current route. |
-| Active-task input | "Also, the export must be CSV." | If it fits the active artifact, attach it to the active interaction. |
+| Durable project fact | "Side note: the installer already generates capabilities.json." | Capture as session evidence; propose inventory if source-backed. |
+| Governance claim | "This should be a constitution." | Capture as ontology candidate; route to ontology-vault if consequential. |
+| Contradiction | "This conflicts with the old wave plan." | Record contradiction gap and owner. |
+| Research seed | "Research idea: compare inventory formats." | Add research candidate with scope gap. |
+| Related unblocker | "Find the file that writes capabilities.json." | Run or queue if small and blocking. |
+| Reminder | "Remember to regenerate adapters later." | Queue as deferred follow-up. |
 
-The ergonomic rule is: **capture first, switch only on intent**.
-
-If the user marks the message as a note, aside, reminder, idea, parking-lot item, or "for later", Necronomicon should not abandon the active interaction. It should acknowledge briefly, record the item, and continue or resume the active work.
-
-If the side note is directly relevant to the active artifact, Necronomicon can attach it to that artifact and say so. If it is related but not immediately needed, place it in the side note queue and expose it at checkpoint or resume time.
-
-Suggested side note states:
-
-| State | Meaning |
-| --- | --- |
-| `captured` | Recorded but not triaged. |
-| `attached` | Applied to the current active interaction or artifact. |
-| `inventorize-candidate` | Durable enough to route to inventory. |
-| `research-candidate` | Worth a bounded research run later. |
-| `unblocker-task` | Small enough to run or queue as a related side task. |
-| `ontology-candidate` | May affect premises, confidence, constitutions, axioms, or bridge claims. |
-| `deferred` | Kept as reminder or parking-lot item. |
-
-At checkpoints, Necronomicon should show side notes as a compact queue:
+At checkpoint time, Necronomicon should report side notes by authority destination:
 
 ```text
 Captured while working:
-- attached to current task: 1
+- attached to active context: 1
 - inventory candidates: 2
-- research ideas: 1
-- unblocker tasks: 1
-- contradictions: 1
+- ontology candidates: 1
+- contradiction gaps: 1
+- research candidates: 1
 - deferred reminders: 1
 ```
 
-The user should be able to say "process the side notes", "inventorize the durable ones", "turn the research ideas into a research plan", "run the unblockers", or "ignore the parking lot for now".
-
-Related unblockers should have a sharper ergonomic contract than open research. They are small tasks whose result can unblock the active discussion, definition, design, or plan. Examples include getting API prices, checking a current limit, finding a version constraint, looking up one vendor policy, or confirming whether a repository file exists.
-
-Necronomicon should handle them with this decision rule:
-
-```text
-if it blocks the active decision and is small -> run now or queue as active side task
-if it is useful later but not blocking -> add to side note queue as research-candidate
-if it is broad or ambiguous -> ask one scope question before running
-if it is durable after completion -> inventorize the result or attach it to the research packet
-```
-
-The user-facing acknowledgment should stay compact: "Captured as a side unblocker; I will check API pricing and attach the result to the current decision packet." If execution cannot happen immediately because another operation owns the turn, Necronomicon should queue it with status `ready` and show it at the next checkpoint.
-
 ## Discovery-To-Definition Flow
 
-For feature work, Necronomicon should not always jump directly to `invoke define`. It should decide whether discovery and research are needed first.
-
-| User Request | Necronomicon Should Ask | Likely Route |
-| --- | --- | --- |
-| "Define a billing export feature." | Is the goal and boundary already clear enough to define? | `invoke define` if yes; discovery if no. |
-| "I have an idea for better onboarding." | What problem, user, and success criteria are known? | discovery, then research if evidence is missing. |
-| "Research options for caching." | What scope, sources, and stop condition should bound the research? | `research`, then decision or `invoke define`. |
-| "Build the next slice." | Is there an approved definition or plan? | `task-session` if yes; `invoke plan` or discovery if no. |
-
-The intended funnel is:
+For feature work, Necronomicon should not always jump directly to `invoke define`. It should first determine whether the knowledge substrate has enough context.
 
 ```text
 rough intent
-  -> discovery / scope clarification
-  -> bounded research when evidence is missing
-  -> decision gate when trade-offs matter
-  -> invoke define
-  -> invoke design or plan
+  -> inventory lookup
+  -> session evidence / missing source gaps
+  -> inventory or ontology candidates
+  -> decision gate when commitment is needed
+  -> invoke define/design/plan
   -> task-session execution
-  -> checkpoint / resume
+  -> checkpoint
 ```
 
-The funnel is flexible. A user can explicitly skip ahead, but Necronomicon should name the risk and preserve the skipped discovery or research as a gap.
+The user can explicitly skip ahead, but Necronomicon should name the skipped evidence or governance as gaps.
 
-## Knowledge Substrate Flow
+## Change History
 
-The discovery and definition funnel sits on top of the knowledge substrate:
-
-```text
-session evidence
-  -> discovery-to-inventory
-  -> inventory + glossary
-  -> ontology candidates
-  -> premise and confidence review
-  -> constitutions or axioms when gates pass
-  -> bridge-validated context
-  -> invoke define / design / plan
-```
-
-This is how Necronomicon turns ordinary work into durable project understanding. Discovery should feed `discovery-to-inventory`; inventory should feed `ontology-harness` when knowledge needs governance; ontology review should feed `invoke` only after gaps and confidence are explicit.
-
-Necronomicon can collect candidate premises, axioms, constitutions, confidence changes, and bridge edges, but it cannot promote them. Promotion belongs to `ontology-vault` and consequential commitment belongs to `decision-gate`.
-
-## Inventory Experience
-
-Inventory should stay mostly invisible until it matters.
-
-In normal conversation, the user should be able to say:
-
-| User Intent | Harness Behavior |
+| Date | Change |
 | --- | --- |
-| "What do we know about auth boundaries?" | Query inventory first, summarize the relevant entries, name source gaps, then route deeper if needed. |
-| "Keep this for later." | Create a checkpoint and route durable findings to `inventory ingest` or `discovery-to-inventory`. |
-| "This contradicts what we decided." | File a contradiction or lint gap, then route to ontology or decision review if the contradiction is consequential. |
-| "Use this research to define the feature." | Hand the research packet, inventory selectors, and gaps to `invoke define`. |
-
-The agent should not expose inventory as a separate paperwork step unless the user explicitly asks for curation. The ergonomic default is:
-
-```text
-answer the user
-show retrieved memory when it affects the answer
-record durable findings in the background when permitted
-surface gaps and contradictions as next actions
-```
-
-## Research And Invoke Ergonomics
-
-Invoke should not become the default research engine.
-
-Use harness research when the user is still exploring evidence, scope, or options. Use `discovery-to-inventory` when the discovery should become reusable project knowledge. Use `inventory query` or `inventory lookup` when the question is primarily retrieval. Use `invoke` only when the research exists to produce or support `define`, `design`, or `plan`.
-
-The invoke research template is still valuable as a shared packet shape: research question, scope boundary, source ledger, evidence table, contradictions, claim status, unresolved gaps, options, and gate result. Necronomicon can create a harness research packet in that shape, then either inventorize it or hand it to invoke when lifecycle authoring starts.
-
-## Route Examples
-
-| Request | Likely Route | Why |
-| --- | --- | --- |
-| "Define this new workflow." | `invoke define` | Lifecycle authoring belongs to `invoke`. |
-| "Figure out what this feature should be." | discovery, then `invoke define` | The feature is not ready for governed definition yet. |
-| "We are in research; include the docs folder too." | active `research` interaction | This is a continuation, not a fresh route. |
-| "Do we already know the auth model?" | `inventory lookup`, then context or ontology if needed | Retrieval should use the compiled knowledge layer first. |
-| "Save these findings for future agents." | `inventory ingest` or `discovery-to-inventory` | Durable knowledge belongs in inventory, not only checkpoint text. |
-| "Research this so we can define it." | harness research, then `invoke define` with research packet | Evidence gathering precedes lifecycle authoring. |
-| "Plan the next implementation layer." | `invoke plan` or `implementation-readiness` | Planning needs governed lifecycle artifacts or staged readiness. |
-| "What concepts are emerging from these sessions?" | `ontology-harness` | Ontology mapping and session distillation belong to ontology governance. |
-| "Summarize enough context for a task." | `context-builder` | Compact task context is a context-builder concern. |
-| "This command keeps routing wrong." | `maintain` | Repeated route misses are harness maintenance evidence. |
-
-## Success Criteria
-
-Necronomicon is working when:
-
-- a user can resume a repository after days away and see useful next actions,
-- common requests route correctly without requiring command memorization,
-- checkpoints preserve decisions and gaps without becoming false authority,
-- research has visible source boundaries and stop conditions,
-- maintenance recommendations cite route history, gaps, or telemetry,
-- capability changes are explicit and reversible,
-- ontology, lifecycle authoring, task execution, and maintenance remain owned by their proper capabilities.
-
-## Open Product Questions
-
-| Question | Why It Matters | Suggested Next Step |
-| --- | --- | --- |
-| Should Necronomicon always create a session, or support stateless route-only use? | Affects friction for small tasks. | Default to resumable sessions, allow route-only when persistence is unnecessary. |
-| How visible should route ledgers be to users? | Too much telemetry can become noise. | Show summaries by default, link detailed ledgers when requested. |
-| What is the minimum checkpoint worth writing? | Prevents memory spam. | Write checkpoints on user request, close, major decisions, research synthesis, or repeated misses. |
-
-## Settled MVP Decisions
-
-| Decision | Reason | Revisit Trigger |
-| --- | --- | --- |
-| Keep `research` as a Necronomicon mode for MVP. | Current usage needs bounded evidence gathering before a separate reusable sigil is justified. | Extract when repeated non-Necronomicon workflows need the same research contract. |
-| Treat invoke research templates as packet shapes, not route ownership. | Prevents `invoke` from becoming the default research engine. | Revisit only if invoke gains a first-class research mode contract. |
-| Make state schemas and classifier fixtures the next plan target. | Reflection surfaced schema and fixture gaps as the main blocker after define/design. | Complete before implementation work starts. |
-
-## Next Iteration
-
-Use this vision to drive the next implementation slice:
-
-1. Define `active-interaction.json`, `side-notes.jsonl`, route, gap, checkpoint, and unblocker task schemas.
-2. Add classifier fixtures for continuation, explicit interrupt, side note, unblocker, fresh route, ambiguous route, and checkpoint closeout.
-3. Add a `resume` summary shape.
-4. Add route confidence language for ordinary user requests.
-5. Define a minimal checkpoint artifact.
-6. Add one end-to-end example: start, discover/research, hand off to `invoke define`, checkpoint, resume.
+| 2026-05-23 | Re-authored day-to-day UX around substrate-first behavior. |

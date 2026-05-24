@@ -2,7 +2,7 @@
 module: necronomicon
 version: current
 status: draft
-updatedAt: 2026-05-18
+updatedAt: 2026-05-23
 docType: architecture-bundle
 ---
 
@@ -10,298 +10,236 @@ docType: architecture-bundle
 
 ## Design Intent
 
-Design Necronomicon as a repository-local stateful harness that classifies turns, preserves continuity, and delegates work through installed Arcanum capabilities. The first implementation should favor explicit files, simple state transitions, and inspectable route/checkpoint records over an opaque autonomous runtime.
+Design Necronomicon as a repository-local knowledge substrate harness. Its first useful behavior is not broad routing; it is a governed loop that retrieves inventory, captures session evidence, classifies authority, records gaps, and routes candidates to the owner that can safely promote, reject, or use them.
 
-The design supports the MVP Session Memory Router and leaves clear extension points for the Workbench State Manager.
+The architecture favors explicit files, deterministic classification, and inspectable handoff packets. Runtime adapters may mediate behavior first, but the design starts from knowledge authority rather than command dispatch.
 
 ## Inputs
 
 - [DEFINE.md](DEFINE.md)
 - [GLOSSARY.md](GLOSSARY.md)
-- [README.md](../README.md)
-- [USAGE-VISION.md](USAGE-VISION.md)
 - [KNOWLEDGE-SUBSTRATE-FLOW.md](KNOWLEDGE-SUBSTRATE-FLOW.md)
+- [USAGE-VISION.md](USAGE-VISION.md)
 - [RESEARCH-DISCOVERY.md](RESEARCH-DISCOVERY.md)
+- [README.md](../README.md)
 
 ## Source Contracts
 
 | Source | Contract |
 | --- | --- |
-| `spells/necronomicon/README.md` | Canonical behavior, modes, routing rules, state paths, guardrails, output contract. |
-| `spells/necronomicon/development/DEFINE.md` | Approved MVP and continuation scope. |
-| `spells/necronomicon/development/GLOSSARY.md` | Define-stage terminology baseline. |
-| `spells/necronomicon/development/USAGE-VISION.md` | User-facing flows and side-note ergonomics. |
-| `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md` | Inventory, ontology, research, side-note, and unblocker substrate rules. |
+| `DEFINE.md` | Corrected MVP and ownership boundary. |
+| `GLOSSARY.md` | Authority and substrate vocabulary. |
+| `KNOWLEDGE-SUBSTRATE-FLOW.md` | Authority ladder and inventory/ontology flow. |
+| `spells/necronomicon/README.md` | Canonical spell behavior and mode surface. |
+| `tools/bootstrap_arcanum.sh` | Current generated state and adapter command surface. |
 
-## Required View Set
-
-### 1. Context View
+## View 1: Context
 
 ```mermaid
 graph TD
-    User[Repository User] --> Neo[Necronomicon Harness]
-    Neo --> Runtime[Runtime Command Surface]
-    Neo --> Inventory[inventory]
-    Neo --> Discovery[discovery-to-inventory]
+    User[Repository User] --> Neo[Necronomicon]
+    Neo --> Inv[inventory]
+    Neo --> DTI[discovery-to-inventory]
+    Neo --> FG[feature-glossary]
+    Neo --> OH[ontology-harness]
+    Neo --> OV[ontology-vault]
+    Neo --> DG[decision-gate]
     Neo --> Invoke[invoke]
-    Neo --> Ontology[ontology-harness / ontology-vault]
     Neo --> Task[task-session]
-    Neo --> Observability[observability ledgers]
-    Neo --> State[.arcanum/necronomicon state]
+    Neo --> State[.arcanum/necronomicon]
 ```
 
-Necronomicon sits between the user and selected local capabilities. It does not replace the capabilities; it records state, chooses routes, and hands context to the owner.
+Necronomicon sits around local Arcanum capabilities as a knowledge and continuity boundary. It requires an inventory substrate, then asks: what is already known, what is missing, what is candidate-only, and who owns the next move?
 
-### 2. High-Level Structure View
+## View 2: High-Level Structure
 
 ```mermaid
 graph TD
-    A[Command Adapter] --> B[Session Loader]
-    B --> C[Turn Classifier]
-    C --> D[Route Orchestrator]
-    C --> E[Side Note Manager]
-    C --> F[Checkpoint Manager]
-    D --> G[Capability Handoff]
-    E --> H[Workbench Queues]
-    F --> I[Memory And Gap Writer]
-    G --> J[Observed Invocation Closeout]
+    A[Command Adapter] --> B[Harness Context Loader]
+    B --> C[Request Classifier]
+    C --> D[Inventory Retrieval]
+    C --> E[Session Evidence Capture]
+    D --> F[Authority Classifier]
+    E --> F
+    F --> G[Gap Ledger Writer]
+    F --> H[Handoff Builder]
+    H --> I[Owning Capability]
 ```
 
 | Component | Responsibility |
 | --- | --- |
-| Command Adapter | Entry point from `necronomicon`, `arcanum-necronomicon`, or runtime-local aliases. |
-| Session Loader | Reads setup decisions, capability manifest, memory, active interaction, routes, side notes, gaps, and checkpoints. |
-| Turn Classifier | Classifies incoming turns using the ordered interaction policy. |
-| Route Orchestrator | Selects installed capability, confidence, fallback policy, and handoff context. |
-| Side Note Manager | Captures, attaches, queues, or triages side-channel user input. |
-| Checkpoint Manager | Distills durable memory, candidates, contradictions, gaps, and next routes. |
-| Workbench Queues | Holds side notes, unblockers, research seeds, inventory candidates, ontology candidates, and deferred reminders. |
-| Capability Handoff | Prepares context for `invoke`, `inventory`, `ontology-harness`, `task-session`, or maintenance flows. |
-| Observed Invocation Closeout | Preserves telemetry and validation result for the harness and routed command. |
+| Command Adapter | Entry point from local runtime commands. |
+| Harness Context Loader | Reads manifest, inventory root, sessions, gaps, and prior handoffs. |
+| Request Classifier | Distinguishes knowledge question, working note, lifecycle request, execution request, explicit command, or side note. |
+| Inventory Retrieval | Queries durable inventory before broad search for knowledge questions. |
+| Session Evidence Capture | Records useful interaction material with low authority. |
+| Authority Classifier | Labels facts, candidates, contradictions, gaps, and governance claims. |
+| Gap Ledger Writer | Writes machine-readable unresolved gaps and contradictions. |
+| Handoff Builder | Creates context packets for inventory, ontology, invoke, decision, or execution owners. |
 
-### 3. Low-Level Components View
+## View 3: Low-Level Components
 
 ```mermaid
 graph TD
-    SL[Session Loader] --> AIR[active-interaction.json]
-    SL --> SN[side-notes.jsonl]
-    SL --> RT[routes.jsonl]
-    SL --> MEM[memory.md]
-    SL --> GAP[gaps.json]
-    TC[Turn Classifier] --> AIR
-    TC --> RD[Route Decision Builder]
-    TC --> SM[Side Note Manager]
-    SM --> SN
-    SM --> UQ[unblocker queue]
-    RD --> RT
-    CP[Checkpoint Manager] --> MEM
-    CP --> GAP
-    CP --> CHK[checkpoints]
+    HCL[Harness Context Loader] --> CAP[capabilities.json]
+    HCL --> GAP[gaps.json]
+    HCL --> SESS[sessions]
+    IR[Inventory Retrieval] --> INVROOT[inventory root]
+    AC[Authority Classifier] --> FACT[SourceBackedFact]
+    AC --> IC[InventoryCandidate]
+    AC --> OC[OntologyCandidate]
+    AC --> PC[PremiseCandidate]
+    AC --> CT[Contradiction]
+    HB[Handoff Builder] --> HP[handoffs/*.md or json]
 ```
 
-#### State Files
+### State Files
 
 | File | Format | Writer | Reader |
 | --- | --- | --- | --- |
-| `.arcanum/necronomicon/capabilities.json` | JSON | setup/update-capabilities | router |
-| `.arcanum/necronomicon/setup-decisions.md` | Markdown | setup/profile update | resume/setup/maintain |
-| `.arcanum/necronomicon/gaps.json` | JSON | checkpoint/research/maintain | route/resume/maintain |
-| `.arcanum/necronomicon/sessions/<id>/active-interaction.json` | JSON | turn classifier/active owner | turn classifier/resume |
-| `.arcanum/necronomicon/sessions/<id>/side-notes.jsonl` | JSONL | side note manager | checkpoint/workbench |
-| `.arcanum/necronomicon/sessions/<id>/routes.jsonl` | JSONL | route orchestrator | resume/observability |
-| `.arcanum/necronomicon/sessions/<id>/memory.md` | Markdown | checkpoint/close | resume/context |
-| `.arcanum/necronomicon/sessions/<id>/checkpoints/` | Markdown | checkpoint/close | resume/maintain |
+| `.arcanum/necronomicon/capabilities.json` | JSON | setup/update-capabilities | loader, classifier |
+| `.arcanum/necronomicon/gaps.json` | JSON | substrate loop, checkpoint, research, maintain | loader, maintain, resume |
+| `.arcanum/necronomicon/sessions/<id>/evidence.md` | Markdown | evidence capture | resume, checkpoint, handoff |
+| `.arcanum/necronomicon/sessions/<id>/authority-classification.jsonl` | JSONL | authority classifier | checkpoint, maintain |
+| `.arcanum/necronomicon/sessions/<id>/handoffs/` | Markdown/JSON | handoff builder | owning capabilities |
+| `.arcanum/necronomicon/sessions/<id>/routes.jsonl` | JSONL | route recorder | resume, maintain |
 
-### 4. Workflow Process View
+## View 4: Workflow Process
 
 ```mermaid
 graph TD
-    S1[Receive user turn] --> S2[Load session state]
-    S2 --> S3{Explicit interrupt or command?}
-    S3 -->|yes| S4[Record active status and route fresh]
-    S3 -->|no| S5{Side note marker?}
-    S5 -->|yes| S6[Capture side note and keep active flow]
-    S5 -->|no| S7{Awaiting active response?}
-    S7 -->|yes| S8[Apply to active owner]
-    S7 -->|no| S9{Handoff ready?}
-    S9 -->|yes| S10[Route to handoff target]
-    S9 -->|no| S11[Classify fresh route]
-    S4 --> S12[Execute or hand off]
-    S6 --> S13[Attach, queue, or triage]
-    S8 --> S12
-    S10 --> S12
-    S11 --> S12
-    S12 --> S14[Record route/result/gaps]
-    S13 --> S15[Resume or checkpoint]
-    S14 --> S15
+    S1[Receive turn] --> S2[Load harness context]
+    S2 --> S3{Knowledge question?}
+    S3 -->|yes| S4{Inventory available?}
+    S4 -->|yes| S4a[Query inventory]
+    S4 -->|no| S4b[Block active substrate loop and route to inventory setup]
+    S3 -->|no| S5{Working note or side note?}
+    S5 -->|yes| S6[Capture session evidence]
+    S5 -->|no| S7[Classify lifecycle/execution/command route]
+    S4a --> S8[Classify authority]
+    S4b --> S9[Write gaps and contradictions]
+    S6 --> S8
+    S7 --> S8
+    S8 --> S9[Write gaps and contradictions]
+    S9 --> S10[Build handoff packet]
+    S10 --> S11[Recommend owning route]
 ```
 
-### 5. Decision Flow View
+## View 5: Decision Flow
 
 ```mermaid
 graph TD
-    D1[Incoming Turn] --> D2{Command or interrupt?}
-    D2 -->|yes| R1[Fresh route with active status recorded]
-    D2 -->|no| D3{Side note?}
-    D3 -->|yes| D4{Blocking small task?}
-    D4 -->|yes| R2[Run or queue unblocker]
-    D4 -->|no| R3[Capture side note queue]
-    D3 -->|no| D5{Active interaction awaiting user?}
-    D5 -->|yes| R4[Continue active owner]
-    D5 -->|no| D6{Enough confidence for route?}
-    D6 -->|yes| R5[Route selected capability]
-    D6 -->|no| R6[Ask one focused question]
+    D1[Claim or question] --> D2{Inventory-backed?}
+    D2 -->|yes| R1[Return source-backed context]
+    D2 -->|no| D3{Repository source-backed?}
+    D3 -->|yes| R2[Mark source-backed fact and inventory candidate]
+    D3 -->|no| D4{Governance claim?}
+    D4 -->|yes| R3[Ontology or premise candidate]
+    D4 -->|no| D5{Consequential choice?}
+    D5 -->|yes| R4[Decision gap]
+    D5 -->|no| R5[Session evidence or open gap]
 ```
 
 Decision rules:
 
-- Explicit user commands win over implicit continuation.
-- Side-note markers avoid derailment unless the user asks to switch.
-- Related unblockers can run or queue when small and blocking.
-- Inventory lookup precedes broad search for "what do we know" questions.
-- Lifecycle authoring routes to `invoke`.
-- Ontology promotion candidates route downstream and remain candidate-only.
+- Inventory availability is required before Necronomicon answers durable knowledge questions.
+- Inventory lookup precedes any broad repository search for durable knowledge questions.
+- Session evidence is never treated as truth without source backing.
+- Ontology-sensitive claims route downstream and remain candidates.
+- Lifecycle authoring routes to `invoke` only after context and gaps are explicit.
+- Execution routes to `task-session` only after the work is bounded.
 
-### 6. Dependency Interface View
-
-```mermaid
-graph TD
-    Neo[Necronomicon] --> Cmd[Runtime command adapters]
-    Neo --> Inv[inventory lookup/ingest/query/lint]
-    Neo --> DTI[discovery-to-inventory]
-    Neo --> Invk[invoke define/design/plan]
-    Neo --> OH[ontology-harness]
-    Neo --> DG[decision-gate]
-    Neo --> TS[task-session]
-    Neo --> Obs[observability scripts]
-```
+## View 6: Dependency Interface
 
 | Dependency | Interface | Contract |
 | --- | --- | --- |
-| Runtime command adapters | command path and adapter contract | Must exist before selected route is marked successful. |
-| `inventory` | lookup, query, ingest, lint | Retrieval and durable compiled knowledge. |
-| `discovery-to-inventory` | discovery baseline to inventory | Converts vague discovery into reusable knowledge. |
-| `invoke` | define, design, plan | Lifecycle authoring; consumes research/inventory/gap context. |
-| `ontology-harness` / `ontology-vault` | map, premise-review, confidence, convention, validate | Candidate governance and bridge validation. |
-| `decision-gate` | approval/choice records | Consequential commitments and blocker choices. |
-| `task-session` | bounded execution handoff | Executes scoped tasks after enough definition exists. |
-| Observability scripts | invocation envelope | Records capability usage and maintenance evidence. |
+| `inventory` | lookup, ingest candidate, lint | Retrieves durable knowledge and owns promotion. |
+| `discovery-to-inventory` | discovery baseline, inventory candidate | Converts discovery into source-backed inventory material. |
+| `feature-glossary` | glossary baseline | Stabilizes vocabulary before governance or authoring. |
+| `ontology-harness` | ontology map, bridge validation | Handles governance and bridge context. |
+| `ontology-vault` | premise review, confidence, convention, axiom | Owns promotion/demotion of governed claims. |
+| `decision-gate` | decision record | Resolves consequential choices. |
+| `invoke` | define/design/plan | Authors lifecycle artifacts from grounded context. |
+| `task-session` | bounded task execution | Executes planned work. |
 
 ## State Sketches
 
-### Active Interaction
+### Authority Classification Entry
 
 ```json
 {
-  "interaction_id": "2026-05-18-necronomicon-define",
-  "owning_capability": "invoke",
-  "mode": "define",
-  "status": "handoff-ready",
-  "pending_prompt": null,
-  "expected_response_shape": null,
-  "continuation_policy": "continue-by-default",
-  "handoff_target": "invoke design",
-  "side_note_queue": {
-    "path": "side-notes.jsonl",
-    "open_count": 0
-  }
+  "id": "ac-20260523-001",
+  "captured_at": "2026-05-23T00:00:00Z",
+  "input_summary": "Necronomicon should start with ontology and inventory handling.",
+  "class": "ontology_candidate",
+  "authority": "candidate",
+  "source_refs": ["user correction", "KNOWLEDGE-SUBSTRATE-FLOW.md"],
+  "owner": "ontology-harness",
+  "next_action": "review as product boundary decision"
 }
 ```
 
-### Side Note
+### Gap Entry
 
 ```json
 {
-  "id": "sn-20260518-001",
-  "captured_at": "2026-05-18T00:00:00Z",
-  "raw_summary": "Get current API prices while design continues.",
-  "class": "related-unblocker",
-  "state": "unblocker-task",
-  "related_interaction_id": "active",
-  "blocking": true,
+  "id": "gap-20260523-001",
+  "kind": "source-gap",
+  "summary": "Inventory root detection behavior is not specified.",
+  "severity": "medium",
   "owner": "necronomicon",
-  "next_route": "research",
-  "durability": "attach-to-research-packet"
+  "status": "open",
+  "next_route": "implementation plan"
 }
 ```
 
-### Route Decision
+### Handoff Packet
 
 ```json
 {
-  "request_summary": "Define and design Necronomicon from existing docs.",
-  "candidates": ["invoke define", "invoke design"],
-  "selected_route": "invoke define",
-  "confidence": "high",
-  "reason": "User explicitly invoked lifecycle authoring.",
-  "result": "pass",
-  "follow_up": "invoke design"
+  "target": "ontology-vault premise-review",
+  "reason": "Claim affects governance authority.",
+  "inputs": ["session evidence", "source refs", "candidate classification"],
+  "non_authority_note": "Necronomicon is not promoting this claim."
 }
 ```
 
 ## Assumptions
 
-- The first implementation remains adapter-mediated and file-backed.
-- A single primary active interaction is enough for MVP.
-- Side notes and unblockers are queued in session state rather than requiring a full scheduler.
-- Inventory and ontology promotion are downstream owner responsibilities.
-- Web-backed unblockers are allowed only when the active runtime has web access and the task is bounded.
+- Inventory is required for active Necronomicon substrate behavior. A repository without inventory enters setup/install guidance, not degraded Necronomicon operation.
+- Adapter-mediated runtime remains acceptable for the first implementation.
+- Ontology handling can start with candidate routing before full promotion workflows are automated.
+- A compact file-backed state model is enough for MVP validation.
 
 ## Open Risks
 
 | Risk ID | Risk | Impact | Mitigation |
 | --- | --- | --- | --- |
-| R-ARCH-1 | Turn classification becomes too magical and misroutes user replies. | high | Keep ordered classifier, route confidence, and one-question ambiguity rule. |
-| R-ARCH-2 | Side-note queue becomes a dumping ground. | medium | Triage at checkpoint and expose compact queue counts. |
-| R-ARCH-3 | Unblocker tasks expand into unbounded research. | medium | Require small/blocking/safe criteria and one scope question when broad. |
-| R-ARCH-4 | Session memory is mistaken for canonical truth. | high | Preserve candidate-only promotion and source-backed handoff rules. |
-| R-ARCH-5 | Too many downstream capability assumptions make MVP brittle. | medium | MVP can queue handoffs when capability is missing and record capability gaps. |
+| R-DES-001 | Necronomicon becomes a thin inventory wrapper. | medium | Preserve session evidence, authority classification, gaps, and handoffs as its distinct layer. |
+| R-DES-002 | Candidate classification feels too abstract for users. | medium | Surface only route-relevant distinctions in normal UX. |
+| R-DES-003 | Required inventory raises setup friction. | medium | Make setup guidance direct: install or select inventory before active substrate use. |
+| R-DES-004 | Ontology routing creates too much ceremony. | medium | Route only governance-relevant claims, premises, contradictions, bridge evidence, and conventions. |
+| R-DES-005 | False authority returns through summaries. | high | Require source refs or candidate labels in every durable answer. |
 
 ## Plan-Carried Decisions
 
-| Decision | Options | Current Status |
-| --- | --- | --- |
-| Schema strictness for state files | permissive draft, JSON schema, typed validator | JSON schema drafts selected for plan; typed validator deferred until implementation needs it. |
-| Side-note processing cadence | every checkpoint, user-triggered, automatic thresholds | checkpoint plus user-triggered selected; automatic thresholds deferred. |
-| Unblocker execution model | run inline, queue only, agent side task | run or queue when narrow and blocking; full parallel side-task orchestration deferred. |
-| Research extraction | keep as Necronomicon mode, extract reusable sigil | keep as harness mode for MVP; extraction deferred until repeated non-Necronomicon reuse. |
-
-## Planning Notes
-
-- Direct implementation constraints: keep file writes explicit; preserve `.arcanum/necronomicon/` as state, not canonical definitions.
-- Boundary rules: do not promote inventory, ontology, constitutions, axioms, or lifecycle artifacts silently.
-- Testability implications: classification fixtures should cover active response, explicit interrupt, side note, unblocker, fresh route, ambiguous route, and checkpoint closeout.
-- Runtime implications: command adapters can implement first pass by reading/writing state files and delegating selected routes.
+| Decision | Status |
+| --- | --- |
+| Start with substrate loop instead of route/bootstrap proof. | selected |
+| Keep bootstrap as configuration layer. | selected |
+| Keep session memory low-authority. | selected |
+| Require inventory for active substrate operation; missing inventory routes to setup/install guidance. | selected |
+| Route ontology promotion downstream. | selected |
 
 ## Handoff Targets
 
-- `invoke plan` for implementation schema and task breakdown.
-- `task-session` for a bounded MVP implementation slice after plan approval.
-- `inventory` for durable glossary/spec/design entries if this development pack becomes repository knowledge.
-
-## Design Decisions
-
-| Decision | Status | Reason |
-| --- | --- | --- |
-| Use explicit file-backed state. | selected | Inspectable, easy to recover, matches current Arcanum runtime style. |
-| Keep turn classifier deterministic first. | selected | Reduces surprise and makes misroutes debuggable. |
-| Treat side notes as first-class but non-derailing. | selected | Supports natural mid-work user behavior. |
-| Allow bounded unblockers. | selected | Captures the user need for small tasks like current API pricing. |
-| Defer full scheduler/parallel orchestration. | selected | Not needed for MVP; queue state is enough. |
-| Carry schema and fixture detail into plan. | selected | Define/design should settle product and architecture; plan should specify concrete state contracts and validation fixtures. |
-
-## Implementation Layering Seed
-
-| Layer | Goal | Evidence Required To Promote |
-| --- | --- | --- |
-| L0 State Contracts | Define JSON/JSONL/Markdown shapes for session, active interaction, side notes, routes, gaps, checkpoints. | Schema review and fixture examples. |
-| L1 Classifier | Implement ordered turn classification against state and user input. | Classification fixtures pass. |
-| L2 Route And Handoff | Delegate to installed capabilities and write route records. | Adapter resolution and route record validation. |
-| L3 Workbench Queues | Process side notes, unblockers, research seeds, inventory candidates, ontology candidates. | Queue lifecycle fixtures and checkpoint summaries. |
-| L4 Maintenance | Propose route/capability improvements from telemetry and gaps. | Observability signals and maintenance report checks. |
+- `invoke plan` for executable implementation planning.
+- `task-session` for one bounded implementation slice after work-pack approval.
+- `inventory` for durable entries about this corrected Necronomicon model.
+- `ontology-harness` for governance review if the center-of-gravity decision becomes project ontology.
 
 ## Change History
 
 | Date | Change |
 | --- | --- |
-| 2026-05-18 | Created invoke design artifact from Necronomicon define output. |
+| 2026-05-23 | Re-authored design around the inventory and ontology substrate loop. |

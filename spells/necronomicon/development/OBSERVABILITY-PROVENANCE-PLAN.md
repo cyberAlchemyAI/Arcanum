@@ -206,7 +206,7 @@ This should be injected by runtime installation and bootstrap after the shared o
 - checkpoint format,
 - route decision format,
 - validation checks,
-- smallest implementation slices for Session Memory Router MVP.
+- smallest implementation slices for the Inventory And Ontology Substrate Loop MVP.
 
 **Required Provenance In Plan Transport:**
 
