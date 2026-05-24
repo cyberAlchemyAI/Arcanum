@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+"/home/vrondelli/projects/domainspec-core/arcanum/arcana/experiment-harness/scripts/select-prompt.sh" "/home/vrondelli/projects/domainspec-core/arcanum/arcana/refine" "$@"

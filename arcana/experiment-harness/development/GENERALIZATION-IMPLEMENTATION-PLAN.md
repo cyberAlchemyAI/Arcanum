@@ -151,7 +151,7 @@ Live checks:
 | Gate | Status | Rule |
 | --- | --- | --- |
 | EH-B-001 | resolved | Infer `generic-spell` or `generic-sigil` from `--type`; allow explicit `--profile` override. |
-| EH-B-002 | resolved | Use `arcana/concept-layer-optimizer` as the first real sigil target after profile initialization exists; use a `/tmp` copy first if the target has unrelated dirty changes. |
+| EH-B-002 | resolved | Use `arcana/distill` as the first real sigil target after profile initialization exists; use a `/tmp` copy first if the target has unrelated dirty changes. |
 | EH-B-003 | resolved | Live Codex budget was approved for invoke promotion loops; closure evidence is recorded in `LIVE-PROMOTION-CLOSEOUT.md`. |
 
 ## Open Gaps

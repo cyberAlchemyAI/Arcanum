@@ -19,7 +19,7 @@ It creates an artifact-local `development/` harness, selects realistic prompts, 
 - the user only wants a one-off manual review,
 - live model execution would be unsafe or too expensive without explicit approval.
 
-## Commands
+## Scripts
 
 ```bash
 arcanum/arcana/experiment-harness/scripts/init-harness.sh <artifact-path> --type spell|sigil [--profile <profile-id>]
@@ -31,15 +31,15 @@ arcanum/arcana/experiment-harness/scripts/report-harness.sh <artifact-path>
 arcanum/arcana/experiment-harness/scripts/observe-harness.sh <artifact-path> [report-path]
 ```
 
-Codex command adapters expose the same workflow through:
+Codex discovers this capability as a repo skill when the folder is exposed at:
 
-- `arcanum-sigil-experiment-harness`
-- `experiment-next`
-- `experiment-run`
-- `experiment-validate`
-- `experiment-observe`
+```text
+.agents/skills/experiment-harness -> ../../arcana/experiment-harness
+```
 
-`experiment-loop` is the live Codex stability loop. It uses regime definitions, repeated attempts, observability, robot-talks improvement reasoning, and rollback on regression. See [development/ARCHITECTURE.md](development/ARCHITECTURE.md).
+Invoke it explicitly as `$experiment-harness`, or let Codex select it implicitly when the request matches the skill description. Older `.codex/commands/experiment-*` files are compatibility adapters, not the canonical skill surface.
+
+`loop-harness.sh` is the live Codex stability loop. It uses regime definitions, repeated attempts, observability, robot-talks improvement reasoning, and rollback on regression. See [development/ARCHITECTURE.md](development/ARCHITECTURE.md).
 
 ## Experiment Profiles
 

@@ -8,7 +8,7 @@ Use `sigil-development` as the first lifecycle authority to prove that the gener
 
 ## Recommended Target
 
-Primary candidate: `arcana/concept-layer-optimizer`, first copied into `/tmp` or another explicitly approved sandbox target.
+Primary candidate: `arcana/distill`, first copied into `/tmp` or another explicitly approved sandbox target.
 
 Reason:
 
@@ -20,7 +20,7 @@ Reason:
 
 Fallback candidate: a small toy sigil under `/tmp` or a local sandbox artifact when the real repository should not be touched.
 
-The real `arcana/concept-layer-optimizer` target should not be modified during the first proof run unless the worktree scope is clean or the lifecycle owner explicitly approves the write scope.
+The real `arcana/distill` target should not be modified during the first proof run unless the worktree scope is clean or the lifecycle owner explicitly approves the write scope.
 
 ## Test Question
 
@@ -101,7 +101,7 @@ Return `flag` if:
 - Target sigil gaps: <list>
 - Harness gaps: <list>
 - Recommendation: promote generalized profile | hold | revise | request live budget
-- Next route: experiment-harness | sigil-development | concept-layer-optimizer | decision-gate
+- Next route: experiment-harness | sigil-development | distill | decision-gate
 ```
 
 ## Next Action

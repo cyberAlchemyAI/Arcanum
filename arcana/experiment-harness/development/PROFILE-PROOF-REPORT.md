@@ -12,7 +12,7 @@ It does not spend live Codex budget. Live loops remain promotion evidence.
 
 | Target | Profile | Source | Result |
 | --- | --- | --- | --- |
-| `/tmp/tmp.RXwlBEDjwm/concept-layer-optimizer` | `sigil-development` | sandbox copy of `arcana/concept-layer-optimizer` | pass |
+| `/tmp/tmp.RXwlBEDjwm/distill` | `sigil-development` | sandbox copy of `arcana/distill` | pass |
 | `/tmp/tmp.RXwlBEDjwm/toy-spell` | `spellcraft` | generated toy spell contract under `/tmp` | pass |
 
 ## Evidence
@@ -28,10 +28,10 @@ It does not spend live Codex budget. Live loops remain promotion evidence.
 ## Commands Run
 
 ```bash
-arcana/experiment-harness/scripts/init-harness.sh /tmp/tmp.RXwlBEDjwm/concept-layer-optimizer --type sigil --profile sigil-development
-arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/concept-layer-optimizer
-EXPERIMENT_OBSERVE=0 arcana/experiment-harness/scripts/report-harness.sh /tmp/tmp.RXwlBEDjwm/concept-layer-optimizer
-arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/concept-layer-optimizer
+arcana/experiment-harness/scripts/init-harness.sh /tmp/tmp.RXwlBEDjwm/distill --type sigil --profile sigil-development
+arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/distill
+EXPERIMENT_OBSERVE=0 arcana/experiment-harness/scripts/report-harness.sh /tmp/tmp.RXwlBEDjwm/distill
+arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/distill
 
 arcana/experiment-harness/scripts/init-harness.sh /tmp/tmp.RXwlBEDjwm/toy-spell --type spell --profile spellcraft
 arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/toy-spell
@@ -39,7 +39,7 @@ EXPERIMENT_OBSERVE=0 arcana/experiment-harness/scripts/report-harness.sh /tmp/tm
 arcana/experiment-harness/scripts/validate-harness.sh /tmp/tmp.RXwlBEDjwm/toy-spell
 
 MAX_ATTEMPTS=1 PASS_STREAK=1 AUTO_IMPROVE=0 EXPERIMENT_LOOP_MOCK_DIR=/tmp/tmp.RXwlBEDjwm/mock-loops/concept \
-  arcana/experiment-harness/scripts/loop-harness.sh /tmp/tmp.RXwlBEDjwm/concept-layer-optimizer LIVE-SIGIL-HARNESS-VALIDATION-001
+  arcana/experiment-harness/scripts/loop-harness.sh /tmp/tmp.RXwlBEDjwm/distill LIVE-SIGIL-HARNESS-VALIDATION-001
 
 MAX_ATTEMPTS=1 PASS_STREAK=1 AUTO_IMPROVE=0 EXPERIMENT_LOOP_MOCK_DIR=/tmp/tmp.RXwlBEDjwm/mock-loops/spell \
   arcana/experiment-harness/scripts/loop-harness.sh /tmp/tmp.RXwlBEDjwm/toy-spell LIVE-SPELLCRAFT-VALIDATE-001

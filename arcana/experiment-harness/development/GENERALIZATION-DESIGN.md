@@ -2,7 +2,7 @@
 
 Status: design candidate for Spellcraft and Sigil Development integration.
 
-## Concept Layer Optimizer Result
+## Distill Result
 
 - Target context: generalize `experiment-harness` so it becomes the shared validation loop for both `spellcraft` and `sigil-development`.
 - Objective and output artifact: produce a design and plan for making reusable spells and sigils start with executable experiments, live loops, observability, and promotion evidence. The output artifact is this design plus the implementation plan in `GENERALIZATION-IMPLEMENTATION-PLAN.md`.
@@ -22,7 +22,7 @@ Status: design candidate for Spellcraft and Sigil Development integration.
 | Proposer | Add Spellcraft and Sigil Development starter profiles directly to the harness initializer. | Revised. The initializer should expose profile hooks and starter profiles, but authority-specific prompts remain adapter-owned or generated from lifecycle contracts. |
 | Balancer | A single profile may underfit future capability types. | Deferred with an extension boundary: profile schema includes `artifact_type`, `lifecycle_owner`, and `scenario_pack`, but only `spell` and `sigil` are implemented first. |
 
-## Concept Layer Map
+## Distill Layer Map
 
 ```text
 Reusable capability lifecycle evidence

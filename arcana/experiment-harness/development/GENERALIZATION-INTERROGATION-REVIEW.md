@@ -23,7 +23,7 @@ The plan is coherent enough to implement the next layer. It had three named bloc
 | Blocker | Decision | Rationale |
 | --- | --- | --- |
 | EH-B-001 | resolved: infer `generic-spell` or `generic-sigil` from `--type`, allow explicit `--profile` override. | Keeps current ergonomics and preserves an escape hatch for lifecycle-specific profiles. |
-| EH-B-002 | resolved: use `arcana/concept-layer-optimizer` as the first real sigil target after profile initializer support exists. | It has a fresh lifecycle pack, examples, validation docs, and meaningful complexity. |
+| EH-B-002 | resolved: use `arcana/distill` as the first real sigil target after profile initializer support exists. | It has a fresh lifecycle pack, examples, validation docs, and meaningful complexity. |
 | EH-B-003 | reclassified: live Codex budget is a promotion gate, not an implementation blocker. | Mock loop validation can prove mechanics before spending live runtime budget. |
 
 ## Original Gaps Found
@@ -34,7 +34,7 @@ The plan is coherent enough to implement the next layer. It had three named bloc
 | Profile validation is underspecified. | high | `validate-harness.sh` checks layout, fixture pairs, outputs, reports, and contract output, but not lifecycle owner/profile drift. | Add validation checks for profile id, lifecycle owner, contract path, and regime/prompt references. |
 | Regime validation does not know profiles. | medium | `validate-regime.sh` validates sections and prompt path only. | Keep regime validation generic, but have profile validation inspect generated regime content. |
 | Starter scenario matrix is not concrete enough for implementation. | medium | Current plan names scenarios but does not define generated file names or required modes per profile. | Add generated profile artifacts and scenario IDs to plan. |
-| Test case risks modifying a dirty real target. | medium | Current repository already has active Concept Layer Optimizer changes. | Run first proof in a copied `/tmp` target or require a clean/approved write scope before touching the real sigil. |
+| Test case risks modifying a dirty real target. | medium | Current repository already has active Distill changes. | Run first proof in a copied `/tmp` target or require a clean/approved write scope before touching the real sigil. |
 | Spellcraft proof comes after Sigil Development but lacks a minimal target. | low | Plan says run Spellcraft test case, but no target is named. | Add a toy spell target before real Spellcraft lifecycle proof. |
 | Observability closeout is named but not wired to profile metadata. | medium | Existing reports can emit telemetry, but profile id and lifecycle owner are not required fields. | Add profile id and lifecycle owner to generalized run reports. |
 

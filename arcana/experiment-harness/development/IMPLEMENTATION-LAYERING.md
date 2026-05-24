@@ -173,7 +173,7 @@ Implementation tasks:
 - S4: update runtime command adapters to expose `experiment-loop`.
 - S4: update `spellcraft` and `sigil-development` planning so new artifacts initialize profile-aware loop regimes.
 - S5: run the Sigil Development test case against a sandbox copy before treating the generalized profile path as reusable.
-- S5: use `arcana/concept-layer-optimizer` as the first real sigil target after sandbox proof or explicit write-scope approval.
+- S5: use `arcana/distill` as the first real sigil target after sandbox proof or explicit write-scope approval.
 - S6: run a Spellcraft proof against a toy spell target.
 - S6: document external repo installation.
 

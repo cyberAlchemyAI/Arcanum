@@ -295,6 +295,6 @@ These fields let observability distinguish harness mechanics from lifecycle judg
 
 ## First Proof Boundary
 
-The first proof should use a sandbox copy of `arcana/concept-layer-optimizer` with the `sigil-development` profile.
+The first proof should use a sandbox copy of `arcana/distill` with the `sigil-development` profile.
 
 Only after the sandbox report is reviewable should the real target be touched, and only with explicit write-scope approval or a clean target worktree.

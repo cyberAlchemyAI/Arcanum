@@ -57,6 +57,10 @@ It belongs here because it coordinates long-lived ontology governance across pro
 
 It belongs here because it coordinates uncertainty exploration, human residue decisions, spec implications, and resilience gates across multiple stress dimensions.
 
+[refine](refine/) creates a confirmed refinement seed with research offer, budget preset, and Codex Goal default routing before Task Session execution.
+
+It belongs here because it coordinates target understanding, human confirmation, research choice, runtime gating, and lifecycle routing before a refinement run mutates artifacts.
+
 [robot-talks](robot-talks/) defines a multi-agent parallel investigation pattern for cross-layer tension discovery.
 
 It belongs here because the workflow is recursive and strategic: it requires scope definition, role decomposition, parallel inquiry, synthesis of contradictions, human validation, and session preservation.
