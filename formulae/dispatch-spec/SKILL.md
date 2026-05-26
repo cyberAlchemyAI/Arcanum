@@ -1,0 +1,70 @@
+# Dispatch Spec Skill
+
+## Identity
+
+- Canonical ID: `dispatch-spec`
+- Tier: Formulae
+- Status: draft
+- Scope: repository-local validation package
+
+## Purpose
+
+Validate a dispatch document that describes a sequence, fan-out, tournament, dialectic, validation loop, or synthesis graph over Arcanum sigils and spells.
+
+This skill does not decide which sigils should be used. It checks whether a proposed composition is explicit enough for Spellcraft, Necronomicon, Invoke, Task Session, Experiment Harness, and observability tooling to consume safely.
+
+## Use When
+
+- A user wants to chain sigils by name into a repeatable route.
+- Necronomicon proposes an execution route and needs a schema-valid handoff.
+- Spellcraft is designing a spell and needs a phase/step contract before lifecycle work.
+- Robot-Talks, Distill tournament, or another multi-agent pattern needs sibling steps tied by one `dispatch_id`.
+- A run should record how outputs from one sigil become inputs to another.
+
+## Do Not Use When
+
+- The task needs interpretation but no reusable dispatch artifact.
+- The user asks for immediate execution of a single, obvious sigil.
+- A blocker decision exists about the route itself; use `decision-gate` first.
+- The workflow would copy sigil internals instead of referencing sigils by id.
+
+## Required Input
+
+A JSON document conforming to [dispatch.schema.json](dispatch.schema.json).
+
+## Validation Rules
+
+1. The document must include `dispatch_id`, `intent`, `mode`, `steps`, and `gates`.
+2. Each step must reference a known or candidate `capability_ref`.
+3. Each step must declare a `pattern`: `route`, `sequential`, `fanout`, `dialectic`, `tournament`, `distill`, `xray`, `decision`, `validation`, `toy_game`, `synthesis`, or `handoff`.
+4. Non-first steps must name at least one input source: prior `frame`, `handle`, `decision`, `ledger`, `human_answer`, or `external_context`.
+5. Any step with `parallel: true` must declare `join_policy`.
+6. Tournament and dialectic steps must declare proposal roles and convergence criteria.
+7. Validation and toy-game steps must declare an expected evidence artifact.
+8. The dispatch must name stop conditions and at least one observability event.
+9. The dispatch must not claim promotion authority for inventory, ontology, glossary, sigil, or spell artifacts.
+
+## Output Contract
+
+```markdown
+## Dispatch Spec Result
+
+- Dispatch ID: <dispatch_id>
+- Status: pass | flag | block
+- Mode: <mode>
+- Step count: <n>
+- Patterns: <patterns found>
+- Gates: <pass | flag | block with reasons>
+- Handoffs: <frame/handle/decision/ledger summary>
+- Observability: <dispatch_id coverage and trace events>
+- Promotion guardrail: pass | flag | block
+- Required repairs: <none or list>
+- Next route: necronomicon | spellcraft | invoke | task-session | experiment-harness | decision-gate | deferred
+```
+
+## Failure Policy
+
+- Return `block` when required fields are missing, step dependencies are impossible, or promotion authority is falsely claimed.
+- Return `flag` when the document is usable but has weak evidence names, candidate capabilities, or incomplete observability metadata.
+- Return `pass` only when the route is explicit, gated, observable, and handoff-ready.
+
