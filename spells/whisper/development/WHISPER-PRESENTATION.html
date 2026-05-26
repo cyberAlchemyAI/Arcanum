@@ -559,6 +559,77 @@
       color: #f0bf6b;
     }
 
+    .schema-detail {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .field-clusters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field-cluster {
+      background:
+        linear-gradient(135deg, rgba(243, 234, 215, 0.04), transparent 46%),
+        var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .field-cluster h3 {
+      font-size: 0.95rem;
+      color: var(--ink);
+    }
+
+    .field-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .field-list li {
+      border: 1px solid var(--line-strong);
+      color: #d8cfbb;
+      background: rgba(9, 11, 9, 0.38);
+      padding: 4px 7px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.7rem;
+      line-height: 1.3;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .example-substrate {
+      background:
+        linear-gradient(90deg, rgba(53, 200, 187, 0.08), transparent 20%),
+        #0c0f0b;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.48;
+      color: #f3ead7;
+      white-space: pre-wrap;
+      overflow: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .example-substrate span {
+      color: var(--gold);
+    }
+
     .transport-map {
       display: grid;
       gap: 16px;
@@ -753,6 +824,7 @@
 
       .hero-layout,
       .schema,
+      .schema-detail,
       .grid-2,
       .grid-3 {
         grid-template-columns: 1fr;
@@ -940,6 +1012,32 @@
         line-height: 1.48;
       }
 
+      .field-clusters {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .field-cluster {
+        padding: 12px;
+        gap: 8px;
+      }
+
+      .field-cluster h3 {
+        font-size: 0.9rem;
+      }
+
+      .field-list li {
+        font-size: 0.66rem;
+        padding: 3px 6px;
+      }
+
+      .example-substrate {
+        padding: 12px;
+        font-size: 0.66rem;
+        line-height: 1.42;
+        max-height: none;
+      }
+
       .transport-row {
         gap: 8px;
       }
@@ -1002,7 +1100,7 @@
       </div>
       <div class="progress" aria-label="Slide progress">
         <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="counter" id="counter">1 / 9</div>
+        <div class="counter" id="counter">1 / 10</div>
       </div>
     </header>
 
@@ -1080,6 +1178,104 @@
                 <p>The substrate can drive a Substack post now, then fundraising copy, articles, slide narratives, and longer works later.</p>
               </article>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Schema Details">
+        <div class="slide-inner">
+          <p class="kicker">Substrate schema</p>
+          <h2>The schema keeps only fields that change construction or validation.</h2>
+          <div class="schema-detail">
+            <div class="field-clusters" aria-label="Text intent substrate field groups">
+              <article class="field-cluster">
+                <h3>metadata</h3>
+                <ul class="field-list">
+                  <li>substrate_version</li>
+                  <li>transport_type</li>
+                  <li>next_transport_pressure</li>
+                  <li>artifact_status</li>
+                </ul>
+              </article>
+              <article class="field-cluster">
+                <h3>author_objective</h3>
+                <ul class="field-list">
+                  <li>primary_outcome</li>
+                  <li>desired_reader_change</li>
+                  <li>success_signal</li>
+                  <li>author_stance</li>
+                </ul>
+              </article>
+              <article class="field-cluster">
+                <h3>resonance_core</h3>
+                <ul class="field-list">
+                  <li>tone</li>
+                  <li>voice</li>
+                  <li>style_register</li>
+                  <li>emotional_residue</li>
+                  <li>value_signal</li>
+                  <li>forbidden_feels</li>
+                </ul>
+              </article>
+              <article class="field-cluster">
+                <h3>relevance_core</h3>
+                <ul class="field-list">
+                  <li>target_public</li>
+                  <li>reader_state</li>
+                  <li>domain</li>
+                  <li>authority_mode</li>
+                  <li>assumed_knowledge</li>
+                  <li>likely_objections</li>
+                  <li>reader_reward</li>
+                </ul>
+              </article>
+              <article class="field-cluster">
+                <h3>trajectory_core</h3>
+                <ul class="field-list">
+                  <li>narrative_anchor</li>
+                  <li>introduction_strategy</li>
+                  <li>body_parts</li>
+                  <li>ending_strategy</li>
+                  <li>max_characters</li>
+                  <li>must_include</li>
+                  <li>must_avoid</li>
+                </ul>
+              </article>
+              <article class="field-cluster">
+                <h3>technique_stack + validation</h3>
+                <ul class="field-list">
+                  <li>candidate_id</li>
+                  <li>attached_core</li>
+                  <li>technique</li>
+                  <li>tradeoff</li>
+                  <li>checks</li>
+                  <li>review_mode</li>
+                </ul>
+              </article>
+            </div>
+            <div class="example-substrate" aria-label="Substack substrate example"><span>text_intent_substrate:</span>
+  metadata:
+    transport_type: substack_research_post
+    next_transport_pressure: fundraising_copy
+
+  author_objective:
+    primary_outcome: clarify
+    desired_reader_change: "understands why the research matters"
+
+  trajectory_core:
+    body_parts:
+      - hook
+      - research_context
+      - core_insight
+      - implications
+      - invitation_or_next_thread
+
+  validation:
+    checks:
+      - objective_fit
+      - audience_fit
+      - resonance_fit
+      - research_group_credibility</div>
           </div>
         </div>
       </section>
