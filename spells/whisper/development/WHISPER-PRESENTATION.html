@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Whisper: Meaning Composition Substrate</title>
+  <style>
+    :root {
+      --paper: #090b09;
+      --surface: #11150f;
+      --surface-2: #171c14;
+      --ink: #f3ead7;
+      --muted: #aaa28e;
+      --line: #383b31;
+      --line-strong: #605c47;
+      --teal: #35c8bb;
+      --red: #e35d3f;
+      --gold: #d6a342;
+      --green: #8caf65;
+      --violet: #a68bdc;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        repeating-linear-gradient(90deg, rgba(214, 163, 66, 0.035) 0 1px, transparent 1px 82px),
+        repeating-linear-gradient(0deg, rgba(53, 200, 187, 0.028) 0 1px, transparent 1px 82px),
+        linear-gradient(135deg, #090b09 0%, #10130e 52%, #0a0b09 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      overflow: hidden;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(45deg, transparent 0 48%, rgba(227, 93, 63, 0.08) 48% 50%, transparent 50% 100%),
+        linear-gradient(-45deg, transparent 0 48%, rgba(53, 200, 187, 0.06) 48% 50%, transparent 50% 100%);
+      background-size: 180px 180px;
+      opacity: 0.55;
+      mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .deck {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line-strong);
+      background: rgba(9, 11, 9, 0.94);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--gold);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      background:
+        linear-gradient(45deg, transparent 0 46%, rgba(53, 200, 187, 0.42) 46% 54%, transparent 54% 100%),
+        var(--surface);
+      position: relative;
+      box-shadow: 0 0 0 1px rgba(227, 93, 63, 0.35), 0 0 24px rgba(214, 163, 66, 0.18);
+    }
+
+    .mark::before {
+      content: "";
+      width: 17px;
+      height: 17px;
+      border-left: 2px solid var(--teal);
+      border-bottom: 2px solid var(--red);
+      border-top: 2px solid var(--gold);
+      transform: rotate(-45deg);
+    }
+
+    .mark::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border: 1px solid var(--ink);
+      background: var(--paper);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 760;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.2;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+
+    .progress-track {
+      height: 8px;
+      width: 160px;
+      border: 1px solid var(--line-strong);
+      background: #070807;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--teal), var(--gold), var(--red));
+      transition: width 180ms ease;
+    }
+
+    .counter {
+      min-width: 44px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      text-align: right;
+    }
+
+    main {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: center;
+      gap: 30px;
+      padding: 44px 56px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(24px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .slide::before,
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 30px;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    .slide::before {
+      border: 1px solid rgba(214, 163, 66, 0.28);
+      background:
+        linear-gradient(90deg, rgba(227, 93, 63, 0.55), transparent 12%, transparent 88%, rgba(53, 200, 187, 0.5)) top left / 100% 1px no-repeat,
+        linear-gradient(90deg, rgba(53, 200, 187, 0.48), transparent 14%, transparent 86%, rgba(214, 163, 66, 0.46)) bottom left / 100% 1px no-repeat,
+        linear-gradient(0deg, rgba(214, 163, 66, 0.48), transparent 14%, transparent 86%, rgba(227, 93, 63, 0.46)) top left / 1px 100% no-repeat,
+        linear-gradient(0deg, rgba(53, 200, 187, 0.44), transparent 14%, transparent 86%, rgba(214, 163, 66, 0.5)) top right / 1px 100% no-repeat;
+    }
+
+    .slide::after {
+      inset: 48px;
+      background:
+        linear-gradient(90deg, var(--gold), var(--gold)) 0 0 / 42px 1px no-repeat,
+        linear-gradient(0deg, var(--gold), var(--gold)) 0 0 / 1px 42px no-repeat,
+        linear-gradient(90deg, var(--red), var(--red)) 100% 0 / 42px 1px no-repeat,
+        linear-gradient(0deg, var(--red), var(--red)) 100% 0 / 1px 42px no-repeat,
+        linear-gradient(90deg, var(--teal), var(--teal)) 0 100% / 42px 1px no-repeat,
+        linear-gradient(0deg, var(--teal), var(--teal)) 0 100% / 1px 42px no-repeat,
+        linear-gradient(90deg, var(--violet), var(--violet)) 100% 100% / 42px 1px no-repeat,
+        linear-gradient(0deg, var(--violet), var(--violet)) 100% 100% / 1px 42px no-repeat;
+      opacity: 0.5;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .slide-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .kicker {
+      margin: 0;
+      color: var(--gold);
+      font-size: 0.86rem;
+      font-weight: 760;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(214, 163, 66, 0.18);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 3.2rem;
+      line-height: 1.03;
+      max-width: 980px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.58;
+    }
+
+    .lead {
+      max-width: 780px;
+      color: #d8cfbb;
+      font-size: 1.2rem;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero-diagram {
+      min-height: 500px;
+      display: grid;
+      align-items: center;
+    }
+
+    .substrate-visual {
+      position: relative;
+      min-height: 460px;
+      display: grid;
+      place-items: center;
+    }
+
+    .substrate-visual::before,
+    .substrate-visual::after {
+      content: "";
+      position: absolute;
+      inset: 48px;
+      border: 1px solid rgba(214, 163, 66, 0.34);
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .substrate-visual::after {
+      inset: 92px;
+      border-color: rgba(53, 200, 187, 0.24);
+      transform: rotate(0deg);
+    }
+
+    .substrate-core {
+      width: 240px;
+      height: 240px;
+      border: 1px solid var(--gold);
+      background:
+        linear-gradient(45deg, transparent 0 48%, rgba(227, 93, 63, 0.2) 48% 52%, transparent 52% 100%),
+        linear-gradient(-45deg, transparent 0 48%, rgba(53, 200, 187, 0.18) 48% 52%, transparent 52% 100%),
+        var(--surface);
+      box-shadow: var(--shadow);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .substrate-core::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(243, 234, 215, 0.2);
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .substrate-core strong {
+      display: block;
+      font-size: 1.24rem;
+      line-height: 1.18;
+    }
+
+    .substrate-core span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .orbit {
+      position: absolute;
+      width: 170px;
+      min-height: 118px;
+      background:
+        linear-gradient(135deg, rgba(243, 234, 215, 0.05), transparent 42%),
+        var(--surface-2);
+      border: 1px solid var(--line-strong);
+      padding: 16px;
+      display: grid;
+      gap: 6px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+      z-index: 3;
+    }
+
+    .orbit strong {
+      font-size: 0.95rem;
+    }
+
+    .orbit span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .orbit::before {
+      content: "";
+      width: 28px;
+      height: 4px;
+      background: currentColor;
+    }
+
+    .orbit.resonance {
+      color: var(--red);
+      left: 0;
+      top: 48px;
+    }
+
+    .orbit.relevance {
+      color: var(--teal);
+      right: 0;
+      top: 48px;
+    }
+
+    .orbit.trajectory {
+      color: var(--gold);
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--line-strong);
+      background: rgba(17, 21, 15, 0.88);
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      color: var(--ink);
+      white-space: nowrap;
+      box-shadow: inset 0 0 0 1px rgba(243, 234, 215, 0.035);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background:
+        linear-gradient(135deg, rgba(243, 234, 215, 0.045), transparent 45%),
+        var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      min-height: 100%;
+      display: grid;
+      gap: 12px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-top: 1px solid rgba(214, 163, 66, 0.45);
+      border-right: 1px solid rgba(214, 163, 66, 0.45);
+      pointer-events: none;
+    }
+
+    .card .tag {
+      width: fit-content;
+      border: 1px solid currentColor;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      font-weight: 740;
+      text-transform: uppercase;
+    }
+
+    .tag.red {
+      color: var(--red);
+    }
+
+    .tag.teal {
+      color: var(--teal);
+    }
+
+    .tag.gold {
+      color: var(--gold);
+    }
+
+    .tag.green {
+      color: var(--green);
+    }
+
+    .tag.violet {
+      color: var(--violet);
+    }
+
+    .card p,
+    .small {
+      font-size: 0.94rem;
+      line-height: 1.48;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(214, 163, 66, 0.055), transparent 44%),
+        var(--surface);
+      border: 1px solid var(--line);
+      min-height: 130px;
+      padding: 18px 14px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      right: -11px;
+      top: 50%;
+      border-top: 2px solid var(--muted);
+      border-right: 2px solid var(--muted);
+      transform: translateY(-50%) rotate(45deg);
+      background: var(--paper);
+      z-index: 2;
+    }
+
+    .flow-step strong {
+      font-size: 0.92rem;
+      line-height: 1.22;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.34;
+    }
+
+    .schema {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .schema-list {
+      background:
+        linear-gradient(90deg, rgba(53, 200, 187, 0.08), transparent 22%),
+        #0c0f0b;
+      color: #f8f8f3;
+      border-radius: 8px;
+      padding: 22px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .schema-list span {
+      color: #f0bf6b;
+    }
+
+    .transport-map {
+      display: grid;
+      gap: 16px;
+    }
+
+    .transport-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .transport-label {
+      background:
+        linear-gradient(135deg, rgba(227, 93, 63, 0.15), transparent 42%),
+        #0c0f0b;
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      padding: 16px;
+      display: grid;
+      align-content: center;
+      font-weight: 760;
+      line-height: 1.2;
+    }
+
+    .transport-body {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .transport-body strong {
+      font-size: 1rem;
+    }
+
+    .transport-body p {
+      font-size: 0.93rem;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 140px repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .matrix > div {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      min-height: 94px;
+      padding: 14px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+
+    .matrix > div:nth-child(4n) {
+      border-right: 0;
+    }
+
+    .matrix .head {
+      background: #1b2118;
+      font-weight: 760;
+      color: var(--ink);
+    }
+
+    .matrix .axis {
+      font-weight: 760;
+      color: var(--muted);
+    }
+
+    .score {
+      height: 8px;
+      border: 1px solid var(--line);
+      background: #080a07;
+      overflow: hidden;
+    }
+
+    .score span {
+      display: block;
+      height: 100%;
+      background: var(--teal);
+    }
+
+    .score.red span {
+      background: var(--red);
+    }
+
+    .score.gold span {
+      background: var(--gold);
+    }
+
+    .callout {
+      border-left: 6px solid var(--red);
+      background:
+        linear-gradient(90deg, rgba(227, 93, 63, 0.08), transparent 55%),
+        var(--surface);
+      padding: 22px;
+      max-width: 840px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26);
+    }
+
+    .callout p {
+      color: #e4dcc9;
+    }
+
+    .bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border-top: 1px solid var(--line-strong);
+      background: rgba(9, 11, 9, 0.94);
+      z-index: 5;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-button {
+      min-width: 44px;
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+    }
+
+    .nav-button:hover,
+    .nav-button:focus-visible {
+      outline: 3px solid rgba(11, 122, 117, 0.22);
+      background: #18201b;
+    }
+
+    .nav-button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.3;
+    }
+
+    @media (max-width: 960px) {
+      html,
+      body {
+        overflow: auto;
+        overflow-x: hidden;
+      }
+
+      .deck {
+        min-height: auto;
+      }
+
+      main {
+        overflow: visible;
+      }
+
+      .slide {
+        position: relative;
+        display: none;
+        padding: 28px 22px 40px;
+        opacity: 1;
+        pointer-events: none;
+        transform: none;
+        transition: none;
+      }
+
+      .slide.active {
+        display: grid;
+        pointer-events: auto;
+        transform: none;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      .lead {
+        font-size: 1rem;
+      }
+
+      .hero-layout,
+      .schema,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-diagram {
+        min-height: 430px;
+      }
+
+      .substrate-visual {
+        min-height: 400px;
+      }
+
+      .substrate-core {
+        width: 190px;
+        height: 190px;
+      }
+
+      .orbit {
+        width: 145px;
+        min-height: 112px;
+        padding: 12px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .flow-step {
+        min-height: 0;
+        padding: 14px;
+      }
+
+      .flow-step:not(:last-child)::after {
+        right: 50%;
+        top: auto;
+        bottom: -10px;
+        transform: translateX(50%) rotate(135deg);
+      }
+
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .matrix > div {
+        border-right: 0;
+        min-height: 0;
+        padding: 12px;
+      }
+
+      .transport-row {
+        grid-template-columns: 1fr;
+      }
+
+      .progress {
+        min-width: 140px;
+      }
+
+      .progress-track {
+        width: 90px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar,
+      .bottom-nav {
+        padding: 12px 14px;
+      }
+
+      .brand p,
+      .hint {
+        display: none;
+      }
+
+      .counter {
+        min-width: 36px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        line-height: 1.08;
+      }
+
+      h3 {
+        font-size: 1.08rem;
+      }
+
+      p {
+        font-size: 0.92rem;
+        line-height: 1.5;
+      }
+
+      .slide {
+        padding: 18px 16px 28px;
+      }
+
+      .slide::before,
+      .slide::after {
+        display: none;
+      }
+
+      .slide-inner {
+        gap: 18px;
+      }
+
+      .hero-layout,
+      .hero-copy,
+      .schema,
+      .transport-map,
+      .grid-2,
+      .grid-3 {
+        gap: 12px;
+      }
+
+      .hero-diagram {
+        min-height: 0;
+      }
+
+      .kicker {
+        font-size: 0.72rem;
+      }
+
+      .lead {
+        font-size: 0.94rem;
+      }
+
+      .card {
+        padding: 14px;
+        gap: 8px;
+      }
+
+      .card p,
+      .small {
+        font-size: 0.86rem;
+        line-height: 1.38;
+      }
+
+      .pill-row {
+        gap: 7px;
+      }
+
+      .pill {
+        width: 100%;
+        white-space: normal;
+        padding: 8px 10px;
+        font-size: 0.78rem;
+      }
+
+      .callout {
+        padding: 14px;
+      }
+
+      .orbit.relevance {
+        top: 36px;
+      }
+
+      .substrate-visual {
+        min-height: 0;
+        display: grid;
+        gap: 12px;
+        place-items: stretch;
+      }
+
+      .orbit,
+      .orbit.resonance,
+      .orbit.relevance,
+      .orbit.trajectory {
+        position: static;
+        width: 100%;
+        min-height: 0;
+        transform: none;
+      }
+
+      .substrate-core {
+        width: 100%;
+        height: auto;
+        min-height: 128px;
+        order: -1;
+      }
+
+      .schema-list {
+        padding: 14px;
+        font-size: 0.76rem;
+        line-height: 1.48;
+      }
+
+      .transport-row {
+        gap: 8px;
+      }
+
+      .transport-label,
+      .transport-body {
+        padding: 12px;
+      }
+
+      .transport-body strong {
+        font-size: 0.9rem;
+      }
+
+      .flow-step {
+        padding: 12px;
+      }
+
+      .flow-step span {
+        font-size: 0.76rem;
+      }
+
+      .matrix {
+        border: 0;
+        background: transparent;
+        gap: 6px;
+      }
+
+      .matrix .head {
+        display: none;
+      }
+
+      .matrix > div {
+        border: 1px solid var(--line);
+        margin-bottom: 6px;
+        padding: 10px;
+      }
+
+      .matrix .axis {
+        border-color: var(--line-strong);
+        background: #0c0f0b;
+        color: var(--gold);
+        margin-top: 8px;
+      }
+
+      .score {
+        height: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <h1>Whisper</h1>
+          <p>Meaning composition substrate for Arcanum writing</p>
+        </div>
+      </div>
+      <div class="progress" aria-label="Slide progress">
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="counter" id="counter">1 / 9</div>
+      </div>
+    </header>
+
+    <main aria-live="polite">
+      <section class="slide active" data-title="Whisper">
+        <div class="slide-inner hero-layout">
+          <div class="hero-copy">
+            <p class="kicker">Spell design presentation</p>
+            <h2>Whisper turns writing into a governed creative lifecycle.</h2>
+            <p class="lead">It takes raw author intent, extracts a small substrate, chooses narrative primitives, plans the text, drafts it, validates it, and keeps learning residue for the next piece.</p>
+            <div class="pill-row" aria-label="First transport sequence">
+              <span class="pill">L0: substack_research_post</span>
+              <span class="pill">Next: fundraising_copy</span>
+              <span class="pill">Core: resonance + relevance + trajectory</span>
+            </div>
+          </div>
+          <div class="hero-diagram" aria-label="Whisper substrate diagram">
+            <div class="substrate-visual">
+              <div class="orbit resonance"><strong>Resonance</strong><span>felt meaning, voice, tone, emotional residue</span></div>
+              <div class="orbit relevance"><strong>Relevance</strong><span>audience, domain, authority, reader reward</span></div>
+              <div class="orbit trajectory"><strong>Trajectory</strong><span>movement, structure, anchor, ending</span></div>
+              <div class="substrate-core"><strong>Text Intent Substrate</strong><span>the smallest useful model of a text before drafting</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Why">
+        <div class="slide-inner">
+          <p class="kicker">The problem</p>
+          <h2>Text generation usually jumps from idea to draft too quickly.</h2>
+          <div class="grid-3">
+            <article class="card">
+              <span class="tag red">Hidden intent</span>
+              <h3>The model guesses the real objective.</h3>
+              <p>Is the author trying to clarify, persuade, inspire, recruit, fundraise, teach, or invite a conversation? Whisper names that before composing.</p>
+            </article>
+            <article class="card">
+              <span class="tag teal">Mixed levels</span>
+              <h3>Tone, audience, and structure get tangled.</h3>
+              <p>Whisper separates felt meaning, contextual fit, and movement so the text is not just a polished style pass.</p>
+            </article>
+            <article class="card">
+              <span class="tag gold">No lifecycle</span>
+              <h3>Drafts rarely carry useful memory.</h3>
+              <p>Each text leaves behind what worked, what failed, what assumptions mattered, and what the next transport should learn.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="What">
+        <div class="slide-inner">
+          <p class="kicker">The object</p>
+          <h2>The smallest coherent unit is the Text Intent Substrate.</h2>
+          <div class="schema">
+            <div class="schema-list" aria-label="Substrate fields">
+              text_intent_substrate:<br>
+              &nbsp;&nbsp;<span>author_objective</span><br>
+              &nbsp;&nbsp;<span>resonance_core</span><br>
+              &nbsp;&nbsp;<span>relevance_core</span><br>
+              &nbsp;&nbsp;<span>trajectory_core</span><br>
+              &nbsp;&nbsp;<span>technique_stack</span><br>
+              &nbsp;&nbsp;<span>validation</span>
+            </div>
+            <div class="grid-2">
+              <article class="card">
+                <span class="tag violet">Not a style guide</span>
+                <h3>It captures constraints that affect construction.</h3>
+                <p>Audience, desired reader change, narrative anchor, body parts, ending strategy, length, and review criteria all belong here.</p>
+              </article>
+              <article class="card">
+                <span class="tag green">Not a full workflow</span>
+                <h3>It is small enough to reuse.</h3>
+                <p>The substrate can drive a Substack post now, then fundraising copy, articles, slide narratives, and longer works later.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Cores">
+        <div class="slide-inner">
+          <p class="kicker">Three SRU cores</p>
+          <h2>Every candidate must balance one selection from each core.</h2>
+          <div class="grid-3">
+            <article class="card">
+              <span class="tag red">resonance_core</span>
+              <h3>What should it feel like?</h3>
+              <p>Tone, voice, style register, emotional residue, value signal, and forbidden feels.</p>
+            </article>
+            <article class="card">
+              <span class="tag teal">relevance_core</span>
+              <h3>Who is it for and why will it matter?</h3>
+              <p>Target public, reader state, domain, authority mode, assumptions, objections, and reader reward.</p>
+            </article>
+            <article class="card">
+              <span class="tag gold">trajectory_core</span>
+              <h3>What movement does it perform?</h3>
+              <p>Objective, transport, narrative anchor, introduction, body parts, ending, length, and constraints.</p>
+            </article>
+          </div>
+          <div class="callout">
+            <p>The key design move: avoid optimizing three versions of tone. A viable candidate has to carry feeling, audience fit, and movement at the same time.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="L0">
+        <div class="slide-inner">
+          <p class="kicker">First proof</p>
+          <h2>L0 starts with a Substack post for the research group.</h2>
+          <div class="transport-map">
+            <div class="transport-row">
+              <div class="transport-label">Substack research post</div>
+              <div class="transport-body">
+                <strong>Transport id: substack_research_post</strong>
+                <p>This is the selected L0 proof transport.</p>
+              </div>
+            </div>
+            <div class="transport-row">
+              <div class="transport-label">Why this first</div>
+              <div class="transport-body">
+                <strong>Why this first</strong>
+                <p>It forces clarity, voice, research-group relevance, argument structure, and a humane ending without immediate conversion pressure.</p>
+              </div>
+            </div>
+            <div class="transport-row">
+              <div class="transport-label">Required body parts</div>
+              <div class="transport-body">
+                <strong>Hook, research context, core insight, implications, invitation or next thread.</strong>
+                <p>The post should help readers understand why the idea matters and what conversation should continue.</p>
+              </div>
+            </div>
+            <div class="transport-row">
+              <div class="transport-label">Default constraints</div>
+              <div class="transport-body">
+                <strong>800-1600 words, evidence, soft invitation, clear living prose.</strong>
+                <p>The style target is intellectually generous rather than sales-driven.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Lifecycle">
+        <div class="slide-inner">
+          <p class="kicker">Process</p>
+          <h2>The writing lifecycle is explicit, finite, and reviewable.</h2>
+          <div class="flow" aria-label="Whisper lifecycle">
+            <div class="flow-step"><strong>Raw intent</strong><span>topic, rough thesis, notes, source material</span></div>
+            <div class="flow-step"><strong>Interrogate</strong><span>ask one blocker question when needed</span></div>
+            <div class="flow-step"><strong>Substrate</strong><span>extract objective, cores, constraints</span></div>
+            <div class="flow-step"><strong>Tournament</strong><span>compare primitive and technique sets</span></div>
+            <div class="flow-step"><strong>Plan</strong><span>choose body parts and structure</span></div>
+            <div class="flow-step"><strong>Draft</strong><span>compose against the plan</span></div>
+            <div class="flow-step"><strong>Residue</strong><span>validation, revision tasks, learned patterns</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Consensus">
+        <div class="slide-inner">
+          <p class="kicker">Pareto-aware selection</p>
+          <h2>The chosen candidate should be non-dominated across the three cores.</h2>
+          <div class="matrix" role="table" aria-label="Candidate score matrix">
+            <div class="head">Axis</div>
+            <div class="head">Candidate A</div>
+            <div class="head">Candidate B</div>
+            <div class="head">Candidate C</div>
+            <div class="axis">Resonance</div>
+            <div><strong>High warmth</strong><div class="score red"><span style="width: 88%"></span></div></div>
+            <div><strong>Sharper edge</strong><div class="score red"><span style="width: 70%"></span></div></div>
+            <div><strong>Quiet authority</strong><div class="score red"><span style="width: 80%"></span></div></div>
+            <div class="axis">Relevance</div>
+            <div><strong>General readers</strong><div class="score"><span style="width: 68%"></span></div></div>
+            <div><strong>Research peers</strong><div class="score"><span style="width: 90%"></span></div></div>
+            <div><strong>Mixed public</strong><div class="score"><span style="width: 76%"></span></div></div>
+            <div class="axis">Trajectory</div>
+            <div><strong>Reflective essay</strong><div class="score gold"><span style="width: 74%"></span></div></div>
+            <div><strong>Argument arc</strong><div class="score gold"><span style="width: 84%"></span></div></div>
+            <div><strong>Field note</strong><div class="score gold"><span style="width: 72%"></span></div></div>
+          </div>
+          <p class="small">The point is not a numeric score. The point is to prevent a candidate that wins one dimension by quietly damaging another.</p>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Next">
+        <div class="slide-inner">
+          <p class="kicker">Next transport pressure</p>
+          <h2>Fundraising comes next, but it should not distort L0.</h2>
+          <div class="grid-2">
+            <article class="card">
+              <span class="tag teal">Reuse</span>
+              <h3>Fundraising still needs the same substrate.</h3>
+              <p>It needs resonance, relevance, and trajectory: how it feels, who it speaks to, and what movement it asks the reader to make.</p>
+            </article>
+            <article class="card">
+              <span class="tag red">Extend</span>
+              <h3>It adds trust, proof, urgency, identity, ask shape, and impact path.</h3>
+              <p>Those fields should arrive as a transport extension after the Substack flow proves the base lifecycle.</p>
+            </article>
+          </div>
+          <div class="callout">
+            <p>If trust/proof/ask mechanics become repeatedly central, fundraising may earn its own core later. For now, it stays an extension boundary.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Start">
+        <div class="slide-inner">
+          <p class="kicker">Start here</p>
+          <h2>To run Whisper for the first post, answer one thing clearly.</h2>
+          <div class="grid-2">
+            <article class="card">
+              <span class="tag gold">Needed input</span>
+              <h3>What is the concrete topic or thesis?</h3>
+              <p>Example shape: write a Substack post for our research group about the idea that meaningful text should be developed like software, aimed at research collaborators, leaving them curious enough to help shape the first run.</p>
+            </article>
+            <article class="card">
+              <span class="tag green">Expected output</span>
+              <h3>A substrate, a composition plan, then a draft.</h3>
+              <p>The first artifact should be reviewable before it becomes prose, so the group can see the intent model and improve the text before publishing.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bottom-nav">
+      <div class="hint">Use Left/Right arrows or the buttons to move through the deck.</div>
+      <div class="nav-actions" aria-label="Presentation navigation">
+        <button class="nav-button" id="prevBtn" type="button" aria-label="Previous slide">Prev</button>
+        <button class="nav-button" id="nextBtn" type="button" aria-label="Next slide">Next</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const counter = document.getElementById("counter");
+    const progressFill = document.getElementById("progressFill");
+    let index = 0;
+
+    function showSlide(nextIndex) {
+      index = Math.max(0, Math.min(nextIndex, slides.length - 1));
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === index);
+      });
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      progressFill.style.width = `${((index + 1) / slides.length) * 100}%`;
+      document.title = `Whisper: ${slides[index].dataset.title}`;
+    }
+
+    prevBtn.addEventListener("click", () => showSlide(index - 1));
+    nextBtn.addEventListener("click", () => showSlide(index + 1));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(index + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(index - 1);
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        showSlide(0);
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
