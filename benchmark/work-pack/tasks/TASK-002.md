@@ -83,4 +83,7 @@ No Docker-backed or live external benchmark ingestion until SWU-HARNESS-004 prov
 
 - SWU-HARNESS-003: completed. Patch-based `AgentAdapter` contract and deterministic `MockAgentAdapter` are present in `src/agent-adapter.ts`.
 - SWU-HARNESS-003 validation: `npm test` passed with adapter tests covering patch, no-patch, error, and timeout states.
-- Remaining for SWU-HARNESS-004: patch artifact storage before evaluator execution; oracle evidence and score result linked to run id; telemetry chain covers queued through completed or failed.
+- SWU-HARNESS-004: completed. Fixture-local `runBenchmarkKernel` copies a clean fixture workspace, persists the agent patch artifact, applies it with `patch`, runs the semantic oracle, writes normalized oracle evidence, scores centrally, and appends telemetry.
+- SWU-HARNESS-004 validation: `npm test` passed, and `npm run smoke:kernel` produced two passing clean runs: `kernel-smoke-001` and `kernel-smoke-002`.
+- SWU-HARNESS-004 evidence paths: `artifacts/kernel-smoke-001/telemetry.jsonl`, `artifacts/kernel-smoke-001/score-result.json`, `artifacts/kernel-smoke-002/telemetry.jsonl`, and `artifacts/kernel-smoke-002/score-result.json`.
+- Fixture-local evaluator constraints: L0 uses local filesystem fixture copies plus POSIX `patch`; Docker-backed repository setup and live benchmark ingestion remain gated to TASK-003.

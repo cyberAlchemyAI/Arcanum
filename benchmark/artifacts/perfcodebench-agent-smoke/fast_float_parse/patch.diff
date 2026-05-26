@@ -1,0 +1,35 @@
+--- baseline/solution.cpp
++++ candidate/solution.cpp
+@@
+ #include "interface.h"
+ 
+-#include <cstdlib>
++#include "fast_float/fast_float.h"
+ 
+ double parse_sum(const std::string& input) {
+-  const char* p = input.c_str();
+-  const char* end = p + input.size();
++  const char* p = input.data();
++  const char* const end = p + input.size();
+   double sum = 0.0;
++
+   while (p < end) {
+-    char* next = nullptr;
+-    const double value = std::strtod(p, &next);
+-    if (next == p) {
++    double value = 0.0;
++    const auto result = fast_float::from_chars(p, end, value);
++    if (result.ptr == p) {
+       break;
+     }
+     sum += value;
+-    p = (*next == '\n') ? next + 1 : next;
++    p = result.ptr;
++    if (p < end && *p == '\n') {
++      ++p;
++    }
+   }
++
+   return sum;
+ }
+

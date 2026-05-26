@@ -1,0 +1,42 @@
+{
+  "status": "completed-materialization-probe",
+  "taskId": "TASK-004",
+  "swuId": "SWU-HARNESS-008A.1",
+  "selectedTask": "fast_float_parse",
+  "materializedRoot": "artifacts/perfcodebench-materialization-probe/materialized",
+  "rawResult": "artifacts/perfcodebench-materialization-probe/materialized/results/dry-run-fast-float.json",
+  "inventory": "artifacts/perfcodebench-materialization-probe/file-inventory.json",
+  "workerProfile": "artifacts/perfcodebench-materialization-probe/worker-profile.json",
+  "commandNotes": "artifacts/perfcodebench-materialization-probe/command-notes.md",
+  "setupProofOnly": true,
+  "scoreClaim": false,
+  "runnerCommand": "env PYTHONPATH=/tmp/perfcodebench-pydeps python3 scripts/run_openai_codegen_eval.py fast_float_parse --model gpt-5.4 --runs 1 --dry-run --output results/dry-run-fast-float.json",
+  "validation": {
+    "pythonVersion": "Python 3.12.3",
+    "compiler": "g++ 13.3.0",
+    "jqEmptyRawResult": "pass",
+    "runnerExitCode": 0,
+    "baseline": {
+      "status": "ok",
+      "allOk": true,
+      "medianElapsedNs": 37134461
+    },
+    "reference": {
+      "status": "ok",
+      "allOk": true,
+      "medianElapsedNs": 4153688
+    },
+    "candidate": {
+      "status": "ok",
+      "allOk": true,
+      "medianElapsedNs": 22380209,
+      "candidateKind": "dry-run baseline placeholder"
+    }
+  },
+  "remainingForScoreSmoke": [
+    "agent-produced candidate artifact for the selected PerfCodeBench task",
+    "accepted deterministic worker profile and noise/repetition policy",
+    "score-result.json derived from real runner output without dry-run placeholder"
+  ]
+}
+

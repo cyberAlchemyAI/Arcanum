@@ -1,0 +1,30 @@
+{
+  "task": "TASK-VERIFY",
+  "contextPack": "artifacts/task-session-task-verify-context-pack.md",
+  "strictCoverage": "pass",
+  "sourceArtifacts": [
+    "WORK-PACK.md",
+    "IMPLEMENTATION-LAYERING.md",
+    "work-pack/EXECUTION-PACK.md",
+    "work-pack/waves/W3.md",
+    "work-pack/tasks/TASK-VERIFY.md",
+    "artifacts/campaign-report-smoke/campaign-report.json",
+    "artifacts/dashboard-api-smoke/dashboard-data.json",
+    "artifacts/swebench-lite-official-smoke/score-result.json",
+    "artifacts/smellbench-official-smoke/score-result.json",
+    "artifacts/perfcodebench-official-smoke/score-result.json"
+  ],
+  "constraints": [
+    "do-not-recompute-benchmark-outcomes",
+    "score-status-derived-from-persisted-score-files-only",
+    "invalid-json-or-evidence-gap-blocks-closeout",
+    "status-sync-scoped-to-closure"
+  ],
+  "validationPlan": [
+    "npm test",
+    "npm run report:campaign",
+    "npm run smoke:dashboard-api",
+    "jq empty on core JSON artifacts",
+    "jq assertions for summary and score traceability"
+  ]
+}

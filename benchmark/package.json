@@ -5,6 +5,15 @@
   "type": "module",
   "description": "Benchmark harness skeleton for deterministic agentic tech-debt and optimization evaluation.",
   "scripts": {
+    "smoke:batch": "node --experimental-strip-types src/run-batch-smoke.ts",
+    "smoke:docker": "node --experimental-strip-types src/run-docker-smoke.ts",
+    "smoke:kernel": "node --experimental-strip-types src/run-fixture-smoke.ts",
+    "smoke:swebench:official:build": "docker build -f docker/swebench-official-runner.Dockerfile -t swebench-official-runner .",
+    "smoke:swebench:agent:prepare": "node --experimental-strip-types src/prepare-swebench-agent-smoke.ts",
+    "smoke:swebench:official": "node --experimental-strip-types src/run-official-swebench-smoke.ts",
+    "smoke:smellbench:official": "node --experimental-strip-types src/run-smellbench-official-smoke.ts",
+    "report:campaign": "node --experimental-strip-types src/run-campaign-report.ts",
+    "smoke:dashboard-api": "node --experimental-strip-types src/run-dashboard-api-smoke.ts",
     "test": "node --experimental-strip-types --test \"test/**/*.test.ts\""
   },
   "engines": {

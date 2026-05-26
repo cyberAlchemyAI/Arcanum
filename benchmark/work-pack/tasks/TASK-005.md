@@ -58,8 +58,11 @@ Edge cases:
 - Done criteria: report links aggregate metrics to per-run evidence and telemetry cost.
 - Acceptance evidence: report snapshot review.
 - Verification: report snapshot test or reviewable generated sample.
+- Completion evidence: `src/campaign-report.ts`, `src/run-campaign-report.ts`, `test/campaign-report.test.ts`, `artifacts/campaign-report-smoke/campaign-report.json`, and `artifacts/campaign-report-smoke/campaign-report.md`.
+- Verification result: `npm test` passed; `npm run report:campaign` generated a six-run report with five pass, one fail, nineteen telemetry events, and zero evidence gaps.
 - Execution owner: subagent.
 - Handoff note: do not compute new oracle outcomes in report code.
+- Status: completed-reporting.
 
 ### SWU-HARNESS-010
 
@@ -69,8 +72,11 @@ Edge cases:
 - Done criteria: operator can inspect campaign summary, per-run status, score components, and telemetry events.
 - Acceptance evidence: UI/API smoke check.
 - Verification: API smoke command or frontend test command.
+- Completion evidence: `src/dashboard-api.ts`, `src/run-dashboard-api-smoke.ts`, `test/dashboard-api.test.ts`, and `artifacts/dashboard-api-smoke/dashboard-data.json`.
+- Verification result: `npm test` passed; `npm run smoke:dashboard-api` generated dashboard data with six runs, score components, telemetry counts, and zero evidence gaps.
 - Execution owner: local-fallback.
 - Handoff note: keep visual scope secondary to evidence traceability.
+- Status: completed-dashboard-api.
 
 ## Synchronization Rules
 
@@ -80,3 +86,4 @@ SWU-HARNESS-010 starts only after report read models are stable.
 
 - Dashboard/API displays persisted score and telemetry data.
 - Campaign report can be regenerated from stored artifacts.
+- TASK-005 is complete: report generation and dashboard-ready data contract both validate from persisted artifacts.

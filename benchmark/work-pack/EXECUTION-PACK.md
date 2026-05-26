@@ -15,15 +15,16 @@ Coordinate the medium-complexity work-pack by waves while preserving SWU-level e
 | Wave | Layer | Question Answered | Tasks | SWUs | Gate |
 | --- | --- | --- | --- | --- | --- |
 | [W0](waves/W0.md) | L0 | Can the fixture-local benchmark run kernel work end to end? | TASK-001, TASK-002 | SWU-HARNESS-001..004 | Two clean kernel smoke runs match. |
-| [W1](waves/W1.md) | L1 | Can Docker-backed SWE-bench tech-debt ingestion and batch evaluation repeat? | TASK-003 | SWU-HARNESS-005..006 | Docker smoke plus batch report separates agent, oracle, and infra outcomes. |
-| [W2](waves/W2.md) | L2 | Can structural and performance probes fit the shared evidence model? | TASK-004 | SWU-HARNESS-007..008 | Probe reports prove normalized evidence. |
-| [W3](waves/W3.md) | L3 | Can operators replay and inspect benchmark campaigns? | TASK-005, TASK-VERIFY | SWU-HARNESS-009..010 plus verification exemption | Campaign report and dashboard-ready views. |
+| [W1](waves/W1.md) | L1/L1.5 | Can Docker-backed SWE-bench plumbing and official SWE-bench Lite evaluation repeat? | TASK-003, TASK-003.5 | SWU-HARNESS-005..006B | Local mirror smoke/batch plus official SWE-bench Lite score artifact separate benchmark fail from infra fail. |
+| [W2](waves/W2.md) | L2 | Can structural and performance benchmarks expose upstream-derived evidence paths? | TASK-004 | SWU-HARNESS-007A..008B | Contract probes first; score smokes only after upstream runner/result semantics and runtime constraints are proven. |
+| [W3](waves/W3.md) | L3 | Can operators replay and inspect benchmark campaigns? | TASK-005, TASK-VERIFY | SWU-HARNESS-009..010 plus verification exemption | Campaign report, dashboard-ready views, and closure audit passed. |
 
 ## Parallelization Boundary
 
 - W0 is mostly serial because schemas precede adapters and fixture-local kernel execution.
 - W1 can split Docker evaluation, ingestion, and reporting only after the kernel evidence shape is stable.
-- W2 probes can run in parallel after L1, because structural and performance adapters have disjoint write scopes.
+- W2 contract probes `SWU-HARNESS-007A` and `SWU-HARNESS-008A` can run in parallel after L1.5 because they are read/probe-oriented and have disjoint artifact paths.
+- W2 score smokes `SWU-HARNESS-007B` and `SWU-HARNESS-008B` must not start until the matching contract/materialization probe resolves the benchmark-specific blocker. `SWU-HARNESS-008B` additionally requires `SWU-HARNESS-008B.1` to produce a real PerfCodeBench agent candidate and deterministic worker/noise profile; the `SWU-HARNESS-008A.1` dry-run output is setup proof only.
 - W3 reporting and UI/API work can run after telemetry records stabilize.
 
 ## Execution Rule

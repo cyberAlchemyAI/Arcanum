@@ -1,0 +1,155 @@
+{
+  "status": "partial-contract-verified",
+  "blockerId": "B-003",
+  "taskId": "TASK-004",
+  "swuId": "SWU-HARNESS-008A",
+  "benchmark": "PerfCodeBench",
+  "checkedAt": "2026-05-25",
+  "sources": {
+    "paper": {
+      "url": "https://arxiv.org/abs/2605.15222",
+      "title": "PerfCodeBench: Benchmarking LLMs for System-Level High-Performance Code Optimization",
+      "submitted": "2026-05-13",
+      "evidence": [
+        "Paper describes 1,854 executable tasks across C, C++, Go, Java, Python, and CUDA.",
+        "Each task includes metadata, benchmark harness, baseline implementation, reference implementation, and writable candidate slot.",
+        "Correctness is checked by deterministic task-specific oracles.",
+        "Performance is measured through repeated runs and median latency."
+      ]
+    },
+    "release": {
+      "url": "https://anonymous.4open.science/r/perfcodebench-7CDE",
+      "accessStatus": "direct-file-access-works-root-listing-and-git-clone-not-verified",
+      "evidence": [
+        "Direct README path https://anonymous.4open.science/r/perfcodebench-7CDE/README.md returned Markdown documentation.",
+        "Direct paths for configs.json, scripts/run_openai_codegen_eval.py, scripts/run_model_suite.py, executable_tasks/fast_float_parse/instance.json, baseline/solution.cpp, and harness/benchmark_main.cpp returned expected files.",
+        "git ls-remote https://anonymous.4open.science/r/perfcodebench-7CDE.git returned repository not found.",
+        "curl -L -I https://anonymous.4open.science/r/perfcodebench-7CDE redirected to /api/repo/perfcodebench-7CDE/file/ and returned HTTP 401.",
+        "curl -L https://anonymous.4open.science/r/perfcodebench-7CDE returned {\"error\":\"not_connected\"}."
+      ]
+    }
+  },
+  "contract": {
+    "artifactSource": "paper verified; direct file paths available; clone/archive/listing not verified",
+    "installPath": {
+      "minimal": "pip install openai",
+      "taskSpecific": [
+        "g++",
+        "nvcc",
+        "java",
+        "go",
+        "external dependencies under external/"
+      ],
+      "source": "README.md"
+    },
+    "taskSchema": {
+      "fromPaper": [
+        "task_id",
+        "title",
+        "goal",
+        "metric",
+        "correctness_rule",
+        "allowed_external_includes",
+        "interface_text",
+        "solution_file",
+        "baseline_source",
+        "reference_source",
+        "candidate_solution_source"
+      ],
+      "sampleInstance": {
+        "task_id": "fast_float_parse",
+        "title": "Optimize decimal parsing throughput",
+        "goal": "Parse a large newline-delimited decimal buffer and return the sum of all values.",
+        "metric": "median elapsed_ns over repeated runs; lower is better",
+        "correctness_rule": "Returned sum must be within relative tolerance 1e-12 of the expected sum.",
+        "build": {
+          "compiler": "g++",
+          "sources": [
+            "{task_dir}/harness/benchmark_main.cpp",
+            "{variant_dir}/solution.cpp"
+          ]
+        }
+      },
+      "confidence": "paper-and-direct-file-derived"
+    },
+    "candidateContract": {
+      "expectedModelOutput": {
+        "summary": "string",
+        "solution_source": "string"
+      },
+      "mustNotExposeToAgent": [
+        "reference optimized solution",
+        "reference timing",
+        "benchmark aggregate labels"
+      ]
+    },
+    "runnerCommand": {
+      "singleTask": "python3 scripts/run_openai_codegen_eval.py fast_float_parse --model gpt-5.4 --runs 3",
+      "subset": "python3 scripts/run_model_suite.py --model gpt-5.4 --limit 10 --runs 3",
+      "allConfiguredModels": "python3 scripts/run_all_models_eval.py --models gpt-5.4",
+      "source": "README.md and scripts/run_model_suite.py"
+    },
+    "rawResultFiles": {
+      "results": "results/",
+      "candidateCode": "executable_tasks/<task_id>/candidate/<model>/",
+      "buildArtifacts": "build/",
+      "logs": "results/logs/",
+      "singleTaskJsonFields": [
+        "task_id",
+        "model",
+        "dry_run",
+        "candidate_path",
+        "benchmark_timeout_sec",
+        "model_output_summary",
+        "model_output_solution_source",
+        "baseline",
+        "reference",
+        "candidate"
+      ]
+    },
+    "scoreSemantics": {
+      "correctness": "candidate must compile, run, and pass the task-specific oracle before receiving performance credit",
+      "primaryRuntimeStatistic": "median elapsed time",
+      "metrics": [
+        "CRR: correct-and-runnable rate",
+        "FBR: faster-than-baseline rate for correct candidates",
+        "RBR: reference-or-better rate for correct candidates",
+        "CGRE: correctness-gated relative efficiency",
+        "CGRE_ge_0.8: share of comparable tasks closing at least 80 percent of the baseline-to-reference gap"
+      ],
+      "blockedReason": "score smoke still requires a complete runnable checkout, task dependencies, and accepted worker profile"
+    },
+    "workerProfile": {
+      "paperEnvironment": {
+        "cpu": "two Intel Xeon Platinum 8480C CPUs, 224 logical CPU cores",
+        "memory": "2.0 TiB RAM",
+        "gpu": "three NVIDIA H800 GPUs, 80 GiB each",
+        "python": "3.13.3",
+        "gcc": "11.4.0",
+        "go": "1.18.1",
+        "java": "11.0.30",
+        "cuda": "12.1",
+        "pytorch": "2.8.0",
+        "numpy": "2.2.6",
+        "pandas": "3.0.2",
+        "numba": "0.61.2"
+      },
+      "localAcceptance": "not decided; score smoke must record CPU/GPU pool, repetitions, warmups, timeout policy, and noise threshold before claiming benchmark evidence"
+    }
+  },
+  "decision": {
+    "swuHarness008A": "completed-as-partial-contract-probe",
+    "swuHarness008B": "blocked",
+    "reason": "Direct file access verifies README, scripts, and one sample task, but no clone/archive/listing has been verified and no complete runnable checkout or deterministic worker profile exists.",
+    "unblockActions": [
+      "Materialize a complete runnable checkout from clone, archive, or scripted direct-file fetch.",
+      "Record complete repository layout and license/access terms.",
+      "Verify selected task dependencies, especially external/ dependencies required by instance.json.",
+      "Run a dry or reuse-candidate single-task command locally and capture raw result JSON.",
+      "Choose a deterministic local worker profile or provision hardware that satisfies the benchmark's CPU/GPU requirements."
+    ]
+  },
+  "rawEvidenceRefs": [
+    "artifacts/perfcodebench-contract-probe/command-notes.md"
+  ]
+}

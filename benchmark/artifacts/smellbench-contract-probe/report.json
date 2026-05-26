@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "swu": "SWU-HARNESS-007A",
+  "task": "TASK-004",
+  "status": "pass",
+  "blockedNext": true,
+  "nextBlocker": {
+    "id": "B-002A",
+    "scope": "SWU-HARNESS-007B",
+    "reason": "SmellBench upstream contract is verified, but no harness-local, agent-produced candidate artifact exists yet for a pinned SmellBench task."
+  },
+  "artifactSource": {
+    "name": "SmellBench: Evaluating LLM Agents on Architectural Code Smell Repair - ExperimentsReproductionPackage",
+    "source": "Zenodo",
+    "recordId": "19247588",
+    "doi": "10.5281/zenodo.19247588",
+    "doiUrl": "https://doi.org/10.5281/zenodo.19247588",
+    "apiUrl": "https://zenodo.org/api/records/19247588",
+    "publicationDate": "2026-03-27",
+    "accessRight": "open",
+    "resourceType": "software",
+    "license": "cc-by-4.0",
+    "file": {
+      "name": "ExperimentsReproductionPackage.7z",
+      "sizeBytes": 6310819,
+      "checksum": "md5:87c00f711c74fc48f85b2cafb35a5cd6",
+      "localPath": "artifacts/smellbench-contract-probe/ExperimentsReproductionPackage.7z",
+      "checksumVerified": true
+    }
+  },
+  "paperSource": {
+    "url": "https://arxiv.org/abs/2605.07001",
+    "version": "v2",
+    "submitted": "2026-05-07",
+    "revised": "2026-05-12",
+    "reportedBenchmarkShape": {
+      "targetProject": "scikit-learn",
+      "targetVersion": "1.7.2",
+      "taskCount": 65,
+      "detector": "PyExamine",
+      "scoreDimensions": [
+        "repair effectiveness",
+        "false positive identification",
+        "net codebase impact"
+      ]
+    }
+  },
+  "extractedPackage": {
+    "localPath": "artifacts/smellbench-contract-probe/extracted/ExperimentsReproductionPackage",
+    "size": "54M",
+    "components": [
+      "python_smells_detector",
+      "Dataset Builder",
+      "Codex Mcp Container",
+      "Codex Scheduler",
+      "Code Smell Evaluator"
+    ]
+  },
+  "installPaths": [
+    {
+      "component": "python_smells_detector",
+      "purpose": "Run PyExamine static analysis on scikit-learn before and after candidate changes.",
+      "sourcePath": "extracted/ExperimentsReproductionPackage/python_smells_detector",
+      "documentedSetup": "See python_smells_detector/README.md; bundled detector is used by the reproduction package."
+    },
+    {
+      "component": "Dataset Builder",
+      "purpose": "Classify raw PyExamine CSV reports into easy, medium, hard, and all architectural smell datasets.",
+      "sourcePath": "extracted/ExperimentsReproductionPackage/Dataset Builder",
+      "documentedSetup": "python -m venv venv; pip install -r requirements.txt",
+      "documentedCommand": "python main.py classify_dataset <dataset_file> --repo-root <path_to_repository> --difficulty <easy|medium|hard|leftovers|all>"
+    },
+    {
+      "component": "Codex Mcp Container",
+      "purpose": "Serve one SmellBench task at a time to an agent through MCP.",
+      "sourcePath": "extracted/ExperimentsReproductionPackage/Codex Mcp Container",
+      "documentedSetup": "python -m venv mcp_venv; pip install -r requirements.txt; set SMELLBENCH_DATASET_PATH",
+      "documentedCommand": "python main.py"
+    },
+    {
+      "component": "Codex Scheduler",
+      "purpose": "Loop an agent CLI over SmellBench tasks using the MCP server and smellbench skill.",
+      "sourcePath": "extracted/ExperimentsReproductionPackage/Codex Scheduler",
+      "documentedSetup": "python -m venv scheduler_venv; install scikit-learn deps; configure agent CLI and MCP server",
+      "documentedCommand": "python main.py /path/to/scikit-learn --agent <codex|claude|gemini|mistral> [options]"
+    },
+    {
+      "component": "Code Smell Evaluator",
+      "purpose": "Compare baseline and post-fix PyExamine reports with agent task_state databases and expert annotations.",
+      "sourcePath": "extracted/ExperimentsReproductionPackage/Code Smell Evaluator",
+      "documentedSetup": "python -m venv venv; pip install -r requirements.txt",
+      "documentedCommand": "python generate_cross_comparison.py"
+    }
+  ],
+  "taskSchema": {
+    "datasetCsv": "Dataset Builder/result_dataset/scikitlearn_1.7.2_baseline/CodeSmells_Scikit_architectural_hard_classification.csv",
+    "rowCountIncludingHeader": 66,
+    "taskCount": 65,
+    "columns": [
+      "Type",
+      "Name",
+      "Description",
+      "File",
+      "Module/Class",
+      "Line Number",
+      "Severity",
+      "scattered_modules",
+      "improper_repeats",
+      "unstable_out",
+      "unstable_in",
+      "god_public_funcs",
+      "redundant_similarity",
+      "cycle_strength",
+      "LLM_difficulty_rule"
+    ],
+    "mcpTaskPacketFields": [
+      "task_id",
+      "smell_type",
+      "smell_name",
+      "task_description",
+      "files",
+      "module_class",
+      "prompt",
+      "demos",
+      "previous_status",
+      "previous_summary",
+      "previous_changed_files"
+    ],
+    "taskDatabase": {
+      "table": "task_state",
+      "columns": [
+        "task_id",
+        "status",
+        "previous_status",
+        "summary",
+        "changed_files",
+        "task_solve_score",
+        "locked_at",
+        "locked_by",
+        "updated_at",
+        "attempts",
+        "last_error"
+      ],
+      "observedSampleDatabase": "Code Smell Evaluator/input_solutions_database/tasks_state_gpt-5.3-codex-spark.db",
+      "observedTaskCount": 65,
+      "observedStatuses": {
+        "accepted": 37,
+        "blocked": 1,
+        "done": 27
+      }
+    }
+  },
+  "rawInputs": {
+    "baselineReports": [
+      "Code Smell Evaluator/input_reports/CodeSmells_Scikit_architectural_all_classification.csv",
+      "Dataset Builder/result_dataset/scikitlearn_1.7.2_baseline/CodeSmells_Scikit_architectural_all_classification.csv",
+      "Dataset Builder/result_dataset/scikitlearn_1.7.2_baseline/CodeSmells_Scikit_architectural_hard_classification.csv"
+    ],
+    "postFixReports": "Code Smell Evaluator/input_reports/code_quality_report_<agent>_architectural_all_classification.csv",
+    "solutionDatabases": "Code Smell Evaluator/input_solutions_database/tasks_state_<agent>.db",
+    "expertAnnotations": "Code Smell Evaluator/input_analysis/"
+  },
+  "runnerVerification": {
+    "command": "PYTHONPATH=/tmp/smellbench-eval-pydeps MPLCONFIGDIR=/tmp/smellbench-mpl-cache python3 generate_cross_comparison.py",
+    "workingDirectory": "artifacts/smellbench-contract-probe/extracted/ExperimentsReproductionPackage/Code Smell Evaluator",
+    "result": "pass",
+    "generatedReport": "evaluation_reports/cross_agent_comparison_20260525_152420.xlsx",
+    "warnings": [
+      "numpy emitted RuntimeWarning: invalid value encountered in divide during correlation calculations; command still completed and wrote the report."
+    ],
+    "leaderboardTop": {
+      "agent": "GPT 5.3 Spark",
+      "weightedEffectiveness602020": 0.4784,
+      "repairComponent": 0.383,
+      "fpComponent": 0.891,
+      "partialComponent": 0.353
+    }
+  },
+  "scoreSemantics": {
+    "perTaskScoreRange": "[-1, 1]",
+    "perTaskRules": [
+      "Attempted fix and fully repaired: 1.0",
+      "Attempted fix and partially improved: (0, 1), proportional to severity reduction",
+      "Attempted fix and unchanged: 0.0",
+      "Attempted fix and worsened: [-1, 0), proportional to severity increase",
+      "Flagged false positive and expert says Valid FP: 1.0",
+      "Flagged false positive and expert says Partially Valid: 0.0",
+      "Flagged false positive and expert says Invalid FP: -1.0"
+    ],
+    "aggregateMetric": "Weighted Effectiveness",
+    "primaryWeights": {
+      "repairComponent": 0.6,
+      "falsePositiveComponent": 0.2,
+      "partialComponent": 0.2
+    },
+    "reportedAnalyses": [
+      "Leaderboard",
+      "RQ1-RQ5 sheets",
+      "Statistical Tests",
+      "Bootstrap CIs",
+      "Cohen/Fleiss Kappa",
+      "Annotator Agreement",
+      "Methodology"
+    ]
+  },
+  "smokeReadiness": {
+    "contractProbeComplete": true,
+    "canStartAdapterImplementation": true,
+    "canClaimSmellBenchScoreNow": false,
+    "missingForSWU007B": [
+      "harness-local candidate manifest shape",
+      "one pinned SmellBench task selection",
+      "agent-produced candidate artifact for the selected smell task",
+      "local smoke runner that imports evaluator output into the benchmark artifact layout"
+    ]
+  },
+  "validation": [
+    {
+      "command": "curl -L --max-time 20 -sS https://zenodo.org/api/records/19247588",
+      "result": "pass"
+    },
+    {
+      "command": "md5sum artifacts/smellbench-contract-probe/ExperimentsReproductionPackage.7z",
+      "result": "pass",
+      "observed": "87c00f711c74fc48f85b2cafb35a5cd6"
+    },
+    {
+      "command": "PYTHONPATH=/tmp/smellbench-probe-pydeps python3 -m py7zr x artifacts/smellbench-contract-probe/ExperimentsReproductionPackage.7z artifacts/smellbench-contract-probe/extracted",
+      "result": "pass"
+    },
+    {
+      "command": "PYTHONPATH=/tmp/smellbench-eval-pydeps MPLCONFIGDIR=/tmp/smellbench-mpl-cache python3 generate_cross_comparison.py",
+      "result": "pass"
+    }
+  ]
+}

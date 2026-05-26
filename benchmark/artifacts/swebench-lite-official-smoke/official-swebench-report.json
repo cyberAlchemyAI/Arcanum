@@ -1,0 +1,98 @@
+{
+  "runId": "swebench-lite-official-smoke",
+  "datasetName": "princeton-nlp/SWE-bench_Lite",
+  "split": "test",
+  "runnerImage": "swebench-official-runner",
+  "predictionSource": "fixtures/swebench-lite-agent-patches.json",
+  "predictionsPath": "artifacts/swebench-lite-official-smoke/predictions.jsonl",
+  "preflight": {
+    "ok": true,
+    "docker": {
+      "ok": true,
+      "version": "Docker version 28.0.1, build 068a01e",
+      "daemonOk": true,
+      "daemonVersion": "28.0.1"
+    },
+    "runner": {
+      "image": "swebench-official-runner",
+      "ok": true,
+      "pythonVersion": "Python 3.11.15"
+    },
+    "modules": {
+      "swebench": true,
+      "datasets": true
+    },
+    "warnings": [
+      "Official SWE-bench Docker evaluation can require substantial disk and memory; SWE-bench docs call out large Docker cache/storage requirements."
+    ],
+    "blockers": []
+  },
+  "status": "pass",
+  "datasetProbe": {
+    "datasetName": "princeton-nlp/SWE-bench_Lite",
+    "split": "test",
+    "fields": [
+      "repo",
+      "instance_id",
+      "base_commit",
+      "patch",
+      "test_patch",
+      "problem_statement",
+      "hints_text",
+      "created_at",
+      "version",
+      "FAIL_TO_PASS",
+      "PASS_TO_PASS",
+      "environment_setup_commit"
+    ],
+    "selectedInstanceIds": [
+      "astropy__astropy-12907"
+    ],
+    "totalRows": 300
+  },
+  "officialEvaluation": {
+    "ok": true,
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "-v",
+      "/home/vrondelli/projects/domainspec-core/arcanum/benchmark:/workspace",
+      "-v",
+      "/var/run/docker.sock:/var/run/docker.sock",
+      "-w",
+      "/workspace",
+      "swebench-official-runner",
+      "python",
+      "-m",
+      "swebench.harness.run_evaluation",
+      "--dataset_name",
+      "princeton-nlp/SWE-bench_Lite",
+      "--split",
+      "test",
+      "--predictions_path",
+      "/workspace/artifacts/swebench-lite-official-smoke/predictions.jsonl",
+      "--max_workers",
+      "1",
+      "--run_id",
+      "swebench-lite-official-smoke"
+    ],
+    "runId": "swebench-lite-official-smoke",
+    "datasetName": "princeton-nlp/SWE-bench_Lite",
+    "resultsDir": "/home/vrondelli/projects/domainspec-core/arcanum/benchmark/evaluation_results/swebench-lite-official-smoke",
+    "importedResultsDir": "/home/vrondelli/projects/domainspec-core/arcanum/benchmark/artifacts/swebench-lite-official-smoke/official-evaluation-results",
+    "stdout": "1 instances already run, skipping...\nNo instances to run.\nCleaning cached images...\nRemoved 0 images.\nTotal instances: 300\nInstances submitted: 1\nInstances completed: 1\nInstances incomplete: 299\nInstances resolved: 0\nInstances unresolved: 1\nInstances with empty patches: 0\nInstances with errors: 0\nUnstopped containers: 0\nUnremoved images: 0\nReport written to codex-local-smoke.swebench-lite-official-smoke.json\n",
+    "stderr": "<frozen runpy>:128: RuntimeWarning: 'swebench.harness.run_evaluation' found in sys.modules after import of package 'swebench.harness', but prior to execution of 'swebench.harness.run_evaluation'; this may result in unpredictable behaviour\n2026-05-25 16:05:09,953 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/README.md \"HTTP/1.1 307 Temporary Redirect\"\n2026-05-25 16:05:09,962 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/princeton-nlp/SWE-bench_Lite/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/README.md \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:09,974 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/datasets/princeton-nlp/SWE-bench_Lite/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/README.md \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:10,112 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/SWE-bench_Lite.py \"HTTP/1.1 404 Not Found\"\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n2026-05-25 16:05:10,113 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n2026-05-25 16:05:10,551 - httpx - INFO - HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/princeton-nlp/SWE-bench_Lite/princeton-nlp/SWE-bench_Lite.py \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:10,691 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/datasets/princeton-nlp/SWE-bench_Lite/revision/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2 \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:10,832 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/.huggingface.yaml \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:11,053 - httpx - INFO - HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=princeton-nlp/SWE-bench_Lite \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:11,460 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/datasets/princeton-nlp/SWE-bench_Lite/tree/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/data?recursive=true&expand=false \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:11,605 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/datasets/princeton-nlp/SWE-bench_Lite/tree/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2?recursive=false&expand=false \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:11,748 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/dataset_infos.json \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:12,043 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/data/dev-00000-of-00001.parquet \"HTTP/1.1 302 Found\"\n2026-05-25 16:05:12,183 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/datasets/princeton-nlp/SWE-bench_Lite/xet-read-token/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2 \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:13,093 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/data/test-00000-of-00001.parquet \"HTTP/1.1 302 Found\"\n\rGenerating dev split:   0%|          | 0/23 [00:00<?, ? examples/s]\rGenerating dev split: 100%|██████████| 23/23 [00:00<00:00, 1450.03 examples/s]\n\rGenerating test split:   0%|          | 0/300 [00:00<?, ? examples/s]\rGenerating test split: 100%|██████████| 300/300 [00:00<00:00, 7965.73 examples/s]\n2026-05-25 16:05:14,970 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/README.md \"HTTP/1.1 307 Temporary Redirect\"\n2026-05-25 16:05:14,981 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/princeton-nlp/SWE-bench_Lite/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/README.md \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:15,115 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/SWE-bench_Lite.py \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:15,254 - httpx - INFO - HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/princeton-nlp/SWE-bench_Lite/princeton-nlp/SWE-bench_Lite.py \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:15,392 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/.huggingface.yaml \"HTTP/1.1 404 Not Found\"\n2026-05-25 16:05:15,543 - httpx - INFO - HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=princeton-nlp/SWE-bench_Lite \"HTTP/1.1 200 OK\"\n2026-05-25 16:05:15,684 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/dataset_infos.json \"HTTP/1.1 404 Not Found\"\n",
+    "exitCode": 0
+  },
+  "score": {
+    "status": "fail",
+    "resolved": false,
+    "instanceId": "astropy__astropy-14365",
+    "datasetName": "princeton-nlp/SWE-bench_Lite",
+    "runId": "swebench-lite-official-smoke",
+    "officialResultsRef": "/home/vrondelli/projects/domainspec-core/arcanum/benchmark/artifacts/swebench-lite-official-smoke/official-evaluation-results/results.json",
+    "instanceResultsRef": "/home/vrondelli/projects/domainspec-core/arcanum/benchmark/artifacts/swebench-lite-official-smoke/official-evaluation-results/instance_results.jsonl",
+    "logsRef": "/home/vrondelli/projects/domainspec-core/arcanum/benchmark/artifacts/swebench-lite-official-smoke/official-evaluation-results/logs/codex-local-smoke/astropy__astropy-14365"
+  }
+}

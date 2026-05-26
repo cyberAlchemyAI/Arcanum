@@ -82,5 +82,8 @@ Do not begin full SWE-bench ingestion until the small sample batch has stable st
 
 ## Completion Evidence
 
-- Sample manifest checked in or generated deterministically.
-- Batch report links every task to score and telemetry evidence.
+- SWU-HARNESS-005: completed against local fixture mirror. `fixtures/swe-bench-local-sample.json` normalizes to a valid Docker `TaskDefinition`, and `npm run smoke:docker` passed with `docker-smoke-001` using Docker image `test-nestjs-app:latest`.
+- SWU-HARNESS-005 B-001 scope: exact local dataset path is `fixtures/swe-bench-local-sample.json`; exact local labels are `refactor`, `cleanup`, and `tech-debt`; upstream Hugging Face SWE-bench labels were not promoted from this local probe.
+- SWU-HARNESS-006: completed. `npm run smoke:batch` produced `sample-batch-001` with counts `pass=1`, `fail=0`, `infra-fail=0`, `quarantined=0`.
+- Evidence paths: `artifacts/docker-smoke-001/oracle-evidence.json`, `artifacts/sample-batch-001/batch-report.json`, `artifacts/sample-batch-001-001/score-result.json`, and `artifacts/sample-batch-001-001/telemetry.jsonl`.
+- Validation: `npm test`, `npm run smoke:docker`, and `npm run smoke:batch` passed.

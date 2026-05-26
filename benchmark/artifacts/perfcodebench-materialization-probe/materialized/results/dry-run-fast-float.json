@@ -1,0 +1,66 @@
+{
+  "task_id": "fast_float_parse",
+  "model": "gpt-5.4",
+  "dry_run": true,
+  "candidate_path": "executable_tasks/fast_float_parse/candidate/gpt-5.4/solution.cpp",
+  "benchmark_timeout_sec": null,
+  "model_output_summary": "Dry run placeholder.",
+  "model_output_solution_source": "#include \"interface.h\"\n\n#include <cstdlib>\n\ndouble parse_sum(const std::string& input) {\n  const char* p = input.c_str();\n  const char* end = p + input.size();\n  double sum = 0.0;\n  while (p < end) {\n    char* next = nullptr;\n    const double value = std::strtod(p, &next);\n    if (next == p) {\n      break;\n    }\n    sum += value;\n    p = (*next == '\\n') ? next + 1 : next;\n  }\n  return sum;\n}\n",
+  "baseline": {
+    "task_id": "fast_float_parse",
+    "variant": "baseline",
+    "runs": 1,
+    "median_elapsed_ns": 37134461,
+    "min_elapsed_ns": 37134461,
+    "max_elapsed_ns": 37134461,
+    "all_elapsed_ns": [
+      37134461
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 37134461,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  },
+  "reference": {
+    "task_id": "fast_float_parse",
+    "variant": "reference",
+    "runs": 1,
+    "median_elapsed_ns": 4153688,
+    "min_elapsed_ns": 4153688,
+    "max_elapsed_ns": 4153688,
+    "all_elapsed_ns": [
+      4153688
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 4153688,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  },
+  "candidate": {
+    "task_id": "fast_float_parse",
+    "variant": "candidate",
+    "runs": 1,
+    "median_elapsed_ns": 22380209,
+    "min_elapsed_ns": 22380209,
+    "max_elapsed_ns": 22380209,
+    "all_elapsed_ns": [
+      22380209
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 22380209,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  }
+}

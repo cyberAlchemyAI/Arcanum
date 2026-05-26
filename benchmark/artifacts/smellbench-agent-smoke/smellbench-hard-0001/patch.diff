@@ -1,0 +1,136 @@
+diff --git a/asv_benchmarks/benchmarks/cluster.py b/asv_benchmarks/benchmarks/cluster.py
+index 457a15d..1425317 100644
+--- a/asv_benchmarks/benchmarks/cluster.py
++++ b/asv_benchmarks/benchmarks/cluster.py
+@@ -1,17 +1,18 @@
+ from sklearn.cluster import KMeans, MiniBatchKMeans
+ 
+-from .common import Benchmark, Estimator, Predictor, Transformer
++from .common import Benchmark, ParameterizedEstimator, Predictor, Transformer
+ from .datasets import _20newsgroups_highdim_dataset, _blobs_dataset
+ from .utils import neg_mean_inertia
+ 
+ 
+-class KMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
++class KMeansBenchmark(Predictor, Transformer, ParameterizedEstimator, Benchmark):
+     """
+     Benchmarks for KMeans.
+     """
+ 
+     param_names = ["representation", "algorithm", "init"]
+     params = (["dense", "sparse"], ["lloyd", "elkan"], ["random", "k-means++"])
++    estimator_cls = KMeans
+ 
+     def setup_cache(self):
+         super().setup_cache()
+@@ -26,22 +27,20 @@ class KMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
+ 
+         return data
+ 
+-    def make_estimator(self, params):
++    def estimator_kwargs(self, params):
+         representation, algorithm, init = params
+ 
+         max_iter = 30 if representation == "sparse" else 100
+ 
+-        estimator = KMeans(
+-            n_clusters=20,
+-            algorithm=algorithm,
+-            init=init,
+-            n_init=1,
+-            max_iter=max_iter,
+-            tol=0,
+-            random_state=0,
+-        )
+-
+-        return estimator
++        return {
++            "n_clusters": 20,
++            "algorithm": algorithm,
++            "init": init,
++            "n_init": 1,
++            "max_iter": max_iter,
++            "tol": 0,
++            "random_state": 0,
++        }
+ 
+     def make_scorers(self):
+         self.train_scorer = lambda _, __: neg_mean_inertia(
+@@ -54,13 +53,14 @@ class KMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
+         )
+ 
+ 
+-class MiniBatchKMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
++class MiniBatchKMeansBenchmark(Predictor, Transformer, ParameterizedEstimator, Benchmark):
+     """
+     Benchmarks for MiniBatchKMeans.
+     """
+ 
+     param_names = ["representation", "init"]
+     params = (["dense", "sparse"], ["random", "k-means++"])
++    estimator_cls = MiniBatchKMeans
+ 
+     def setup_cache(self):
+         super().setup_cache()
+@@ -75,23 +75,21 @@ class MiniBatchKMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
+ 
+         return data
+ 
+-    def make_estimator(self, params):
++    def estimator_kwargs(self, params):
+         representation, init = params
+ 
+         max_iter = 5 if representation == "sparse" else 2
+ 
+-        estimator = MiniBatchKMeans(
+-            n_clusters=20,
+-            init=init,
+-            n_init=1,
+-            max_iter=max_iter,
+-            batch_size=1000,
+-            max_no_improvement=None,
+-            compute_labels=False,
+-            random_state=0,
+-        )
+-
+-        return estimator
++        return {
++            "n_clusters": 20,
++            "init": init,
++            "n_init": 1,
++            "max_iter": max_iter,
++            "batch_size": 1000,
++            "max_no_improvement": None,
++            "compute_labels": False,
++            "random_state": 0,
++        }
+ 
+     def make_scorers(self):
+         self.train_scorer = lambda _, __: neg_mean_inertia(
+diff --git a/asv_benchmarks/benchmarks/common.py b/asv_benchmarks/benchmarks/common.py
+index c12da55..09066dc 100644
+--- a/asv_benchmarks/benchmarks/common.py
++++ b/asv_benchmarks/benchmarks/common.py
+@@ -198,6 +198,22 @@ class Estimator(ABC):
+         return float(self.test_scorer(self.y_val, y_val_pred))
+ 
+ 
++class ParameterizedEstimator(Estimator):
++    """Base class for estimators that can be built from keyword parameters."""
++
++    estimator_cls = None
++
++    def make_estimator(self, params):
++        """Return an estimator instance for a combination of parameters."""
++        if self.estimator_cls is None:
++            raise NotImplementedError("estimator_cls must be set on the benchmark")
++
++        return self.estimator_cls(**self.estimator_kwargs(params))
++
++    def estimator_kwargs(self, params):
++        return {}
++
++
+ class Predictor(ABC):
+     """Abstract base class for benchmarks of estimators implementing predict"""
+ 

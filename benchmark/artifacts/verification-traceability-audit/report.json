@@ -1,0 +1,79 @@
+{
+  "task": "TASK-VERIFY",
+  "status": "pass",
+  "runDate": "2026-05-26",
+  "scope": "W0-W3 reproducibility and traceability closure audit",
+  "contextPack": "artifacts/task-session-task-verify-context-pack.md",
+  "contextIndex": "artifacts/task-session-task-verify-context-index.json",
+  "validation": [
+    {
+      "command": "npm test",
+      "status": "pass",
+      "evidence": "10/10 test files passed"
+    },
+    {
+      "command": "npm run report:campaign",
+      "status": "pass",
+      "evidence": "campaign-report-smoke: 6 runs, 0 evidence gaps"
+    },
+    {
+      "command": "npm run smoke:dashboard-api",
+      "status": "pass",
+      "evidence": "dashboard-api-smoke: 6 runs, 0 evidence gaps"
+    },
+    {
+      "command": "jq empty core JSON artifacts",
+      "status": "pass",
+      "evidence": "campaign, dashboard, SWE-bench, SmellBench, PerfCodeBench, and context index JSON parsed"
+    },
+    {
+      "command": "jq traceability assertions",
+      "status": "pass",
+      "evidence": "campaign/dashboard summaries and benchmark score statuses matched expected persisted values"
+    }
+  ],
+  "summary": {
+    "totalRuns": 6,
+    "pass": 5,
+    "fail": 1,
+    "infraFail": 0,
+    "resolved": 5,
+    "unresolved": 1,
+    "telemetryEvents": 19,
+    "evidenceGapCount": 0
+  },
+  "scoreArtifacts": [
+    {
+      "benchmark": "SWE-bench Lite",
+      "artifact": "artifacts/swebench-lite-official-smoke/score-result.json",
+      "status": "fail",
+      "resolved": false,
+      "instanceId": "astropy__astropy-14365",
+      "datasetName": "princeton-nlp/SWE-bench_Lite",
+      "authority": "official SWE-bench result files"
+    },
+    {
+      "benchmark": "SmellBench",
+      "artifact": "artifacts/smellbench-official-smoke/score-result.json",
+      "status": "pass",
+      "resolved": true,
+      "datasetName": "CodeSmells_Scikit_architectural_hard_classification",
+      "authority": "upstream-derived evaluator output"
+    },
+    {
+      "benchmark": "PerfCodeBench",
+      "artifact": "artifacts/perfcodebench-official-smoke/score-result.json",
+      "status": "pass",
+      "resolved": true,
+      "datasetName": "PerfCodeBench",
+      "authority": "verified PerfCodeBench runner output"
+    }
+  ],
+  "closureVerdict": "complete",
+  "remainingDeferredScope": [
+    "broader benchmark coverage",
+    "campaign scheduling",
+    "cloud-scale workers",
+    "dashboard beyond report-linked evidence"
+  ]
+}

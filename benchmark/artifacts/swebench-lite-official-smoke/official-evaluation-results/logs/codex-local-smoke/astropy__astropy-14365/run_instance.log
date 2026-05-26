@@ -1,0 +1,72 @@
+2026-05-25 16:02:04,101 - INFO - Creating container for astropy__astropy-14365...
+2026-05-25 16:02:04,543 - INFO - Container for astropy__astropy-14365 created: ef11a03d8cf385501a9e5bf62e5bba383d6028f050aeabb41a1b8212bbb9a1e7
+2026-05-25 16:02:04,868 - INFO - Container for astropy__astropy-14365 started: ef11a03d8cf385501a9e5bf62e5bba383d6028f050aeabb41a1b8212bbb9a1e7
+2026-05-25 16:02:04,869 - INFO - Intermediate patch for astropy__astropy-14365 written to logs/run_evaluation/swebench-lite-official-smoke/codex-local-smoke/astropy__astropy-14365/patch.diff, now applying to container...
+2026-05-25 16:02:05,046 - INFO - >>>>> Applied Patch:
+Checking patch astropy/io/ascii/qdp.py...
+Checking patch astropy/io/ascii/tests/test_qdp.py...
+Applied patch astropy/io/ascii/qdp.py cleanly.
+Applied patch astropy/io/ascii/tests/test_qdp.py cleanly.
+
+2026-05-25 16:02:05,480 - INFO - Git diff before:
+diff --git a/astropy/io/ascii/qdp.py b/astropy/io/ascii/qdp.py
+index 83a4f004a..768beb0de 100644
+--- a/astropy/io/ascii/qdp.py
++++ b/astropy/io/ascii/qdp.py
+@@ -68,7 +68,7 @@ def _line_type(line, delimiter=None):
+     _new_re = rf"NO({sep}NO)+"
+     _data_re = rf"({_decimal_re}|NO|[-+]?nan)({sep}({_decimal_re}|NO|[-+]?nan))*)"
+     _type_re = rf"^\s*((?P<command>{_command_re})|(?P<new>{_new_re})|(?P<data>{_data_re})?\s*(\!(?P<comment>.*))?\s*$"
+-    _line_type_re = re.compile(_type_re)
++    _line_type_re = re.compile(_type_re, re.IGNORECASE)
+     line = line.strip()
+     if not line:
+         return "comment"
+diff --git a/astropy/io/ascii/tests/test_qdp.py b/astropy/io/ascii/tests/test_qdp.py
+index ef24e6f6a..272fa1281 100644
+--- a/astropy/io/ascii/tests/test_qdp.py
++++ b/astropy/io/ascii/tests/test_qdp.py
+@@ -7,6 +7,17 @@ from astropy.table import Column, MaskedColumn, Table
+ from astropy.utils.exceptions import AstropyUserWarning
+ 
+ 
++def test_lowercase_qdp_commands(tmp_path):
++    test_file = tmp_path / "test.qdp"
++    test_file.write_text("read serr 1 2\n1 0.5 1 0.5\n")
++
++    table = Table.read(test_file, format="ascii.qdp", names=["a", "b"])
++
++    assert table.colnames == ["a", "a_err", "b", "b_err"]
++    assert np.allclose(table["a_err"], [0.5])
++    assert np.allclose(table["b_err"], [0.5])
++
++
+ def test_get_tables_from_qdp_file(tmp_path):
+     example_qdp = """
+     ! Swift/XRT hardness ratio of trigger: XXXX, name: BUBU X-2
+2026-05-25 16:02:05,484 - INFO - Eval script for astropy__astropy-14365 written to logs/run_evaluation/swebench-lite-official-smoke/codex-local-smoke/astropy__astropy-14365/eval.sh; copying to container...
+2026-05-25 16:02:58,651 - INFO - Test runtime: 53.09 seconds
+2026-05-25 16:02:58,658 - INFO - Test output for astropy__astropy-14365 written to logs/run_evaluation/swebench-lite-official-smoke/codex-local-smoke/astropy__astropy-14365/test_output.txt
+2026-05-25 16:02:58,722 - INFO - Git diff after:
+diff --git a/astropy/io/ascii/qdp.py b/astropy/io/ascii/qdp.py
+index 83a4f004a..768beb0de 100644
+--- a/astropy/io/ascii/qdp.py
++++ b/astropy/io/ascii/qdp.py
+@@ -68,7 +68,7 @@ def _line_type(line, delimiter=None):
+     _new_re = rf"NO({sep}NO)+"
+     _data_re = rf"({_decimal_re}|NO|[-+]?nan)({sep}({_decimal_re}|NO|[-+]?nan))*)"
+     _type_re = rf"^\s*((?P<command>{_command_re})|(?P<new>{_new_re})|(?P<data>{_data_re})?\s*(\!(?P<comment>.*))?\s*$"
+-    _line_type_re = re.compile(_type_re)
++    _line_type_re = re.compile(_type_re, re.IGNORECASE)
+     line = line.strip()
+     if not line:
+         return "comment"
+2026-05-25 16:02:58,722 - INFO - Git diff changed after running eval script
+2026-05-25 16:02:58,722 - INFO - Grading answer for astropy__astropy-14365...
+2026-05-25 16:02:58,726 - INFO - report: {'astropy__astropy-14365': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['astropy/io/ascii/tests/test_qdp.py::test_roundtrip[True]']}, 'PASS_TO_PASS': {'success': ['astropy/io/ascii/tests/test_qdp.py::test_get_tables_from_qdp_file', 'astropy/io/ascii/tests/test_qdp.py::test_roundtrip[False]', 'astropy/io/ascii/tests/test_qdp.py::test_read_example', 'astropy/io/ascii/tests/test_qdp.py::test_roundtrip_example', 'astropy/io/ascii/tests/test_qdp.py::test_roundtrip_example_comma', 'astropy/io/ascii/tests/test_qdp.py::test_read_write_simple', 'astropy/io/ascii/tests/test_qdp.py::test_read_write_simple_specify_name', 'astropy/io/ascii/tests/test_qdp.py::test_get_lines_from_qdp'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for astropy__astropy-14365: resolved: False
+2026-05-25 16:02:58,726 - INFO - Attempting to stop container sweb.eval.astropy__astropy-14365.swebench-lite-official-smoke...
+2026-05-25 16:03:14,241 - INFO - Attempting to remove container sweb.eval.astropy__astropy-14365.swebench-lite-official-smoke...
+2026-05-25 16:03:14,279 - INFO - Container sweb.eval.astropy__astropy-14365.swebench-lite-official-smoke removed.
+2026-05-25 16:03:14,279 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.astropy_1776_astropy-14365:latest...
+2026-05-25 16:03:17,009 - INFO - Image swebench/sweb.eval.x86_64.astropy_1776_astropy-14365:latest removed.

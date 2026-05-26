@@ -1,0 +1,45 @@
+{
+  "taskId": "smellbench-hard-0001",
+  "benchmark": "SmellBench",
+  "datasetName": "CodeSmells_Scikit_architectural_hard_classification",
+  "datasetPath": "artifacts/smellbench-contract-probe/extracted/ExperimentsReproductionPackage/Dataset Builder/result_dataset/scikitlearn_1.7.2_baseline/CodeSmells_Scikit_architectural_hard_classification.csv",
+  "sourceRowIndex": 1,
+  "selectionRule": "first row from the hard architectural scikit-learn 1.7.2 classification CSV",
+  "project": {
+    "name": "scikit-learn",
+    "version": "1.7.2",
+    "repo": "https://github.com/scikit-learn/scikit-learn.git",
+    "baseCommit": "25dee604bae18205b01548348388baf7a1cdfe0e",
+    "localCheckout": "artifacts/smellbench-agent-smoke/smellbench-hard-0001/repo"
+  },
+  "smell": {
+    "type": "Architectural",
+    "name": "Scattered Functionality",
+    "description": "Function 'make_estimator' appears in 10 modules: benchmarks.common, benchmarks.cluster, benchmarks.decomposition, benchmarks.ensemble, benchmarks.linear_model, benchmarks.manifold, benchmarks.model_selection, benchmarks.neighbors, benchmarks.svm, miscellaneous.plot_outlier_detection_bench",
+    "severity": "medium",
+    "difficulty": "hard",
+    "metrics": {
+      "scatteredModules": 10.0
+    }
+  },
+  "affectedFiles": [
+    "asv_benchmarks/benchmarks/common.py",
+    "asv_benchmarks/benchmarks/cluster.py",
+    "asv_benchmarks/benchmarks/decomposition.py",
+    "asv_benchmarks/benchmarks/ensemble.py",
+    "asv_benchmarks/benchmarks/linear_model.py",
+    "asv_benchmarks/benchmarks/manifold.py",
+    "asv_benchmarks/benchmarks/model_selection.py",
+    "asv_benchmarks/benchmarks/neighbors.py",
+    "asv_benchmarks/benchmarks/svm.py"
+  ],
+  "candidate": {
+    "modelNameOrPath": "codex-local-smoke",
+    "patchArtifactPath": "artifacts/smellbench-agent-smoke/smellbench-hard-0001/patch.diff",
+    "source": "harness-local bounded Codex patch attempt",
+    "usesBundledBenchmarkAgentOutput": false,
+    "usesBundledTaskStateDatabase": false,
+    "usesBundledPostFixCsv": false,
+    "usesGoldOrReferenceSolution": false
+  }
+}

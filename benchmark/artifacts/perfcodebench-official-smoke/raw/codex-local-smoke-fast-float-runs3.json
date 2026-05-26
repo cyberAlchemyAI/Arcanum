@@ -1,0 +1,72 @@
+{
+  "task_id": "fast_float_parse",
+  "model": "codex-local-smoke",
+  "dry_run": false,
+  "candidate_path": "executable_tasks/fast_float_parse/candidate/codex-local-smoke/solution.cpp",
+  "benchmark_timeout_sec": null,
+  "model_output_summary": "Reused existing candidate source for rerun benchmarking.",
+  "model_output_solution_source": "#include \"interface.h\"\n\n#include \"fast_float/fast_float.h\"\n\ndouble parse_sum(const std::string& input) {\n  const char* p = input.data();\n  const char* const end = p + input.size();\n  double sum = 0.0;\n\n  while (p < end) {\n    double value = 0.0;\n    const auto result = fast_float::from_chars(p, end, value);\n    if (result.ptr == p) {\n      break;\n    }\n    sum += value;\n    p = result.ptr;\n    if (p < end && *p == '\\n') {\n      ++p;\n    }\n  }\n\n  return sum;\n}\n\n",
+  "baseline": {
+    "task_id": "fast_float_parse",
+    "variant": "baseline",
+    "runs": 3,
+    "median_elapsed_ns": 69189972,
+    "min_elapsed_ns": 68272237,
+    "max_elapsed_ns": 69591208,
+    "all_elapsed_ns": [
+      69591208,
+      69189972,
+      68272237
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 69591208,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  },
+  "reference": {
+    "task_id": "fast_float_parse",
+    "variant": "reference",
+    "runs": 3,
+    "median_elapsed_ns": 17550297,
+    "min_elapsed_ns": 16749865,
+    "max_elapsed_ns": 19932349,
+    "all_elapsed_ns": [
+      17550297,
+      19932349,
+      16749865
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 17550297,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  },
+  "candidate": {
+    "task_id": "fast_float_parse",
+    "variant": "candidate",
+    "runs": 3,
+    "median_elapsed_ns": 7495451,
+    "min_elapsed_ns": 5762228,
+    "max_elapsed_ns": 9460869,
+    "all_elapsed_ns": [
+      7495451,
+      5762228,
+      9460869
+    ],
+    "all_ok": true,
+    "sample_output": {
+      "ok": true,
+      "elapsed_ns": 7495451,
+      "expected_sum": -14618308.753247797,
+      "actual_sum": -14618308.753247797
+    },
+    "status": "ok"
+  }
+}
