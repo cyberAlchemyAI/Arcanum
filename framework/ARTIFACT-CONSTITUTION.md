@@ -1,0 +1,101 @@
+# Artifact Constitution
+
+This repository treats every created file as an artifact with an owner, a retention
+class, and a validation obligation. The goal is to keep source, durable evidence,
+generated output, and local runtime state from collapsing into one unreviewable
+pile.
+
+## Classes
+
+### Source Artifacts
+
+Source artifacts define reusable behavior, process, templates, command surfaces,
+scripts, schemas, documentation, or tests. They are versioned by default.
+
+Examples:
+
+- `arcana/**`
+- `spells/**`
+- `transmutations/**`
+- `framework/**`
+- `registry/**`
+- `.codex/commands/**`
+- `tools/**`
+
+### Durable Evidence Artifacts
+
+Durable evidence artifacts are run outputs that are intentionally promoted as
+proof, examples, or benchmark records. They may be versioned only when a nearby
+document names why the evidence is durable.
+
+Examples:
+
+- curated fixture inputs and expected outputs
+- validation reports referenced by a work-pack
+- benchmark summaries that support a committed decision
+
+### Generated Artifacts
+
+Generated artifacts are reproducible run output, temporary experiment evidence,
+lookup indexes, logs, or cache-like files. They are ignored by default. A
+generated artifact may be force-added only when it is promoted to durable
+evidence.
+
+Examples:
+
+- `**/development/runs/**`
+- `**/development/example-runs/**`
+- `**/development/example-outputs/**`
+- `.arcanum/observability/runs/**`
+- `.arcanum/observability/reflections/**`
+- `.arcanum/observability/by-sigil/*.jsonl`
+- `.arcanum/observability/by-capability/**/*.jsonl`
+- `.arcanum/observability/hooks/*.jsonl`
+- `.arcanum/observability/signals/*.jsonl`
+- `.arcanum/observability/reflection-state.json`
+- `benchmark/artifacts/**`
+- `benchmark/logs/**`
+
+### Local Runtime Artifacts
+
+Local runtime artifacts are machine-specific state. They must never become
+versioned source or durable evidence.
+
+Examples:
+
+- `.arcanum/codex-home/**`
+- `.arcanum/codex-home-smoke/**`
+- `.arcanum/runtime/**`
+- `tmp/**`
+- `*.sqlite`, `*.sqlite-shm`, `*.sqlite-wal`
+- `auth.json`
+- `installation_id`
+
+## Rules
+
+1. Every new artifact must be classified before it is committed.
+2. Source artifacts must remain visible to Git unless they are intentionally
+   deleted.
+3. Generated artifacts must be ignored unless promoted to durable evidence with
+   an explicit reason in adjacent documentation, a work-pack, or a validation
+   report.
+4. Local runtime artifacts must be ignored and must not be force-added.
+5. Observability indexes, hook ledgers, signals, reflection state, run folders,
+   and reflection reports are generated artifacts. Keep only the package
+   skeleton and explicit configuration under version control by default.
+6. Adding a new artifact-producing path requires updating `.gitignore` and this
+   constitution when the path belongs to generated or local runtime state.
+7. Validation must run after file-creating tools and before handoff.
+
+## Validation Contract
+
+Run:
+
+```bash
+tools/validate-artifact-constitution.sh
+```
+
+The validator checks the current Git working tree for new local/generated
+artifacts that are not ignored, plus tracked local runtime state that should
+never be versioned. Hook integrations run the same validator after file-writing
+tools so violations are caught close to creation time.
