@@ -152,14 +152,31 @@ No record should reach promoted, policy, constitution, or axiom state with unkno
 
 ## Candidate Role Semantics
 
-These semantics are useful but not canonical:
+These role semantics are useful but not canonical. They describe what kind of claim a record is making; they do not automatically decide lifecycle status or promotion.
 
-```text
-axiom = behavior invariant or load-bearing principle that downstream governance depends on
-constitution = enforceable form/model/structure/transformation/gate governance that preserves invariants
-policy = scoped decision rule with owner and applicability
-premise = falsifiable working bet
-```
+| Role | Candidate meaning | Can guide work when |
+| --- | --- | --- |
+| `hypothesis` | Plausible claim or model guess that needs evidence before it can guide design. | It is explicitly marked exploratory and has a test or evidence question. |
+| `observation` | Recorded event, signal, user note, run behavior, or source occurrence. | It is used only as review input, not truth. |
+| `evidence` | Reviewable support or counter-support for a claim. | It has source selectors, provenance, and scope. |
+| `candidate` | Draft ontology object or role assignment with visible uncertainty. | Candidate status, evidence, scope, and open questions remain visible. |
+| `premise` | Falsifiable working bet. | It has uncertainty, falsification criteria, owner, and contradiction path. |
+| `principle` | Reusable guidance or value claim that may influence interpretation. | It is not treated as invariant-bearing without stronger review. |
+| `policy` | Scoped decision rule with owner and applicability. | It has use scope, route impact, and review/expiry path. |
+| `constraint` | Limit, boundary, or required condition affecting what can be claimed or done. | It names what it constrains and cites evidence or decision authority. |
+| `invariant` | Condition expected to remain true across allowed transformations or operation. | It has preservation checks and contradiction monitoring. |
+| `axiom` | Behavior invariant or load-bearing principle that downstream governance depends on. | It has strong evidence, dependency review, contradiction review, and explicit commitment. |
+| `constitution` | Enforceable form/model/structure/transformation/gate governance that preserves invariants. | It names affected artifacts, allowed transformations, owner, and rollback. |
+| `contradiction` | Evidence or review finding that challenges an active claim. | It preserves both the challenged claim and counterevidence. |
+| `retirement` | Decision that a claim no longer applies or should leave active use. | It names the invalidating condition, replacement, or rollback path. |
+
+Role guardrails:
+
+- A `hypothesis` can become a `candidate`, `premise`, or `rejected` claim after review.
+- An `observation` or `evidence` item can support a PromotionRecord, but it is not an ontology role promotion by itself.
+- A `principle` becomes an `axiom` only when it is invariant-bearing or dependency-bearing and explicitly committed.
+- A `policy` becomes constitutional only when it governs form, model structure, allowed transformations, or review gates.
+- A `contradiction` blocks promotion until it is resolved, narrowed, or accepted as a known risk.
 
 Route canonical definition changes through Definitions Governance or decision gate.
 
