@@ -47,9 +47,45 @@ is_keep_file() {
 	esac
 }
 
+is_visual_artifact_path() {
+	local path="$1"
+	case "$path" in
+		*chart*|*Chart*|*dashboard*|*Dashboard*|*presentation*|*Presentation*|*visual*|*Visual*|*plot*|*Plot*|*.svg) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+line_looks_like_chart_text() {
+	local line="$1"
+	case "$line" in
+		*label*|*Label*|*legend*|*Legend*|*title*|*Title*|*annotation*|*Annotation*|*tooltip*|*Tooltip*|*axis*|*Axis*|*tick*|*Tick*|*text*|*Text*|*name*|*Name*) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
 is_ignored() {
 	local path="$1"
 	git check-ignore -q -- "$path"
+}
+
+validate_chart_line_breaks() {
+	local path="$1"
+	local line
+	local lineno
+	local text
+
+	[[ -f "$path" ]] || return 0
+	is_visual_artifact_path "$path" || return 0
+	is_generated_path "$path" && return 0
+	is_local_runtime_path "$path" && return 0
+
+	while IFS= read -r line; do
+		lineno="${line%%:*}"
+		text="${line#*:}"
+		if line_looks_like_chart_text "$text"; then
+			add_failure "chart/visual artifact uses literal \\n for text line break; use <br> or renderer rich text: $path:$lineno"
+		fi
+	done < <(grep -nF '\\n' "$path" 2>/dev/null || true)
 }
 
 validate_path_visibility() {
@@ -81,6 +117,7 @@ fi
 while IFS= read -r path; do
 	[[ -n "$path" ]] || continue
 	validate_path_visibility "$path"
+	validate_chart_line_breaks "$path"
 done < <(git ls-files --others --exclude-standard)
 
 while IFS= read -r path; do
@@ -93,6 +130,7 @@ while IFS= read -r path; do
 	elif is_generated_path "$path"; then
 		add_warning "tracked generated artifact should remain only if promoted as durable evidence: $path"
 	fi
+	validate_chart_line_breaks "$path"
 done < <(git ls-files)
 
 printf 'Artifact Constitution validation\n'

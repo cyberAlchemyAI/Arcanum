@@ -87,6 +87,15 @@ Examples:
    constitution when the path belongs to generated or local runtime state.
 7. Validation must run after file-creating tools and before handoff.
 
+## Rendering Rules
+
+1. Charts and visual artifacts must not rely on literal `\n` sequences for label,
+   legend, title, annotation, or tooltip line breaks. Use HTML markup such as
+   `<br>` or structured renderer-supported rich text instead.
+2. When an artifact renderer has inconsistent newline handling, prefer explicit
+   HTML or structured markup that survives export, screenshot, and browser
+   rendering.
+
 ## Validation Contract
 
 Run:
