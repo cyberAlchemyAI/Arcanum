@@ -1,0 +1,39 @@
+{
+  "dispatch_id": "fixture-pass-memory-protected-overlay",
+  "intent": {
+    "raw": "recover memory and use external evidence",
+    "objective": "Show memory and protected-context overlays can validate when reflected."
+  },
+  "mode": "sequence",
+  "techniques": ["memory_loop", "residue_ledger", "protected_context_flag", "system_agnostic_standard"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Recover context",
+      "capability_ref": "context-builder",
+      "pattern": "sequential",
+      "techniques": ["memory_loop", "protected_context_flag"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "frame", "ref": "memory-frame"}, {"kind": "ledger", "ref": "protected-context-ledger"}],
+      "stop_conditions": ["block if protected context cannot be labelled"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Synthesize residue",
+      "capability_ref": "refine",
+      "pattern": "synthesis",
+      "techniques": ["residue_ledger", "system_agnostic_standard"],
+      "inputs": [{"kind": "frame", "ref": "memory-frame"}, {"kind": "ledger", "ref": "protected-context-ledger"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}]
+    }
+  ],
+  "gates": [
+    {"gate_id": "g1", "kind": "policy", "owner": "refine", "condition": "Protected context is labelled and cannot become canonical without owner review.", "on_fail": "block"}
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated", "dispatch_completed"],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": ["Protected or external context is not promoted automatically."]
+}

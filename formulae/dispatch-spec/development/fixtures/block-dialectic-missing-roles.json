@@ -1,0 +1,29 @@
+{
+  "dispatch_id": "fixture-block-dialectic-missing-roles",
+  "intent": {
+    "raw": "run dialectic without roles",
+    "objective": "Show dialectic requires roles and convergence criteria."
+  },
+  "mode": "sequence",
+  "techniques": ["dialectic"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Critique",
+      "capability_ref": "interrogation",
+      "pattern": "validation",
+      "techniques": ["dialectic"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "critique-ledger"}],
+      "evidence_artifact": "stages/critique.md",
+      "stop_conditions": ["block if no roles are defined"]
+    }
+  ],
+  "gates": [
+    {"gate_id": "g1", "kind": "quality", "owner": "dispatch-spec", "condition": "Dialectic roles exist.", "on_fail": "block"}
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

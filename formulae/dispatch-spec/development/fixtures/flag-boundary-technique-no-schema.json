@@ -1,0 +1,33 @@
+{
+  "dispatch_id": "fixture-flag-boundary-technique-no-schema",
+  "intent": {
+    "raw": "cite boundary technique without schema",
+    "objective": "Show that boundary techniques should be backed by boundary_evidence."
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "delegation_boundary"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Prepare handoff",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "handoff", "ref": "handoff.md"}],
+      "stop_conditions": ["flag missing boundary evidence"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Boundary evidence should be present when delegation_boundary is cited.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

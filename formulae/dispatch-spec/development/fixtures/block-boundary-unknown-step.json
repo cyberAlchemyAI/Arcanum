@@ -1,0 +1,46 @@
+{
+  "dispatch_id": "fixture-block-boundary-unknown-step",
+  "intent": {
+    "raw": "boundary references a missing step",
+    "objective": "Block invalid boundary step references."
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "delegation_boundary"],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "task-session",
+        "applies_to_steps": ["missing-step"],
+        "contract": "References must point to existing steps.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Prepare handoff",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "handoff", "ref": "handoff.md"}],
+      "stop_conditions": ["block if boundary references are invalid"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Boundary step references must exist.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

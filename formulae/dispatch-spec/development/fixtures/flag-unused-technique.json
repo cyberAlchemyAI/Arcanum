@@ -1,0 +1,33 @@
+{
+  "dispatch_id": "fixture-flag-technique",
+  "intent": {
+    "raw": "cite unused technique",
+    "objective": "Show unused dispatch-level techniques flag."
+  },
+  "mode": "sequence",
+  "techniques": ["tournament"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Build context",
+      "capability_ref": "context-builder",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "frame", "ref": "context-frame"}],
+      "stop_conditions": ["block if context is insufficient"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Context frame exists.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

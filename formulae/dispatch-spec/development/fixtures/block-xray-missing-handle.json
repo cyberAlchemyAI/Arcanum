@@ -1,0 +1,28 @@
+{
+  "dispatch_id": "fixture-block-xray-missing-handle",
+  "intent": {
+    "raw": "x-ray hidden structure without output handle",
+    "objective": "Show x-ray requires a handle or artifact output."
+  },
+  "mode": "sequence",
+  "techniques": ["x_ray"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Explain structure",
+      "capability_ref": "x-ray",
+      "pattern": "xray",
+      "techniques": ["x_ray"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "structure-notes"}],
+      "stop_conditions": ["block if no explanation output can be referenced"]
+    }
+  ],
+  "gates": [
+    {"gate_id": "g1", "kind": "quality", "owner": "dispatch-spec", "condition": "X-ray output has a handle or artifact.", "on_fail": "block"}
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

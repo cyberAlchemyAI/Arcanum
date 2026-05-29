@@ -1,0 +1,28 @@
+{
+  "dispatch_id": "fixture-block-toy-game-missing-evidence",
+  "intent": {
+    "raw": "toy game without evidence artifact",
+    "objective": "Show toy-game validation requires evidence."
+  },
+  "mode": "validation",
+  "techniques": ["toy_game"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Toy test",
+      "capability_ref": "experiment-harness",
+      "pattern": "toy_game",
+      "techniques": ["toy_game"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "toy-test-ledger"}],
+      "stop_conditions": ["block if test evidence is missing"]
+    }
+  ],
+  "gates": [
+    {"gate_id": "g1", "kind": "validation", "owner": "dispatch-spec", "condition": "Toy-game evidence artifact exists.", "on_fail": "block"}
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

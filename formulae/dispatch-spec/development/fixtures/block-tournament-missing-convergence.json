@@ -1,0 +1,29 @@
+{
+  "dispatch_id": "fixture-block-tournament-missing-convergence",
+  "intent": {
+    "raw": "run tournament without convergence",
+    "objective": "Show tournament requires convergence criteria."
+  },
+  "mode": "sequence",
+  "techniques": ["tournament", "pareto_gate"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Select abstraction",
+      "capability_ref": "distill",
+      "pattern": "distill",
+      "techniques": ["tournament", "pareto_gate"],
+      "roles": ["candidate-a", "candidate-b", "synthesis"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "frame", "ref": "winner"}],
+      "stop_conditions": ["block if no winning criteria exist"]
+    }
+  ],
+  "gates": [
+    {"gate_id": "g1", "kind": "quality", "owner": "dispatch-spec", "condition": "Tournament convergence criteria exist.", "on_fail": "block"}
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

@@ -12,6 +12,8 @@ Necronomicon interprets the sentence into Arcanum vocabulary, Dispatch Spec vali
 
 The dispatch object is the missing middle between poetic operator language and executable sigil sequences.
 
+For reusable technique ids and validation expectations, see [TECHNIQUE-CATALOG.md](TECHNIQUE-CATALOG.md). Dispatch documents may cite those ids at the dispatch or step level through `techniques`.
+
 ## Vocabulary Layers
 
 | Layer | Meaning | Examples |
@@ -70,12 +72,12 @@ distill --mode tournament
 
 Use when there are multiple plausible designs and premature convergence would be expensive.
 
-### 5. SRU/SWU Reduction
+### 5. SCU/SWU Reduction
 
-Find the smallest responsible unit before planning or execution.
+Find the smallest coherent unit before planning or execution.
 
 ```text
-craft SRU reasoning -> distill optimization point -> implementation-layering -> task-session SWU
+craft SCU reasoning -> distill optimization point -> implementation-layering -> task-session SWU
 ```
 
 Use when a broad idea is too large to execute safely.
@@ -120,6 +122,89 @@ necronomicon resume -> inventory lookup -> context-builder -> selected owner -> 
 
 Use when repository memory and route history matter.
 
+## POLE-Inspired Standards Techniques
+
+The 2023 NPCC / Police Digital Services POLE standards dictionary contributes a useful catalog discipline for `dispatch-spec`: separate entity classes from component standards, separate components from validation rules, record owner/steward/version/status metadata, treat conditional obligations explicitly, and evaluate data quality through accuracy, integrity, timeliness, completeness, conformity, and deduplication.
+
+In Arcanum terms, these become route-shaping checks:
+
+- a dispatch step should not be an orphan record; it needs inputs, outputs, and a consumer or parent dispatch,
+- minimum required components should be enough to validate the route without copying the owning capability's internals,
+- generic components such as frames, handles, gates, ledgers, and trace events should have stable meanings across routes,
+- local capability modes can add validation rules without redefining the base dispatch contract,
+- draft/live/deprecated or pass/flag/block status should be explicit rather than inferred,
+- route evidence should satisfy completeness and conformity before execution or promotion.
+
+These are catalog and validation techniques only. They do not import POLE domain entities into Arcanum.
+
+## Boundary And Evidence Techniques
+
+Dispatch routes sometimes need to describe how a route crosses into another capability, external plan, approval surface, audit surface, state namespace, or evidence system without making that boundary target the lifecycle owner.
+
+In Arcanum terms, these become route boundary checks:
+
+- a delegated step should name target, input contract, ownership boundary, and blocked fallback;
+- dispatch-to-plan projection should be marked `preview`, `metadata-only`, or `requires-translation`, not treated as schema equivalence;
+- execution receipts should return session/run ids, artifacts, validation results, approval records, and audit references where available;
+- approval mappings should distinguish lifecycle approval from execution authorization;
+- artifact contract bridges should not imply promotion readiness;
+- repository source, generated evidence, workspace state, and `.arcanum/` state should remain separate unless an explicit handoff artifact coordinates them;
+- memory visibility should not become Inventory/Ontology promotion without owner review.
+
+These techniques keep dispatch-spec focused on route shape and boundary claims, not execution ownership.
+
+Possible dispatch sentence:
+
+> "Use task-session with a `delegation_boundary`, map human gates through `approval_semantics_map`, require `execution_receipt_handoff`, and keep `state_namespace_boundary` explicit before bounded execution."
+
+Minimal `boundary_evidence` shape:
+
+```json
+{
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "task-session",
+        "applies_to_steps": ["s2"],
+        "contract": "A handoff artifact names write scope, done criteria, and validation surface.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "dispatch-spec",
+      "execution": "task-session",
+      "promotion": "owning capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r1",
+        "producer": "task-session",
+        "required_fields": ["run_id", "artifacts", "validation_result", "residue"],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "repo-source",
+        "owner": "git/worktree",
+        "write_policy": "only inside approved task scope"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "execution evidence",
+        "target": "inventory knowledge",
+        "rule": "requires owner review before canonical promotion",
+        "on_violation": "block"
+      }
+    ]
+  }
+}
+```
+
 ## Sentence Grammar
 
 The human-facing grammar can stay loose, but Dispatch Spec should translate it into structured slots:
@@ -140,7 +225,7 @@ Use dialectics with proposer/balancer lanes, then distill in tournament mode, th
 ```
 
 ```text
-Run Necronomicon to recover local vocabulary, use context-builder for evidence, distill to the SRU, then invoke design and plan only if the recomposition proof passes.
+Run Necronomicon to recover local vocabulary, use context-builder for evidence, distill to the SCU, then invoke design and plan only if the recomposition proof passes.
 ```
 
 ```text
@@ -152,11 +237,11 @@ Use x-ray to expose the current workflow, architecture-pattern-inventory to name
 ```
 
 ```text
-Use Whisper to extract the text intent substrate, run an SRU candidate tournament, draft the artifact, then checkpoint learning residue into Necronomicon without promoting glossary terms.
+Use Whisper to extract the text intent substrate, run an SCU candidate tournament, draft the artifact, then checkpoint learning residue into Necronomicon without promoting glossary terms.
 ```
 
 ```text
-Use Craft to select the SRU/SWU boundary, Invoke to define/design/plan the artifact, Experiment Harness to run controlled tests, and Workflow Reflect to decide whether the spell needs revision.
+Use Craft to select the SCU/SWU boundary, Invoke to define/design/plan the artifact, Experiment Harness to run controlled tests, and Workflow Reflect to decide whether the spell needs revision.
 ```
 
 ## How Whisper, Craft, And Invoke Interconnect
@@ -168,7 +253,7 @@ Whisper is a spell-level example of dispatch composition:
 ```text
 structured-interview-kits
   -> distill text_intent_substrate
-  -> distill tournament over SRU candidate sets
+  -> distill tournament over SCU candidate sets
   -> Whisper composition plan
   -> draft/review
   -> learning residue
@@ -180,15 +265,15 @@ Dispatch Spec can represent this as a sequence with one tournament step and one 
 
 Craft supplies the deeper method vocabulary:
 
-- SRU is the smallest coherent/responsible unit.
-- SWU is the executable planning case of SRU.
+- SCU is the smallest coherent unit.
+- SWU is the executable planning case of SCU.
 - Residue is the material left unresolved by translation or execution.
 - Recomposition proves the small unit still belongs to the larger artifact.
 
 Dispatch Spec should use Craft vocabulary to make step boundaries honest:
 
 ```text
-each execution step should name its SRU/SWU, validation surface, residue policy, and recomposition target
+each execution step should name its SCU/SWU, validation surface, residue policy, and recomposition target
 ```
 
 ### Invoke
@@ -258,7 +343,7 @@ The dispatcher should evaluate a proposed sequence before running it:
     "raw": "use dialectics to explore/exploit, then distill, x-ray, run toy games, and choose the best abstraction",
     "objective": "research the best abstraction for a problem before implementation",
     "target_artifact": "abstraction research spell",
-    "arcanum_vocabulary": ["dialectic", "distill", "x-ray", "toy_game", "Pareto", "SRU", "spell"]
+    "arcanum_vocabulary": ["dialectic", "distill", "x-ray", "toy_game", "Pareto", "SCU", "spell"]
   },
   "mode": "mixed",
   "steps": [
@@ -310,4 +395,3 @@ The dispatcher should evaluate a proposed sequence before running it:
   }
 }
 ```
-

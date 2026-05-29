@@ -1,0 +1,52 @@
+{
+  "dispatch_id": "fixture-pass-refine",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "refine x-ray",
+    "objective": "Run the canonical Refine loop for x-ray and produce RESULT.md.",
+    "target_artifact": "RESULT.md",
+    "arcanum_vocabulary": ["refine", "dispatch-spec"]
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "frame_handoff", "validation_loop", "observability_grouping"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Build context",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": ["frame_handoff"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "frame", "ref": "context-frame"}],
+      "stop_conditions": ["block if context is insufficient"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Review context",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop"],
+      "inputs": [{"kind": "frame", "ref": "context-frame"}],
+      "outputs": [{"kind": "ledger", "ref": "review-ledger"}],
+      "evidence_artifact": "stages/02-review.md"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "Refine must not promote inventory, ontology, glossary, sigil, or spell artifacts.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": ["dispatch_validated", "stage_completed"],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": ["No lifecycle promotion without owner route."]
+}

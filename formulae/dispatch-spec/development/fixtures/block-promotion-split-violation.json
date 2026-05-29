@@ -1,0 +1,43 @@
+{
+  "dispatch_id": "fixture-block-promotion-split-violation",
+  "intent": {
+    "raw": "execution evidence promotes inventory directly",
+    "objective": "Block promotion split violations."
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "memory_promotion_split"],
+  "boundary_evidence": {
+    "promotion_splits": [
+      {
+        "source": "execution evidence",
+        "target": "inventory knowledge",
+        "rule": "automatically promotes without review",
+        "on_violation": "flag"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Collect evidence",
+      "capability_ref": "task-session",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "stop_conditions": ["block if promotion authority is confused"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "promotion_guardrail",
+      "owner": "dispatch-spec",
+      "condition": "Execution evidence must not promote inventory directly.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

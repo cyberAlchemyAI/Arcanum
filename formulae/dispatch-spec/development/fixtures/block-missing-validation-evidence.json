@@ -1,0 +1,31 @@
+{
+  "dispatch_id": "fixture-block-validation",
+  "intent": {
+    "raw": "validate without evidence",
+    "objective": "Show validation steps must name evidence."
+  },
+  "mode": "validation",
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Validate",
+      "capability_ref": "dispatch-spec",
+      "pattern": "validation",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "validation-ledger"}]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Validation evidence exists.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"]
+  }
+}

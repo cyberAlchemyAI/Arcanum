@@ -1,0 +1,96 @@
+{
+  "dispatch_id": "fixture-pass-boundary-evidence",
+  "intent": {
+    "raw": "execute a bounded handoff with receipts",
+    "objective": "Validate a route with explicit boundary evidence."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "state_namespace_boundary",
+    "memory_promotion_split"
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "task-session",
+        "applies_to_steps": ["s2"],
+        "contract": "Task Session consumes the handoff artifact and returns validation evidence.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "dispatch-spec",
+      "execution": "task-session",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "owning capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r1",
+        "producer": "task-session",
+        "required_fields": ["run_id", "artifacts", "validation_result", "residue"],
+        "stores": ["RESULT.md", ".arcanum/observability/signals/sigil-invocations.jsonl"],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "repo-source",
+        "owner": "git/worktree",
+        "write_policy": "task-session may write only inside the approved task scope"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "execution evidence",
+        "target": "inventory knowledge",
+        "rule": "requires owner review before canonical promotion",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Prepare handoff",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "handoff", "ref": "handoff.md"}],
+      "stop_conditions": ["block if handoff lacks validation surface"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Execute bounded task",
+      "capability_ref": "task-session",
+      "pattern": "handoff",
+      "techniques": ["delegation_boundary", "execution_receipt_handoff"],
+      "inputs": [{"kind": "artifact", "ref": "handoff.md"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "evidence_artifact": "RESULT.md"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "promotion_guardrail",
+      "owner": "dispatch-spec",
+      "condition": "Execution evidence must not promote inventory without owner review.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated", "boundary_receipt_recorded"],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": ["Execution evidence is not canonical promotion."]
+}
