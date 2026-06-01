@@ -180,17 +180,25 @@ For local Codex use in another repository, install repo-scoped Codex skills with
 tools/bootstrap_arcanum.sh --target ../my-repo --profile repo-codex --sigils all --spells none
 ```
 
-For a fresh Codex and GitHub project, install the repo-scoped Codex skills, repo-local deterministic tool/runtime config, GitHub Copilot instructions, and observability skeleton together:
+For a fresh Codex, Claude Code, and GitHub project, install repo-scoped Codex skills, Claude Code skills, repo-local deterministic tool/runtime config, GitHub Copilot instructions, and observability skeleton together:
 
 ```bash
-tools/bootstrap_arcanum.sh --target ../my-repo --profiles repo-codex,repo-local,github-copilot,observability --sigils all --spells all
+tools/bootstrap_arcanum.sh --target ../my-repo --profiles repo-codex,claude,repo-local,github-copilot,observability --sigils all --spells all
 ```
 
 From GitHub, use the installer wrapper:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles repo-codex,repo-local,github-copilot,observability --sigils all --spells all
+curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/Arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles repo-codex,claude,repo-local,github-copilot,observability --sigils all --spells all
 ```
+
+For Claude Code only:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/Arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles claude,repo-local --sigils all --spells all
+```
+
+See [FRIEND-INSTALL-TUTORIAL.md](FRIEND-INSTALL-TUTORIAL.md) for a shareable walkthrough.
 
 Generated Codex skill installs use short alias names by default so the skill picker does not show both `refine` and `arcanum-refine`. Use `--prefixed-skill-packages` only when you intentionally need `arcanum-*` compatibility packages.
 

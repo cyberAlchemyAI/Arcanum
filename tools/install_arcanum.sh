@@ -33,7 +33,9 @@ Bootstrap options are forwarded to tools/bootstrap_arcanum.sh, for example:
 Examples:
   curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils all --spells all --profile all
 
-  curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils ontology-vault,context-builder --spells ontology-harness --profiles repo-codex,repo-local,github-copilot,claude
+  curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/Arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles repo-codex,claude,repo-local,github-copilot,observability --sigils all --spells all
+
+  curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/Arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles claude,repo-local --sigils all --spells all
 
   curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --profile personal-codex --codex-home "$HOME/.codex"
 USAGE
