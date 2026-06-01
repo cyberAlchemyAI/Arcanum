@@ -6,7 +6,6 @@ This folder is the static GitHub Pages surface for the Arcanum repository.
 
 - Landing page: `docs/index.html`
 - Deep guide page: `docs/arcanum-development-loop.html`
-- Printable guide: `docs/arcanum-development-guide.pdf`
 - Asset folder: `docs/assets/`
 
 The workflow at `.github/workflows/pages.yml` publishes this folder with GitHub Pages.

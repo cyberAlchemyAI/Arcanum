@@ -73,6 +73,11 @@
       object-fit: contain;
     }
 
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+    }
+
     nav {
       display: flex;
       justify-content: flex-end;
@@ -104,6 +109,17 @@
       padding: 112px clamp(18px, 5vw, 70px) 54px;
       border-bottom: 1px solid var(--line);
       background: #fbf8ef;
+    }
+
+    .hero-sigil {
+      position: absolute;
+      right: clamp(24px, 6vw, 96px);
+      bottom: clamp(32px, 8vw, 110px);
+      z-index: 1;
+      width: min(28vw, 360px);
+      min-width: 180px;
+      opacity: .11;
+      pointer-events: none;
     }
 
     #system-map {
@@ -301,6 +317,30 @@
       align-items: start;
     }
 
+    .arcanum-direct {
+      background: #fffdf8;
+    }
+
+    .direct-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, .62fr) minmax(360px, 1.38fr);
+      gap: 32px;
+      align-items: center;
+    }
+
+    .direct-mark {
+      width: min(100%, 280px);
+      justify-self: center;
+      filter: drop-shadow(0 18px 34px rgba(230, 0, 35, .12));
+    }
+
+    .direct-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
     .code {
       overflow: auto;
       padding: 18px;
@@ -349,6 +389,7 @@
     @media (max-width: 920px) {
       .grid-3,
       .grid-2,
+      .direct-layout,
       .evidence {
         grid-template-columns: 1fr;
       }
@@ -383,12 +424,13 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#top" aria-label="CyberAlchemy home">
-      <img src="assets/cyberalchemy-logo.png" alt="">
+      <img class="brand-mark" src="assets/cyberalchemy-mark.svg" alt="">
       <span>CyberAlchemy</span>
     </a>
     <nav aria-label="Primary navigation">
       <a href="#method">Method</a>
       <a href="#loop">Loop</a>
+      <a href="#arcanum">Arcanum</a>
       <a href="#evidence">Evidence</a>
       <a href="#start">Start</a>
     </nav>
@@ -397,14 +439,15 @@
   <main id="top">
     <section class="hero" aria-label="CyberAlchemy">
       <canvas id="system-map" aria-hidden="true"></canvas>
+      <img class="hero-sigil" src="assets/cyberalchemy-mark.svg" alt="">
       <div class="hero-content">
         <p class="eyebrow">An operating language for agentic creation</p>
         <h1>CyberAlchemy</h1>
         <p class="lead">Turn ambitious ideas into named workflows, governed artifacts, validator-backed evidence, and reusable tools that people can actually understand.</p>
         <div class="actions">
           <a class="button primary" href="arcanum-development-loop.html">Explore the Arcanum loop</a>
-          <a class="button" href="arcanum-development-guide.pdf">Open the printable guide</a>
-          <a class="button" href="https://github.com/cyberAlchemyAI/Arcanum">GitHub</a>
+          <a class="button" href="https://github.com/cyberAlchemyAI/Arcanum">Open Arcanum</a>
+          <a class="button" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/ux-evidence-validator">UX evidence validator</a>
         </div>
       </div>
     </section>
@@ -453,6 +496,21 @@
       </div>
     </section>
 
+    <section id="arcanum" class="arcanum-direct">
+      <div class="inner direct-layout">
+        <img class="direct-mark" src="assets/cyberalchemy-mark.svg" alt="">
+        <div>
+          <p class="eyebrow">Arcanum directly</p>
+          <h2>The repository is the working surface.</h2>
+          <p class="lead">No separate static handoff is needed here. The public Arcanum system carries the real material: sigils, guides, validators, research traces, work-packs, and examples that can be inspected, reused, and improved.</p>
+          <div class="direct-actions">
+            <a class="button primary" href="https://github.com/cyberAlchemyAI/Arcanum">Open Arcanum on GitHub</a>
+            <a class="button" href="arcanum-development-loop.html">Read the loop guide</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="evidence">
       <div class="inner evidence">
         <div>
@@ -461,8 +519,8 @@
           <p class="lead">The Whisper example shows how a broad writing idea becomes cores, candidate routes, hard gates, composition parts, validators, and task-session receipts. The same structure can shape a tool, product workflow, frontend validator, or research route.</p>
         </div>
         <div class="artifact-list">
+          <a href="https://github.com/cyberAlchemyAI/Arcanum">Arcanum repository <span>framework</span></a>
           <a href="arcanum-development-loop.html">Arcanum development loop <span>HTML guide</span></a>
-          <a href="arcanum-development-guide.pdf">Printable guide <span>PDF</span></a>
           <a href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/ux-evidence-validator">UX evidence validator <span>sigil</span></a>
           <a href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/development/user-guide/fixtures/whisper-idea-to-mvp">Whisper idea fixture <span>source</span></a>
         </div>
