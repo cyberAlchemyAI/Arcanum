@@ -1,0 +1,64 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "sourceSignals": [
+    {
+      "id": "signal-xray-yaml-library-correction",
+      "source_path": "current session user feedback",
+      "signal_type": "artifact_drift",
+      "target_artifacts": [
+        "arcana/x-ray/library/components.md",
+        "arcana/x-ray/library/patterns.md",
+        "arcana/x-ray/library/user-shapes-template.md",
+        "arcana/x-ray/development/invoke-runs/20260529T112301Z-visual-layered-xray/WORK-PACK.md"
+      ],
+      "claim": "The visual component and pattern library should use YAML as the canonical data shape, with Markdown retained as human-readable reference.",
+      "evidence": "The next schema work needs stable machine-readable component and pattern entries; Markdown-only docs are useful but awkward as the source for validation and renderer consumption.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "arcana/x-ray/library/README.md",
+    "arcana/x-ray/library/components.md",
+    "arcana/x-ray/library/patterns.md",
+    "arcana/x-ray/library/user-shapes-template.md",
+    "arcana/x-ray/SKILL.md",
+    "arcana/x-ray/README.md",
+    "arcana/x-ray/development/invoke-runs/20260529T112301Z-visual-layered-xray/WORK-PACK.md",
+    "arcana/x-ray/development/invoke-runs/20260529T112301Z-visual-layered-xray/task-session/TASK-XRAY-VIS-005-RESULT.md"
+  ],
+  "deltaSummary": [
+    {
+      "delta": "artifact_drift",
+      "summary": "Markdown-only library docs should become YAML-backed canonical data before schema work."
+    },
+    {
+      "delta": "route_changed",
+      "summary": "Insert SWU-XRAY-VIS-005B before SWU-XRAY-VIS-006A."
+    },
+    {
+      "delta": "status_changed",
+      "summary": "Keep SWU-XRAY-VIS-006A pending until YAML canonicalization is complete."
+    }
+  ],
+  "proposedChanges": [
+    "Add TASK-XRAY-VIS-005B and SWU-XRAY-VIS-005B.",
+    "Add XRAY-VISUAL-LIBRARY-CONSTITUTION.md and a task-specific constitution-pack.md.",
+    "Add components.yml, patterns.yml, and user-shapes-template.yml.",
+    "Update Markdown docs to point at YAML as source of truth.",
+    "Update README/SKILL to say reusable library entries are YAML-backed.",
+    "Route the next task-session to SWU-XRAY-VIS-005B before schemas."
+  ],
+  "appliedChanges": [],
+  "skippedChanges": [
+    "No target artifacts mutated because mutation mode is proposal-only.",
+    "No schema or renderer implementation added."
+  ],
+  "blockers": [],
+  "nextRoute": "task-session to arcana/x-ray/development/invoke-runs/20260529T112301Z-visual-layered-xray/WORK-PACK.md --swu SWU-XRAY-VIS-005B",
+  "validation": [
+    "python3 -m json.tool arcana/x-ray/development/invoke-runs/20260529T135625Z-yaml-library-refresh/refresh-report.json >/dev/null",
+    "test -f arcana/x-ray/development/invoke-runs/20260529T135625Z-yaml-library-refresh/REFRESH-PATCH-PROPOSAL.md"
+  ]
+}

@@ -1,0 +1,23 @@
+# Refine Seed Proposal
+
+- Target: `arcana/x-ray`
+- Seed needed: yes
+- Source context:
+  - `arcana/refine/SKILL.md`
+  - `arcana/refine/REFINEMENT-LOOP.md`
+  - `arcana/refine/development/example-prompts/sigil-new-low.md`
+  - `arcana/x-ray/development/WORK-PACK.md`
+  - `arcana/x-ray/development/REFINE-SEED.md`
+- Write scope: no additional mutation for this blocked experiment output
+- Done criteria: preserve a user-facing result body and prove each canonical loop stage with artifact path or blocked reason
+- Validation surface: `arcana/refine/development/run-validation-fixtures.sh`
+- Preset: `standard`
+- Loop count: canonical default loop, standard budget
+- Research: `research-if-gap-appears`
+- Runtime default: `arcanum-runtime`
+- Runtime eligibility: block
+- Blocked runtime fields: no current-run Arcanum runtime stage dispatch evidence was produced
+- Run manifest: `arcana/x-ray/development/refinement-runs/20260524T225844Z-sigil-new-low/RUN-MANIFEST.md`
+- Evidence index: `arcana/x-ray/development/refinement-runs/20260524T225844Z-sigil-new-low/evidence-index.json`
+- Runtime handoff: `arcana/x-ray/development/refinement-runs/20260524T225844Z-sigil-new-low/RUNTIME-HANDOFF.md`
+- Result artifact: `arcana/x-ray/development/refinement-runs/20260524T225844Z-sigil-new-low/RESULT.md`

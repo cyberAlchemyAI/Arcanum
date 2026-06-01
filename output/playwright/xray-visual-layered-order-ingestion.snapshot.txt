@@ -1,0 +1,85 @@
+### Page
+- Page URL: http://127.0.0.1:8765/arcana/x-ray/examples/visual-layered-order-ingestion.html
+- Page Title: x-ray example: order ingestion
+### Snapshot
+```yaml
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - 'heading "x-ray: Order Ingestion Process" [level=1] [ref=e4]'
+    - paragraph [ref=e5]: "Mode: process. Renderer: L0 static HTML/SVG. This example shows how lane handles become selectable visual layers without remote rendering."
+  - generic [ref=e6]:
+    - complementary "Layer controls" [ref=e7]:
+      - heading "Layers" [level=2] [ref=e8]
+      - generic [ref=e9] [cursor=pointer]:
+        - checkbox "Surface" [checked] [ref=e10]
+        - text: Surface
+      - generic [ref=e11] [cursor=pointer]:
+        - checkbox "Flow" [checked] [ref=e12]
+        - text: Flow
+      - generic [ref=e13] [cursor=pointer]:
+        - checkbox "Dependencies" [checked] [ref=e14]
+        - text: Dependencies
+      - generic [ref=e15] [cursor=pointer]:
+        - checkbox "Risk questions" [checked] [ref=e16]
+        - text: Risk questions
+    - region "x-ray layer stack" [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: surface.summary
+          - img "Surface layer for order ingestion" [ref=e21]:
+            - generic [ref=e23]: Merchant CSV
+            - generic [ref=e24]: source input
+            - generic [ref=e26]: Validator
+            - generic [ref=e27]: process boundary
+            - generic [ref=e29]: Outcomes
+            - generic [ref=e30]: accepted or rejected
+        - generic [ref=e31]:
+          - generic [ref=e32]: flow.graph
+          - img "Flow layer for order ingestion" [ref=e33]:
+            - generic [ref=e35]: Upload
+            - generic [ref=e37]: Required
+            - generic [ref=e38]: fields
+            - generic [ref=e40]: Normalize
+            - generic [ref=e41]: currency
+            - generic [ref=e43]: Pricing
+            - generic [ref=e45]: Error report
+        - generic [ref=e48]:
+          - generic [ref=e49]: dependencies.internal + dependencies.external
+          - img "Dependency layer for order ingestion" [ref=e50]:
+            - generic [ref=e52]: Validator boundary
+            - generic [ref=e54]: Merchant
+            - generic [ref=e56]: Field rules
+            - generic [ref=e58]: Normalizer
+            - generic [ref=e60]: Pricing
+            - generic [ref=e62]: Support
+        - generic [ref=e66]:
+          - generic [ref=e67]: risk.questions
+          - img "Risk questions layer for order ingestion" [ref=e68]:
+            - generic [ref=e70]: Open questions
+            - generic [ref=e71]: 1. Who owns validator rules?
+            - generic [ref=e72]: 2. Where are error reports stored?
+            - generic [ref=e73]: 3. What happens when pricing queue delivery fails?
+            - generic [ref=e74]: These questions are inference, not source-backed facts.
+      - generic "Lane evidence" [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]: Evidence
+          - heading "Source-backed" [level=3] [ref=e78]
+          - list [ref=e79]:
+            - listitem [ref=e80]: Merchant uploads a CSV.
+            - listitem [ref=e81]: Validator checks fields and normalizes currency.
+            - listitem [ref=e82]: Accepted rows go to pricing; rejected rows go to an error report.
+        - generic [ref=e83]:
+          - generic [ref=e84]: Inference
+          - heading "Explanatory" [level=3] [ref=e85]
+          - list [ref=e86]:
+            - listitem [ref=e87]: The validator is the branch point.
+            - listitem [ref=e88]: Pricing and support are external process dependencies.
+            - listitem [ref=e89]: Support review may feed future rule changes.
+        - generic [ref=e90]:
+          - generic [ref=e91]: Coverage
+          - heading "Lanes" [level=3] [ref=e92]
+          - list [ref=e93]:
+            - listitem [ref=e94]: surface, properties, components
+            - listitem [ref=e95]: internal_dependencies, external_dependencies
+            - listitem [ref=e96]: flow, lifecycle, risk_questions, visual_composition
+```

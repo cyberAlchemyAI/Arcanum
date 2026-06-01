@@ -33,6 +33,7 @@ Use it when you know the kind of work you need and want to find the right sigil 
 | Structured Interview Kits (Interrogation) | Arcana         | Runs one-question-at-a-time interviews using pluggable modes, evidence-backed prompts, and artifact updates.                                                                                             | Human clarification should be reusable, decision-discriminating, and synchronized into target artifacts.                                                                    | [arcana/structured-interview-kits/](../arcana/structured-interview-kits/)             |
 | Task Session                   | Arcana         | Executes one bounded task through scope resolution, decision trade-offs, gate checks, validation, and synchronized evidence.                                                                             | A single task needs guided execution with explicit blockers, done criteria, and reviewable completion evidence.                                                             | [arcana/task-session/](../arcana/task-session/)                                       |
 | Workflow Reflect               | Arcana         | Analyzes accumulated sigil observability signals and writes evidence-backed workflow improvement proposals.                                                                                              | A sigil has enough telemetry, repeated gaps, or a manual request for retrospective improvement.                                                                             | [arcana/workflow-reflect/](../arcana/workflow-reflect/)                               |
+| x-ray                          | Arcana         | Seed sigil for turning supplied context into a guided HTML explanation page with actors, flows, transformations, relationships, assumptions, and open questions.                                       | A component, process, architecture, plan, or system needs a structured explanation surface rather than a loose summary.                                                      | [arcana/x-ray/](../arcana/x-ray/)                                                     |
 
 ## By Tier
 
@@ -73,6 +74,7 @@ Transmutations are bounded cognitive synthesis sigils. See [transmutations/](../
 - [Structured Interview Kits](../arcana/structured-interview-kits/) - pluggable one-question interview modes with artifact updates. Alias: Interrogation.
 - [Task Session](../arcana/task-session/) - guided execution of one bounded task with gates and completion evidence.
 - [Workflow Reflect](../arcana/workflow-reflect/) - accumulated-signal reflection and improvement proposal generation.
+- [x-ray](../arcana/x-ray/) - seed sigil for guided HTML explanation pages from supplied context.
 
 Arcana are autonomous orchestration sigils. See [arcana/](../arcana/) for the tier concept.
 

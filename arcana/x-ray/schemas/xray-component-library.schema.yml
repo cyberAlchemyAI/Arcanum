@@ -1,0 +1,64 @@
+artifact:
+  artifact_id: xray.schema.component-library
+  artifact_type: schema
+  intent: Candidate structural schema for x-ray visual component library YAML.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  canonical_format: schema.yml
+  constitution_selectors:
+    - framework.artifact-metadata
+    - framework.schema
+    - xray.visual-library
+  validation_profile:
+    - yaml-parse
+    - xray-visual-library
+schema:
+  id: xray-component-library
+  status: candidate
+  target_artifact: components.yml
+  collection_key: components
+  required_top_level:
+    - artifact
+    - components
+  required_artifact_fields:
+    - artifact_id
+    - artifact_type
+    - intent
+    - owner
+    - lifecycle_status
+    - constitution_selectors
+    - validation_profile
+  required_entry_fields:
+    - id
+    - family
+    - intended_lane
+    - purpose
+    - inputs
+    - sketch
+    - evidence_rule
+    - when_not_to_use
+  allowed_families:
+    - shape
+    - connector
+    - chart
+  allowed_lanes:
+    - surface
+    - properties
+    - components
+    - internal_dependencies
+    - external_dependencies
+    - flow
+    - lifecycle
+    - risk_questions
+    - visual_composition
+  list_fields:
+    - intended_lane
+    - inputs
+  id_prefixes:
+    - shape.
+    - connector.
+    - chart.
+  notes:
+    - This schema validates reusable component record shape only.
+    - It does not validate renderer correctness or visual design quality.

@@ -1,0 +1,162 @@
+artifact:
+  artifact_id: xray.library.components
+  artifact_type: library-data
+  intent: Canonical reusable x-ray visual components for static HTML/SVG explanation pages.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  canonical_format: yml
+  constitution_selectors:
+    - framework.artifact-metadata
+    - xray.visual-library
+  validation_profile:
+    - yaml-parse
+    - xray-visual-library
+components:
+  - id: shape.node
+    family: shape
+    intended_lane: components
+    purpose: Represent one component, actor, module, artifact section, process step, or object part.
+    inputs:
+      - label
+      - role
+      - lane_handle
+      - evidence_marker
+      - optional_status
+    sketch: |
+      <g class="xray-node" data-lane="components" data-evidence="source:...">
+        <rect rx="6" width="160" height="64" />
+        <text>Component Name</text>
+      </g>
+    evidence_rule: Label and role must come from source context or be marked as inference.
+    when_not_to_use: Do not use a node for vague concepts with no boundary; use a note or risk marker instead.
+  - id: shape.boundary
+    family: shape
+    intended_lane:
+      - internal_dependencies
+      - external_dependencies
+    purpose: Show where the target ends and external systems, people, policies, APIs, documents, or libraries begin.
+    inputs:
+      - boundary_label
+      - inside_set
+      - outside_set
+      - evidence_marker
+    sketch: |
+      <svg class="xray-boundary" data-lane="external_dependencies">
+        <rect class="boundary-inside" />
+        <path class="boundary-line" />
+        <text>Target Boundary</text>
+      </svg>
+    evidence_rule: Every item placed outside the boundary must be supported by source evidence or listed as inferred.
+    when_not_to_use: Do not draw a hard boundary when the target scope is still unresolved.
+  - id: shape.layer-panel
+    family: shape
+    intended_lane: visual_composition
+    purpose: Represent one selectable layer in the stacked x-ray page.
+    inputs:
+      - lane_id
+      - lane_title
+      - summary
+      - visible_state
+      - evidence_count
+    sketch: |
+      <section class="xray-layer-panel" data-layer="flow">
+        <h2>Flow</h2>
+        <p>What moves through the target.</p>
+      </section>
+    evidence_rule: The panel summary must match the lane handle and should not introduce new claims.
+    when_not_to_use: Avoid a layer panel for a lane that was intentionally omitted.
+  - id: shape.risk-marker
+    family: shape
+    intended_lane: risk_questions
+    purpose: Mark uncertainty, missing context, contradiction, risk, or a question that changes interpretation.
+    inputs:
+      - risk_label
+      - severity
+      - question
+      - source_or_inference_marker
+    sketch: |
+      <span class="xray-risk-marker" data-lane="risk_questions" aria-label="Open question">?</span>
+    evidence_rule: Distinguish source-backed contradiction from analyst concern.
+    when_not_to_use: Do not use it as a visual flourish for low-value caveats.
+  - id: connector.arrow
+    family: connector
+    intended_lane:
+      - flow
+      - internal_dependencies
+      - external_dependencies
+    purpose: Show directional movement, dependency, ownership, or call direction.
+    inputs:
+      - from_id
+      - to_id
+      - relationship_label
+      - evidence_marker
+    sketch: |
+      <path class="xray-arrow" marker-end="url(#arrow)" data-rel="depends-on" />
+    evidence_rule: Direction must be source-backed or explicitly inferred.
+    when_not_to_use: Avoid arrows when the relationship is associative rather than directional.
+  - id: connector.branch
+    family: connector
+    intended_lane: flow
+    purpose: Show a decision split, alternate path, mode fork, or condition-driven divergence.
+    inputs:
+      - source_id
+      - branch_labels
+      - destination_ids
+      - decision_evidence
+    sketch: |
+      <g class="xray-branch" data-lane="flow">
+        <path data-branch="approved" />
+        <path data-branch="rework" />
+      </g>
+    evidence_rule: Branch labels should name actual conditions, not generic yes/no when the condition is known.
+    when_not_to_use: Do not use a branch for unordered parallel work.
+  - id: connector.feedback-loop
+    family: connector
+    intended_lane:
+      - lifecycle
+      - flow
+    purpose: Show a return path where validation, failure, review, telemetry, or user correction changes the target.
+    inputs:
+      - loop_source
+      - loop_target
+      - trigger
+      - effect
+      - evidence_marker
+    sketch: |
+      <path class="xray-feedback-loop" data-trigger="validation failure" />
+    evidence_rule: Name the trigger and effect separately so the loop does not imply automatic improvement.
+    when_not_to_use: Avoid feedback loops when the source only says a process repeats without explaining why.
+  - id: chart.timeline-strip
+    family: chart
+    intended_lane: lifecycle
+    purpose: Summarize states across creation, operation, mutation, validation, failure, and retirement.
+    inputs:
+      - ordered_states
+      - current_state
+      - transitions
+      - evidence_markers
+    sketch: |
+      <ol class="xray-timeline-strip" data-lane="lifecycle">
+        <li>Create</li>
+        <li>Operate</li>
+        <li>Validate</li>
+      </ol>
+    evidence_rule: Order must be source-backed unless marked as inferred lifecycle ordering.
+    when_not_to_use: Do not use it for unordered properties or component lists.
+  - id: chart.risk-matrix
+    family: chart
+    intended_lane: risk_questions
+    purpose: Compare risks or questions by impact and evidence confidence.
+    inputs:
+      - risk_id
+      - impact
+      - confidence
+      - open_question
+      - evidence_marker
+    sketch: |
+      <table class="xray-risk-matrix" data-lane="risk_questions">
+        <tr><th>Impact</th><th>Confidence</th><th>Question</th></tr>
+      </table>
+    evidence_rule: Confidence should describe evidence quality, not analyst certainty alone.
+    when_not_to_use: Avoid matrix scoring when there are fewer than two meaningful risks to compare.

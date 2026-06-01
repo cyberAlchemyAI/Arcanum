@@ -1,0 +1,56 @@
+artifact:
+  artifact_id: xray.library.user-shapes-template
+  artifact_type: template
+  intent: Canonical template for user-proposed x-ray visual shapes, charts, and patterns.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  canonical_format: yml
+  constitution_selectors:
+    - framework.artifact-metadata
+    - xray.visual-library
+  validation_profile:
+    - yaml-parse
+    - xray-visual-library
+template:
+  prompt: Add your own shape, chart, or pattern only when it makes the target more honest and easier to inspect.
+  fields:
+    - name: name
+      label: Shape, chart, or pattern name
+      required: true
+    - name: target_domain
+      label: Target domain
+      required: true
+    - name: target_mode
+      label: Target mode
+      required: true
+    - name: lane_served
+      label: Lane served
+      required: true
+    - name: source_evidence_represented
+      label: Source evidence it represents
+      required: true
+    - name: inference_added
+      label: Inference it adds, if any
+      required: false
+    - name: visual_sketch
+      label: Visual sketch
+      required: true
+    - name: inputs_needed
+      label: Inputs needed
+      required: true
+    - name: accessibility_notes
+      label: Accessibility notes
+      required: true
+    - name: validation_notes
+      label: Validation notes
+      required: true
+    - name: anti_pattern_warning
+      label: Anti-pattern warning
+      required: true
+  acceptance_check:
+    - The proposed visual serves a named x-ray lane.
+    - The visual has a clear target boundary.
+    - Source-backed facts and inference are visibly separable.
+    - The visual explains structure, dependency, flow, lifecycle, risk, or evidence.
+    - The visual is not decorative-only.

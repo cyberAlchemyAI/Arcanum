@@ -1,0 +1,65 @@
+artifact:
+  artifact_id: xray.schema.pattern-library
+  artifact_type: schema
+  intent: Candidate structural schema for x-ray visual pattern library YAML.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  canonical_format: schema.yml
+  constitution_selectors:
+    - framework.artifact-metadata
+    - framework.schema
+    - xray.visual-library
+  validation_profile:
+    - yaml-parse
+    - xray-visual-library
+schema:
+  id: xray-pattern-library
+  status: candidate
+  target_artifact: patterns.yml
+  collection_key: patterns
+  required_top_level:
+    - artifact
+    - patterns
+  required_artifact_fields:
+    - artifact_id
+    - artifact_type
+    - intent
+    - owner
+    - lifecycle_status
+    - constitution_selectors
+    - validation_profile
+  required_entry_fields:
+    - id
+    - target_modes
+    - required_lanes
+    - recommended_components
+    - use
+    - accessibility_notes
+    - validation_notes
+  allowed_modes:
+    - object
+    - artifact
+    - architecture
+    - codebase
+    - process
+    - mixed
+  allowed_lanes:
+    - surface
+    - properties
+    - components
+    - internal_dependencies
+    - external_dependencies
+    - flow
+    - lifecycle
+    - risk_questions
+    - visual_composition
+  list_fields:
+    - target_modes
+    - required_lanes
+    - recommended_components
+  id_prefixes:
+    - pattern.
+  notes:
+    - This schema validates reusable pattern record shape only.
+    - Recommended component references should resolve against components.yml.

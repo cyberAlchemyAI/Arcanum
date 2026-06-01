@@ -1,0 +1,170 @@
+{
+  "dispatch_id": "refine-xray-schema-20260529T124546Z",
+  "intent": {
+    "raw": "Do we need to add schemas for x-ray?",
+    "objective": "Decide whether and when x-ray needs explicit schema artifacts for lane models, visual components, and generated outputs.",
+    "target_artifact": "arcana/x-ray"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "x_ray",
+    "component_descriptor",
+    "entity_component_reference"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Compact refine decision with local evidence and next-route planning.",
+      "techniques": ["sequence", "frame_handoff", "validation_loop", "owner_boundary_check", "observability_grouping"],
+      "applies_to_steps": ["01-context", "02-define", "03-review", "04-research", "05-distill", "06-design", "07-design-review", "08-repair", "09-plan", "10-final"],
+      "validation_expectation": "Each stage has a local artifact in the run folder."
+    },
+    {
+      "overlay_id": "xray_schema_for_generated_artifacts",
+      "trigger": "x-ray now has generated lane-model JSON and a validator, but no explicit reusable schema.",
+      "techniques": ["x_ray", "component_descriptor", "entity_component_reference"],
+      "applies_to_steps": ["02-define", "05-distill", "06-design", "09-plan"],
+      "validation_expectation": "Schema recommendation names concrete schema surfaces and dependency order."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "01-context",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "compact",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "REFINE-SEED-PROPOSAL.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/01-context.md"}],
+      "stop_conditions": ["Block if current x-ray validator/example cannot be located."]
+    },
+    {
+      "step_id": "02-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "xray",
+      "techniques": ["x_ray", "component_descriptor"],
+      "inputs": [{"kind": "artifact", "ref": "stages/01-context.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/02-define.md"}],
+      "stop_conditions": ["Block if schema need cannot be tied to current artifacts."]
+    },
+    {
+      "step_id": "03-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "stages/02-define.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/03-review.md"}],
+      "evidence_artifact": "stages/03-review.md",
+      "stop_conditions": ["Block if schema work would over-promote seed behavior."]
+    },
+    {
+      "step_id": "04-research",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "inputs": [{"kind": "artifact", "ref": "stages/03-review.md"}],
+      "outputs": [{"kind": "decision", "ref": "stages/04-research.md"}],
+      "stop_conditions": ["No external research required."]
+    },
+    {
+      "step_id": "05-distill",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "compact",
+      "pattern": "distill",
+      "techniques": ["x_ray", "minimum_component_catalog"],
+      "inputs": [{"kind": "decision", "ref": "stages/04-research.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/05-distill.md"}],
+      "stop_conditions": ["Block if too many schemas are proposed at once."]
+    },
+    {
+      "step_id": "06-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "xray",
+      "techniques": ["x_ray", "component_descriptor", "entity_component_reference"],
+      "inputs": [{"kind": "artifact", "ref": "stages/05-distill.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/06-design.md"}],
+      "stop_conditions": ["Block if schemas do not preserve evidence/inference boundary."]
+    },
+    {
+      "step_id": "07-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop"],
+      "inputs": [{"kind": "artifact", "ref": "stages/06-design.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/07-design-review.md"}],
+      "evidence_artifact": "stages/07-design-review.md",
+      "stop_conditions": ["Flag if schema work should wait for component library."]
+    },
+    {
+      "step_id": "08-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "inputs": [{"kind": "artifact", "ref": "stages/07-design-review.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/08-repair.md"}],
+      "stop_conditions": ["Keep first schema layer minimal."]
+    },
+    {
+      "step_id": "09-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "handoff",
+      "techniques": ["entity_component_reference"],
+      "inputs": [{"kind": "artifact", "ref": "stages/08-repair.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/09-plan.md"}],
+      "stop_conditions": ["Do not execute schema implementation inside refine."]
+    },
+    {
+      "step_id": "10-final",
+      "name": "Final Interrogation and Synthesis",
+      "capability_ref": "interrogation/refine",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": ["observability_grouping"],
+      "inputs": [{"kind": "artifact", "ref": "stages/09-plan.md"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "stop_conditions": ["Final result must answer whether schemas are needed now."]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-local-evidence",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Schema decision is grounded in current x-ray validator and examples.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-candidate-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "sigil-development",
+      "condition": "Schema work remains candidate/local until multiple examples prove stability.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "signal_grouping": "refine-xray-schema-20260529T124546Z",
+    "trace_events": ["refine.seed.created", "xray.schema.need.decided", "xray.schema.slice.planned", "refine.result.synthesized"]
+  }
+}
+

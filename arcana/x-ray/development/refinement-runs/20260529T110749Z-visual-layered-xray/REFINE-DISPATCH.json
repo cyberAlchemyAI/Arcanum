@@ -1,0 +1,469 @@
+{
+  "dispatch_id": "refine-xray-20260529T110749Z",
+  "intent": {
+    "raw": "Create/refine x-ray as a sigil with modes for dissecting target objects, artifacts, architecture, and codebases; use dispatch-spec to create lanes; produce a visual HTML x-ray with stacked selectable layers, SVG, Mermaid, architecture drawings, properties, internal dependencies, and external dependencies; research visual assets.",
+    "objective": "Refine the existing x-ray seed into a dispatch-spec governed, lane-based visual explanation sigil design.",
+    "target_artifact": "arcana/x-ray",
+    "arcanum_vocabulary": [
+      "sigil",
+      "dispatch-spec",
+      "lane",
+      "x_ray",
+      "component_descriptor",
+      "entity_component_reference",
+      "HTML artifact"
+    ],
+    "operator_sentence": "x-ray dissects a target into explanation lanes and renders the lanes as selectable visual layers in a local HTML artifact."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "x_ray",
+    "component_descriptor",
+    "entity_component_reference",
+    "protected_context_flag"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine must preserve the canonical ten-stage loop and record stage evidence.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog",
+        "conditional_component",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": [
+        "01-context-builder",
+        "02-invoke-define",
+        "03-interrogation-review",
+        "04-research-decision",
+        "05-distill",
+        "06-invoke-design",
+        "07-design-review",
+        "08-distill-repair",
+        "09-invoke-plan",
+        "10-final-synthesis"
+      ],
+      "validation_expectation": "Every selected stage has an artifact path or blocked reason in the evidence index."
+    },
+    {
+      "overlay_id": "xray_for_hidden_structure",
+      "trigger": "The core uncertainty is how to expose hidden structure, dependencies, and layers inside arbitrary targets.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "applies_to_steps": [
+        "02-invoke-define",
+        "05-distill",
+        "06-invoke-design",
+        "08-distill-repair",
+        "09-invoke-plan",
+        "10-final-synthesis"
+      ],
+      "validation_expectation": "At least one x_ray step emits a handle or artifact output that later steps consume."
+    },
+    {
+      "overlay_id": "protected_context_for_external_visual_research",
+      "trigger": "The operator explicitly requested web research for visual assets.",
+      "techniques": [
+        "protected_context_flag"
+      ],
+      "applies_to_steps": [
+        "04-research-decision",
+        "06-invoke-design",
+        "09-invoke-plan"
+      ],
+      "validation_expectation": "External research is recorded as non-authoritative support and cannot override local Arcanum contracts."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "01-context-builder",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "minimum_component_catalog",
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/x-ray/SKILL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/dispatch.schema.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the existing x-ray package cannot be located."
+      ]
+    },
+    {
+      "step_id": "02-invoke-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/02-invoke-define.md#xray-definition-handle"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if no lane-producing definition can be stated."
+      ]
+    },
+    {
+      "step_id": "03-interrogation-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/02-invoke-define.md#xray-definition-handle"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/03-interrogation-refine-review.md",
+      "stop_conditions": [
+        "Block if the design claims implementation or promotion authority."
+      ]
+    },
+    {
+      "step_id": "04-research-decision",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "bounded-research",
+      "pattern": "decision",
+      "techniques": [
+        "protected_context_flag"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        },
+        {
+          "kind": "external_context",
+          "ref": "web-research:visual-assets"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if external research is treated as canonical Arcanum evidence."
+      ]
+    },
+    {
+      "step_id": "05-distill",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "x_ray",
+        "minimum_component_catalog"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/05-distill.md#coherent-unit"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the sigil expands into a generic diagram tool instead of a target explainer."
+      ]
+    },
+    {
+      "step_id": "06-invoke-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/05-distill.md#coherent-unit"
+        },
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/06-invoke-design.md#lane-model"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if lanes do not define inputs, output handles, and visual responsibilities."
+      ]
+    },
+    {
+      "step_id": "07-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/06-invoke-design.md#lane-model"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/07-interrogation-design-review.md",
+      "stop_conditions": [
+        "Block if visual ambition outruns a minimum renderer path."
+      ]
+    },
+    {
+      "step_id": "08-distill-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "techniques": [
+        "x_ray",
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "stages/06-invoke-design.md#lane-model"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/08-distill-repair.md#minimum-viable-xray"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Flag optional 3D if it blocks the static HTML minimum viable output."
+      ]
+    },
+    {
+      "step_id": "09-invoke-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "handoff",
+      "techniques": [
+        "handle_handoff",
+        "entity_component_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/08-distill-repair.md#minimum-viable-xray"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Do not execute implementation inside refine."
+      ]
+    },
+    {
+      "step_id": "10-final-synthesis",
+      "name": "Final Interrogation and Synthesis",
+      "capability_ref": "interrogation/refine",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": [
+        "validation_loop",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-DISPATCH.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "observability:refine-xray-20260529T110749Z"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if final result does not separate refined design from implementation."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-command-resolution",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Command-backed stages resolve through tools/arcanum before dispatch evidence is recorded.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-research-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "External visual asset research is advisory and does not override local Arcanum contracts.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-xray-handle",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Every step using x_ray emits a handle or artifact consumed by a later stage.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-layered-html-minimum",
+      "kind": "quality",
+      "owner": "x-ray",
+      "condition": "The design includes a minimum static HTML/SVG path before optional Three.js or CSS3D enhancement.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g-promotion-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "sigil-development",
+      "condition": "This refine run does not promote sigil status; promotion requires later lifecycle review and experiment evidence.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "signal_grouping": "refine-xray-20260529T110749Z",
+    "trace_events": [
+      "refine.seed.created",
+      "dispatch.validated",
+      "research.visual_assets.recorded",
+      "xray.lane_model.designed",
+      "xray.renderer_minimum.selected",
+      "refine.result.synthesized"
+    ]
+  }
+}

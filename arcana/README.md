@@ -105,6 +105,10 @@ It belongs here because it governs a full task lifecycle rather than a single lo
 
 It belongs here because it coordinates cross-run evidence analysis, threshold interpretation, proposal generation, and lifecycle routing.
 
+[x-ray](x-ray/) turns supplied context into a guided HTML explanation page with actors, flows, transformations, relationships, assumptions, and open questions.
+
+It belongs here because it coordinates user intent clarification, context modeling, visual explanation structure, evidence boundaries, and lifecycle validation before reusable explanation behavior is promoted.
+
 ## Quality Bar
 
 An Arcana sigil is ready when:

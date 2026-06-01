@@ -1,0 +1,32 @@
+artifact:
+  artifact_id: xray.regime.promotion
+  artifact_type: experiment-regime
+  intent: Promotion evidence regime for x-ray seed validation.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  constitution_selectors:
+    - framework.artifact-metadata
+    - xray
+  validation_profile:
+    - experiment-harness
+regime:
+  id: xray-promotion-regime
+  profile: sigil-development
+  pass_condition: all_required_branches_pass
+  required_prompts:
+    - XRAY-COMPONENT-001
+    - XRAY-PROCESS-001
+    - XRAY-ARCH-001
+    - XRAY-BLOCK-001
+  required_validation:
+    - lane_model_schema
+    - visual_library_schema
+    - html_output_shape_when_present
+    - insufficient_context_block
+  max_attempts_per_prompt: 2
+  promotion_allowed: false
+  promotion_blocked_until:
+    - real_output_bodies_exist
+    - validation_report_passes
+    - sigil_development_review_passes

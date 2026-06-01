@@ -1,0 +1,104 @@
+{
+  "run_id": "20260529T110749Z-visual-layered-xray",
+  "target": "arcana/x-ray",
+  "status": "flag",
+  "preset": "standard",
+  "research": {
+    "mode": "bounded-research",
+    "confirmation": "operator explicitly requested web research",
+    "artifact": "stages/04-research-decision.md"
+  },
+  "dispatch": {
+    "dispatch_id": "refine-xray-20260529T110749Z",
+    "route": "REFINE-DISPATCH.json",
+    "validation": "pass",
+    "validator": "formulae/dispatch-spec/scripts/validate-dispatch.py",
+    "blocks": [],
+    "flags": []
+  },
+  "runtime": {
+    "adapter": "dry-run",
+    "command_resolution": "pass",
+    "semantic_execution": "local artifact synthesis",
+    "blocked_reason": null
+  },
+  "required_artifacts": {
+    "run_manifest": "RUN-MANIFEST.md",
+    "seed_proposal": "REFINE-SEED-PROPOSAL.md",
+    "dispatch_route": "REFINE-DISPATCH.json",
+    "runtime_handoff": "RUNTIME-HANDOFF.md",
+    "result": "RESULT.md"
+  },
+  "stages": [
+    {
+      "stage": "Context Builder evidence baseline",
+      "owner": "context-builder",
+      "status": "pass",
+      "artifact": "stages/01-context-builder.md",
+      "dry_run_artifact": "stages/01-context-builder.dry-run.md"
+    },
+    {
+      "stage": "Invoke Define",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/02-invoke-define.md",
+      "dry_run_artifact": "stages/02-invoke-define.dry-run.md"
+    },
+    {
+      "stage": "Interrogation refine-review",
+      "owner": "interrogation",
+      "status": "pass",
+      "artifact": "stages/03-interrogation-refine-review.md",
+      "dry_run_artifact": "stages/03-interrogation-refine-review.dry-run.md"
+    },
+    {
+      "stage": "Research decision",
+      "owner": "refine",
+      "status": "pass",
+      "artifact": "stages/04-research-decision.md"
+    },
+    {
+      "stage": "Distill",
+      "owner": "distill",
+      "status": "pass",
+      "artifact": "stages/05-distill.md",
+      "dry_run_artifact": "stages/05-distill.dry-run.md"
+    },
+    {
+      "stage": "Invoke Redefine / Design",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/06-invoke-design.md",
+      "dry_run_artifact": "stages/06-invoke-design.dry-run.md"
+    },
+    {
+      "stage": "Interrogation refine-design-review",
+      "owner": "interrogation",
+      "status": "flag",
+      "artifact": "stages/07-interrogation-design-review.md",
+      "dry_run_artifact": "stages/07-interrogation-design-review.dry-run.md"
+    },
+    {
+      "stage": "Distill Repair",
+      "owner": "distill",
+      "status": "pass",
+      "artifact": "stages/08-distill-repair.md",
+      "dry_run_artifact": "stages/08-distill-repair.dry-run.md"
+    },
+    {
+      "stage": "Invoke Plan",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/09-invoke-plan.md",
+      "dry_run_artifact": "stages/09-invoke-plan.dry-run.md"
+    },
+    {
+      "stage": "Final Interrogation and Synthesis",
+      "owner": "interrogation/refine",
+      "status": "flag",
+      "artifact": "stages/10-final-interrogation-and-synthesis.md",
+      "dry_run_artifact": "stages/10-final-interrogation.dry-run.md",
+      "result": "RESULT.md"
+    }
+  ]
+}

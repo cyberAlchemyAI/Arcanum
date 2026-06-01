@@ -1,0 +1,80 @@
+{
+  "identity": {
+    "task": "TASK-XRAY-SIGIL-001",
+    "source_work_pack": "arcana/x-ray/development/WORK-PACK.md",
+    "seed": "arcana/x-ray/development/REFINE-SEED.md",
+    "runtime": "codex",
+    "adapter": "codex-goal",
+    "generated_at": "20260524T223119Z"
+  },
+  "strict_coverage": "pass",
+  "obligations": [
+    {
+      "id": "O1",
+      "obligation": "Create the initial x-ray package, not a promoted sigil.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O2",
+      "obligation": "README describes purpose, boundary, inputs, outputs, and lifecycle owner.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O3",
+      "obligation": "SKILL defines objective, applicability, process, quality bar, anti-patterns, and output contract.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O4",
+      "obligation": "Validation artifact records seed validation and promotion gates.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O5",
+      "obligation": "Experiment seed defines component, process, and architecture or plan branches.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O6",
+      "obligation": "Examples include at least one input/output-shape stub.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O7",
+      "obligation": "Registry and Arcana README list x-ray as seed or pilot, not promoted.",
+      "coverage": "covered"
+    },
+    {
+      "id": "O8",
+      "obligation": "Validation commands are available.",
+      "coverage": "covered"
+    }
+  ],
+  "selected_sources": [
+    "arcana/x-ray/development/WORK-PACK.md",
+    "arcana/x-ray/development/REFINE-SEED.md",
+    "arcana/sigil-development/SKILL.md",
+    "arcana/experiment-harness/SKILL.md",
+    "registry/SIGILS.md",
+    "arcana/README.md"
+  ],
+  "write_scope": [
+    "arcana/x-ray/README.md",
+    "arcana/x-ray/SKILL.md",
+    "arcana/x-ray/development/",
+    "arcana/x-ray/examples/",
+    "registry/SIGILS.md",
+    "arcana/README.md"
+  ],
+  "validation_surface": [
+    "test -f arcana/x-ray/README.md",
+    "test -f arcana/x-ray/SKILL.md",
+    "test -f arcana/x-ray/development/VALIDATION.md",
+    "test -f arcana/x-ray/development/EXPERIMENT-SEED.md",
+    "test -d arcana/x-ray/examples",
+    "rg -n \"x-ray|HTML|context|data flow|actors|relationships|sigil-development|experiment-harness\" arcana/x-ray registry/SIGILS.md arcana/README.md",
+    "git diff --check -- arcana/x-ray registry/SIGILS.md arcana/README.md"
+  ],
+  "fallback_exploration": "named gaps only",
+  "blockers": []
+}

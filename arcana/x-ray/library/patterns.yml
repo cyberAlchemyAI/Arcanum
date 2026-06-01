@@ -1,0 +1,98 @@
+artifact:
+  artifact_id: xray.library.patterns
+  artifact_type: library-data
+  intent: Canonical reusable x-ray visual composition patterns.
+  owner: x-ray
+  lifecycle_status: candidate
+  evidence_role: source
+  canonical_format: yml
+  constitution_selectors:
+    - framework.artifact-metadata
+    - xray.visual-library
+  validation_profile:
+    - yaml-parse
+    - xray-visual-library
+patterns:
+  - id: pattern.process-branch
+    target_modes:
+      - process
+      - mixed
+      - artifact
+    required_lanes:
+      - surface
+      - flow
+      - risk_questions
+    optional_lanes:
+      - lifecycle
+    recommended_components:
+      - shape.node
+      - connector.branch
+      - connector.arrow
+      - shape.risk-marker
+    use: Show a workflow split where a decision, condition, or missing input changes the path.
+    accessibility_notes: Branch labels should be visible text, not color-only distinctions.
+    validation_notes: Every branch must have a label, source/target, and source-backed or inferred condition.
+  - id: pattern.dependency-boundary
+    target_modes:
+      - architecture
+      - codebase
+      - object
+      - mixed
+    required_lanes:
+      - components
+      - internal_dependencies
+      - external_dependencies
+    optional_lanes: []
+    recommended_components:
+      - shape.boundary
+      - shape.node
+      - connector.arrow
+    use: Separate internal parts from external services, libraries, policies, people, APIs, or documents.
+    accessibility_notes: Use explicit inside/outside labels; do not rely only on placement.
+    validation_notes: Each external dependency should identify why it is outside the target boundary.
+  - id: pattern.lifecycle-stack
+    target_modes:
+      - object
+      - artifact
+      - architecture
+      - codebase
+      - process
+      - mixed
+    required_lanes:
+      - lifecycle
+      - properties
+    optional_lanes:
+      - flow
+    recommended_components:
+      - shape.layer-panel
+      - chart.timeline-strip
+      - connector.feedback-loop
+    use: Stack lifecycle states as selectable layers so a user can isolate creation, operation, mutation, validation, failure, or retirement.
+    accessibility_notes: Preserve linear reading order that matches the lifecycle strip.
+    validation_notes: Lifecycle ordering must be source-backed or clearly marked as inferred.
+  - id: pattern.evidence-inference-split
+    target_modes:
+      - object
+      - artifact
+      - architecture
+      - codebase
+      - process
+      - mixed
+    required_lanes:
+      - risk_questions
+      - visual_composition
+    optional_lanes:
+      - surface
+      - properties
+      - components
+      - internal_dependencies
+      - external_dependencies
+      - flow
+      - lifecycle
+    recommended_components:
+      - shape.layer-panel
+      - shape.risk-marker
+      - chart.risk-matrix
+    use: Distinguish source-backed facts from analyst inference in the visible page, especially when a visual element is explanatory rather than directly quoted.
+    accessibility_notes: Use text labels such as source-backed and inferred; do not use color alone.
+    validation_notes: Every inferred element should include a reason or open question; every source-backed element should point to the source context available to the run.
