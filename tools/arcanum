@@ -37,6 +37,7 @@ script_path="${BASH_SOURCE[0]}"
 script_dir="$(cd "$(dirname "$script_path")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 commands_dir="$repo_root/.codex/commands"
+native_skills_dir="$repo_root/.agents/skills"
 observability_dir="$repo_root/.arcanum/observability"
 runtime_config_file="$repo_root/.arcanum/runtime/config.json"
 runtime_adapters_dir="$repo_root/.arcanum/runtime/adapters"
@@ -312,10 +313,102 @@ normalize_command() {
 	printf '%s' "$raw"
 }
 
+frontmatter_value() {
+	local source_file="$1"
+	local key="$2"
+	awk -v key="$key" '
+		NR == 1 && $0 == "---" { in_fm=1; next }
+		in_fm && $0 == "---" { exit }
+		in_fm {
+			prefix=key ":"
+			if (index($0, prefix) == 1) {
+				value=substr($0, length(prefix) + 1)
+				gsub(/^[ \t]+|[ \t]+$/, "", value)
+				gsub(/^"|"$/, "", value)
+				print value
+				exit
+			}
+		}
+	' "$source_file"
+}
+
+capability_id_from_skill_file() {
+	local skill_file="$1"
+	local package_name canonical_source alias_of name_value
+	package_name="$(basename "$(dirname "$skill_file")")"
+	alias_of="$(frontmatter_value "$skill_file" "alias_of")"
+	if [[ -n "$alias_of" && "$alias_of" != "null" ]]; then
+		printf '%s' "${alias_of#arcanum-}"
+		return 0
+	fi
+	name_value="$(frontmatter_value "$skill_file" "name")"
+	if [[ -n "$name_value" ]]; then
+		printf '%s' "${name_value#arcanum-}"
+		return 0
+	fi
+	canonical_source="$(frontmatter_value "$skill_file" "canonical_source")"
+	case "$canonical_source" in
+		formulae/*/SKILL.md|transmutations/*/SKILL.md|arcana/*/SKILL.md)
+			printf '%s' "$(basename "$(dirname "$canonical_source")")"
+			return 0
+			;;
+		spells/*/README.md)
+			printf '%s' "$(basename "$(dirname "$canonical_source")")"
+			return 0
+			;;
+	esac
+	printf '%s' "${package_name#arcanum-}"
+}
+
+detect_kind_from_skill_file() {
+	local skill_file="$1"
+	local canonical_source
+	canonical_source="$(frontmatter_value "$skill_file" "canonical_source")"
+	case "$canonical_source" in
+		formulae/*/SKILL.md|transmutations/*/SKILL.md|arcana/*/SKILL.md) printf 'sigil' ;;
+		spells/*/README.md) printf 'spell' ;;
+		*) printf 'skill' ;;
+	esac
+}
+
+detect_tier_from_skill_file() {
+	local skill_file="$1"
+	local tier canonical_source
+	tier="$(frontmatter_value "$skill_file" "tier")"
+	if [[ -n "$tier" ]]; then
+		printf '%s' "$tier"
+		return 0
+	fi
+	canonical_source="$(frontmatter_value "$skill_file" "canonical_source")"
+	case "$canonical_source" in
+		formulae/*) printf 'formulae' ;;
+		transmutations/*) printf 'transmutations' ;;
+		arcana/*) printf 'arcana' ;;
+		spells/*) printf 'spell' ;;
+		*) printf 'runtime' ;;
+	esac
+}
+
+detect_alias_from_skill_file() {
+	local skill_file="$1"
+	local alias_of package_name capability_id
+	alias_of="$(frontmatter_value "$skill_file" "alias_of")"
+	[[ -n "$alias_of" && "$alias_of" != "null" ]] || return 0
+	package_name="$(basename "$(dirname "$skill_file")")"
+	capability_id="$(capability_id_from_skill_file "$skill_file")"
+	if [[ "$package_name" != "$capability_id" ]]; then
+		printf '%s' "$package_name"
+	fi
+}
+
 detect_kind() {
 	local command_file="$1"
 	local command_name="$2"
 	local marked
+	if [[ "$command_file" == "$native_skills_dir"/* ]]; then
+		detect_kind_from_skill_file "$command_file"
+		return 0
+	fi
 	marked="$(sed -n 's/^<!-- arcanum:capability-kind \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 	if [[ -n "$marked" ]]; then
 		printf '%s' "$marked"
@@ -333,6 +426,10 @@ detect_capability_id() {
 	local command_file="$1"
 	local command_name="$2"
 	local marked
+	if [[ "$command_file" == "$native_skills_dir"/* ]]; then
+		capability_id_from_skill_file "$command_file"
+		return 0
+	fi
 	marked="$(sed -n 's/^<!-- arcanum:capability-id \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 	if [[ -n "$marked" ]]; then
 		printf '%s' "$marked"
@@ -350,6 +447,10 @@ detect_capability_id() {
 detect_tier() {
 	local command_file="$1"
 	local marked
+	if [[ "$command_file" == "$native_skills_dir"/* ]]; then
+		detect_tier_from_skill_file "$command_file"
+		return 0
+	fi
 	marked="$(sed -n 's/^<!-- arcanum:capability-tier \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 	if [[ -n "$marked" ]]; then
 		printf '%s' "$marked"
@@ -362,6 +463,10 @@ detect_alias() {
 	local command_file="$1"
 	local command_name="$2"
 	local marked
+	if [[ "$command_file" == "$native_skills_dir"/* ]]; then
+		detect_alias_from_skill_file "$command_file"
+		return 0
+	fi
 	marked="$(sed -n 's/^<!-- arcanum:capability-alias \(.*\) -->$/\1/p' "$command_file" | head -n 1)"
 	if [[ -n "$marked" ]]; then
 		printf '%s' "$marked"
@@ -373,10 +478,16 @@ detect_alias() {
 resolve_command() {
 	local selected="$1"
 	local command_file="$commands_dir/$selected.md"
-	if [[ ! -f "$command_file" ]]; then
-		return 1
+	local skill_file="$native_skills_dir/$selected/SKILL.md"
+	if [[ -f "$command_file" ]]; then
+		printf '%s\n' "${command_file#$repo_root/}"
+		return 0
 	fi
-	printf '%s\n' "${command_file#$repo_root/}"
+	if [[ -f "$skill_file" ]]; then
+		printf '%s\n' "${skill_file#$repo_root/}"
+		return 0
+	fi
+	return 1
 }
 
 build_prompt() {
@@ -620,6 +731,80 @@ refine_context_builder_persisted_is_usable() {
 	jq empty "$context_index" >/dev/null 2>&1
 }
 
+refine_stage_receipt_path() {
+	local run_dir="$1"
+	local stage_file="$2"
+	printf '%s\n' "$run_dir/receipts/${stage_file%.md}.json"
+}
+
+refine_stage_receipt_is_valid() {
+	local receipt="$1"
+	local stage="$2"
+	local owner="$3"
+	[[ -s "$receipt" ]] || return 1
+	jq -e \
+		--arg stage "$stage" \
+		--arg owner "$owner" \
+		'
+		def non_empty_string: type == "string" and length > 0;
+		(.receipt_id | non_empty_string)
+		and (.run_id | non_empty_string)
+		and (.stage == $stage)
+		and (.owner == $owner)
+		and (.evidence_kind == "receipt")
+		and ((.status // "") as $status | ["pass","flag","block","interrupted","timeout"] | index($status))
+		and (.handoff_path | non_empty_string)
+		and ((.artifact_paths // null) | type == "array")
+		and ((.validation // null) | type == "array")
+		and ((.blockers // null) | type == "array")
+		and (if .status == "pass" then ((.artifact_paths // []) | length) > 0 else true end)
+		and (if (.status == "block" or .status == "interrupted" or .status == "timeout") then (((.blockers // []) | length) > 0 or ((.validation // []) | length) > 0) else true end)
+		' "$receipt" >/dev/null 2>&1
+}
+
+refine_stage_receipt_reason() {
+	local receipt="$1"
+	jq -r '
+		(.blockers[0].reason // .validation[0].notes // ("Stage receipt reported " + (.status // "unknown") + "."))
+	' "$receipt"
+}
+
+record_refine_stage_receipt() {
+	local stage_jsonl="$1"
+	local stage="$2"
+	local owner="$3"
+	local command_file="$4"
+	local artifact="$5"
+	local receipt="$6"
+	local artifact_rel="$7"
+	local receipt_rel="$8"
+	local receipt_status reason stage_status verdict handoff_rel
+	receipt_status="$(jq -r '.status' "$receipt")"
+	reason="$(refine_stage_receipt_reason "$receipt")"
+	handoff_rel="$(jq -r '.handoff_path // empty' "$receipt")"
+	stage_status="$receipt_status"
+	verdict="Stage receipt reported $receipt_status."
+	case "$receipt_status" in
+		pass)
+			stage_status="pass"
+			verdict="Stage receipt reported pass."
+			;;
+		flag)
+			stage_status="flag"
+			verdict="$reason"
+			;;
+		block)
+			stage_status="block"
+			;;
+		interrupted|timeout)
+			stage_status="flag"
+			verdict="$reason"
+			;;
+	esac
+	record_refine_stage "$stage_jsonl" "$stage" "$owner" "$command_file" "$artifact_rel" "$stage_status" "$verdict" "$(if [[ "$stage_status" == "block" ]]; then printf '%s' "$reason"; fi)" "receipt" "$handoff_rel" "$receipt_rel"
+	printf '%s' "$stage_status"
+}
+
 kill_process_tree() {
 	local pid="$1"
 	local child
@@ -645,6 +830,19 @@ run_refine_command_stage() {
 	local artifact="$run_dir/stages/$stage_file"
 	local artifact_rel
 	artifact_rel="$(rel_path "$artifact")"
+	local receipt receipt_rel resume_command root_request resume_request
+	receipt="$(refine_stage_receipt_path "$run_dir" "$stage_file")"
+	receipt_rel="$(rel_path "$receipt")"
+	root_request="${ARCANUM_REFINE_ROOT_REQUEST:-${request:-}}"
+	if [[ -z "$root_request" ]]; then
+		root_request="<original refine request>"
+	fi
+	if [[ "$root_request" == *"use existing run folder"* ]]; then
+		resume_request="$root_request"
+	else
+		resume_request="$root_request use existing run folder $(rel_path "$run_dir")"
+	fi
+	resume_command="tools/arcanum --exec --adapter ${ARCANUM_RUNTIME_ADAPTER:-local-skill} --timeout 240 --output $(rel_path "$run_dir/RESULT.md") refine '$resume_request'"
 	local command_rel
 	command_rel="$(resolve_command "$owner" || true)"
 	if [[ "$prior_status" != "pass" ]]; then
@@ -666,7 +864,15 @@ run_refine_command_stage() {
 	rm -f "$artifact"
 	set +e
 	(
-		ARCANUM_REFINE_NATIVE=0 "$repo_root/tools/arcanum" \
+		ARCANUM_REFINE_NATIVE=0 \
+			ARCANUM_STAGE_RUN_ID="$(basename "$run_dir")" \
+			ARCANUM_STAGE_TITLE="$stage_title" \
+			ARCANUM_STAGE_OWNER="$owner" \
+			ARCANUM_STAGE_REQUEST="$stage_request" \
+			ARCANUM_STAGE_HANDOFF_PATH="$artifact_rel" \
+			ARCANUM_STAGE_EXPECTED_RECEIPT_PATH="$receipt_rel" \
+			ARCANUM_STAGE_RESUME_COMMAND="$resume_command" \
+			"$repo_root/tools/arcanum" \
 			--exec \
 			--adapter "$stage_adapter" \
 			--timeout "$stage_timeout" \
@@ -715,6 +921,10 @@ run_refine_command_stage() {
 	fi
 	set -e
 		if refine_artifact_is_runtime_handoff_stub "$artifact"; then
+			if refine_stage_receipt_is_valid "$receipt" "$stage_title" "$owner"; then
+				record_refine_stage_receipt "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact" "$receipt" "$artifact_rel" "$receipt_rel"
+				return 0
+			fi
 			local reason="Stage produced a runtime-native handoff stub only; owner-stage execution receipt is still required."
 			record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "flag" "$reason" "" "handoff_prepared" "$artifact_rel" ""
 			printf 'flag'
@@ -1078,7 +1288,9 @@ $stage_rows
 
 $(if [[ "$final_status" == "pass" ]]; then printf 'Use the Invoke Plan output as the handoff to Task Session or the requested downstream owner.'; else printf 'Inspect the first blocked stage artifact and its log under `stages/.logs/`, then rerun Refine after fixing that stage blocker.'; fi)
 RESULT
-	cp "$run_dir/RESULT.md" "$output_abs"
+	if [[ "$run_dir/RESULT.md" != "$output_abs" ]]; then
+		cp "$run_dir/RESULT.md" "$output_abs"
+	fi
 }
 
 run_native_refine() {
@@ -1573,11 +1785,18 @@ while [[ "$#" -gt 0 ]]; do
 			exit 0
 			;;
 		--list)
-			if [[ ! -d "$commands_dir" ]]; then
-				printf 'ERROR: command directory not found: %s\n' "${commands_dir#$repo_root/}" >&2
+			if [[ ! -d "$commands_dir" && ! -d "$native_skills_dir" ]]; then
+				printf 'ERROR: command or skill directory not found: %s or %s\n' "${commands_dir#$repo_root/}" "${native_skills_dir#$repo_root/}" >&2
 				exit 1
 			fi
-			find "$commands_dir" -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sed 's/\.md$//' | sort
+			{
+				if [[ -d "$commands_dir" ]]; then
+					find "$commands_dir" -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sed 's/\.md$//'
+				fi
+				if [[ -d "$native_skills_dir" ]]; then
+					find "$native_skills_dir" -mindepth 2 -maxdepth 2 -type f -name 'SKILL.md' -printf '%h\n' | xargs -r -n 1 basename
+				fi
+			} | sort -u
 			exit 0
 			;;
 		--list-adapters)
@@ -1799,6 +2018,21 @@ The \`$adapter_id\` adapter does not spawn a nested model-backed CLI process. It
 ## Request
 
 $request
+
+## Stage Receipt Handoff
+
+- run_id: \`${ARCANUM_STAGE_RUN_ID:-n/a}\`
+- stage: \`${ARCANUM_STAGE_TITLE:-n/a}\`
+- owner: \`${ARCANUM_STAGE_OWNER:-$command_name}\`
+- handoff_path: \`${ARCANUM_STAGE_HANDOFF_PATH:-$output_path}\`
+- expected_receipt_path: \`${ARCANUM_STAGE_EXPECTED_RECEIPT_PATH:-n/a}\`
+- resume_command: \`${ARCANUM_STAGE_RESUME_COMMAND:-n/a}\`
+
+### Stage Request
+
+\`\`\`text
+${ARCANUM_STAGE_REQUEST:-$request}
+\`\`\`
 
 ## Receipt Contract
 

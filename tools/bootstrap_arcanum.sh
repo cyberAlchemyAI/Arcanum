@@ -16,8 +16,9 @@ Options:
   --profile <list|all|none>
   --profiles <list|all|none>
                         Comma-separated install profiles:
-                        personal-codex, repo-local, github-copilot, claude,
-                        observability; or all/none. Default: none.
+                        personal-codex, repo-codex, repo-local,
+                        github-copilot, claude, observability; or all/none.
+                        Default: none.
                         all excludes personal-codex.
   --runtime <target>    Compatibility alias for --profile. Values: claude,
                         copilot, github-copilot, all, or none. Codex command
@@ -33,6 +34,12 @@ Options:
                         CODEX_HOME or ~/.codex.
   --legacy-codex-commands
                         Explicitly generate deprecated .codex/commands files.
+  --clean-legacy-codex-commands
+                        Remove generated deprecated .codex/commands files and
+                        preserve unknown command files.
+  --prefixed-skill-packages
+                        Also generate compatibility arcanum-* native skill
+                        packages. Default: aliases only for Codex skill roots.
   --necronomicon
                         Initialize Necronomicon repository harness session state and command.
   --no-necronomicon
@@ -43,7 +50,7 @@ Options:
 
 Examples:
   tools/bootstrap_arcanum.sh --target ../my-repo --sigils all --spells all --profile all
-  tools/bootstrap_arcanum.sh --target ../my-repo --sigils ontology-vault,context-builder --spells ontology-harness --profiles repo-local,github-copilot,claude
+  tools/bootstrap_arcanum.sh --target ../my-repo --sigils ontology-vault,context-builder --spells ontology-harness --profiles repo-codex,repo-local,github-copilot,claude
   tools/bootstrap_arcanum.sh --profile personal-codex --codex-home "$HOME/.codex"
 USAGE
 }
@@ -61,6 +68,8 @@ default_adapter=""
 command_name="arcanum-orchestrate"
 codex_home="${CODEX_HOME:-$HOME/.codex}"
 legacy_codex_commands="false"
+clean_legacy_codex_commands="false"
+prefixed_skill_packages="false"
 necronomicon_harness="auto"
 force="false"
 dry_run="false"
@@ -202,6 +211,8 @@ while [[ $# -gt 0 ]]; do
     --command) command_name="$2"; shift 2 ;;
     --codex-home) codex_home="$2"; shift 2 ;;
     --legacy-codex-commands) legacy_codex_commands="true"; shift ;;
+    --clean-legacy-codex-commands) clean_legacy_codex_commands="true"; shift ;;
+    --prefixed-skill-packages) prefixed_skill_packages="true"; shift ;;
     --necronomicon) necronomicon_harness="true"; shift ;;
     --no-necronomicon) necronomicon_harness="false"; shift ;;
     --force) force="true"; shift ;;
@@ -307,10 +318,10 @@ case "$profile_selection" in
       _profile_item="${_profile_item//[[:space:]]/}"
       [[ "$_profile_item" == "copilot" ]] && _profile_item="github-copilot"
       case "$_profile_item" in
-        personal-codex|repo-local|github-copilot|claude|observability) ;;
+        personal-codex|repo-codex|repo-local|github-copilot|claude|observability) ;;
         *)
           echo "Unsupported install profile: $_profile_item" >&2
-          echo "Supported profiles: personal-codex, repo-local, github-copilot, claude, observability, all, none" >&2
+          echo "Supported profiles: personal-codex, repo-codex, repo-local, github-copilot, claude, observability, all, none" >&2
           exit 2
           ;;
       esac
@@ -336,6 +347,7 @@ case "$default_adapter" in
 esac
 
 target_profile_writes() {
+  profile_enabled "repo-codex" && return 0
   profile_enabled "repo-local" && return 0
   profile_enabled "github-copilot" && return 0
   profile_enabled "claude" && return 0
@@ -704,6 +716,10 @@ runtime_config_content() {
       "enabled": true,
       "profile_path": "$install_prefix/runtime/adapters/codex-exec.json"
     },
+    "codex-bypass": {
+      "enabled": true,
+      "profile_path": "$install_prefix/runtime/adapters/codex-bypass.json"
+    },
     "dry-run": {
       "enabled": true,
       "profile_path": "$install_prefix/runtime/adapters/dry-run.json"
@@ -816,6 +832,7 @@ write_generated_skill_file() {
   local canonical_source="$3"
   local source_file="$4"
   local alias_of="${5:-null}"
+  local name_override="${6:-}"
   local dst="$package_dir/SKILL.md"
 
   ensure_clean_destination "$dst"
@@ -829,9 +846,42 @@ write_generated_skill_file() {
     if [[ "$(head -n 1 "$source_file")" == "---" ]]; then
       printf '%s\n' '---'
       generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of"
-      tail -n +2 "$source_file"
+      if [[ -n "$name_override" ]]; then
+        tail -n +2 "$source_file" | awk -v name="$name_override" '
+          BEGIN { in_fm=1; replaced=0 }
+          in_fm && $0 == "---" {
+            if (!replaced) {
+              print "name: " name
+              replaced=1
+            }
+            print
+            in_fm=0
+            next
+          }
+          in_fm && $0 ~ /^name:/ {
+            if (!replaced) {
+              print "name: " name
+              replaced=1
+            }
+            next
+          }
+          { print }
+        '
+      else
+        tail -n +2 "$source_file"
+      fi
     else
-      generated_skill_frontmatter "$runtime" "$canonical_source" "$alias_of"
+      if [[ -n "$name_override" ]]; then
+        cat <<EOF
+---
+name: $name_override
+$(generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of")
+---
+
+EOF
+      else
+        generated_skill_frontmatter "$runtime" "$canonical_source" "$alias_of"
+      fi
       cat "$source_file"
     fi
   } > "$dst"
@@ -919,9 +969,12 @@ write_runtime_skill_packages() {
   local runtime="$1"
   local root="$2"
   local prefix_name="$3"
-  local index sigil tier spell source_file canonical_source package_name alias_slug alias_display
+  local index sigil tier spell source_file canonical_source package_name alias_slug alias_display visible_name
 
-  write_orchestrate_skill_file "$runtime" "$root/arcanum-orchestrate"
+  write_orchestrate_skill_file "$runtime" "$root/orchestrate"
+  if [[ "$prefixed_skill_packages" == "true" && -n "$prefix_name" ]]; then
+    write_generated_alias_skill "$runtime" "$root/arcanum-orchestrate" "arcanum/runtime/orchestrate" "orchestrate" "Arcanum Orchestrate"
+  fi
 
   for index in "${!installed_sigil_ids[@]}"; do
     sigil="${installed_sigil_ids[$index]}"
@@ -929,15 +982,16 @@ write_runtime_skill_packages() {
     source_file="$arcanum_root/$tier/$sigil/SKILL.md"
     canonical_source="$tier/$sigil/SKILL.md"
     package_name="$prefix_name$sigil"
-    write_generated_skill_file "$runtime" "$root/$package_name" "$canonical_source" "$source_file" "null"
-    if [[ -n "$prefix_name" ]]; then
-      write_generated_alias_skill "$runtime" "$root/$sigil" "$canonical_source" "$package_name" "$sigil"
-    fi
+    visible_name="$sigil"
     if alias_slug="$(sigil_alias_slug "$sigil")"; then
       alias_display="$(sigil_alias_display "$sigil")"
-      write_generated_alias_skill "$runtime" "$root/$prefix_name$alias_slug" "$canonical_source" "$package_name" "$alias_display"
-      if [[ -n "$prefix_name" ]]; then
-        write_generated_alias_skill "$runtime" "$root/$alias_slug" "$canonical_source" "$package_name" "$alias_display"
+      visible_name="$alias_slug"
+    fi
+    write_generated_skill_file "$runtime" "$root/$visible_name" "$canonical_source" "$source_file" "null" "$visible_name"
+    if [[ "$prefixed_skill_packages" == "true" && -n "$prefix_name" ]]; then
+      write_generated_alias_skill "$runtime" "$root/$package_name" "$canonical_source" "$visible_name" "$sigil"
+      if [[ "$visible_name" != "$sigil" ]]; then
+        write_generated_alias_skill "$runtime" "$root/$sigil" "$canonical_source" "$visible_name" "$sigil"
       fi
     fi
   done
@@ -946,9 +1000,9 @@ write_runtime_skill_packages() {
     source_file="$(spell_contract_file_for "$spell")" || continue
     canonical_source="$(spell_source_path_for "$spell")" || continue
     package_name="$prefix_name$spell"
-    write_generated_skill_file "$runtime" "$root/$package_name" "$canonical_source" "$source_file" "null"
-    if [[ -n "$prefix_name" ]]; then
-      write_generated_alias_skill "$runtime" "$root/$spell" "$canonical_source" "$package_name" "$spell"
+    write_generated_skill_file "$runtime" "$root/$spell" "$canonical_source" "$source_file" "null" "$spell"
+    if [[ "$prefixed_skill_packages" == "true" && -n "$prefix_name" ]]; then
+      write_generated_alias_skill "$runtime" "$root/$package_name" "$canonical_source" "$spell" "$spell"
     fi
   done
 }
@@ -1008,6 +1062,26 @@ write_copilot_skill_packages() {
 write_personal_codex_surface() {
   profile_enabled "personal-codex" || return 0
   write_runtime_skill_packages "codex" "$codex_home/skills" "arcanum-"
+}
+
+write_repo_codex_surface() {
+  profile_enabled "repo-codex" || return 0
+
+  write_runtime_skill_packages "codex" "$target_root/.agents/skills" "arcanum-"
+  write_file_if_missing "$target_root/AGENTS.md" "# Agent Instructions
+
+This repository exposes Arcanum capabilities as repo-scoped Codex skills under \`.agents/skills/\`.
+
+Core rules:
+
+- Invoke skills explicitly with \`\$skill-name\` when the request names a capability.
+- Use \`registry/SIGILS.md\` and \`registry/SPELLS.md\` for capability lookup when available.
+- Use \`formulae/dispatch-spec/\` for route-shape validation when installed.
+- Use \`spells/invoke/\` for lifecycle authoring artifacts.
+- Use \`arcana/task-session/\` for bounded execution.
+- Keep \`tools/arcanum\` deterministic: resolve, validate, handoff, and legacy adapter compatibility.
+- Prefer native Codex skill execution over nested model-backed CLI execution.
+"
 }
 
 write_claude_surface() {
@@ -1115,6 +1189,9 @@ remove_obsolete_runtime_layers() {
   fi
   if profile_enabled "repo-local"; then
     run rm -rf "$dest_root/runtimes"
+  fi
+  if profile_enabled "repo-codex"; then
+    run rm -rf "$target_root/.agents/skills"
   fi
   if profile_enabled "github-copilot"; then
     run rm -rf "$target_root/.github/skills"
@@ -1486,6 +1563,26 @@ write_codex_commands() {
   write_necronomicon_command
 }
 
+clean_generated_codex_commands() {
+  local commands_root="$target_root/.codex/commands"
+  [[ -d "$commands_root" ]] || return 0
+
+  local command_file
+  while IFS= read -r command_file; do
+    if grep -q '^<!-- arcanum:command ' "$command_file"; then
+      run rm -f "$command_file"
+    else
+      echo "Preserving non-generated Codex command: ${command_file#$target_root/}" >&2
+    fi
+  done < <(find "$commands_root" -maxdepth 1 -type f -name '*.md' | sort)
+
+  if [[ "$dry_run" != "true" ]] && find "$commands_root" -maxdepth 1 -type f -name '*.md' | read -r _; then
+    return 0
+  fi
+  run rmdir "$commands_root" 2>/dev/null || true
+  run rmdir "$target_root/.codex" 2>/dev/null || true
+}
+
 write_necronomicon_harness_state() {
   necronomicon_should_install || return 0
 
@@ -1639,6 +1736,7 @@ echo "  spells:  $spell_selection"
 echo "  runtime: $runtime"
 echo "  profiles: $profile_selection"
 echo "  default adapter: $default_adapter"
+echo "  clean legacy commands: $clean_legacy_codex_commands"
 
 if target_profile_writes && [[ "$profile_selection" != "none" ]]; then
   run mkdir -p "$target_root"
@@ -1655,6 +1753,10 @@ elif has_obsolete_necronomicon_runtime_book; then
   exit 1
 fi
 
+if [[ "$clean_legacy_codex_commands" == "true" ]]; then
+  clean_generated_codex_commands
+fi
+
 collect_selected_sigils "$sigil_selection"
 collect_selected_spells "$spell_selection"
 install_repo_local_tools
@@ -1668,6 +1770,7 @@ if [[ "$legacy_codex_commands" == "true" ]]; then
   write_necronomicon_harness_state
 fi
 write_personal_codex_surface
+write_repo_codex_surface
 write_codex_commands
 write_claude_surface
 write_copilot_surface
@@ -1687,6 +1790,9 @@ echo "Default runtime adapter: $default_adapter"
 echo "Install profiles: $profile_selection"
 if profile_enabled "personal-codex"; then
   echo "Personal Codex skills: $codex_home/skills/"
+fi
+if profile_enabled "repo-codex"; then
+  echo "Repository Codex skills: .agents/skills/"
 fi
 if surface_enabled "codex"; then
   echo "Legacy Codex command surface: .codex/commands/"

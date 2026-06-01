@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+personal_skills="${CODEX_HOME:-/mnt/c/Users/vlad_/.codex}/skills"
+repo_skills="$repo_root/.agents/skills"
+legacy_commands="$repo_root/.codex/commands"
+
+frontmatter_value() {
+  local source_file="$1"
+  local key="$2"
+  awk -v key="$key" '
+    NR == 1 && $0 == "---" { in_fm=1; next }
+    in_fm && $0 == "---" { exit }
+    in_fm {
+      prefix=key ":"
+      if (index($0, prefix) == 1) {
+        value=substr($0, length(prefix) + 1)
+        gsub(/^[ \t]+|[ \t]+$/, "", value)
+        gsub(/^"|"$/, "", value)
+        print value
+        exit
+      }
+    }
+  ' "$source_file"
+}
+
+is_generated_arcanum_skill() {
+  local skill_file="$1"
+  [[ "$(frontmatter_value "$skill_file" "surface_kind")" == "generated-native-runtime-package" ]] || return 1
+  [[ "$(frontmatter_value "$skill_file" "generated_by")" == "tools/bootstrap_arcanum.sh --profile" ]] || return 1
+}
+
+matching_alias_for_prefixed() {
+  local root="$1"
+  local package="$2"
+  local candidate="${package#arcanum-}"
+  [[ "$candidate" != "$package" ]] || return 1
+  [[ -f "$root/$candidate/SKILL.md" ]] || return 1
+  printf '%s' "$candidate"
+}
+
+count_lines() {
+  local file="$1"
+  if [[ -s "$file" ]]; then
+    wc -l < "$file" | tr -d ' '
+  else
+    printf '0'
+  fi
+}
+
+tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/arcanum-surface-cleanup-XXXXXX")"
+trap 'rm -rf "$tmpdir"' EXIT
+
+personal_keep="$tmpdir/personal-keep.txt"
+personal_remove="$tmpdir/personal-remove.txt"
+personal_unknown="$tmpdir/personal-unknown.txt"
+repo_keep="$tmpdir/repo-keep.txt"
+repo_remove="$tmpdir/repo-remove.txt"
+repo_unknown="$tmpdir/repo-unknown.txt"
+legacy_remove="$tmpdir/legacy-remove.txt"
+legacy_unknown="$tmpdir/legacy-unknown.txt"
+
+: > "$personal_keep"
+: > "$personal_remove"
+: > "$personal_unknown"
+: > "$repo_keep"
+: > "$repo_remove"
+: > "$repo_unknown"
+: > "$legacy_remove"
+: > "$legacy_unknown"
+
+classify_skill_root() {
+  local root="$1"
+  local keep_file="$2"
+  local remove_file="$3"
+  local unknown_file="$4"
+  [[ -d "$root" ]] || return 0
+  local skill_file package alias alias_of rel
+  while IFS= read -r skill_file; do
+    package="$(basename "$(dirname "$skill_file")")"
+    rel="${skill_file#$repo_root/}"
+    if [[ "$skill_file" == "$repo_root"/* ]]; then
+      rel="$rel"
+    else
+      rel="$skill_file"
+    fi
+
+    if ! is_generated_arcanum_skill "$skill_file"; then
+      printf '%s | keep: non-generated or non-Arcanum skill\n' "$rel" >> "$keep_file"
+      continue
+    fi
+
+    alias_of="$(frontmatter_value "$skill_file" "alias_of")"
+    if [[ -n "$alias_of" && "$alias_of" != "null" ]]; then
+      printf '%s | keep: generated short alias for %s\n' "$rel" "$alias_of" >> "$keep_file"
+      continue
+    fi
+
+    if alias="$(matching_alias_for_prefixed "$root" "$package")"; then
+      printf '%s | remove-candidate: generated prefixed package duplicated by alias %s\n' "$rel" "$alias" >> "$remove_file"
+      continue
+    fi
+
+    printf '%s | unknown: generated canonical package without matching short alias\n' "$rel" >> "$unknown_file"
+  done < <(find "$root" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | sort)
+}
+
+classify_legacy_commands() {
+  [[ -d "$legacy_commands" ]] || return 0
+  local command_file rel
+  while IFS= read -r command_file; do
+    rel="${command_file#$repo_root/}"
+    if grep -q '^<!-- arcanum:command ' "$command_file"; then
+      printf '%s | remove-candidate: generated legacy Arcanum command\n' "$rel" >> "$legacy_remove"
+    else
+      printf '%s | unknown: command lacks Arcanum generated marker\n' "$rel" >> "$legacy_unknown"
+    fi
+  done < <(find "$legacy_commands" -maxdepth 1 -type f -name '*.md' | sort)
+}
+
+classify_skill_root "$personal_skills" "$personal_keep" "$personal_remove" "$personal_unknown"
+classify_skill_root "$repo_skills" "$repo_keep" "$repo_remove" "$repo_unknown"
+classify_legacy_commands
+
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+cat <<REPORT
+# Arcanum Skill Surface Cleanup Dry Run
+
+Generated at: $timestamp
+
+## Scope
+
+- Personal Codex skills: \`$personal_skills\`
+- Repository Codex skills: \`.agents/skills\`
+- Legacy Codex commands: \`.codex/commands\`
+
+No files were changed, moved, or deleted.
+
+## Summary
+
+| Surface | Keep | Remove Candidates | Unknown |
+| --- | ---: | ---: | ---: |
+| Personal Codex skills | $(count_lines "$personal_keep") | $(count_lines "$personal_remove") | $(count_lines "$personal_unknown") |
+| Repository Codex skills | $(count_lines "$repo_keep") | $(count_lines "$repo_remove") | $(count_lines "$repo_unknown") |
+| Legacy Codex commands | 0 | $(count_lines "$legacy_remove") | $(count_lines "$legacy_unknown") |
+
+## Personal Codex Skills - Keep
+
+$(sed 's/^/- /' "$personal_keep")
+
+## Personal Codex Skills - Remove Candidates
+
+$(sed 's/^/- /' "$personal_remove")
+
+## Personal Codex Skills - Unknown
+
+$(sed 's/^/- /' "$personal_unknown")
+
+## Repository Codex Skills - Keep
+
+$(sed 's/^/- /' "$repo_keep")
+
+## Repository Codex Skills - Remove Candidates
+
+$(sed 's/^/- /' "$repo_remove")
+
+## Repository Codex Skills - Unknown
+
+$(sed 's/^/- /' "$repo_unknown")
+
+## Legacy Codex Commands - Remove Candidates
+
+$(sed 's/^/- /' "$legacy_remove")
+
+## Legacy Codex Commands - Unknown
+
+$(sed 's/^/- /' "$legacy_unknown")
+
+## Gate Notes
+
+- Personal cleanup remains blocked pending explicit approval.
+- Remove candidates should be moved to a timestamped backup before deletion.
+- Unknown entries require manual review before cleanup.
+- Non-generated personal skills are kept by default.
+REPORT

@@ -174,9 +174,27 @@ The older `.codex/commands/` files are compatibility adapters for slash-command-
 
 ## Installing Arcanum Into Another Repository
 
-For local Codex use, copy or symlink the desired Arcanum capability folders into the target repository's `.agents/skills/` directory. Keep the original `README.md`, `SKILL.md`, `scripts/`, `templates/`, and `references/` together in the skill folder.
+For local Codex use in another repository, install repo-scoped Codex skills with the bootstrap profile:
 
-Use the [Arcanum Bootstrap](spells/arcanum-bootstrap/README.md) spell or bootstrap scripts only when you intentionally need the legacy command-adapter and observability-hook package.
+```bash
+tools/bootstrap_arcanum.sh --target ../my-repo --profile repo-codex --sigils all --spells none
+```
+
+For a fresh Codex and GitHub project, install the repo-scoped Codex skills, repo-local deterministic tool/runtime config, GitHub Copilot instructions, and observability skeleton together:
+
+```bash
+tools/bootstrap_arcanum.sh --target ../my-repo --profiles repo-codex,repo-local,github-copilot,observability --sigils all --spells all
+```
+
+From GitHub, use the installer wrapper:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles repo-codex,repo-local,github-copilot,observability --sigils all --spells all
+```
+
+Generated Codex skill installs use short alias names by default so the skill picker does not show both `refine` and `arcanum-refine`. Use `--prefixed-skill-packages` only when you intentionally need `arcanum-*` compatibility packages.
+
+Use `--profile personal-codex --codex-home "$HOME/.codex"` only when you want to install generated skills into a personal Codex home. Use `--legacy-codex-commands` only when a repository still needs deprecated `.codex/commands/` compatibility, and `--clean-legacy-codex-commands` to remove generated legacy command files while preserving unknown local command files.
 
 ## Research And Proofs
 

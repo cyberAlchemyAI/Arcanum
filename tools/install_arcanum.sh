@@ -18,20 +18,22 @@ Bootstrap options are forwarded to tools/bootstrap_arcanum.sh, for example:
   --target <path>
   --sigils <list|all>
   --spells <list|all|none>
-  --profile <personal-codex,repo-local,github-copilot,claude,observability|all|none>
-  --profiles <personal-codex,repo-local,github-copilot,claude,observability|all|none>
+  --profile <personal-codex,repo-codex,repo-local,github-copilot,claude,observability|all|none>
+  --profiles <personal-codex,repo-codex,repo-local,github-copilot,claude,observability|all|none>
   --runtime <claude|copilot|github-copilot|all|none>
   --surfaces <claude|copilot|github-copilot|all|none>
   --default-adapter <native-skill|codex-skill|claude-skill|copilot-instructions|local-skill|codex-exec|codex-bypass|dry-run|none>
   --codex-home <path>
   --legacy-codex-commands
+  --clean-legacy-codex-commands
+  --prefixed-skill-packages
   --force
   --dry-run
 
 Examples:
   curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils all --spells all --profile all
 
-  curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils ontology-vault,context-builder --spells ontology-harness --profiles repo-local,github-copilot,claude
+  curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --sigils ontology-vault,context-builder --spells ontology-harness --profiles repo-codex,repo-local,github-copilot,claude
 
   curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/arcanum/main/tools/install_arcanum.sh | bash -s -- --profile personal-codex --codex-home "$HOME/.codex"
 USAGE

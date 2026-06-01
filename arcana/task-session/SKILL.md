@@ -4,7 +4,7 @@ description: "Use when: executing one bounded work-pack task or SWU end to end w
 argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via runtime] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.3.0
+version: 0.3.1
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -24,6 +24,7 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 | Sigil | Role In Task Session | Required Mode |
 | --- | --- | --- |
 | `context-builder` | Build a bounded context pack from the selected task/SWU, source links, constraints, related architecture/spec artifacts, write scope, and validation surface before decisions, gates, or runtime handoff. For `--via runtime`, produce a strict Markdown plus JSON/index handoff pack stored as session evidence. | lean or standard |
+| `decision-gate` | Convert unresolved blocker-level choices into user-ready option cards with context, trade-offs, recommendation, and a durable decision record before returning `BLOCK`. | blocker-only |
 
 </required-sigils>
 
@@ -95,29 +96,32 @@ Expected inputs, if available:
    - risk impact,
    - maintenance impact,
    - recommended option with rationale.
-19. Ask the user to choose each blocker decision.
+18. Classify each decision as blocker, deferrable, or assumption.
+19. Ask the user to choose each blocker decision when the blocker is discovered before mutation.
 20. If `--auto` is provided, auto-select only decisions that are non-blocking or where a recommendation is clearly safe, and record the auto-selection.
+21. If a blocker-level decision remains unresolved and consequential work cannot proceed, invoke `decision-gate` before returning `BLOCK`; include the exact context, option cards, recommendation, and decision artifact path in the task-session report.
 
 ## Step 4 - Evaluate Gates
 
-21. Check task dependencies, stated constraints, required approvals, source links, context-pack obligations, strict handoff coverage when applicable, write scope, and available validation paths.
-22. If a blocker exists, return `BLOCK` with exact unblock actions and stop before mutation.
-23. If the task can proceed with assumptions, record those assumptions before mutation.
+22. Check task dependencies, stated constraints, required approvals, source links, context-pack obligations, strict handoff coverage when applicable, write scope, and available validation paths.
+23. If a blocker exists because a human approval, policy choice, destructive cleanup, irreversible mutation, cost/risk acceptance, or rollout option is unresolved, run `decision-gate` for that blocker before returning `BLOCK`.
+24. If a blocker exists for missing evidence, missing files, unavailable tools, or contradictory context with no meaningful user option, return `BLOCK` with exact unblock actions and stop before mutation.
+25. If the task can proceed with assumptions, record those assumptions before mutation.
 
 ## Step 5 - Select Runtime
 
-24. Resolve the current repository runtime from the installed command context or `--runtime`.
-25. If `--via runtime` is set, load the matching runtime adapter from `arcana/task-session/runtime-adapters/`.
-26. For durable Arcanum runtime runs, use the `runtime-handoff` adapter and selected executor adapter such as `native-skill`, `codex-skill`, `claude-skill`, `copilot-instructions`, `dry-run`, or explicit legacy `codex-exec`.
-27. If `--via runtime` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
-28. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
+26. Resolve the current repository runtime from the installed command context or `--runtime`.
+27. If `--via runtime` is set, load the matching runtime adapter from `arcana/task-session/runtime-adapters/`.
+28. For durable Arcanum runtime runs, use the `runtime-handoff` adapter and selected executor adapter such as `native-skill`, `codex-skill`, `claude-skill`, `copilot-instructions`, `dry-run`, or explicit legacy `codex-exec`.
+29. If `--via runtime` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
+30. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
 
 ## Step 6 - Execute Task
 
-29. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
-30. If a runtime adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime handoff and preserve the Task Session synchronization obligations.
-31. If running locally, make only the changes required for the task scope.
-32. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
+31. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
+32. If a runtime adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime handoff and preserve the Task Session synchronization obligations.
+33. If running locally, make only the changes required for the task scope.
+34. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
 
 ## Step 7 - Validate Completion
 
@@ -137,6 +141,7 @@ Expected inputs, if available:
 ## Step 9 - Report
 
 44. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, files updated, validations, experiment harness status, and remaining follow-up.
+45. When the result is `BLOCK` because a decision is required, append a `Decision Gate Result` section that names the target scope, lists the blocker question, presents 2-4 concrete options with trade-offs, records the recommended option if one exists, and points to the decision artifact path.
 </process>
 
 <authority-rule>
@@ -176,6 +181,7 @@ A successful execution of this sigil must:
 - block when required source context is missing, contradictory, or too weak to check constraints,
 - expose meaningful implementation trade-offs,
 - stop before mutation when blockers remain,
+- run `decision-gate` before reporting blocker-level human approval, destructive cleanup, rollout, or policy choices,
 - keep runtime delegation behind an explicit adapter boundary,
 - keep edits within the declared task scope,
 - validate all available done criteria,
@@ -196,6 +202,7 @@ Avoid:
 - skipping validation because the edit looks small,
 - hiding failed checks inside a success report,
 - letting synchronization updates rewrite unrelated planning or status history.
+- ending with a vague approval request when a blocker-level decision could be presented as concrete options with context.
 - hardcoding Codex as the only possible runtime,
 - treating a generated runtime handoff as completed work before evidence returns.
 </anti-patterns>
@@ -221,5 +228,16 @@ Return:
 - Experiment harness: pass | flag | block | not_run | not_applicable
 - Synchronized records: <paths or none>
 - Follow-up: <items or none>
+
+## Decision Gate Result
+
+- Target scope: <scope | n/a>
+- Result: PASS | BLOCK | n/a
+- Decisions resolved: <count>
+- Blockers remaining: <count>
+- Decision artifact: <path | none>
+- Options: <numbered option cards with benefit, cost/risk, when to choose, downstream impact | none>
+- Recommendation: <recommended option and rationale | none>
+- Next step: <proceed | ask remaining decision | stop>
 ```
 </output-contract>
