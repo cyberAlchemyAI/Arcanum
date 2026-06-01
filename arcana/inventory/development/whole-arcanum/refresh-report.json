@@ -1,0 +1,58 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "flag",
+  "mutationMode": "apply-approved",
+  "sourceSignals": [
+    {
+      "id": "refresh-signal-w1-validation-b",
+      "source_path": "user-message:invoke-refresh-B",
+      "signal_type": "blocker_resolved",
+      "target_artifacts": [
+        "arcana/inventory/development/whole-arcanum/decisions/W1-VALIDATION-SHAPE-DECISION.md",
+        "arcana/inventory/development/whole-arcanum/REFINE-GAP-CHECK.md",
+        "arcana/inventory/development/whole-arcanum/WORK-PACK.md",
+        "arcana/inventory/development/whole-arcanum/work-pack/tasks/TASK-WAI-002-inventory-self-slice.md"
+      ],
+      "claim": "Option B, slice-aware validator contract, is selected for W1 validation shape.",
+      "evidence": "User requested invoke refresh B after decision-gate options were presented.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "arcana/inventory/development/whole-arcanum/decisions/W1-VALIDATION-SHAPE-DECISION.md",
+    "arcana/inventory/development/whole-arcanum/REFINE-GAP-CHECK.md",
+    "arcana/inventory/development/whole-arcanum/WORK-PACK.md",
+    "arcana/inventory/development/whole-arcanum/work-pack/tasks/TASK-WAI-002-inventory-self-slice.md"
+  ],
+  "deltaSummary": [
+    {
+      "class": "blocker_resolved",
+      "summary": "W1 validation-shape blocker resolved with option B."
+    },
+    {
+      "class": "route_changed",
+      "summary": "SWU-WAI-003 now begins with slice-aware validator contract/wrapper before card creation."
+    }
+  ],
+  "proposedChanges": [],
+  "appliedChanges": [
+    "Decision record resolved with option B.",
+    "Refine gap check updated to resolved-by-decision.",
+    "Work-pack gate updated with W1 validation shape pass.",
+    "TASK-WAI-002 SWU-WAI-003 updated with slice-aware validation execution notes."
+  ],
+  "skippedChanges": [
+    "Validator wrapper implementation deferred to task-session SWU-WAI-003.",
+    "Inventory self-slice card generation deferred to task-session SWU-WAI-003.",
+    "EvidenceSet promotion remains deferred."
+  ],
+  "blockers": [],
+  "nextRoute": "task-session SWU-WAI-003",
+  "validation": [
+    "jq empty arcana/inventory/development/whole-arcanum/refresh-report.json: pass",
+    "rg option B and slice-aware refresh terms across target artifacts: pass",
+    "tools/validate-artifact-constitution.sh --self-test: pass",
+    "tools/validate-artifact-constitution.sh: fail due unrelated ontology-vault .schema.json outside refresh scope"
+  ]
+}

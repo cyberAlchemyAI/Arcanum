@@ -1,0 +1,137 @@
+{
+  "schema_version": "inventory.evidence-card.collection.v0.1",
+  "slice_id": "whole-arcanum.governance",
+  "slice_status": "candidate",
+  "cards": [
+    {
+      "id": "inventory.card.whole-arcanum.governance.artifact-constitution",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Artifact Constitution classifies source, durable evidence, generated output, and local runtime state",
+      "summary": "The Artifact Constitution requires every created file to have an owner, retention class, and validation obligation; source artifacts are versioned by default, generated artifacts are excluded unless promoted, and local runtime artifacts must not become versioned source.",
+      "source_refs": [
+        {
+          "path": "framework/ARTIFACT-CONSTITUTION.md",
+          "selector": "Classes and Rules",
+          "selector_type": "line-span",
+          "start_line": 1,
+          "end_line": 88,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "framework/ARTIFACT-CONSTITUTION.md",
+          "selector": "Validation Contract",
+          "selector_type": "line-span",
+          "start_line": 107,
+          "end_line": 130,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["governance", "artifact-constitution", "source-boundary", "generated-state", "whole-arcanum"],
+      "selection_reason": "Governance cards need the source authority that decides whether a planned Inventory SWU can write artifacts without mixing source, generated, and runtime state.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-005",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["context-builder", "invoke", "repository-harness"],
+      "related_cards": [
+        "inventory.card.whole-arcanum.governance.schema-constitution",
+        "inventory.card.whole-arcanum.lifecycle.task-session-execution"
+      ],
+      "claim_shape": {
+        "subject_ref": "framework.ARTIFACT-CONSTITUTION",
+        "predicate_label": "governs",
+        "predicate_status": "captured",
+        "object_ref": "artifact class and validation obligations",
+        "target_resolution": "resolved",
+        "evidence_refs": ["framework/ARTIFACT-CONSTITUTION.md:1-88", "framework/ARTIFACT-CONSTITUTION.md:107-130"],
+        "non_authority_notice": "This card summarizes the constitution; the framework document remains the governing source."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "framework/ARTIFACT-CONSTITUTION.md:1-88",
+          "confidence": 0.93,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "generated-state",
+        "status": "resolved",
+        "surfaced_by": "TASK-WAI-003",
+        "note": "Generated and local runtime state remain excluded unless an adjacent artifact promotes durable evidence."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.governance.schema-constitution",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Schema Constitution requires canonical machine-readable schemas to use .schema.yml",
+      "summary": "The Schema Constitution makes YAML `.schema.yml` the canonical machine-readable schema format for new Arcanum schemas, allows schema prose in Markdown only as explanatory or paired companion material, and routes legacy non-YML schemas through scoped migration.",
+      "source_refs": [
+        {
+          "path": "framework/SCHEMA-CONSTITUTION.md",
+          "selector": "Purpose, Scope, Rules, Promotion Boundary",
+          "selector_type": "line-span",
+          "start_line": 1,
+          "end_line": 72,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["governance", "schema-constitution", "schema-yml", "validation", "whole-arcanum"],
+      "selection_reason": "Whole-Arcanum Inventory must know whether a planned SWU creates schema artifacts and which format is allowed before implementation proceeds.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-005",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["context-builder", "invoke", "repository-harness"],
+      "related_cards": [
+        "inventory.card.whole-arcanum.governance.artifact-constitution",
+        "inventory.card.whole-arcanum.inventory.schema-contract"
+      ],
+      "claim_shape": {
+        "subject_ref": "framework.SCHEMA-CONSTITUTION",
+        "predicate_label": "requires",
+        "predicate_status": "captured",
+        "object_ref": ".schema.yml for canonical machine-readable schemas",
+        "target_resolution": "resolved",
+        "evidence_refs": ["framework/SCHEMA-CONSTITUTION.md:1-72"],
+        "non_authority_notice": "This card summarizes schema governance; the Schema Constitution remains the canonical rule."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "framework/SCHEMA-CONSTITUTION.md:1-72",
+          "confidence": 0.94,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "schema-format",
+        "status": "resolved",
+        "surfaced_by": "TASK-WAI-003",
+        "note": "No new schema is created by this card slice; future schemas must use .schema.yml."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    }
+  ]
+}

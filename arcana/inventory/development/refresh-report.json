@@ -1,0 +1,133 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "sourceSignals": [
+    {
+      "id": "RS-INV-REFRESH-001",
+      "source_path": "current-thread",
+      "signal_type": "artifact_drift",
+      "target_artifacts": ["arcana/inventory/development"],
+      "claim": "Prior package had wrong artifacts and was too planning-only.",
+      "evidence": "User correction on 2026-05-26.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "RS-INV-REFRESH-002",
+      "source_path": "current-thread",
+      "signal_type": "route_changed",
+      "target_artifacts": ["arcana/inventory/development"],
+      "claim": "Old files can be removed completely.",
+      "evidence": "User explicitly approved complete removal.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "RS-INV-REFRESH-003",
+      "source_path": "spells/invoke",
+      "signal_type": "evidence_added",
+      "target_artifacts": ["arcana/inventory/development"],
+      "claim": "Correct output contracts include define, design, template, plan, work-pack, execution, observability, and refresh artifacts.",
+      "evidence": "Invoke mode contracts and Module Formulae templates.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "RS-INV-REFRESH-004",
+      "source_path": "arcana/inventory/development/presentation.html",
+      "signal_type": "evidence_added",
+      "target_artifacts": [
+        "arcana/inventory/development/POC-VALIDATION.md",
+        "arcana/inventory/development/IMPLEMENTATION-PLAN.md",
+        "arcana/inventory/development/WORK-PACK.md"
+      ],
+      "claim": "POC questions should be decided through observed gates: source slice, card size, selector quality, validation strictness, retrieval value, and handoff safety.",
+      "evidence": "Distilled decision slide and current invoke refresh request.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "SPEC.md",
+    "GLOSSARY.md",
+    "CONCEPT-MODEL.md",
+    "OPERATIONS.md",
+    "FLOWS-POLICIES.md",
+    "INTERFACES.md",
+    "ARCHITECTURE.md",
+    "TEMPLATE-MANIFEST.md",
+    "templates/evidence-card-schema.md",
+    "templates/evidence-card.md",
+    "templates/evidence-card-lint.md",
+    "templates/evidence-card-index.md",
+    "GLOSSARY-CONSISTENCY.md",
+    "DEFINE-TRANSPORT.md",
+    "DESIGN-TRANSPORT.md",
+    "IMPLEMENTATION-LAYERING.md",
+    "IMPLEMENTATION-PLAN.md",
+    "OBSERVABILITY.md",
+    "POC-VALIDATION.md",
+    "WORK-PACK.md",
+    "EXECUTION-PACK.md",
+    "work-pack/shared/SOURCE-CONTRACTS.md",
+    "work-pack/waves/W0-static-templates.md",
+    "work-pack/waves/W1-pilot-fixtures.md",
+    "work-pack/waves/W2-handoff-docs.md",
+    "work-pack/waves/W3-readiness.md",
+    "work-pack/tasks/TASK-001-templates.md",
+    "work-pack/tasks/TASK-002-lint-index.md",
+    "work-pack/tasks/TASK-003-pilot-fixtures.md",
+    "work-pack/tasks/TASK-004-handoff-examples.md",
+    "work-pack/tasks/TASK-005-docs-contracts.md",
+    "work-pack/tasks/TASK-006-readiness.md",
+    "REFRESH-REPORT.md",
+    "refresh-report.json"
+  ],
+  "deltaSummary": [
+    {
+      "delta": "artifact_drift",
+      "target": "arcana/inventory/development",
+      "state": "old package removed and replaced",
+      "evidence": "RS-INV-REFRESH-001"
+    },
+    {
+      "delta": "evidence_added",
+      "target": "arcana/inventory/development",
+      "state": "complete invoke-shaped package created",
+      "evidence": "RS-INV-REFRESH-003"
+    },
+    {
+      "delta": "evidence_added",
+      "target": "arcana/inventory/development/POC-VALIDATION.md",
+      "state": "data-backed POC decision gates created and synced into plan/work-pack",
+      "evidence": "RS-INV-REFRESH-004"
+    }
+  ],
+  "proposedChanges": [],
+  "appliedChanges": [
+    "Removed previous development package contents.",
+    "Created complete define/design/template/plan/work-pack/execution/observability/refresh outputs.",
+    "Added data-backed POC validation gates and synced plan/work-pack validation language."
+  ],
+  "skippedChanges": [
+    "Production Inventory template mutation remains in SWUs.",
+    "Runtime validator implementation remains deferred.",
+    "CyberAlchemy production ingest remains out of scope."
+  ],
+  "blockers": [
+    {
+      "id": "B-VALIDATOR-DEFERRED",
+      "status": "deferred",
+      "owner": "inventory-runtime",
+      "nextAction": "Decide after static lint and pilot fixtures pass."
+    }
+  ],
+  "nextRoute": "task-session",
+  "validation": [
+    "Structure check for top-level artifacts, development templates, task files, and wave files.",
+    "jq empty arcana/inventory/development/refresh-report.json",
+    "rg checks for invoke result sections and evidence-card concepts."
+    ,
+    "rg -n \"Source slice|Card size|Selector quality|Validation strictness|Retrieval value|Handoff safety\" arcana/inventory/development/POC-VALIDATION.md"
+  ]
+}

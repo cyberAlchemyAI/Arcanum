@@ -1,0 +1,97 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: inventory.evidence-set.v0.1
+title: Inventory EvidenceSet
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - set_id
+  - purpose
+  - card_refs
+  - excluded_card_refs
+  - index_terms
+  - handoff_target
+  - synthesis_note
+  - residue
+  - status
+  - promotion_owner
+  - updated_at
+properties:
+  schema_version:
+    const: inventory.evidence-set.v0.1
+  set_id:
+    type: string
+    pattern: ^evidence-set[.][A-Za-z0-9._-]+$
+  purpose:
+    type: string
+    minLength: 1
+  card_refs:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - inclusion_reason
+      properties:
+        id:
+          type: string
+          pattern: ^inventory[.]card[.][A-Za-z0-9._-]+$
+        inclusion_reason:
+          type: string
+          minLength: 1
+  excluded_card_refs:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - reason
+      properties:
+        id:
+          type: string
+          pattern: ^inventory[.]card[.][A-Za-z0-9._-]+$
+        reason:
+          type: string
+          minLength: 1
+  index_terms:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  handoff_target:
+    enum:
+      - context-builder
+      - ontology-vault
+      - definitions-governance
+      - invoke
+      - repository-harness
+      - other
+  synthesis_note:
+    type: string
+    minLength: 1
+    maxLength: 280
+  residue:
+    type: string
+    minLength: 1
+    maxLength: 280
+  status:
+    enum:
+      - candidate
+      - promote-pending
+      - rejected
+      - superseded
+  promotion_owner:
+    enum:
+      - inventory
+      - ontology-vault
+      - definitions-governance
+      - context-builder
+      - invoke
+      - repository-harness
+      - other
+  updated_at:
+    type: string

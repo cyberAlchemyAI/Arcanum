@@ -1,0 +1,32 @@
+---
+module: inventory-whole-arcanum
+task: TASK-WAI-005
+status: blocked-on-W2
+layer: L3
+---
+
+# TASK-WAI-005: Operational Readiness
+
+## Objective
+
+Make the whole-Arcanum inventory repeatable: validate, refresh, query, and report
+coverage without a human UI.
+
+## Implementation Detail
+
+Create or update operational docs and checks only after real cards and candidate
+sets exist. The validator should remain shell plus `jq` oriented and should fail
+on unresolved references, malformed card fields, and governance boundary drift.
+
+## Smallest Working Units
+
+| SWU | Goal | Write Scope | Done Criteria | Validation |
+| --- | --- | --- | --- | --- |
+| SWU-WAI-011 | Add refresh and lint command contract. | whole-arcanum validator/docs paths | commands are documented and runnable or clearly blocked | command review |
+| SWU-WAI-012 | Write readiness report and next promotion gate. | `READINESS.md` and task-session result | validation results and remaining gaps recorded | full validation suite |
+
+## Source Anchors
+
+- `arcana/inventory/scripts/validate-evidence-card-fixtures.sh`
+- L2 coverage reports
+- candidate EvidenceSet reuse evidence

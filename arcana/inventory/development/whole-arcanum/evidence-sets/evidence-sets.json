@@ -1,0 +1,93 @@
+{
+  "schema_version": "inventory.evidence-set.collection.v0.1",
+  "scope": "whole-arcanum.w1",
+  "evidence_sets": [
+    {
+      "schema_version": "inventory.evidence-set.v0.1",
+      "set_id": "evidence-set.whole-arcanum.inventory-self.next-slice-context",
+      "purpose": "Answer what Inventory source context an agent needs before adding the next Inventory card slice.",
+      "card_refs": [
+        {
+          "id": "inventory.card.whole-arcanum.inventory.schema-contract",
+          "inclusion_reason": "Defines required card fields, profile behavior, and schema-backed validity."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.inventory.validator-runtime",
+          "inclusion_reason": "Defines the shell plus jq validation surface that must run before handoff."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.inventory.retrieval-index",
+          "inclusion_reason": "Defines how selected cards, exclusions, trace notes, and gaps should be returned."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.inventory.authority-boundary",
+          "inclusion_reason": "Prevents Inventory cards from being treated as downstream ontology or definition authority."
+        }
+      ],
+      "excluded_card_refs": [],
+      "index_terms": [
+        "inventory",
+        "self-slice",
+        "schema",
+        "validator",
+        "retrieval",
+        "authority-boundary",
+        "whole-arcanum"
+      ],
+      "handoff_target": "context-builder",
+      "synthesis_note": "Use all four self-slice cards before adding the next Inventory card slice.",
+      "residue": "No excluded cards yet; this first set intentionally covers the full self-slice proof.",
+      "status": "candidate",
+      "promotion_owner": "inventory",
+      "updated_at": "2026-05-29"
+    },
+    {
+      "schema_version": "inventory.evidence-set.v0.1",
+      "set_id": "evidence-set.whole-arcanum.can-implement-next-swu",
+      "purpose": "Answer whether a planned Inventory SWU can be executed directly or needs a decision gate first.",
+      "card_refs": [
+        {
+          "id": "inventory.card.whole-arcanum.governance.artifact-constitution",
+          "inclusion_reason": "Determines whether planned file writes are source, durable evidence, generated output, or local runtime state."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.governance.schema-constitution",
+          "inclusion_reason": "Determines whether a planned schema-like artifact must use canonical .schema.yml format."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.lifecycle.invoke-authoring-handoff",
+          "inclusion_reason": "Identifies whether the work belongs to Invoke authoring or should be handed to execution."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.lifecycle.refine-discovery-design",
+          "inclusion_reason": "Identifies whether unresolved discovery/design ambiguity should route through Refine."
+        },
+        {
+          "id": "inventory.card.whole-arcanum.lifecycle.task-session-execution",
+          "inclusion_reason": "Identifies whether the selected SWU has enough bounded context, write scope, validation, and synchronization obligations to execute."
+        }
+      ],
+      "excluded_card_refs": [
+        {
+          "id": "inventory.card.whole-arcanum.inventory.retrieval-index",
+          "reason": "Useful for lookup behavior, but not decisive for whether a planned SWU needs a gate."
+        }
+      ],
+      "index_terms": [
+        "decision-gate",
+        "task-session",
+        "governance",
+        "schema-constitution",
+        "artifact-constitution",
+        "lifecycle",
+        "whole-arcanum"
+      ],
+      "handoff_target": "context-builder",
+      "synthesis_note": "Use governance plus lifecycle cards to decide direct execution versus decision/refine routing.",
+      "residue": "Candidate-only set; future slices may add domain-specific blockers or exclusions.",
+      "status": "candidate",
+      "promotion_owner": "inventory",
+      "updated_at": "2026-06-01"
+    }
+  ]
+}

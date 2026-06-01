@@ -1,0 +1,119 @@
+{
+  "schema_version": "inventory.evidence-card-retrieval-fixture.v0.1",
+  "retrieval_id": "inventory.retrieval.evidenceset-question.v0.1",
+  "query": {
+    "purpose": "Prepare context to decide whether Inventory needs an intermediate EvidenceSet artifact between evidence-cards and downstream handoff packets.",
+    "filters": {
+      "tags_any": ["evidenceset", "retrieval", "handoff", "authority-boundary"],
+      "authority_level_any": ["raw-source", "inventory-knowledge", "session-evidence"],
+      "card_type_any": ["source-summary", "concept", "claim", "question"]
+    }
+  },
+  "selected_cards": [
+    {
+      "id": "inventory.card.raw-to-context-pipeline",
+      "reason": "Anchors the source-to-context flow and shows where an intermediate grouped artifact might fit."
+    },
+    {
+      "id": "inventory.card.inventory-evidence-substrate",
+      "reason": "Defines the Inventory side of the boundary."
+    },
+    {
+      "id": "inventory.card.ontology-thick-knowledge",
+      "reason": "Defines the downstream ontology side without promoting the card."
+    },
+    {
+      "id": "inventory.card.task-shaped-retrieval",
+      "reason": "Directly states the retrieval behavior that EvidenceSet might support."
+    },
+    {
+      "id": "inventory.card.context-builder-proof-gate",
+      "reason": "Requires selected evidence plus excluded noise, which pressures reusable grouping."
+    },
+    {
+      "id": "inventory.card.evidenceset-need-question",
+      "reason": "Carries the open POC decision as an explicit question."
+    }
+  ],
+  "unresolved_questions": [
+    "Does the selected group get reused across handoff assembly and retrieval review?",
+    "Can excluded matches stay as retrieval output, or do they need durable EvidenceSet state?"
+  ],
+  "handoff_candidates": [
+    {
+      "target": "context-builder",
+      "card_refs": [
+        "inventory.card.raw-to-context-pipeline",
+        "inventory.card.task-shaped-retrieval",
+        "inventory.card.context-builder-proof-gate",
+        "inventory.card.evidenceset-need-question"
+      ],
+      "non_authority_notice": "These cards are retrieval context only; they do not promote a Context Builder contract."
+    },
+    {
+      "target": "ontology-vault",
+      "card_refs": [
+        "inventory.card.inventory-evidence-substrate",
+        "inventory.card.ontology-thick-knowledge",
+        "inventory.card.ontology-not-storage-superset",
+        "inventory.card.promotion-owner-boundary"
+      ],
+      "non_authority_notice": "These cards are ontology review candidates only; they do not promote ontology relations."
+    }
+  ],
+  "excluded_matches": [
+    {
+      "id": "inventory.card.source-cohort-ingest-method",
+      "reason": "Useful for ingest planning, but not central to deciding EvidenceSet shape."
+    },
+    {
+      "id": "inventory.card.necronomicon-authority-ladder",
+      "reason": "Useful authority comparison, but the selected boundary cards already cover enough promotion safety for the first retrieval."
+    },
+    {
+      "id": "inventory.card.inventory-layer-owns-selectors",
+      "reason": "Selector ownership supports validation, but it is secondary to EvidenceSet grouping."
+    }
+  ],
+  "trace_notes": [
+    "The selected cards cover boundary, retrieval behavior, proof requirements, and the explicit EvidenceSet question.",
+    "The excluded matches remain useful for later handoff and validator tests but would make the first retrieval less focused.",
+    "This retrieval suggests EvidenceSet is plausible only if this selected group is reused by handoff examples or follow-up queries."
+  ],
+  "candidate_evidence_set": {
+    "set_id": "evidence-set.evidenceset-need",
+    "purpose": "Evaluate whether a reusable grouped evidence artifact is needed between cards and handoff packets.",
+    "card_refs": [
+      {
+        "id": "inventory.card.raw-to-context-pipeline",
+        "inclusion_reason": "Places Inventory, Ontology, and Context Builder in one flow."
+      },
+      {
+        "id": "inventory.card.task-shaped-retrieval",
+        "inclusion_reason": "Defines the retrieval expectation."
+      },
+      {
+        "id": "inventory.card.context-builder-proof-gate",
+        "inclusion_reason": "Defines selected evidence plus excluded-noise behavior."
+      },
+      {
+        "id": "inventory.card.evidenceset-need-question",
+        "inclusion_reason": "Keeps the open schema decision visible."
+      }
+    ],
+    "excluded_card_refs": [
+      {
+        "id": "inventory.card.source-cohort-ingest-method",
+        "reason": "Ingest method, not grouping decision evidence."
+      },
+      {
+        "id": "inventory.card.necronomicon-authority-ladder",
+        "reason": "Authority ladder is useful for handoff safety but not required for this grouping decision."
+      }
+    ],
+    "index_terms": ["evidenceset", "retrieval", "context-builder", "handoff"],
+    "synthesis_note": "The group looks reusable because it combines boundary, retrieval, exclusion, and open-question evidence; the next handoff SWU should test whether the same group reduces repeated packet assembly logic.",
+    "residue": "Still unclear whether EvidenceSet should be a stored artifact or a retrieval result with stable IDs.",
+    "handoff_target": "context-builder"
+  }
+}

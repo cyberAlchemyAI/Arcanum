@@ -25,11 +25,11 @@ Inventorize once, reuse many times.
 
 <modes>
 - `install`: create or adapt the local inventory package.
-- `ingest`: process raw sources into generated inventory pages.
-- `lookup`: return matching entries and selectors for another sigil.
+- `ingest`: process raw sources into generated inventory pages and optional source-backed evidence-cards.
+- `lookup`: return matching entries, evidence-cards, candidate EvidenceSets, source refs, selectors, exclusions, and gaps for another sigil.
 - `query`: answer from inventory pages and optionally file the answer as a synthesis page.
-- `lint`: health-check contradictions, staleness, orphans, missing links, tags, and source coverage.
-- `validate`: check package structure, index coverage, log parseability, tag consistency, and evidence links.
+- `lint`: health-check contradictions, staleness, orphans, missing links, tags, source coverage, evidence-card fields, EvidenceSet references, owner/status pairs, trace, residue, and non-authority handoff language.
+- `validate`: check package structure, index coverage, log parseability, tag consistency, evidence links, evidence-card schema fields, EvidenceSet references, and downstream packet boundaries.
 - `backfill`: build inventory entries from existing repository artifacts.
 - `sync`: update inventory files after schema or convention changes.
 </modes>
@@ -96,19 +96,23 @@ Default layout:
    - observability signals,
    - contradictions,
    - open questions.
-4. Create or update generated inventory pages.
-5. Link related entries and update backlinks when the local schema uses them.
-6. Flag contradictions and stale claims instead of silently overwriting them.
-7. Update `index.md`, `tags.md`, and `log.md`.
-8. Emit observability signals when the observability package exists.
+4. When the source detail needs selector-level reuse, draft an `evidence-card` with `source_refs`, authority level, captured metadata, `promotion_owner`, and optional `trace` or `residue`.
+5. Create or update generated inventory pages.
+6. Link related entries and update backlinks when the local schema uses them.
+7. Flag contradictions and stale claims instead of silently overwriting them.
+8. Update `index.md`, `tags.md`, and `log.md`.
+9. Emit observability signals when the observability package exists.
 </ingest-process>
 
 <lookup-process>
 1. Read `index.md` first.
 2. Search entries by type, tag, source, title, summary, and query text.
-3. Return selector-level matches suitable for downstream sigils.
-4. Include why each match is relevant and which task or obligation it can satisfy.
-5. Report gaps when inventory does not cover the requested topic.
+3. Include matching evidence-cards when they provide better selector-level evidence than a broad page.
+4. Include candidate EvidenceSets when a stable group of card IDs answers the task faster than independent card matches.
+5. Return selector-level matches suitable for downstream sigils.
+6. Include why each match is relevant and which task or obligation it can satisfy.
+7. Include excluded matches when they clarify why nearby evidence was not selected.
+8. Report gaps when inventory does not cover the requested topic.
 </lookup-process>
 
 <query-process>
@@ -131,8 +135,44 @@ Check for:
 - invalid frontmatter when frontmatter is enabled,
 - raw sources not yet inventoried,
 - generated pages without source coverage,
-- log entries that do not match the configured heading pattern.
+- log entries that do not match the configured heading pattern,
+- evidence-cards missing `source_refs`,
+- evidence-cards with unknown controlled vocabulary values,
+- EvidenceSets with unknown controlled vocabulary values,
+- EvidenceSets that reference missing evidence-card IDs,
+- EvidenceSets that duplicate evidence-card source excerpts or summaries,
+- full evidence-cards missing `trace`,
+- terminal promotion status with `promotion_owner: none`,
+- relation candidates missing a non-authority notice,
+- unresolved `residue` that should be surfaced in lookup or validation output.
 </lint-process>
+
+<evidence-card-contract>
+Evidence-cards are source-backed Inventory records. They may capture candidate claims, concepts, methods, questions, relation candidates, contradictions, and operational lessons.
+
+Required authoring behavior:
+
+- every material claim points to `source_refs` or is explicitly marked as inference, synthesis, or open question,
+- `trace` records field-level extraction or assignment decisions for full cards,
+- `residue` preserves schema or instance ambiguity instead of hiding it,
+- `promotion_owner` records who owns terminal promotion decisions,
+- downstream packets include non-authority language and do not imply ontology or definition promotion,
+- `governed_ref` appears only after the downstream owner creates a real governed artifact.
+</evidence-card-contract>
+
+<evidence-set-contract>
+EvidenceSets are candidate Inventory records that group evidence-card IDs for repeated retrieval and handoff assembly.
+
+Required authoring behavior:
+
+- reference evidence-card IDs instead of copying card content,
+- include `card_refs` with inclusion reasons,
+- include `excluded_card_refs` with boundary reasons,
+- include `index_terms` for shell plus `jq` lookup,
+- include `handoff_target`, `synthesis_note`, and `residue`,
+- keep `status` candidate-level unless a later explicit promotion decision exists,
+- do not imply ontology, definition, ledger, or Context Builder authority.
+</evidence-set-contract>
 
 <entry-types>
 Default entry types:
@@ -160,12 +200,14 @@ Repositories may add custom entry types in `schema.md` when they define required
 For `context-builder`, lookup output should include:
 
 - inventory page path,
+- evidence-card ID when available,
 - selector or heading,
 - summary,
 - tags,
 - confidence,
 - source references,
 - task obligation fit,
+- excluded matches when useful,
 - unresolved gaps.
 
 For `architecture-pattern-inventory`, inventory output should support entries for:
@@ -180,6 +222,8 @@ For `architecture-pattern-inventory`, inventory output should support entries fo
 
 <authority-rule>
 Raw sources are read-only inputs. Generated inventory pages may evolve, but every material claim should point back to source evidence or be marked as inference, synthesis, or open question.
+
+Inventory owns evidence-cards, indexes, lint findings, and handoff projections. Ontology Vault owns governed meaning, relations, confidence, and promotion. Definitions Governance owns canonical definitions. Evidence-card handoff packets are non-authority read models until a downstream owner accepts them.
 </authority-rule>
 
 <observability>

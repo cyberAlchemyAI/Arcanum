@@ -1,0 +1,123 @@
+{
+  "schema_version": "inventory.evidence-card-invalid-fixture.v0.1",
+  "fixture_id": "inventory.fixture.evidence-card-invalid-examples.v0.1",
+  "purpose": "Provide named invalid examples for the shell plus jq agent/runtime validator.",
+  "examples": [
+    {
+      "id": "invalid.selector.missing-source-refs",
+      "class": "selector",
+      "expected_finding": "every card requires at least one source ref",
+      "card": {
+        "id": "inventory.card.invalid-missing-selector",
+        "schema_version": "inventory.evidence-card.v0.2",
+        "profile": "minimal",
+        "card_type": "source-summary",
+        "title": "Missing Selector",
+        "summary": "Invalid because source_refs is empty.",
+        "source_refs": [],
+        "authority_level": "raw-source",
+        "tags": [],
+        "selection_reason": "",
+        "captured": {"by": "agent", "at": "2026-05-27", "source_stage": "pilot"},
+        "promotion_status": "captured",
+        "promotion_owner": "none",
+        "updated_at": "2026-05-27"
+      }
+    },
+    {
+      "id": "invalid.enum.card-type",
+      "class": "enum",
+      "expected_finding": "unknown card type",
+      "card": {
+        "id": "inventory.card.invalid-enum",
+        "schema_version": "inventory.evidence-card.v0.2",
+        "profile": "minimal",
+        "card_type": "ontology-node",
+        "title": "Unknown Enum",
+        "summary": "Invalid because card_type is outside the controlled vocabulary.",
+        "source_refs": [{"path": "x.md", "selector": "Purpose", "selector_type": "heading"}],
+        "authority_level": "raw-source",
+        "tags": [],
+        "selection_reason": "Enum failure fixture.",
+        "captured": {"by": "agent", "at": "2026-05-27", "source_stage": "pilot"},
+        "promotion_status": "captured",
+        "promotion_owner": "none",
+        "updated_at": "2026-05-27"
+      }
+    },
+    {
+      "id": "invalid.owner-status.promoted-none",
+      "class": "owner-status",
+      "expected_finding": "terminal promotion state requires an explicit owner",
+      "card": {
+        "id": "inventory.card.invalid-owner-status",
+        "schema_version": "inventory.evidence-card.v0.2",
+        "profile": "minimal",
+        "card_type": "claim",
+        "title": "Owner Status Mismatch",
+        "summary": "Invalid because promoted cards cannot use promotion_owner none.",
+        "source_refs": [{"path": "x.md", "selector": "line 1", "selector_type": "line-span", "start_line": 1, "end_line": 1}],
+        "authority_level": "inventory-knowledge",
+        "tags": [],
+        "selection_reason": "Owner/status failure fixture.",
+        "captured": {"by": "agent", "at": "2026-05-27", "source_stage": "pilot"},
+        "promotion_status": "promoted",
+        "promotion_owner": "none",
+        "updated_at": "2026-05-27"
+      }
+    },
+    {
+      "id": "invalid.relation.missing-notice",
+      "class": "relation-notice",
+      "expected_finding": "relation candidates require evidence refs, target resolution, and non-authority notice",
+      "card": {
+        "id": "inventory.card.invalid-relation-notice",
+        "schema_version": "inventory.evidence-card.v0.2",
+        "profile": "full",
+        "card_type": "relation-candidate",
+        "title": "Missing Relation Notice",
+        "summary": "Invalid because relation candidate lacks non-authority notice and evidence refs.",
+        "source_refs": [{"path": "x.md", "selector": "line 1", "selector_type": "line-span", "start_line": 1, "end_line": 1}],
+        "authority_level": "ontology-candidate",
+        "tags": [],
+        "selection_reason": "Relation notice failure fixture.",
+        "captured": {"by": "agent", "at": "2026-05-27", "source_stage": "pilot"},
+        "promotion_status": "candidate",
+        "promotion_owner": "inventory",
+        "handoff_targets": ["ontology-vault"],
+        "claim_shape": {
+          "subject_ref": "a",
+          "predicate_label": "relates_to",
+          "predicate_status": "captured",
+          "object_ref": "b",
+          "target_resolution": "unresolved",
+          "evidence_refs": [],
+          "non_authority_notice": ""
+        },
+        "trace": [{"field": "summary", "rule": "fixture", "source_ref": "x.md:1", "confidence": 0.5, "decision": "assigned"}],
+        "updated_at": "2026-05-27"
+      }
+    },
+    {
+      "id": "invalid.minimal-profile.empty-reason",
+      "class": "minimal-profile",
+      "expected_finding": "minimal cards are still traceable and reasoned",
+      "card": {
+        "id": "inventory.card.invalid-minimal-profile",
+        "schema_version": "inventory.evidence-card.v0.2",
+        "profile": "minimal",
+        "card_type": "source-summary",
+        "title": "Minimal Profile Misuse",
+        "summary": "Invalid because minimal card lacks selection reason.",
+        "source_refs": [{"path": "x.md", "selector": "Purpose", "selector_type": "heading"}],
+        "authority_level": "raw-source",
+        "tags": [],
+        "selection_reason": "",
+        "captured": {"by": "agent", "at": "2026-05-27", "source_stage": "pilot"},
+        "promotion_status": "captured",
+        "promotion_owner": "none",
+        "updated_at": "2026-05-27"
+      }
+    }
+  ]
+}

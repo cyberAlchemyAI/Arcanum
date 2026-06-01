@@ -1,0 +1,206 @@
+{
+  "schema_version": "inventory.source_manifest.v0",
+  "manifest_id": "whole-arcanum-source-manifest",
+  "status": "draft",
+  "generated_at": "2026-05-29",
+  "source_baseline": {
+    "method": "git ls-files",
+    "reason": "Tracked files provide the safest first boundary for source inventory and avoid local runtime debris.",
+    "tracked_file_counts": {
+      "arcana": 291,
+      "spells": 253,
+      "transmutations": 18,
+      "formulae": 34,
+      "framework": 46,
+      "registry": 4,
+      "tools": 4,
+      ".codex/commands": 78
+    }
+  },
+  "inventory_runtime": {
+    "primary_surface": "shell+jq",
+    "human_ui": "deferred",
+    "evidence_set_status": "candidate"
+  },
+  "source_families": [
+    {
+      "id": "arcana",
+      "path": "arcana/",
+      "classification": "source",
+      "tracked_files": 291,
+      "include_selectors": [
+        "arcana/*/SKILL.md",
+        "arcana/*/README.md",
+        "arcana/*/templates/**",
+        "arcana/*/scripts/**",
+        "arcana/*/runtime-adapters/**",
+        "arcana/*/workflow-profiles/**",
+        "arcana/*/development/{SPEC.md,ARCHITECTURE.md,WORK-PACK.md,IMPLEMENTATION-LAYERING.md,EXECUTION-PACK.md,READINESS.md}"
+      ],
+      "notes": "Arcana packages define reusable sigil behavior and may include selected development contracts as source-level planning evidence."
+    },
+    {
+      "id": "spells",
+      "path": "spells/",
+      "classification": "source",
+      "tracked_files": 253,
+      "include_selectors": [
+        "spells/*/README.md",
+        "spells/*/*.md",
+        "spells/*/templates/**",
+        "spells/*/tools/**",
+        "spells/*/development/{SPEC.md,ARCHITECTURE.md,WORK-PACK.md,IMPLEMENTATION-LAYERING.md,EXECUTION-PACK.md,READINESS.md}"
+      ],
+      "notes": "Spell roots define composed lifecycle behavior; selected development contracts are useful when they govern current execution."
+    },
+    {
+      "id": "transmutations",
+      "path": "transmutations/",
+      "classification": "source",
+      "tracked_files": 18,
+      "include_selectors": [
+        "transmutations/*/SKILL.md",
+        "transmutations/*/README.md",
+        "transmutations/*/templates/**",
+        "transmutations/*/examples/**",
+        "transmutations/*/development/{SPEC.md,WORK-PACK.md,READINESS.md}"
+      ],
+      "notes": "Transmutations provide reusable artifact conversion and synthesis behavior."
+    },
+    {
+      "id": "formulae",
+      "path": "formulae/",
+      "classification": "source",
+      "tracked_files": 34,
+      "include_selectors": [
+        "formulae/*/SKILL.md",
+        "formulae/*/README.md",
+        "formulae/*/templates/**",
+        "formulae/*/scripts/**",
+        "formulae/*/development/{SPEC.md,WORK-PACK.md,READINESS.md}"
+      ],
+      "notes": "Formulae define reusable setup or validation packages and may include fixture-backed validation contracts."
+    },
+    {
+      "id": "framework",
+      "path": "framework/",
+      "classification": "source",
+      "tracked_files": 46,
+      "include_selectors": [
+        "framework/*.md",
+        "framework/templates/**",
+        "framework/runtime/**",
+        "framework/observability/{README.md,SKILL.md,scripts/**,templates/**}"
+      ],
+      "notes": "Framework files own cross-cutting constitutions, runtime adapters, templates, and observability contracts."
+    },
+    {
+      "id": "registry",
+      "path": "registry/",
+      "classification": "source",
+      "tracked_files": 4,
+      "include_selectors": [
+        "registry/*.md"
+      ],
+      "notes": "Registry files summarize discoverable sigils, spells, and related surfaces."
+    },
+    {
+      "id": "tools",
+      "path": "tools/",
+      "classification": "source",
+      "tracked_files": 4,
+      "include_selectors": [
+        "tools/arcanum",
+        "tools/*.sh",
+        "tools/validate-artifact-constitution.sh"
+      ],
+      "notes": "Tools expose repository-local command and validation surfaces."
+    },
+    {
+      "id": "codex_commands",
+      "path": ".codex/commands/",
+      "classification": "source",
+      "tracked_files": 78,
+      "include_selectors": [
+        ".codex/commands/**/*.md"
+      ],
+      "notes": "Command files are runtime-facing source surfaces for installed Arcanum command behavior."
+    }
+  ],
+  "candidate_durable_evidence_families": [
+    {
+      "id": "curated_fixtures",
+      "include_when": "Referenced by a nearby work-pack, readiness report, validator, or package README.",
+      "example_selectors": [
+        "arcana/inventory/development/pilot/evidence-card/*.json",
+        "formulae/dispatch-spec/development/fixtures/**"
+      ]
+    },
+    {
+      "id": "task_session_results",
+      "include_when": "The result is explicitly cited by a current work-pack or readiness artifact as completion evidence.",
+      "example_selectors": [
+        "*/development/task-session/*-RESULT.md",
+        "*/development/task-session/*-CONTEXT.md"
+      ]
+    }
+  ],
+  "excluded_by_default": [
+    {
+      "id": "generated_runs",
+      "selectors": [
+        "**/development/runs/**",
+        "**/development/example-runs/**",
+        "**/development/example-outputs/**",
+        "output/**",
+        "benchmark/artifacts/**",
+        "benchmark/logs/**"
+      ],
+      "reason": "Generated run output is not source unless separately promoted as durable evidence."
+    },
+    {
+      "id": "local_runtime",
+      "selectors": [
+        ".arcanum/codex-home/**",
+        ".arcanum/codex-home-smoke/**",
+        ".arcanum/runtime/**",
+        "tmp/**",
+        "*.sqlite",
+        "*.sqlite-shm",
+        "*.sqlite-wal",
+        "auth.json",
+        "installation_id"
+      ],
+      "reason": "Machine-local state must not become inventory source."
+    },
+    {
+      "id": "observability_ledgers",
+      "selectors": [
+        ".arcanum/observability/runs/**",
+        ".arcanum/observability/reflections/**",
+        ".arcanum/observability/by-sigil/*.jsonl",
+        ".arcanum/observability/by-capability/**/*.jsonl",
+        ".arcanum/observability/hooks/*.jsonl",
+        ".arcanum/observability/signals/*.jsonl",
+        ".arcanum/observability/reflection-state.json"
+      ],
+      "reason": "Observability ledgers are generated telemetry unless a specific report is promoted."
+    },
+    {
+      "id": "external_or_non_arcanum_material",
+      "selectors": [
+        "benchmark/**",
+        "research/**",
+        "writing/**",
+        "claude/**",
+        "extraction-research/**"
+      ],
+      "reason": "These areas can be inventoried later through separate scope decisions; they are not part of whole-Arcanum source scope by default."
+    }
+  ],
+  "next_manifest_tasks": [
+    "Use SOURCE-POLICY.md to govern durable evidence inclusion.",
+    "Use this manifest as the input for Inventory self-slice cards.",
+    "Report selector gaps instead of expanding to full-file ingestion."
+  ]
+}

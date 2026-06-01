@@ -1,0 +1,340 @@
+{
+  "schema_version": "inventory.evidence-card.collection.v0.1",
+  "slice_id": "whole-arcanum.inventory-self",
+  "slice_status": "candidate",
+  "cards": [
+    {
+      "id": "inventory.card.whole-arcanum.inventory.schema-contract",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Evidence-card schema contract",
+      "summary": "Inventory evidence-cards require stable IDs, source refs, authority state, controlled vocabularies, captured provenance, promotion metadata, and update dates; full cards also require handoff targets and trace entries.",
+      "source_refs": [
+        {
+          "path": "arcana/inventory/templates/evidence-card.schema.yml",
+          "selector": "required/properties/allOf",
+          "selector_type": "line-span",
+          "start_line": 6,
+          "end_line": 138,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/inventory/templates/evidence-card.md",
+          "selector": "Full Card template and authoring notes",
+          "selector_type": "heading",
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": [
+        "inventory",
+        "evidence-card",
+        "schema",
+        "validation",
+        "whole-arcanum"
+      ],
+      "selection_reason": "This card is the first proof-slice anchor for what a valid evidence-card must contain before whole-Arcanum cards are generated.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-05-29",
+        "tool_or_command": "task-session SWU-WAI-003",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": [
+        "context-builder",
+        "invoke"
+      ],
+      "related_cards": [
+        "inventory.card.whole-arcanum.inventory.validator-runtime"
+      ],
+      "claim_shape": {
+        "subject_ref": "inventory.evidence-card.v0.2",
+        "predicate_label": "requires",
+        "predicate_status": "captured",
+        "object_ref": "schema-backed card fields and profile rules",
+        "target_resolution": "resolved",
+        "evidence_refs": [
+          "arcana/inventory/templates/evidence-card.schema.yml:6-138"
+        ],
+        "non_authority_notice": "This card summarizes the Inventory schema contract; it does not promote any downstream ontology or definition."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/inventory/templates/evidence-card.schema.yml:6-138",
+          "confidence": 0.92,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "none",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-003",
+        "note": "Schema format is already governed by a paired .schema.yml artifact."
+      },
+      "open_questions": [],
+      "updated_at": "2026-05-29"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.inventory.validator-runtime",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Agent runtime validator uses shell plus jq",
+      "summary": "Inventory validation is intentionally agent-first: the selected runtime is shell plus jq, checking parseability, card fields, controlled vocabularies, selectors, profile rules, EvidenceSet references, and handoff boundary language while deferring human UI.",
+      "source_refs": [
+        {
+          "path": "arcana/inventory/development/VALIDATOR-RUNTIME.md",
+          "selector": "Selected Surface, Validator Scope, Command",
+          "selector_type": "line-span",
+          "start_line": 7,
+          "end_line": 51,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/inventory/scripts/validate-evidence-card-fixtures.sh",
+          "selector": "validator checks",
+          "selector_type": "line-span",
+          "start_line": 38,
+          "end_line": 206,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": [
+        "inventory",
+        "validator",
+        "jq",
+        "agent-runtime",
+        "whole-arcanum"
+      ],
+      "selection_reason": "The whole-Arcanum rollout needs a fast validator surface before slice cards can scale beyond the original pilot fixture.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-05-29",
+        "tool_or_command": "task-session SWU-WAI-003",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": [
+        "context-builder",
+        "invoke"
+      ],
+      "related_cards": [
+        "inventory.card.whole-arcanum.inventory.schema-contract",
+        "inventory.card.whole-arcanum.inventory.retrieval-index"
+      ],
+      "claim_shape": {
+        "subject_ref": "inventory.validator.runtime",
+        "predicate_label": "uses",
+        "predicate_status": "captured",
+        "object_ref": "shell plus jq",
+        "target_resolution": "resolved",
+        "evidence_refs": [
+          "arcana/inventory/development/VALIDATOR-RUNTIME.md:7-51",
+          "arcana/inventory/scripts/validate-evidence-card-fixtures.sh:38-206"
+        ],
+        "non_authority_notice": "This card records validator behavior for Inventory; it does not define broader repository validation policy."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/inventory/development/VALIDATOR-RUNTIME.md:7-51",
+          "confidence": 0.9,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "scope",
+        "status": "resolved",
+        "surfaced_by": "W1-VALIDATION-SHAPE-DECISION",
+        "note": "Option B resolved the pilot-only filename gap by adding slice-aware validation."
+      },
+      "open_questions": [],
+      "updated_at": "2026-05-29"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.inventory.retrieval-index",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Evidence-card index and retrieval output",
+      "summary": "Inventory lookup should return task-shaped selected cards, excluded matches, trace notes, source refs, and gaps instead of dumping the full inventory; index families include IDs, sources, tags, type, authority, promotion, handoff targets, residue, and trace rules.",
+      "source_refs": [
+        {
+          "path": "arcana/inventory/templates/index.md",
+          "selector": "Evidence-Card Index Families and Retrieval Output",
+          "selector_type": "line-span",
+          "start_line": 22,
+          "end_line": 75,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/inventory/SKILL.md",
+          "selector": "lookup-process and integration-contract",
+          "selector_type": "line-span",
+          "start_line": 107,
+          "end_line": 211,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": [
+        "inventory",
+        "lookup",
+        "retrieval",
+        "index",
+        "context-builder",
+        "whole-arcanum"
+      ],
+      "selection_reason": "Whole-Arcanum Inventory is valuable only if agents can query selected evidence quickly with exclusions and trace notes.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-05-29",
+        "tool_or_command": "task-session SWU-WAI-003",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": [
+        "context-builder",
+        "invoke",
+        "repository-harness"
+      ],
+      "related_cards": [
+        "inventory.card.whole-arcanum.inventory.validator-runtime",
+        "inventory.card.whole-arcanum.inventory.authority-boundary"
+      ],
+      "claim_shape": {
+        "subject_ref": "inventory.lookup.output",
+        "predicate_label": "returns",
+        "predicate_status": "captured",
+        "object_ref": "selected cards, exclusions, trace notes, and gaps",
+        "target_resolution": "resolved",
+        "evidence_refs": [
+          "arcana/inventory/templates/index.md:22-75",
+          "arcana/inventory/SKILL.md:107-211"
+        ],
+        "non_authority_notice": "This card records lookup output shape; downstream sigils decide how to consume the selected evidence."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/inventory/templates/index.md:22-75",
+          "confidence": 0.88,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "none",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-003",
+        "note": "Retrieval output is a read model, not a downstream task context pack."
+      },
+      "open_questions": [],
+      "updated_at": "2026-05-29"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.inventory.authority-boundary",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "context",
+      "title": "Inventory evidence is not downstream authority",
+      "summary": "Inventory evidence-cards and candidate EvidenceSets can feed Context Builder, Ontology Vault, Definitions Governance, Invoke, and Repository Harness, but handoffs must include non-authority language and downstream owners decide promotion.",
+      "source_refs": [
+        {
+          "path": "arcana/inventory/README.md",
+          "selector": "Evidence-Card Layer, EvidenceSet Candidate Layer, Integration",
+          "selector_type": "line-span",
+          "start_line": 13,
+          "end_line": 35,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/inventory/README.md",
+          "selector": "Integration",
+          "selector_type": "line-span",
+          "start_line": 99,
+          "end_line": 107,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/inventory/development/INTERFACES.md",
+          "selector": "handoff interfaces and mapping notes",
+          "selector_type": "line-span",
+          "start_line": 26,
+          "end_line": 55,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": [
+        "inventory",
+        "authority-boundary",
+        "handoff",
+        "evidence-set",
+        "whole-arcanum"
+      ],
+      "selection_reason": "The whole-Arcanum rollout must not turn Inventory cards into ontology, definition, or lifecycle authority.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-05-29",
+        "tool_or_command": "task-session SWU-WAI-003",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": [
+        "ontology-vault",
+        "definitions-governance",
+        "context-builder",
+        "invoke",
+        "repository-harness"
+      ],
+      "related_cards": [
+        "inventory.card.whole-arcanum.inventory.retrieval-index"
+      ],
+      "claim_shape": {
+        "subject_ref": "inventory.evidence.handoff",
+        "predicate_label": "requires",
+        "predicate_status": "captured",
+        "object_ref": "non-authority language and downstream promotion",
+        "target_resolution": "resolved",
+        "evidence_refs": [
+          "arcana/inventory/README.md:13-35",
+          "arcana/inventory/README.md:99-107",
+          "arcana/inventory/development/INTERFACES.md:26-55"
+        ],
+        "non_authority_notice": "Inventory proposes candidate evidence only; downstream governed owners decide ontology, definition, or other promotion."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/inventory/README.md:13-35",
+          "confidence": 0.9,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "authority",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-003",
+        "note": "Non-authority boundary is explicit in README and interface docs."
+      },
+      "open_questions": [],
+      "updated_at": "2026-05-29"
+    }
+  ]
+}

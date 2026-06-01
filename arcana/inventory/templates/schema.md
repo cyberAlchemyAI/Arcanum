@@ -1,5 +1,9 @@
 # Inventory Schema
 
+Schema Artifact Role: package-conventions
+
+This file documents package conventions. It is not the canonical machine-readable schema artifact for evidence-cards or EvidenceSets.
+
 This file defines the local conventions for the inventory package.
 
 ## Storage

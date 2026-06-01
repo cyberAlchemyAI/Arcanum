@@ -1,0 +1,208 @@
+{
+  "schema_version": "inventory.evidence-card.collection.v0.1",
+  "slice_id": "whole-arcanum.lifecycle",
+  "slice_status": "candidate",
+  "cards": [
+    {
+      "id": "inventory.card.whole-arcanum.lifecycle.invoke-authoring-handoff",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Invoke owns authoring and hands execution to Task Session",
+      "summary": "Invoke turns vague development intent into governed authoring artifacts, owns define/design/plan/handoff/refresh outputs, and routes approved executable work to Task Session rather than claiming downstream lifecycle completion.",
+      "source_refs": [
+        {
+          "path": "spells/invoke/README.md",
+          "selector": "Purpose and lifecycle authority chain",
+          "selector_type": "line-span",
+          "start_line": 9,
+          "end_line": 60,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "spells/invoke/README.md",
+          "selector": "Chaining Workflow",
+          "selector_type": "line-span",
+          "start_line": 62,
+          "end_line": 94,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["lifecycle", "invoke", "authoring", "handoff", "task-session", "whole-arcanum"],
+      "selection_reason": "The cross-pilot gate needs to know when authoring is complete and when bounded execution should start.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-006",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["context-builder", "invoke"],
+      "related_cards": ["inventory.card.whole-arcanum.lifecycle.task-session-execution"],
+      "claim_shape": {
+        "subject_ref": "invoke",
+        "predicate_label": "hands-off-to",
+        "predicate_status": "captured",
+        "object_ref": "task-session for bounded execution",
+        "target_resolution": "resolved",
+        "evidence_refs": ["spells/invoke/README.md:9-60", "spells/invoke/README.md:62-94"],
+        "non_authority_notice": "This card summarizes Invoke lifecycle boundaries; Invoke source files remain canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "spells/invoke/README.md:9-60",
+          "confidence": 0.91,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "owner-boundary",
+        "status": "resolved",
+        "surfaced_by": "TASK-WAI-003",
+        "note": "Invoke prepares plans and handoff context; Task Session executes bounded work."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.lifecycle.refine-discovery-design",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Refine owns discovery and design before execution recommendations",
+      "summary": "Refine owns seed design, research decision, dispatch request, runtime handoff, manifest/index, final synthesis, and recommended next routes; Task Session and Sigil Development are next-route recommendations rather than refine loop stages.",
+      "source_refs": [
+        {
+          "path": "arcana/refine/SKILL.md",
+          "selector": "required capabilities, canonical loop, ownership boundary",
+          "selector_type": "line-span",
+          "start_line": 22,
+          "end_line": 50,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/refine/SKILL.md",
+          "selector": "ownership boundary and non-applicability",
+          "selector_type": "line-span",
+          "start_line": 202,
+          "end_line": 217,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["lifecycle", "refine", "discovery", "design", "dispatch", "whole-arcanum"],
+      "selection_reason": "The cross-pilot gate needs to distinguish refinement/design work from direct task execution.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-006",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["context-builder", "invoke"],
+      "related_cards": ["inventory.card.whole-arcanum.lifecycle.invoke-authoring-handoff"],
+      "claim_shape": {
+        "subject_ref": "refine",
+        "predicate_label": "owns",
+        "predicate_status": "captured",
+        "object_ref": "discovery/design synthesis before execution recommendations",
+        "target_resolution": "resolved",
+        "evidence_refs": ["arcana/refine/SKILL.md:22-50", "arcana/refine/SKILL.md:202-217"],
+        "non_authority_notice": "This card summarizes Refine boundaries; the Refine skill remains canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/refine/SKILL.md:22-50",
+          "confidence": 0.88,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "owner-boundary",
+        "status": "resolved",
+        "surfaced_by": "TASK-WAI-003",
+        "note": "Refine can recommend Task Session but does not execute it as a loop stage."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.lifecycle.task-session-execution",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Task Session executes exactly one bounded task or SWU with validation and synchronization",
+      "summary": "Task Session resolves one task or SWU, builds a bounded context pack, checks gates before mutation, executes only within scope, validates completion, synchronizes evidence, and returns a compact auditable report.",
+      "source_refs": [
+        {
+          "path": "arcana/task-session/SKILL.md",
+          "selector": "objective, scope resolution, context, gates, execute, validate, synchronize",
+          "selector_type": "line-span",
+          "start_line": 14,
+          "end_line": 139,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "arcana/task-session/SKILL.md",
+          "selector": "authority rule and quality bar",
+          "selector_type": "line-span",
+          "start_line": 142,
+          "end_line": 184,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["lifecycle", "task-session", "execution", "validation", "synchronization", "whole-arcanum"],
+      "selection_reason": "The cross-pilot gate needs to know what makes an Inventory SWU execution-ready and when it must block before mutation.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-006",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["context-builder", "invoke"],
+      "related_cards": [
+        "inventory.card.whole-arcanum.lifecycle.invoke-authoring-handoff",
+        "inventory.card.whole-arcanum.governance.artifact-constitution"
+      ],
+      "claim_shape": {
+        "subject_ref": "task-session",
+        "predicate_label": "executes",
+        "predicate_status": "captured",
+        "object_ref": "one bounded task or SWU with gate checks and validation",
+        "target_resolution": "resolved",
+        "evidence_refs": ["arcana/task-session/SKILL.md:14-139", "arcana/task-session/SKILL.md:142-184"],
+        "non_authority_notice": "This card summarizes Task Session behavior; the Task Session skill remains canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "arcana/task-session/SKILL.md:14-139",
+          "confidence": 0.92,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "execution-gate",
+        "status": "resolved",
+        "surfaced_by": "TASK-WAI-003",
+        "note": "A blocker gate stops mutation until exact unblock actions are known."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    }
+  ]
+}
