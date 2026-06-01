@@ -1,0 +1,60 @@
+fixture:
+  id: nonwriting-three-core-probe
+  purpose: Show that the Whisper-core pattern can describe a non-writing idea without claiming broad proof.
+
+idea:
+  name: UX evidence validator
+  summary: A Playwright-backed helper that captures browser evidence for finished frontend interfaces without pretending to prove subjective quality.
+
+idea_resonance:
+  promise: Designers feel more confident making ambitious tools because critique is grounded in visible evidence, not only taste.
+  avoid:
+    - fake UX scoring
+    - replacing human judgment
+    - making designers feel inspected instead of supported
+
+idea_relevance:
+  audience: product designers and frontend engineers
+  context: finished frontend review, design QA, and release readiness
+  objections:
+    - screenshots can miss meaning
+    - accessibility checks do not prove usability
+    - market patterns can become cargo cults
+
+idea_trajectory:
+  start_state: a finished interface with unclear review confidence
+  movement:
+    - capture screenshots and browser state
+    - separate hard failures from UX risk prompts
+    - attach evidence cards
+    - route human-study residue when needed
+  proof: a report with screenshots, measurements, accessibility signals, review prompts, and non-overclaiming findings
+
+candidates:
+  - id: browser_evidence_cards
+    status: selected
+    scores:
+      resonance: 5
+      relevance: 5
+      trajectory: 5
+    hard_gates:
+      non_overclaiming: pass
+      browser_evidence_exists: pass
+      human_review_residue: pass
+  - id: single_quality_score
+    status: rejected
+    preserved_as: contraindication
+    scores:
+      resonance: 2
+      relevance: 3
+      trajectory: 4
+    hard_gates:
+      non_overclaiming: block
+      browser_evidence_exists: pass
+      human_review_residue: block
+    reason_rejected: It optimizes trajectory simplicity but violates the evidence boundary.
+
+negative_probe:
+  remove_core: idea_trajectory
+  expected_result: fail
+  reason: Without trajectory, the candidate can sound valuable but cannot prove movement from interface capture to review evidence.

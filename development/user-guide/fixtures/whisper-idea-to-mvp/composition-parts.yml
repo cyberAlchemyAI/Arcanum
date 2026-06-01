@@ -1,0 +1,106 @@
+fixture:
+  id: whisper-composition-parts
+  source: spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml
+
+part_level_policy:
+  tiering_source: pareto_tournament
+  mini_tournament_triggers:
+    - delegated
+    - revised
+    - validation_failed
+  default_behavior: The globally selected candidate controls unless a part is delegated, revised, or fails validation.
+
+parts:
+  - id: reader_grounded_opening_hook
+    role: introduction
+    depends_on: []
+    responsibility: Ground the reader in naming, language, or workflow experience before external authority appears.
+    must_do:
+      - establish the concrete human situation
+      - make the reader feel the usefulness of naming a pattern
+    must_not_do:
+      - start with Harari or Sapiens
+      - explain Arcanum before the reader has a local handle
+    validation:
+      - opening_contract_compliance
+
+  - id: harari_shared_fiction_bridge
+    role: reference_bridge
+    depends_on:
+      - reader_grounded_opening_hook
+    responsibility: Widen the reader-grounded opening into a safe paraphrased shared-fiction or cooperation frame.
+    must_do:
+      - use the reference only after the opening hook
+      - keep direct quotes and page citations blocked until verified
+    must_not_do:
+      - use external authority as the first sentence
+    validation:
+      - citation_integrity
+      - external_reference_placement
+
+  - id: research_context_generative_ai_changes_who_can_operate_on_language
+    role: research_context
+    depends_on:
+      - reader_grounded_opening_hook
+      - harari_shared_fiction_bridge
+    responsibility: Frame generative AI as a collaborator in symbolic system building.
+    must_do:
+      - connect AI to language, names, aliases, schemas, and workflows
+    must_not_do:
+      - overstate AI as magic
+      - collapse the idea into generic prompting advice
+    validation:
+      - audience_legibility
+
+  - id: core_insight_language_becomes_executable_through_ai
+    role: core_insight
+    depends_on:
+      - research_context_generative_ai_changes_who_can_operate_on_language
+    responsibility: State the central claim in repeatable form.
+    must_do:
+      - show how names and schemas can act as tool-making handles
+    must_not_do:
+      - claim natural language replaces engineering
+    validation:
+      - objective_fit
+
+  - id: arcanum_example_aliases_sigils_schemas
+    role: live_example
+    depends_on:
+      - core_insight_language_becomes_executable_through_ai
+    responsibility: Translate Arcanum primitives into public examples of symbolic tooling.
+    must_do:
+      - explain aliases, sigils, spells, and schemas without assuming insider knowledge
+    must_not_do:
+      - make the article a product pitch
+    validation:
+      - arcanum_translation_clarity
+
+  - id: implications_for_personal_code
+    role: implications
+    depends_on:
+      - arcanum_example_aliases_sigils_schemas
+    responsibility: Show what changes for builders, writers, researchers, and creators.
+    must_do:
+      - connect the method to the reader's own work
+    must_not_do:
+      - imply that every personal symbolic system should become canonical
+    validation:
+      - relevance_fit
+
+  - id: invitation_to_name_a_workflow
+    role: invitation
+    depends_on:
+      - implications_for_personal_code
+    responsibility: Leave the reader with one concrete reflective action.
+    must_do:
+      - ask what workflow needs a name
+    must_not_do:
+      - turn the ending into conversion pressure
+    validation:
+      - resonance_fit
+
+generalization:
+  tool_design_parts: Map these to screens, states, data flows, review moments, validators, and documentation sections.
+  research_parts: Map these to source lanes, claim maps, contraindications, validation implications, and handoffs.
+  product_parts: Map these to user promise, onboarding, workflow path, evidence surface, and iteration loop.
