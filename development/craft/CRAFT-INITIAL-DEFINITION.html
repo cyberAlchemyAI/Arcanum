@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craft Initial Definition</title>
+  <style>
+    :root { color-scheme: dark; --bg: #121212; --panel: #1c1d1f; --panel-2: #252629; --text: #ece8df; --muted: #b7b0a4; --line: #3a3b3d; --accent: #7fc7a5; --accent-2: #d9b66f; --code: #101113; --shadow: rgba(0,0,0,.25); }
+    * { box-sizing: border-box; } html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.62; }
+    .layout { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 28px 22px; border-right: 1px solid var(--line); background: #171819; }
+    .eyebrow { color: var(--accent-2); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; }
+    .side-title { margin: 0 0 18px; font-size: 24px; line-height: 1.12; }
+    .meta { display: grid; gap: 8px; margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+    nav { display: grid; gap: 2px; padding-top: 14px; border-top: 1px solid var(--line); }
+    nav a { color: var(--muted); text-decoration: none; border-radius: 6px; padding: 7px 8px; font-size: 14px; line-height: 1.25; }
+    nav a:hover { background: var(--panel-2); color: var(--text); }
+    .nav-level-1 { color: var(--text); font-weight: 700; } .nav-level-2 { margin-left: 8px; } .nav-level-3 { margin-left: 22px; font-size: 13px; }
+    main { min-width: 0; padding: 56px min(7vw, 92px) 88px; } article { max-width: 980px; margin: 0 auto; }
+    h1,h2,h3,h4,h5,h6 { color: var(--text); line-height: 1.16; letter-spacing: 0; scroll-margin-top: 28px; }
+    h1 { font-size: 46px; margin: 0 0 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+    h2 { font-size: 30px; margin: 56px 0 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+    h3 { font-size: 21px; margin: 32px 0 12px; color: var(--accent); }
+    p { margin: 0 0 18px; } ul, ol { margin: 0 0 22px; padding-left: 26px; } li { margin: 7px 0; }
+    code { background: var(--panel-2); color: #f2d58c; border: 1px solid var(--line); border-radius: 5px; padding: .12em .34em; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .92em; }
+    pre { overflow: auto; background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin: 18px 0 26px; box-shadow: 0 18px 50px var(--shadow); }
+    pre code { display: block; padding: 0; border: 0; background: transparent; color: #9bd18e; white-space: pre; font-size: 14px; line-height: 1.55; }
+    .table-wrap { overflow: auto; margin: 20px 0 28px; border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); min-width: 680px; }
+    th, td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: 11px 13px; text-align: left; vertical-align: top; }
+    th { color: var(--accent-2); background: #202123; } tr:last-child td { border-bottom: 0; } th:last-child, td:last-child { border-right: 0; }
+    .anchor { color: var(--muted); opacity: 0; margin-left: 10px; text-decoration: none; font-size: .72em; } h1:hover .anchor, h2:hover .anchor, h3:hover .anchor { opacity: 1; }
+    article > p:first-of-type, article > p:nth-of-type(2), article > p:nth-of-type(3), article > p:nth-of-type(4) { color: var(--muted); margin-bottom: 6px; }
+    @media (max-width: 900px) { .layout { display: block; } aside { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); } nav { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } .nav-level-2, .nav-level-3 { margin-left: 0; } main { padding: 34px 20px 64px; } h1 { font-size: 34px; } h2 { font-size: 25px; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <p class="eyebrow">Research Product</p>
+      <h2 class="side-title">Craft Initial Definition</h2>
+      <div class="meta"><span>Standalone HTML generated from <code>CRAFT-INITIAL-DEFINITION.md</code>.</span><span>Full document content is rendered below.</span></div>
+      <nav aria-label="Document outline"><a class="nav-level-1" href="#craft-initial-definition">Craft Initial Definition</a>
+<a class="nav-level-2" href="#executive-definition">Executive Definition</a>
+<a class="nav-level-2" href="#conversation-synthesis">Conversation Synthesis</a>
+<a class="nav-level-2" href="#research-grounding">Research Grounding</a>
+<a class="nav-level-2" href="#refine-trace">Refine Trace</a>
+<a class="nav-level-3" href="#loop-1-define-the-object">Loop 1: Define The Object</a>
+<a class="nav-level-3" href="#loop-2-stabilize-the-formal-spine">Loop 2: Stabilize The Formal Spine</a>
+<a class="nav-level-3" href="#loop-3-turn-definition-into-method">Loop 3: Turn Definition Into Method</a>
+<a class="nav-level-2" href="#initial-vocabulary">Initial Vocabulary</a>
+<a class="nav-level-3" href="#craft-space">Craft Space</a>
+<a class="nav-level-3" href="#schema">Schema</a>
+<a class="nav-level-3" href="#data">Data</a>
+<a class="nav-level-3" href="#functor-like-translator">Functor-Like Translator</a>
+<a class="nav-level-3" href="#residue">Residue</a>
+<a class="nav-level-3" href="#smallest-coherent-unit">Smallest Coherent Unit</a>
+<a class="nav-level-3" href="#entropy-scu-and-pcra-translation">Entropy, SCU, And PCRA Translation</a>
+<a class="nav-level-3" href="#single-work-unit">Single Work Unit</a>
+<a class="nav-level-3" href="#reflection-tower">Reflection Tower</a>
+<a class="nav-level-2" href="#craft-cycle">Craft Cycle</a>
+<a class="nav-level-3" href="#1-define">1. Define</a>
+<a class="nav-level-3" href="#2-design">2. Design</a>
+<a class="nav-level-3" href="#3-plan">3. Plan</a>
+<a class="nav-level-3" href="#4-execute">4. Execute</a>
+<a class="nav-level-3" href="#5-validate">5. Validate</a>
+<a class="nav-level-3" href="#6-reflect">6. Reflect</a>
+<a class="nav-level-2" href="#layer-families">Layer Families</a>
+<a class="nav-level-2" href="#residue-classification">Residue Classification</a>
+<a class="nav-level-2" href="#reflection-tower-method">Reflection Tower Method</a>
+<a class="nav-level-2" href="#constitutions-and-axioms">Constitutions And Axioms</a>
+<a class="nav-level-2" href="#method-routing">Method Routing</a>
+<a class="nav-level-2" href="#stop-criteria">Stop Criteria</a>
+<a class="nav-level-2" href="#initial-formal-model">Initial Formal Model</a>
+<a class="nav-level-2" href="#philosophical-horizon-toward-a-universal-physics-of-craft">Philosophical Horizon: Toward A Universal Physics Of Craft</a>
+<a class="nav-level-3" href="#craft-as-simulation-of-making">Craft As Simulation Of Making</a>
+<a class="nav-level-3" href="#the-honesty-boundary">The Honesty Boundary</a>
+<a class="nav-level-2" href="#initial-definition-for-arcanum">Initial Definition For Arcanum</a>
+<a class="nav-level-2" href="#open-questions">Open Questions</a>
+<a class="nav-level-2" href="#proposed-next-product">Proposed Next Product</a>
+<a class="nav-level-2" href="#sources">Sources</a></nav>
+    </aside>
+    <main><article><h1 id="craft-initial-definition">Craft Initial Definition<a class="anchor" href="#craft-initial-definition" aria-label="Link to Craft Initial Definition">#</a></h1>
+<p>Status: initial research product Date: 2026-05-24 Scope: define Craft as a method primitive and candidate Arcanum/CyberAlchemy capability Source frame: supplied multi-day conversation, local Arcanum/DomainSpec/CyberAlchemy artifacts, bounded external research</p>
+<h2 id="executive-definition">Executive Definition<a class="anchor" href="#executive-definition" aria-label="Link to Executive Definition">#</a></h2>
+<p>Craft is the recursive method for turning an intention into a stable artifact by moving between schema and data until the smallest coherent unit for the current objective is found, executed, validated, and recomposed into its upper context.</p>
+<p>Craft treats building as a two-layer operation:</p>
+<ul>
+<li>Schema: the chosen representation of intent, domain structure, constraints, constitutions, axioms, specs, plans, architectures, and method rules.</li>
+<li>Data: the concrete artifact, observation, runtime behavior, implementation, validation output, or situated instance produced from that schema.</li>
+</ul>
+<p>The working system is not the schema alone and not the data alone. The working system is the translation relation that binds them: the functor-like process made from human intent, LLM behavior, harnessing, local vocabulary, context, tools, validation, and governance.</p>
+<p>Craft exists because this translation is never perfectly lossless in agentic work. Every attempt to turn schema into data produces residue: ambiguity, missing structure, drift, hidden assumptions, excess scope, brittle minimalism, or behavior that the current layer cannot explain. Craft names the discipline for detecting that residue, deciding whether it belongs in the current layer or a new one, and then creating the next responsible schema/data pair.</p>
+<h2 id="conversation-synthesis">Conversation Synthesis<a class="anchor" href="#conversation-synthesis" aria-label="Link to Conversation Synthesis">#</a></h2>
+<p>The conversation converges on one central insight: DomainSpec and Arcanum are no longer only documentation or prompt frameworks. They are becoming a system for modeling the process by which intent becomes artifact under lossy translation.</p>
+<p>The shared vocabulary that emerged:</p>
+<ul>
+<li>A domain is represented by schemas, but the schemas only become useful when populated, executed, or translated into data.</li>
+<li>An LLM is not a deterministic compiler. It behaves like a probabilistic, contextual, relational, attentive translator.</li>
+<li>Because the translator is probabilistic and attention-bounded, the output always leaves residue.</li>
+<li>Residue is not merely error. It is signal that the current layer may be missing a schema, boundary, taxonomy, axiom, constitution, or smaller unit of responsibility.</li>
+<li>Concept layering, now aligned with Distill, is the method for finding the smallest coherent unit that still carries meaning, inputs, outputs, responsibility, and a path back upward.</li>
+<li>Reflection tower is the recursive structure that appears when residue cannot be resolved inside the current schema/data layer. A new layer is created to explain the residue with its own schema and data.</li>
+<li>SWU is a domain-specific case of SCU: a Single Work Unit is the smallest coherent unit in planning and execution.</li>
+<li>Each repository, project, or bounded craft space can be understood as a tower: it contains layers of schema/data translation and residue handling.</li>
+</ul>
+<p>The sharpest formulation from the conversation is:</p>
+<pre><code class="language-text">Craft is the recursive search for the next smallest coherent schema/data layer
+needed to translate intent into artifact with acceptable residue.</code></pre>
+<h2 id="research-grounding">Research Grounding<a class="anchor" href="#research-grounding" aria-label="Link to Research Grounding">#</a></h2>
+<p>This definition is grounded in local system evidence first.</p>
+<p>Local evidence:</p>
+<ul>
+<li><code>arcanum/framework/CYBERALCHEMY-METHOD.md</code> already defines governed synthesis through objective, artifact, discovery, tension, route, trace, and reflection.</li>
+<li><code>arcanum/arcana/distill/README.md</code> already defines the search for the smallest coherent unit, reduction, recomposition, and deferred complexity.</li>
+<li><code>cyberAlchemy/agentic-system-architecture.md</code> already defines translation residue as loss, ambiguity, contradiction, or unverified assumption when moving between schema and data.</li>
+<li><code>implementation/domainspec/AXIOMS.md</code> and <code>implementation/domainspec/CONSTITUTION.md</code> already distinguish axioms as load-bearing behavior foundations and constitutions as enforceable structural rules.</li>
+<li><code>arcanum/arcana/refine/REFINEMENT-LOOP.md</code> already defines a full refinement loop using context-builder, invoke, interrogation, research, distill, repair, plan, final interrogation, and synthesis.</li>
+</ul>
+<p>External research used as analogy, not authority:</p>
+<ul>
+<li>David Spivak's Functorial Data Migration frames a database schema as a small category and an instance as a Set-valued functor on it. This supports the schema/data/functor reading, but Craft generalizes it operationally beyond databases.</li>
+<li>Lawvere's functorial semantics treats algebraic theories and models through functorial structure. This supports the intuition that a &quot;theory&quot; can be understood by the maps that preserve its structure.</li>
+<li>Mark Bedau's weak emergence supports the idea that some system-level properties are derivable only by simulation or composition, not by inspecting a single component. Craft should claim compositional emergence, not mystical strong emergence.</li>
+</ul>
+<h2 id="refine-trace">Refine Trace<a class="anchor" href="#refine-trace" aria-label="Link to Refine Trace">#</a></h2>
+<p>Requested mode: three <code>/refine</code> loops, max mode, with research.</p>
+<p>Command-surface note: <code>arcanum/tools/arcanum --resolve /refine</code> currently returns <code>unknown Arcanum command: refine</code>, while <code>arcanum/arcana/refine</code> exists. This product therefore records three Refine-style loops using the installed Refine contract as the process model, rather than claiming a resolved slash-command execution.</p>
+<h3 id="loop-1-define-the-object">Loop 1: Define The Object<a class="anchor" href="#loop-1-define-the-object" aria-label="Link to Loop 1: Define The Object">#</a></h3>
+<p>Question: What is Craft?</p>
+<p>Result:</p>
+<p>Craft is not just &quot;building software.&quot; Craft is the recursive schema/data translation method for converting intention into artifact under probabilistic, contextual, relational, attentive translation.</p>
+<p>Correction:</p>
+<p>Avoid defining Craft as a universal theory of reality. The safer initial definition is operational and simulation-oriented: Craft models the structure a reality-like building process would need if intention, representation, translation, residue, and reflection were first-class.</p>
+<h3 id="loop-2-stabilize-the-formal-spine">Loop 2: Stabilize The Formal Spine<a class="anchor" href="#loop-2-stabilize-the-formal-spine" aria-label="Link to Loop 2: Stabilize The Formal Spine">#</a></h3>
+<p>Question: What are the primitives?</p>
+<p>Result:</p>
+<p>The minimum spine is:</p>
+<pre><code class="language-text">Intent
+  -&gt; chosen schema
+  -&gt; functor-like translator
+  -&gt; data/artifact
+  -&gt; residue
+  -&gt; decision: absorb, split, route, or promote
+  -&gt; next schema/data layer when residue cannot close locally</code></pre>
+<p>Correction:</p>
+<p>Do not treat &quot;fully faithful&quot; or &quot;isomorphism&quot; as achievable by default with LLMs. In this system, the translator is PCRA: probabilistic, contextual, relational, attentive. The target is not zero residue; it is acceptable, named, governed residue.</p>
+<h3 id="loop-3-turn-definition-into-method">Loop 3: Turn Definition Into Method<a class="anchor" href="#loop-3-turn-definition-into-method" aria-label="Link to Loop 3: Turn Definition Into Method">#</a></h3>
+<p>Question: How does Craft operate?</p>
+<p>Result:</p>
+<p>Craft operates as a lifecycle:</p>
+<pre><code class="language-text">Define -&gt; Design -&gt; Plan -&gt; Execute -&gt; Validate -&gt; Reflect</code></pre>
+<p>Each phase can use local constitutions, axioms, taxonomies, relationship maps, and phase-specific method contracts. Each phase may produce residue. When residue is load-bearing, Craft applies Distill, abstraction, interrogation, invoke, refine, x-ray, or another method to decide whether the current layer is too large, too small, missing a relation, missing a domain schema, or ready to execute.</p>
+<p>Correction:</p>
+<p>Reflection tower should not be only a concept. It should become the recursive residue-handling method inside Craft.</p>
+<h2 id="initial-vocabulary">Initial Vocabulary<a class="anchor" href="#initial-vocabulary" aria-label="Link to Initial Vocabulary">#</a></h2>
+<h3 id="craft-space">Craft Space<a class="anchor" href="#craft-space" aria-label="Link to Craft Space">#</a></h3>
+<p>A bounded space where an intention is transformed into artifacts under a shared set of schemas, data types, tools, validators, constitutions, axioms, and lifecycle routes.</p>
+<p>Examples:</p>
+<ul>
+<li>a repository,</li>
+<li>a product domain,</li>
+<li>a feature package,</li>
+<li>an Arcanum sigil,</li>
+<li>a DomainSpec project,</li>
+<li>a research/lifecycle packet.</li>
+</ul>
+<h3 id="schema">Schema<a class="anchor" href="#schema" aria-label="Link to Schema">#</a></h3>
+<p>The chosen structure that makes an intention legible enough to translate. A schema can be a domain model, spec, architecture, plan, task, taxonomy, constitution, axiom set, interface, workflow, or method contract.</p>
+<p>Schemas are observer-conditioned. A schema is not simply &quot;in the world&quot;; it is chosen by an observer for a purpose. Once chosen, it constrains valid instances.</p>
+<h3 id="data">Data<a class="anchor" href="#data" aria-label="Link to Data">#</a></h3>
+<p>The populated, produced, observed, or executed counterpart of a schema. Data can be code, documents, runtime behavior, validation evidence, telemetry, a generated artifact, a task result, or a concrete domain instance.</p>
+<h3 id="functor-like-translator">Functor-Like Translator<a class="anchor" href="#functor-like-translator" aria-label="Link to Functor-Like Translator">#</a></h3>
+<p>The process that maps schema to data while attempting to preserve structure.</p>
+<p>In Craft, this translator is usually not one thing. It is a composite:</p>
+<pre><code class="language-text">human intention
++ LLM behavior
++ prompt/schema/harness
++ tools
++ context
++ local vocabulary
++ validation and feedback</code></pre>
+<p>For LLM-centered work, the translator is PCRA:</p>
+<ul>
+<li>Probabilistic: output is distributional, not deterministic.</li>
+<li>Contextual: output depends on the selected context and conversation state.</li>
+<li>Relational: meaning depends on relations between concepts, artifacts, roles, and constraints.</li>
+<li>Attentive: fidelity is bounded by attention, context size, salience, and time.</li>
+</ul>
+<h3 id="residue">Residue<a class="anchor" href="#residue" aria-label="Link to Residue">#</a></h3>
+<p>Residue is any meaningful mismatch, loss, ambiguity, contradiction, unexpressed structure, scope pressure, or validation gap left by a schema/data translation.</p>
+<p>Residue is not automatically failure. It becomes actionable when it affects fidelity, safety, recomposition, execution, validation, or future understanding.</p>
+<h3 id="smallest-coherent-unit">Smallest Coherent Unit<a class="anchor" href="#smallest-coherent-unit" aria-label="Link to Smallest Coherent Unit">#</a></h3>
+<p>An SCU is the smallest coherent unit that still has:</p>
+<ul>
+<li>meaning in the current craft space,</li>
+<li>one primary responsibility,</li>
+<li>inputs,</li>
+<li>outputs,</li>
+<li>validation or review surface,</li>
+<li>failure behavior,</li>
+<li>recomposition path into the upper layer.</li>
+</ul>
+<p>The SCU is the current best point of low entropy for translation. It is small enough to reduce attention loss and large enough to avoid meaningless fragmentation.</p>
+<h3 id="entropy-scu-and-pcra-translation">Entropy, SCU, And PCRA Translation<a class="anchor" href="#entropy-scu-and-pcra-translation" aria-label="Link to Entropy, SCU, And PCRA Translation">#</a></h3>
+<p>Entropy in Craft is the uncertainty introduced when a schema is translated into data by a PCRA functor-like process.</p>
+<p>For LLM-centered work, entropy does not only mean randomness. It is the practical uncertainty produced by four coupled properties:</p>
+<ul>
+<li>Probabilistic spread: the model can produce many plausible continuations for the same schema.</li>
+<li>Contextual dependence: small changes in supplied context, conversation history, examples, or surrounding artifacts can shift the output.</li>
+<li>Relational load: the model must preserve relations between many concepts, constraints, files, roles, and downstream obligations.</li>
+<li>Attentional decay: as the unit grows, relevant details compete for salience and the model becomes more likely to drop, flatten, or overfit parts of the schema.</li>
+</ul>
+<p>The PCRA translator therefore has a non-linear fidelity curve. Very small units can lose meaning because they no longer contain enough relation to recompose. Very large units can lose fidelity because they exceed the translator's practical attention and relation-preservation budget. The SCU is the local minimum between those failures.</p>
+<pre><code class="language-text">Too small:
+  low context, low meaning, high recomposition ambiguity
+
+SCU:
+  enough context, one responsibility, low translation entropy,
+  clear validation, clear recomposition
+
+Too large:
+  high context load, mixed responsibilities, attention loss,
+  relation drift, rising residue</code></pre>
+<p>This is why SCU is not &quot;the smallest possible unit.&quot; The smallest possible unit can be semantically underdetermined. SCU is the smallest coherent unit: the smallest unit that still gives the PCRA translator enough structure to preserve meaning while reducing the number of competing relations it must hold at once.</p>
+<p>In practice, entropy rises when:</p>
+<ul>
+<li>one unit carries multiple responsibilities,</li>
+<li>inputs or outputs are implicit,</li>
+<li>validation is not local to the unit,</li>
+<li>the unit requires facts scattered across too many artifacts,</li>
+<li>the schema uses overloaded or unstable vocabulary,</li>
+<li>the task asks the translator to preserve too many cross-layer relations,</li>
+<li>the recomposition path is assumed rather than specified,</li>
+<li>attention is spent on broad context instead of load-bearing obligations.</li>
+</ul>
+<p>Entropy decreases when:</p>
+<ul>
+<li>the unit has one primary responsibility,</li>
+<li>vocabulary is local and explicit,</li>
+<li>inputs, outputs, and failure behavior are named,</li>
+<li>validation can be run or reviewed at the unit boundary,</li>
+<li>relations are declared rather than implied,</li>
+<li>context is selected because it closes an obligation,</li>
+<li>recomposition is proven before execution,</li>
+<li>residue from previous runs is fed back into schema repair.</li>
+</ul>
+<p>Residue is the observable trace of entropy after translation. Entropy is the uncertainty pressure before and during translation; residue is what remains after the artifact exists and validation compares it back to the schema.</p>
+<pre><code class="language-text">Schema + PCRA translator -&gt; Data
+translation entropy        -&gt; Residue after validation</code></pre>
+<p>Craft uses SCU selection to minimize entropy before execution, and residue analysis to learn where entropy actually appeared.</p>
+<h3 id="single-work-unit">Single Work Unit<a class="anchor" href="#single-work-unit" aria-label="Link to Single Work Unit">#</a></h3>
+<p>An SWU is an SCU in the context of planning and execution. It is the smallest executable unit that can be assigned, run, validated, and recomposed into a task, wave, plan, and larger artifact.</p>
+<h3 id="reflection-tower">Reflection Tower<a class="anchor" href="#reflection-tower" aria-label="Link to Reflection Tower">#</a></h3>
+<p>Reflection tower is the recursive structure produced when residue from one schema/data translation becomes the data that demands a new schema.</p>
+<pre><code class="language-text">Layer N:
+  Schema_N -&gt; Translator_N -&gt; Data_N -&gt; Residue_N
+
+If Residue_N cannot be explained or closed locally:
+  Residue_N becomes the seed data for Schema_N+1</code></pre>
+<p>The tower stops when the current domain objective has acceptable residue, not when the system reaches universal completeness.</p>
+<h2 id="craft-cycle">Craft Cycle<a class="anchor" href="#craft-cycle" aria-label="Link to Craft Cycle">#</a></h2>
+<p>Craft is always some configured form of:</p>
+<pre><code class="language-text">Define -&gt; Design -&gt; Plan -&gt; Execute -&gt; Validate -&gt; Reflect</code></pre>
+<h3 id="1-define">1. Define<a class="anchor" href="#1-define" aria-label="Link to 1. Define">#</a></h3>
+<p>Purpose: turn raw intent into a named schema candidate.</p>
+<p>Inputs:</p>
+<ul>
+<li>user prompt,</li>
+<li>raw files,</li>
+<li>prior artifacts,</li>
+<li>examples,</li>
+<li>research,</li>
+<li>constraints,</li>
+<li>local vocabulary,</li>
+<li>existing schemas,</li>
+<li>conversation residue.</li>
+</ul>
+<p>Outputs:</p>
+<ul>
+<li>objective,</li>
+<li>output artifact,</li>
+<li>scope boundary,</li>
+<li>initial definitions,</li>
+<li>candidate domain map,</li>
+<li>unknowns,</li>
+<li>residue ledger.</li>
+</ul>
+<p>Closure condition:</p>
+<p>The system can say what is being built, why, for whom or what, in what bounded craft space, and what artifact should exist next.</p>
+<h3 id="2-design">2. Design<a class="anchor" href="#2-design" aria-label="Link to 2. Design">#</a></h3>
+<p>Purpose: choose the structure that can hold the definition.</p>
+<p>Outputs:</p>
+<ul>
+<li>architecture,</li>
+<li>domain model,</li>
+<li>taxonomy,</li>
+<li>relationships,</li>
+<li>capabilities,</li>
+<li>operations,</li>
+<li>entities,</li>
+<li>events,</li>
+<li>UI or interaction model,</li>
+<li>method contracts,</li>
+<li>validation shape.</li>
+</ul>
+<p>Closure condition:</p>
+<p>The structure has enough relations, responsibilities, and constraints to support planning without hidden glue.</p>
+<h3 id="3-plan">3. Plan<a class="anchor" href="#3-plan" aria-label="Link to 3. Plan">#</a></h3>
+<p>Purpose: convert design into staged execution.</p>
+<p>Canonical decomposition:</p>
+<pre><code class="language-text">Plan -&gt; Waves -&gt; Tasks -&gt; SWUs</code></pre>
+<p>Closure condition:</p>
+<p>The next SWU can be executed with clear inputs, outputs, done criteria, validation, and recomposition path.</p>
+<h3 id="4-execute">4. Execute<a class="anchor" href="#4-execute" aria-label="Link to 4. Execute">#</a></h3>
+<p>Purpose: produce the data/artifact from the selected schema and plan.</p>
+<p>Closure condition:</p>
+<p>An artifact exists and can be inspected against the schema that produced it.</p>
+<h3 id="5-validate">5. Validate<a class="anchor" href="#5-validate" aria-label="Link to 5. Validate">#</a></h3>
+<p>Purpose: compare data back to schema and measure residue.</p>
+<p>Validation can include:</p>
+<ul>
+<li>tests,</li>
+<li>static checks,</li>
+<li>link checks,</li>
+<li>schema validation,</li>
+<li>ontology review,</li>
+<li>interrogation,</li>
+<li>x-ray,</li>
+<li>human review,</li>
+<li>runtime telemetry,</li>
+<li>domain metrics.</li>
+</ul>
+<p>Closure condition:</p>
+<p>Residue is classified as acceptable, repairable in current layer, requiring a new layer, or requiring a human decision.</p>
+<h3 id="6-reflect">6. Reflect<a class="anchor" href="#6-reflect" aria-label="Link to 6. Reflect">#</a></h3>
+<p>Purpose: decide whether repeated residue should update the method, schema, taxonomy, constitution, axiom, lifecycle route, or future context pack.</p>
+<p>Closure condition:</p>
+<p>The lesson is either discarded, recorded as candidate knowledge, promoted through governance, or routed to a new craft layer.</p>
+<h2 id="layer-families">Layer Families<a class="anchor" href="#layer-families" aria-label="Link to Layer Families">#</a></h2>
+<p>Craft recognizes recurring schema/data ladders.</p>
+<p>Domain ladder:</p>
+<pre><code class="language-text">Domain
+  -&gt; bounded contexts
+  -&gt; specs
+  -&gt; aspects, taxonomy, relationships, architecture, plan</code></pre>
+<p>Spec ladder:</p>
+<pre><code class="language-text">Spec
+  -&gt; capabilities
+  -&gt; operations
+  -&gt; entities
+  -&gt; events</code></pre>
+<p>Architecture ladder:</p>
+<pre><code class="language-text">Spec
+  -&gt; architecture
+  -&gt; infrastructure
+  -&gt; domain model
+  -&gt; UI / interaction surface</code></pre>
+<p>Planning ladder:</p>
+<pre><code class="language-text">Plan
+  -&gt; waves
+  -&gt; tasks
+  -&gt; SWUs</code></pre>
+<p>These ladders are not a fixed ontology of everything. They are common craft paths that should be overridden or composed by phase-specific definitions when the domain requires it.</p>
+<h2 id="residue-classification">Residue Classification<a class="anchor" href="#residue-classification" aria-label="Link to Residue Classification">#</a></h2>
+<p>Craft should distinguish at least five residue types.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Residue Type</th><th>Description</th><th>Typical Response</th></tr></thead>
+<tbody>
+<tr><td>Translation residue</td><td>Output does not preserve enough of the schema's intended structure.</td><td>Refine prompt/schema, add validation, reduce unit size.</td></tr>
+<tr><td>Domain residue</td><td>The schema lacks domain relations, terms, entities, constraints, or behavior.</td><td>Define/research domain, update taxonomy, relationships, specs.</td></tr>
+<tr><td>Structural residue</td><td>The artifact shape cannot hold the required relations or lifecycle.</td><td>Redesign architecture, split layer, add interface or boundary.</td></tr>
+<tr><td>Attention residue</td><td>The unit is too large or context too noisy for high-fidelity translation.</td><td>Distill to SCU/SWU, improve context pack, reduce scope.</td></tr>
+<tr><td>Entropy residue</td><td>The PCRA translator had too many plausible paths, unstable terms, hidden obligations, or competing relations.</td><td>Reduce relation load, declare inputs/outputs, stabilize vocabulary, add examples or constraints.</td></tr>
+<tr><td>Recomposition residue</td><td>The unit works locally but cannot be cleanly reattached to the upper schema.</td><td>Add recomposition proof, widen unit slightly, or define the missing bridge relation.</td></tr>
+<tr><td>Governance residue</td><td>The system cannot determine authority, validation, promotion, or route.</td><td>Apply constitution, axiom, decision gate, task-session, or lifecycle owner.</td></tr>
+</tbody></table></div>
+<h2 id="reflection-tower-method">Reflection Tower Method<a class="anchor" href="#reflection-tower-method" aria-label="Link to Reflection Tower Method">#</a></h2>
+<p>Use reflection tower when a residue cannot be closed by local repair.</p>
+<ol>
+<li>Name the residue.</li>
+<li>Identify the schema/data pair that produced it.</li>
+<li>Ask whether the residue is caused by missing information, excessive unit size, underspecified unit size, wrong abstraction level, missing relation, excessive entropy, missing validation, or wrong lifecycle owner.</li>
+<li>If local repair is enough, repair the current layer.</li>
+<li>If the residue implies a missing schema, promote the residue into a new layer seed.</li>
+<li>Define the next layer's objective, schema, data target, validation, and recomposition path.</li>
+<li>Stop when the domain's closure criteria are met or when further decomposition increases residue.</li>
+</ol>
+<p>The key stop criterion:</p>
+<pre><code class="language-text">Do not keep splitting because splitting is possible.
+Split only while residue decreases and recomposition remains meaningful.</code></pre>
+<p>The reflection tower is triggered when entropy cannot be reduced by merely shrinking the unit. Sometimes the SCU is already as small as it can responsibly be, but residue still appears because a higher schema is missing. In that case, the answer is not &quot;make the task smaller.&quot; The answer is &quot;name the missing layer that would make this task coherent.&quot;</p>
+<pre><code class="language-text">If unit too large:
+  reduce toward SCU.
+
+If unit already SCU but residue remains:
+  inspect missing schema, relation, axiom, constitution, or domain layer.
+
+If smaller unit increases residue:
+  stop reduction and repair the upper layer.</code></pre>
+<h2 id="constitutions-and-axioms">Constitutions And Axioms<a class="anchor" href="#constitutions-and-axioms" aria-label="Link to Constitutions And Axioms">#</a></h2>
+<p>Craft uses two governing rule families.</p>
+<p>Constitutions enforce form and structure:</p>
+<ul>
+<li>artifact shape,</li>
+<li>lifecycle boundaries,</li>
+<li>required fields,</li>
+<li>source of truth,</li>
+<li>validation gates,</li>
+<li>promotion paths,</li>
+<li>allowed composition.</li>
+</ul>
+<p>Axioms enforce behavior and load-bearing principles:</p>
+<ul>
+<li>semantic authority precedes implementation,</li>
+<li>governance must be computable,</li>
+<li>observation must be independent from execution,</li>
+<li>trace precedes promotion,</li>
+<li>reflection stays an outer loop.</li>
+</ul>
+<p>In Craft terms:</p>
+<pre><code class="language-text">Constitution: what shape must the craft operation obey?
+Axiom: what behavioral truth must remain invariant across craft operations?</code></pre>
+<h2 id="method-routing">Method Routing<a class="anchor" href="#method-routing" aria-label="Link to Method Routing">#</a></h2>
+<p>Craft does not replace existing Arcanum capabilities. It composes them.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Situation</th><th>Route</th></tr></thead>
+<tbody>
+<tr><td>Intent is vague or phase target unclear</td><td><code>invoke define</code>, <code>scope-interview</code>, <code>definitions-governance</code></td></tr>
+<tr><td>Unit is too broad or residue increases with size</td><td><code>distill</code></td></tr>
+<tr><td>Design may be brittle, oversized, misleading, or unsafe</td><td><code>interrogation</code></td></tr>
+<tr><td>Existing artifact needs critique or method sharpening</td><td><code>refine</code></td></tr>
+<tr><td>Need lifecycle define/design/plan/validate artifact</td><td><code>invoke</code></td></tr>
+<tr><td>Need implementation-ready task/SWU execution</td><td><code>task-session</code></td></tr>
+<tr><td>Need hidden failure, inconsistency, or artifact inspection</td><td><code>x-ray</code></td></tr>
+<tr><td>Repeated usage residue should update capability</td><td><code>workflow-reflect</code>, <code>signal-observer</code>, <code>sigil-maintenance-loop</code></td></tr>
+</tbody></table></div>
+<p>Craft is the outer method that decides which route is responsible at each residue point.</p>
+<h2 id="stop-criteria">Stop Criteria<a class="anchor" href="#stop-criteria" aria-label="Link to Stop Criteria">#</a></h2>
+<p>Craft should stop a layer when one of these is true:</p>
+<ol>
+<li>The artifact validates against the current schema with acceptable residue.</li>
+<li>Further decomposition removes meaning or creates hidden glue.</li>
+<li>The next residue is a human decision, not a modeling problem.</li>
+<li>The next residue belongs to another lifecycle owner.</li>
+<li>Domain-specific metrics prove the current schema is stable enough.</li>
+<li>The cost of the next layer exceeds the value of residue reduction.</li>
+</ol>
+<p>Craft should continue upward or outward when:</p>
+<ol>
+<li>residue repeats across runs,</li>
+<li>validation fails for structural reasons,</li>
+<li>the SCU becomes too large and entropy increases,</li>
+<li>the current schema cannot express a necessary domain relation,</li>
+<li>governance cannot tell who owns the next move,</li>
+<li>recomposition is unclear.</li>
+</ol>
+<h2 id="initial-formal-model">Initial Formal Model<a class="anchor" href="#initial-formal-model" aria-label="Link to Initial Formal Model">#</a></h2>
+<p>Let a craft operation be:</p>
+<pre><code class="language-text">C = (I, S, F, E, D, R, G, V)</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>I</code> is intention.</li>
+<li><code>S</code> is the chosen schema.</li>
+<li><code>F</code> is the functor-like translator.</li>
+<li><code>E</code> is translation entropy: uncertainty pressure created by PCRA properties, context load, relation load, and unit sizing.</li>
+<li><code>D</code> is the produced data/artifact.</li>
+<li><code>R</code> is residue.</li>
+<li><code>G</code> is governance: constitutions, axioms, routes, ownership.</li>
+<li><code>V</code> is validation: the comparison of data back to schema under domain closure criteria.</li>
+</ul>
+<p>The basic operation:</p>
+<pre><code class="language-text">F_PCRA(I, S, context, tools) -&gt; D
+E = entropy(F_PCRA, S, context, relation_load, unit_size)
+V(S, D, G) -&gt; R</code></pre>
+<p>If <code>R</code> is acceptable, the layer closes.</p>
+<p>If <code>R</code> is repairable, revise <code>S</code>, <code>F</code>, context, or <code>D</code> inside the same layer.</p>
+<p>If <code>R</code> is structural, promote it:</p>
+<pre><code class="language-text">R_N -&gt; I_N+1</code></pre>
+<p>That is the reflection tower step.</p>
+<p>SCU selection is the pre-translation control on <code>E</code>:</p>
+<pre><code class="language-text">choose SCU such that:
+  meaning(SCU) is sufficient
+  responsibility(SCU) is singular
+  relation_load(SCU) is bounded
+  validation(SCU) is local
+  recomposition(SCU -&gt; upper schema) is explicit</code></pre>
+<p>Residue analysis is the post-translation evidence about <code>E</code>:</p>
+<pre><code class="language-text">if R shows missing details:
+  repair schema or context
+
+if R shows attention loss:
+  reduce unit or improve context selection
+
+if R shows relation drift:
+  declare relationships or split responsibilities
+
+if R shows recomposition failure:
+  widen unit or add bridge schema
+
+if R persists at SCU:
+  climb the reflection tower</code></pre>
+<h2 id="philosophical-horizon-toward-a-universal-physics-of-craft">Philosophical Horizon: Toward A Universal Physics Of Craft<a class="anchor" href="#philosophical-horizon-toward-a-universal-physics-of-craft" aria-label="Link to Philosophical Horizon: Toward A Universal Physics Of Craft">#</a></h2>
+<p>Craft should not be reduced to a productivity tool. Its deeper thesis is that making is not an accidental human activity but a general transformation pattern: intention, constraint, structure, translation, manifestation, residue, and recursive repair.</p>
+<p>In this lens, Craft asks:</p>
+<pre><code class="language-text">If reality had a &quot;making process&quot; built into its fabric,
+what primitives would that process need?</code></pre>
+<p>The proposed answer is not &quot;tasks&quot; or &quot;prompts.&quot; Those are local engineering forms. The deeper primitives are:</p>
+<ul>
+<li>difference: something is not yet in the form it could take,</li>
+<li>intention or attractor: a direction of possible becoming,</li>
+<li>schema: a chosen structure that makes the possible legible,</li>
+<li>functor-like translation: a structure-preserving transformation from one layer to another,</li>
+<li>data or artifact: the realized instance of that transformation,</li>
+<li>residue: what the transformation could not preserve, explain, or stabilize,</li>
+<li>reflection: the act of making residue into the seed of a new layer,</li>
+<li>recomposition: the return path by which the new layer changes the whole.</li>
+</ul>
+<p>This is the sense in which Craft can become a &quot;universal physics of craft&quot;: not a claim that every physical law has already been derived from Craft, but a research program for describing how coherent things come into being across domains.</p>
+<p>The universal claim should therefore be staged:</p>
+<ol>
+<li>Operational claim: Craft improves agentic artifact creation by governing schema/data translation and residue.</li>
+<li>Formal claim: Craft can be modeled as recursive structure-preserving transformation with residue and recomposition.</li>
+<li>Philosophical claim: all making can be understood as layered translation from potential structure into manifested instance under constraint.</li>
+<li>Universal physics claim: reality itself may be intelligible as a recursive craft process where stable forms are the closure points of repeated schema/data/residue dynamics.</li>
+</ol>
+<p>This gives Craft depth without pretending the deepest claim is already proven. The operational method becomes the laboratory where the philosophical claim earns or loses force.</p>
+<h3 id="craft-as-simulation-of-making">Craft As Simulation Of Making<a class="anchor" href="#craft-as-simulation-of-making" aria-label="Link to Craft As Simulation Of Making">#</a></h3>
+<p>The project can be framed as an attempt to simulate the act of making itself.</p>
+<p>Not simulate one product. Not simulate one software lifecycle. Simulate the general process by which:</p>
+<pre><code class="language-text">possible form
+  -&gt; selected schema
+  -&gt; constrained translation
+  -&gt; manifested artifact
+  -&gt; measured residue
+  -&gt; next layer of explanation</code></pre>
+<p>In this reading, Arcanum's capabilities are not merely commands. They are instruments in a craft physics:</p>
+<ul>
+<li><code>invoke</code> gives form to intention.</li>
+<li><code>distill</code> searches for the smallest coherent unit of coherent transformation.</li>
+<li><code>interrogation</code> applies tension so false closure breaks before it hardens.</li>
+<li><code>refine</code> repeats the loop until the artifact can carry its responsibility.</li>
+<li><code>x-ray</code> inspects hidden structure and failure surfaces.</li>
+<li><code>task-session</code> turns selected units into governed execution.</li>
+<li>observability and reflection let the system learn from the residue it leaves behind.</li>
+</ul>
+<p>The philosophical move is that residue is not waste. Residue is the evidence that reality, artifact, and schema are not yet in full relation. Craft advances by turning that remainder into the next object of thought.</p>
+<h3 id="the-honesty-boundary">The Honesty Boundary<a class="anchor" href="#the-honesty-boundary" aria-label="Link to The Honesty Boundary">#</a></h3>
+<p>The universal physics lens is valuable only if Craft keeps an honesty boundary.</p>
+<p>Craft may pursue universal structure, but each local use must still answer:</p>
+<ul>
+<li>What was the chosen schema?</li>
+<li>What data or artifact did it produce?</li>
+<li>What residue remained?</li>
+<li>What validation showed that residue?</li>
+<li>What layer, route, or stop criterion follows?</li>
+</ul>
+<p>Without those questions, &quot;universal physics&quot; becomes aesthetic language. With them, it becomes a disciplined research direction: a way to let practical building generate philosophical evidence.</p>
+<h2 id="initial-definition-for-arcanum">Initial Definition For Arcanum<a class="anchor" href="#initial-definition-for-arcanum" aria-label="Link to Initial Definition For Arcanum">#</a></h2>
+<p>Craft is a candidate Arcana-level method for recursively governing artifact creation across DomainSpec, Arcanum, and CyberAlchemy.</p>
+<p>It should provide:</p>
+<ul>
+<li>a vocabulary for schema/data/functor/residue in operational work,</li>
+<li>a residue classifier,</li>
+<li>a reflection tower method,</li>
+<li>SCU/SWU selection criteria,</li>
+<li>phase-specific define/design/plan/execute/validate/reflect contracts,</li>
+<li>routing rules to existing sigils and spells,</li>
+<li>promotion rules for repeated residue into taxonomy, constitution, axiom, or capability updates.</li>
+</ul>
+<p>It should preserve two levels:</p>
+<ul>
+<li>philosophical horizon: Craft can pursue a universal physics of making,</li>
+<li>operational claim: each current artifact must prove only the local schema/data/residue transformation it actually ran.</li>
+</ul>
+<p>It should not initially:</p>
+<ul>
+<li>present the universal physics lens as already proven,</li>
+<li>replace Distill, Invoke, Refine, Interrogation, Task Session, or X-Ray,</li>
+<li>claim perfect isomorphism with LLM-centered translation,</li>
+<li>promote conversation insight directly into global axiom without evidence.</li>
+</ul>
+<h2 id="open-questions">Open Questions<a class="anchor" href="#open-questions" aria-label="Link to Open Questions">#</a></h2>
+<ol>
+<li>Is Craft a new top-level Arcana sigil, a spell that composes existing sigils, or the name of the outer CyberAlchemy method layer?</li>
+<li>Should reflection tower be its own method under Craft or a shared primitive available to Refine, Distill, X-Ray, and Invoke?</li>
+<li>What are the first domain-specific stability metrics for deciding &quot;residue acceptable enough&quot;?</li>
+<li>How should SCU be measured beyond prose: information load, validation surface, recomposition proof, context size, or execution failure rate?</li>
+<li>What is the minimum artifact shape for a <code>CRAFT-RUN.md</code>?</li>
+<li>How should repeated residue promote into taxonomy, constitution, or axiom without bloating governance?</li>
+<li>What would count as evidence for the universal physics claim: cross-domain recurrence, formal proof, simulation behavior, practical compression, or predictive power?</li>
+<li>How can Craft talk about reality-level making without losing the local validation discipline that makes it useful?</li>
+</ol>
+<h2 id="proposed-next-product">Proposed Next Product<a class="anchor" href="#proposed-next-product" aria-label="Link to Proposed Next Product">#</a></h2>
+<p>Create a Craft development packet:</p>
+<pre><code class="language-text">arcanum/development/craft/
+  CRAFT-INITIAL-DEFINITION.md
+  CRAFT-GLOSSARY.md
+  REFLECTION-TOWER-METHOD.md
+  RESIDUE-TAXONOMY.md
+  CRAFT-CYCLE.md
+  CRAFT-RUN-TEMPLATE.md
+  INTERROGATION-REVIEW.md
+  SIGIL-HANDOFF.md</code></pre>
+<p>The next bounded work should not implement runtime behavior yet. It should first harden:</p>
+<ul>
+<li>definitions,</li>
+<li>residue taxonomy,</li>
+<li>reflection tower method,</li>
+<li>SCU/SWU criteria,</li>
+<li>route table,</li>
+<li>validation examples.</li>
+</ul>
+<h2 id="sources">Sources<a class="anchor" href="#sources" aria-label="Link to Sources">#</a></h2>
+<p>Local:</p>
+<ul>
+<li><code>arcanum/framework/CYBERALCHEMY-METHOD.md</code></li>
+<li><code>arcanum/arcana/distill/README.md</code></li>
+<li><code>arcanum/arcana/refine/README.md</code></li>
+<li><code>arcanum/arcana/refine/REFINEMENT-LOOP.md</code></li>
+<li><code>cyberAlchemy/agentic-system-architecture.md</code></li>
+<li><code>implementation/domainspec/AXIOMS.md</code></li>
+<li><code>implementation/domainspec/CONSTITUTION.md</code></li>
+</ul>
+<p>External:</p>
+<ul>
+<li>David I. Spivak, &quot;Functorial Data Migration&quot;, arXiv:1009.1166, https://arxiv.org/abs/1009.1166</li>
+<li>F. William Lawvere, &quot;Functorial Semantics of Algebraic Theories&quot;, 1963, https://www.sas.rochester.edu/mth/sites/doug-ravenel/otherpapers/lawvere.pdf</li>
+<li>Mark A. Bedau, &quot;Weak Emergence&quot;, 1997 abstract, https://people.reed.edu/~mab/papers/weak.emergence.ab.htm</li>
+</ul>
+</article></main>
+  </div>
+</body>
+</html>

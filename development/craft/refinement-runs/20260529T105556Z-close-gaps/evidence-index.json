@@ -1,0 +1,152 @@
+{
+  "run_id": "20260529T105556Z-close-gaps",
+  "target": "development/craft/",
+  "status": "block",
+  "preset": "compact",
+  "research": "no-research",
+  "dispatch": {
+    "artifact": "REFINE-DISPATCH.json",
+    "validation": "pass",
+    "validator": "formulae/dispatch-spec/scripts/validate-dispatch.py"
+  },
+  "runtime_handoff": {
+    "artifact": "RUNTIME-HANDOFF.md",
+    "status": "block",
+    "blocked_commands": ["dispatch-spec", "runtime-handoff"]
+  },
+  "artifacts": [
+    {
+      "path": "RUN-MANIFEST.md",
+      "owner": "refine",
+      "status": "present"
+    },
+    {
+      "path": "REFINE-SEED-PROPOSAL.md",
+      "owner": "refine",
+      "status": "present"
+    },
+    {
+      "path": "REFINE-DISPATCH.json",
+      "owner": "refine",
+      "status": "validated"
+    },
+    {
+      "path": "RUNTIME-HANDOFF.md",
+      "owner": "runtime-handoff",
+      "status": "block"
+    },
+    {
+      "path": "RESULT.md",
+      "owner": "refine",
+      "status": "present"
+    },
+    {
+      "path": "stages/00-local-gap-triage.md",
+      "owner": "refine",
+      "status": "preliminary"
+    }
+  ],
+  "stages": [
+    {
+      "step_id": "s01",
+      "name": "Context Builder evidence baseline",
+      "command": "context-builder",
+      "command_file": ".codex/commands/context-builder.md",
+      "artifact": "stages/01-context-builder.md",
+      "status": "block",
+      "blocked_reason": "dispatch-spec and runtime-handoff commands are unavailable"
+    },
+    {
+      "step_id": "s02",
+      "name": "Invoke Define",
+      "command": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "stages/02-invoke-define.md",
+      "status": "block",
+      "blocked_reason": "canonical refine execution stopped before stage execution"
+    },
+    {
+      "step_id": "s03",
+      "name": "Interrogation refine-review",
+      "command": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "stages/03-interrogation-refine-review.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched Define artifact exists"
+    },
+    {
+      "step_id": "s04",
+      "name": "Research decision",
+      "command": "refine",
+      "artifact": "stages/04-research-decision.md",
+      "status": "block",
+      "blocked_reason": "decision recorded, but prior stages did not execute"
+    },
+    {
+      "step_id": "s05",
+      "name": "Distill",
+      "command": "distill",
+      "command_file": ".codex/commands/distill.md",
+      "artifact": "stages/05-distill.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched review artifact exists"
+    },
+    {
+      "step_id": "s06",
+      "name": "Invoke Redefine / Design",
+      "command": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "stages/06-invoke-design.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched Distill artifact exists"
+    },
+    {
+      "step_id": "s07",
+      "name": "Interrogation refine-design-review",
+      "command": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "stages/07-interrogation-design-review.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched Design artifact exists"
+    },
+    {
+      "step_id": "s08",
+      "name": "Distill Repair",
+      "command": "distill",
+      "command_file": ".codex/commands/distill.md",
+      "artifact": "stages/08-distill-repair.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched design review artifact exists"
+    },
+    {
+      "step_id": "s09",
+      "name": "Invoke Plan",
+      "command": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "stages/09-invoke-plan.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched repair artifact exists"
+    },
+    {
+      "step_id": "s10",
+      "name": "Final Interrogation and Synthesis",
+      "command": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "stages/10-final-synthesis.md",
+      "status": "block",
+      "blocked_reason": "no command-dispatched Plan artifact exists"
+    }
+  ],
+  "recommended_next_routes": [
+    {
+      "route": "definitions-governance",
+      "target": "development/craft/CRAFT-GLOSSARY.md",
+      "reason": "Craft glossary is the only pre-architecture blocker"
+    },
+    {
+      "route": "invoke design",
+      "target": "development/craft/CRAFT-METHOD-ARCHITECTURE.md",
+      "reason": "Architecture package should own route integration and validation example-suite shape"
+    }
+  ]
+}

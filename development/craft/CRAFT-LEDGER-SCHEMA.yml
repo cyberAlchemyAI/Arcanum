@@ -1,0 +1,438 @@
+schema_id: craft.recursive_ledger
+schema_version: 0.1.0
+status: candidate
+owner_context_id: CTX-LEDGER
+purpose: >
+  Define the structured schema contract for the Craft recursive ledger MVP.
+  The MVP ledger fixture may be Markdown, but schema authority lives here.
+
+source_artifacts:
+  - development/craft/CRAFT-MVP-DEFINE.md
+  - development/craft/CRAFT-MVP-DESIGN.md
+  - development/craft/CRAFT-RECURSIVE-LEDGER-DESIGN.md
+  - development/craft/CRAFT-LEDGER-TYPE-SYSTEM.md
+  - development/craft/CRAFT-LEDGER-TYPE-EXAMPLES.md
+
+source_of_truth_policy:
+  schema_contract: development/craft/CRAFT-LEDGER-SCHEMA.yml
+  first_fixture: development/craft/LEDGER.md
+  validation_report: development/craft/LEDGER-VALIDATION.md
+  generated_index: deferred
+  notes:
+    - YAML owns field names, required fields, enums, and validation rules.
+    - Markdown owns the first human-readable ledger fixture.
+    - A generated index can be added later only after the Markdown fixture validates.
+
+enums:
+  context_stage:
+    - idea
+    - define
+    - design
+    - plan
+    - execute
+    - validate
+    - reflect
+    - blocked
+    - closed
+  gate_status:
+    - pass
+    - flag
+    - block
+  artifact_status:
+    - planned
+    - active
+    - stale
+    - superseded
+    - closed
+  relation_type:
+    - contains
+    - blocks
+    - enables
+    - depends_on
+    - informs
+    - supersedes
+  relation_status:
+    - active
+    - proposed
+    - resolved
+    - rejected
+    - superseded
+  typed_item_kind:
+    - blocker
+    - gate
+    - enabler
+  typed_item_status:
+    - active
+    - proposed
+    - pass
+    - flag
+    - block
+    - resolution_proposed
+    - resolved
+    - rejected
+    - waived
+  refinement_status:
+    - raw
+    - typed
+    - refined
+    - resolution_proposed
+    - resolved
+    - waived
+  decision_type:
+    - selection
+    - waiver
+    - deferral
+    - approval
+    - rejection
+  decision_status:
+    - active
+    - superseded
+    - closed
+  operational_lane:
+    - business
+    - tech
+    - qa
+    - validator
+    - auditor
+    - governance
+    - planner
+    - operations
+    - integrator
+    - blocker_refiner
+
+base_condition_types:
+  blocker:
+    - decision_blocker
+    - definition_blocker
+    - design_blocker
+    - dependency_blocker
+    - artifact_blocker
+    - validation_blocker
+    - authority_blocker
+    - resource_blocker
+    - sequence_blocker
+    - recomposition_blocker
+  gate:
+    - definition_gate
+    - design_gate
+    - plan_gate
+    - artifact_gate
+    - validation_gate
+    - authority_gate
+    - blocker_refinement_gate
+    - recomposition_gate
+    - risk_gate
+    - readiness_gate
+  enabler:
+    - definition_enabler
+    - design_enabler
+    - dependency_enabler
+    - artifact_enabler
+    - validation_enabler
+    - authority_enabler
+    - resource_enabler
+    - sequence_enabler
+    - recomposition_enabler
+
+row_families:
+  contexts:
+    id_field: context_id
+    description: Recursive project-like units.
+    required_fields:
+      - context_id
+      - parent_id
+      - title
+      - purpose
+      - stage
+      - gate
+      - next_move
+    optional_fields:
+      - owned_artifacts
+      - notes
+    fields:
+      context_id:
+        type: string
+        pattern: "^CTX-[A-Z0-9-]+$"
+      parent_id:
+        type: reference
+        references: contexts.context_id
+        allow_literal:
+          - root
+      title:
+        type: string
+      purpose:
+        type: string
+      stage:
+        type: enum
+        enum_ref: context_stage
+      gate:
+        type: enum
+        enum_ref: gate_status
+      next_move:
+        type: string
+      owned_artifacts:
+        type: list
+        item_type: reference
+        references: artifacts.artifact_id
+      notes:
+        type: string
+
+  artifacts:
+    id_field: artifact_id
+    description: Files, records, work-packs, validations, and handoffs owned by contexts.
+    required_fields:
+      - artifact_id
+      - owner_context_id
+      - path
+      - artifact_type
+      - status
+    optional_fields:
+      - notes
+    fields:
+      artifact_id:
+        type: string
+        pattern: "^ART-[A-Z0-9-]+$"
+      owner_context_id:
+        type: reference
+        references: contexts.context_id
+      path:
+        type: string
+      artifact_type:
+        type: string
+      status:
+        type: enum
+        enum_ref: artifact_status
+      notes:
+        type: string
+
+  relations:
+    id_field: relation_id
+    description: Links between contexts, artifacts, decisions, and typed items.
+    required_fields:
+      - relation_id
+      - source_id
+      - target_id
+      - type
+      - status
+      - reason
+    optional_fields:
+      - evidence
+    fields:
+      relation_id:
+        type: string
+        pattern: "^REL-[A-Z0-9-]+$"
+      source_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+          - decisions.decision_id
+      target_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+          - decisions.decision_id
+      type:
+        type: enum
+        enum_ref: relation_type
+      status:
+        type: enum
+        enum_ref: relation_status
+      reason:
+        type: string
+      evidence:
+        type: string
+
+  typed_items:
+    id_field: item_id
+    description: Unified blocker, gate, and enabler rows.
+    required_fields:
+      - item_id
+      - kind
+      - base_type
+      - primary_lane
+      - source_id
+      - target_id
+      - status
+      - reason
+    conditionally_required_fields:
+      - when:
+          kind: blocker
+        require:
+          - refinement_status
+          - closure_condition
+      - when:
+          kind: gate
+        require:
+          - closure_condition
+    optional_fields:
+      - context_type
+      - secondary_lanes
+      - refinement_status
+      - default_role
+      - delegation_route
+      - closure_condition
+      - evidence
+      - decision_ref
+    fields:
+      item_id:
+        type: string
+        pattern: "^(BLK|GATE|ENA)-[A-Z0-9-]+$"
+      kind:
+        type: enum
+        enum_ref: typed_item_kind
+      base_type:
+        type: enum_by_kind
+        enum_map_ref: base_condition_types
+      context_type:
+        type: string
+        nullable: true
+      primary_lane:
+        type: enum
+        enum_ref: operational_lane
+      secondary_lanes:
+        type: list
+        item_type: enum
+        enum_ref: operational_lane
+      source_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+          - decisions.decision_id
+      target_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+          - decisions.decision_id
+      status:
+        type: enum
+        enum_ref: typed_item_status
+      refinement_status:
+        type: enum
+        enum_ref: refinement_status
+      default_role:
+        type: string
+      delegation_route:
+        type: string
+      closure_condition:
+        type: string
+      evidence:
+        type: string
+      decision_ref:
+        type: reference
+        references: decisions.decision_id
+      reason:
+        type: string
+
+  decisions:
+    id_field: decision_id
+    description: Explicit human or governance decisions, especially waivers.
+    required_fields:
+      - decision_id
+      - scope_id
+      - decision_type
+      - selected
+      - rationale
+      - status
+    optional_fields:
+      - evidence
+    fields:
+      decision_id:
+        type: string
+        pattern: "^DEC-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - relations.relation_id
+          - typed_items.item_id
+      decision_type:
+        type: enum
+        enum_ref: decision_type
+      selected:
+        type: string
+      rationale:
+        type: string
+      evidence:
+        type: string
+      status:
+        type: enum
+        enum_ref: decision_status
+
+validation_rules:
+  - id: VAL-001
+    description: Every context has a unique context_id.
+    severity: block
+  - id: VAL-002
+    description: Every non-root context references an existing parent_id.
+    severity: block
+  - id: VAL-003
+    description: Every artifact references an existing owner_context_id.
+    severity: block
+  - id: VAL-004
+    description: Every relation source and target references an existing ID.
+    severity: block
+  - id: VAL-005
+    description: Every typed item includes kind, base_type, primary_lane, source_id, target_id, status, and reason.
+    severity: block
+  - id: VAL-006
+    description: Every blocker includes refinement_status and closure_condition.
+    severity: block
+  - id: VAL-007
+    description: A blocker with status resolved has refinement evidence or a linked waiver decision.
+    severity: block
+  - id: VAL-008
+    description: Every gate includes a closure_condition.
+    severity: block
+  - id: VAL-009
+    description: Every enabler includes evidence or a reason explaining what it enables.
+    severity: flag
+  - id: VAL-010
+    description: Work-pack artifacts are artifacts, not the ledger root.
+    severity: block
+
+blocker_lifecycle:
+  normal:
+    - raw
+    - typed
+    - refined
+    - resolution_proposed
+    - resolved
+  waiver:
+    from:
+      - raw
+      - typed
+    to: waived
+    requires_decision_type: waiver
+  prohibited_transitions:
+    - from: raw
+      to: resolved
+    - from: typed
+      to: resolved
+
+conflict_policy:
+  - primary_lane owns the next move.
+  - secondary_lanes are required reviewers or contributors.
+  - blocker_refiner as primary_lane means the item is not ready for final resolution.
+  - auditor or validator as secondary lane requires review evidence before closure.
+  - business and tech disagreement keeps status flag or block until a decision row records the selected interpretation.
+  - MVP rows should use one base_type; mixed causes go in reason.
+
+deferrals:
+  scoring:
+    status: deferred
+    reason: Requires several valid ledger states first.
+  generated_index:
+    status: deferred
+    reason: Markdown fixture should validate before index generation.
+  role_delegation:
+    status: deferred
+    reason: Type plus lane mappings need broader examples before automation.

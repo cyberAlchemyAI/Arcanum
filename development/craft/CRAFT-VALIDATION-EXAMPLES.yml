@@ -1,0 +1,256 @@
+schema_version: 0.1.0
+artifact_type: craft_validation_examples
+status: candidate
+source_architecture: development/craft/CRAFT-ARCHITECTURE.md
+purpose: >
+  Minimal example suite for validating Craft method claims before promotion,
+  automation, or runtime integration.
+examples:
+  - id: EX-001
+    claim: scu_selection
+    title: Select the smallest coherent unit from broad Craft architecture work.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE.md#Validation Example-Suite Shape
+      - development/craft/CRAFT-GLOSSARY.md#Core Method Terms
+    scenario: >
+      A user asks to continue Craft after architecture, but the request could
+      imply examples, validation, promotion, runtime integration, or automation.
+    expected_behavior: >
+      Craft selects the validation example suite as the next SCU because it is
+      the smallest unit that preserves recomposition into the architecture
+      acceptance gate.
+    validation_evidence: >
+      Work-pack maps the example suite to CRAFT-ARCH-002 and keeps promotion,
+      runtime integration, scoring, generated indexes, and role delegation
+      deferred.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE.md#Validation Example-Suite Shape
+    expected_result: pass
+    status: candidate
+    deferred_scope:
+      - promotion
+      - runtime_integration
+      - automation
+
+  - id: EX-002
+    claim: swu_planning
+    title: Convert approved architecture into executable SWUs.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE-WORK-PACK.md#SWU Execution Handoff
+      - development/craft/work-packs/craft-architecture/tasks/CRAFT-ARCH-002.md
+    scenario: >
+      The approved architecture needs examples, but execution must happen in
+      bounded steps.
+    expected_behavior: >
+      Craft decomposes the example-suite task into SWU-CRAFT-ARCH-002,
+      SWU-CRAFT-ARCH-003, and SWU-CRAFT-ARCH-004 with ordered dependencies,
+      write scope, done criteria, validation, and handoff notes.
+    validation_evidence: >
+      The work-pack SWU manifest names source anchors, dependencies, write
+      scope, done criteria, acceptance evidence, validation surface, execution
+      owner, and handoff status for each SWU.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE-WORK-PACK.md#Task Status Board
+    expected_result: pass
+    status: candidate
+    deferred_scope: []
+
+  - id: EX-003
+    claim: residue_classification
+    title: Classify validation residue into routeable outcomes.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE.md#Decision Flow View
+      - development/craft/CRAFT-GLOSSARY.md#Core Method Terms
+    scenario: >
+      A validation run finds that examples cover SCU and SWU behavior but do
+      not yet prove runtime observation-envelope capture.
+    expected_behavior: >
+      Craft classifies the residue as an external runtime side-thread gap, not
+      as a blocker for the local validation example suite.
+    validation_evidence: >
+      Residue is recorded as deferred or side-threaded with an owner artifact
+      instead of being hidden in a pass claim.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE-INPUTS.md#Runtime Boundary Contract
+    expected_result: flag
+    status: candidate
+    deferred_scope:
+      - runtime_interface
+
+  - id: EX-004
+    claim: recomposition
+    title: Recompose a completed child unit into the parent architecture context.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE.md#Workflow Process View
+      - development/craft/CRAFT-ARCHITECTURE.md#Dependency And Interface Rules
+    scenario: >
+      CRAFT-ARCH-002 produces validation examples and passes YAML and coverage
+      review.
+    expected_behavior: >
+      Craft does not treat the examples as isolated files; it links them back
+      to the architecture example-suite requirement and unlocks the validation
+      guide task.
+    validation_evidence: >
+      The task-session result records examples produced, coverage, validation
+      commands, and the next recomposition target CRAFT-ARCH-003.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE-WORK-PACK.md#Delivery Slices
+    expected_result: pass
+    status: candidate
+    deferred_scope: []
+
+  - id: EX-005
+    claim: blocker_refinement_gate
+    title: Keep a raw blocker unresolved until refined or waived.
+    source_contracts:
+      - development/craft/LEDGER.md#Typed Item Rows
+      - development/craft/LEDGER-VALIDATION.md#Blocker Lifecycle Review
+      - development/craft/CRAFT-LEDGER-TYPE-SYSTEM.md#Blocker Refinement Rule
+    scenario: >
+      BLK-RAW-RELATION-001 identifies uncertain cross-context relation semantics.
+    expected_behavior: >
+      Craft assigns the blocker_refiner lane and keeps the blocker active/raw
+      instead of resolving it directly.
+    validation_evidence: >
+      LEDGER-VALIDATION reports that raw or typed blockers are not allowed to
+      resolve directly and cites BLK-RAW-RELATION-001.
+    recomposition_target: development/craft/LEDGER-VALIDATION.md#Blocker Lifecycle Review
+    expected_result: pass
+    status: candidate
+    deferred_scope: []
+
+  - id: EX-006
+    claim: cross_context_relation
+    title: Represent a blocker or enabler across context branches.
+    source_contracts:
+      - development/craft/LEDGER.md#Relation Rows
+      - development/craft/LEDGER.md#Context Rows
+      - development/craft/LEDGER-VALIDATION.md#Validation Checklist
+    scenario: >
+      CTX-SCHEMA blocks CTX-SCORING because scoring depends on multiple valid
+      ledger states.
+    expected_behavior: >
+      Craft records the cross-context relation explicitly instead of hiding it
+      inside a parent-child tree.
+    validation_evidence: >
+      REL-BLOCKS-002 and BLK-SCORING-001 show the scoring dependency while
+      validation keeps generated index and scoring deferred.
+    recomposition_target: development/craft/LEDGER.md#Relation Rows
+    expected_result: pass
+    status: candidate
+    deferred_scope:
+      - priority_scoring
+
+  - id: EX-007
+    claim: route_boundary
+    title: Call an existing Arcanum route without taking its authority.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE.md#Route Integration Contract
+      - development/craft/CRAFT-ARCHITECTURE.md#Dependency Interface View
+    scenario: >
+      A unit is executable and has a work-pack task, so Craft needs execution
+      evidence.
+    expected_behavior: >
+      Craft recommends task-session for the bounded task while preserving that
+      task-session owns execution, context building, gate checks, and evidence
+      synchronization.
+    validation_evidence: >
+      The architecture route table says Craft selects the next responsible move
+      and records outcome evidence; execution routes own producing or mutating
+      artifacts.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE.md#Route Integration Contract
+    expected_result: pass
+    status: candidate
+    deferred_scope: []
+
+  - id: EX-008
+    claim: runtime_side_thread_boundary
+    title: Keep runtime/interface gaps visible but non-blocking.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE-INPUTS.md#Runtime Boundary Contract
+      - development/craft/CRAFT-REFINE-RUNTIME-STRATEGY.md
+      - development/craft/ARCANUM-SKILL-RUNTIME-HANDOFF.md
+    scenario: >
+      Refine runtime strategy and Arcanum skill runtime interface work are
+      related to Craft but owned by separate threads.
+    expected_behavior: >
+      Craft references these artifacts as external dependencies and does not
+      mutate command, runtime, registry, sigil, spell, or skill surfaces.
+    validation_evidence: >
+      Architecture input rules mark runtime/interface work as side-threaded and
+      non-blocking when owner artifacts are cited.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE-INPUTS.md#Non-Blocking Runtime Statement
+    expected_result: pass
+    status: candidate
+    deferred_scope:
+      - runtime_interface
+      - command_routes
+
+  - id: EX-009
+    claim: promotion_decision
+    title: Route local validation into explicit promotion review.
+    source_contracts:
+      - development/craft/CRAFT-ARCHITECTURE.md#Promotion Decision Path
+      - development/craft/CRAFT-GLOSSARY.md#Core Method Terms
+    scenario: >
+      Craft examples and validation pass locally, and the package appears useful
+      beyond development/craft.
+    expected_behavior: >
+      Craft creates a promotion readiness review and recommends a future route,
+      but does not promote itself automatically.
+    validation_evidence: >
+      Promotion evidence must cover architecture, examples, one complete
+      plan/execution/validation loop, glossary conflict review, and runtime
+      inclusion or exclusion.
+    recomposition_target: development/craft/CRAFT-PROMOTION-READINESS.md
+    expected_result: flag
+    status: candidate
+    deferred_scope:
+      - canonical_promotion
+
+  - id: EX-010
+    claim: role_hint_review
+    title: Review type plus lane role hints before automation.
+    source_contracts:
+      - development/craft/CRAFT-LEDGER-TYPE-SYSTEM.md#Role Mapping Model
+      - development/craft/LEDGER-VALIDATION.md#Conflict And Lane Review
+      - development/craft/CRAFT-ARCHITECTURE.md#Deferred Automation Evidence
+    scenario: >
+      A typed ledger item has base_type validation_blocker, primary lane
+      validator, and secondary lanes tech and qa.
+    expected_behavior: >
+      Craft treats the role hint as review guidance, not an automated
+      delegation decision.
+    validation_evidence: >
+      The lane review confirms primary lane ownership and secondary review
+      lanes, while architecture requires more examples before role delegation
+      automation can start.
+    recomposition_target: development/craft/CRAFT-ARCHITECTURE.md#Deferred Automation Evidence
+    expected_result: pass
+    status: candidate
+    deferred_scope:
+      - role_delegation_automation
+
+coverage:
+  required_example_ids:
+    - EX-001
+    - EX-002
+    - EX-003
+    - EX-004
+    - EX-005
+    - EX-006
+    - EX-007
+    - EX-008
+    - EX-009
+    - EX-010
+  architecture_rules_touched:
+    - R-001
+    - R-002
+    - R-003
+    - R-004
+    - R-005
+    - R-006
+    - R-007
+  non_goals_preserved:
+    - runtime_mutation
+    - registry_mutation
+    - promotion_mutation
+    - priority_scoring_implementation
+    - generated_index_implementation
+    - role_delegation_automation

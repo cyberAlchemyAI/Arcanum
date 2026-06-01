@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craft Initial Formal Model</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #5f6b76;
+      --paper: #fbfaf7;
+      --line: #d8d2c7;
+      --green: #2f6f62;
+      --blue: #335c81;
+      --red: #934443;
+      --gold: #8a6b22;
+      --panel: #ffffff;
+      --soft-blue: #eaf2f8;
+      --soft-green: #e8f3ee;
+      --soft-red: #f8ecea;
+      --soft-gold: #f6efd9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    header {
+      padding: 24px 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 850px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    section {
+      margin-top: 28px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .model-strip {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(88px, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .symbol {
+      display: flex;
+      min-height: 92px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .symbol strong {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 26px;
+    }
+
+    .symbol span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .schema { border-top: 5px solid var(--blue); }
+    .entropy { border-top: 5px solid var(--gold); }
+    .data { border-top: 5px solid var(--green); }
+    .residue { border-top: 5px solid var(--red); }
+
+    .formula {
+      overflow-x: auto;
+      padding: 18px;
+      border-radius: 8px;
+      background: #111820;
+      color: #f7fafc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 15px;
+      white-space: pre;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .flow .node {
+      min-height: 92px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .definition-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .definition {
+      border-left: 5px solid var(--blue);
+    }
+
+    .definition:nth-child(2n) {
+      border-left-color: var(--green);
+    }
+
+    .definition:nth-child(3n) {
+      border-left-color: var(--gold);
+    }
+
+    .definition:nth-child(5n) {
+      border-left-color: var(--red);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      margin-bottom: 8px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--soft-blue);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .callout {
+      border-color: #c9b56b;
+      background: var(--soft-gold);
+    }
+
+    .source {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .plain-list {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .plain-list li + li {
+      margin-top: 6px;
+    }
+
+    .translation-map {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .translation-row {
+      display: grid;
+      grid-template-columns: minmax(100px, 0.55fr) minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .translation-row strong {
+      color: var(--blue);
+    }
+
+    @media (max-width: 880px) {
+      .grid.two,
+      .grid.three,
+      .definition-list,
+      .flow,
+      .model-strip,
+      .intro-grid,
+      .translation-row {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Craft as a way of making with LLMs</p>
+      <h1>When an LLM makes something, Craft asks what got translated.</h1>
+      <p class="lead">
+        Craft treats LLM execution as a making process: you bring an intention,
+        choose a shape for it, let a probabilistic translator produce an artifact,
+        then inspect what was preserved, what drifted, and what still needs repair.
+      </p>
+    </header>
+
+    <section>
+      <h2>The Basic View</h2>
+      <div class="intro-grid">
+        <div class="card">
+          <h3>Craft starts before the prompt and ends after the output.</h3>
+          <p>
+            A prompt is only one visible part of the operation. The real craft operation includes
+            the intention behind the prompt, the schema that frames the work, the context and tools
+            handed to the model, the artifact it produces, and the validation that tells us whether
+            the result actually fits.
+          </p>
+          <ul class="plain-list">
+            <li>The LLM is not treated as a deterministic compiler.</li>
+            <li>The output is not treated as self-proving.</li>
+            <li>Residue is not treated as noise; it is evidence about the translation.</li>
+          </ul>
+        </div>
+        <div class="card callout">
+          <h3>The practical question</h3>
+          <p>
+            Did the artifact preserve enough of the intended structure to be useful,
+            reviewable, and recomposable into the larger work?
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The Compact Model</h2>
+      <div class="formula">C = (I, S, F, E, D, R, G, V)</div>
+      <div class="model-strip" aria-label="Craft tuple symbols">
+        <div class="symbol"><strong>I</strong><span>What you mean to make</span></div>
+        <div class="symbol schema"><strong>S</strong><span>The shape you give it</span></div>
+        <div class="symbol schema"><strong>F</strong><span>The translating process</span></div>
+        <div class="symbol entropy"><strong>E</strong><span>Where uncertainty enters</span></div>
+        <div class="symbol data"><strong>D</strong><span>What gets made</span></div>
+        <div class="symbol residue"><strong>R</strong><span>What did not fit cleanly</span></div>
+        <div class="symbol"><strong>G</strong><span>The rules and owners</span></div>
+        <div class="symbol"><strong>V</strong><span>The check back to intent</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How An LLM Execution Looks In Craft</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>The model translates, it does not simply obey.</h3>
+          <div class="formula">F_PCRA(I, S, context, tools) -> D</div>
+          <p class="mini">The LLM-centered process turns intention and schema into an artifact using the context and tools it can see.</p>
+        </div>
+        <div class="card">
+          <h3>Uncertainty has sources.</h3>
+          <div class="formula">E = entropy(F_PCRA, S, context, relation_load, unit_size)</div>
+          <p class="mini">Entropy names the pressure created by ambiguity, context load, relation load, and oversized or underspecified work units.</p>
+        </div>
+        <div class="card">
+          <h3>The output has to answer back.</h3>
+          <div class="formula">V(S, D, G) -> R</div>
+          <p class="mini">Validation compares what got made back to the schema, under the rules and ownership of the current craft space.</p>
+        </div>
+        <div class="card callout">
+          <h3>Craft reads the remainder.</h3>
+          <p>If the residue is acceptable, the work can close. If it is repairable, improve the schema, context, translator setup, or artifact inside the same layer.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The Making Flow</h2>
+      <div class="flow">
+        <div class="node schema">
+          <h3>Shape the intention</h3>
+          <p>Give the work a schema: a spec, plan, contract, prompt frame, examples, or validation target.</p>
+        </div>
+        <div class="arrow">-></div>
+        <div class="node data">
+          <h3>Run the translator</h3>
+          <p>Let the LLM-centered process produce the artifact using selected context, tools, and local vocabulary.</p>
+        </div>
+        <div class="arrow">-></div>
+        <div class="node residue">
+          <h3>Read the fit</h3>
+          <p>Validate the result, then look at residue to understand what the translation preserved or lost.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Vocabulary In Plain Language</h2>
+      <div class="translation-map">
+        <div class="translation-row">
+          <strong>Everyday view</strong>
+          <span>I ask the model to make something.</span>
+        </div>
+        <div class="translation-row">
+          <strong>Craft view</strong>
+          <span>I set up a translation from intention into artifact, then inspect the residue left by that translation.</span>
+        </div>
+      </div>
+      <div class="definition-list">
+        <div class="card definition">
+          <span class="tag">I</span>
+          <h3>Intention</h3>
+          <p>What you are trying to make real: the purpose, pressure, desired change, and next artifact you want to exist.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">S</span>
+          <h3>Schema</h3>
+          <p>The shape you give the intention so the model can work with it: a spec, plan, task, taxonomy, constitution, interface, example set, or method contract.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">F</span>
+          <h3>Translator</h3>
+          <p>The full process that turns schema into artifact. It includes the LLM, prompt frame, selected context, tools, local vocabulary, harness, validation, and feedback.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">PCRA</span>
+          <h3>LLM Translation Behavior</h3>
+          <p>The model is probabilistic, contextual, relational, and attentive. It responds to what is likely, what is present, what is related, and what its attention can hold.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">E</span>
+          <h3>Entropy</h3>
+          <p>The uncertainty pressure in the run: too many plausible paths, unstable terms, noisy context, too many relations, or a work unit that is too large or too small.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">D</span>
+          <h3>Artifact</h3>
+          <p>What the operation actually produces: code, document, design, validation evidence, telemetry, task result, runtime behavior, or another concrete output.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">R</span>
+          <h3>Residue</h3>
+          <p>The meaningful remainder after the output exists: drift, missing structure, ambiguity, contradiction, scope pressure, or a validation gap.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">G</span>
+          <h3>Governance</h3>
+          <p>The rules for the work: what counts as valid, who owns the next move, which route should handle it, and what is allowed to become canonical.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">V</span>
+          <h3>Validation</h3>
+          <p>The act of checking the artifact against the schema and the local rules, so the output has to prove its fit instead of merely looking plausible.</p>
+        </div>
+        <div class="card definition">
+          <span class="tag">SCU</span>
+          <h3>Smallest Coherent Unit</h3>
+          <p>The smallest work unit that still makes sense. It has one responsibility, enough context, clear inputs and outputs, a local check, and a path back into the larger work.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why Craft Cares About Unit Size</h2>
+      <div class="formula">choose SCU such that:
+  meaning(SCU) is sufficient
+  responsibility(SCU) is singular
+  relation_load(SCU) is bounded
+  validation(SCU) is local
+  recomposition(SCU -> upper schema) is explicit</div>
+      <div class="grid three" style="margin-top: 14px;">
+        <div class="card">
+          <h3>Too Small</h3>
+          <p>The model can do the tiny piece, but the piece no longer carries enough meaning to rejoin the whole cleanly.</p>
+        </div>
+        <div class="card callout">
+          <h3>SCU</h3>
+          <p>The unit is small enough for attention, but still meaningful enough to validate and recompose.</p>
+        </div>
+        <div class="card">
+          <h3>Too Large</h3>
+          <p>The model has to preserve too many relations at once, so attention loss and relation drift become more likely.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How Craft Reads A Bad Or Weird Output</h2>
+      <ul class="rule-list">
+        <li><strong>Missing details:</strong> the schema or context did not say enough.</li>
+        <li><strong>Attention loss:</strong> the work unit may be too broad or the context too noisy.</li>
+        <li><strong>Relation drift:</strong> the important relationships were implied when they needed to be declared.</li>
+        <li><strong>Recomposition failure:</strong> the piece works locally but does not reconnect to the larger artifact.</li>
+      </ul>
+    </section>
+
+    <p class="source">
+      Source: development/craft/CRAFT-INITIAL-DEFINITION.md, sections "Initial Vocabulary" and "Initial Formal Model".
+      Excluded: later recursive residue-layer material by request.
+    </p>
+  </main>
+</body>
+</html>

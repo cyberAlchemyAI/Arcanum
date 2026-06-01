@@ -1,0 +1,293 @@
+{
+  "dispatch_id": "refine-craft-close-gaps-20260529T105556Z",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Close Craft gaps first before architecture planning.",
+    "objective": "Run the canonical Refine loop over development/craft gap state and produce a gap-closure synthesis before broader Craft architecture planning.",
+    "target_artifact": "development/craft/refinement-runs/20260529T105556Z-close-gaps/RESULT.md",
+    "arcanum_vocabulary": ["refine", "dispatch-spec", "craft", "recursive-ledger", "gap-ledger"],
+    "operator_sentence": "lets close gaps first"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "route_menu",
+    "one_or_more_option_set",
+    "approval_checkpoint",
+    "memory_loop",
+    "residue_ledger",
+    "data_quality_deduplication",
+    "concrete_path_evidence"
+  ],
+  "route_menu": {
+    "context_hint": "Choose how to handle gaps before broader Craft architecture planning.",
+    "items": [
+      {
+        "id": "close-blocking-gaps-first",
+        "label": "Close Blockers First",
+        "description": "Close or route only gaps that block architecture planning.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      },
+      {
+        "id": "fold-into-architecture",
+        "label": "Fold Into Architecture",
+        "description": "Treat remaining method gaps as architecture package inputs.",
+        "capability_ref": "invoke",
+        "pattern": "route"
+      },
+      {
+        "id": "defer-side-threads",
+        "label": "Defer Side Threads",
+        "description": "Keep runtime/refine interface and automation gaps outside Craft method planning.",
+        "capability_ref": "decision-gate",
+        "pattern": "decision"
+      }
+    ],
+    "selected_item_id": "close-blocking-gaps-first"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Ordinary refinement over a bounded local artifact package.",
+      "techniques": ["sequence", "frame_handoff", "handle_handoff", "validation_loop", "owner_boundary_check", "observability_grouping"],
+      "applies_to_steps": ["s01", "s02", "s03", "s04", "s05", "s06", "s07", "s08", "s09", "s10"],
+      "validation_expectation": "Every stage preserves owner boundaries and records pass, flag, or block evidence."
+    },
+    {
+      "overlay_id": "route_menu_for_ambiguity",
+      "trigger": "Open gaps can be closed, folded into architecture, or deferred.",
+      "techniques": ["route_menu", "one_or_more_option_set", "approval_checkpoint"],
+      "applies_to_steps": ["s04", "s05", "s09", "s10"],
+      "validation_expectation": "The selected next route is explicit and non-executed."
+    },
+    {
+      "overlay_id": "memory_residue_for_context_recovery",
+      "trigger": "Gap state depends on prior completed MVP tasks and session ledger decisions.",
+      "techniques": ["memory_loop", "residue_ledger", "data_quality_deduplication", "concrete_path_evidence"],
+      "applies_to_steps": ["s01", "s03", "s05", "s10"],
+      "validation_expectation": "Closed, open, and deferred gaps cite concrete local artifact paths."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "s01",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": ["frame_handoff", "concrete_path_evidence"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "frame", "ref": "stages/01-context-builder.md"}],
+      "evidence_artifact": "stages/01-context-builder.md",
+      "stop_conditions": ["block if Craft gap ledger or validation evidence is missing"]
+    },
+    {
+      "step_id": "s02",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": ["sequence", "handle_handoff"],
+      "inputs": [{"kind": "frame", "ref": "stages/01-context-builder.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/02-invoke-define.md"}],
+      "evidence_artifact": "stages/02-invoke-define.md",
+      "stop_conditions": ["block if define would mutate upstream Craft artifacts"]
+    },
+    {
+      "step_id": "s03",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "residue_ledger"],
+      "inputs": [{"kind": "artifact", "ref": "stages/02-invoke-define.md"}],
+      "outputs": [{"kind": "ledger", "ref": "stages/03-interrogation-refine-review.md"}],
+      "evidence_artifact": "stages/03-interrogation-refine-review.md",
+      "stop_conditions": ["block on unresolved architecture-blocking gap"]
+    },
+    {
+      "step_id": "s04",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "techniques": ["approval_checkpoint", "route_menu", "conditional_component"],
+      "inputs": [{"kind": "ledger", "ref": "stages/03-interrogation-refine-review.md"}],
+      "outputs": [{"kind": "decision", "ref": "stages/04-research-decision.md"}],
+      "evidence_artifact": "stages/04-research-decision.md",
+      "stop_conditions": ["block if external research becomes necessary"]
+    },
+    {
+      "step_id": "s05",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": ["scu_swu_reduction", "residue_ledger"],
+      "inputs": [{"kind": "decision", "ref": "stages/04-research-decision.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/05-distill.md"}],
+      "evidence_artifact": "stages/05-distill.md",
+      "stop_conditions": ["block if no smallest coherent gap-closure unit can be selected"]
+    },
+    {
+      "step_id": "s06",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": ["sequence", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "stages/05-distill.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/06-invoke-design.md"}],
+      "evidence_artifact": "stages/06-invoke-design.md",
+      "stop_conditions": ["block if design claims canonical Craft promotion"]
+    },
+    {
+      "step_id": "s07",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "stages/06-invoke-design.md"}],
+      "outputs": [{"kind": "ledger", "ref": "stages/07-interrogation-design-review.md"}],
+      "evidence_artifact": "stages/07-interrogation-design-review.md",
+      "stop_conditions": ["block if gap closure route overclaims authority"]
+    },
+    {
+      "step_id": "s08",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "scu_swu_reduction"],
+      "inputs": [{"kind": "ledger", "ref": "stages/07-interrogation-design-review.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/08-distill-repair.md"}],
+      "evidence_artifact": "stages/08-distill-repair.md",
+      "stop_conditions": ["block if selected unit cannot recompose into Craft architecture planning"]
+    },
+    {
+      "step_id": "s09",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": ["sequence", "route_menu", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "stages/08-distill-repair.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/09-invoke-plan.md"}],
+      "evidence_artifact": "stages/09-invoke-plan.md",
+      "stop_conditions": ["block if plan executes tasks instead of producing a non-executed route"]
+    },
+    {
+      "step_id": "s10",
+      "name": "Final Interrogation and Synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": ["validation_loop", "residue_ledger", "data_quality_completeness"],
+      "inputs": [{"kind": "artifact", "ref": "stages/09-invoke-plan.md"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": ["block if synthesis does not name closed, blocking, architecture-owned, and deferred gaps"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-owner-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "Refine must not promote Craft, sigils, spells, registry entries, commands, runtime adapters, glossary terms, or ontology terms.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json validates against dispatch.schema.json and technique governance.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g03-runtime-handoff",
+      "kind": "validation",
+      "owner": "runtime-handoff",
+      "condition": "Runtime handoff is available or exact unavailable adapter/command fields are recorded.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g04-gap-classification",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "Every open Craft gap is classified as closed, pre-architecture blocker, architecture-owned input, or deferred side thread.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch_validated",
+      "stage_resolution_attempted",
+      "runtime_handoff_blocked",
+      "gap_classification_recorded",
+      "refine_synthesis_recorded"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "craft-candidate-boundary",
+        "kind": "state_write",
+        "from_owner": "refine",
+        "to_owner": "development/craft",
+        "applies_to_steps": ["s02", "s06", "s09", "s10"],
+        "contract": "Do not mutate canonical registry, runtime, command, sigil, or spell surfaces.",
+        "on_violation": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "development/craft source artifacts",
+        "owner": "Craft candidate package",
+        "write_policy": "Read as local evidence; write only refine-owned run artifacts during this pass."
+      },
+      {
+        "namespace": "development/craft/refinement-runs evidence",
+        "owner": "refine",
+        "write_policy": "Refine may write run manifest, dispatch, handoff, stage evidence, index, and result."
+      },
+      {
+        "namespace": "runtime/refine side-thread artifacts",
+        "owner": "runtime/refine thread",
+        "write_policy": "Do not modify from Craft gap closure refinement; defer to runtime strategy thread."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "development/craft validated MVP evidence",
+        "target": "canonical Craft promotion",
+        "rule": "Validated MVP evidence is an architecture input, not a promotion decision.",
+        "on_violation": "block"
+      },
+      {
+        "source": "runtime interface side-thread",
+        "target": "Craft method architecture authority",
+        "rule": "Runtime command/interface decisions must be handed off, not absorbed into Craft method architecture.",
+        "on_violation": "defer"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No lifecycle promotion without owner route.",
+    "No canonical runtime mutation from this refinement.",
+    "No glossary or ontology promotion from gap triage."
+  ]
+}

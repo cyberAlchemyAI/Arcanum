@@ -1,0 +1,602 @@
+{
+  "dispatch_id": "refine-validate-craft-20260529T164919Z",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "[$refine] so we can validate craft",
+    "objective": "Refine the next validation route for Craft so a concrete work-pack can validate Craft through local task execution and CRAFT-VALIDATION.md before promotion.",
+    "target_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/RESULT.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "Craft",
+      "SCU",
+      "SWU",
+      "validation",
+      "recomposition",
+      "route boundary",
+      "promotion deferral"
+    ],
+    "operator_sentence": "Use Refine to shape a safe route for validating Craft."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "scu_swu_reduction",
+    "residue_ledger",
+    "recomposition_proof"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine canonical ten-stage loop with local source evidence.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog",
+        "conditional_component",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Every stage records an artifact path or blocked reason; every non-first step consumes a prior artifact or decision."
+    },
+    {
+      "overlay_id": "craft_validation_loop",
+      "trigger": "Craft needs repeatable local validation before promotion.",
+      "techniques": [
+        "validation_loop",
+        "scu_swu_reduction",
+        "residue_ledger",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "S5",
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Selected validation unit must have recomposition target and promotion deferral must remain explicit."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "The immediate route-shape problem is local and command-gated; no delegated sibling agents are needed before dispatch-spec/runtime-handoff routes exist.",
+    "explanation": "Use local Refine artifacts first. If a later work-pack executes validation tasks, task-session can decide whether subagents are useful at SWU boundaries.",
+    "context": [
+      "development/craft/CRAFT-VALIDATION.md",
+      "development/craft/CRAFT-PROMOTION-READINESS.md",
+      "development/craft/task-sessions/20260529T163804Z-NEXT-TASK-BLOCK/RESULT.md"
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "receipt_requirements": []
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "handle_handoff",
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator request"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/01-context-builder.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "context-builder evidence baseline"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/01-context-builder.md",
+      "stop_conditions": [
+        "block if Craft validation artifacts are missing",
+        "block if source context contradicts promotion deferral"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Invoke Define validation route",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S1.context-baseline"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/02-invoke-define.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "invoke define validation route"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/02-invoke-define.md",
+      "stop_conditions": [
+        "block if define output promotes Craft",
+        "block if validation route lacks a target artifact"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S2.invoke-define"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/03-interrogation-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "interrogation refine-review"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/03-interrogation-review.md",
+      "stop_conditions": [
+        "block if review finds missing validation owner",
+        "flag if review finds non-blocking residue"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "owner_boundary_check",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S3.review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "no-research"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "research decision"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/RUN-MANIFEST.md",
+      "stop_conditions": [
+        "ask before external research if a named external gap appears"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Distill validation unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "scu_swu_reduction",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "S4.no-research"
+        },
+        {
+          "kind": "artifact",
+          "ref": "S3.review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/05-distill.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "distill validation unit"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/05-distill.md",
+      "stop_conditions": [
+        "block if selected unit lacks recomposition target",
+        "block if selected unit requires promotion"
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Invoke Redefine Design validation route",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "owner_boundary_check",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S5.distill"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/06-invoke-design.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "invoke design validation route"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/06-invoke-design.md",
+      "stop_conditions": [
+        "block if design claims runtime mutation",
+        "block if design omits Craft validation guide"
+      ]
+    },
+    {
+      "step_id": "S7",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S6.invoke-design"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "interrogation design review"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/07-interrogation-design-review.md",
+      "stop_conditions": [
+        "block if design does not preserve route boundaries",
+        "flag if examples need repair"
+      ]
+    },
+    {
+      "step_id": "S8",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S7.design-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/08-distill-repair.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "distill repair"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/08-distill-repair.md",
+      "stop_conditions": [
+        "block if repair creates non-local mutation",
+        "flag if repair leaves promotion residue"
+      ]
+    },
+    {
+      "step_id": "S9",
+      "name": "Invoke Plan validation work-pack",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "scu_swu_reduction",
+        "validation_loop",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S8.repair"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "invoke plan validation work-pack"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/09-invoke-plan.md",
+      "stop_conditions": [
+        "block if plan lacks executable task or SWU",
+        "block if plan promotes Craft"
+      ]
+    },
+    {
+      "step_id": "S10",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "residue_ledger",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S9.invoke-plan"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/stages/10-final-interrogation.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/refinement-runs/20260529T164919Z-validate-craft/RESULT.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "final refine synthesis"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "development/craft/refinement-runs/20260529T164919Z-validate-craft/RESULT.md",
+      "stop_conditions": [
+        "block if final synthesis recommends execution without work-pack",
+        "block if final synthesis promotes Craft"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-dispatch-schema",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json validates against dispatch.schema.yml and governance validator.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-command-resolution",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Required command-backed stages resolve through tools/arcanum.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-runtime-handoff",
+      "kind": "validation",
+      "owner": "runtime-handoff",
+      "condition": "Runtime handoff route exists before command-backed or delegated runtime execution.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "Craft",
+      "condition": "Refinement may recommend validation routes but may not promote Craft.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5-owner-boundary",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "Refine owns route synthesis; stage capabilities own their artifacts; Task Session remains a next route only.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "refine.seed.created",
+      "refine.dispatch.validated",
+      "refine.command_resolution.checked",
+      "refine.runtime_handoff.checked",
+      "refine.result.synthesized"
+    ],
+    "signal_grouping": "refine-validate-craft-20260529T164919Z"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-refine-to-stage-owners",
+        "kind": "capability_handoff",
+        "from_owner": "refine",
+        "to_owner": "invoke/interrogation/distill/context-builder",
+        "applies_to_steps": [
+          "S1",
+          "S2",
+          "S3",
+          "S5",
+          "S6",
+          "S7",
+          "S8",
+          "S9",
+          "S10"
+        ],
+        "contract": "Refine defines the route and final synthesis; stage capabilities own native artifacts.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-craft-promotion-deferral",
+        "kind": "state_write",
+        "from_owner": "refine",
+        "to_owner": "development/craft",
+        "applies_to_steps": [
+          "S2",
+          "S6",
+          "S9",
+          "S10"
+        ],
+        "contract": "The route may validate Craft locally but must not promote Craft or mutate canonical surfaces.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine owns this run; Craft owns local candidate method artifacts",
+      "execution": "task-session is only a recommended next route after refinement",
+      "validation": "CRAFT-VALIDATION.md and dispatch-spec validation govern readiness",
+      "evidence": "refine run folder and observability signals",
+      "memory": "no memory promotion from this run",
+      "promotion": "explicitly deferred"
+    },
+    "receipts": [
+      {
+        "receipt_id": "refine-stage-receipt",
+        "producer": "stage command or parent blocked-gap recorder",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "RUN-MANIFEST.md",
+          "evidence-index.json",
+          ".arcanum/observability when available"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "refine-run-evidence",
+        "owner": "refine",
+        "write_policy": "write only inside this refinement run folder"
+      },
+      {
+        "namespace": "craft-source-artifacts",
+        "owner": "Craft package",
+        "write_policy": "read during refine; mutate only through later explicit work-pack"
+      },
+      {
+        "namespace": "runtime-and-registry-surfaces",
+        "owner": "separate runtime or lifecycle owners",
+        "write_policy": "no writes from this refine run"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "local Craft validation evidence",
+        "target": "canonical Craft promotion",
+        "rule": "local validation may recommend promotion review later but cannot promote Craft",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Do not promote Craft.",
+    "Do not mutate runtime adapters or command routes.",
+    "Do not mutate registries, sigils, or spells.",
+    "Do not implement scoring, generated indexes, or role delegation automation."
+  ]
+}
