@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-05-29T13:43:49-03:00",
+  "run_id": "arcanum-hook-019e748e-1346-74c2-8417-2eb33b5bf089",
+  "session_id": "constitution-governance-artifact-metadata-validation-adapter",
+  "capability": {
+    "id": "task-session",
+    "kind": "sigil",
+    "tier": "arcana",
+    "mode": "command"
+  },
+  "mode": "task-session",
+  "request": {
+    "summary": "Execute Task Session for the Artifact Metadata Validation Adapter in Constitution Governance."
+  },
+  "execution": {
+    "status": "pass",
+    "outputs": [
+      "tools/validate-artifact-metadata.py",
+      "tools/validate-artifact-constitution.sh",
+      "arcana/constitution-governance/development/ARTIFACT-METADATA-VALIDATION-ADAPTER.md",
+      "arcana/constitution-governance/development/task-session/ARTIFACT-METADATA-VALIDATION-ADAPTER-RESULT.md"
+    ],
+    "files_changed": [
+      "tools/validate-artifact-metadata.py",
+      "tools/validate-artifact-constitution.sh",
+      "arcana/constitution-governance/development/ARTIFACT-METADATA-VALIDATION-ADAPTER.md",
+      "arcana/constitution-governance/development/task-session/ARTIFACT-METADATA-VALIDATION-ADAPTER-RESULT.md",
+      "arcana/constitution-governance/development/task-session/ARTIFACT-METADATA-VALIDATION-ADAPTER-observation.json"
+    ],
+    "validation": [
+      "python3 -m py_compile tools/validate-artifact-metadata.py",
+      "python3 tools/validate-artifact-metadata.py --self-test",
+      "bash -n tools/validate-artifact-constitution.sh",
+      "tools/validate-artifact-constitution.sh --self-test",
+      "python3 tools/validate-artifact-metadata.py --changed --advisory",
+      "tools/validate-artifact-constitution.sh",
+      "git diff --check -- tools framework arcana/constitution-governance/development"
+    ]
+  },
+  "observer": {
+    "quality_bar_status": "pass",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [
+      "Selector and validation-profile registry mapping is still unresolved, so strict metadata enforcement remains a later promotion step."
+    ],
+    "reflection_trigger": "none",
+    "recommendation": "Run one scoped capability migration before enabling global --require-metadata enforcement."
+  }
+}

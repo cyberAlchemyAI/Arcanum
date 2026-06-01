@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-05-29T08:29:04-03:00",
+  "run_id": "arcanum-hook-019e7376-6bda-7413-8806-1cfef5ee1309",
+  "session_id": "constitution-governance-legacy-schema-yml-migration",
+  "capability": {
+    "id": "task-session",
+    "kind": "sigil",
+    "tier": "arcana",
+    "mode": "command"
+  },
+  "mode": "task-session",
+  "request": {
+    "summary": "Plan with Invoke and execute Task Session migration of legacy tracked schema JSON files to canonical schema YAML."
+  },
+  "execution": {
+    "status": "pass",
+    "outputs": [
+      "arcana/constitution-governance/development/LEGACY-SCHEMA-YML-MIGRATION-PLAN.md",
+      "arcana/architecture-pattern-inventory/templates/architecture-package/pattern-library/inventory/architecture-inventory.schema.yml",
+      "formulae/dispatch-spec/dispatch.schema.yml",
+      "arcana/constitution-governance/development/task-session/LEGACY-SCHEMA-YML-MIGRATION-RESULT.md"
+    ],
+    "files_changed": [
+      "arcana/constitution-governance/development/LEGACY-SCHEMA-YML-MIGRATION-PLAN.md",
+      "arcana/architecture-pattern-inventory/templates/architecture-package/pattern-library/inventory/architecture-inventory.schema.yml",
+      "arcana/architecture-pattern-inventory/templates/architecture-package/pattern-library/inventory/architecture-inventory.schema.json",
+      "formulae/dispatch-spec/dispatch.schema.yml",
+      "formulae/dispatch-spec/dispatch.schema.json",
+      "formulae/dispatch-spec/scripts/validate-dispatch.py",
+      "arcana/constitution-governance/development/task-session/LEGACY-SCHEMA-YML-MIGRATION-CONTEXT.md",
+      "arcana/constitution-governance/development/task-session/LEGACY-SCHEMA-YML-MIGRATION-RESULT.md"
+    ],
+    "validation": [
+      "Draft202012Validator.check_schema for both migrated YAML schemas",
+      "python3 -m py_compile formulae/dispatch-spec/scripts/validate-dispatch.py",
+      "formulae/dispatch-spec/development/run-validation-fixtures.sh",
+      "tools/validate-artifact-constitution.sh --self-test",
+      "tools/validate-artifact-constitution.sh"
+    ]
+  },
+  "observer": {
+    "quality_bar_status": "pass",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [],
+    "reflection_trigger": "none",
+    "recommendation": "Keep historical run evidence references unchanged unless a separate archive normalization task is requested."
+  }
+}

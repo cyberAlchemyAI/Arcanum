@@ -33,6 +33,10 @@ They are used when a single bounded transformation is not enough. Arcana coordin
 
 It belongs here because it coordinates repository-wide discovery, optional mapper subagents, evidence synthesis, package generation, and maintenance policy.
 
+[constitution-governance](constitution-governance/) creates, selects, composes, validates, splits, and promotes modular constitutions.
+
+It belongs here because it coordinates long-lived rule authority across artifact structure, form, context selection, validator integration, conflict handling, and promotion decisions.
+
 [definitions-governance](definitions-governance/) maintains canonical definitions, lookup indexes, explanatory intuition, and downstream drift checks.
 
 It belongs here because it coordinates semantic authority and traceability across many artifacts over time.
@@ -57,7 +61,7 @@ It belongs here because it coordinates long-lived ontology governance across pro
 
 It belongs here because it coordinates uncertainty exploration, human residue decisions, spec implications, and resilience gates across multiple stress dimensions.
 
-[refine](refine/) creates a confirmed refinement seed with research offer, budget preset, and Codex Goal default routing before Task Session execution.
+[refine](refine/) designs a refinement seed, runs the canonical discovery/design loop through Codex Goal and deterministic Arcanum command dispatch, and returns final synthesis with recommended next routes.
 
 It belongs here because it coordinates target understanding, human confirmation, research choice, runtime gating, and lifecycle routing before a refinement run mutates artifacts.
 

@@ -4,7 +4,7 @@ This folder stores structured inventory data and schemas for the architecture pa
 
 ## Files
 
-- `architecture-inventory.schema.json` defines the portable inventory shape.
+- `architecture-inventory.schema.yml` defines the portable inventory shape.
 - Repository-specific inventory files may be added here when useful.
 
 ## Inventory Contents

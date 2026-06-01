@@ -96,6 +96,14 @@ Examples:
    HTML or structured markup that survives export, screenshot, and browser
    rendering.
 
+## Related Constitutions
+
+- [Schema Constitution](SCHEMA-CONSTITUTION.md) governs canonical
+  machine-readable schema artifact format.
+- [Artifact Metadata Constitution](ARTIFACT-METADATA-CONSTITUTION.md) governs
+  artifact intent/type tags used to select constitutions and validation
+  profiles.
+
 ## Validation Contract
 
 Run:
@@ -104,7 +112,20 @@ Run:
 tools/validate-artifact-constitution.sh
 ```
 
+Fixture self-test:
+
+```bash
+tools/validate-artifact-constitution.sh --self-test
+```
+
 The validator checks the current Git working tree for new local/generated
 artifacts that are not ignored, plus tracked local runtime state that should
-never be versioned. Hook integrations run the same validator after file-writing
-tools so violations are caught close to creation time.
+never be versioned. It also validates schema constitution format boundaries for
+new machine-readable schemas and schema-shaped Markdown under template/source
+paths. Hook integrations run the same validator after file-writing tools so
+violations are caught close to creation time.
+
+Current limitation: validation still relies heavily on path and filename
+heuristics. Metadata-driven constitution selection is governed by the Artifact
+Metadata Constitution and remains candidate until its validation adapter is
+implemented.
