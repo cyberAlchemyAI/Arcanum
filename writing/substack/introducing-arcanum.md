@@ -97,7 +97,7 @@ It moves through a lifecycle:
 1. Define the intent and local vocabulary.
 2. Design the behavior, boundaries, interfaces, and failure modes.
 3. Plan the implementation path.
-4. Build the smallest responsible unit.
+4. Build the smallest coherent unit.
 5. Validate with examples and expected outputs.
 6. Observe real usage.
 7. Reflect when evidence accumulates.
@@ -176,13 +176,13 @@ If a capability claims it can define a sigil, produce an implementation plan, va
 
 Not in theory. In a run. With evidence.
 
-## The Smallest Responsible Unit
+## The Smallest Coherent Unit
 
-A recurring theme in Arcanum is the smallest responsible unit.
+A recurring theme in Arcanum is the smallest coherent unit.
 
 This is not the smallest possible unit. Tiny fragments can be meaningless. It is the smallest unit that still has a purpose, boundary, input, output, and recomposition path.
 
-For example, when designing a new sigil, the smallest responsible unit might be a README and SKILL contract that can be run manually before any runtime adapter or registry promotion exists.
+For example, when designing a new sigil, the smallest coherent unit might be a README and SKILL contract that can be run manually before any runtime adapter or registry promotion exists.
 
 That unit is small enough to validate, but complete enough to mean something.
 

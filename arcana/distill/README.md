@@ -201,7 +201,8 @@ Current development artifacts:
 Runtime and observability artifacts:
 
 - [templates/usage-telemetry.md](templates/usage-telemetry.md)
-- `.codex/commands/distill.md`
+- generated native runtime packages such as `distill/SKILL.md` and `arcanum-distill/SKILL.md`
+- legacy `.codex/commands/distill.md` only when explicit command compatibility is installed
 
 ## Maintenance
 

@@ -162,7 +162,7 @@ A good run leaves something reviewable behind: a spec, design, glossary, decisio
 
 The work should be easy for humans and agents to understand, navigate, resume, and act on. Clarity is not decoration; it is how the system avoids misuse, duplicated reasoning, hidden state, and stalled handoffs.
 
-### Smallest Responsible Unit
+### Smallest Coherent Unit
 
 Find the smallest unit that still has meaning, responsibility, inputs, outputs, and recomposition in the current context.
 
