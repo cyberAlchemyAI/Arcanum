@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User / Translate / Guide Overview</title>
+  <style>
+    :root {
+      --ink: #1d2428;
+      --muted: #5d686e;
+      --line: #d8ddd8;
+      --paper: #fcfbf7;
+      --band: #eef4f0;
+      --user: #2f7d69;
+      --translate: #9d6b22;
+      --guide: #4e6f9f;
+      --risk: #9b3f32;
+      --soft: #f5efe2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #ecebe6;
+      color: var(--ink);
+      font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 24px auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 50px rgba(33, 38, 40, 0.12);
+    }
+
+    header {
+      padding: 34px 42px 24px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(47,125,105,0.13), rgba(157,107,34,0.12) 48%, rgba(78,111,159,0.13));
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 36px;
+      line-height: 1.05;
+      font-weight: 760;
+    }
+
+    .subtitle {
+      max-width: 830px;
+      margin: 0;
+      font-size: 16px;
+      color: #344044;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      border: 1px solid rgba(29,36,40,0.18);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.58);
+      color: #333c40;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    section {
+      padding: 24px 42px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section:last-child { border-bottom: 0; }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p { margin: 0 0 10px; }
+
+    .lead-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .statement {
+      font-size: 20px;
+      line-height: 1.32;
+      font-weight: 680;
+    }
+
+    .why-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .why-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-top: 3px;
+      background: var(--user);
+    }
+
+    .dot.translate { background: var(--translate); }
+    .dot.guide { background: var(--guide); }
+
+    .system-map {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      position: relative;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--user);
+      background: #fffdf8;
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 154px;
+    }
+
+    .node.translate { border-top-color: var(--translate); }
+    .node.guide { border-top-color: var(--guide); }
+
+    .node strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .node ul, .compact-list {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 118px;
+      padding: 12px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #1f2d32;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 12px;
+    }
+
+    th {
+      background: var(--band);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #49545a;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--user);
+      border-radius: 8px;
+      padding: 11px;
+      background: #fff;
+      min-height: 94px;
+    }
+
+    .status:nth-child(2) { border-left-color: var(--translate); }
+    .status:nth-child(3) { border-left-color: var(--guide); }
+    .status:nth-child(4) { border-left-color: var(--risk); }
+
+    .status b {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .callout {
+      border: 1px solid #dfd0ad;
+      border-left: 5px solid var(--translate);
+      background: var(--soft);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .print-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    a { color: #285f84; text-decoration: none; }
+
+    @media (max-width: 880px) {
+      main { width: 100%; margin: 0; border: 0; }
+      header, section { padding: 22px; }
+      .lead-grid, .two-col, .system-map, .status-strip { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      h1 { font-size: 30px; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 11mm; }
+
+      body { background: white; font-size: 11px; }
+      main {
+        width: 100%;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+      }
+      header {
+        padding: 0 0 12px;
+        background: white;
+      }
+      section {
+        padding: 12px 0;
+        break-inside: avoid;
+      }
+      h1 { font-size: 28px; }
+      h2 { font-size: 15px; margin-bottom: 8px; }
+      .subtitle { font-size: 12px; }
+      .tag { background: white; padding: 3px 7px; }
+      .statement { font-size: 15px; }
+      .flow { grid-template-columns: repeat(6, 1fr); gap: 5px; }
+      .step { min-height: 94px; padding: 8px; }
+      .step::before { width: 18px; height: 18px; font-size: 10px; margin-bottom: 5px; }
+      .node { min-height: 120px; padding: 10px; }
+      th, td { padding: 6px; font-size: 10px; }
+      .print-note { display: none; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>User / Translate / Guide</h1>
+      <p class="subtitle">A compact view of the learning-support framework: what we are trying to achieve, what has been built so far, and the next steps toward a usable Guide system.</p>
+      <div class="meta" aria-label="Document facts">
+        <span class="tag">5-minute brief</span>
+        <span class="tag">PDF-ready</span>
+        <span class="tag">Status: candidate architecture</span>
+        <span class="tag">First spell slice: guide-architecture</span>
+      </div>
+    </header>
+
+    <section>
+      <div class="lead-grid">
+        <div>
+          <h2>The Goal</h2>
+          <p class="statement">Help a person understand complex systems by adapting explanations to what they already know, while keeping memory, translation, and guidance as separate responsibilities.</p>
+        </div>
+        <div>
+          <h2>Why It Matters</h2>
+          <ul class="why-list">
+            <li><span class="dot"></span><span><b>User</b> remembers preferences, known domains, concept states, and learning evidence.</span></li>
+            <li><span class="dot translate"></span><span><b>Translate</b> turns concepts into the user's vocabulary without distorting the target meaning.</span></li>
+            <li><span class="dot guide"></span><span><b>Guide</b> orchestrates the route: inspect, translate, explain, validate, and propose ledger updates.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The System In One Picture</h2>
+      <div class="system-map" role="img" aria-label="Three-part system map: User to Translate to Guide">
+        <article class="node">
+          <strong>User</strong>
+          <p>The protected learning ledger.</p>
+          <ul>
+            <li>domain anchors</li>
+            <li>vocabulary preferences</li>
+            <li>concept states</li>
+            <li>local glossary</li>
+            <li>receipts and residue</li>
+          </ul>
+        </article>
+        <article class="node translate">
+          <strong>Translate</strong>
+          <p>The meaning bridge.</p>
+          <ul>
+            <li>source and target domains</li>
+            <li>term maps</li>
+            <li>analogy limits</li>
+            <li>target definition</li>
+            <li>translation receipt</li>
+          </ul>
+        </article>
+        <article class="node guide">
+          <strong>Guide</strong>
+          <p>The understanding route.</p>
+          <ul>
+            <li>frames the target</li>
+            <li>inspects structure</li>
+            <li>calls Translate</li>
+            <li>assembles explanation</li>
+            <li>asks for active evidence</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>How A Guide Run Works</h2>
+      <div class="flow" aria-label="Guide architecture workflow">
+        <div class="step"><b>Frame</b><span>What target are we trying to understand?</span></div>
+        <div class="step"><b>Inspect</b><span>Find boundaries, dependencies, data, behavior, and failure modes.</span></div>
+        <div class="step"><b>Translate</b><span>Use the user's familiar domain, but keep the target definition intact.</span></div>
+        <div class="step"><b>Explain</b><span>Concrete frame, structure map, limits, and abstraction.</span></div>
+        <div class="step"><b>Validate</b><span>Ask for teach-back, transfer, or contrast.</span></div>
+        <div class="step"><b>Receipt</b><span>Propose User-ledger updates; do not write memory directly.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div>
+          <h2>Where We Are Now</h2>
+          <div class="status-strip">
+            <div class="status"><b>User</b>Schema, fixture, mastery rules, visibility policy, and promotion boundary exist.</div>
+            <div class="status"><b>Translate</b>Schema, fixtures, receipt schema, and Guide-call contract exist.</div>
+            <div class="status"><b>Guide</b>Route schema, static route fixture, Translate integration, and dispatch governance exist.</div>
+            <div class="status"><b>Spell</b>`guide-architecture` is designed and validated with a flag because User/Translate are still candidates.</div>
+          </div>
+        </div>
+        <div>
+          <h2>Current Constraint</h2>
+          <div class="callout">
+            <p><b>We are not ready to call this promoted.</b></p>
+            <p>User and Translate are still local candidate packages. The `guide-architecture` spell is structurally valid, but reusable behavior needs fixture runs and dependency hardening.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Boundaries</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Boundary</th>
+            <th>Rule</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User vs Guide</td>
+            <td>Guide proposes updates; User owns memory writes.</td>
+            <td>Prevents hidden profile mutation.</td>
+          </tr>
+          <tr>
+            <td>Translate vs Guide</td>
+            <td>Guide calls Translate; it does not contain translation logic.</td>
+            <td>Keeps Guide general and Translate reusable.</td>
+          </tr>
+          <tr>
+            <td>Analogy vs Truth</td>
+            <td>Every bridge must include where it works and where it breaks.</td>
+            <td>Prevents metaphors from replacing the real concept.</td>
+          </tr>
+          <tr>
+            <td>Clarity vs Mastery</td>
+            <td>"I understand" means clarified; mastery needs teach-back, retrieval, transfer, or contrast.</td>
+            <td>Keeps the User glossary evidence-backed.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Next Steps</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Owner</th>
+            <th>Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Run the first `guide-architecture` validation fixture.</td>
+            <td>Experiment Harness</td>
+            <td>Prove the happy path with an architecture boundary example.</td>
+          </tr>
+          <tr>
+            <td>Harden User and Translate from candidate packages into lifecycle-ready sigils.</td>
+            <td>Sigil Development</td>
+            <td>Reduce the current validation flag.</td>
+          </tr>
+          <tr>
+            <td>Add blocked/flagged fixtures.</td>
+            <td>Spellcraft + Experiment Harness</td>
+            <td>Test missing target, unsafe analogy, and missing context behavior.</td>
+          </tr>
+          <tr>
+            <td>Generalize from `guide-architecture` to `guide`.</td>
+            <td>Spellcraft</td>
+            <td>Move from one architecture slice to broader guided understanding.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="print-note">To export: open this HTML file in a browser, choose Print, then Save as PDF. The page includes A4 print styling.</p>
+    </section>
+  </main>
+</body>
+</html>
