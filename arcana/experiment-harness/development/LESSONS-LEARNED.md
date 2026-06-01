@@ -46,6 +46,14 @@
 - New artifacts should start with loop-ready structure so validation habits are consistent from creation.
 - External project support depends on runtime adapters exposing the loop command, not only the old `next/run/validate` commands.
 
+## Capture Protocol Lesson: Refine x-ray 2026-05-24
+
+- `--output-last-message` is not a safe evidence path by itself. A nested Codex run can correctly write the artifact body to `development/example-outputs/` and then return a final "Done" summary; if the harness writes the last message directly to the output path, it overwrites the artifact with a save-summary.
+- The runner should capture the last message to an attempt sidecar under `development/example-runs/`, then prefer a valid artifact body already written to `development/example-outputs/`.
+- The sidecar last message should be promoted into the output path only when it is itself a valid artifact body with a recognizable result heading.
+- Reports should eventually expose `CAPTURE=artifact-written|last-message|block` so observers can distinguish successful artifact-file preservation from ordinary final-message capture.
+- Regime-specific validators are still necessary: preserving a valid artifact body only proves capture integrity; artifact-local gates must still decide whether the content proves the intended workflow.
+
 ## Phase Gate Run 20260518T083859Z
 
 - **Phase 0:** The deterministic baseline can stay green while loop-first features are added behind separate gates.

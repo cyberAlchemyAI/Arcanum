@@ -79,9 +79,13 @@ When a runtime adapter exists, provide a bounded example runner that:
 - skips existing outputs unless `RERUN=1` or an equivalent explicit override is set,
 - validates that saved output is the actual artifact body, not a summary of having saved it.
 
-## Codex CLI Runner Standard
+## Native Runner Standard
 
-When Codex is the runtime, the bounded runner should use `codex exec`.
+When the active agent surface supports native skills or subagents, the bounded runner should use that surface first and return a receipt with artifacts, validation, observer status, blockers, and handoff notes.
+
+## Legacy Codex CLI Runner Standard
+
+When Codex CLI is explicitly selected as a legacy adapter test, the bounded runner may use `codex exec`.
 
 Recommended command shape:
 

@@ -57,14 +57,14 @@ Canonical source: https://github.com/cyberAlchemyAI/arcanum/blob/main/arcana/exp
 
 Experiment Harness is an Arcana sigil for giving reusable spells and sigils a repeatable development test loop.
 
-It creates an artifact-local `development/` harness, selects realistic prompts, runs bounded Codex CLI examples, saves the real user-facing output, validates expected structure, checks the artifact's Quality Bar and Anti-Patterns, and records timestamped reports.
+It creates an artifact-local `development/` harness, selects realistic prompts, runs bounded native skill/subagent examples or explicit legacy CLI adapter examples, saves the real user-facing output, validates expected structure, checks the artifact's Quality Bar and Anti-Patterns, and records timestamped reports.
 
 ## Use When
 
 - a new spell or sigil needs promotion evidence,
 - a reusable artifact needs low, medium, and complex examples,
 - a maintainer wants to run the next missing example output,
-- Codex CLI output should be captured as real validation evidence,
+- native skill/subagent or explicit legacy adapter output should be captured as real validation evidence,
 - an external repository wants the same testing pattern as Arcanum.
 
 ## Do Not Use When
@@ -174,7 +174,7 @@ Canonical source: https://github.com/cyberAlchemyAI/arcanum/blob/main/arcana/exp
 ````markdown
 ---
 name: experiment-harness
-description: "Use when initializing, running, looping, validating, reporting, or observing repeatable profile-aware development experiments for Arcanum spells and sigils, especially through Codex CLI."
+description: "Use when initializing, running, looping, validating, reporting, or observing repeatable profile-aware development experiments for Arcanum spells and sigils."
 argument-hint: "<init|next|run|loop|validate|report|observe> <artifact-path> [regime-id|example-id|report-path|--type spell|sigil|--profile <id>|--all]"
 tier: arcana
 domain: spell-sigil-validation
@@ -198,7 +198,7 @@ Use this sigil for:
 
 - initializing a development harness for a spell or sigil,
 - selecting the next missing example prompt,
-- running one bounded Codex CLI example,
+- running one bounded native skill/subagent example or explicit legacy adapter example,
 - running a live stability loop for one regime,
 - validating fixtures, expected outputs, live outputs, and reports,
 - writing a run report,
@@ -215,16 +215,16 @@ Expected inputs:
 - optional profile for init: `generic-spell`, `spellcraft`, `generic-sigil`, or `sigil-development`,
 - optional example ID or `--all`,
 - optional `RERUN=1` when overwriting existing example outputs is intentional,
-- optional `CODEX_BIN` when Codex CLI is not on `PATH`.
+- optional legacy runtime binary such as `CODEX_BIN` when explicitly testing a CLI adapter.
 </inputs>
 
 <process>
 1. Resolve the artifact path and confirm the artifact exists and has a readable `SKILL.md` or `README.md` contract.
 2. For `init`, infer a generic profile from `--type` unless `--profile` is explicit, then create `development/` directories, `EXPERIMENT-PROFILE.md`, profile prompts, regimes, fixtures, and starter validation files without overwriting existing files.
 3. For `next`, select the first prompt in `development/example-prompts/` without a matching `development/example-outputs/<task-id>.output.md`.
-4. For `run`, execute exactly one selected prompt through Codex CLI unless `--all` is explicitly provided.
+4. For `run`, execute exactly one selected prompt through the active native skill/subagent surface unless `--all` is explicitly provided; use CLI runners only for explicit legacy adapter tests.
 5. For `loop`, execute the selected regime until it reaches the required pass streak or max attempts.
-6. Save Codex's final user-facing message to generated evidence paths and raw logs to the attempt bundle.
+6. Save the final user-facing message to generated evidence paths and raw logs to the attempt bundle.
 7. Reject empty outputs and self-referential save summaries such as `Saved the output to ...`.
 8. For `validate`, check profile metadata, profile prompt/regime drift, required harness files, fixture pairs, example outputs, Quality Bar evidence, Anti-Pattern hits, and latest report shape.
 9. For `report`, write a timestamped report under `development/runs/`.
@@ -271,8 +271,8 @@ See `development/ARCHITECTURE.md` and `development/IMPLEMENTATION-LAYERING.md`.
 This sigil owns testing mechanics only. Artifact-specific meaning stays with the target spell or sigil. If the output contract is wrong, route that change through `spellcraft` or `sigil-development`.
 </artifact-boundary>
 
-<codex-cli-contract>
-Codex example execution uses this command shape:
+<runtime-runner-contract>
+Native example execution uses the active skill/subagent surface first. Legacy Codex CLI example execution is explicit adapter evidence only and uses this command shape:
 
 ```bash
 codex exec \
@@ -282,8 +282,8 @@ codex exec \
   "$(cat <artifact-folder>/development/example-prompts/<task-id>.md)"
 ```
 
-Use `CODEX_BIN` when provided. Otherwise discover `codex` from `PATH` or known local extension paths.
-</codex-cli-contract>
+Use `CODEX_BIN` when provided for a legacy adapter run. Otherwise discover `codex` from `PATH` or known local extension paths.
+</runtime-runner-contract>
 
 <quality-bar>
 A successful execution must:

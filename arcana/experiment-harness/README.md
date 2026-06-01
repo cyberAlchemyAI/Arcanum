@@ -2,14 +2,14 @@
 
 Experiment Harness is an Arcana sigil for giving reusable spells and sigils a repeatable development test loop.
 
-It creates an artifact-local `development/` harness, selects realistic prompts, runs bounded Codex CLI examples, saves the real user-facing output, validates expected structure, checks the artifact's Quality Bar and Anti-Patterns, and records timestamped reports.
+It creates an artifact-local `development/` harness, selects realistic prompts, runs bounded native skill/subagent examples or explicit legacy runtime examples, saves the real user-facing output, validates expected structure, checks the artifact's Quality Bar and Anti-Patterns, and records timestamped reports.
 
 ## Use When
 
 - a new spell or sigil needs promotion evidence,
 - a reusable artifact needs low, medium, and complex examples,
 - a maintainer wants to run the next missing example output,
-- Codex CLI output should be captured as real validation evidence,
+- native skill/subagent output or explicit legacy runtime output should be captured as real validation evidence,
 - an external repository wants the same testing pattern as Arcanum.
 
 ## Do Not Use When
@@ -24,7 +24,7 @@ It creates an artifact-local `development/` harness, selects realistic prompts, 
 ```bash
 arcanum/arcana/experiment-harness/scripts/init-harness.sh <artifact-path> --type spell|sigil [--profile <profile-id>]
 arcanum/arcana/experiment-harness/scripts/select-prompt.sh <artifact-path> next
-arcanum/arcana/experiment-harness/scripts/run-with-codex.sh <artifact-path> <example-id|next|--all>
+arcanum/arcana/experiment-harness/scripts/run-with-codex.sh <artifact-path> <example-id|next|--all> # legacy Codex CLI adapter
 arcanum/arcana/experiment-harness/scripts/loop-harness.sh <artifact-path> <regime-id>
 arcanum/arcana/experiment-harness/scripts/validate-harness.sh <artifact-path>
 arcanum/arcana/experiment-harness/scripts/report-harness.sh <artifact-path>
@@ -39,7 +39,7 @@ Codex discovers this capability as a repo skill when the folder is exposed at:
 
 Invoke it explicitly as `$experiment-harness`, or let Codex select it implicitly when the request matches the skill description. Older `.codex/commands/experiment-*` files are compatibility adapters, not the canonical skill surface.
 
-`loop-harness.sh` is the live Codex stability loop. It uses regime definitions, repeated attempts, observability, robot-talks improvement reasoning, and rollback on regression. See [development/ARCHITECTURE.md](development/ARCHITECTURE.md).
+`loop-harness.sh` is the live stability loop. It uses regime definitions, repeated attempts, observability, improvement reasoning, and rollback on regression. See [development/ARCHITECTURE.md](development/ARCHITECTURE.md).
 
 ## Experiment Profiles
 
@@ -63,7 +63,7 @@ PROFILE_VALIDATION=pass|flag|block
 
 The harness closes the development cycle with observability:
 
-1. `run-with-codex.sh` captures real runtime output.
+1. Native skill/subagent execution is preferred for real runtime output. `run-with-codex.sh` remains a legacy Codex CLI adapter: it stores Codex's `--output-last-message` in `development/example-runs/` first, then preserves a valid artifact body written to `development/example-outputs/` instead of letting a final "Done" summary overwrite it.
 2. `validate-harness.sh` checks fixtures, output shape, and `SKILL.md` `<quality-bar>` / `<anti-patterns>` evidence.
 3. `report-harness.sh` writes a timestamped report.
 4. `observe-harness.sh` appends one signal-observer-compatible event to `.arcanum/observability/signals/sigil-invocations.jsonl` when the repository observability package exists.
@@ -79,7 +79,7 @@ The reusable check step reads the target artifact's `SKILL.md` when present:
 
 - `<quality-bar>` criteria are treated as acceptance evidence and map to `pass`, `partial`, `fail`, or `not_checked`.
 - `<anti-patterns>` criteria are treated as rejection evidence and surface as `anti_pattern_hits`.
-- Empty outputs, save-summary outputs, unresolved placeholders, and contradictory pass-with-blocker language are flagged or blocked.
+- Empty outputs, save-summary outputs, unresolved placeholders, contradictory pass-with-blocker language, and last-message summaries that replace artifact bodies are flagged or blocked.
 - Findings are written as machine-readable report lines so `observe-harness.sh` can emit `quality_bar_status`, `anti_pattern_hits`, and `workflow_gaps`.
 
 ## Artifact Layout

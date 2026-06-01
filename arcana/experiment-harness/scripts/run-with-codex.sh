@@ -65,7 +65,7 @@ validate_output() {
 
 run_one() {
 	local task_id="$1"
-	local selector_output prompt_rel output_rel prompt_abs output_abs run_id run_log
+	local selector_output prompt_rel output_rel prompt_abs output_abs run_id run_log last_message_abs
 
 	selector_output="$("$SELECTOR" "$artifact_abs" "$task_id")"
 	if [[ "$selector_output" == *'TASK_ID=none'* ]]; then
@@ -80,11 +80,15 @@ run_one() {
 	output_abs="$repo_root/$output_rel"
 	run_id="$(date -u +%Y%m%dT%H%M%SZ)-$task_id"
 	run_log="$run_dir/$run_id.log"
+	last_message_abs="$run_dir/$run_id.last-message.md"
 
 	if [[ -f "$output_abs" && "${RERUN:-0}" != "1" ]]; then
 		printf 'SKIP: %s already has output %s\n' "$task_id" "$output_rel"
 		printf 'Set RERUN=1 to overwrite.\n'
 		return 0
+	fi
+	if [[ -f "$output_abs" && "${RERUN:-0}" == "1" ]]; then
+		mv "$output_abs" "$run_dir/$run_id.previous-output.md"
 	fi
 
 	printf 'RUN: %s\n' "$task_id"
@@ -94,7 +98,7 @@ run_one() {
 	if ! "$codex_bin" exec \
 		-C "$repo_root" \
 		--sandbox workspace-write \
-		--output-last-message "$output_abs" \
+		--output-last-message "$last_message_abs" \
 		"$(cat "$prompt_abs")" \
 		> "$run_log" 2>&1; then
 		printf 'FAIL: %s\n' "$task_id" >&2
@@ -102,7 +106,18 @@ run_one() {
 		return 1
 	fi
 
-	validate_output "$output_abs"
+	if validate_output "$output_abs"; then
+		printf 'CAPTURE: artifact-written\n'
+	elif validate_output "$last_message_abs"; then
+		cp "$last_message_abs" "$output_abs"
+		printf 'CAPTURE: last-message\n'
+	else
+		printf 'ERROR: neither artifact output nor last message contained a valid artifact result body\n' >&2
+		printf 'OUTPUT: %s\n' "$output_rel" >&2
+		printf 'LAST_MESSAGE: %s\n' "${last_message_abs#$repo_root/}" >&2
+		return 1
+	fi
+
 	printf 'DONE: %s\n' "$task_id"
 	printf 'LOG: %s\n' "${run_log#$repo_root/}"
 }
