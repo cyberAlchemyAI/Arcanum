@@ -1,0 +1,288 @@
+{
+  "dispatch_id": "arcanum-tandem-research-20260528",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Create a subagent strategy for deep research comparing whole Arcanum and frumu-ai/tandem, including how they could interact and what approaches are complementary or divergent.",
+    "objective": "Plan a governed multi-agent research investigation comparing the whole Arcanum repository with frumu-ai/tandem, focused on system identity, capability/workflow models, runtime enforcement, memory/evidence, governance, and integration architecture.",
+    "target_artifact": "formulae/dispatch-spec/development/TANDEM-RESEARCH-SUBAGENT-STRATEGY.md",
+    "arcanum_vocabulary": [
+      "CyberAlchemy Method",
+      "sigil",
+      "spell",
+      "Formulae",
+      "Transmutations",
+      "Arcana",
+      "dispatch-spec",
+      "task-session",
+      "context-builder",
+      "inventory",
+      "ontology-vault",
+      "experiment-harness",
+      "observability",
+      "runtime adapter",
+      "promotion guardrail",
+      "residue",
+      "handoff"
+    ],
+    "operator_sentence": "Use task-session to repair the research scope, then use robot-talks as a whole-system fanout over Arcanum and Tandem before synthesizing integration options."
+  },
+  "mode": "research",
+  "route_menu": {
+    "context_hint": "The strategy chooses whole-system concern fanout because the prior dispatch-spec-centered route was too narrow.",
+    "items": [
+      {
+        "id": "whole-system-concern-fanout",
+        "label": "Whole-system concern fanout",
+        "description": "Run independent agents over identity/authority, capability/workflow models, runtime enforcement, memory/evidence, governance, and integration architecture.",
+        "capability_ref": "robot-talks",
+        "pattern": "fanout"
+      },
+      {
+        "id": "capability-runtime-crosswalk",
+        "label": "Capability/runtime crosswalk",
+        "description": "Start with a field and concept crosswalk between Arcanum artifacts and Tandem runtime/workflow primitives.",
+        "capability_ref": "context-builder",
+        "pattern": "sequential"
+      },
+      {
+        "id": "toy-integration-first",
+        "label": "Toy integration first",
+        "description": "Design a tiny proof workflow after the conceptual comparison is evidence-backed.",
+        "capability_ref": "experiment-harness",
+        "pattern": "toy_game"
+      }
+    ],
+    "selected_item_id": "whole-system-concern-fanout"
+  },
+  "steps": [
+    {
+      "step_id": "recover-context",
+      "name": "Recover Arcanum and Tandem source context",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-correction"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum-repository-root"
+        },
+        {
+          "kind": "external_context",
+          "ref": "https://github.com/frumu-ai/tandem"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "whole-system-source-orientation-frame"
+        },
+        {
+          "kind": "route_menu",
+          "ref": "whole-system-research-route-menu"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if Tandem cannot be inspected locally or remotely.",
+        "Flag if Arcanum evidence is limited to a single Formulae package."
+      ]
+    },
+    {
+      "step_id": "parallel-investigation",
+      "name": "Run whole-system concern research subagents",
+      "capability_ref": "robot-talks",
+      "pattern": "fanout",
+      "parallel": true,
+      "roles": [
+        "A1 system-identity-and-authority",
+        "A2 capability-and-workflow-model",
+        "A3 runtime-and-enforcement",
+        "A4 memory-evidence-and-observability",
+        "A5 governance-compliance-and-lifecycle",
+        "A6 integration-architecture"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "whole-system-source-orientation-frame"
+        },
+        {
+          "kind": "frame",
+          "ref": "whole-system-research-route-menu"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "whole-system-agent-findings-ledger"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "whole-system-parallel-investigation-completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Each agent cites evidence from both repositories.",
+        "Each agent distinguishes whole-Arcanum findings from dispatch-spec-specific findings.",
+        "Each agent separates complementary, overlapping, divergent, and anti-candidate integration claims."
+      ],
+      "evidence_artifact": "formulae/dispatch-spec/development/TANDEM-ARCANUM-CROSSWALK.md",
+      "stop_conditions": [
+        "Block synthesis if any critical claim lacks repository evidence.",
+        "Defer implementation recommendations until the synthesis gate."
+      ]
+    },
+    {
+      "step_id": "synthesize-tensions",
+      "name": "Synthesize complements, overlaps, and divergences",
+      "capability_ref": "distill",
+      "pattern": "synthesis",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "whole-system-agent-findings-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/development/TANDEM-INTERACTION-TENSIONS.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "whole-system-interaction-synthesis-frame"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Name at least three complements.",
+        "Name at least three divergences.",
+        "Name at least two overlaps that require authority decisions.",
+        "Identify runtime-boundary and lifecycle-boundary risks."
+      ]
+    },
+    {
+      "step_id": "rank-integration-options",
+      "name": "Rank possible whole-system interaction shapes",
+      "capability_ref": "decision-gate",
+      "pattern": "decision",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "whole-system-interaction-synthesis-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "first-whole-system-proof-choice"
+        },
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/development/TANDEM-INTEGRATION-OPTIONS.md"
+        }
+      ],
+      "join_policy": "human_gate",
+      "convergence_criteria": [
+        "Choose crosswalk, toy workflow, runtime adapter spike, artifact-contract bridge, memory/evidence bridge, or governance decision record.",
+        "Record rejected paths and why they are premature."
+      ],
+      "stop_conditions": [
+        "Ask the operator before code implementation.",
+        "Block any route that collapses Arcanum lifecycle authority into Tandem runtime policy without an explicit bridge contract.",
+        "Block any route that treats Tandem runtime evidence as canonical Arcanum knowledge without Arcanum promotion review."
+      ]
+    },
+    {
+      "step_id": "handoff-next-route",
+      "name": "Prepare next-route handoff",
+      "capability_ref": "invoke",
+      "pattern": "handoff",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "first-whole-system-proof-choice"
+        },
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/development/TANDEM-INTEGRATION-OPTIONS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "arcanum-tandem-research-next-route-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "whole-system-handoff-prepared"
+        }
+      ],
+      "join_policy": "none"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "evidence-required",
+      "kind": "quality",
+      "owner": "robot-talks",
+      "condition": "Every finding must cite concrete evidence from whole Arcanum and Tandem source files.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "whole-arcanum-scope",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "The investigation must include Arcanum framework, registries, sigils, spells, observability, experiments, and runtime adapters rather than only dispatch-spec.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "no-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Research outputs may propose candidate mappings but must not promote glossary, ontology, sigil, spell, memory, or runtime authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "operator-decision",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "The operator chooses the first proof artifact before implementation starts.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "runtime-lifecycle-boundary",
+      "kind": "policy",
+      "owner": "arcanum-and-tandem",
+      "condition": "The route must preserve the distinction between Arcanum lifecycle governance and Tandem runtime enforcement.",
+      "on_fail": "reroute"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "whole-system-source-context-recovered",
+      "whole-system-parallel-investigation-completed",
+      "whole-system-tension-synthesis-completed",
+      "whole-system-integration-choice-recorded",
+      "whole-system-handoff-prepared"
+    ],
+    "signal_grouping": "arcanum-tandem-research"
+  },
+  "promotion_guardrails": [
+    "Do not promote Tandem concepts into Arcanum vocabulary without owner review.",
+    "Do not modify Tandem source or Arcanum runtime surfaces during research.",
+    "Do not claim schema or runtime compatibility before a field-level crosswalk and authority-boundary decision exist.",
+    "Do not treat dispatch-spec as the whole of Arcanum.",
+    "Do not treat Tandem runtime evidence as canonical Arcanum knowledge without promotion review."
+  ]
+}

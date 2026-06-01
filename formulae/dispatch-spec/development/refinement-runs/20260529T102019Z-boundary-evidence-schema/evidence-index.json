@@ -1,0 +1,96 @@
+{
+  "run_id": "20260529T102019Z-boundary-evidence-schema",
+  "target": "formulae/dispatch-spec/",
+  "status": "flag",
+  "preset": "standard",
+  "research": {
+    "mode": "no-research",
+    "confirmation": "not required",
+    "artifact": "stages/04-research-decision.md"
+  },
+  "runtime": {
+    "command_resolution": "pass",
+    "semantic_execution": "block",
+    "blocked_reason": "codex-exec-timeout during context-builder",
+    "dry_run_evidence": "command-surface only"
+  },
+  "required_artifacts": {
+    "run_manifest": "RUN-MANIFEST.md",
+    "seed_proposal": "REFINE-SEED-PROPOSAL.md",
+    "goal_handoff": "GOAL-HANDOFF.md",
+    "result": "RESULT.md"
+  },
+  "stages": [
+    {
+      "stage": "Context Builder evidence baseline",
+      "owner": "context-builder",
+      "status": "block",
+      "artifact": "stages/01-context-builder.md",
+      "dry_run_artifact": "stages/01-context-builder.dry-run.md",
+      "blocked_reason": "codex-exec-timeout"
+    },
+    {
+      "stage": "Invoke Define",
+      "owner": "invoke",
+      "status": "flag",
+      "dry_run_artifact": "stages/02-invoke-define.dry-run.md",
+      "fallback_artifact": "stages/02-local-define.md"
+    },
+    {
+      "stage": "Interrogation refine-review",
+      "owner": "interrogation",
+      "status": "flag",
+      "dry_run_artifact": "stages/03-interrogation-refine-review.dry-run.md",
+      "fallback_artifact": "stages/03-local-refine-review.md"
+    },
+    {
+      "stage": "Research decision",
+      "owner": "refine",
+      "status": "pass",
+      "artifact": "stages/04-research-decision.md"
+    },
+    {
+      "stage": "Distill",
+      "owner": "distill",
+      "status": "flag",
+      "dry_run_artifact": "stages/05-distill.dry-run.md",
+      "fallback_artifact": "stages/05-local-distill.md"
+    },
+    {
+      "stage": "Invoke Redefine / Design",
+      "owner": "invoke",
+      "status": "flag",
+      "dry_run_artifact": "stages/06-invoke-design.dry-run.md",
+      "fallback_artifact": "stages/06-local-architecture.md"
+    },
+    {
+      "stage": "Interrogation refine-design-review",
+      "owner": "interrogation",
+      "status": "flag",
+      "dry_run_artifact": "stages/07-interrogation-design-review.dry-run.md",
+      "fallback_artifact": "stages/07-local-design-review.md"
+    },
+    {
+      "stage": "Distill Repair",
+      "owner": "distill",
+      "status": "flag",
+      "dry_run_artifact": "stages/08-distill-repair.dry-run.md",
+      "fallback_artifact": "stages/08-local-distill-repair.md"
+    },
+    {
+      "stage": "Invoke Plan",
+      "owner": "invoke",
+      "status": "flag",
+      "dry_run_artifact": "stages/09-invoke-plan.dry-run.md",
+      "fallback_artifact": "stages/09-local-plan.md"
+    },
+    {
+      "stage": "Final Interrogation and Synthesis",
+      "owner": "interrogation/refine",
+      "status": "flag",
+      "dry_run_artifact": "stages/10-final-interrogation.dry-run.md",
+      "fallback_artifact": "stages/10-local-final-interrogation.md",
+      "result": "RESULT.md"
+    }
+  ]
+}

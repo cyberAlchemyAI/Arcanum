@@ -1,0 +1,426 @@
+{
+  "dispatch_id": "dispatch-orchestration-runtime-v1",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Use dispatch-spec to handle stages and subagent strategy for all orchestration sigils and spells, always run through the local runtime skill surface, always preserve observability or returned telemetry receipts, and migrate every active surface that uses codex exec.",
+    "objective": "Define the parent-owned native skill and subagent orchestration strategy that replaces implicit nested codex-exec usage across all active repository surfaces.",
+    "target_artifact": "formulae/dispatch-spec/development/ORCHESTRATION-RUNTIME-ARCHITECTURE.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "native skill execution",
+      "subagent receipt",
+      "observed invocation loop",
+      "tools/arcanum",
+      "codex-exec migration"
+    ],
+    "operator_sentence": "Use dispatch-spec for stages and subagents, run locally through native skill surface, require telemetry receipts when observability is unavailable, and migrate all active codex exec surfaces."
+  },
+  "mode": "mixed",
+  "techniques": [
+    "sequence",
+    "delegation_boundary",
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "evidence_receipt_link",
+    "observability_grouping",
+    "owner_boundary_check",
+    "artifact_contract_bridge",
+    "state_namespace_boundary"
+  ],
+  "runtime": {
+    "preferred_surface": "native-skill",
+    "model_backed_cli": "legacy-explicit-opt-in",
+    "fallback": "local-inline",
+    "tools_arcanum_role": "resolve validate emit-handoff preserve-legacy-adapters"
+  },
+  "subagents": {
+    "strategy": "parent-owned-fanout",
+    "parent_owns_join": true,
+    "child_subagents_allowed": false,
+    "required_receipt": "dispatch step receipt"
+  },
+  "telemetry_contract": {
+    "required": true,
+    "source_priority": [
+      "local-observability-package",
+      "subagent-returned-receipt",
+      "parent-blocked-gap"
+    ],
+    "minimum_receipt_fields": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "telemetry",
+      "blockers",
+      "handoff_note"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-native-subagent-delegation",
+        "kind": "capability_handoff",
+        "from_owner": "parent orchestration skill",
+        "to_owner": "native Codex subagent or local inline fallback",
+        "applies_to_steps": [
+          "S2",
+          "S3"
+        ],
+        "contract": "Parent delegates bounded stage work to native subagents or local inline fallback; child returns artifacts and execution receipt; parent owns join and synthesis.",
+        "on_violation": "block",
+        "delegation_target": "native Codex subagents or local inline fallback",
+        "input_contract": "dispatch step objective, bounded inputs, write scope, output artifact, and receipt schema",
+        "owner_boundary": "parent orchestration skill owns join and synthesis; child stage owns only its bounded artifact",
+        "blocked_fallback": "return interrupted or block receipt; do not spawn nested Codex CLI"
+      },
+      {
+        "boundary_id": "B2-surface-migration-handoff",
+        "kind": "capability_handoff",
+        "from_owner": "dispatch-spec refinement",
+        "to_owner": "Task Session migration slices",
+        "applies_to_steps": [
+          "S5",
+          "S6"
+        ],
+        "contract": "Task Session receives surface inventory, migration classes, owner map, and acceptance gates before editing active runtime defaults.",
+        "on_violation": "block",
+        "delegation_target": "Task Session migration slices",
+        "input_contract": "surface inventory, migration classes, owner map, and acceptance gates",
+        "owner_boundary": "dispatch-spec validates route shape; Task Session executes edits; capability owners approve lifecycle changes",
+        "blocked_fallback": "preserve inventory and block default changes while any active surface remains unclassified"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "source",
+        "owner": "capability source files",
+        "write_policy": "Task Session edits only by scoped task"
+      },
+      {
+        "namespace": "generated-historical-evidence",
+        "owner": "prior refinement or benchmark runs",
+        "write_policy": "preserve by default; cleanup requires explicit task"
+      },
+      {
+        "namespace": "observability",
+        "owner": "Observed Invocation Loop",
+        "write_policy": "append telemetry when available; otherwise persist returned receipt"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "stage-receipt",
+        "producer": "native subagent, local inline runner, deterministic tool, or parent blocked-gap recorder",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "parent run manifest",
+          "stage receipt ledger",
+          ".arcanum/observability when available"
+        ],
+        "on_missing": "block",
+        "detailed_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "telemetry",
+          "blockers",
+          "handoff_note"
+        ],
+        "fallback": "parent records blocked gap when no observer append and no returned receipt exist"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Validate dispatch route contract",
+      "capability_ref": "dispatch-spec",
+      "mode": "validate",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator request"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/development/orchestration-runtime.dispatch.json"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "dispatch validation receipt"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/orchestration-runtime.dispatch.json",
+      "stop_conditions": [
+        "block if schema validation fails",
+        "block if dispatch claims lifecycle promotion authority"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Project stages to native subagent team",
+      "capability_ref": "parent orchestration skill",
+      "mode": "native-skill",
+      "pattern": "fanout",
+      "parallel": true,
+      "techniques": [
+        "role_projection_boundary",
+        "delegation_boundary",
+        "observability_grouping"
+      ],
+      "roles": [
+        "stage-worker",
+        "critic",
+        "distiller",
+        "synthesizer"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S1.dispatch-profile"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "native subagent stage frames"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "subagent start and stop receipts"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "every selected stage returns a receipt or blocked reason",
+        "parent owns join and final synthesis"
+      ],
+      "evidence_artifact": "parent run manifest",
+      "stop_conditions": [
+        "block if a child attempts nested codex exec",
+        "timeout unresolved subagents and persist interrupted receipt"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Collect observability or returned receipts",
+      "capability_ref": "observed-invocation-loop",
+      "mode": "observe",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "execution_receipt_handoff",
+        "evidence_receipt_link",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "native subagent stage frames"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": ".arcanum/observability/signals/sigil-invocations.jsonl or fallback receipt ledger"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "observer closeout receipt"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stage receipt ledger",
+      "stop_conditions": [
+        "flag if observer append is unavailable but returned receipts exist",
+        "block if neither observer evidence nor returned receipts exist"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Synthesize parent result",
+      "capability_ref": "parent orchestration skill",
+      "mode": "synthesis",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stage receipt ledger"
+        },
+        {
+          "kind": "frame",
+          "ref": "native subagent stage frames"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "parent result artifact"
+        },
+        {
+          "kind": "ledger",
+          "ref": "unresolved gap ledger"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "parent result artifact",
+      "stop_conditions": [
+        "block if required stage artifact is missing and no blocked reason exists"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Inventory all codex-exec surfaces",
+      "capability_ref": "context-builder",
+      "mode": "surface-inventory",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "minimum_component_catalog",
+        "data_quality_completeness",
+        "concrete_path_evidence",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "parent result artifact"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/development/CODEX-EXEC-SURFACE-INVENTORY.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "codex exec surface classification ledger"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/CODEX-EXEC-SURFACE-INVENTORY.md",
+      "stop_conditions": [
+        "block active migration edits if any active codex exec surface class is unclassified",
+        "preserve historical generated evidence unless cleanup is explicitly approved"
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Migrate legacy codex-exec assumptions",
+      "capability_ref": "task-session",
+      "mode": "execution-handoff",
+      "pattern": "handoff",
+      "parallel": false,
+      "techniques": [
+        "route_projection_boundary",
+        "state_namespace_boundary",
+        "delegation_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "parent result artifact"
+        },
+        {
+          "kind": "ledger",
+          "ref": "codex exec surface classification ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "formulae/dispatch-spec/development/ORCHESTRATION-RUNTIME-PLAN.md"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/CODEX-EXEC-MIGRATION.md",
+      "stop_conditions": [
+        "do not mutate runtime defaults until L0 and L1 evidence passes",
+        "do not close migration while an active codex exec surface remains unclassified"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "dispatch document validates before orchestration runtime mutation",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2",
+      "kind": "policy",
+      "owner": "parent orchestration skill",
+      "condition": "model-backed stages use native subagents or local inline fallback, not implicit nested codex-exec",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3",
+      "kind": "quality",
+      "owner": "observed-invocation-loop",
+      "condition": "each stage has observer evidence or a returned telemetry receipt",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "G4",
+      "kind": "promotion_guardrail",
+      "owner": "lifecycle owner",
+      "condition": "dispatch validation does not promote inventory, ontology, glossary, sigil, or spell artifacts",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5",
+      "kind": "validation",
+      "owner": "surface inventory",
+      "condition": "every active codex exec surface is classified before migration edits",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch.validation",
+      "subagent.start",
+      "subagent.stop",
+      "stage.receipt",
+      "observer.closeout",
+      "parent.synthesis"
+    ],
+    "signal_grouping": "dispatch_id plus step_id"
+  },
+  "promotion_guardrails": [
+    "dispatch-spec validates route shape only",
+    "parent orchestration skill owns synthesis only for its run",
+    "lifecycle promotion remains with sigil-development, spellcraft, inventory, ontology-vault, or the explicit owner"
+  ]
+}

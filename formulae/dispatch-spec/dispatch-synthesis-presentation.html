@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dispatch Spec Synthesis</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f4f1e8;
+      --muted: #b7b2a6;
+      --paper: #171714;
+      --panel: #222019;
+      --panel-2: #292b24;
+      --line: #444033;
+      --gold: #d8b45c;
+      --green: #74b381;
+      --red: #d97667;
+      --blue: #80a7bd;
+      --violet: #aa8fbd;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(216, 180, 92, 0.10), transparent 28rem),
+        radial-gradient(circle at 80% 70%, rgba(116, 179, 129, 0.10), transparent 28rem),
+        linear-gradient(135deg, #11100e 0%, #171714 45%, #20211d 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .deck {
+      height: 100vh;
+      height: 100svh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .topbar,
+    .bottombar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      color: var(--muted);
+      border-color: rgba(255, 255, 255, 0.08);
+      position: relative;
+      z-index: 10;
+    }
+
+    .topbar {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(17, 16, 14, 0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 2.25rem;
+      height: 2.25rem;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      background: conic-gradient(from 180deg, var(--gold), var(--green), var(--blue), var(--red), var(--gold));
+      box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.04);
+      flex: 0 0 auto;
+    }
+
+    .mark::before {
+      content: "";
+      width: 1.1rem;
+      height: 1.1rem;
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .brand strong {
+      color: var(--ink);
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      display: block;
+      font-size: 0.78rem;
+      margin-top: 0.1rem;
+    }
+
+    .progress {
+      width: min(26rem, 42vw);
+      height: 0.45rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold), var(--green), var(--blue));
+      transition: width 220ms ease;
+    }
+
+    .stage {
+      min-height: 0;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-items: center;
+      padding: clamp(1rem, 4vw, 3.2rem);
+      min-width: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(2rem);
+      transition: opacity 260ms ease, transform 260ms ease;
+      overflow: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .slide-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      min-width: 0;
+    }
+
+    .kicker {
+      color: var(--gold);
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      font-weight: 780;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.9rem;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      line-height: 1.02;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 7vw, 6.9rem);
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 5vw, 4.5rem);
+      max-width: 13ch;
+    }
+
+    h3 {
+      margin: 0 0 0.55rem;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+
+    p {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.22rem);
+      line-height: 1.55;
+      max-width: 68ch;
+    }
+
+    .lede {
+      font-size: clamp(1.1rem, 1.9vw, 1.45rem);
+      max-width: 54ch;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .two {
+      grid-template-columns: minmax(0, 0.94fr) minmax(320px, 1.06fr);
+      align-items: center;
+    }
+
+    .three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: rgba(34, 32, 25, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 1.5rem 4rem var(--shadow);
+      padding: 1.1rem;
+      min-width: 0;
+    }
+
+    .soft {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      padding: 1rem;
+    }
+
+    .sentence {
+      font-size: clamp(1.2rem, 2.6vw, 2.1rem);
+      line-height: 1.32;
+      color: var(--ink);
+      border-left: 0.35rem solid var(--gold);
+      padding-left: 1rem;
+      margin: 1rem 0;
+    }
+
+    .tokens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 1.2rem;
+    }
+
+    .token {
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.7rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--ink);
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .token.gold { border-color: rgba(216, 180, 92, 0.55); }
+    .token.green { border-color: rgba(116, 179, 129, 0.55); }
+    .token.blue { border-color: rgba(128, 167, 189, 0.55); }
+    .token.red { border-color: rgba(217, 118, 103, 0.55); }
+    .token.violet { border-color: rgba(170, 143, 189, 0.55); }
+
+    .machine {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(8rem, 1fr));
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .module {
+      min-height: 8.5rem;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module::after {
+      content: "";
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 0.8rem;
+      height: 0.25rem;
+      background: var(--accent, var(--gold));
+      opacity: 0.9;
+    }
+
+    .module small {
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.65rem;
+    }
+
+    .module b {
+      display: block;
+      font-size: 1.12rem;
+      color: var(--ink);
+    }
+
+    .module span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+      margin-top: 0.45rem;
+    }
+
+    .route-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .route {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .route-step {
+      display: grid;
+      grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+      gap: 0.65rem;
+      align-items: center;
+      padding: 0.72rem;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .num {
+      width: 2.2rem;
+      height: 2.2rem;
+      display: grid;
+      place-items: center;
+      background: var(--accent, var(--gold));
+      color: #11100e;
+      font-weight: 850;
+    }
+
+    .route-step strong {
+      display: block;
+      font-size: 0.98rem;
+      color: var(--ink);
+    }
+
+    .route-step em {
+      display: block;
+      color: var(--muted);
+      font-style: normal;
+      font-size: 0.84rem;
+      margin-top: 0.2rem;
+    }
+
+    .tag {
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 0.28rem 0.45rem;
+      font-size: 0.76rem;
+      white-space: nowrap;
+    }
+
+    .orbit {
+      aspect-ratio: 1;
+      min-height: 26rem;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      overflow: hidden;
+    }
+
+    .orbit::before,
+    .orbit::after {
+      content: "";
+      position: absolute;
+      inset: 14%;
+      border: 1px solid rgba(216, 180, 92, 0.28);
+      transform: rotate(45deg);
+    }
+
+    .orbit::after {
+      inset: 27%;
+      border-color: rgba(116, 179, 129, 0.32);
+      transform: rotate(0deg);
+    }
+
+    .node {
+      position: absolute;
+      width: clamp(6.4rem, 10vw, 8.8rem);
+      min-height: 4.5rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 0.7rem;
+      background: rgba(23, 23, 20, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 1rem 2rem var(--shadow);
+      color: var(--ink);
+      font-weight: 760;
+    }
+
+    .n1 { left: 7%; top: 12%; border-color: rgba(216, 180, 92, 0.6); }
+    .n2 { right: 8%; top: 16%; border-color: rgba(128, 167, 189, 0.6); }
+    .n3 { right: 12%; bottom: 13%; border-color: rgba(116, 179, 129, 0.6); }
+    .n4 { left: 10%; bottom: 13%; border-color: rgba(217, 118, 103, 0.6); }
+    .n5 { left: 50%; top: 50%; transform: translate(-50%, -50%); border-color: rgba(170, 143, 189, 0.65); }
+
+    .taxonomy {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .tile {
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      padding: 0.95rem;
+      background: rgba(255, 255, 255, 0.04);
+      min-height: 8.5rem;
+      display: grid;
+      align-content: start;
+      gap: 0.35rem;
+    }
+
+    .tile .glyph {
+      width: 2.25rem;
+      height: 0.45rem;
+      background: var(--accent, var(--gold));
+      margin-bottom: 0.2rem;
+    }
+
+    .tile p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .schema {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: clamp(0.76rem, 1vw, 0.92rem);
+      line-height: 1.55;
+      color: #e8e2d2;
+      padding: 1rem;
+      background: #11100e;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      overflow: auto;
+      max-height: 62vh;
+      white-space: pre;
+    }
+
+    .schema .key { color: var(--gold); }
+    .schema .str { color: var(--green); }
+    .schema .comment { color: var(--blue); }
+
+    .lanes {
+      display: grid;
+      grid-template-columns: 1fr 0.72fr 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .lane-stack {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .lane {
+      border-left: 0.35rem solid var(--accent, var(--gold));
+      padding: 0.75rem 0.9rem;
+      background: rgba(255, 255, 255, 0.045);
+      border-top: 1px solid rgba(255,255,255,0.09);
+      border-right: 1px solid rgba(255,255,255,0.09);
+      border-bottom: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .lane strong {
+      display: block;
+      color: var(--ink);
+    }
+
+    .lane span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+      display: block;
+      margin-top: 0.22rem;
+    }
+
+    .joiner {
+      min-height: 18rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px dashed rgba(216, 180, 92, 0.45);
+      padding: 1rem;
+      color: var(--muted);
+    }
+
+    .joiner b {
+      display: block;
+      color: var(--ink);
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .control {
+      min-width: 2.65rem;
+      min-height: 2.65rem;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.055);
+      cursor: pointer;
+      padding: 0 0.7rem;
+    }
+
+    .control:hover {
+      border-color: var(--gold);
+      background: rgba(216, 180, 92, 0.13);
+    }
+
+    .caption {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .mini-map {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 0.7rem;
+      height: 0.7rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .dot.active {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .split-title {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.74fr);
+      gap: 2rem;
+      align-items: end;
+    }
+
+    .quote-strip {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .quote-strip .soft {
+      border-left: 0.35rem solid var(--accent, var(--gold));
+    }
+
+    @media (max-width: 1180px) {
+      .machine {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .three,
+      .taxonomy {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .two {
+        grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+      }
+
+      h2 {
+        max-width: 16ch;
+      }
+    }
+
+    @media (max-width: 920px) {
+      html,
+      body {
+        overflow: auto;
+      }
+
+      .deck {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .stage {
+        min-height: 0;
+      }
+
+      .slide {
+        position: relative;
+        display: none;
+        align-items: start;
+        min-height: 0;
+        padding: 1.25rem;
+        overflow: visible;
+      }
+
+      .slide.active {
+        display: grid;
+      }
+
+      .two,
+      .route-board,
+      .lanes,
+      .split-title {
+        grid-template-columns: 1fr;
+      }
+
+      .three,
+      .taxonomy,
+      .machine {
+        grid-template-columns: 1fr;
+      }
+
+      h1,
+      h2 {
+        max-width: none;
+      }
+
+      h1 {
+        font-size: clamp(2.35rem, 13vw, 4.6rem);
+      }
+
+      h2 {
+        font-size: clamp(1.9rem, 10vw, 3.45rem);
+      }
+
+      p {
+        max-width: none;
+      }
+
+      .module {
+        min-height: 0;
+        padding-bottom: 1.45rem;
+      }
+
+      .orbit {
+        min-height: 0;
+        width: min(100%, 34rem);
+        margin: 0 auto;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .bottombar {
+        position: sticky;
+        bottom: 0;
+        background: rgba(17, 16, 14, 0.88);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .progress {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar,
+      .bottombar {
+        padding: 0.8rem;
+        gap: 0.7rem;
+      }
+
+      .topbar {
+        align-items: center;
+      }
+
+      .brand {
+        gap: 0.6rem;
+        min-width: 0;
+      }
+
+      .mark {
+        width: 1.85rem;
+        height: 1.85rem;
+        box-shadow: none;
+      }
+
+      .mark::before {
+        width: 0.9rem;
+        height: 0.9rem;
+      }
+
+      .brand strong {
+        display: block;
+        max-width: 11.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .brand span {
+        display: none;
+      }
+
+      .slide {
+        padding: 1rem 0.8rem;
+      }
+
+      .panel,
+      .soft,
+      .tile,
+      .module {
+        padding: 0.85rem;
+      }
+
+      .sentence {
+        font-size: clamp(1.05rem, 5.4vw, 1.45rem);
+        padding-left: 0.75rem;
+      }
+
+      .tokens {
+        gap: 0.45rem;
+      }
+
+      .token {
+        white-space: normal;
+        font-size: 0.82rem;
+        padding: 0.38rem 0.55rem;
+      }
+
+      .route-step {
+        grid-template-columns: 2rem minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .num {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .tag {
+        grid-column: 2;
+        justify-self: start;
+        white-space: normal;
+      }
+
+      .orbit {
+        aspect-ratio: auto;
+        display: grid;
+        gap: 0.55rem;
+        padding: 0.75rem;
+        background-size: 26px 26px;
+      }
+
+      .orbit::before,
+      .orbit::after {
+        display: none;
+      }
+
+      .node,
+      .n1,
+      .n2,
+      .n3,
+      .n4,
+      .n5 {
+        position: static;
+        transform: none;
+        width: 100%;
+        min-height: 3.4rem;
+        box-shadow: none;
+      }
+
+      .joiner {
+        min-height: 0;
+        padding: 1rem 0.85rem;
+      }
+
+      .schema {
+        max-height: none;
+        font-size: 0.72rem;
+        padding: 0.75rem;
+      }
+
+      .mini-map {
+        display: none;
+      }
+
+      .caption {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .control {
+        min-width: 2.35rem;
+        min-height: 2.35rem;
+        padding: 0 0.55rem;
+        font-size: 0.86rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .brand strong {
+        max-width: 8.5rem;
+      }
+
+      #slideTitle {
+        display: none;
+      }
+
+      .caption {
+        font-size: 0.76rem;
+      }
+
+      .control {
+        padding: 0 0.45rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <strong>Dispatch Spec Synthesis</strong>
+          <span>Operator language into governed sigil sequences</span>
+        </div>
+      </div>
+      <div class="progress" aria-label="Slide progress"><i id="progress"></i></div>
+    </header>
+
+    <section class="stage" id="stage">
+      <article class="slide active" data-title="Opening">
+        <div class="slide-inner split-title">
+          <div>
+            <div class="kicker">Arcanum Dispatch</div>
+            <h1>Turn spell-talk into a route graph.</h1>
+            <p class="lede">Dispatch Spec is the small contract that lets an operator chain sigils by intent, validate the order, and preserve every handoff as evidence.</p>
+          </div>
+          <div class="panel">
+            <div class="sentence">"Use dialectics to explore, distill the winner, x-ray the architecture, test it with toy games, then gate the choice."</div>
+            <div class="tokens">
+              <span class="token gold">dialectic</span>
+              <span class="token green">distill</span>
+              <span class="token blue">x-ray</span>
+              <span class="token red">toy game</span>
+              <span class="token violet">decision gate</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Why">
+        <div class="slide-inner two grid">
+          <div>
+            <div class="kicker">The Gap</div>
+            <h2>Arcanum has powerful sigils. It needs a shared sequence contract.</h2>
+            <p>A user can already name a sequence in living language. The missing part is the inspectable middle object: what runs, why that order, what each step consumes, what each step emits, and which gate stops unsafe promotion.</p>
+          </div>
+          <div class="machine">
+            <div class="module" style="--accent: var(--gold)"><small>Input</small><b>Operator sentence</b><span>Natural Arcanum command.</span></div>
+            <div class="module" style="--accent: var(--blue)"><small>Route</small><b>Choice menu</b><span>Bounded candidates, no full internals.</span></div>
+            <div class="module" style="--accent: var(--green)"><small>Contract</small><b>Dispatch document</b><span>Steps, frames, handles, gates.</span></div>
+            <div class="module" style="--accent: var(--red)"><small>Owner</small><b>Sigil or spell</b><span>Execution stays with lifecycle owners.</span></div>
+            <div class="module" style="--accent: var(--violet)"><small>Memory</small><b>Trace and residue</b><span>Learning can be reflected later.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Machine">
+        <div class="slide-inner two grid">
+          <div>
+            <div class="kicker">How It Works</div>
+            <h2>The dispatch machine has five chambers.</h2>
+            <p>Necronomicon can interpret route intent. Dispatch Spec validates the shape. Spellcraft makes recurring routes reusable. Invoke authors define/design/plan artifacts. Observability binds the run together with `dispatch_id`.</p>
+          </div>
+          <div class="orbit" aria-label="Dispatch machine diagram">
+            <div class="node n1">Necronomicon<br>routes</div>
+            <div class="node n2">Dispatch Spec<br>validates</div>
+            <div class="node n3">Owners<br>execute</div>
+            <div class="node n4">Trace<br>learns</div>
+            <div class="node n5">dispatch_id</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Route">
+        <div class="slide-inner route-board">
+          <div>
+            <div class="kicker">Example Route</div>
+            <h2>Abstraction research as a spell candidate.</h2>
+            <p>This is a route you can say out loud, then validate as a graph before letting it become a spell or execution plan.</p>
+          </div>
+          <div class="route">
+            <div class="route-step" style="--accent: var(--gold)"><div class="num">1</div><div><strong>Recover context</strong><em>Necronomicon loads memory, vocabulary, open gaps.</em></div><span class="tag">route</span></div>
+            <div class="route-step" style="--accent: var(--blue)"><div class="num">2</div><div><strong>Build evidence</strong><em>Context Builder creates a bounded source frame.</em></div><span class="tag">frame</span></div>
+            <div class="route-step" style="--accent: var(--red)"><div class="num">3</div><div><strong>Explore tensions</strong><em>Robot-Talks or dialectic lanes expose disagreements.</em></div><span class="tag">fanout</span></div>
+            <div class="route-step" style="--accent: var(--green)"><div class="num">4</div><div><strong>Select abstraction</strong><em>Distill tournament chooses a recomposable SCU.</em></div><span class="tag">tournament</span></div>
+            <div class="route-step" style="--accent: var(--blue)"><div class="num">5</div><div><strong>Make it visible</strong><em>x-ray produces a navigable explanation surface.</em></div><span class="tag">xray</span></div>
+            <div class="route-step" style="--accent: var(--violet)"><div class="num">6</div><div><strong>Test and gate</strong><em>Toy games, residuality stressors, Pareto decision.</em></div><span class="tag">gate</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Patterns">
+        <div class="slide-inner">
+          <div class="kicker">Composition Taxonomy</div>
+          <h2>Patterns are verbs for sigils.</h2>
+          <p>Dispatch Spec does not flatten Arcanum into generic workflow steps. It preserves the operator's method language while giving validators something concrete to check.</p>
+          <div class="taxonomy">
+            <div class="tile" style="--accent: var(--gold)"><div class="glyph"></div><h3>Sequence</h3><p>One frame feeds the next. Best when lifecycle order is obvious.</p></div>
+            <div class="tile" style="--accent: var(--red)"><div class="glyph"></div><h3>Zig Zag</h3><p>Alternate exploration and critique until a stop condition is met.</p></div>
+            <div class="tile" style="--accent: var(--blue)"><div class="glyph"></div><h3>Dialectic</h3><p>Roles debate a tension while preserving stable disagreement.</p></div>
+            <div class="tile" style="--accent: var(--green)"><div class="glyph"></div><h3>Tournament</h3><p>Multiple proposal tracks compete under explicit elimination criteria.</p></div>
+            <div class="tile" style="--accent: var(--violet)"><div class="glyph"></div><h3>SCU/SWU</h3><p>Reduce to the smallest coherent unit before planning or execution.</p></div>
+            <div class="tile" style="--accent: var(--blue)"><div class="glyph"></div><h3>X-Ray</h3><p>Expose hidden actors, flows, transformations, and relationships.</p></div>
+            <div class="tile" style="--accent: var(--red)"><div class="glyph"></div><h3>Toy Game</h3><p>Test a selected abstraction in a small controlled scenario.</p></div>
+            <div class="tile" style="--accent: var(--green)"><div class="glyph"></div><h3>Validation Loop</h3><p>Run examples, capture evidence, observe, reflect, revise.</p></div>
+            <div class="tile" style="--accent: var(--gold)"><div class="glyph"></div><h3>Memory Loop</h3><p>Checkpoint useful residue without promoting it into truth.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Tournament">
+        <div class="slide-inner">
+          <div class="kicker">Creative Engine</div>
+          <h2>Tournament mode keeps options alive long enough to learn.</h2>
+          <p>Dispatch can describe parallel proposal lanes without letting them drift into unrelated work. Every lane names assumptions, evidence, and the condition that would eliminate it.</p>
+          <div class="lanes">
+            <div class="lane-stack">
+              <div class="lane" style="--accent: var(--gold)"><strong>Schema-first lane</strong><span>Best if interoperability is the core risk.</span></div>
+              <div class="lane" style="--accent: var(--blue)"><strong>Runtime-first lane</strong><span>Best if route execution behavior is unknown.</span></div>
+              <div class="lane" style="--accent: var(--green)"><strong>Observability-first lane</strong><span>Best if learning from failures matters most.</span></div>
+            </div>
+            <div class="joiner"><div><b>Pareto join</b>No lane wins by elegance alone. It wins by option value, lower irreversible cost, and recomposition proof.</div></div>
+            <div class="lane-stack">
+              <div class="lane" style="--accent: var(--violet)"><strong>Selected frame</strong><span>Smallest coherent abstraction with proof of recomposition.</span></div>
+              <div class="lane" style="--accent: var(--red)"><strong>Residue ledger</strong><span>Rejected candidates and unresolved tensions stay visible.</span></div>
+              <div class="lane" style="--accent: var(--gold)"><strong>Next owner</strong><span>Invoke, Spellcraft, Task Session, or deferred.</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Schema">
+        <div class="slide-inner two grid">
+          <div>
+            <div class="kicker">The Contract</div>
+            <h2>A dispatch document is small on purpose.</h2>
+            <p>It names enough to validate route shape and handoffs. It does not copy sigil internals, decide promotion, or execute anything by itself.</p>
+          </div>
+          <pre class="schema" aria-label="Dispatch document sample"><span class="comment">// dispatch.schema.yml, concept shape</span>
+{
+  <span class="key">"dispatch_id"</span>: <span class="str">"dispatch-abstraction-research-001"</span>,
+  <span class="key">"intent"</span>: {
+    <span class="key">"raw"</span>: <span class="str">"dialectic -> distill -> x-ray -> toy games"</span>,
+    <span class="key">"objective"</span>: <span class="str">"find the best abstraction"</span>
+  },
+  <span class="key">"steps"</span>: [
+    {
+      <span class="key">"capability_ref"</span>: <span class="str">"distill"</span>,
+      <span class="key">"pattern"</span>: <span class="str">"tournament"</span>,
+      <span class="key">"inputs"</span>: [<span class="str">"tension-ledger"</span>],
+      <span class="key">"outputs"</span>: [<span class="str">"optimization-frame"</span>],
+      <span class="key">"join_policy"</span>: <span class="str">"pareto"</span>
+    }
+  ],
+  <span class="key">"gates"</span>: [<span class="str">"promotion_guardrail"</span>],
+  <span class="key">"observability"</span>: { <span class="key">"signal_grouping"</span>: <span class="str">"dispatch_id"</span> }
+}</pre>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Owners">
+        <div class="slide-inner">
+          <div class="kicker">Owner Boundaries</div>
+          <h2>The validator never steals the lifecycle.</h2>
+          <p>Dispatch Spec is useful because it stays humble. It validates the graph so the right owner can do the real work.</p>
+          <div class="three grid">
+            <div class="panel"><h3>Necronomicon</h3><p>Recovers repository memory, extracts vocabulary, suggests route menus, records gaps, and preserves no-promotion guardrails.</p></div>
+            <div class="panel"><h3>Spellcraft</h3><p>Turns repeated, validated dispatches into reusable spell contracts with phases, gates, handoffs, and observability.</p></div>
+            <div class="panel"><h3>Invoke</h3><p>Authors define, design, plan, handoff, and refresh artifacts when the route needs lifecycle documents.</p></div>
+            <div class="panel"><h3>Distill</h3><p>Finds the smallest coherent unit and proves it recomposes into the larger problem.</p></div>
+            <div class="panel"><h3>Task Session</h3><p>Executes one bounded SWU after the route and plan are ready enough to act.</p></div>
+            <div class="panel"><h3>Experiment Harness</h3><p>Runs controlled examples, toy games, fixtures, and validation evidence before promotion.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Evaluation">
+        <div class="slide-inner two grid">
+          <div>
+            <div class="kicker">Route Quality</div>
+            <h2>Before execution, ask if the order deserves trust.</h2>
+            <p>A dispatch sequence is not good because it sounds impressive. It is good when uncertainty is reduced before commitment, critique happens before promotion, and every output has a named consumer.</p>
+          </div>
+          <div class="quote-strip">
+            <div class="soft" style="--accent: var(--gold)"><h3>Good order</h3><p>Context first, then exploration, then selection, then explanation, then controlled tests, then decision.</p></div>
+            <div class="soft" style="--accent: var(--red)"><h3>Bad order</h3><p>Execution first, hidden assumptions, no frame handoffs, no gate, and no residue ledger.</p></div>
+            <div class="soft" style="--accent: var(--green)"><h3>Promotion rule</h3><p>Session output can become candidate evidence. It does not become canonical truth without the owner route.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Close">
+        <div class="slide-inner split-title">
+          <div>
+            <div class="kicker">The Shape</div>
+            <h2>Dispatch is the grammar of composed agency.</h2>
+            <p class="lede">It lets the operator speak in Arcanum vocabulary, lets the system validate the sequence, and lets future reflection understand what actually happened.</p>
+          </div>
+          <div class="panel">
+            <h3>Working sentence</h3>
+            <div class="sentence">"Recover vocabulary, run dialectic lanes, distill the SCU, x-ray the winning model, toy-test the abstraction, gate the decision, then hand off to Invoke or Spellcraft."</div>
+            <p>That sentence is no longer just prose. It is a route candidate.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="bottombar">
+      <div class="caption"><span id="slideNumber">1</span> / <span id="slideTotal">10</span> <span id="slideTitle">Opening</span></div>
+      <div class="mini-map" id="miniMap" aria-hidden="true"></div>
+      <div class="controls">
+        <button class="control" id="prev" aria-label="Previous slide" title="Previous slide">Prev</button>
+        <button class="control" id="next" aria-label="Next slide" title="Next slide">Next</button>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const progress = document.getElementById("progress");
+    const slideNumber = document.getElementById("slideNumber");
+    const slideTotal = document.getElementById("slideTotal");
+    const slideTitle = document.getElementById("slideTitle");
+    const miniMap = document.getElementById("miniMap");
+    let current = 0;
+
+    slideTotal.textContent = String(slides.length);
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.addEventListener("click", () => show(index));
+      miniMap.appendChild(dot);
+    });
+
+    function show(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      const dots = Array.from(miniMap.children);
+      dots.forEach((dot, dotIndex) => dot.classList.toggle("active", dotIndex === current));
+      slideNumber.textContent = String(current + 1);
+      slideTitle.textContent = slides[current].dataset.title || "";
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    document.getElementById("prev").addEventListener("click", () => show(current - 1));
+    document.getElementById("next").addEventListener("click", () => show(current + 1));
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.getElementById("stage").addEventListener("touchstart", (event) => {
+      const touch = event.changedTouches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }, { passive: true });
+
+    document.getElementById("stage").addEventListener("touchend", (event) => {
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        show(current + (dx < 0 ? 1 : -1));
+      }
+    }, { passive: true });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") show(current + 1);
+      if (event.key === "ArrowLeft" || event.key === "PageUp") show(current - 1);
+      if (event.key === "Home") show(0);
+      if (event.key === "End") show(slides.length - 1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>
