@@ -1,9 +1,9 @@
 ---
 to: Vlad
 from: Victor (multi-agent audit, synthesized)
-re: cyberAlchemyAI/Arcanum — second pass: typed sigils + typed edges
+re: "cyberAlchemyAI/Arcanum — second pass: typed sigils + typed edges"
 date: 2026-06-01
-audit-against: arcanum @ 75b22300 (2026-06-01)
+audit-against: "arcanum @ 75b22300 (2026-06-01)"
 status: draft for discussion
 ---
 
