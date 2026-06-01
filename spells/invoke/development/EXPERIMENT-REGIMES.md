@@ -7,6 +7,8 @@ The experiment validates:
 - `define` as a standalone phase,
 - `design` as a standalone phase,
 - `plan` as a standalone phase,
+- `handoff` as a standalone session/thread handoff phase,
+- `refresh` as a standalone artifact refresh phase,
 - `define -> design` as an integration chain,
 - `define -> design -> plan` as an integration chain,
 - Quality Bar and Anti-Pattern behavior,
@@ -220,6 +222,83 @@ Failure examples:
 - an algorithmic task lacks inputs, outputs, ordered rules, edge cases, and validation evidence,
 - layer promotion is based on preference rather than evidence,
 - output executes implementation tasks.
+
+Evidence paths:
+
+- tracked expected outputs in `development/fixtures/`,
+- generated control report in `development/runs/`.
+
+## CTRL-HANDOFF-001: Session Handoff Control
+
+Goal: prove `invoke handoff` creates a new session/thread artifact from a prompt, source session reference, and Context Builder selection.
+
+Inputs:
+
+- `fixtures/INV-HANDOFF-PASS-001.md`
+- `fixtures/INV-HANDOFF-BLOCK-001.md`
+
+Expected outputs:
+
+- pass when the prompt, source session reference, handoff type, and Context Builder coverage exist,
+- block when the source session reference is missing,
+- preserve the user's felt workflow gap for reflection handoffs,
+- route workflow-reflection handoffs to `workflow-reflect`.
+
+Pass criteria:
+
+- prompt and source session reference are mandatory,
+- handoff type is explicit or selected with rationale,
+- Context Builder coverage is reported,
+- selected context maps to obligations from the new prompt and handoff type,
+- irrelevant source-session history is excluded rather than copied forward,
+- next route is explicit.
+
+Failure examples:
+
+- whole-session transcript is treated as a context pack,
+- handoff proceeds without a source session reference,
+- workflow-reflection gap is rewritten as a generic improvement request,
+- handoff mutates the target sigil, spell, or work-pack instead of preparing a new thread artifact.
+
+Evidence paths:
+
+- tracked expected outputs in `development/fixtures/`,
+- generated control report in `development/runs/`.
+
+## CTRL-REFRESH-001: Artifact Refresh Control
+
+Goal: prove `invoke refresh` maps latest session evidence to scoped artifact deltas without executing target work or silently mutating artifacts.
+
+Inputs:
+
+- `fixtures/INV-REFRESH-PASS-001.md`
+- `fixtures/INV-REFRESH-FLAG-001.md`
+- `fixtures/INV-REFRESH-BLOCK-001.md`
+- `fixtures/INV-REFRESH-NOOP-001.md`
+
+Expected outputs:
+
+- pass when evidence-backed proposal-only deltas exist,
+- flag when artifact drift exists and safe correction needs owner review,
+- block when source evidence or target artifact inventory is missing,
+- no-op when latest evidence is already represented.
+
+Pass criteria:
+
+- every proposed or applied change maps to a refresh signal,
+- proposal-only is the default mutation mode,
+- apply-approved requires explicit approval,
+- setup proof is not promoted into completion proof,
+- no-op is a first-class phase status,
+- next route is explicit.
+
+Failure examples:
+
+- refresh applies changes without approval,
+- refresh infers completion from weak evidence,
+- missing target inventory proceeds,
+- no-op reruns cause artifact churn,
+- artifact drift is resolved without owner review.
 
 Evidence paths:
 

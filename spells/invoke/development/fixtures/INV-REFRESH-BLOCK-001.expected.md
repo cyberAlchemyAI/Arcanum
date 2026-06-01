@@ -1,0 +1,21 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-REFRESH-BLOCK-001
+- User request: Refresh the artifacts from this result.
+- Mode: refresh
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: block
+- Mode contract: arcanum/spells/invoke/refresh.md
+- Outputs: n/a
+- Mutation mode: proposal-only
+- Source signals: n/a
+- Target artifacts: missing
+- Proposed changes: none
+- Applied changes: n/a
+- Skipped changes: all changes skipped because target inventory is missing
+- Validation: n/a
+- Decisions: block until target workflow root or artifact inventory is provided
+- Unresolved gaps: target artifact inventory; refresh scope
+- Next route: deferred

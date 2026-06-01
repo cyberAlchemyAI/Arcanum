@@ -4,7 +4,7 @@ Context Builder is a Transmutation sigil for creating a compact task-ready conte
 
 It selects only the source excerpts needed to execute a task, maps each excerpt to a concrete obligation, and rejects context that is merely interesting. The result is a smaller, more useful bundle for agents, reviewers, or implementation sessions.
 
-For runtime delegation, Context Builder can emit a handoff pack. A handoff pack is a context pack prepared for a runtime adapter or native goal. It is stored as session evidence, emitted as Markdown plus JSON/index, and blocks when strict obligation coverage is not satisfied.
+For runtime delegation, Context Builder can emit a handoff pack. A handoff pack is a context pack prepared for a runtime adapter. It is stored as session evidence, emitted as Markdown plus JSON/index, and blocks when strict obligation coverage is not satisfied.
 
 ## Problem It Solves
 
@@ -12,7 +12,7 @@ Large repositories often bury the relevant facts under too much background mater
 
 Context Builder solves this by using link-first retrieval, selector-level evidence, obligation coverage, and noise limits.
 
-For Codex Goal handoff, it also prevents weak runtime prompts by requiring every obligation to be covered or explicitly resolved before delegation.
+For runtime handoff, it also prevents weak runtime prompts by requiring every obligation to be covered or explicitly resolved before delegation.
 
 ## Use When
 
@@ -45,15 +45,15 @@ The sigil produces a context pack with:
 - unresolved gaps,
 - optional machine-readable index.
 
-When `--handoff codex-goal` is used, the sigil produces both:
+When `--handoff runtime` is used, the sigil produces both:
 
 - a Markdown handoff pack for human review and task-session reporting,
-- a JSON or structured index for adapters and goal-profile handoff.
+- a JSON or structured index for adapters and runtime handoff.
 
 The canonical output shapes live in:
 
-- `templates/codex-goal-handoff-pack.md`
-- `templates/codex-goal-handoff-index.json`
+- `templates/runtime-handoff-pack.md`
+- `templates/runtime-handoff-index.json`
 
 Persisted handoff packs should live under a run/session evidence path. They are audit evidence for a specific execution, not canonical planning documents.
 
@@ -72,7 +72,7 @@ A handoff pack includes:
 - provenance such as timestamp, source refs, and content hash or git SHA when available,
 - Markdown and JSON/index output paths.
 
-Strict coverage is required for Codex Goal handoff: every obligation must be covered by selected evidence or explicitly resolved as not applicable/deferred. Otherwise Context Builder returns `BLOCK`.
+Strict coverage is required for runtime handoff: every obligation must be covered by selected evidence or explicitly resolved as not applicable/deferred. Otherwise Context Builder returns `BLOCK`.
 
 ## Why This Is A Transmutation
 

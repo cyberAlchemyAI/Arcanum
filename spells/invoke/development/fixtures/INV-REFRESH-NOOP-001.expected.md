@@ -1,0 +1,21 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-REFRESH-NOOP-001
+- User request: Refresh the invoke handoff validation artifacts after rerunning the same passing validation report.
+- Mode: refresh
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: no-op
+- Mode contract: arcanum/spells/invoke/refresh.md
+- Outputs: artifacts/refresh/REFRESH-REPORT.md
+- Mutation mode: proposal-only
+- Source signals: 1; no_op
+- Target artifacts: VALIDATION.md, run-validation-fixtures.sh
+- Proposed changes: none
+- Applied changes: n/a
+- Skipped changes: validation pass is already represented
+- Validation: compare latest report to recorded validation status
+- Decisions: record no-op rather than forcing artifact churn
+- Unresolved gaps: none
+- Next route: deferred

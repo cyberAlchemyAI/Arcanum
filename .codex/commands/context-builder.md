@@ -57,7 +57,7 @@ Context Builder is a Transmutation sigil for creating a compact task-ready conte
 
 It selects only the source excerpts needed to execute a task, maps each excerpt to a concrete obligation, and rejects context that is merely interesting. The result is a smaller, more useful bundle for agents, reviewers, or implementation sessions.
 
-For runtime delegation, Context Builder can emit a handoff pack. A handoff pack is a context pack prepared for a runtime adapter or native goal. It is stored as session evidence, emitted as Markdown plus JSON/index, and blocks when strict obligation coverage is not satisfied.
+For runtime delegation, Context Builder can emit a handoff pack. A handoff pack is a context pack prepared for a runtime adapter or runtime adapter. It is stored as session evidence, emitted as Markdown plus JSON/index, and blocks when strict obligation coverage is not satisfied.
 
 ## Problem It Solves
 
@@ -65,7 +65,7 @@ Large repositories often bury the relevant facts under too much background mater
 
 Context Builder solves this by using link-first retrieval, selector-level evidence, obligation coverage, and noise limits.
 
-For Codex Goal handoff, it also prevents weak runtime prompts by requiring every obligation to be covered or explicitly resolved before delegation.
+For runtime handoff, it also prevents weak runtime prompts by requiring every obligation to be covered or explicitly resolved before delegation.
 
 ## Use When
 
@@ -98,10 +98,10 @@ The sigil produces a context pack with:
 - unresolved gaps,
 - optional machine-readable index.
 
-When `--handoff codex-goal` is used, the sigil produces both:
+When `--handoff runtime` is used, the sigil produces both:
 
 - a Markdown handoff pack for human review and task-session reporting,
-- a JSON or structured index for adapters and goal-profile handoff.
+- a JSON or structured index for adapters and runtime handoff.
 
 Persisted handoff packs should live under a run/session evidence path. They are audit evidence for a specific execution, not canonical planning documents.
 
@@ -118,7 +118,7 @@ Canonical source: https://github.com/cyberAlchemyAI/arcanum/blob/main/transmutat
 ---
 name: context-builder
 description: "Use when: building a compact, task-ready context pack from selector-level evidence and obligation-linked excerpts."
-argument-hint: "<task-reference> [--mode lean|standard|deep] [--max-files <n>] [--strict] [--emit markdown|json|both] [--handoff codex-goal] [--persist <session-evidence-path>] [--dry-run]"
+argument-hint: "<task-reference> [--mode lean|standard|deep] [--max-files <n>] [--strict] [--emit markdown|json|both] [--handoff runtime] [--persist <session-evidence-path>] [--dry-run]"
 tier: transmutations
 domain: context-synthesis
 version: 0.2.0
@@ -141,15 +141,15 @@ Transmutation: bounded evidence selection and structured context synthesis.
 - `--max-files <n>`: override the file count budget.
 - `--strict`: require every selected item to map to an obligation. Default: on.
 - `--emit markdown|json|both`: choose output format. Default: `markdown`.
-- `--handoff codex-goal`: emit a runtime handoff pack suitable for Codex Goal delegation. This implies strict obligation coverage and `--emit both`.
+- `--handoff runtime`: emit a runtime handoff pack suitable for runtime delegation. This implies strict obligation coverage and `--emit both`.
 - `--persist <session-evidence-path>`: write handoff artifacts under a run/session evidence path. Persisted packs are execution evidence, not canonical planning documents.
 - `--dry-run`: preview selected context without writing artifacts.
 </flags>
 
 <handoff-pack-contract>
-When `--handoff codex-goal` is used, Context Builder produces a handoff pack with identity, obligations, selected sources, architecture guidance, related feature context, constraints, non-goals, write scope, done criteria, validation surface, gaps, blockers, contradictions, authority precedence, fallback exploration rule, provenance, and Markdown plus JSON/index output paths.
+When `--handoff runtime` is used, Context Builder produces a handoff pack with identity, obligations, selected sources, architecture guidance, related feature context, constraints, non-goals, write scope, done criteria, validation surface, gaps, blockers, contradictions, authority precedence, fallback exploration rule, provenance, and Markdown plus JSON/index output paths.
 
-Strict coverage rule: a Codex Goal handoff pack is runnable only when every obligation is covered by selected evidence or explicitly resolved as not applicable/deferred. Uncovered, contradictory, stale, unsafe, missing write-scope, or missing validation obligations return `BLOCK`.
+Strict coverage rule: a runtime handoff pack is runnable only when every obligation is covered by selected evidence or explicitly resolved as not applicable/deferred. Uncovered, contradictory, stale, unsafe, missing write-scope, or missing validation obligations return `BLOCK`.
 
 Persistence rule: persisted handoff packs live under session/run evidence. They are audit artifacts for that execution, not reusable source-of-truth documents.
 </handoff-pack-contract>
@@ -170,7 +170,7 @@ Persistence rule: persisted handoff packs live under session/run evidence. They 
    - `lean`: up to 8 files and 140 excerpt lines,
    - `standard`: up to 14 files and 280 excerpt lines,
    - `deep`: up to 24 files and 520 excerpt lines.
-10. If `--handoff codex-goal` is set, enforce strict coverage and prepare Markdown plus JSON/index handoff outputs.
+10. If `--handoff runtime` is set, enforce strict coverage and prepare Markdown plus JSON/index handoff outputs.
 11. Persist handoff outputs under the requested session evidence path when `--persist` is provided.
 12. Emit the context pack and optional index.
 13. Return blockers for obligations that lack sufficient evidence.
@@ -187,7 +187,7 @@ A successful execution must:
 - block runtime handoff packs unless all obligations are covered or explicitly resolved,
 - avoid repository-wide context dumps,
 - produce a compact artifact another agent can use immediately,
-- emit Markdown plus JSON/index for Codex Goal handoff packs,
+- emit Markdown plus JSON/index for runtime handoff packs,
 - label persisted handoff packs as session evidence rather than canonical docs.
 </quality-bar>
 
@@ -199,7 +199,7 @@ Avoid:
 - running broad unbounded searches,
 - omitting why each item was selected,
 - hiding unresolved obligations,
-- allowing a Codex Goal handoff from incomplete, stale, contradictory, unsafe, or validation-missing context,
+- allowing a runtime handoff from incomplete, stale, contradictory, unsafe, or validation-missing context,
 - persisting handoff packs beside canonical planning docs without labeling them session evidence,
 - exceeding the selected mode budget without explanation.
 </anti-patterns>
@@ -218,7 +218,7 @@ Return:
 - Noise ratio: <value>
 - Output markdown: <path or dry-run>
 - Output index: <path or none>
-- Handoff pack: <none | codex-goal>
+- Handoff pack: <none | runtime>
 - Session evidence path: <path | none | dry-run>
 - Strict coverage: pass | block | n/a
 - Blockers: <count>

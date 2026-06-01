@@ -6,6 +6,8 @@ INVOKE_DIR="$ROOT_DIR/arcanum/spells/invoke"
 DEFINE_CONTRACT="$INVOKE_DIR/define.md"
 DESIGN_CONTRACT="$INVOKE_DIR/design.md"
 PLAN_CONTRACT="$INVOKE_DIR/plan.md"
+HANDOFF_CONTRACT="$INVOKE_DIR/handoff.md"
+REFRESH_CONTRACT="$INVOKE_DIR/refresh.md"
 FIXTURE_DIR="$INVOKE_DIR/development/fixtures"
 TEMPLATE_TASKS="$INVOKE_DIR/development/TEMPLATE-VALIDATION-TASKS.md"
 EXPERIMENT_REGIMES="$INVOKE_DIR/development/EXPERIMENT-REGIMES.md"
@@ -122,6 +124,8 @@ write_report() {
 		printf -- '- Define contract: `arcanum/spells/invoke/define.md`\n'
 		printf -- '- Design contract: `arcanum/spells/invoke/design.md`\n\n'
 		printf -- '- Plan contract: `arcanum/spells/invoke/plan.md`\n\n'
+		printf -- '- Handoff contract: `arcanum/spells/invoke/handoff.md`\n\n'
+		printf -- '- Refresh contract: `arcanum/spells/invoke/refresh.md`\n\n'
 		printf -- '- Experiment regimes: `arcanum/spells/invoke/development/EXPERIMENT-REGIMES.md`\n\n'
 		printf -- '- Template task matrix: `arcanum/spells/invoke/development/TEMPLATE-VALIDATION-TASKS.md`\n\n'
 		printf -- '- Example prompts: `arcanum/spells/invoke/development/example-prompts/`\n\n'
@@ -187,8 +191,10 @@ run_template_task_matrix() {
 		'work-pack'
 		'generic'
 		'research'
+		'refresh'
 		'architecture'
 		'implementation-plan'
+		'session-handoff'
 		'spell'
 		'sigil'
 		'ux-plan'
@@ -254,9 +260,9 @@ run_prompt_selector_checks() {
 	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-next.md" 'run-template-example-with-codex.sh next' 'codex invoke example next command'
 	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-run.md" 'run-template-example-with-codex.sh <selection>' 'codex invoke example run command'
 	require_pattern "$ROOT_DIR/.arcanum/runtimes/codex/commands/arcanum-sigil-invoke-example-runner.md" 'select-template-example-prompt.sh' 'codex invoke example runner adapter'
-	require_pattern "$CODEX_EXAMPLE_RUNNER" 'experiment-harness/scripts/run-with-codex.sh' 'invoke codex example runner delegates to experiment harness'
-	require_pattern "$EXPERIMENT_CODEX_RUNNER" 'codex.*exec' 'codex example runner uses codex exec'
-	require_pattern "$EXPERIMENT_CODEX_RUNNER" '--output-last-message' 'codex example runner captures last message'
+	require_pattern "$CODEX_EXAMPLE_RUNNER" 'experiment-harness/scripts/run-with-codex.sh' 'invoke legacy codex example runner delegates to experiment harness'
+	require_pattern "$EXPERIMENT_CODEX_RUNNER" 'legacy Codex CLI adapter|codex.*exec' 'codex example runner is explicit legacy adapter'
+	require_pattern "$EXPERIMENT_CODEX_RUNNER" '--output-last-message' 'legacy codex example runner captures last message'
 	require_pattern "$EXPERIMENT_CODEX_RUNNER" '--all' 'codex example runner explicit batch mode'
 
 	if [[ "$failures" -eq 0 ]]; then
@@ -616,6 +622,8 @@ run_plan_integration_fixture() {
 require_file "$DEFINE_CONTRACT"
 require_file "$DESIGN_CONTRACT"
 require_file "$PLAN_CONTRACT"
+require_file "$HANDOFF_CONTRACT"
+require_file "$REFRESH_CONTRACT"
 require_file "$TEMPLATE_TASKS"
 require_file "$EXPERIMENT_REGIMES"
 require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 contract, candidate template-family scaffold coverage\)' 'define contract status'
@@ -634,6 +642,15 @@ require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include expl
 require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' 'plan medium high implementation detail gate'
 require_pattern "$PLAN_CONTRACT" 'Task descriptions that only say to implement a bundle' 'plan vague task gate'
 require_pattern "$PLAN_CONTRACT" 'Plan-stage transport appends stage reports' 'plan transport coverage'
+require_pattern "$HANDOFF_CONTRACT" 'Status: implemented \(L2 companion contract, validation examples pending\)' 'handoff contract status'
+require_pattern "$HANDOFF_CONTRACT" 'Prompt and source session reference are mandatory' 'handoff prompt session gate'
+require_pattern "$HANDOFF_CONTRACT" 'Context Builder must select from the whole referenced session' 'handoff context-builder selection'
+require_pattern "$HANDOFF_CONTRACT" 'workflow-reflection' 'handoff type coverage'
+require_pattern "$REFRESH_CONTRACT" 'Status: implemented \(L2 refresh contract, validation examples pending\)' 'refresh contract status'
+require_pattern "$REFRESH_CONTRACT" 'Source evidence and target artifact inventory are mandatory' 'refresh source inventory gate'
+require_pattern "$REFRESH_CONTRACT" 'Mutation mode defaults to `proposal-only`' 'refresh proposal-only default'
+require_pattern "$REFRESH_CONTRACT" 'No-op is a valid phase status' 'refresh no-op gate'
+require_pattern "$REFRESH_CONTRACT" 'Refresh must not execute target tasks' 'refresh no execution gate'
 
 run_template_task_matrix "$TEMPLATE_TASKS"
 run_prompt_selector_checks
@@ -743,6 +760,66 @@ run_fixture \
 	'Mode contract: arcanum/spells/invoke/plan.md' \
 	'Plan blocks without approved design outputs and source design refs' \
 	'INV-PLAN-BLOCK-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-HANDOFF-PASS-001.md" \
+	"$FIXTURE_DIR/INV-HANDOFF-PASS-001.expected.md" \
+	'Phase status: `pass`' \
+	'Phase status: pass' \
+	"$HANDOFF_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/handoff.md' \
+	'Context Builder must run before the final handoff artifact is considered pass-ready' \
+	'INV-HANDOFF-PASS-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-HANDOFF-BLOCK-001.md" \
+	"$FIXTURE_DIR/INV-HANDOFF-BLOCK-001.expected.md" \
+	'Phase status: `block`' \
+	'Phase status: block' \
+	"$HANDOFF_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/handoff.md' \
+	'Handoff mode blocks when the prompt or session reference is missing' \
+	'INV-HANDOFF-BLOCK-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-REFRESH-PASS-001.md" \
+	"$FIXTURE_DIR/INV-REFRESH-PASS-001.expected.md" \
+	'Phase status: `pass`' \
+	'Phase status: pass' \
+	"$REFRESH_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/refresh.md' \
+	'Every proposed or applied change must map to at least one `RefreshSignal`' \
+	'INV-REFRESH-PASS-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-REFRESH-FLAG-001.md" \
+	"$FIXTURE_DIR/INV-REFRESH-FLAG-001.expected.md" \
+	'Phase status: `flag`' \
+	'Phase status: flag' \
+	"$REFRESH_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/refresh.md' \
+	'Artifact drift must flag when the safe correction is not obvious' \
+	'INV-REFRESH-FLAG-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-REFRESH-BLOCK-001.md" \
+	"$FIXTURE_DIR/INV-REFRESH-BLOCK-001.expected.md" \
+	'Phase status: `block`' \
+	'Phase status: block' \
+	"$REFRESH_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/refresh.md' \
+	'Refresh blocks when source evidence is missing, target artifact inventory is missing' \
+	'INV-REFRESH-BLOCK-001'
+
+run_fixture \
+	"$FIXTURE_DIR/INV-REFRESH-NOOP-001.md" \
+	"$FIXTURE_DIR/INV-REFRESH-NOOP-001.expected.md" \
+	'Phase status: `no-op`' \
+	'Phase status: no-op' \
+	"$REFRESH_CONTRACT" \
+	'Mode contract: arcanum/spells/invoke/refresh.md' \
+	'No-op is a valid phase status when latest evidence is already represented' \
+	'INV-REFRESH-NOOP-001'
 
 run_integration_fixture \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.md" \

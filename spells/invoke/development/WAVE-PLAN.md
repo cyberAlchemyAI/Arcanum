@@ -141,11 +141,34 @@ Define an implementation-ready plan for one reusable Arcanum library spell: `inv
 - each profile family needs one missing-input negative example,
 - registry release remains blocked when required validation examples are missing.
 
+19. Session/thread handoff route:
+
+- handoff mode ID is `handoff`,
+- selected template family is `session-handoff`,
+- required inputs are a new-session prompt and a source session reference,
+- Context Builder must select from the whole referenced session but include only obligation-linked context,
+- default handoff types are `workflow-reflection`, `new-lifecycle-thread`, `research-direction`, `execution-continuation`, and `generic-continuation`,
+- workflow-reflection handoffs preserve the user's felt gap as evidence and route first to `workflow-reflect`,
+- new-lifecycle-thread handoffs route to the appropriate `invoke` lifecycle mode,
+- research-direction handoffs distinguish known session evidence from questions for another project,
+- execution-continuation handoffs require strict Context Builder coverage before routing to `task-session` or runtime-goal handoff.
+
+20. Artifact refresh route:
+
+- refresh mode ID is `refresh`,
+- selected template family is `refresh`,
+- required inputs are source evidence, target artifact inventory, refresh scope, evidence date, and mutation mode,
+- default mutation mode is `proposal-only`,
+- apply-approved requires explicit approval, declared scope, and validation commands,
+- refresh signals classify evidence as `evidence_added`, `blocker_opened`, `blocker_resolved`, `status_changed`, `route_changed`, `artifact_drift`, or `no_op`,
+- no-op is a valid phase status,
+- refresh must not execute target work or infer completion from setup proof.
+
 ## Spell Overview
 
 | Spell    | Core Outcome                                                           | Primary Inputs                                                          | Primary Outputs                                                                                                      |
 | -------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `invoke` | Produce spec + glossary + design + work-pack through one governed flow | goal, constraints, evidence, optional existing artifacts, selected mode | spec artifact, glossary artifact, design bundle, work-pack, decisions, unresolved gaps, Necronomicon context updates |
+| `invoke` | Produce spec + glossary + design + work-pack + session handoff + refresh report through one governed flow | goal, constraints, evidence, optional existing artifacts, selected mode, optional source session reference, optional refresh scope | spec artifact, glossary artifact, design bundle, work-pack, session handoff, refresh report, decisions, unresolved gaps, Necronomicon context updates |
 
 ## Compose Map
 
@@ -164,6 +187,7 @@ Define an implementation-ready plan for one reusable Arcanum library spell: `inv
 - `implementation-layering` transmutation as a companion artifact for `plan`, `full`, and `validate`; optional seed during `define` and `design`.
 - `spellcraft` when the generated work-pack targets reusable or local spell creation, revision, validation, observation, or reflection.
 - `sigil-development` when the generated work-pack targets sigil creation, revision, observability, or reflection.
+- `workflow-reflect` when a handoff is explicitly about a felt gap or repeated friction in a sigil, spell, or invoke workflow.
 
 ## Authoring Handoff Policy
 
@@ -174,6 +198,8 @@ Define an implementation-ready plan for one reusable Arcanum library spell: `inv
 This keeps `invoke` generic while preserving existing Arcanum lifecycle authorities:
 
 - `invoke`: define/design/plan/validate artifact intent and handoff context,
+- `invoke handoff`: prepare a new session/thread artifact from prompt plus session reference,
+- `invoke refresh`: update or propose updates to existing invoke-authored artifact state from new session evidence,
 - `spellcraft`: design, install, validate, observe, reflect, and revise spells,
 - `sigil-development`: create, update, observe, reflect, and iterate sigils.
 

@@ -7,7 +7,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 - Artifact: `invoke`
 - Scope: library spell
 - Validation date: 2026-05-18
-- Validated layer: L0 define, L1 design, L2 plan contract, and define-to-design-to-plan live loop readiness
+- Validated layer: L0 define, L1 design, L2 plan contract, L2H handoff contract, L2R refresh contract, and define-to-design-to-plan live loop readiness
 - Promotion target: proceed to `full` and `validate` mode work after L2 plan evidence
 - Verdict: `pass`
 - Latest deterministic control report: generated under ignored `runs/`
@@ -17,7 +17,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Markdown links | pass | `find arcanum/spells/invoke -name '*.md' -print0 \| xargs -0 -n1 ./tools/check_markdown_links.sh` passed for all invoke markdown files. |
-| Spell contract structure | pass | [../README.md](../README.md), [../define.md](../define.md), and [../design.md](../design.md) define identity, modes, phases, gates, handoffs, failure policy, observability, and output contracts. |
+| Spell contract structure | pass | [../README.md](../README.md), [../define.md](../define.md), [../design.md](../design.md), [../handoff.md](../handoff.md), and [../refresh.md](../refresh.md) define identity, modes, phases, gates, handoffs, failure policy, observability, and output contracts. |
 | Template scaffold coverage | pass | [../templates/README.md](../templates/README.md) declares family scaffold requirements; `generic`, `research`, `architecture`, `spell`, `sigil`, and `ux-plan` folders include README, primary template, passing example, and missing-input example. Historical `implementation-plan` scaffolding is no longer part of the active plan surface. |
 | Template task matrix coverage | pass | [TEMPLATE-VALIDATION-TASKS.md](TEMPLATE-VALIDATION-TASKS.md) lists low, medium, and complex tasks for Module Formulae, standalone companions, and each dedicated family. |
 | Template prompt coverage | pass | [TEMPLATE-EXAMPLE-RUNBOOK.md](TEMPLATE-EXAMPLE-RUNBOOK.md) explains how to run every generated prompt in Codex; `example-prompts/` contains one prompt per template task. |
@@ -26,11 +26,14 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Define gate coverage | pass | [../define.md](../define.md) blocks missing core goals, flags unapproved candidate-template cases, gates glossary promotion, and defines transport behavior. |
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
 | Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-layering, canonical work-pack, validation strategy, complexity-based output mode, layer-mapped waves for medium/high complexity, implementation-detail specs, SWU decomposition for execution tasks, navigable work-pack tables, artifact-boundary clarity, and subagent/local-fallback-ready SWU handoff fields. |
+| Handoff gate coverage | pass | [../handoff.md](../handoff.md) requires a new-session prompt, source session reference, handoff type, Context Builder selection, selected/excluded context, and explicit next route. |
+| Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, and pass/flag/block/no-op statuses. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Codex adapter readiness | pass | Root-level `.arcanum/runtimes/codex/commands/arcanum-spell-invoke.md` and `.codex/commands/arcanum-spell-invoke.md` exist and route Codex to canonical `arcanum/spells/invoke` contracts. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
 | Integration replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-001` proves define artifacts feed design inputs, preserve glossary terms, emit six views, and route next to `plan`. |
 | Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. The canonical work-pack hierarchy, navigable table links, and new SWU handoff fields are a contract refresh and should be covered in the next plan fixture refresh. |
+| Refresh replay | pass | `INV-REFRESH-PASS-001`, `INV-REFRESH-FLAG-001`, `INV-REFRESH-BLOCK-001`, and `INV-REFRESH-NOOP-001` prove evidence-backed proposal, artifact-drift flag, missing-input block, and no-op behavior. |
 | Define-design-plan replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-PLAN-001` proves plan consumes design inputs, preserves define glossary terms, emits layering/work-pack/transport artifacts, and routes next to `task-session`. Existing fixture evidence should be refreshed against the work-pack-only planning contract. |
 | Live define loop | pass | [live-evidence/LIVE-DEFINE-001/loop-report.md](live-evidence/LIVE-DEFINE-001/loop-report.md) reached two consecutive passing Codex attempts; [output.md](live-evidence/LIVE-DEFINE-001/output.md) preserves the real artifact body. |
 | Live design loop | pass | [live-evidence/LIVE-DESIGN-001/loop-report.md](live-evidence/LIVE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts after correcting overly broad placeholder/blocker detection in the harness validator; [output.md](live-evidence/LIVE-DESIGN-001/output.md) preserves the real artifact body. |
@@ -78,7 +81,7 @@ Registry release remains blocked for `plan`, `full`, and `validate` modes until 
 | --- | --- | --- |
 | [TEMPLATE-TASK-MATRIX](TEMPLATE-VALIDATION-TASKS.md) | pass | Template task inventory covers low, medium, and complex tasks for every invoke-owned template family or standalone companion. |
 | PROMPT-SELECTOR | pass | Prompt selector and Codex command bridge can choose a prompt by task ID, template+complexity, or next unrun prompt. |
-| EXAMPLE-OUTPUTS | pass | Existing Codex-generated example outputs have real result bodies, including `Mode` and `Phase status`. |
+| EXAMPLE-OUTPUTS | pass | Any saved Codex-generated example outputs must have real result bodies, including `Mode` and `Phase status`; current deterministic run found no saved `.output.md` files. |
 | [INV-DEFINE-PASS-001](fixtures/INV-DEFINE-PASS-001.md) | pass | Define dry-run from vague but usable Mars rover maintenance request produces spec, glossary, define transport, and layering seed evidence. |
 | [INV-DEFINE-BLOCK-001](fixtures/INV-DEFINE-BLOCK-001.md) | pass | Define dry-run with missing core goal blocks at the expected gate and records missing goal and scope boundary. |
 | [INV-DEFINE-FLAG-001](fixtures/INV-DEFINE-FLAG-001.md) | pass | Define dry-run with unsupported template fit flags candidate-template approval gap without promotion. |
@@ -91,6 +94,12 @@ Registry release remains blocked for `plan`, `full`, and `validate` modes until 
 | [INV-PLAN-PASS-001](fixtures/INV-PLAN-PASS-001.md) | pass | Dry-run from approved design outputs emits global implementation layering, compact layer mapping, single-file work-pack, validation strategy, plan transport, and next route `task-session`. |
 | [INV-PLAN-SPLIT-001](fixtures/INV-PLAN-SPLIT-001.md) | pass | Dry-run for medium complexity emits split work-pack, execution-pack handoff, explicit L0-L3 layer-mapped waves, implementation-detail specs, and SWU manifest/task-local mappings. |
 | [INV-PLAN-BLOCK-001](fixtures/INV-PLAN-BLOCK-001.md) | pass | Dry-run with missing approved design refs and companion status blocks at the plan activation gate. |
+| [INV-HANDOFF-PASS-001](fixtures/INV-HANDOFF-PASS-001.md) | pass | Dry-run for workflow reflection handoff preserves the user's felt gap, reports Context Builder coverage, and routes next to `workflow-reflect`. |
+| [INV-HANDOFF-BLOCK-001](fixtures/INV-HANDOFF-BLOCK-001.md) | pass | Dry-run without a source session reference blocks before Context Builder selection. |
+| [INV-REFRESH-PASS-001](fixtures/INV-REFRESH-PASS-001.md) | pass | Dry-run maps latest evidence into proposal-only blocker/status/route deltas without applying changes. |
+| [INV-REFRESH-FLAG-001](fixtures/INV-REFRESH-FLAG-001.md) | pass | Dry-run flags artifact drift when safe correction needs owner review. |
+| [INV-REFRESH-BLOCK-001](fixtures/INV-REFRESH-BLOCK-001.md) | pass | Dry-run blocks when target artifact inventory is missing. |
+| [INV-REFRESH-NOOP-001](fixtures/INV-REFRESH-NOOP-001.md) | pass | Dry-run records no-op when latest evidence is already represented. |
 | [INV-INTEGRATION-DEFINE-DESIGN-PLAN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md) | pass | Integration dry-run chains define and design artifacts into plan, preserves glossary terms, emits plan artifacts and transport, and keeps execution deferred. |
 
 ## Runner Output
@@ -108,7 +117,7 @@ Output:
 ```text
 PASS: TEMPLATE-TASK-MATRIX
 PASS: PROMPT-SELECTOR
-PASS: EXAMPLE-OUTPUTS (1 checked)
+PASS: EXAMPLE-OUTPUTS (0 checked)
 PASS: INV-DEFINE-PASS-001
 PASS: INV-DEFINE-BLOCK-001
 PASS: INV-DEFINE-FLAG-001
@@ -120,6 +129,12 @@ PASS: INV-DESIGN-HANDOFF-001
 PASS: INV-PLAN-PASS-001
 PASS: INV-PLAN-SPLIT-001
 PASS: INV-PLAN-BLOCK-001
+PASS: INV-HANDOFF-PASS-001
+PASS: INV-HANDOFF-BLOCK-001
+PASS: INV-REFRESH-PASS-001
+PASS: INV-REFRESH-FLAG-001
+PASS: INV-REFRESH-BLOCK-001
+PASS: INV-REFRESH-NOOP-001
 PASS: INV-INTEGRATION-DEFINE-DESIGN-001
 PASS: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001
 PASS: INV-QUALITY-ANTI-PATTERN-001

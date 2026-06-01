@@ -11,9 +11,11 @@ This directory contains invoke-owned template families and standalone companion 
 | [work-pack.md](work-pack.md) | Canonical executable planning manifest and current state for plan, full, and validate flows. |
 | [generic/](generic/) | Neutral fallback family for broad lifecycle authoring requests. |
 | [research/](research/) | Evidence-first discovery family. |
+| [refresh/](refresh/) | Artifact refresh report and patch proposal family. |
 | [architecture/](architecture/) | Architecture planning family. |
 | [spell/](spell/) | Spell authoring handoff family. |
 | [sigil/](sigil/) | Sigil authoring handoff family. |
+| [session-handoff/](session-handoff/) | New session/thread handoff family for reflection, lifecycle splits, research directions, and continuations. |
 | [ux-plan/](ux-plan/) | Experience planning family. |
 
 ## Family Scaffold Contract

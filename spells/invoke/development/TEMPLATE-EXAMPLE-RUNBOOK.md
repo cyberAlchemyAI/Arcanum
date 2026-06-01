@@ -39,7 +39,7 @@ invoke-example-run sigil-medium
 invoke-example-run sigil medium
 ```
 
-Automated CLI runner:
+Automated native skill/subagent execution is preferred. The Codex CLI runner remains available only as an explicit legacy adapter test:
 
 ```bash
 arcanum/spells/invoke/development/run-template-example-with-codex.sh sigil-medium
@@ -47,7 +47,7 @@ arcanum/spells/invoke/development/run-template-example-with-codex.sh sigil mediu
 arcanum/spells/invoke/development/run-template-example-with-codex.sh next
 ```
 
-The runner calls `codex exec`, writes the last Codex message to `example-outputs/<task-id>.output.md`, and stores command logs under `example-runs/`. If Codex exits with an error, the runner prints the log path and does not create the output file.
+The legacy runner calls `codex exec`, writes the last Codex message to `example-outputs/<task-id>.output.md`, and stores command logs under `example-runs/`. If Codex exits with an error, the runner prints the log path and does not create the output file.
 
 If `codex` is not on `PATH`, the runner tries common VS Code extension install paths. You can also set `CODEX_BIN` explicitly:
 

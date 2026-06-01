@@ -1,0 +1,21 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-REFRESH-PASS-001
+- User request: Refresh the current invoke-authored work-pack from this latest session result: materialization setup proof completed, but score smoke still needs a real candidate and worker profile.
+- Mode: refresh
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: pass
+- Mode contract: arcanum/spells/invoke/refresh.md
+- Outputs: artifacts/refresh/REFRESH-REPORT.md, artifacts/refresh/REFRESH-PATCH-PROPOSAL.md
+- Mutation mode: proposal-only
+- Source signals: 3; evidence_added, blocker_opened, route_changed
+- Target artifacts: WORK-PACK.md, work-pack/tasks/TASK-SCORE.md
+- Proposed changes: mark materialization setup proof represented; preserve score smoke blocker; add next route to candidate/profile prep
+- Applied changes: n/a
+- Skipped changes: do not mark score smoke complete because setup proof is not score proof
+- Validation: review proposed patch against source evidence
+- Decisions: update blockers before completion claims; keep mutation proposal-only
+- Unresolved gaps: real candidate and worker profile remain target-artifact gaps
+- Next route: task-session

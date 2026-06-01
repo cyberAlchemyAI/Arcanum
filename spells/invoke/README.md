@@ -25,6 +25,8 @@ Invoke is an authoring front door, not the lifecycle owner for every artifact it
 | `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with Module Formulae baseline coverage, standalone companions, and candidate family scaffolds. |
 | `design`   | implemented (L1 contract) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts; validation examples still gate promotion. |
 | `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
+| `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
+| `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas. |
 | `full`     | deferred         | [full.md](./full.md)         | Composite execution mode, pending L2 and L3 readiness. |
 | `validate` | deferred         | [validate.md](./validate.md) | Lifecycle validation mode, pending L3.                 |
 
@@ -77,6 +79,18 @@ For an ordinary feature or module:
 invoke define/design/plan -> task-session to WORK-PACK.md
 ```
 
+For a new thread split from the current session:
+
+```text
+invoke handoff -> workflow-reflect | invoke define/design/full | research | task-session
+```
+
+For artifact refresh after a session result:
+
+```text
+invoke refresh -> proposal-only refresh report -> task-session | workflow-reflect | deferred
+```
+
 When a target is already clearly a sigil or spell, Invoke should produce a compact handoff packet and route early instead of expanding into lifecycle execution.
 
 ## Cross-Cutting Transmutations
@@ -109,6 +123,8 @@ When a target is already clearly a sigil or spell, Invoke should produce a compa
 | implementation layering artifact | spell | `invoke design`, `invoke plan`, and `invoke full` | plan validation, execution handoff, and release checks |
 | implementation plan artifact | spell | `invoke plan` and `invoke full` | work-pack mapping, validation strategy, and execution handoff |
 | work-pack artifact          | spell | `invoke plan` and `invoke full`                 | stable planning manifest and execution handoff |
+| session handoff artifact    | spell | `invoke handoff`                                | new session/thread start, reflection, research, or continuation route |
+| refresh report              | spell | `invoke refresh`                                | evidence-backed artifact deltas, proposals, no-op decisions, and next route |
 | define transport report     | spell | `invoke define`                                 | Necronomicon context          |
 | design transport report     | spell | `invoke design`                                 | Necronomicon context          |
 | plan transport report       | spell | `invoke plan`                                   | Necronomicon context          |
@@ -127,7 +143,7 @@ Invoke may author artifacts for another capability, module, spell, sigil, or rep
 Every invoke run that targets another artifact should record:
 
 - observed capability: always `invoke`,
-- invoke mode: `define`, `design`, `plan`, `full`, `validate`, or a composed mode,
+- invoke mode: `define`, `design`, `plan`, `handoff`, `refresh`, `full`, `validate`, or a composed mode,
 - target artifact name and type,
 - target artifact owner or lifecycle cycle,
 - output paths owned by the target artifact,
@@ -141,6 +157,9 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 
 - define context summary
 - target artifact name, type, owner, and lifecycle cycle
+- source session reference and new-session prompt when mode is `handoff`
+- handoff type and Context Builder coverage status when mode is `handoff`
+- source signals, target artifact inventory, mutation mode, and delta summary when mode is `refresh`
 - mode artifact paths
 - design artifact paths and six-view coverage
 - glossary consistency report
@@ -169,6 +188,10 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - No silent upstream mutation; direct upstream edits require explicit approval.
 - Stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
 - Reflection provenance must distinguish invoke telemetry ownership from target artifact ownership.
+- Session/thread handoffs must select context from the referenced session through Context Builder and must not substitute a whole-session transcript for obligation-linked context.
+- Handoff mode must preserve the user's split reason: workflow gap, new lifecycle idea, research direction, execution continuation, or generic continuation.
+- Refresh mode must map every proposed or applied artifact update to a typed source signal and must default to proposal-only.
+- Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
 
 ## Global Failure Policy
 
@@ -194,6 +217,8 @@ When `.arcanum/observability/` exists, record:
 - artifact paths produced,
 - unresolved gaps and blocker decisions,
 - handoff target recommendation,
+- handoff type and source session reference when mode is `handoff`,
+- refresh source signal count, delta classes, mutation mode, and no-op rationale when mode is `refresh`,
 - target artifact name, type, owner, and lifecycle cycle,
 - gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
@@ -211,7 +236,7 @@ Return:
 ```markdown
 ## Invoke Result
 
-- Mode: <define | design | plan | full | validate>
+- Mode: <define | design | plan | handoff | refresh | full | validate>
 - Spell: invoke
 - Canonical ID: invoke
 - Scope: library
@@ -226,11 +251,12 @@ Return:
 - Per-layer planning: <compact | L0, L1, L2, L3 | blocked | n/a>
 - Implementation detail: <inline | task specs complete | detail gaps recorded | blocked | n/a>
 - Smallest working units: <n/a | complete | gaps recorded | blocked>
+- Refresh: <n/a | report path and delta summary | no-op | blocked>
 - Target artifact: <name, type, owner/cycle>
 - Template or recipe selection: <summary>
 - Decisions: <summary>
 - Unresolved gaps: <invoke gaps; target artifact gaps>
-- Next route: task-session | full | spellcraft | sigil-development | deferred
+- Next route: task-session | workflow-reflect | full | spellcraft | sigil-development | deferred
 ```
 
-Mode-specific execution phases and mode-level output contracts are defined in [define.md](./define.md), [design.md](./design.md), [plan.md](./plan.md), [full.md](./full.md), and [validate.md](./validate.md).
+Mode-specific execution phases and mode-level output contracts are defined in [define.md](./define.md), [design.md](./design.md), [plan.md](./plan.md), [handoff.md](./handoff.md), [refresh.md](./refresh.md), [full.md](./full.md), and [validate.md](./validate.md).

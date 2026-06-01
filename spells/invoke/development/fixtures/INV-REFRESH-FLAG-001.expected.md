@@ -1,0 +1,21 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-REFRESH-FLAG-001
+- User request: Refresh the work-pack after the latest session. The task file says the route is blocked, but the work-pack board still says ready.
+- Mode: refresh
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: flag
+- Mode contract: arcanum/spells/invoke/refresh.md
+- Outputs: artifacts/refresh/REFRESH-REPORT.md, artifacts/refresh/REFRESH-PATCH-PROPOSAL.md
+- Mutation mode: proposal-only
+- Source signals: 1; artifact_drift
+- Target artifacts: WORK-PACK.md, work-pack/tasks/TASK-ROUTE.md
+- Proposed changes: flag task-board conflict and request owner review before status mutation
+- Applied changes: n/a
+- Skipped changes: do not choose the winning artifact without approval
+- Validation: compare work-pack board row with task file blocker section
+- Decisions: artifact drift needs review because safe correction is not obvious
+- Unresolved gaps: owner must decide whether ready or blocked is authoritative
+- Next route: deferred
