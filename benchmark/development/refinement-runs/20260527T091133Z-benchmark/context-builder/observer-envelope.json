@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-05-27T09:13:08Z",
+  "run_id": "arcanum-context-builder-20260527T091308Z",
+  "capability": {
+    "id": "context-builder",
+    "kind": "sigil",
+    "tier": "transmutations",
+    "mode": "command"
+  },
+  "target_artifact": ".codex/commands/context-builder.md",
+  "request": {
+    "summary": "Build and persist a strict runtime context handoff for refining use of refine/distill/invoke against completed benchmark smoke tests without mutating benchmark source or recomputing scores.",
+    "raw": "target=benchmark --strict --emit both --handoff runtime --persist benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder preset=standard request=target=benchmark; preset=standard; research=research-if-gap-appears; refine the idea of using refine/distill/invoke to validate our tool against the completed benchmark smoke tests; do not mutate benchmark source or recompute benchmark scores"
+  },
+  "expected_outputs": [
+    "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-pack.md",
+    "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-index.json",
+    "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/observer-envelope.json"
+  ],
+  "execution": {
+    "status": "completed",
+    "strict_coverage": "pass",
+    "files_changed": [
+      "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-pack.md",
+      "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-index.json",
+      "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/observer-envelope.json"
+    ],
+    "validation": [
+      "jq empty benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-index.json",
+      "jq empty benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/observer-envelope.json"
+    ],
+    "notes": "Selected selector-level local evidence only; benchmark source and score artifacts were not mutated."
+  },
+  "observer": {
+    "quality_bar_status": "pass",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [],
+    "output_contract_drift": false,
+    "reflection_trigger": "none",
+    "recommendation": "none"
+  },
+  "dedupe_key": "arcanum-context-builder-20260527T091308Z:signal-observer:0.1.0"
+}

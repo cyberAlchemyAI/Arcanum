@@ -1,0 +1,1 @@
+PASS — Context Builder adapter smoke test completed with no repo inspection; run_id=`arcanum-context-builder-20260527T084600Z`, validation=`pass`, observability=`available`, ledger=`no artifacts written`.

@@ -1,0 +1,122 @@
+{
+  "run_id": "20260527T091133Z-benchmark",
+  "status": "block",
+  "target": "benchmark",
+  "preset": "standard",
+  "research": {
+    "mode": "research-if-gap-appears",
+    "external_research_used": false
+  },
+  "request": "target=benchmark; preset=standard; research=research-if-gap-appears; refine the idea of using refine/distill/invoke to validate our tool against the completed benchmark smoke tests; do not mutate benchmark source or recompute benchmark scores",
+  "runtime_topology": "native-root-orchestration",
+  "stage_adapter": "codex-bypass",
+  "artifacts": {
+    "run_dir": "benchmark/development/refinement-runs/20260527T091133Z-benchmark",
+    "seed": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/REFINE-SEED-PROPOSAL.md",
+    "goal_handoff": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/GOAL-HANDOFF.md",
+    "manifest": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/RUN-MANIFEST.md",
+    "result": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/RESULT.md"
+  },
+  "stage_evidence": [
+    {
+      "stage": "Task Zero Observer Envelope",
+      "owner": "refine",
+      "command_file": null,
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/00-observer-envelope.md",
+      "status": "pass",
+      "verdict": "observer envelope prepared",
+      "blocked_reason": null
+    },
+    {
+      "stage": "Context Builder evidence baseline",
+      "owner": "context-builder",
+      "command_file": ".codex/commands/context-builder.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/01-context-builder.md",
+      "status": "pass",
+      "verdict": "persisted context-builder handoff artifacts validated",
+      "blocked_reason": null
+    },
+    {
+      "stage": "Invoke Define",
+      "owner": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/02-invoke-define.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Stage command did not produce pass evidence. See benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/.logs/02-invoke-define.log."
+    },
+    {
+      "stage": "Interrogation refine-review",
+      "owner": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/03-interrogation-refine-review.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Invoke Define did not produce pass evidence."
+    },
+    {
+      "stage": "Research decision",
+      "owner": "refine",
+      "command_file": null,
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/04-research-decision.md",
+      "status": "pass",
+      "verdict": "research-if-gap-appears recorded; external research not executed",
+      "blocked_reason": null
+    },
+    {
+      "stage": "Distill",
+      "owner": "distill",
+      "command_file": ".codex/commands/distill.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/05-distill.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Refine review did not produce pass evidence."
+    },
+    {
+      "stage": "Invoke Redefine / Design",
+      "owner": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/06-invoke-design.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Distill did not produce pass evidence."
+    },
+    {
+      "stage": "Interrogation refine-design-review",
+      "owner": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/07-interrogation-refine-design-review.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Invoke Design did not produce pass evidence."
+    },
+    {
+      "stage": "Distill Repair",
+      "owner": "distill",
+      "command_file": ".codex/commands/distill.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/08-distill-repair.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Design review did not produce pass evidence."
+    },
+    {
+      "stage": "Invoke Plan",
+      "owner": "invoke",
+      "command_file": ".codex/commands/invoke.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/09-invoke-plan.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Distill Repair did not produce pass evidence."
+    },
+    {
+      "stage": "Final Interrogation and Synthesis",
+      "owner": "interrogation",
+      "command_file": ".codex/commands/interrogation.md",
+      "artifact": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/stages/10-final-interrogation-and-synthesis.md",
+      "status": "block",
+      "verdict": null,
+      "blocked_reason": "Dependency blocked. Invoke Plan did not produce pass evidence."
+    }
+  ],
+  "recommended_next_route": "inspect first blocked stage and rerun after fixing the stage blocker"
+}
