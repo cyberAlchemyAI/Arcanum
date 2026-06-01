@@ -1,0 +1,525 @@
+metadata:
+  id: ux-playwright-evidence-reference-cards
+  status: task-session-research-output
+  created_at: "2026-06-01"
+  dispatch_id: ux-playwright-evidence-research-20260601
+  source_strategy: "arcana/ux-evidence-validator/development/UX-PLAYWRIGHT-EVIDENCE-RESEARCH-STRATEGY.md"
+  rule: "Cards are research inputs for a future validator. They are not promoted hard gates until fixture calibration and owner review pass."
+  automation_scale:
+    - hard_gate
+    - soft_flag
+    - screenshot_review
+    - human_study
+    - not_automatable
+  evidence_strength_scale:
+    - deterministic
+    - empirical
+    - expert_heuristic
+    - market_benchmark
+    - hypothesis
+  caveats:
+    - "Academic and perception claims become conservative UI proxies, not claims about a user's mind."
+    - "Market-practice evidence is domain-weighted unless the product context matches."
+    - "Automated accessibility checks are useful but partial; manual review remains required for many success criteria."
+
+cards:
+  - id: ux.std.wcag22
+    lane: standards_accessibility
+    source_title: "W3C Web Content Accessibility Guidelines 2.2"
+    source_url: "https://www.w3.org/TR/WCAG22/"
+    source_type: standard
+    checked_at: "2026-06-01"
+    claim: "Finished web interfaces should satisfy applicable WCAG 2.2 success criteria for perceivable, operable, understandable, and robust content."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - forms
+      - interaction
+      - content
+    automation_candidate: hard_gate
+    playwright_probe: "Run automated accessibility scans, inspect role/name/state, verify keyboard operation, capture focus and error states."
+    human_review_prompt: "Review criteria that need judgment, including meaningful sequence, link purpose, labels, error help, and visual contrast in context."
+    contraindications: "WCAG conformance is a baseline for access, not a full measure of usability or product quality."
+    freshness_rule: check_latest
+    validator_layer: L1_accessibility
+
+  - id: ux.std.wcag_em
+    lane: standards_accessibility
+    source_title: "W3C Website Accessibility Conformance Evaluation Methodology"
+    source_url: "https://www.w3.org/WAI/test-evaluate/conformance/wcag-em/"
+    source_type: standard
+    checked_at: "2026-06-01"
+    claim: "Accessibility evaluation should use representative pages, common states, and documented methods instead of a single-page spot check."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - navigation
+      - forms
+      - content
+    automation_candidate: human_study
+    playwright_probe: "Require a scenario matrix that names representative pages, states, viewports, and interaction paths."
+    human_review_prompt: "Confirm that selected scenarios cover the product's actual critical workflows and content templates."
+    contraindications: "A scenario matrix can structure evidence but cannot prove untested pages are accessible."
+    freshness_rule: check_latest
+    validator_layer: L6_human_evidence
+
+  - id: ux.std.wai_aria12
+    lane: standards_accessibility
+    source_title: "WAI-ARIA 1.2"
+    source_url: "https://www.w3.org/TR/wai-aria-1.2/"
+    source_type: standard
+    checked_at: "2026-06-01"
+    claim: "Roles, states, and properties should expose accurate semantics and must not conflict with native element behavior."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - interaction
+      - semantic_structure
+    automation_candidate: hard_gate
+    playwright_probe: "Use role locators and ARIA snapshots to verify landmark, dialog, menu, tab, form, and button semantics."
+    human_review_prompt: "Review custom widgets for semantic fidelity against the intended user interaction."
+    contraindications: "Passing ARIA snapshots does not prove the widget interaction pattern is complete."
+    freshness_rule: check_latest
+    validator_layer: L1_accessibility
+
+  - id: ux.std.aria_apg
+    lane: standards_accessibility
+    source_title: "WAI-ARIA Authoring Practices Guide"
+    source_url: "https://www.w3.org/WAI/ARIA/apg/"
+    source_type: standard
+    checked_at: "2026-06-01"
+    claim: "Custom widgets should follow documented keyboard interaction and focus-management patterns for their role."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - interaction
+      - keyboard
+    automation_candidate: hard_gate
+    playwright_probe: "For known widgets, script keyboard paths and assert focus movement, selected state, expanded state, and escape behavior."
+    human_review_prompt: "Confirm whether the widget selected by the product actually matches the ARIA pattern being tested."
+    contraindications: "APG patterns are examples and need product-context mapping before enforcement."
+    freshness_rule: check_latest
+    validator_layer: L1_accessibility
+
+  - id: ux.tool.axe_core
+    lane: standards_accessibility
+    source_title: "Deque axe-core"
+    source_url: "https://github.com/dequelabs/axe-core"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "Automated accessibility rule engines can catch many detectable WCAG and ARIA failures and should produce structured evidence."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - semantic_structure
+      - content
+    automation_candidate: hard_gate
+    playwright_probe: "Inject axe-core or use an axe adapter during Playwright runs and persist JSON results with impact levels."
+    human_review_prompt: "Review any serious or critical finding and record whether it blocks release or needs design judgment."
+    contraindications: "Automated accessibility tools cannot detect every WCAG failure and must not replace manual review."
+    freshness_rule: check_latest
+    validator_layer: L1_accessibility
+
+  - id: ux.cog.cognitive_load_theory
+    lane: cognitive_human_factors
+    source_title: "Sweller, Cognitive Load During Problem Solving"
+    source_url: "https://doi.org/10.1016/0364-0213(88)90023-7"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Avoidable task switching, unnecessary instructions, and dense presentation can increase extraneous cognitive load."
+    evidence_strength: empirical
+    ui_scope:
+      - visual_hierarchy
+      - content
+      - interaction
+      - task_flow
+    automation_candidate: soft_flag
+    playwright_probe: "Count visible choices, visible instruction blocks, required cross-step memory dependencies, and interaction interruptions at decision points."
+    human_review_prompt: "Ask whether the screen removes avoidable mental work for the primary task."
+    contraindications: "Cognitive load is not directly measured by DOM metrics; Playwright can only flag risk proxies."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.cog.working_memory_capacity
+    lane: cognitive_human_factors
+    source_title: "Cowan, The Magical Number 4 in Short-Term Memory"
+    source_url: "https://doi.org/10.1017/S0140525X01003922"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Interfaces should avoid making users retain multiple ungrouped facts or choices across steps."
+    evidence_strength: empirical
+    ui_scope:
+      - content
+      - forms
+      - task_flow
+      - navigation
+    automation_candidate: soft_flag
+    playwright_probe: "Flag multi-step flows that hide selected values, prior constraints, or recovery context after navigation."
+    human_review_prompt: "Check whether the next action can be chosen from visible information instead of memory."
+    contraindications: "Capacity estimates vary with expertise, chunking, and task domain."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.cog.fitts_law
+    lane: cognitive_human_factors
+    source_title: "Fitts, Information Capacity of the Human Motor System"
+    source_url: "https://doi.org/10.1037/h0055392"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Smaller or distant interactive targets increase movement difficulty, especially on touch and repeated workflows."
+    evidence_strength: empirical
+    ui_scope:
+      - interaction
+      - mobile
+      - forms
+      - navigation
+    automation_candidate: hard_gate
+    playwright_probe: "Measure clickable bounding boxes, spacing, touch viewport variants, and distance between common sequential targets."
+    human_review_prompt: "Review whether small targets are intentional, low-risk, and supported by alternate input methods."
+    contraindications: "Target-size guidance depends on device, input modality, and task frequency."
+    freshness_rule: fixed
+    validator_layer: L2_layout_integrity
+
+  - id: ux.cog.hick_hyman_choice_complexity
+    lane: cognitive_human_factors
+    source_title: "Hick-Hyman Choice Reaction Research"
+    source_url: "https://doi.org/10.1080/17470215208416600"
+    secondary_source_url: "https://doi.org/10.1037/h0056940"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Large or poorly grouped choice sets can increase decision time and error risk."
+    evidence_strength: empirical
+    ui_scope:
+      - navigation
+      - forms
+      - visual_hierarchy
+      - task_flow
+    automation_candidate: soft_flag
+    playwright_probe: "Count visible peer actions and branches in configured decision regions; flag ungrouped high-choice states."
+    human_review_prompt: "Confirm whether options are grouped by user goal and whether progressive disclosure is appropriate."
+    contraindications: "Expert users, search tasks, and comparison workflows may intentionally expose many choices."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.cog.nasa_tlx
+    lane: cognitive_human_factors
+    source_title: "NASA Task Load Index"
+    source_url: "https://doi.org/10.1016/S0166-4115(08)62386-9"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Perceived workload is best measured with a human instrument when workload evidence matters."
+    evidence_strength: empirical
+    ui_scope:
+      - task_flow
+      - research_protocol
+      - usability_testing
+    automation_candidate: human_study
+    playwright_probe: "Persist task timing, error count, and step count as supporting evidence for a later workload study."
+    human_review_prompt: "Use workload questions only when the product team needs human evidence, not as an automated UI score."
+    contraindications: "Browser automation cannot infer subjective workload."
+    freshness_rule: fixed
+    validator_layer: L6_human_evidence
+
+  - id: ux.perception.feature_integration
+    lane: neuroscience_perception
+    source_title: "Treisman and Gelade, Feature-Integration Theory of Attention"
+    source_url: "https://pubmed.ncbi.nlm.nih.gov/7351125/"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Users can find simple distinctive features faster than conjunctions that require effortful search."
+    evidence_strength: empirical
+    ui_scope:
+      - visual_hierarchy
+      - content
+      - status_feedback
+    automation_candidate: screenshot_review
+    playwright_probe: "Capture critical states and flag low-distinctiveness signals such as errors, active tabs, selected filters, or required warnings."
+    human_review_prompt: "Check whether the important state is visually distinct without relying only on text memory."
+    contraindications: "Visual search performance depends on context, distractors, expertise, and viewing conditions."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.perception.saliency_model
+    lane: neuroscience_perception
+    source_title: "Itti, Koch, and Niebur, A Model of Saliency-Based Visual Attention"
+    source_url: "https://doi.org/10.1109/34.730558"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Contrast, color, orientation, and intensity can draw bottom-up attention and compete with task-relevant elements."
+    evidence_strength: empirical
+    ui_scope:
+      - visual_hierarchy
+      - layout
+      - attention
+    automation_candidate: screenshot_review
+    playwright_probe: "Compute or approximate salience from screenshots for configured critical regions and competing elements."
+    human_review_prompt: "Review whether decorative or secondary regions are visually louder than the task-critical action."
+    contraindications: "Computational salience is a proxy and does not account for goals, context, or expertise."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.perception.visual_attention_review
+    lane: neuroscience_perception
+    source_title: "Itti and Koch, Computational Modelling of Visual Attention"
+    source_url: "https://doi.org/10.1038/35058500"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Attention is influenced by both bottom-up salience and top-down task goals, so visual hierarchy needs scenario context."
+    evidence_strength: empirical
+    ui_scope:
+      - visual_hierarchy
+      - task_flow
+      - content
+    automation_candidate: screenshot_review
+    playwright_probe: "Compare critical selectors against scenario-defined user goals and screenshot prominence."
+    human_review_prompt: "Review hierarchy in the context of the scenario's immediate user goal."
+    contraindications: "A single screenshot cannot prove attention allocation without user evidence."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.perception.change_blindness
+    lane: neuroscience_perception
+    source_title: "Simons and Levin, Change Blindness"
+    source_url: "https://doi.org/10.1016/S1364-6613(97)01080-2"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Users can miss important state changes when changes are subtle, off-focus, or visually unsupported."
+    evidence_strength: empirical
+    ui_scope:
+      - status_feedback
+      - interaction
+      - forms
+      - task_flow
+    automation_candidate: soft_flag
+    playwright_probe: "After async state changes, assert visible status, focus preservation or movement, and changed-region screenshot evidence."
+    human_review_prompt: "Review whether save, loading, error, and success states are noticeable at the moment they occur."
+    contraindications: "Change blindness research does not mandate animation; motion can also distract or harm users."
+    freshness_rule: fixed
+    validator_layer: L3_interaction_flow
+
+  - id: ux.perception.guided_search
+    lane: neuroscience_perception
+    source_title: "Wolfe, Guided Search 2.0"
+    source_url: "https://doi.org/10.3758/BF03206916"
+    source_type: academic
+    checked_at: "2026-06-01"
+    claim: "Visual search is shaped by target features and distractors, so grouping and labeling reduce search cost."
+    evidence_strength: empirical
+    ui_scope:
+      - navigation
+      - visual_hierarchy
+      - content
+    automation_candidate: screenshot_review
+    playwright_probe: "Flag configured regions where critical controls are visually similar to many distractors or buried below competing groups."
+    human_review_prompt: "Check whether users can locate primary actions, filters, and error recovery without scanning every item."
+    contraindications: "Search-heavy tools may intentionally present dense information and need domain calibration."
+    freshness_rule: fixed
+    validator_layer: L4_cognitive_attention_risk
+
+  - id: ux.market.nng_heuristics
+    lane: market_practice
+    source_title: "Nielsen Norman Group, 10 Usability Heuristics"
+    source_url: "https://www.nngroup.com/articles/ten-usability-heuristics/"
+    source_type: market_practice
+    checked_at: "2026-06-01"
+    claim: "Interfaces should support system status visibility, user control, consistency, recognition, error prevention, and recovery."
+    evidence_strength: expert_heuristic
+    ui_scope:
+      - interaction
+      - navigation
+      - forms
+      - status_feedback
+    automation_candidate: soft_flag
+    playwright_probe: "Assert loading, saving, success, error, undo, cancel, and recovery states in configured flows."
+    human_review_prompt: "Review the ten heuristics as a checklist after automated evidence is collected."
+    contraindications: "Heuristics guide expert review; they are not deterministic pass/fail proof."
+    freshness_rule: check_latest
+    validator_layer: L5_domain_practice
+
+  - id: ux.market.baymard_research
+    lane: market_practice
+    source_title: "Baymard Institute UX Research"
+    source_url: "https://baymard.com/research"
+    source_type: market_practice
+    checked_at: "2026-06-01"
+    claim: "Ecommerce and product-discovery flows benefit from domain-specific evidence around forms, checkout, search, filtering, and product pages."
+    evidence_strength: market_benchmark
+    ui_scope:
+      - ecommerce
+      - forms
+      - search
+      - filtering
+      - checkout
+    automation_candidate: soft_flag
+    playwright_probe: "Enable only when the scenario declares ecommerce domain; assert configured checkout, search, filter, and product-detail states."
+    human_review_prompt: "Review whether the product domain matches the Baymard pattern before treating it as a finding."
+    contraindications: "Domain-specific benchmarks should not become universal product rules."
+    freshness_rule: check_latest
+    validator_layer: L5_domain_practice
+
+  - id: ux.market.govuk_user_research
+    lane: market_practice
+    source_title: "GOV.UK Service Manual, User Research"
+    source_url: "https://www.gov.uk/service-manual/user-research"
+    source_type: market_practice
+    checked_at: "2026-06-01"
+    claim: "Teams should use task-based user research to learn whether people can complete real service goals."
+    evidence_strength: expert_heuristic
+    ui_scope:
+      - service_design
+      - task_flow
+      - usability_testing
+    automation_candidate: human_study
+    playwright_probe: "Persist scenario scripts, task receipts, and interaction traces as inputs to human research planning."
+    human_review_prompt: "Decide which high-risk tasks require direct user evidence before promotion."
+    contraindications: "A Playwright pass is not a substitute for observing real users on critical services."
+    freshness_rule: check_latest
+    validator_layer: L6_human_evidence
+
+  - id: ux.market.uswds_accessibility
+    lane: market_practice
+    source_title: "U.S. Web Design System Accessibility Guidance"
+    source_url: "https://designsystem.digital.gov/documentation/accessibility/"
+    source_type: design_system
+    checked_at: "2026-06-01"
+    claim: "Design-system components should preserve accessibility behavior across states, variants, and content density."
+    evidence_strength: expert_heuristic
+    ui_scope:
+      - design_system
+      - accessibility
+      - components
+      - forms
+    automation_candidate: soft_flag
+    playwright_probe: "For known component patterns, assert role/name/state, keyboard behavior, visible labels, and variant screenshots."
+    human_review_prompt: "Check that product-specific customization has not broken the component's documented behavior."
+    contraindications: "USWDS guidance is most directly applicable to government-style service components."
+    freshness_rule: check_latest
+    validator_layer: L5_domain_practice
+
+  - id: ux.market.carbon_accessibility
+    lane: market_practice
+    source_title: "IBM Carbon Design System Accessibility"
+    source_url: "https://carbondesignsystem.com/guidelines/accessibility/overview/"
+    source_type: design_system
+    checked_at: "2026-06-01"
+    claim: "Accessible product UI requires design, development, and testing practices across component states rather than a final audit only."
+    evidence_strength: expert_heuristic
+    ui_scope:
+      - design_system
+      - components
+      - accessibility
+      - interaction
+    automation_candidate: soft_flag
+    playwright_probe: "Capture state matrices for configured components and verify semantic, keyboard, and visual-state evidence."
+    human_review_prompt: "Review whether the team has documented the accessibility responsibility for custom component behavior."
+    contraindications: "Design-system guidance needs mapping to the actual framework and component library in use."
+    freshness_rule: check_latest
+    validator_layer: L5_domain_practice
+
+  - id: ux.pw.visual_comparisons
+    lane: playwright_evidence
+    source_title: "Playwright Visual Comparisons"
+    source_url: "https://playwright.dev/docs/test-snapshots"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "Screenshot comparisons can provide repeatable visual evidence for layout states and regression checks."
+    evidence_strength: deterministic
+    ui_scope:
+      - layout
+      - visual_hierarchy
+      - responsive
+    automation_candidate: hard_gate
+    playwright_probe: "Use full-page and clipped screenshots for baseline, mobile, tablet, and desktop viewports with explicit thresholds."
+    human_review_prompt: "Review screenshots when visual diffs are intentional or when soft UX prompts cite a region."
+    contraindications: "Screenshots can be flaky unless fonts, animations, data, and viewport are controlled."
+    freshness_rule: check_latest
+    validator_layer: L2_layout_integrity
+
+  - id: ux.pw.aria_snapshots
+    lane: playwright_evidence
+    source_title: "Playwright ARIA Snapshots"
+    source_url: "https://playwright.dev/docs/aria-snapshots"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "ARIA snapshots provide durable evidence of the accessibility tree for important regions."
+    evidence_strength: deterministic
+    ui_scope:
+      - accessibility
+      - semantic_structure
+      - forms
+      - navigation
+    automation_candidate: hard_gate
+    playwright_probe: "Capture snapshots for landmarks, dialogs, navigation, forms, tables, and critical custom widgets."
+    human_review_prompt: "Review whether the snapshot describes the intended user-facing semantics."
+    contraindications: "ARIA snapshots can miss behavioral issues unless paired with keyboard and interaction assertions."
+    freshness_rule: check_latest
+    validator_layer: L1_accessibility
+
+  - id: ux.pw.locators
+    lane: playwright_evidence
+    source_title: "Playwright Locators"
+    source_url: "https://playwright.dev/docs/locators"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "Tests should prefer user-facing locators such as role, label, text, and accessible name for UI contracts."
+    evidence_strength: deterministic
+    ui_scope:
+      - interaction
+      - accessibility
+      - task_flow
+    automation_candidate: hard_gate
+    playwright_probe: "Drive flows with getByRole, getByLabel, getByText, and scoped locators instead of brittle structural selectors."
+    human_review_prompt: "Confirm whether intentionally hidden or technical controls need a different test contract."
+    contraindications: "Some canvas or highly custom interactions need additional instrumentation."
+    freshness_rule: check_latest
+    validator_layer: L3_interaction_flow
+
+  - id: ux.pw.assertions
+    lane: playwright_evidence
+    source_title: "Playwright Test Assertions"
+    source_url: "https://playwright.dev/docs/test-assertions"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "Auto-waiting assertions can prove visible, enabled, focused, attached, and text states at interaction boundaries."
+    evidence_strength: deterministic
+    ui_scope:
+      - interaction
+      - forms
+      - status_feedback
+      - task_flow
+    automation_candidate: hard_gate
+    playwright_probe: "Assert visibility, enabled state, focus, URL, text, count, checked state, and error messages after each action."
+    human_review_prompt: "Review assertions that encode product semantics rather than generic browser state."
+    contraindications: "Assertions prove observed state at a moment, not long-term user comprehension."
+    freshness_rule: check_latest
+    validator_layer: L3_interaction_flow
+
+  - id: ux.pw.trace_viewer
+    lane: playwright_evidence
+    source_title: "Playwright Trace Viewer"
+    source_url: "https://playwright.dev/docs/trace-viewer"
+    source_type: tool_doc
+    checked_at: "2026-06-01"
+    claim: "Traces provide inspectable execution evidence for actions, snapshots, network, console, and timing."
+    evidence_strength: deterministic
+    ui_scope:
+      - task_flow
+      - debugging
+      - evidence_receipt
+    automation_candidate: hard_gate
+    playwright_probe: "Record trace on first retry or for validation runs and store trace links in the result summary."
+    human_review_prompt: "Use the trace when screenshots or JSON findings need execution context."
+    contraindications: "Traces may include sensitive data and need retention rules."
+    freshness_rule: check_latest
+    validator_layer: L0_smoke
+
+residue:
+  - id: residue.subjective_quality
+    description: "Delight, trust, confidence, and comprehension cannot be proven by browser automation alone."
+    required_next_evidence: "Human research protocol or expert review receipt."
+  - id: residue.domain_packs
+    description: "Checkout, search, dashboards, authoring tools, games, and marketing pages need separate domain-specific packs."
+    required_next_evidence: "Owner-approved scenario packs with fixtures."
+  - id: residue.salience_metrics
+    description: "Screenshot salience checks require calibration against false-positive fixtures before promotion."
+    required_next_evidence: "Known-good and known-bad image fixtures with review decisions."

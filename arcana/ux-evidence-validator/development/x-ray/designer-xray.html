@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UX Evidence Validator X-Ray</title>
+  <style>
+    :root {
+      --paper: #f7f4ec;
+      --ink: #1d2424;
+      --muted: #5b6462;
+      --line: #d4cab8;
+      --surface: #ffffff;
+      --teal: #006b62;
+      --teal-soft: #dff0ec;
+      --blue: #315c9b;
+      --blue-soft: #e2ebf8;
+      --amber: #a76500;
+      --amber-soft: #f6e4bf;
+      --rose: #9c3f4c;
+      --rose-soft: #f3dce0;
+      --green: #477a31;
+      --green-soft: #dfecd8;
+      --shadow: 0 18px 50px rgba(29, 36, 36, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: #eee7d9;
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--surface);
+      box-shadow: 5px 5px 0 var(--amber-soft);
+    }
+
+    .brand-mark svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.1;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 32px;
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: 30px;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .nav a {
+      color: var(--ink);
+      text-decoration: none;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+
+    .nav a:hover {
+      border-color: var(--line);
+      background: rgba(255,255,255,0.54);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section {
+      padding: 52px min(7vw, 84px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .intro {
+      min-height: 88vh;
+      display: grid;
+      align-content: center;
+      gap: 34px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.52), rgba(255,255,255,0)),
+        repeating-linear-gradient(0deg, rgba(29,36,36,0.04) 0, rgba(29,36,36,0.04) 1px, transparent 1px, transparent 28px),
+        repeating-linear-gradient(90deg, rgba(29,36,36,0.04) 0, rgba(29,36,36,0.04) 1px, transparent 1px, transparent 28px);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 560px);
+      gap: 40px;
+      align-items: center;
+    }
+
+    .headline {
+      display: grid;
+      gap: 20px;
+    }
+
+    .headline h1 {
+      font-size: clamp(42px, 7vw, 86px);
+      max-width: 11ch;
+    }
+
+    .headline p {
+      max-width: 680px;
+      font-size: 19px;
+      color: #3d4644;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+
+    .xray-board {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      min-height: 420px;
+    }
+
+    .board-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .board-title strong {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .status-chip {
+      background: var(--amber-soft);
+      color: #513100;
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .layers {
+      display: grid;
+      gap: 12px;
+    }
+
+    .layer {
+      border: 1px solid var(--line);
+      border-left-width: 6px;
+      border-radius: 8px;
+      padding: 13px 14px;
+      background: #fff;
+      display: grid;
+      gap: 4px;
+    }
+
+    .layer[data-layer="hard"] { border-left-color: var(--teal); background: var(--teal-soft); }
+    .layer[data-layer="soft"] { border-left-color: var(--amber); background: var(--amber-soft); }
+    .layer[data-layer="human"] { border-left-color: var(--rose); background: var(--rose-soft); }
+    .layer[data-layer="evidence"] { border-left-color: var(--blue); background: var(--blue-soft); }
+    .layer[data-layer="fixture"] { border-left-color: var(--green); background: var(--green-soft); }
+
+    .layer span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      min-height: 180px;
+    }
+
+    .card h3 {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .card p,
+    .timeline p,
+    .recipe p {
+      color: #4b5653;
+    }
+
+    .diagram {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .diagram svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 22px 0;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 38px;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+    }
+
+    .lane-grid {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .lane-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .lane-list button {
+      justify-content: flex-start;
+      width: 100%;
+      text-align: left;
+    }
+
+    .lane-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      min-height: 286px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .lane-panel ul,
+    .recipe ol,
+    .evidence-list,
+    .checklist {
+      margin: 0;
+      padding-left: 20px;
+      color: #3f4a47;
+    }
+
+    .lane-panel li,
+    .recipe li,
+    .evidence-list li,
+    .checklist li {
+      margin: 8px 0;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .step strong {
+      color: var(--teal);
+      font-size: 14px;
+    }
+
+    .recipe {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .source {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .source code {
+      color: var(--teal);
+      overflow-wrap: anywhere;
+    }
+
+    .footer-note {
+      max-width: 900px;
+    }
+
+    .capability-loop {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .capability {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 6px solid var(--teal);
+      border-radius: 8px;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      min-height: 220px;
+    }
+
+    .capability:nth-child(2) {
+      border-top-color: var(--blue);
+    }
+
+    .capability:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .capability:nth-child(4) {
+      border-top-color: var(--rose);
+    }
+
+    .capability small {
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .ambition-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      margin-top: 22px;
+      align-items: stretch;
+    }
+
+    .ambition-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .tool-row:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .tool-row strong {
+      color: var(--ink);
+    }
+
+    .idea-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .idea {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .idea-number {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 960px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .intro-grid,
+      .two-col,
+      .lane-grid,
+      .recipe,
+      .source-grid,
+      .capability-loop,
+      .ambition-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 36px 18px;
+      }
+
+      .headline h1 {
+        font-size: 42px;
+      }
+
+      h2 {
+        font-size: 25px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-row,
+      .idea {
+        grid-template-columns: 1fr;
+      }
+
+      .xray-board {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside aria-label="Page navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img" aria-label="">
+            <rect x="7" y="10" width="34" height="26" rx="4" fill="#dff0ec" stroke="#1d2424" stroke-width="2"></rect>
+            <path d="M14 24h20M24 16v16M34 17l5-5M34 31l5 5" fill="none" stroke="#006b62" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>UX Evidence Validator</h1>
+          <p>Designer x-ray of a developing Arcanum sigil.</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#meaning">What It Is</a>
+        <a href="#layers">Evidence Layers</a>
+        <a href="#designer">How Designers Help</a>
+        <a href="#build">How It Is Being Built</a>
+        <a href="#make-own">Create Your Own</a>
+        <a href="#arcanum">Use Whole Arcanum</a>
+        <a href="#sources">Evidence Boundary</a>
+      </nav>
+    </aside>
+
+    <main>
+      <section class="intro" id="meaning">
+        <div class="intro-grid">
+          <div class="headline">
+            <div class="pill-row" aria-label="Status markers">
+              <span class="pill">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="#006b62" stroke-width="2" stroke-linecap="round"></path></svg>
+                Seed sigil
+              </span>
+              <span class="pill">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 14l4-4 3 3 7-8" fill="none" stroke="#315c9b" stroke-width="2" stroke-linecap="round"></path></svg>
+                Evidence first
+              </span>
+              <span class="pill">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h12v10H4zM7 8h6M7 12h4" fill="none" stroke="#a76500" stroke-width="2" stroke-linecap="round"></path></svg>
+                Designer readable
+              </span>
+            </div>
+            <h1>Not a UX score. A proof system.</h1>
+            <p>
+              `ux-evidence-validator` is being built to help teams inspect finished frontend interfaces with browser evidence while staying honest about what automation cannot know. It separates hard failures from design risks, screenshot review, and human-study questions.
+            </p>
+          </div>
+
+          <div class="xray-board" aria-label="Validator concept stack">
+            <div class="board-title">
+              <strong>Core idea</strong>
+              <span class="status-chip">Not promoted yet</span>
+            </div>
+            <div class="layers">
+              <div class="layer" data-layer="hard">
+                <h3>Browser proof</h3>
+                <span>Load, accessibility, layout, interaction, console, network, screenshots, traces.</span>
+              </div>
+              <div class="layer" data-layer="soft">
+                <h3>UX risk signals</h3>
+                <span>Density, visual hierarchy, hidden state, memory burden, domain pattern fit.</span>
+              </div>
+              <div class="layer" data-layer="human">
+                <h3>Human evidence</h3>
+                <span>Comprehension, workload, trust, confidence, delight, real task success.</span>
+              </div>
+              <div class="layer" data-layer="fixture">
+                <h3>Calibration fixtures</h3>
+                <span>Known good, known bad, and false-positive examples before reusable hard gates.</span>
+              </div>
+              <div class="layer" data-layer="evidence">
+                <h3>Review receipt</h3>
+                <span>A folder of artifacts that designers, engineers, and researchers can inspect together.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="layers">
+        <div class="two-col">
+          <div>
+            <h2>The X-Ray View</h2>
+            <p>
+              The validator is a stack of evidence lanes. The important design move is not the Playwright script; it is deciding which claims are allowed to block, which should flag, and which need a human.
+            </p>
+          </div>
+          <div class="diagram" aria-label="Evidence lane diagram">
+            <svg viewBox="0 0 760 420">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M0 0L10 5L0 10z" fill="#1d2424"></path>
+                </marker>
+              </defs>
+              <rect x="20" y="28" width="170" height="72" rx="8" fill="#dff0ec" stroke="#006b62"></rect>
+              <text x="105" y="58" text-anchor="middle" font-size="18" font-weight="700" fill="#1d2424">Standards</text>
+              <text x="105" y="82" text-anchor="middle" font-size="13" fill="#4b5653">WCAG, ARIA, axe</text>
+
+              <rect x="20" y="128" width="170" height="72" rx="8" fill="#f6e4bf" stroke="#a76500"></rect>
+              <text x="105" y="158" text-anchor="middle" font-size="18" font-weight="700" fill="#1d2424">UX research</text>
+              <text x="105" y="182" text-anchor="middle" font-size="13" fill="#4b5653">cognition, perception</text>
+
+              <rect x="20" y="228" width="170" height="72" rx="8" fill="#e2ebf8" stroke="#315c9b"></rect>
+              <text x="105" y="258" text-anchor="middle" font-size="18" font-weight="700" fill="#1d2424">Market practice</text>
+              <text x="105" y="282" text-anchor="middle" font-size="13" fill="#4b5653">heuristics, domains</text>
+
+              <rect x="280" y="96" width="200" height="160" rx="10" fill="#fff" stroke="#1d2424" stroke-width="2"></rect>
+              <text x="380" y="138" text-anchor="middle" font-size="20" font-weight="800" fill="#1d2424">Evidence cards</text>
+              <text x="380" y="166" text-anchor="middle" font-size="13" fill="#4b5653">claim, strength, scope</text>
+              <text x="380" y="190" text-anchor="middle" font-size="13" fill="#4b5653">automation candidate</text>
+              <text x="380" y="214" text-anchor="middle" font-size="13" fill="#4b5653">proxy limit</text>
+
+              <rect x="570" y="28" width="170" height="72" rx="8" fill="#dff0ec" stroke="#006b62"></rect>
+              <text x="655" y="58" text-anchor="middle" font-size="17" font-weight="700" fill="#1d2424">Hard gate</text>
+              <text x="655" y="82" text-anchor="middle" font-size="13" fill="#4b5653">can block</text>
+
+              <rect x="570" y="128" width="170" height="72" rx="8" fill="#f6e4bf" stroke="#a76500"></rect>
+              <text x="655" y="158" text-anchor="middle" font-size="17" font-weight="700" fill="#1d2424">Soft flag</text>
+              <text x="655" y="182" text-anchor="middle" font-size="13" fill="#4b5653">needs review</text>
+
+              <rect x="570" y="228" width="170" height="72" rx="8" fill="#f3dce0" stroke="#9c3f4c"></rect>
+              <text x="655" y="258" text-anchor="middle" font-size="17" font-weight="700" fill="#1d2424">Human study</text>
+              <text x="655" y="282" text-anchor="middle" font-size="13" fill="#4b5653">not automated</text>
+
+              <rect x="570" y="328" width="170" height="58" rx="8" fill="#dfecd8" stroke="#477a31"></rect>
+              <text x="655" y="362" text-anchor="middle" font-size="17" font-weight="700" fill="#1d2424">Fixture proof</text>
+
+              <path d="M190 64h72" stroke="#1d2424" stroke-width="2" marker-end="url(#arrow)"></path>
+              <path d="M190 164h72" stroke="#1d2424" stroke-width="2" marker-end="url(#arrow)"></path>
+              <path d="M190 264c60 0 40-80 72-80" stroke="#1d2424" stroke-width="2" fill="none" marker-end="url(#arrow)"></path>
+              <path d="M480 138h72" stroke="#1d2424" stroke-width="2" marker-end="url(#arrow)"></path>
+              <path d="M480 176h72" stroke="#1d2424" stroke-width="2" marker-end="url(#arrow)"></path>
+              <path d="M480 214c54 0 48 42 72 50" stroke="#1d2424" stroke-width="2" fill="none" marker-end="url(#arrow)"></path>
+              <path d="M655 300v18" stroke="#1d2424" stroke-width="2" marker-end="url(#arrow)"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="cards" aria-label="Evidence classes">
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10l4 4 8-9" fill="none" stroke="#006b62" stroke-width="2" stroke-linecap="round"></path></svg>
+              Hard gates
+            </h3>
+            <p>Things the browser can prove directly: missing names, broken keyboard paths, layout overflow, failed task flows, fatal runtime errors.</p>
+          </article>
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9M10 16h.1" fill="none" stroke="#a76500" stroke-width="2" stroke-linecap="round"></path></svg>
+              Soft flags
+            </h3>
+            <p>Risk signals with evidence, such as too many choices, weak hierarchy, hidden state changes, or a domain pattern mismatch.</p>
+          </article>
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="10" rx="2" fill="none" stroke="#315c9b" stroke-width="2"></rect><path d="M7 9h6M7 12h3" stroke="#315c9b" stroke-width="2" stroke-linecap="round"></path></svg>
+              Screenshot review
+            </h3>
+            <p>Captured views for visual hierarchy, salience, grouping, change visibility, and critical states that a designer should inspect.</p>
+          </article>
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="3" fill="none" stroke="#9c3f4c" stroke-width="2"></circle><path d="M13 17c0-4-12-4-12 0M13 6h5M13 10h4" fill="none" stroke="#9c3f4c" stroke-width="2" stroke-linecap="round"></path></svg>
+              Human study
+            </h3>
+            <p>Questions about comprehension, workload, confidence, trust, and real task success stay in a human-evidence lane.</p>
+          </article>
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h12v12H4zM7 7h6M7 10h6M7 13h3" fill="none" stroke="#477a31" stroke-width="2" stroke-linecap="round"></path></svg>
+              Fixture calibration
+            </h3>
+            <p>Known-good and known-bad pages prove which checks can block, and a false-positive trap protects expert workflows.</p>
+          </article>
+          <article class="card">
+            <h3>
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 4h10v12H5zM8 8h4M8 12h4" fill="none" stroke="#315c9b" stroke-width="2" stroke-linecap="round"></path></svg>
+              Evidence receipt
+            </h3>
+            <p>The final output is inspectable: metadata, findings, screenshots, traces, ARIA snapshots, accessibility JSON, measurements, residue.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="designer">
+        <h2>Where Designers Fit</h2>
+        <p>Designers are not just reviewers at the end. They define what should be inspected, what counts as acceptable evidence, and which soft signals need human judgment.</p>
+
+        <div class="controls" aria-label="Designer contribution filters">
+          <button type="button" class="filter" data-filter="all" aria-pressed="true">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M4 10h12M4 14h12" stroke="#1d2424" stroke-width="2" stroke-linecap="round"></path></svg>
+            All
+          </button>
+          <button type="button" class="filter" data-filter="before" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h10M10 6l4 4-4 4" fill="none" stroke="#1d2424" stroke-width="2" stroke-linecap="round"></path></svg>
+            Before build
+          </button>
+          <button type="button" class="filter" data-filter="during" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5h10v10H5zM8 8h4v4H8z" fill="none" stroke="#1d2424" stroke-width="2"></path></svg>
+            During build
+          </button>
+          <button type="button" class="filter" data-filter="after" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 15l4-4 3 3 5-8" fill="none" stroke="#1d2424" stroke-width="2" stroke-linecap="round"></path></svg>
+            After run
+          </button>
+        </div>
+
+        <div class="cards" id="designerCards">
+          <article class="card contribution" data-phase="before">
+            <h3>Write the scenario</h3>
+            <p>Name the real user task, viewports, critical regions, expected states, and the product domain. The validator should inspect what matters, not every pixel equally.</p>
+          </article>
+          <article class="card contribution" data-phase="before">
+            <h3>Pick review prompts</h3>
+            <p>Turn design judgment into questions: Is the critical error noticeable? Is the primary action louder than nearby distractions? Does the next step need memory?</p>
+          </article>
+          <article class="card contribution" data-phase="during">
+            <h3>Design the fixtures</h3>
+            <p>Help create known-good and known-bad mini screens: accessible, broken, clipped, dense, low-salience, domain-specific, and false-positive examples.</p>
+          </article>
+          <article class="card contribution" data-phase="during">
+            <h3>Set thresholds carefully</h3>
+            <p>Decide when target size, overlap, clipping, density, and hierarchy findings should block, flag, or simply ask for review.</p>
+          </article>
+          <article class="card contribution" data-phase="after">
+            <h3>Review screenshots</h3>
+            <p>Use full-page and clipped screenshots as shared evidence. A soft flag should point to a concrete region and a source card, not a vibe.</p>
+          </article>
+          <article class="card contribution" data-phase="after">
+            <h3>Own the residues</h3>
+            <p>When the tool cannot prove comprehension or trust, decide whether the next step is expert review, prototype test, moderated study, or no action.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="build">
+        <h2>How It Is Being Built</h2>
+        <p>The current package is a seed. It already has the research basis and contract, but the next useful work is fixture implementation before reusable Playwright code hardens.</p>
+        <div class="timeline">
+          <div class="step">
+            <strong>Done</strong>
+            <div>
+              <h3>Research cards and claim map</h3>
+              <p>Standards, cognitive science, perception, market practice, and Playwright docs are normalized into source cards and claim classes.</p>
+            </div>
+          </div>
+          <div class="step">
+            <strong>Done</strong>
+            <div>
+              <h3>Validator contract</h3>
+              <p>The L0-L6 model names inputs, outputs, statuses, hard-gate policy, soft-flag policy, and evidence folder shape.</p>
+            </div>
+          </div>
+          <div class="step">
+            <strong>Next</strong>
+            <div>
+              <h3>Fixture corpus</h3>
+              <p>Small deterministic interfaces prove the rules: a good dashboard, missing accessible name, keyboard trap, clipping, overflow, weak state feedback, and dense expert false-positive trap.</p>
+            </div>
+          </div>
+          <div class="step">
+            <strong>Later</strong>
+            <div>
+              <h3>Playwright harness</h3>
+              <p>The runner will collect screenshots, traces, ARIA snapshots, accessibility JSON, measurements, findings, and residues under a stable output root.</p>
+            </div>
+          </div>
+          <div class="step">
+            <strong>Gate</strong>
+            <div>
+              <h3>Calibration before promotion</h3>
+              <p>Hard gates only become reusable after known failures fail, known good examples pass, and soft UX proxies stay explainable.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="make-own">
+        <h2>Use This Idea To Create Your Own</h2>
+        <p>A designer can reuse the pattern for another domain, even without adopting the exact sigil. Start with claims, not tests.</p>
+
+        <div class="recipe">
+          <article class="card">
+            <h3>1. Name the interface truth types</h3>
+            <ol>
+              <li>What must be objectively true in the browser?</li>
+              <li>What is a design risk but not a release blocker?</li>
+              <li>What needs human evidence?</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>2. Make source cards</h3>
+            <ol>
+              <li>One narrow claim per card.</li>
+              <li>Source, evidence strength, UI scope, and proxy limit.</li>
+              <li>Automation candidate: hard gate, soft flag, screenshot review, human study, or residue.</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>3. Design fixtures</h3>
+            <ol>
+              <li>One good example.</li>
+              <li>Several bad examples for deterministic failures.</li>
+              <li>At least one false-positive trap for nuanced UX signals.</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>4. Define the evidence receipt</h3>
+            <ol>
+              <li>What screenshots prove the state?</li>
+              <li>What JSON should be machine-readable?</li>
+              <li>What remains a human review question?</li>
+            </ol>
+          </article>
+        </div>
+
+        <div class="lane-grid">
+          <div class="lane-list" aria-label="Reusable pattern selectors">
+            <button type="button" class="lane-button" data-lane="checkout" aria-pressed="true">Checkout</button>
+            <button type="button" class="lane-button" data-lane="dashboard" aria-pressed="false">Dashboard</button>
+            <button type="button" class="lane-button" data-lane="authoring" aria-pressed="false">Authoring tool</button>
+          </div>
+          <div class="lane-panel" id="lanePanel">
+            <h3>Checkout version</h3>
+            <p>Hard gates: form labels, error recovery, keyboard flow, payment state, no clipped totals.</p>
+            <ul>
+              <li>Soft flags: too many competing offers, hidden shipping cost, low-salience failure.</li>
+              <li>Human evidence: trust, confidence, comprehension of fees.</li>
+              <li>False-positive trap: power-user checkout with dense but grouped controls.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="arcanum">
+        <h2>Use Whole Arcanum As A Designer</h2>
+        <p>
+          The ambitious version is bigger than a validator. Arcanum can become a creative infrastructure for designers: a way to think in public with evidence, turn fuzzy intent into artifacts, explain systems visually, test finished interfaces, and preserve what the team learns.
+        </p>
+
+        <div class="capability-loop" aria-label="Arcanum designer capability loop">
+          <article class="capability">
+            <small>Whisper</small>
+            <h3>Give the idea a voice</h3>
+            <p>Whisper turns author intent into a governed text lifecycle: audience, resonance, relevance, trajectory, composition plan, draft, validation, and learning residue.</p>
+          </article>
+          <article class="capability">
+            <small>Guide</small>
+            <h3>Teach the system back</h3>
+            <p>Guide Architecture frames a target, selects context, uses x-ray when structure is hidden, explains the architecture, and validates understanding instead of assuming it.</p>
+          </article>
+          <article class="capability">
+            <small>x-ray</small>
+            <h3>Make hidden structure visible</h3>
+            <p>x-ray splits an object, process, architecture, or artifact into lanes like properties, components, dependencies, flow, lifecycle, risk questions, and visual composition.</p>
+          </article>
+          <article class="capability">
+            <small>UX Evidence Validator</small>
+            <h3>Prove what can be proven</h3>
+            <p>This sigil turns UX claims into hard gates, soft flags, screenshot review, human-study residues, and Playwright evidence receipts for finished interfaces.</p>
+          </article>
+        </div>
+
+        <div class="ambition-grid">
+          <div class="ambition-panel">
+            <h3>The designer loop</h3>
+            <div class="tool-row">
+              <strong>Imagine</strong>
+              <p>Use Whisper to turn a vague product feeling into a clear narrative, audience, promise, and artifact direction.</p>
+            </div>
+            <div class="tool-row">
+              <strong>Understand</strong>
+              <p>Use Guide and x-ray to map the system, the workflow, the vocabulary, the hidden dependencies, and the places users can get lost.</p>
+            </div>
+            <div class="tool-row">
+              <strong>Shape</strong>
+              <p>Use refinement, distillation, and implementation layering to choose the smallest coherent tool that proves the concept without shrinking the ambition.</p>
+            </div>
+            <div class="tool-row">
+              <strong>Build</strong>
+              <p>Use task-session and experiment harness patterns to move from design artifact to fixtures, prototypes, evidence packs, and repeatable checks.</p>
+            </div>
+            <div class="tool-row">
+              <strong>Learn</strong>
+              <p>Use UX Evidence Validator, signal observation, and workflow reflection to separate what worked, what failed, and what should become reusable design knowledge.</p>
+            </div>
+          </div>
+
+          <div class="ambition-panel">
+            <h3>Cool tools designers can invent from this</h3>
+            <div class="idea-list">
+              <div class="idea">
+                <span class="idea-number">1</span>
+                <p><strong>Design-system evidence pack:</strong> every component state has accessibility proof, screenshot review prompts, responsive checks, and examples of failure.</p>
+              </div>
+              <div class="idea">
+                <span class="idea-number">2</span>
+                <p><strong>Product narrative lab:</strong> Whisper shapes the story, x-ray maps the system, and UX Evidence Validator proves the shipped interface supports the promise.</p>
+              </div>
+              <div class="idea">
+                <span class="idea-number">3</span>
+                <p><strong>Onboarding clarity console:</strong> Guide explains the workflow, x-ray shows user paths, and the validator flags hidden state, memory burden, and weak recovery.</p>
+              </div>
+              <div class="idea">
+                <span class="idea-number">4</span>
+                <p><strong>Critique-to-fixture studio:</strong> design critique becomes known-good, known-bad, and false-positive fixtures so future work can be tested instead of repeatedly debated.</p>
+              </div>
+              <div class="idea">
+                <span class="idea-number">5</span>
+                <p><strong>Evidence-backed design reviews:</strong> the review meeting starts from screenshots, traces, ARIA snapshots, source cards, and residues instead of opinions arriving with no handles.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards" aria-label="How to start with Arcanum">
+          <article class="card">
+            <h3>Start with a promise</h3>
+            <p>Write what the tool should help a person become capable of doing. Then use Whisper-style intent to define voice, audience, proof, and emotional residue.</p>
+          </article>
+          <article class="card">
+            <h3>Draw the invisible system</h3>
+            <p>Use x-ray thinking to name actors, steps, components, dependencies, risks, and open questions before the UI becomes a collection of screens.</p>
+          </article>
+          <article class="card">
+            <h3>Choose the evidence</h3>
+            <p>Decide which claims need browser proof, screenshot review, expert judgment, or user research. This prevents automation from becoming theater.</p>
+          </article>
+          <article class="card">
+            <h3>Build fixtures before rules</h3>
+            <p>For every rule you want to enforce, create a good example, a bad example, and a tricky example that should not fail.</p>
+          </article>
+          <article class="card">
+            <h3>Keep residues alive</h3>
+            <p>If the system cannot prove trust, comprehension, or ambition yet, keep those as named residues that can drive research instead of being forgotten.</p>
+          </article>
+          <article class="card">
+            <h3>Turn learning into infrastructure</h3>
+            <p>When a review teaches you something durable, promote it through the right Arcanum owner instead of leaving it trapped in one meeting or one file.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="sources">
+        <h2>Evidence Boundary</h2>
+        <p class="footer-note">
+          This x-ray is source-backed by the current seed sigil files. The design guidance here is an explanation of those files, not proof that the future Playwright validator already exists.
+        </p>
+
+        <div class="source-grid">
+          <div class="source">
+            <h3>Source-backed facts</h3>
+            <ul class="evidence-list">
+              <li>The sigil is seed status.</li>
+              <li>The L0-L6 evidence model exists in the validator spec.</li>
+              <li>The evidence cards and claim map separate hard gates, soft flags, screenshot review, human study, and not-automatable claims.</li>
+              <li>The fixture plan explicitly puts calibration before promotion.</li>
+            </ul>
+          </div>
+          <div class="source">
+            <h3>Inference and framing</h3>
+            <ul class="evidence-list">
+              <li>The designer contribution model is synthesized from the sigil contract and fixture plan.</li>
+              <li>The "create your own" recipe generalizes the source-card and fixture-first pattern.</li>
+              <li>The visual language is explanatory, not canonical Arcanum structure.</li>
+              <li>The expanded designer loop synthesizes Whisper, Guide, x-ray, and UX Evidence Validator into a creative workflow for designers.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="source-grid" aria-label="Source file links">
+          <div class="source"><code>arcana/ux-evidence-validator/README.md</code></div>
+          <div class="source"><code>arcana/ux-evidence-validator/SKILL.md</code></div>
+          <div class="source"><code>arcana/ux-evidence-validator/development/UX-EVIDENCE-CLAIM-MAP.md</code></div>
+          <div class="source"><code>arcana/ux-evidence-validator/development/UX-PLAYWRIGHT-VALIDATOR-SPEC.md</code></div>
+          <div class="source"><code>arcana/ux-evidence-validator/development/UX-PLAYWRIGHT-FIXTURE-PLAN.md</code></div>
+          <div class="source"><code>arcana/ux-evidence-validator/development/WORK-PACK.md</code></div>
+          <div class="source"><code>spells/whisper/README.md</code></div>
+          <div class="source"><code>spells/guide-architecture/README.md</code></div>
+          <div class="source"><code>arcana/x-ray/README.md</code></div>
+        </div>
+
+        <h2 style="margin-top: 36px;">x-ray Result</h2>
+        <ul class="checklist">
+          <li>Status: pass</li>
+          <li>Mode: mixed, combining artifact and process explanation</li>
+          <li>Target boundary: `arcana/ux-evidence-validator` seed sigil</li>
+          <li>User intent: designer understanding, contribution map, reusable method, and expanded Arcanum leverage view</li>
+          <li>Layer interaction: stacked, filtered, and selectable</li>
+          <li>Renderer level: L0 static HTML with inline SVG</li>
+          <li>Validation target: source-backed explanation, no promotion claim</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const filterButtons = Array.from(document.querySelectorAll(".filter"));
+    const contributionCards = Array.from(document.querySelectorAll(".contribution"));
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        filterButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        contributionCards.forEach((card) => {
+          const show = filter === "all" || card.dataset.phase === filter;
+          card.classList.toggle("hidden", !show);
+        });
+      });
+    });
+
+    const laneData = {
+      checkout: {
+        title: "Checkout version",
+        body: "Hard gates: form labels, error recovery, keyboard flow, payment state, no clipped totals.",
+        items: [
+          "Soft flags: too many competing offers, hidden shipping cost, low-salience failure.",
+          "Human evidence: trust, confidence, comprehension of fees.",
+          "False-positive trap: power-user checkout with dense but grouped controls."
+        ]
+      },
+      dashboard: {
+        title: "Dashboard version",
+        body: "Hard gates: load state, visible filters, keyboard navigation, chart/table semantics, no mobile overflow.",
+        items: [
+          "Soft flags: dense decision panels, weak hierarchy, hidden active filters.",
+          "Human evidence: whether users understand priority, confidence, and next action.",
+          "False-positive trap: expert operations screen with dense but grouped controls."
+        ]
+      },
+      authoring: {
+        title: "Authoring tool version",
+        body: "Hard gates: focus order, undo/recovery, autosave state, toolbar labels, no clipped editor controls.",
+        items: [
+          "Soft flags: mode confusion, buried destructive actions, unclear publish state.",
+          "Human evidence: confidence, comprehension of version state, perceived control.",
+          "False-positive trap: professional editor with many controls but strong grouping."
+        ]
+      }
+    };
+
+    const laneButtons = Array.from(document.querySelectorAll(".lane-button"));
+    const lanePanel = document.getElementById("lanePanel");
+    laneButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        laneButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        const data = laneData[button.dataset.lane];
+        lanePanel.innerHTML = [
+          "<h3>" + data.title + "</h3>",
+          "<p>" + data.body + "</p>",
+          "<ul>" + data.items.map((item) => "<li>" + item + "</li>").join("") + "</ul>"
+        ].join("");
+      });
+    });
+  </script>
+</body>
+</html>
