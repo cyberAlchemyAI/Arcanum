@@ -44,8 +44,8 @@ The dispatch document should preserve:
 | `spells/necronomicon/README.md` | Necronomicon owns memory, route choice, no-promotion guardrails, and handoffs. |
 | `arcana/spellcraft/README.md` | Spellcraft owns reusable spell composition from referenced sigils. |
 | `spells/invoke/README.md` | Invoke owns define/design/plan/handoff authoring and routes lifecycle ownership onward. |
-| `development/craft/CRAFT-INITIAL-DEFINITION.md` | SRU/SWU, residue, validation surface, and recomposition vocabulary define honest step boundaries. |
-| `spells/whisper/README.md` | Existing spell example of substrate extraction, SRU tournament, composition, validation, and residue. |
+| `development/craft/CRAFT-INITIAL-DEFINITION.md` | SCU/SWU, residue, validation surface, and recomposition vocabulary define honest step boundaries. |
+| `spells/whisper/README.md` | Existing spell example of substrate extraction, SCU tournament, composition, validation, and residue. |
 
 ## Scope
 
@@ -94,7 +94,7 @@ Out of scope:
 | --- | --- | --- |
 | Package README | `formulae/dispatch-spec/README.md` | created |
 | Skill contract | `formulae/dispatch-spec/SKILL.md` | created |
-| Schema | `formulae/dispatch-spec/dispatch.schema.json` | created |
+| Schema | `formulae/dispatch-spec/dispatch.schema.yml` | created |
 | Weaver extraction | `formulae/dispatch-spec/WEAVER-EXTRACTION.md` | created |
 | Synthesis | `formulae/dispatch-spec/ARCANUM-DISPATCH-SYNTHESIS.md` | created |
 | Define artifact | `formulae/dispatch-spec/development/DEFINE.md` | this file |

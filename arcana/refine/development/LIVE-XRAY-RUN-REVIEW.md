@@ -1,5 +1,7 @@
 # Live X-Ray Run Review
 
+> Historical note: this review records pre-dispatch-route blocked evidence. References to goal handoff or Codex Goal execution are superseded for current Refine validation by `REFINE-DISPATCH.json`, `RUNTIME-HANDOFF.md`, and dispatch-spec validation.
+
 ## Reviewed Run
 
 - Output: `arcana/refine/development/example-outputs/sigil-new-low.output.md`
@@ -10,9 +12,9 @@
 
 Status: block.
 
-The rerun is a valid guarded live-output result because it no longer stops at only a `Refine Seed Proposal`. It includes Task Session/Codex Goal execution status, an explicit block verdict, and a final refinement output section for `x-ray`.
+The latest rerun is valid blocked `refine` evidence. It no longer depends only on a prose result body: it points to a target-local run manifest, evidence index, and goal handoff under `arcana/x-ray/development/refinement-runs/20260524T225844Z-sigil-new-low/`.
 
-It is still not promotion evidence because the run reports that Task Session/Codex Goal execution could not complete in the current environment.
+It is not promotion evidence because every selected loop stage is blocked in the manifest. That is acceptable blocked evidence, but not a successful refinement-loop execution.
 
 ## Evidence
 
@@ -24,20 +26,19 @@ The output includes:
 - loop count,
 - planned execution stages,
 - Codex Goal eligibility,
-- proposed Task Session route,
-- confirmation requirement,
-- Task Session/Codex Goal execution status,
-- final refinement output for `x-ray`,
+- goal handoff,
+- Codex Goal execution status,
+- final synthesis for `x-ray`,
+- run manifest and evidence index,
 - blocked fields.
 
 The output does not include:
 
-- stage artifact evidence from the executed loop.
-- successful Task Session/Codex Goal completion.
+- successful Codex Goal command dispatch completion.
 
 ## Contract Repair
 
-The `sigil-new-low` live prompt, expected output, regime quality bar, task matrix, and validation wrapper now require final refinement evidence or an explicit `Status: flag` / `Status: block` when the run cannot complete execution.
+The `sigil-new-low` live prompt, expected output, regime quality bar, task matrix, and validation wrapper now require a target-local run manifest, evidence index, goal handoff, and canonical command-stage evidence. A manually materialized work-pack plus Task Session execution is not enough to prove `refine`.
 
 ## Next Action
 
@@ -49,4 +50,4 @@ arcana/refine/development/run-validation-fixtures.sh
 arcana/refine/development/write-experiment-report.sh
 ```
 
-The next useful rerun should happen after native Codex Goal execution and strict Task Session handoff coverage are available, or after a deliberate non-goal fallback is approved for this experiment.
+The next useful rerun should happen after native Codex Goal execution and deterministic `tools/arcanum` stage dispatch can complete.

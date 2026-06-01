@@ -1,5 +1,7 @@
 # Refine Context Pack
 
+> Historical note: this context pack predates the dispatch-route Refine contract. Codex Goal references below are retained as source evidence only; current guidance is dispatch route validation plus runtime handoff.
+
 ## Task
 
 Create the initial development package for a new Arcana sigil named `refine`.

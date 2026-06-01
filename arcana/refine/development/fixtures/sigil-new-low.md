@@ -2,7 +2,7 @@
 
 ## Request
 
-Use Refine to prepare a new Arcana sigil development seed for `x-ray`, then continue through the approved Task Session/Codex Goal execution path far enough to return the final refinement result.
+Use Refine to prepare a new Arcana sigil development seed for `x-ray`, then run the canonical refinement loop far enough to return the final refinement result or a blocked result with command-stage evidence.
 
 ## Inputs
 
@@ -11,5 +11,5 @@ Use Refine to prepare a new Arcana sigil development seed for `x-ray`, then cont
 - Lifecycle owner: sigil-development
 - Live example: new sigil seed
 - Candidate sigil: x-ray
-- Expected route: Task Session through Codex Goal after confirmation
-- Required final evidence: final refinement output, not only a proposed route
+- Expected runtime: durable Arcanum runtime with deterministic `tools/arcanum` stage dispatch
+- Required final evidence: final synthesis or explicit blocked reason for every canonical stage

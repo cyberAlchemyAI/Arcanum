@@ -1,4 +1,4 @@
-# Example: Existing Work-Pack Preflight
+# Example: Existing Work-Pack Target
 
 ## User Target
 
@@ -10,27 +10,21 @@ refine to arcana/refine/development/WORK-PACK.md --swu SWU-REFINE-002
 
 - Target: `arcana/refine/development/WORK-PACK.md`
 - Seed needed: no
-- Proposed task: `SWU-REFINE-002` Add examples and validation evidence
 - Source context: `arcana/refine/development/WORK-PACK.md`, `arcana/refine/SKILL.md`, `arcana/refine/REFINEMENT-LOOP.md`
-- Write scope: `arcana/refine/examples/`, `arcana/refine/development/VALIDATION.md`
-- Done criteria: examples cover seed proposal, existing work-pack preflight, and blocked goal handoff
-- Validation surface: `rg` required route and research terms, then `git diff --check`
+- Write scope: no implementation mutation during refine
+- Done criteria: final refined synthesis names whether the selected SWU is coherent, overbroad, under-specified, or ready for a next route
+- Validation surface: `arcana/refine/development/run-validation-fixtures.sh`
 - Preset: compact
-- Loop count: 1
+- Loop count: canonical default loop, compact budget
 - Research: research-if-gap-appears
-- Planned execution stages:
-  - context-builder: required, selected SWU has source context and validation surface
-  - invoke-define: required after confirmation
-  - interrogation: required after invoke define
-  - distill: required after interrogation
-  - invoke-design-plan: skipped by compact preset unless repair is required
-  - sigil-development: not_applicable unless the run changes reusable sigil behavior
-- Runtime default: codex-goal
-- Goal eligibility: pass
-- Blocked handoff fields: none
-- Proposed Task Session route: `/task-session to arcana/refine/development/WORK-PACK.md --swu SWU-REFINE-002 --runtime codex --via goal`
-- Confirmation required: yes
+- Dispatch route: `REFINE-DISPATCH.json`
+- Dispatch validation: pass | block
+- Planned execution stages: canonical ten-stage Refine loop
+- Runtime default: arcanum-runtime
+- Runtime eligibility: pass | block
+- Runtime handoff: `RUNTIME-HANDOFF.md`
+- Confirmation required: yes for command-backed stage dispatch
 
 ## Expected Behavior
 
-Refine does not create a new seed work-pack because the selected SWU already has write scope, done criteria, and validation surface. It records the research choice, confirms the budget, and prepares the Task Session route.
+Refine does not execute the selected SWU. It uses the work-pack as source context, validates a dispatch-spec route for the discovery/design loop, writes manifest/index evidence, and returns a final synthesis with recommended next routes.

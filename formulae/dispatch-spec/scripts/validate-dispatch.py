@@ -153,6 +153,7 @@ def validate(doc: dict[str, Any], schema: dict[str, Any], known_techniques: set[
     gates = doc.get("gates", []) if isinstance(doc.get("gates"), list) else []
     obs = doc.get("observability", {}) if isinstance(doc.get("observability"), dict) else {}
     boundary_evidence = doc.get("boundary_evidence", {}) if isinstance(doc.get("boundary_evidence"), dict) else {}
+    subagent_strategy = doc.get("subagent_strategy", {}) if isinstance(doc.get("subagent_strategy"), dict) else {}
 
     step_ids: set[str] = set()
     for idx, step in enumerate(steps):
@@ -198,6 +199,32 @@ def validate(doc: dict[str, Any], schema: dict[str, Any], known_techniques: set[
         blocks.append("observability.trace_events must contain at least one event")
     if obs.get("dispatch_id_required") is not True:
         flags.append("observability.dispatch_id_required should be true")
+
+    if subagent_strategy:
+        strategy_status = subagent_strategy.get("status")
+        strategy_roles = subagent_strategy.get("roles", []) if isinstance(subagent_strategy.get("roles"), list) else []
+        strategy_authorization = subagent_strategy.get("authorization")
+        strategy_join_policy = subagent_strategy.get("join_policy")
+        if strategy_status in {"recommended", "required"}:
+            if not strategy_roles:
+                blocks.append("subagent_strategy roles are required when status is recommended or required")
+            if strategy_authorization not in {"requires_user_permission", "approved"}:
+                blocks.append("subagent_strategy must require user permission or be approved before delegated execution")
+            if not strategy_join_policy or strategy_join_policy == "none":
+                blocks.append("subagent_strategy join_policy is required when subagents are recommended or required")
+            if not subagent_strategy.get("permission_prompt"):
+                flags.append("subagent_strategy should include a permission_prompt before execution")
+            known_step_ids = {step.get("step_id") for step in steps if isinstance(step, dict)}
+            for role in strategy_roles:
+                if not isinstance(role, dict):
+                    blocks.append("subagent_strategy.roles entries must be objects")
+                    continue
+                role_id = role.get("role_id", "<unknown-role>")
+                for step_ref in role.get("applies_to_steps", []) or []:
+                    if step_ref not in known_step_ids:
+                        blocks.append(f"subagent_strategy:{role_id}: applies_to_steps references unknown step_id '{step_ref}'")
+        if strategy_status == "blocked" and strategy_authorization != "blocked":
+            flags.append("blocked subagent_strategy should use authorization=blocked")
 
     all_technique_ids = {
         technique_id(value)[0]
@@ -290,6 +317,8 @@ def validate(doc: dict[str, Any], schema: dict[str, Any], known_techniques: set[
         if tid == "observability_grouping" and obs.get("signal_grouping"):
             reflected = True
         if tid in BOUNDARY_EVIDENCE_TECHNIQUES and boundary_evidence:
+            reflected = True
+        if tid == "role_projection_boundary" and subagent_strategy:
             reflected = True
         if not reflected and tid not in {"mandatory_component", "minimum_component_catalog", "data_quality_conformity"}:
             flags.append(f"dispatch-level technique '{tid}' is cited but not reflected in steps, gates, or observability")

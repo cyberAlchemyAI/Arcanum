@@ -1,5 +1,7 @@
 # Invoke Define: Refine
 
+> Historical note: this define artifact predates dispatch-route hardening. Current Refine execution evidence requires `REFINE-DISPATCH.json`, dispatch-spec validation, and `RUNTIME-HANDOFF.md`.
+
 ## Target
 
 - Sigil name: `refine`

@@ -1,5 +1,7 @@
 # Refine Live Example Seeds
 
+> Historical note: this document predates the dispatch-route Refine contract. References to Task Session through Codex Goal are superseded for current Refine runs by `REFINE-DISPATCH.json`, `RUNTIME-HANDOFF.md`, and dispatch-spec validation.
+
 ## Purpose
 
 These are the first two realistic live examples for promoting `refine` beyond pilot status. They replace the generic starter scenario with user-supplied targets that exercise both major branches of the sigil:

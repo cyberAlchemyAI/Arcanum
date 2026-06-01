@@ -7,11 +7,12 @@ Use this template for meaningful `refine` executions and for Experiment Harness 
 A meaningful execution is any run where `refine` attempts to produce one of:
 
 - a seed proposal,
-- an existing work-pack preflight,
 - a research decision,
-- a blocked Codex Goal handoff report,
-- a Task Session/Codex Goal route,
-- a lifecycle handoff to Sigil Development.
+- a dispatch-spec route,
+- a runtime handoff report,
+- deterministic Arcanum stage dispatch evidence,
+- a run manifest and evidence index,
+- a final refined synthesis.
 
 ## JSONL Shape
 
@@ -20,24 +21,46 @@ A meaningful execution is any run where `refine` attempts to produce one of:
   "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
   "sigil": "refine",
   "tier": "arcana",
-  "mode": "seed-proposal | preflight | blocked-handoff | lifecycle-handoff | observe | reflect",
+  "mode": "seed-proposal | runtime-handoff | loop-run | blocked | observe | reflect",
   "meaningful_execution": true,
-  "target": "<target path, idea, design concern, or work-pack>",
-  "seed_needed": true,
+  "target": "<target path, idea, design concern, work-pack, or repository area>",
   "selected_preset": "compact | standard | full | deep",
   "selected_research_mode": "no-research | bounded-research | research-if-gap-appears",
   "research_confirmed": false,
+  "dispatch_route": "<path or blocked reason>",
+  "dispatch_validation_status": "pass | flag | block | not_run",
+  "dispatch_techniques": [],
+  "dispatch_technique_overlays": [],
+  "runtime_handoff": "<path or blocked reason>",
+  "runtime_status": "pass | flag | block | not_run",
   "planned_execution_stages": {
-    "context_builder": "required | blocked | skipped",
-    "invoke_define": "required | blocked | skipped",
-    "interrogation": "required | blocked | skipped",
-    "distill": "required | blocked | skipped",
-    "invoke_design_plan": "required | blocked | skipped",
-    "sigil_development": "required | blocked | not_applicable"
+    "context_builder_evidence_baseline": "required | pass | flag | block",
+    "invoke_define": "required | pass | flag | block",
+    "interrogation_refine_review": "required | pass | flag | block",
+    "research_decision": "required | pass | flag | block",
+    "distill": "required | pass | flag | block",
+    "invoke_redefine_design": "required | pass | flag | block",
+    "interrogation_refine_design_review": "required | pass | flag | block",
+    "distill_repair": "required | pass | flag | block",
+    "invoke_plan": "required | pass | flag | block",
+    "final_interrogation_synthesis": "required | pass | flag | block"
   },
-  "task_session_route": "<command or blocked reason>",
-  "codex_goal_eligibility": "pass | block | not_applicable",
-  "blocked_handoff_fields": [],
+  "stage_commands": [
+    {
+      "stage": "<stage>",
+      "command": "<command>",
+      "command_file": "<resolved command file>",
+      "mode_config": "<mode/config>",
+      "output": "<path or none>",
+      "status": "pass | flag | block",
+      "observer_status": "<status or n/a>",
+      "blocked_reason": "<reason or none>"
+    }
+  ],
+  "run_manifest": "<path or none>",
+  "evidence_index": "<path or none>",
+  "result": "<path or none>",
+  "recommended_next_routes": [],
   "quality_bar_status": "pass | partial | fail | not_checked",
   "anti_pattern_hits": [],
   "workflow_gaps": [

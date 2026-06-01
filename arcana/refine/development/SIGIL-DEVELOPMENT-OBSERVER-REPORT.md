@@ -1,5 +1,7 @@
 # Sigil Development Observer Report: Refine
 
+> Historical note: this observer report predates the dispatch-route Refine contract. Any Codex Goal wording below describes older evidence and is superseded by the current dispatch route plus runtime handoff contract.
+
 ## Observer Envelope
 
 - Target sigil: `refine`

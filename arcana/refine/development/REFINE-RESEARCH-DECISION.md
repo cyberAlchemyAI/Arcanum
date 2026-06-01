@@ -1,5 +1,7 @@
 # Research Decision: Refine Development Package
 
+> Historical note: this research decision predates the dispatch-route Refine contract. Codex Goal adapter wording is historical; current Refine runtime readiness is expressed through `REFINE-DISPATCH.json` and `RUNTIME-HANDOFF.md`.
+
 ## Research Offer
 
 Research was offered as part of the one-loop refinement seed.

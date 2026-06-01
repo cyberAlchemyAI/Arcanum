@@ -18,9 +18,9 @@ sigil-development
 
 Use Refine on `/home/vrondelli/projects/domainspec-core/arcanum/framework/observability/development`, the observability architecture, and the whole observability package.
 
-The refinement should prepare a full architecture/design refinement loop, not execute the loop directly. It must keep Refine as the preflight controller and Task Session as the executor through Codex Goal. The planned loop should use the installed skills as execution-stage obligations: `context-builder`, `invoke`, `interrogation`, `distill`, and `sigil-development` when lifecycle work is needed.
+The refinement should validate `REFINE-DISPATCH.json` through dispatch-spec, then run the canonical discovery/design refinement loop through deterministic `tools/arcanum` stage dispatch. The planned loop should use the installed stage commands: `context-builder`, `invoke`, `interrogation`, and `distill`.
 
-Return a `Refine Seed Proposal` with bounded source context, write scope, done criteria, validation surface, selected preset, research decision, planned execution stages, blocked handoff fields if any, and proposed Task Session route.
+Return a `Refine Result` with bounded source context, write scope, done criteria, validation surface, selected preset, research decision, planned execution stages, dispatch route validation, runtime handoff status, command dispatch evidence or blocked fields, and final synthesis.
 
 Return the full user-facing result body. Do not summarize that you saved an output file.
 

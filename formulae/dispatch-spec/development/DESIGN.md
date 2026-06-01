@@ -33,7 +33,7 @@ The package is intentionally a Formulae validator. It does not choose the route,
 formulae/dispatch-spec/
   README.md
   SKILL.md
-  dispatch.schema.json
+  dispatch.schema.yml
   WEAVER-EXTRACTION.md
   ARCANUM-DISPATCH-SYNTHESIS.md
   development/
@@ -52,7 +52,7 @@ Responsibilities:
 | --- | --- |
 | `README.md` | Human-facing package purpose, Weaver mapping, and integration target. |
 | `SKILL.md` | Runtime-facing Formulae contract for validation behavior. |
-| `dispatch.schema.json` | Machine-readable dispatch document structure. |
+| `dispatch.schema.yml` | Machine-readable dispatch document structure. |
 | `WEAVER-EXTRACTION.md` | Evidence extraction from external Weaver contract repository. |
 | `ARCANUM-DISPATCH-SYNTHESIS.md` | Arcanum taxonomy, sentence grammar, and example route patterns. |
 | `development/*` | Invoke define/design evidence and future handoff context. |
@@ -133,7 +133,7 @@ Gate kinds currently include policy, decision, quality, promotion guardrail, val
 | --- | --- | --- | --- |
 | Operator sentence | User / Necronomicon / Invoke | route proposer | Free-form text plus intent fields |
 | Route menu | Necronomicon / Spellcraft / Invoke | operator or LLM | Bounded selectable items |
-| Dispatch document | route proposer | `dispatch-spec` | `dispatch.schema.json` |
+| Dispatch document | route proposer | `dispatch-spec` | `dispatch.schema.yml` |
 | Validation result | `dispatch-spec` | Necronomicon / Spellcraft / Task Session | pass/flag/block report |
 | Step frames | executed sigils/spells | later dispatch steps | safe summaries / structured data |
 | Artifact handles | executed sigils/spells | later dispatch steps or human | controlled refs |
@@ -154,7 +154,7 @@ Gate kinds currently include policy, decision, quality, promotion guardrail, val
 Recommended next execution slice:
 
 ```text
-task-session: implement a deterministic validator script and fixtures for dispatch.schema.json
+task-session: implement a deterministic validator script and fixtures for dispatch.schema.yml
 ```
 
 Acceptance evidence:

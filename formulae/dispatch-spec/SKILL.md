@@ -33,6 +33,7 @@ This skill does not decide which sigils should be used. It checks whether a prop
 - A run should record how outputs from one sigil become inputs to another.
 - A route needs to cite reusable techniques from [TECHNIQUE-CATALOG.md](TECHNIQUE-CATALOG.md), including Arcanum composition techniques or POLE-inspired standards-catalog techniques.
 - Refine needs a route artifact for its canonical ten-stage loop without making the Refine process itself the orchestrator.
+- Refine or another orchestrating capability needs a visible subagent strategy before asking permission to run delegated or parallel stage work.
 - A route needs optional `boundary_evidence` for cross-capability handoffs, authority owners, receipts, state namespaces, or promotion splits.
 
 ## Do Not Use When
@@ -82,6 +83,31 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 18. `memory_promotion_split` should include `boundary_evidence.promotion_splits`.
 19. `execution_receipt_handoff` should include `boundary_evidence.receipts`.
 20. Execution evidence must not directly promote Inventory, Ontology, glossary, sigil, or spell knowledge.
+21. `subagent_strategy.status=recommended|required` must name roles, join policy, authorization, and the reason subagents fit the problem shape.
+22. Recommended or required subagent execution should default to `authorization=requires_user_permission` until the operator approves the run.
+
+## Subagent Strategy
+
+Use `subagent_strategy` when the route shape implies role-bound sibling agents,
+parallel critique, tournament comparison, x-ray exploration, memory recovery, or
+delegated verification.
+
+Dispatch Spec may recommend or require the strategy, but it does not execute
+subagents. The orchestrating capability, usually Refine, must show the strategy
+with context and ask permission before runtime execution.
+
+Minimum fields:
+
+- `status`: `none`, `recommended`, `required`, or `blocked`.
+- `trigger`: the problem-shape signal that caused the strategy.
+- `explanation`: why these roles are useful for this target.
+- `context`: target-specific evidence or uncertainty that informed the choice.
+- `roles`: role id, purpose, ownership, and affected steps.
+- `parallelism`: `none`, `fanout`, `dialectic`, `tournament`, or `mixed`.
+- `join_policy`: how returned receipts are joined.
+- `authorization`: `not_needed`, `requires_user_permission`, `approved`, or `blocked`.
+- `permission_prompt`: the prompt the orchestrator should show before execution.
+- `receipt_requirements`: evidence each subagent must return.
 
 ## Output Contract
 
@@ -95,6 +121,7 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 - Patterns: <patterns found>
 - Gates: <pass | flag | block with reasons>
 - Handoffs: <frame/handle/decision/ledger summary>
+- Subagent strategy: <none | recommended | required | blocked, roles, join policy, authorization>
 - Observability: <dispatch_id coverage and trace events>
 - Promotion guardrail: pass | flag | block
 - Required repairs: <none or list>

@@ -11,4 +11,4 @@ Use Refine on `/home/vrondelli/projects/domainspec-core/arcanum/framework/observ
 - Lifecycle owner: sigil-development
 - Live example: full observability architecture refinement
 - Target package: framework/observability
-- Expected route: Task Session through Codex Goal after confirmation
+- Expected runtime: durable Arcanum runtime with deterministic `tools/arcanum` stage dispatch

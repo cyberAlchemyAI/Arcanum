@@ -1,5 +1,7 @@
 # Sigil Development Closeout: Refine
 
+> Historical note: this closeout predates dispatch-route hardening. Codex Goal completion references below are historical; current promotion evidence must include dispatch-route and runtime-handoff proof.
+
 ## Lifecycle Result
 
 - Target sigil: `refine`

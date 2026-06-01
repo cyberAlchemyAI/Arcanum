@@ -17,7 +17,7 @@ Glossary consistency: `pass`
 | Pattern | `GLOSSARY.md` | Step shape and decision flow | pass |
 | Promotion guardrail | `GLOSSARY.md` | Gate model and risks | pass |
 | Trace event | Weaver-linked local term | Observability grouping | pass |
-| SRU/SWU | Craft-owned vocabulary | Referenced as method vocabulary only | pass |
+| SCU/SWU | Craft-owned vocabulary | Referenced as method vocabulary only | pass |
 
 ## Notes
 

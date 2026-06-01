@@ -147,6 +147,12 @@ The validator emits `VALIDATION=pass|flag|block` and blocks on schema errors, im
 
 Technique overlays can be represented with `technique_overlays` when a route needs named profiles such as dialectic review, tournament selection, x-ray explanation, toy-game validation, memory recovery, or protected-context handling. Overlays must name their trigger, techniques, affected steps, and validation expectation.
 
+When a route implies role-bound sibling agents, use `subagent_strategy` to make
+the strategy explicit before runtime execution. Dispatch Spec validates the
+strategy shape, roles, join policy, receipts, and authorization state; the
+orchestrating capability shows the strategy and asks permission before spawning
+subagents or running delegated stages.
+
 ## First Integration Target
 
 The first useful integration is Necronomicon route planning:

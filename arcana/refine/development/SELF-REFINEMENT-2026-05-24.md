@@ -1,5 +1,7 @@
 # Self-Refinement Run: Refine Development Pack
 
+> Historical note: this self-refinement artifact predates dispatch-route hardening. Runtime and Codex Goal wording below is retained as historical evidence and superseded for current Refine runs.
+
 ## Run Envelope
 
 - Target: `arcana/refine/development/WORK-PACK.md`
@@ -111,4 +113,4 @@ Result: pass with local repairs applied in this refinement run.
 
 ## Follow-Up Correction
 
-The first self-refinement run exposed a contract gap after review: it recorded loop sections but did not require the installed skills. The contract has now been tightened so Refine prepares a loop execution plan with mandatory stage obligations, while Task Session/Codex Goal executes those stages through `context-builder`, `invoke`, `interrogation`, `distill`, and `sigil-development`, or blocks with an explicit unavailable-skill reason.
+The first self-refinement run exposed a contract gap after review: it recorded loop sections but did not require the installed skills. The current contract is stricter: Refine owns the discovery/design loop and dispatches command-backed stages through `tools/arcanum` for `context-builder`, `invoke`, `interrogation`, and `distill`, or blocks with an explicit unavailable-command reason.

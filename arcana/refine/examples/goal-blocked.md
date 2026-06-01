@@ -1,30 +1,24 @@
-# Example: Codex Goal Blocked
+# Example: Runtime Handoff Blocked
 
 ## Refine Seed Proposal
 
 - Target: `arcana/refine`
 - Seed needed: no
-- Proposed task: `TASK-REFINE-001 - Create refine sigil package`
-- Source context: `arcana/refine/development/WORK-PACK.md`
-- Write scope: `arcana/refine/README.md`, `arcana/refine/SKILL.md`, `arcana/refine/examples/`
-- Done criteria: initial sigil package and examples exist
-- Validation surface: markdown link review and required-term grep
+- Source context: `arcana/refine/SKILL.md`, `arcana/refine/REFINEMENT-LOOP.md`
+- Write scope: no implementation mutation during refine
+- Done criteria: blocked report names exact unavailable command, handoff, or runtime field
+- Validation surface: markdown review and `run-validation-fixtures.sh`
 - Preset: standard
-- Loop count: one loop plus repair/synthesis
+- Loop count: canonical default loop, standard budget
 - Research: no-research
-- Planned execution stages:
-  - context-builder: blocked, missing persisted handoff pack
-  - invoke-define: skipped until context-builder block is resolved
-  - interrogation: skipped until context-builder block is resolved
-  - distill: skipped until context-builder block is resolved
-  - invoke-design-plan: skipped until context-builder block is resolved
-  - sigil-development: not_applicable until refinement can run
-- Runtime default: codex-goal
-- Goal eligibility: block
-- Blocked handoff fields: missing persisted context pack Markdown, missing context pack JSON/index, strict coverage not recorded
-- Proposed Task Session route: blocked until Context Builder produces strict handoff evidence
-- Confirmation required: yes
+- Dispatch route: `REFINE-DISPATCH.json`
+- Dispatch validation: block
+- Planned execution stages: canonical ten-stage Refine loop
+- Runtime default: arcanum-runtime
+- Runtime eligibility: block
+- Blocked route/runtime fields: missing strict Context Builder handoff pack, missing handoff JSON/index, unavailable runtime adapter, or invalid dispatch route
+- Runtime handoff: `RUNTIME-HANDOFF.md`
 
-## Blocked Fallback
+## Blocked Behavior
 
-Refine does not silently route to local Task Session. The user may explicitly request local fallback, or the missing handoff fields must be produced first.
+Refine does not silently route to another executor. It records `Status: block`, writes or references the manifest/index when possible, and leaves Task Session or Sigil Development as recommended next routes only after a final synthesis exists.

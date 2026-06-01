@@ -14,6 +14,10 @@ Status: define-stage local glossary. Candidate terms only; no registry or ontolo
 | Promotion guardrail | A rule that prevents candidate outputs from becoming canonical without the owning capability. | linked |
 | Route menu | A bounded set of selectable candidate routes or capabilities, inspired by Weaver `ChoiceCard`. | linked |
 | Step | One dispatch node with capability reference, pattern, inputs, outputs, gates, and optional convergence criteria. | local |
+| Technique | A reusable route-shaping or validation method cited by a dispatch document or step. Technique ids live in `TECHNIQUE-CATALOG.md`. | local |
+| Component standard | A reusable field or evidence component with one stable meaning across dispatch documents. Adapted from POLE standards-catalog discipline. | linked |
+| Conditional obligation | A validation requirement that applies only when a route context triggers it, such as parallel steps requiring a join policy. Adapted from POLE standards-catalog discipline. | linked |
+| Data quality dimension | A cross-cutting validation lens such as accuracy, integrity, timeliness, completeness, conformity, or deduplication. Adapted from POLE standards-catalog discipline. | linked |
 | Toy game | A small controlled scenario used to test whether an abstraction behaves before larger commitment. | local |
 | Trace event | Observability event tied to dispatch, step, capability, and outcome. Adapted from Weaver vocabulary. | linked |
 | Zig zag | Alternating generation/critique or exploration/exploitation route pattern. | local |
@@ -21,6 +25,5 @@ Status: define-stage local glossary. Candidate terms only; no registry or ontolo
 ## Glossary Notes
 
 - `Frame`, `Handle`, `TraceEvent`, `ChoiceCard`, and `SelectableItem` are not imported as canonical Arcanum terms. They are linked concepts from Weaver used to sharpen handoff thinking.
-- `SRU`, `SWU`, `residue`, and `recomposition` remain Craft/Arcanum method vocabulary; Dispatch Spec consumes them as step-boundary annotations rather than redefining them.
+- `SCU`, `SWU`, `residue`, and `recomposition` remain Craft/Arcanum method vocabulary; Dispatch Spec consumes them as step-boundary annotations rather than redefining them.
 - Spell and sigil lifecycle terms remain owned by Spellcraft and Sigil Development.
-

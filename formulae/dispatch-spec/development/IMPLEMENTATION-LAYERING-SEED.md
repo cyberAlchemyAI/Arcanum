@@ -8,7 +8,7 @@ Goal: prove that a dispatch document can describe a useful Arcanum sequence with
 
 Evidence:
 
-- `dispatch.schema.json` is valid JSON Schema.
+- `dispatch.schema.yml` is valid JSON Schema.
 - Embedded abstraction-research sample validates.
 - README and SKILL separate validation from route interpretation.
 
@@ -20,7 +20,7 @@ Goal: add a deterministic validator script and fixtures.
 
 Candidate work:
 
-- `scripts/validate-dispatch.py` or shell wrapper.
+- `scripts/validate-dispatch.py` and `development/run-validation-fixtures.sh`.
 - Valid fixture for sequence.
 - Valid fixture for tournament/dialectic.
 - Invalid fixture for missing handoff.
@@ -63,4 +63,3 @@ Exit evidence:
 - experiment report passes,
 - unresolved gaps are non-blocking,
 - promotion decision is recorded by owner.
-

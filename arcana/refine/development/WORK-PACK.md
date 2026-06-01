@@ -1,5 +1,7 @@
 # WORK-PACK: Refine Sigil
 
+> Historical note: this initial Refine work-pack predates dispatch-route hardening. Current stabilization work lives in `WORK-PACK-DISPATCH-STABILITY.md`; Codex Goal and blocked goal handoff wording below is superseded for current execution.
+
 ## Control Fields
 
 | Field | Value | Notes |
@@ -15,7 +17,7 @@
 ## Objective Summary
 
 - Objective: create the initial `refine` sigil package from the one-loop refinement seed.
-- Primary inputs: define, interrogation, research decision, Distill review, design/plan, and Sigil Development handoff.
+- Primary inputs: define, interrogation, research decision, Distill review, design/plan, and final synthesis.
 - Success condition: README, SKILL, examples, registry entry, and validation evidence exist and preserve ownership boundaries.
 
 ## Task Status Board

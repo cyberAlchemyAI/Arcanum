@@ -1,5 +1,7 @@
 # Invoke Redefine + Design/Plan: Refine
 
+> Historical note: this design/plan artifact predates dispatch-route hardening. Current Refine execution routing is dispatch-spec route validation plus runtime handoff, not Codex Goal handoff.
+
 ## Redefined Capability
 
 `refine` is an Arcana seed controller that prepares refinement work for Task Session. It proposes the first executable seed, makes research and loop budget explicit, and defaults later execution to Codex Goal through Task Session when strict handoff coverage passes.
@@ -82,4 +84,4 @@ This design produces [WORK-PACK.md](WORK-PACK.md) as the initial executable deve
 
 ## Design Verdict
 
-Pass for Sigil Development handoff.
+Pass for Refine contract synchronization.

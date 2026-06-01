@@ -1,5 +1,7 @@
 # Interrogation: Refine Definition
 
+> Historical note: this interrogation predates dispatch-route hardening. Codex Goal default wording below is superseded by `REFINE-DISPATCH.json`, dispatch-spec validation, and `RUNTIME-HANDOFF.md`.
+
 ## Scope
 
 Critique the `refine` definition before design and planning.
@@ -57,7 +59,7 @@ Resolution: `refine` proposes first. It only writes seed artifacts or delegates 
 - Make research offer part of the preflight output contract.
 - Make Codex Goal default but strict-coverage gated.
 - Make local execution an explicit override, not fallback.
-- Make Sigil Development the lifecycle handoff owner.
+- Keep lifecycle routes as recommendations after final synthesis.
 
 ## Proceed Decision
 

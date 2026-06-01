@@ -4,33 +4,56 @@
 
 - Owner: `refine`
 - Status: pilot
-- Use for: concept, architecture, ontology, lifecycle, governance, research-informed synthesis, article-quality design, and unclear refinement targets.
-- Avoid for: already-approved implementation tasks, simple direct edits, or tasks that already have a selected execution-ready SWU.
+- Use for: concept, architecture, ontology, lifecycle, governance, research-informed synthesis, article-quality design, repository-area understanding, and unclear refinement targets.
+- Avoid for: already-approved implementation tasks, simple direct edits, lifecycle promotion, or tasks that already have a selected execution-ready SWU.
 
 ## Objective
 
-Run bounded pre-task refinement before Task Session execution. The loop turns a vague target or design concern into an approved seed work-pack/task that Task Session can execute through Codex Goal.
+Run bounded discovery and design refinement. The loop turns a vague target or design concern into a refined seed, design, non-executed plan, and final synthesis that can recommend a next route.
 
 ## Ownership Boundary
 
-- Refine owns target understanding, research offer, loop budget, seed proposal, confirmation, and lifecycle handoff.
+- Refine owns target understanding, research decision, loop budget, seed proposal, dispatch request, runtime handoff, run manifest, evidence index, final synthesis, and recommended next routes.
+- Dispatch Spec owns route-shape validation for the canonical loop, technique references, gates, handoffs, and observability grouping.
+- Context Builder owns the evidence baseline and runtime handoff pack outputs.
 - Invoke owns the phase artifacts it is asked to produce: define, design, and plan.
 - Interrogation owns critique, blocker questions, and pass/flag/block verdicts.
-- Distill owns tournament, compact repair, and validate passes.
+- Distill owns coherent-unit selection, optimization, repair, and validate passes.
 - Research is bounded evidence gathering. It cannot override local repo evidence.
-- Sigil Development owns reusable sigil lifecycle after the handoff.
-- Task Session owns execution of the approved refinement-loop work-pack task or SWU after Refine preflight.
+- Task Session and Sigil Development are possible next routes after refinement; they are not loop stages.
 
 ## Execution Rule
 
-Refine prepares the loop. Task Session executes the approved loop through Codex Goal by dispatching the installed skill/sigil contracts when they are available. The loop is not valid if the execution merely labels hand-written prose as Context Builder, Invoke, Interrogation, Distill, or Sigil Development output.
+Refine first writes `REFINE-DISPATCH.json`, a dispatch-spec route for the canonical ten-stage loop. That route must validate before runtime-backed stages run.
 
-Each dispatched stage must preserve one of:
+The dispatch route records stage order, command owners, mode/configuration, inputs, outputs, gates, observability events, route-menu decisions, and technique references from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`.
 
+Refine then runs runtime-backed stages through parent-owned native runtime execution, using `tools/arcanum` for deterministic resolution and optional handoff/receipt generation:
+
+```bash
+tools/arcanum --resolve <command>
+tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>
+```
+
+For native adapters, `tools/arcanum --exec` prepares a handoff/receipt contract. It must not spawn a nested model-backed CLI. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in.
+
+Each command must first resolve through:
+
+```bash
+tools/arcanum --resolve <command>
+```
+
+The loop is not valid if execution merely labels hand-written prose as Context Builder, Invoke, Interrogation, or Distill output, or if `REFINE-DISPATCH.json` is missing for a materialized run.
+
+Each dispatched stage must preserve:
+
+- the resolved command or capability handle,
+- the runtime adapter,
+- the requested mode/configuration,
 - the stage artifact path,
-- the stage observation envelope or invocation summary,
+- the stage observation envelope or invocation summary when available,
 - a pass/flag/block verdict when the stage provides one,
-- or an explicit blocked reason when the required skill is unavailable.
+- or an explicit blocked reason when the command is unavailable.
 
 ## Required Local Baseline
 
@@ -40,50 +63,75 @@ Each dispatched stage must preserve one of:
 4. Do not redo broad repository discovery unless the pack is missing required evidence.
 5. If context coverage cannot support a coherent seed, return `BLOCK`.
 
-## One Refinement Loop Unit
+## Canonical Default Loop
 
-One refinement loop is the smallest complete executable unit that can produce a useful seed:
+Every refine run uses this stage list. Presets tune budget/configuration; they do not remove stages.
 
-1. Task Session dispatches `context-builder`.
-2. Task Session dispatches `invoke` in Define mode.
-3. Task Session dispatches `interrogation`.
-4. Research offer and decision record.
-5. Task Session dispatches `distill`.
-6. Task Session dispatches `invoke` in Redefine plus Design/Plan mode.
-7. Task Session dispatches `sigil-development` handoff or produces final synthesis when sigil lifecycle work is not applicable.
+1. Context Builder evidence baseline.
+2. Invoke Define.
+3. Interrogation using `refine-review`.
+4. Research decision, with bounded research only when selected or triggered by a named gap.
+5. Distill.
+6. Invoke Redefine / Design.
+7. Interrogation using `refine-design-review`.
+8. Distill Repair.
+9. Invoke Plan.
+10. Final Interrogation and Synthesis using `refine-final`.
 
-The research offer is mandatory even when research is skipped. Record one of:
+## Stage Configuration
 
-- `no-research`: use only local repository and supplied context.
-- `bounded-research`: run one external comparison pass within the Research Bounds below.
-- `research-if-gap-appears`: start local-first and ask again only if Interrogation or Distill identifies a named external-context gap.
+| Stage | Command | Mode/Config | Output |
+| --- | --- | --- | --- |
+| Context Builder evidence baseline | `context-builder` | `standard`; include `--strict --emit both --handoff runtime --persist <run-folder>/context-builder` | Context pack and index, or blocked coverage reason. |
+| Invoke Define | `invoke` | `define` | Define artifact or blocked reason. |
+| Interrogation | `interrogation` | `refine-review` | Critique verdict for define-stage output. |
+| Research decision | `refine` | `no-research`, `bounded-research`, or `research-if-gap-appears` | Decision record and optional research notes. |
+| Distill | `distill` | `standard` | Coherent-unit selection and optimization trace. |
+| Invoke Redefine / Design | `invoke` | `design`, framed as redefine/design from previous artifacts | Design artifact or blocked reason. |
+| Interrogation | `interrogation` | `refine-design-review` | Critique verdict for design-stage output. |
+| Distill Repair | `distill` | `validate` or repair-focused request | Repair verdict, tensions, and selected repair. |
+| Invoke Plan | `invoke` | `plan` | Non-executed plan artifact. |
+| Final Interrogation and Synthesis | `interrogation` then `refine` | `refine-final` | Final verdict and Refine-owned synthesis. |
 
-`research-if-gap-appears` is the default when the user has not already chosen a research mode.
+## Dispatch Technique Overlays
 
-## Full Loop
+Refine dispatches should normally cite the baseline sequence techniques:
 
-The full loop expands the one-loop unit into additional critique, repair, and planning passes:
+- `sequence`
+- `frame_handoff`
+- `handle_handoff`
+- `validation_loop`
+- `owner_boundary_check`
+- `observability_grouping`
+- `minimum_component_catalog`
+- `mandatory_component`
+- `conditional_component`
+- `orphan_record_check`
+- `data_quality_completeness`
+- `data_quality_conformity`
 
-1. Task Session dispatches `context-builder`.
-2. Task Session dispatches `invoke` Pass 1: Define.
-3. Task Session dispatches `interrogation` Pass 1.
-4. Research offer and bounded online research pass when selected or when a named external-context gap appears.
-5. Task Session dispatches `distill` tournament.
-6. Task Session dispatches `invoke` Pass 2: Redefine plus Design.
-7. Task Session dispatches `interrogation` Pass 2.
-8. Task Session dispatches `distill` repair pass.
-9. Task Session dispatches `invoke` Pass 3: Plan.
-10. Task Session dispatches final `interrogation`.
-11. Final synthesis and Task Session handoff.
+Refine may add technique overlays when the target needs them:
+
+| Overlay | Trigger | Techniques |
+| --- | --- | --- |
+| `route_menu_for_ambiguity` | Multiple plausible owners, routes, outputs, or research choices. | `route_menu`, `one_or_more_option_set`, `approval_checkpoint` |
+| `dialectic_for_tension` | Competing principles, explore/exploit pressure, or likely disagreement. | `dialectic`, `zig_zag`, `residue_ledger` |
+| `tournament_for_alternatives` | Several candidate abstractions, designs, or SWU boundaries need comparison. | `tournament`, `pareto_gate`, `recomposition_proof` |
+| `xray_for_hidden_structure` | Hidden architecture, workflow, transformation, or relationship structure is the main uncertainty. | `x_ray`, `component_descriptor`, `entity_component_reference` |
+| `toy_game_for_low_cost_falsification` | A selected abstraction needs low-cost failure testing before planning. | `toy_game`, `validation_loop`, `assessment_failure_reference` |
+| `memory_residue_for_context_recovery` | Prior sessions, rejected candidates, or repository memory matter. | `memory_loop`, `residue_ledger`, `data_quality_deduplication` |
+| `protected_context_for_external_or_sensitive_evidence` | External, sensitive, or non-canonical evidence is used. | `protected_context_flag`, `system_agnostic_standard`, `local_nuance_coordination` |
+
+Additional techniques may be cited when the route actually uses them. Technique citations without step, gate, route-menu, observability, or validation consequences should be treated as `flag`.
 
 ## Presets
 
-| Preset | Loop Budget | Use When |
+| Preset | Budget Effect | Use When |
 | --- | --- | --- |
-| compact | One refinement loop without research unless selected. | The target is narrow and mostly local. |
-| standard | One loop plus one repair/synthesis pass. | The target needs critique and repair but not a full tournament. |
-| full | Full loop with research offer, tournament or repair as needed, plan, and final interrogation. | Architecture, lifecycle, governance, or multi-artifact development needs a strong seed. |
-| deep | Full loop plus checkpoint before mutation-heavy delegation. | The target is high-risk, broad, or likely to span several follow-up tasks. |
+| compact | Shortest stage outputs and leanest acceptable context. | The target is narrow and mostly local. |
+| standard | Default stage depth and standard Context Builder/Distill budget. | The target needs critique and repair but not maximal exploration. |
+| full | Deeper stage requests, stronger design/plan detail, and more explicit repair evidence. | Architecture, lifecycle, governance, or multi-artifact development needs a strong result. |
+| deep | Full behavior plus checkpointing before expensive or mutation-heavy next-route recommendations. | The target is high-risk, broad, or likely to span several follow-up tasks. |
 
 ## Loop Limits
 
@@ -111,8 +159,27 @@ When research is selected:
 
 A completed refinement loop should produce either:
 
-- a seed work-pack/task ready for Task Session and Codex Goal handoff,
-- a Sigil Development handoff,
-- or a `BLOCK` report with the smallest missing context, decision, write scope, validation surface, or handoff field.
+- a refined seed/design/plan result with recommended next routes,
+- or a `BLOCK` report with the smallest missing context, decision, command, write scope, validation surface, or runtime handoff field.
 
-The output must also include required-stage evidence for every stage selected by the preset.
+The output must include required-stage evidence for every stage in the canonical loop.
+
+## Run Manifest
+
+Every materialized refinement run must produce a target-local run folder:
+
+```text
+<target>/development/refinement-runs/<run-id>/
+```
+
+Required contents:
+
+- `RUN-MANIFEST.md`
+- `evidence-index.json`
+- `REFINE-SEED-PROPOSAL.md`
+- `REFINE-DISPATCH.json`
+- `RUNTIME-HANDOFF.md`
+- `RESULT.md`
+- `stages/`
+
+The manifest is an index, not a replacement for stage artifacts. Each stage row must reference the artifact produced by its owning command or record an explicit blocked reason. A selected stage without an artifact path or blocked reason is invalid. A stage marked `pass` must reference an artifact path that exists.

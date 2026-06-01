@@ -1,5 +1,7 @@
 # Sigil Development Handoff: Refine
 
+> Historical note: this handoff predates the dispatch-route Refine contract. Current hardening should use `REFINE-DISPATCH.json`, `RUNTIME-HANDOFF.md`, and dispatch-spec validation instead of Codex Goal handoff wording.
+
 ## Handoff Summary
 
 Create the reusable `refine` sigil from this development package.

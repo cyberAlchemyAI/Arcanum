@@ -1,5 +1,7 @@
 # Distill Review: Refine
 
+> Historical note: this review predates dispatch-route hardening. Codex Goal wording below is retained as older design evidence and superseded by dispatch-spec route validation plus runtime handoff.
+
 ## Target Context
 
 Design the smallest coherent `refine` sigil that fills the gap before Task Session execution without duplicating existing Arcanum capabilities.
