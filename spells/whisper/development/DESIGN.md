@@ -33,7 +33,7 @@ meaningful text lifecycle
   -> Whisper spell
   -> transport-specific composition flow
   -> TextIntentSubstrate
-  -> SRU cores
+  -> SCU cores
   -> fields and constraints
 ```
 
@@ -156,11 +156,11 @@ fundraising_extension:
     - string
 ```
 
-The fundraising extension should not become a fourth SRU core by default. It is a transport-specific relevance and trajectory extension unless repeated use proves that trust/proof/ask mechanics need their own core.
+The fundraising extension should not become a fourth SCU core by default. It is a transport-specific relevance and trajectory extension unless repeated use proves that trust/proof/ask mechanics need their own core.
 
 ## Pareto-Aware Candidate Selection
 
-Each candidate set must be scored across the three SRU cores:
+Each candidate set must be scored across the three SCU cores:
 
 | Axis | Question | Reject When |
 | ---- | -------- | ----------- |
@@ -177,7 +177,7 @@ raw author intent
   -> transport selection
   -> one-question interrogation for blocker ambiguity
   -> TextIntentSubstrate
-  -> SRU candidate tournament
+  -> SCU candidate tournament
   -> Pareto-aware consensus
   -> composition plan
   -> draft
@@ -185,6 +185,23 @@ raw author intent
   -> revision tasks or final
   -> learning residue
 ```
+
+## Artifact State Machine
+
+The lifecycle is implemented through schema-bearing artifacts. Tasks execute bounded transitions; they do not replace the schema.
+
+| State | Responsibility | Produced By | Next States | Task Boundary |
+| ----- | -------------- | ----------- | ----------- | ------------- |
+| `text_intent_substrate` | Canonical intent, constraints, and three SCU cores. | intake, distill | `scu_candidate_set`, `composition_plan`, `validation_report` | Use direct Whisper intake unless the source packet is large enough to need context-builder. |
+| `transport_schema` | Transport-specific body parts, constraints, validation checks, and publication expectations. | transport selection | `composition_plan`, `validation_report` | Use structured-interview only when transport or public is ambiguous. |
+| `scu_candidate_set` | Candidate combinations of primitives and techniques across resonance, relevance, and trajectory. | distill tournament | `pareto_consensus` | Use distill tournament; do not turn each candidate into its own task. |
+| `pareto_consensus` | Non-dominated selection that balances audience, feel, movement, and cost. | candidate tournament | `composition_plan` | Use decision-gate only for consequential disagreement. |
+| `composition_plan` | Ordered construction plan for the text. | plan phase | `draft_artifact`, review | Use task-session when drafting will take multiple SWUs. |
+| `draft_artifact` | The actual text produced from the plan. | draft phase | `validation_report`, revision | Use task-session for long drafting, source verification, or revisions. |
+| `validation_report` | Pass/flag/block result against objective, audience, resonance, structure, and constraints. | validation | `learning_residue`, revision | Use review tasks only when the report creates actionable fixes. |
+| `learning_residue` | Reusable lessons from this run. | validation, reflection | future composition runs | Promote durable terms to glossary/inventory only after repeated evidence. |
+
+This answers the "just running tasks?" concern: the spell should run tasks only at transition points where a bounded unit of work is useful. The schema remains the memory and control surface.
 
 ## First Proof Scenario
 
@@ -197,8 +214,10 @@ Write a Substack post for our research group about <topic>, aimed at <target rea
 Expected outputs:
 
 - completed `TextIntentSubstrate`,
-- selected SRU candidate set,
+- selected SCU candidate set,
+- Pareto consensus record,
 - body-part composition plan,
+- draft artifact or draft task handoff,
 - draft readiness verdict,
 - validation checklist result,
 - learning residue for future research posts and fundraising copy.

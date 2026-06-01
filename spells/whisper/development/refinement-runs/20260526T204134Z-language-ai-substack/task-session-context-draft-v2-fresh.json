@@ -1,0 +1,49 @@
+{
+  "task": "TASK-WHISPER-DRAFT-V2-FRESH",
+  "swu": "SWU-WHISPER-DRAFT-V2-001",
+  "runtime": "local",
+  "strict_coverage": "pass",
+  "user_instruction": "Create a new draft version from zero, do not use the previous draft as source material, and use the Pareto schema.",
+  "controlling_sources": [
+    {
+      "path": "text-intent-substrate.yaml",
+      "obligation": "Use the enforced pareto_tournament, selected candidate, composition plan, opening contract, citation policy, and length limits."
+    },
+    {
+      "path": "TASK-SESSION-PARETO-REPORT.md",
+      "obligation": "Treat the two-tier Pareto schema as completed and enforced."
+    },
+    {
+      "path": "WORK-PACK.md",
+      "obligation": "Keep this as a bounded local drafting SWU and synchronize evidence after validation."
+    },
+    {
+      "path": "spells/whisper/tools/validate-whisper-draft.py",
+      "obligation": "Validate Pareto completeness, opening contract, external reference placement, required terms, word count, and character count."
+    }
+  ],
+  "excluded_sources": [
+    "DRAFT-SUBSTACK-001.md as writing source"
+  ],
+  "pareto_binding": {
+    "tiering": "two_tier",
+    "selected_candidate": "executable_language_research_note",
+    "technique_stack": [
+      "language_as_executable_medium",
+      "arcanum_as_live_case",
+      "invitation_to_name_a_workflow"
+    ],
+    "hard_gates": [
+      "opening_contract_compliance",
+      "citation_integrity",
+      "audience_legibility"
+    ]
+  },
+  "validation_surface": [
+    "python3 -m py_compile spells/whisper/tools/validate-whisper-draft.py",
+    "YAML parse for text-intent-substrate.yaml",
+    "python3 spells/whisper/tools/validate-whisper-draft.py --schema spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml --draft spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/DRAFT-SUBSTACK-002.md",
+    "normalized 8-word shingle freshness comparison against DRAFT-SUBSTACK-001.md"
+  ],
+  "gate_verdict": "pass"
+}

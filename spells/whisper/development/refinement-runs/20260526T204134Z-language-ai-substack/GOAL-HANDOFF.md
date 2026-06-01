@@ -1,70 +1,25 @@
-# Goal Handoff Draft: Refine Whisper Article Idea
+# Goal Handoff: Native Refine Orchestration
 
 ## Objective
 
-Run the canonical Refine loop on the Whisper article seed for a `substack_research_post` about language, generative AI, aliases, schemas, and personal code.
-
-## Target
-
-`spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFINE-SEED-PROPOSAL.md`
+Run the canonical Refine loop for `spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFINE-SEED-PROPOSAL.md` without recursive Codex execution.
 
 ## Runtime Mode
 
-- Preset: `compact` recommended for first experiment.
-- Research: `research-if-gap-appears`.
-- External research confirmation: required if the run wants to use the Yuval Harari / Sapiens gossip reference as a source-backed claim.
+- Preset: `compact`
+- Research: `research-if-gap-appears`
+- Stage dispatch owner: root `tools/arcanum` process
 
 ## Stage Dispatch Contract
 
-Resolve before dispatch:
+The root process dispatches stage commands through:
 
 ```bash
-tools/arcanum --resolve context-builder
-tools/arcanum --resolve invoke
-tools/arcanum --resolve interrogation
-tools/arcanum --resolve distill
+tools/arcanum --exec --adapter <stage-adapter> --timeout <seconds> --output <stage-output> <command> <stage-request>
 ```
 
-Dispatch stages through:
+The Refine model is not asked to spawn child `codex-exec` processes from inside a Codex sandbox.
 
-```bash
-tools/arcanum --exec --output <stage-output> <command> <stage-request>
-```
+## Source Request
 
-## Required Stage Outputs
-
-| Stage | Expected Output |
-| --- | --- |
-| Context Builder | source context pack for Whisper design and article seed |
-| Invoke Define | article definition and glossary baseline |
-| Interrogation refine-review | critique of definition, missing audience/source decisions |
-| Research decision | local-first, bounded only if Harari reference becomes load-bearing |
-| Distill | smallest coherent article unit and candidate selection |
-| Invoke Design | article architecture/composition design |
-| Interrogation refine-design-review | critique of design and schema fit |
-| Distill Repair | repaired substrate or explicit unresolved tensions |
-| Invoke Plan | non-executed plan and first drafting SWU |
-| Final Interrogation + Result | final synthesis and recommended Task Session route |
-
-## Blocked Conditions
-
-- No target public can be selected.
-- Desired reader change remains unclear after one focused question.
-- Harari/Sapiens reference is used as a precise claim without citation verification.
-- The plan collapses into generic AI hype instead of explaining language as personal symbolic code.
-
-## Task Session Handoff Candidate
-
-After Refine passes or flags with non-blocking gaps, hand off:
-
-```text
-task-session target:
-spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/
-
-task:
-SWU-WHISPER-ARTICLE-001 - draft the Substack post from the refined TextIntentSubstrate and composition plan.
-```
-
-## Operator Note
-
-If you want a short run, choose `compact`. If you want this to become a publishable flagship essay, choose `standard` and allow bounded research for the Harari anchor.
+target=spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFINE-SEED-PROPOSAL.md; preset=compact; research=research-if-gap-appears; use existing run folder spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack; preserve text-intent-substrate.yaml as the schema control surface; primary reader default: AI-curious creative builders; do not execute task-session; produce/update RUN-MANIFEST.md, evidence-index.json, GOAL-HANDOFF.md, RESULT.md, and stages/ artifacts.

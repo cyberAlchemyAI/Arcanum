@@ -1,0 +1,33 @@
+{
+  "task": "TASK-WHISPER-SCHEMA-REFRESH",
+  "swu": "SWU-WHISPER-PARETO-001",
+  "runtime": "local",
+  "strictCoverage": "pass",
+  "controllingSources": [
+    "WORK-PACK.md",
+    "REFRESH-REPORT.md",
+    "REFRESH-PATCH-PROPOSAL.md",
+    "text-intent-substrate.yaml",
+    "spells/whisper/tools/validate-whisper-draft.py",
+    "DRAFT-SUBSTACK-001.md"
+  ],
+  "writeScope": [
+    "text-intent-substrate.yaml",
+    "spells/whisper/tools/validate-whisper-draft.py",
+    "TASK-SESSION-PARETO-REPORT.md",
+    "WORK-PACK.md"
+  ],
+  "hardConstraints": [
+    "do not rewrite the draft unless validation directly requires it",
+    "do not run part-level tournaments for every paragraph",
+    "preserve rejected Pareto alternatives as reusable alternatives",
+    "keep exact Harari quotation/page verification out of scope"
+  ],
+  "validation": [
+    "jq empty refresh-report.json",
+    "python3 YAML parse text-intent-substrate.yaml",
+    "python3 -m py_compile spells/whisper/tools/validate-whisper-draft.py",
+    "python3 spells/whisper/tools/validate-whisper-draft.py --schema ... --draft ...",
+    "negative validation probe against an incomplete Pareto schema"
+  ]
+}

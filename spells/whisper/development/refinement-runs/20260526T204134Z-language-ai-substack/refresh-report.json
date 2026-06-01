@@ -1,0 +1,177 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "mutationMode": "apply-approved",
+  "sourceSignals": [
+    {
+      "id": "RS-WHISPER-PARETO-001",
+      "source_path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml#scu_candidate_set",
+      "signal_type": "artifact_drift",
+      "target_artifacts": [
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml"
+      ],
+      "claim": "The substrate names pareto_aware but lacks objective scores, hard gates, dominance rules, and consensus evidence.",
+      "evidence": "The current scu_candidate_set records candidate sets and rationale but not an operational tournament protocol.",
+      "confidence": "high",
+      "mutation_safety": "needs_review"
+    },
+    {
+      "id": "RS-WHISPER-PARETO-002",
+      "source_path": "current-thread#/interrogation",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml",
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/WORK-PACK.md"
+      ],
+      "claim": "The Pareto tiering decision is unresolved: global-only, part-level-always, or two-tier.",
+      "evidence": "The structured interview asked the tiering question and recorded a block until the operator answers.",
+      "confidence": "high",
+      "mutation_safety": "blocked"
+    },
+    {
+      "id": "RS-WHISPER-PARETO-003",
+      "source_path": "current-thread#/invoke-refresh",
+      "signal_type": "route_changed",
+      "target_artifacts": [
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/WORK-PACK.md"
+      ],
+      "claim": "The safe next route is a schema and validator refresh task after the tiering decision, not another prose rewrite.",
+      "evidence": "The user invoked refresh after identifying the missing Pareto dynamic.",
+      "confidence": "medium",
+      "mutation_safety": "needs_review"
+    },
+    {
+      "id": "RS-WHISPER-PARETO-004",
+      "source_path": "current-thread#/invoke-lets-go-with-two-tier",
+      "signal_type": "blocker_resolved",
+      "target_artifacts": [
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFRESH-REPORT.md",
+        "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/WORK-PACK.md"
+      ],
+      "claim": "The operator approved the recommended two_tier Pareto dynamic.",
+      "evidence": "User request: /invoke lets go with two tier.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    {
+      "path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml",
+      "owner": "whisper",
+      "currentClaim": "Defines SRU cores, candidate set, selected candidate, composition plan, and opening contract.",
+      "refreshRelevance": "Primary target for Pareto tournament schema."
+    },
+    {
+      "path": "spells/whisper/tools/validate-whisper-draft.py",
+      "owner": "whisper",
+      "currentClaim": "Validates opening contract, reference placement, substrate terms, and length limits.",
+      "refreshRelevance": "Needs Pareto completeness validation after schema acceptance."
+    },
+    {
+      "path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/WORK-PACK.md",
+      "owner": "task-session handoff for whisper",
+      "currentClaim": "Records completed article draft SWU and validation surface.",
+      "refreshRelevance": "Should receive a follow-up SWU after approval."
+    },
+    {
+      "path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/DESIGN-REDEFINITION.md",
+      "owner": "invoke",
+      "currentClaim": "Describes the current body-part composition plan.",
+      "refreshRelevance": "Should distinguish global strategy selection from part-level delegation if two-tier is accepted."
+    }
+  ],
+  "deltaSummary": [
+    {
+      "delta": "artifact_drift",
+      "targetArtifact": "text-intent-substrate.yaml",
+      "proposedState": "Add explicit pareto_tournament contract.",
+      "evidence": "RS-WHISPER-PARETO-001"
+    },
+    {
+      "delta": "blocker_resolved",
+      "targetArtifact": "REFRESH-REPORT.md; refresh-report.json; WORK-PACK.md",
+      "proposedState": "Record two_tier as the accepted Pareto dynamic and unblock SWU-WHISPER-PARETO-001.",
+      "evidence": "RS-WHISPER-PARETO-004"
+    },
+    {
+      "delta": "route_changed",
+      "targetArtifact": "WORK-PACK.md",
+      "proposedState": "Add schema and validator SWU after approval.",
+      "evidence": "RS-WHISPER-PARETO-003"
+    }
+  ],
+  "proposedChanges": [
+    "Add pareto_tournament with objectives, hard gates, candidate protocol, dominance rule, consensus rule, selected candidate, and rejected alternatives.",
+    "Move or mirror scu_candidate_set candidates into the operational tournament contract with objective scores.",
+    "Add a decision-gated tiering field with recommended value two_tier.",
+    "Extend validate-whisper-draft.py with Pareto contract checks.",
+    "Add a follow-up work-pack SWU after approval."
+  ],
+  "appliedChanges": [
+    "Recorded two_tier as the accepted Pareto dynamic for this refresh.",
+    "Materialized TASK-WHISPER-SCHEMA-REFRESH and SWU-WHISPER-PARETO-001 in WORK-PACK.md.",
+    "Preserved schema and validator implementation for Task Session ownership."
+  ],
+  "skippedChanges": [
+    {
+      "candidate": "Patch text-intent-substrate.yaml immediately",
+      "reason": "Downstream schema mutation belongs to task-session now that the SWU is ready."
+    },
+    {
+      "candidate": "Patch validate-whisper-draft.py immediately",
+      "reason": "Validator implementation belongs to the same bounded SWU as the schema mutation."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "GAP-WHISPER-PARETO-TIER",
+      "owner": "operator / whisper",
+      "status": "resolved",
+      "nextAction": "No action; two_tier was approved by /invoke lets go with two tier."
+    },
+    {
+      "id": "GAP-WHISPER-PARETO-SCHEMA",
+      "owner": "whisper",
+      "status": "ready",
+      "nextAction": "Execute SWU-WHISPER-PARETO-001 through Task Session."
+    },
+    {
+      "id": "GAP-WHISPER-PARETO-VALIDATOR",
+      "owner": "whisper",
+      "status": "ready",
+      "nextAction": "Execute SWU-WHISPER-PARETO-001 through Task Session."
+    }
+  ],
+  "nextRoute": "task-session",
+  "validation": [
+    {
+      "check": "tools/arcanum --resolve invoke",
+      "result": "pass"
+    },
+    {
+      "check": "refresh contract reviewed",
+      "result": "pass",
+      "source": "spells/invoke/refresh.md"
+    },
+    {
+      "check": "target inventory exists",
+      "result": "pass"
+    },
+    {
+      "check": "jq empty refresh-report.json",
+      "result": "pass"
+    },
+    {
+      "check": "python3 spells/whisper/tools/validate-whisper-draft.py --schema spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml --draft spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/DRAFT-SUBSTACK-001.md",
+      "result": "pass"
+    },
+    {
+      "check": "python3 YAML parse for text-intent-substrate.yaml",
+      "result": "pass"
+    },
+    {
+      "check": "rg SWU-WHISPER-PARETO-001 WORK-PACK.md",
+      "result": "pass"
+    }
+  ]
+}

@@ -1,66 +1,38 @@
-# Whisper Article Refine Preflight Manifest
+# Refine Run Manifest
 
 ## Status
 
 - Run id: `20260526T204134Z-language-ai-substack`
-- Status: blocked-at-refine-dispatch
-- Target: Whisper article experiment for `substack_research_post`
-- Preset recommendation: `compact` for first experiment, `standard` if you want richer critique before drafting
-- Research recommendation: `research-if-gap-appears`
-- Stage dispatch: not started
+- Status: `pass`
+- Target: `spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFINE-SEED-PROPOSAL.md`
+- Preset: `compact`
+- Research: `research-if-gap-appears`
+- Runtime topology: native root orchestration
+- Stage adapter: `codex-exec`
 
-This folder began as a preflight packet. A model-backed Refine dispatch was attempted and blocked by the nested Codex execution environment before task zero could complete.
+## Source Request
 
-## Dispatch Attempt
+target=spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/REFINE-SEED-PROPOSAL.md; preset=compact; research=research-if-gap-appears; use existing run folder spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack; preserve text-intent-substrate.yaml as the schema control surface; primary reader default: AI-curious creative builders; do not execute task-session; produce/update RUN-MANIFEST.md, evidence-index.json, GOAL-HANDOFF.md, RESULT.md, and stages/ artifacts.
 
-| Field | Value |
-| --- | --- |
-| Command | `refine` |
-| Adapter | `codex-exec` |
-| Runtime run | `.arcanum/runtime/runs/arcanum-command-refine-20260526T210009Z` |
-| Command output | `stages/00-refine-command-output.md` |
-| Status | blocked |
-| Blocked reason | `codex-output-reported-block`; nested Codex shell execution failed because `bubblewrap` was unavailable |
+## Stage Evidence
 
-The command-backed Refine loop did not run. No stage below should be treated as pass evidence.
-
-## Command Readiness
-
-| Command | Status | Resolved File |
-| --- | --- | --- |
-| `refine` | pass | `.codex/commands/refine.md` |
-| `task-session` | pass | `.codex/commands/task-session.md` |
-| `invoke` | pass | `.codex/commands/invoke.md` |
-| `interrogation` | pass | `.codex/commands/interrogation.md` |
-| `distill` | pass | `.codex/commands/distill.md` |
-| `context-builder` | pass | `.codex/commands/context-builder.md` |
-
-## Preflight Artifacts
-
-| Artifact | Purpose |
-| --- | --- |
-| `REFINE-SEED-PROPOSAL.md` | Handoff-ready seed for the Whisper article idea. |
-| `GOAL-HANDOFF.md` | Draft runtime handoff for running the Refine loop. |
-| `WHISPER-SCHEMA.md` | Human-readable Whisper schema for the article using the selected reader and AI result. |
-| `text-intent-substrate.yaml` | Machine-readable Text Intent Substrate for Task Session drafting. |
-| `RESULT.md` | Preflight synthesis, readiness, and next route. |
-| `evidence-index.json` | Machine-readable index of preflight artifacts and command readiness. |
-
-## Canonical Refine Stages
-
-| Stage | Owner | Status |
-| --- | --- | --- |
-| Context Builder evidence baseline | `context-builder` | blocked; top-level Refine dispatch could not start |
-| Invoke Define | `invoke` | blocked; top-level Refine dispatch could not start |
-| Interrogation refine-review | `interrogation` | blocked; top-level Refine dispatch could not start |
-| Research decision | `refine` | preselected: `research-if-gap-appears`; not executed |
-| Distill | `distill` | blocked; top-level Refine dispatch could not start |
-| Invoke Redefine / Design | `invoke` | blocked; top-level Refine dispatch could not start |
-| Interrogation refine-design-review | `interrogation` | blocked; top-level Refine dispatch could not start |
-| Distill Repair | `distill` | blocked; top-level Refine dispatch could not start |
-| Invoke Plan | `invoke` | blocked; top-level Refine dispatch could not start |
-| Final Interrogation and Synthesis | `interrogation` + `refine` | blocked; top-level Refine dispatch could not start |
+| Stage | Owner | Status | Verdict |
+| --- | --- | --- | --- |
+| Task Zero Observer Envelope | refine | `pass` | observer envelope prepared |
+| Context Builder evidence baseline | context-builder | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Invoke Define | invoke | `pass` | stage command produced usable output; wrapper exit was 2 |
+| Interrogation refine-review | interrogation | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Research decision | refine | `pass` | research-if-gap-appears recorded; external research not executed |
+| Distill | distill | `pass` | stage command produced usable output; wrapper exit was 2 |
+| Invoke Redefine / Design | invoke | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Interrogation refine-design-review | interrogation | `flag` | design accepted for continuation with repair flags for Harari citation verification, public translation, meta-schema example, and L1 acceptance recording |
+| Interrogation refine-design-review | interrogation | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Distill Repair | distill | `pass` | validate-mode repair produced usable output and unblocked invoke plan dependency; carried non-blocking repair flags forward |
+| Distill Repair | distill | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Invoke Plan | invoke | `pass` | stage command produced usable output; lingering child was stopped after output grace |
+| Interrogation refine-final | interrogation | `flag` | ready for task-session handoff to SWU-WHISPER-ARTICLE-001 with non-blocking risks for Harari citation verification, public translation, and meta-schema handling |
+| Final Interrogation and Synthesis | interrogation | `pass` | stage command produced output |
 
 ## Next Route
 
-Resume by fixing the nested Codex sandbox (`bubblewrap`/`bwrap`) or by running the command surface in an environment where `codex exec --sandbox workspace-write` can start. After Refine produces a plan, route the first executable writing unit to Task Session.
+If status is `pass`, route `WORK-PACK.md` plus `LIGHTWEIGHT-REFINE-REFERENCE-FIRST.md` to Task Session for `SWU-WHISPER-ARTICLE-001`. The draft should use `REFERENCE-CHECK-HARARI.md` as its first source anchor. If status is `block`, inspect the first blocked stage artifact and its log under `stages/.logs/`.

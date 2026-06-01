@@ -19,7 +19,9 @@ Generative AI makes language feel newly executable: people can name, schema, ali
 | Reader state | curious, creative, technically adjacent, not necessarily software-native |
 | Reader reward | a usable frame for treating naming, schemas, aliases, and workflows as personal symbolic tools |
 
-## Text Intent Substrate
+## Text Intent Substrate Core
+
+This is the core substrate excerpt. The machine-readable schema in `text-intent-substrate.yaml` now carries the full lifecycle artifact chain: `transport_schema`, `scu_candidate_set`, `pareto_consensus`, `composition_plan`, `draft_artifact`, `validation`, and `learning_residue`.
 
 ```yaml
 text_intent_substrate:
@@ -139,6 +141,38 @@ text_intent_substrate:
       - citation_integrity
     review_mode: operator_review
 ```
+
+## Lifecycle Artifact Chain
+
+| Artifact | Owner | Produced In | Feeds | Current Status |
+| --- | --- | --- | --- | --- |
+| `text_intent_substrate` | Whisper | intake, distill | candidate tournament, composition plan, validation | defined |
+| `transport_schema` | Whisper | transport selection | composition plan, validation | defined for `substack_research_post` |
+| `scu_candidate_set` | Whisper | distill tournament | Pareto consensus | defined with three candidate sets |
+| `pareto_consensus` | Whisper | candidate tournament | composition plan | selected `executable_language_research_note` |
+| `composition_plan` | Whisper | plan phase | draft phase, review | defined |
+| `draft_artifact` | Whisper | draft phase | validation, revision | not started |
+| `validation_report` | Whisper | validation | revision, learning residue | pending draft |
+| `learning_residue` | Whisper | validation, reflection | future composition runs | pending |
+
+Tasks are not the whole Whisper process. The schema is the control surface; `task-session` is used only when a transition needs bounded execution, such as drafting the article, verifying the Harari citation gap, or revising from review findings.
+
+## Pareto Consensus
+
+Selected candidate set: `executable_language_research_note`
+
+| Core | Selected Primitive / Technique | Why |
+| --- | --- | --- |
+| Resonance | `invitation_to_name_a_workflow` | Ends with reader activation and keeps the piece alive rather than merely explanatory. |
+| Relevance | `arcanum_as_live_case` | Grounds the idea in an actual research practice without making the article a product pitch. |
+| Trajectory | `language_as_executable_medium` | Gives the article a central movement from language-as-coordination to language-as-personal-code. |
+
+Rejected alternatives:
+
+| Candidate Set | Reason |
+| --- | --- |
+| `anthropological_bridge_first` | Strong bridge, but blocked by the unverified Harari/Sapiens reference. |
+| `practical_prompting_reframe` | Useful, but risks shrinking the article into a prompt tutorial. |
 
 ## First Draft Plan
 

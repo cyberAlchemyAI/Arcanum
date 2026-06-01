@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whisper Draft Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11100f;
+      --panel: #1b1917;
+      --panel-2: #24211e;
+      --text: #f1ebe3;
+      --muted: #a69b8f;
+      --line: #3a332d;
+      --accent: #d59f54;
+      --accent-2: #6ab7a8;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(213, 159, 84, 0.08), transparent 320px), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button, select, textarea, input { font: inherit; }
+
+    button, select {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+    }
+
+    button {
+      cursor: pointer;
+      min-height: 36px;
+      padding: 0 12px;
+    }
+
+    button:hover, button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #141312;
+      color: var(--text);
+      padding: 10px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent-2);
+      outline: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+      min-height: 100vh;
+    }
+
+    .draft-pane {
+      min-width: 0;
+      padding: 28px clamp(18px, 4vw, 56px) 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .meta-line {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 8px 0 0;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .article {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .article h1 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 1;
+      margin: 0 0 30px;
+      font-weight: 760;
+      letter-spacing: 0;
+      color: #f6e3bf;
+    }
+
+    .review-block {
+      position: relative;
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 22px 0;
+      scroll-margin-top: 24px;
+    }
+
+    .review-block.is-selected {
+      background: linear-gradient(90deg, rgba(106, 183, 168, 0.13), transparent);
+      box-shadow: -12px 0 0 rgba(106, 183, 168, 0.24);
+    }
+
+    .block-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .block-id {
+      color: var(--accent-2);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .part-id {
+      display: block;
+      color: #cdbfae;
+    }
+
+    .block-body p {
+      margin: 0;
+      color: #f0e7dc;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.08rem, 1.55vw, 1.28rem);
+      line-height: 1.78;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .comment-count {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      background: #171514;
+      font-size: 0.82rem;
+    }
+
+    .side-pane {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-left: 1px solid var(--line);
+      background: rgba(27, 25, 23, 0.96);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #f6e3bf;
+    }
+
+    .target {
+      margin: 14px 0 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      color: var(--muted);
+      min-height: 64px;
+    }
+
+    .target strong { color: var(--text); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    select {
+      min-height: 38px;
+      padding: 0 8px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .primary {
+      background: #3a2b1d;
+      border-color: #7a5b35;
+      color: #f6e3bf;
+    }
+
+    .comments {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      padding: 10px;
+    }
+
+    .comment-item header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--accent-2);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .comment-item p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .comment-item small {
+      display: block;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .payload {
+      min-height: 180px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 0.82rem;
+      min-height: 1.2em;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .side-pane {
+        position: relative;
+        height: auto;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { display: block; }
+      .toolbar {
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+      .review-block {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .block-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script id="whisper-review-data" type="application/json">{
+  "review_id": "DRAFT-SUBSTACK-002-b42c0f055664",
+  "transport": "substack_research_post",
+  "draft": {
+    "id": "DRAFT-SUBSTACK-002",
+    "title": "The First Thing a Tool Needs Is a Name",
+    "path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/DRAFT-SUBSTACK-002.md",
+    "sha256_12": "b42c0f055664"
+  },
+  "schema": {
+    "path": "spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/text-intent-substrate.yaml",
+    "substrate_version": "0.3"
+  },
+  "pareto": {
+    "tiering": "two_tier",
+    "selected_candidate": "executable_language_research_note",
+    "objectives": [
+      "resonance",
+      "relevance",
+      "trajectory"
+    ],
+    "hard_gates": [
+      "opening_contract_compliance",
+      "citation_integrity",
+      "audience_legibility"
+    ]
+  },
+  "blocks": [
+    {
+      "block_id": "p001",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "introduction",
+      "paragraph_index": 1,
+      "source_line": 3,
+      "text": "You know the moment when a messy workflow becomes easier because someone finally gives it a name? The work itself has not changed yet. The tabs are still open, the notes are still scattered, the next step is still half felt. But the moment the pattern gets named, it stops being fog. It becomes something you can point at, return to, improve, and share."
+    },
+    {
+      "block_id": "p002",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "introduction",
+      "paragraph_index": 2,
+      "source_line": 5,
+      "text": "That small act is easy to underestimate because language feels ordinary. We use words all day, so we forget that a word can be more than a label. A word can hold a behavior in place. A phrase can compress a method. A schema can turn a vague intention into a shape that another person, or an AI system, can help us inspect. This is one reason generative AI feels so unusually powerful: it lets us work inside the medium where humans already compress thought into handles."
+    },
+    {
+      "block_id": "p003",
+      "part_id": "harari_shared_fiction_bridge",
+      "role": "reference_bridge",
+      "paragraph_index": 3,
+      "source_line": 7,
+      "text": "At human scale, this is already how coordination works. In *Sapiens*, Yuval Noah Harari points to the practical force of shared stories: people can organize around symbols, agreements, and imagined structures that do not exist as ordinary physical objects. Money, laws, companies, roles, professions, and plans all depend on this capacity. They work because enough people can hold the same symbolic handle at the same time and act through it."
+    },
+    {
+      "block_id": "p004",
+      "part_id": "research_context_generative_ai_changes_who_can_operate_on_language",
+      "role": "research_context",
+      "paragraph_index": 4,
+      "source_line": 9,
+      "text": "Generative AI changes the texture of that symbolic work. It does not merely produce text faster. It lets more people operate on language as a design material. A writer can name a recurring editorial move and ask the model to help refine it. A researcher can turn a messy method into a repeatable interview kit. A founder can describe a vague strategic instinct and gradually shape it into a reusable decision frame. The interface is not only a blank prompt box. It is a workbench for making names, aliases, schemas, and meta-schemas."
+    },
+    {
+      "block_id": "p005",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core_insight",
+      "paragraph_index": 5,
+      "source_line": 11,
+      "text": "That matters because, for a long time, making executable structures belonged mostly to people who could speak the formal languages of institutions: software syntax, academic methods, legal templates, financial models, operational playbooks. Those languages are powerful, but they also create gates. If you cannot write code, you wait for someone who can. If you cannot speak the professional dialect, your insight stays informal. If you cannot convert your pattern into a recognized format, it often remains personal intuition."
+    },
+    {
+      "block_id": "p006",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core_insight",
+      "paragraph_index": 6,
+      "source_line": 13,
+      "text": "The new possibility is not that natural language replaces engineering. That would be both false and boring. The more interesting possibility is that language can become a first layer of tool-making before engineering begins. You can define what a process is called. You can describe when it should be invoked. You can list the values it protects, the mistakes it must avoid, the checks that tell you whether it worked. With AI in the loop, these descriptions can become active collaborators. They can be tested, revised, delegated, and reused."
+    },
+    {
+      "block_id": "p007",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "live_example",
+      "paragraph_index": 7,
+      "source_line": 15,
+      "text": "Arcanum is one live experiment in this direction. In Arcanum, a name is not only decoration. A name can become an alias for a workflow. A sigil is a governed capability with a purpose, process, constraints, and validation surface. A spell composes several capabilities into a larger route. A schema gives the work a body: fields, gates, parts, dependencies, failure modes. None of this needs to be treated as mystical. It is closer to making a shared handle for a pattern that would otherwise disappear back into the day."
+    },
+    {
+      "block_id": "p008",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "live_example",
+      "paragraph_index": 8,
+      "source_line": 17,
+      "text": "For example, instead of saying \"help me make this article better,\" we can create a writing substrate. The substrate can name the target reader, the desired emotional residue, the transport type, the opening rule, the body parts, the citation policy, and the validation checks. Then the work can be developed like a small piece of software, but in the native material of language. We can draft one part, test it against the schema, notice where it fails, and let the failure teach the next version."
+    },
+    {
+      "block_id": "p009",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "live_example",
+      "paragraph_index": 9,
+      "source_line": 19,
+      "text": "This is also where the word \"alias\" becomes important. An alias is a compressed invitation to a whole process. If I say \"reference-first,\" that can mean: check the source before drafting, separate paraphrase from quotation, record what remains blocked, and only then write. If I say \"reader-grounded opening,\" that can mean: begin with the reader's lived experience before introducing an external authority. The alias is small, but it carries an operational memory."
+    },
+    {
+      "block_id": "p010",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "live_example",
+      "paragraph_index": 10,
+      "source_line": 21,
+      "text": "A schema is the next level of compression. It says: these are the parts that matter, and these are the ways they relate. A meta-schema is a reusable shape for creating schemas. For a public example, imagine a \"workshop recap\" meta-schema. Every recap might need the audience, the decision made, the open question, the evidence, the next action, and the tone. Once that shape exists, a person can use it across many events without reinventing the structure each time. The code is not hidden inside curly braces. It is living in a named pattern that people and machines can both work with."
+    },
+    {
+      "block_id": "p011",
+      "part_id": "implications_for_personal_code",
+      "role": "implications",
+      "paragraph_index": 11,
+      "source_line": 23,
+      "text": "The danger, of course, is private jargon. A personal symbolic system can become so personal that nobody else can enter it. That is why translation matters. A good name should not only feel meaningful to its creator. It should help someone else understand the move. A good schema should not become a shrine to complexity. It should remove friction from thought. The point is not to make language more ornate. The point is to make important patterns easier to hold, inspect, and improve."
+    },
+    {
+      "block_id": "p012",
+      "part_id": "implications_for_personal_code",
+      "role": "implications",
+      "paragraph_index": 12,
+      "source_line": 25,
+      "text": "This is the power of generative AI that I keep circling around: it gives more people a way to create their own operational language. Not just content. Not just prompts. A way to make small, living tools out of words. A designer can name a critique ritual. A teacher can name a feedback loop. A researcher can name an interview stance. A team can name the moment when strategy turns into theater and build a check against it."
+    },
+    {
+      "block_id": "p013",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "invitation",
+      "paragraph_index": 13,
+      "source_line": 27,
+      "text": "If that is true, then one of the most useful questions is not \"what should AI write for me?\" It is: what part of my work needs a name? What pattern keeps recurring without a handle? What process do I understand only while I am doing it, but lose when I try to explain it later?"
+    },
+    {
+      "block_id": "p014",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "invitation",
+      "paragraph_index": 14,
+      "source_line": 29,
+      "text": "Start there. Name one workflow. Give it a purpose, a few constraints, and one way to know whether it worked. Then let the name become an object you can revise. That may be the quiet threshold where language stops being only a way to describe reality and becomes a way to build with it."
+    }
+  ]
+}</script>
+  <main class="shell">
+    <section class="draft-pane">
+      <header class="topbar">
+        <div>
+          <p class="kicker">Whisper Review</p>
+          <p class="meta-line" id="draft-meta"></p>
+        </div>
+        <div class="toolbar">
+          <button type="button" id="copy-payload">Copy JSON</button>
+          <button type="button" id="download-payload">Download JSON</button>
+          <button type="button" id="clear-comments">Clear</button>
+        </div>
+      </header>
+      <article class="article" id="draft-article">
+        <h1>The First Thing a Tool Needs Is a Name</h1>
+<section class="review-block" data-review-block data-block-id="p001" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p001</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 3</span>
+  </div>
+  <div class="block-body">
+    <p>You know the moment when a messy workflow becomes easier because someone finally gives it a name? The work itself has not changed yet. The tabs are still open, the notes are still scattered, the next step is still half felt. But the moment the pattern gets named, it stops being fog. It becomes something you can point at, return to, improve, and share.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p001">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p002" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p002</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 5</span>
+  </div>
+  <div class="block-body">
+    <p>That small act is easy to underestimate because language feels ordinary. We use words all day, so we forget that a word can be more than a label. A word can hold a behavior in place. A phrase can compress a method. A schema can turn a vague intention into a shape that another person, or an AI system, can help us inspect. This is one reason generative AI feels so unusually powerful: it lets us work inside the medium where humans already compress thought into handles.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p002">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p003" data-part-id="harari_shared_fiction_bridge" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p003</span>
+    <span class="part-id">harari_shared_fiction_bridge</span>
+    <span>line 7</span>
+  </div>
+  <div class="block-body">
+    <p>At human scale, this is already how coordination works. In <em>Sapiens</em>, Yuval Noah Harari points to the practical force of shared stories: people can organize around symbols, agreements, and imagined structures that do not exist as ordinary physical objects. Money, laws, companies, roles, professions, and plans all depend on this capacity. They work because enough people can hold the same symbolic handle at the same time and act through it.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p003">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p004" data-part-id="research_context_generative_ai_changes_who_can_operate_on_language" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p004</span>
+    <span class="part-id">research_context_generative_ai_changes_who_can_operate_on_language</span>
+    <span>line 9</span>
+  </div>
+  <div class="block-body">
+    <p>Generative AI changes the texture of that symbolic work. It does not merely produce text faster. It lets more people operate on language as a design material. A writer can name a recurring editorial move and ask the model to help refine it. A researcher can turn a messy method into a repeatable interview kit. A founder can describe a vague strategic instinct and gradually shape it into a reusable decision frame. The interface is not only a blank prompt box. It is a workbench for making names, aliases, schemas, and meta-schemas.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p004">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p005" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p005</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 11</span>
+  </div>
+  <div class="block-body">
+    <p>That matters because, for a long time, making executable structures belonged mostly to people who could speak the formal languages of institutions: software syntax, academic methods, legal templates, financial models, operational playbooks. Those languages are powerful, but they also create gates. If you cannot write code, you wait for someone who can. If you cannot speak the professional dialect, your insight stays informal. If you cannot convert your pattern into a recognized format, it often remains personal intuition.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p005">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p006" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p006</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 13</span>
+  </div>
+  <div class="block-body">
+    <p>The new possibility is not that natural language replaces engineering. That would be both false and boring. The more interesting possibility is that language can become a first layer of tool-making before engineering begins. You can define what a process is called. You can describe when it should be invoked. You can list the values it protects, the mistakes it must avoid, the checks that tell you whether it worked. With AI in the loop, these descriptions can become active collaborators. They can be tested, revised, delegated, and reused.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p006">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p007" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p007</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 15</span>
+  </div>
+  <div class="block-body">
+    <p>Arcanum is one live experiment in this direction. In Arcanum, a name is not only decoration. A name can become an alias for a workflow. A sigil is a governed capability with a purpose, process, constraints, and validation surface. A spell composes several capabilities into a larger route. A schema gives the work a body: fields, gates, parts, dependencies, failure modes. None of this needs to be treated as mystical. It is closer to making a shared handle for a pattern that would otherwise disappear back into the day.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p007">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p008" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p008</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 17</span>
+  </div>
+  <div class="block-body">
+    <p>For example, instead of saying &quot;help me make this article better,&quot; we can create a writing substrate. The substrate can name the target reader, the desired emotional residue, the transport type, the opening rule, the body parts, the citation policy, and the validation checks. Then the work can be developed like a small piece of software, but in the native material of language. We can draft one part, test it against the schema, notice where it fails, and let the failure teach the next version.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p008">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p009" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p009</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 19</span>
+  </div>
+  <div class="block-body">
+    <p>This is also where the word &quot;alias&quot; becomes important. An alias is a compressed invitation to a whole process. If I say &quot;reference-first,&quot; that can mean: check the source before drafting, separate paraphrase from quotation, record what remains blocked, and only then write. If I say &quot;reader-grounded opening,&quot; that can mean: begin with the reader&#x27;s lived experience before introducing an external authority. The alias is small, but it carries an operational memory.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p009">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p010" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p010</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 21</span>
+  </div>
+  <div class="block-body">
+    <p>A schema is the next level of compression. It says: these are the parts that matter, and these are the ways they relate. A meta-schema is a reusable shape for creating schemas. For a public example, imagine a &quot;workshop recap&quot; meta-schema. Every recap might need the audience, the decision made, the open question, the evidence, the next action, and the tone. Once that shape exists, a person can use it across many events without reinventing the structure each time. The code is not hidden inside curly braces. It is living in a named pattern that people and machines can both work with.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p010">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p011" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p011</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 23</span>
+  </div>
+  <div class="block-body">
+    <p>The danger, of course, is private jargon. A personal symbolic system can become so personal that nobody else can enter it. That is why translation matters. A good name should not only feel meaningful to its creator. It should help someone else understand the move. A good schema should not become a shrine to complexity. It should remove friction from thought. The point is not to make language more ornate. The point is to make important patterns easier to hold, inspect, and improve.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p011">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p012" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p012</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 25</span>
+  </div>
+  <div class="block-body">
+    <p>This is the power of generative AI that I keep circling around: it gives more people a way to create their own operational language. Not just content. Not just prompts. A way to make small, living tools out of words. A designer can name a critique ritual. A teacher can name a feedback loop. A researcher can name an interview stance. A team can name the moment when strategy turns into theater and build a check against it.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p012">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p013" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p013</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 27</span>
+  </div>
+  <div class="block-body">
+    <p>If that is true, then one of the most useful questions is not &quot;what should AI write for me?&quot; It is: what part of my work needs a name? What pattern keeps recurring without a handle? What process do I understand only while I am doing it, but lose when I try to explain it later?</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p013">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p014" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p014</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 29</span>
+  </div>
+  <div class="block-body">
+    <p>Start there. Name one workflow. Give it a purpose, a few constraints, and one way to know whether it worked. Then let the name become an object you can revise. That may be the quiet threshold where language stops being only a way to describe reality and becomes a way to build with it.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p014">0</span>
+    </div>
+  </div>
+</section>
+      </article>
+    </section>
+
+    <aside class="side-pane">
+      <h2 class="panel-title">Review Request</h2>
+      <div class="target" id="selected-target"></div>
+
+      <div class="form-grid">
+        <label>
+          Issue
+          <select id="issue-type">
+            <option value="unnatural_transition">Unnatural transition</option>
+            <option value="unclear">Unclear</option>
+            <option value="tone_mismatch">Tone mismatch</option>
+            <option value="structure">Structure</option>
+            <option value="evidence_source">Evidence/source</option>
+            <option value="schema_fit">Schema fit</option>
+            <option value="cut">Cut</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          Request
+          <select id="request-type">
+            <option value="offer_options">Offer options</option>
+            <option value="revise_directly">Revise directly</option>
+            <option value="diagnose">Diagnose</option>
+            <option value="tighten">Tighten</option>
+            <option value="expand">Expand</option>
+            <option value="preserve">Preserve</option>
+          </select>
+        </label>
+      </div>
+
+      <label>
+        Priority
+        <select id="priority">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+
+      <label style="margin-top: 10px;">
+        Comment
+        <textarea id="comment-text" rows="5"></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="primary" id="save-comment">Save Comment</button>
+        <button type="button" id="focus-target">Focus Target</button>
+      </div>
+
+      <h2 class="panel-title">Comments <span class="comment-count" id="comment-total">0</span></h2>
+      <div class="comments" id="comments"></div>
+
+      <h2 class="panel-title">Agent Payload</h2>
+      <textarea class="payload" id="whisper-agent-payload" readonly></textarea>
+      <div class="status-line" id="status-line"></div>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById("whisper-review-data").textContent);
+      const storageKey = "whisper-review:" + data.review_id;
+      const state = {
+        comments: [],
+        selectedBlockId: data.blocks[0] ? data.blocks[0].block_id : null,
+        selectedText: ""
+      };
+
+      const targetEl = document.getElementById("selected-target");
+      const commentsEl = document.getElementById("comments");
+      const totalEl = document.getElementById("comment-total");
+      const payloadEl = document.getElementById("whisper-agent-payload");
+      const statusEl = document.getElementById("status-line");
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+
+      function getBlock(blockId) {
+        return data.blocks.find((block) => block.block_id === blockId) || data.blocks[0] || null;
+      }
+
+      function commentId() {
+        return "c-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.comments)) state.comments = parsed.comments;
+          }
+        } catch (error) {
+          state.comments = [];
+        }
+      }
+
+      function save() {
+        localStorage.setItem(storageKey, JSON.stringify({
+          review_id: data.review_id,
+          updated_at: nowIso(),
+          comments: state.comments
+        }, null, 2));
+      }
+
+      function selectionInside(blockEl) {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) return "";
+        if (!blockEl.contains(selection.anchorNode) || !blockEl.contains(selection.focusNode)) return "";
+        return selection.toString().trim();
+      }
+
+      function selectBlock(blockId, selectedText) {
+        state.selectedBlockId = blockId;
+        state.selectedText = selectedText || "";
+        document.querySelectorAll("[data-review-block]").forEach((el) => {
+          el.classList.toggle("is-selected", el.dataset.blockId === blockId);
+        });
+        renderTarget();
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderTarget() {
+        const block = getBlock(state.selectedBlockId);
+        if (!block) {
+          targetEl.textContent = "No target";
+          return;
+        }
+        const selection = state.selectedText ? "<br><strong>Selection:</strong> " + escapeHtml(state.selectedText) : "";
+        targetEl.innerHTML = "<strong>" + block.block_id + "</strong> / " + escapeHtml(block.part_id) + selection;
+      }
+
+      function enrichComment(comment) {
+        const block = getBlock(comment.block_id);
+        return {
+          id: comment.id,
+          created_at: comment.created_at,
+          block_id: comment.block_id,
+          part_id: block ? block.part_id : comment.part_id,
+          role: block ? block.role : comment.role,
+          paragraph_index: block ? block.paragraph_index : comment.paragraph_index,
+          source_line: block ? block.source_line : comment.source_line,
+          issue_type: comment.issue_type,
+          request_type: comment.request_type,
+          priority: comment.priority,
+          selected_text: comment.selected_text || "",
+          comment: comment.comment,
+          block_text: block ? block.text : "",
+          status: comment.status || "open"
+        };
+      }
+
+      function getAgentPayload() {
+        return {
+          kind: "whisper_review_payload",
+          version: "0.1",
+          exported_at: nowIso(),
+          review_id: data.review_id,
+          draft: data.draft,
+          schema: data.schema,
+          pareto: data.pareto,
+          instruction: "Use comments as located revision requests. Preserve block_id and part_id in proposals; offer options when request_type is offer_options.",
+          comments: state.comments.map(enrichComment),
+          blocks: data.blocks
+        };
+      }
+
+      function renderComments() {
+        commentsEl.innerHTML = "";
+        totalEl.textContent = String(state.comments.length);
+        const counts = new Map();
+        state.comments.forEach((comment) => {
+          counts.set(comment.block_id, (counts.get(comment.block_id) || 0) + 1);
+        });
+        document.querySelectorAll("[data-comment-count]").forEach((el) => {
+          el.textContent = String(counts.get(el.dataset.commentCount) || 0);
+        });
+
+        state.comments.slice().reverse().forEach((comment) => {
+          const item = document.createElement("section");
+          item.className = "comment-item";
+          const block = getBlock(comment.block_id);
+          item.innerHTML =
+            "<header><span>" + escapeHtml(comment.block_id) + "</span><button type=\"button\" data-delete-comment=\"" + comment.id + "\">Delete</button></header>" +
+            "<p>" + escapeHtml(comment.comment) + "</p>" +
+            "<small>" + escapeHtml(comment.issue_type) + " / " + escapeHtml(comment.request_type) + " / " + escapeHtml(comment.priority) +
+            (comment.selected_text ? "<br>Selection: " + escapeHtml(comment.selected_text) : "") +
+            (block ? "<br>Part: " + escapeHtml(block.part_id) : "") + "</small>";
+          commentsEl.appendChild(item);
+        });
+
+        payloadEl.value = JSON.stringify(getAgentPayload(), null, 2);
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+        if (text) {
+          window.setTimeout(() => {
+            if (statusEl.textContent === text) statusEl.textContent = "";
+          }, 2200);
+        }
+      }
+
+      function saveComment() {
+        const block = getBlock(state.selectedBlockId);
+        const text = document.getElementById("comment-text").value.trim();
+        if (!block || !text) {
+          setStatus("Select a block and add a comment.");
+          return;
+        }
+        state.comments.push({
+          id: commentId(),
+          created_at: nowIso(),
+          block_id: block.block_id,
+          part_id: block.part_id,
+          role: block.role,
+          paragraph_index: block.paragraph_index,
+          source_line: block.source_line,
+          issue_type: document.getElementById("issue-type").value,
+          request_type: document.getElementById("request-type").value,
+          priority: document.getElementById("priority").value,
+          selected_text: state.selectedText,
+          comment: text,
+          status: "open"
+        });
+        document.getElementById("comment-text").value = "";
+        state.selectedText = "";
+        save();
+        renderTarget();
+        renderComments();
+        setStatus("Comment saved.");
+      }
+
+      function downloadPayload() {
+        const blob = new Blob([JSON.stringify(getAgentPayload(), null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = data.review_id + ".agent-payload.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function copyPayload() {
+        const text = JSON.stringify(getAgentPayload(), null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => setStatus("Payload copied."));
+          return;
+        }
+        payloadEl.select();
+        document.execCommand("copy");
+        setStatus("Payload copied.");
+      }
+
+      document.getElementById("draft-meta").textContent =
+        data.draft.id + " / " + data.transport + " / " + data.pareto.selected_candidate;
+
+      document.querySelectorAll("[data-review-block]").forEach((blockEl) => {
+        blockEl.addEventListener("click", () => selectBlock(blockEl.dataset.blockId, selectionInside(blockEl)));
+        const button = blockEl.querySelector("[data-add-comment]");
+        if (button) {
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectBlock(blockEl.dataset.blockId, selectionInside(blockEl));
+            document.getElementById("comment-text").focus();
+          });
+        }
+      });
+
+      commentsEl.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-delete-comment]");
+        if (!button) return;
+        state.comments = state.comments.filter((comment) => comment.id !== button.dataset.deleteComment);
+        save();
+        renderComments();
+      });
+
+      document.getElementById("save-comment").addEventListener("click", saveComment);
+      document.getElementById("download-payload").addEventListener("click", downloadPayload);
+      document.getElementById("copy-payload").addEventListener("click", copyPayload);
+      document.getElementById("clear-comments").addEventListener("click", () => {
+        if (!confirm("Clear all comments for this draft review?")) return;
+        state.comments = [];
+        save();
+        renderComments();
+      });
+      document.getElementById("focus-target").addEventListener("click", () => {
+        const block = document.querySelector("[data-block-id=\"" + state.selectedBlockId + "\"]");
+        if (block) block.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+
+      window.WhisperReview = {
+        data,
+        getAgentPayload,
+        setComments(comments) {
+          state.comments = Array.isArray(comments) ? comments : [];
+          save();
+          renderComments();
+        },
+        clearComments() {
+          state.comments = [];
+          save();
+          renderComments();
+        }
+      };
+
+      load();
+      selectBlock(state.selectedBlockId, "");
+      renderComments();
+    })();
+  </script>
+</body>
+</html>

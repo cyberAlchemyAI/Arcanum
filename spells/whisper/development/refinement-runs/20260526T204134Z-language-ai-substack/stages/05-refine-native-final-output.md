@@ -40,4 +40,4 @@ Refine ran with native root orchestration. The root `tools/arcanum` process owne
 
 ## Next Route
 
-Use `WORK-PACK.md` plus `LIGHTWEIGHT-REFINE-REFERENCE-FIRST.md` as the handoff to Task Session. The next executable unit remains `SWU-WHISPER-ARTICLE-001`, but the draft should open from `REFERENCE-CHECK-HARARI.md` rather than treating Harari as a late optional gap.
+Use the Invoke Plan output as the handoff to Task Session or the requested downstream owner.
