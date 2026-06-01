@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arcanum Development Loop</title>
+  <style>
+    :root {
+      --ink: #16212d;
+      --muted: #5a6674;
+      --line: #d4dce6;
+      --paper: #fbfcfd;
+      --panel: #f4f7fa;
+      --teal: #0f8f8c;
+      --blue: #2e6bb8;
+      --indigo: #5859c7;
+      --amber: #c78313;
+      --rose: #c84b64;
+      --green: #2d8b57;
+      --shadow: 0 16px 44px rgba(25, 36, 48, .1);
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px clamp(16px, 4vw, 44px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 253, .94);
+      backdrop-filter: blur(12px);
+    }
+
+    .mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 190px;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .mark svg {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    nav a:hover {
+      background: #edf3f8;
+      color: var(--ink);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    section {
+      padding: clamp(42px, 8vw, 76px) clamp(16px, 5vw, 64px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .band {
+      background: #fff;
+    }
+
+    .inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: calc(100vh - 58px);
+      display: grid;
+      align-items: center;
+      padding-top: 40px;
+      padding-bottom: 40px;
+      background:
+        linear-gradient(90deg, rgba(251, 252, 253, .96), rgba(251, 252, 253, .88)),
+        repeating-linear-gradient(0deg, rgba(22, 33, 45, .04) 0, rgba(22, 33, 45, .04) 1px, transparent 1px, transparent 38px),
+        repeating-linear-gradient(90deg, rgba(22, 33, 45, .035) 0, rgba(22, 33, 45, .035) 1px, transparent 1px, transparent 38px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, .92fr) minmax(360px, 1.08fr);
+      align-items: center;
+      gap: clamp(28px, 5vw, 60px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      font-size: clamp(42px, 6vw, 74px);
+      line-height: .98;
+    }
+
+    h2 {
+      max-width: 780px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.04;
+    }
+
+    h3 {
+      font-size: 18px;
+      line-height: 1.18;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin-top: 20px;
+      font-size: clamp(18px, 2vw, 22px);
+      color: #3d4b58;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 760;
+      text-decoration: none;
+      box-shadow: 0 5px 16px rgba(20, 31, 44, .06);
+    }
+
+    .button.primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .loop-map {
+      position: relative;
+      display: grid;
+      gap: 12px;
+      min-height: 500px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: var(--shadow);
+    }
+
+    .loop-stage {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .loop-stage strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--ink);
+    }
+
+    .loop-stage small {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      background: var(--blue);
+    }
+
+    .loop-stage:nth-child(1) .num,
+    .color-teal { background: var(--teal); }
+    .loop-stage:nth-child(2) .num,
+    .color-blue { background: var(--blue); }
+    .loop-stage:nth-child(3) .num,
+    .color-indigo { background: var(--indigo); }
+    .loop-stage:nth-child(4) .num,
+    .color-amber { background: var(--amber); }
+    .loop-stage:nth-child(5) .num,
+    .color-green { background: var(--green); }
+    .loop-stage:nth-child(6) .num,
+    .color-rose { background: var(--rose); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(280px, .9fr) minmax(360px, 1.1fr);
+      gap: clamp(24px, 5vw, 54px);
+      align-items: start;
+    }
+
+    .section-head {
+      margin-bottom: 30px;
+    }
+
+    .section-head p {
+      margin-top: 12px;
+      max-width: 760px;
+    }
+
+    .core-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      min-height: 210px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(21, 34, 47, .06);
+    }
+
+    .card .tag {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .card p {
+      margin-top: 10px;
+      font-size: 15px;
+    }
+
+    .quote-panel {
+      padding: 22px;
+      border-left: 4px solid var(--teal);
+      background: #eef8f7;
+    }
+
+    .quote-panel p {
+      color: #264b4d;
+    }
+
+    .candidate-board {
+      display: grid;
+      gap: 14px;
+    }
+
+    .candidate {
+      display: grid;
+      grid-template-columns: minmax(190px, .8fr) minmax(280px, 1.2fr) minmax(180px, .8fr);
+      gap: 14px;
+      align-items: stretch;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .candidate.selected {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 143, 140, .12);
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 24px;
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 99px;
+      background: #e5ebf1;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+    }
+
+    .gate {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      margin: 3px 4px 3px 0;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #edf6ee;
+      color: #245f3f;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .gate.block {
+      background: #fdecef;
+      color: #9f3048;
+    }
+
+    .part-map {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(110px, 1fr));
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .part {
+      min-height: 132px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .part strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .part span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .router {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .route-card {
+      min-height: 160px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .route-card b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .route-card p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .route-card[data-accent="teal"] { border-top: 5px solid var(--teal); }
+    .route-card[data-accent="blue"] { border-top: 5px solid var(--blue); }
+    .route-card[data-accent="indigo"] { border-top: 5px solid var(--indigo); }
+    .route-card[data-accent="amber"] { border-top: 5px solid var(--amber); }
+    .route-card[data-accent="green"] { border-top: 5px solid var(--green); }
+    .route-card[data-accent="rose"] { border-top: 5px solid var(--rose); }
+
+    .prompt {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101820;
+      color: #edf6f7;
+      box-shadow: var(--shadow);
+    }
+
+    .prompt code {
+      white-space: pre-wrap;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.62;
+      color: #edf6f7;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .tabs button {
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    .tabs button[aria-selected="true"] {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .evidence {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      min-height: 145px;
+    }
+
+    .evidence b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .evidence p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      padding: 28px clamp(16px, 5vw, 64px);
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .two-col,
+      .candidate {
+        grid-template-columns: 1fr;
+      }
+
+      .core-grid,
+      .evidence-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .router {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      nav {
+        justify-content: flex-start;
+      }
+
+      .core-grid,
+      .router,
+      .evidence-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .loop-map {
+        min-height: auto;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .actions,
+      .tabs {
+        display: none;
+      }
+
+      section {
+        break-inside: avoid;
+        padding: 24px 0;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      body {
+        background: #fff;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="mark" aria-label="Arcanum Development Loop">
+        <svg viewBox="0 0 48 48" role="img" aria-hidden="true">
+          <circle cx="24" cy="24" r="20" fill="#edf6f7" stroke="#0f8f8c" stroke-width="2"></circle>
+          <path d="M15 25h18M24 15v18M17 17l14 14M31 17L17 31" stroke="#16212d" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+        <span>Arcanum Loop</span>
+      </div>
+      <nav aria-label="Guide sections">
+        <a href="#cores">Cores</a>
+        <a href="#whisper">Whisper</a>
+        <a href="#candidates">Candidates</a>
+        <a href="#parts">Parts</a>
+        <a href="#router">Router</a>
+        <a href="#try">Try</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div class="inner hero-grid">
+          <div>
+            <p class="eyebrow">Idea to MVP evidence</p>
+            <h1>Explore the idea before you ask it to become software.</h1>
+            <p class="lead">Arcanum turns a rich prompt into a visible loop: refine the idea, author the definition and plan, route gaps, execute one bounded unit, and keep the evidence.</p>
+            <div class="actions">
+              <a class="button primary" href="#try">Start with a prompt</a>
+              <a class="button" href="#whisper">See the Whisper example</a>
+            </div>
+          </div>
+          <div class="loop-map" aria-label="Arcanum development loop">
+            <div class="loop-stage">
+              <span class="num">1</span>
+              <div><strong>Rich idea prompt</strong><small>Name the user, promise, constraints, unknowns, references, and ambitious future.</small></div>
+            </div>
+            <div class="loop-stage">
+              <span class="num">2</span>
+              <div><strong>Refine</strong><small>Extract the core shape, compare routes, surface gaps, and choose the next owner.</small></div>
+            </div>
+            <div class="loop-stage">
+              <span class="num">3</span>
+              <div><strong>Invoke define, design, plan</strong><small>Turn intent into durable artifacts, design views, layering, and a work-pack.</small></div>
+            </div>
+            <div class="loop-stage">
+              <span class="num">4</span>
+              <div><strong>Route blockers</strong><small>Use decision-gate, dispatch-spec, x-ray, or another refine pass when the plan reveals uncertainty.</small></div>
+            </div>
+            <div class="loop-stage">
+              <span class="num">5</span>
+              <div><strong>Task-session</strong><small>Execute exactly one bounded task or SWU with scope, validation, and receipts.</small></div>
+            </div>
+            <div class="loop-stage">
+              <span class="num">6</span>
+              <div><strong>Evidence and residue</strong><small>Record what passed, what failed, what remains blocked, and where the next loop starts.</small></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="cores">
+        <div class="inner">
+          <div class="section-head">
+            <p class="eyebrow">The exploration grammar</p>
+            <h2>Whisper shows that every ambitious idea needs three cores.</h2>
+            <p>In Whisper, the cores shape a text. In the broader Arcanum loop, they shape any tool, interface, research route, or workflow before implementation begins.</p>
+          </div>
+          <div class="core-grid">
+            <article class="card">
+              <span class="tag">resonance_core</span>
+              <h3>Idea promise</h3>
+              <p>What human energy should the idea create? Relief, trust, ambition, clarity, wonder, confidence, or momentum.</p>
+            </article>
+            <article class="card">
+              <span class="tag">relevance_core</span>
+              <h3>Audience and domain fit</h3>
+              <p>Who is it really for, why now, what world does it enter, and what objections must it respect?</p>
+            </article>
+            <article class="card">
+              <span class="tag">trajectory_core</span>
+              <h3>Transformation path</h3>
+              <p>Where does the user start, what sequence carries them forward, and what evidence proves movement happened?</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="whisper">
+        <div class="inner two-col">
+          <div>
+            <p class="eyebrow">Worked specimen</p>
+            <h2>Whisper is not only a writing tool. It is a pattern for exploring ideas.</h2>
+            <p class="lead">The Whisper run began as an article idea about language and generative AI. It became a substrate, candidate tournament, composition plan, validator, drafts, task-session receipts, and publication residue.</p>
+          </div>
+          <div class="quote-panel">
+            <p>Instead of saying "make this article better," Whisper asks what the piece should make the reader feel, why it belongs to its audience, and how the argument should move. Arcanum can ask the same questions of a frontend tool, a research workflow, a validator, a guide, or a new sigil.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="candidates">
+        <div class="inner">
+          <div class="section-head">
+            <p class="eyebrow">Do not pick the first plausible route</p>
+            <h2>Compare candidates across promise, fit, and movement.</h2>
+            <p>The Whisper fixture preserves rejected alternatives. That matters because a rejected route can become a later transport, a different audience path, or a safer design after a blocker is resolved.</p>
+          </div>
+          <div class="candidate-board">
+            <article class="candidate selected">
+              <div>
+                <h3>Executable language research note</h3>
+                <p>Selected because it balances wonder, concrete Arcanum example, and reader agency.</p>
+              </div>
+              <div>
+                <div class="score-row"><span>Promise</span><div class="bar"><span style="width:100%"></span></div><b>5</b></div>
+                <div class="score-row"><span>Fit</span><div class="bar"><span style="width:100%"></span></div><b>5</b></div>
+                <div class="score-row"><span>Movement</span><div class="bar"><span style="width:100%"></span></div><b>5</b></div>
+              </div>
+              <div>
+                <span class="gate">opening pass</span>
+                <span class="gate">citation pass</span>
+                <span class="gate">audience pass</span>
+              </div>
+            </article>
+            <article class="candidate">
+              <div>
+                <h3>Anthropological bridge first</h3>
+                <p>Strong public frame, but it risks opening with external authority instead of reader experience.</p>
+              </div>
+              <div>
+                <div class="score-row"><span>Promise</span><div class="bar"><span style="width:80%"></span></div><b>4</b></div>
+                <div class="score-row"><span>Fit</span><div class="bar"><span style="width:100%"></span></div><b>5</b></div>
+                <div class="score-row"><span>Movement</span><div class="bar"><span style="width:60%"></span></div><b>3</b></div>
+              </div>
+              <div>
+                <span class="gate block">opening block</span>
+                <span class="gate">citation pass</span>
+                <span class="gate">audience pass</span>
+              </div>
+            </article>
+            <article class="candidate">
+              <div>
+                <h3>Practical prompting reframe</h3>
+                <p>Useful and fast, but too likely to collapse into a prompting tutorial.</p>
+              </div>
+              <div>
+                <div class="score-row"><span>Promise</span><div class="bar"><span style="width:60%"></span></div><b>3</b></div>
+                <div class="score-row"><span>Fit</span><div class="bar"><span style="width:100%"></span></div><b>5</b></div>
+                <div class="score-row"><span>Movement</span><div class="bar"><span style="width:80%"></span></div><b>4</b></div>
+              </div>
+              <div>
+                <span class="gate">opening pass</span>
+                <span class="gate">citation pass</span>
+                <span class="gate">audience pass</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="parts">
+        <div class="inner">
+          <div class="section-head">
+            <p class="eyebrow">From idea to parts</p>
+            <h2>A selected route becomes responsibilities, dependencies, and checks.</h2>
+            <p>This is where an idea stops being vapor. Each part gets a job, source inputs, must-do rules, must-not-do rules, and validation hooks.</p>
+          </div>
+          <div class="part-map" aria-label="Whisper composition parts">
+            <div class="part"><strong>Opening hook</strong><span>Ground the reader in naming, language, or workflow before external authority appears.</span></div>
+            <div class="part"><strong>Reference bridge</strong><span>Use Harari as paraphrased context after the opening, with citation limits preserved.</span></div>
+            <div class="part"><strong>Research context</strong><span>Frame generative AI as a collaborator in symbolic system building.</span></div>
+            <div class="part"><strong>Core insight</strong><span>Show language becoming executable through names, aliases, schemas, and tools.</span></div>
+            <div class="part"><strong>Arcanum example</strong><span>Translate sigils, spells, and schemas as public-facing examples.</span></div>
+            <div class="part"><strong>Implications</strong><span>Connect the pattern to builders, writers, researchers, and designers.</span></div>
+            <div class="part"><strong>Invitation</strong><span>Ask the reader to name one workflow and begin shaping it.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="router">
+        <div class="inner">
+          <div class="section-head">
+            <p class="eyebrow">When the loop finds a gap</p>
+            <h2>Use the right capability for the shape of uncertainty.</h2>
+          </div>
+          <div class="router">
+            <div class="route-card" data-accent="blue"><b>refine</b><p>Use when the idea still needs shape, comparison, critique, repair, or a better next route.</p></div>
+            <div class="route-card" data-accent="indigo"><b>invoke</b><p>Use when the idea needs durable definition, design, planning, layering, and work-pack artifacts.</p></div>
+            <div class="route-card" data-accent="rose"><b>decision-gate</b><p>Use when a consequential human choice blocks mutation or changes the direction of the system.</p></div>
+            <div class="route-card" data-accent="amber"><b>dispatch-spec</b><p>Use when research or execution needs multiple lanes, gates, handoffs, and evidence ownership.</p></div>
+            <div class="route-card" data-accent="teal"><b>x-ray</b><p>Use when the hidden structure, dependencies, lifecycle, or relationships are hard to see.</p></div>
+            <div class="route-card" data-accent="green"><b>task-session</b><p>Use when one task or SWU is ready enough to execute with validation receipts.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="try">
+        <div class="inner two-col">
+          <div>
+            <p class="eyebrow">Use it on your own idea</p>
+            <h2>Start with the messy version. Arcanum can shape it.</h2>
+            <p class="lead">The first prompt is a seed, not a final brief. Give the system enough material to protect the ambition while finding the first executable proof.</p>
+          </div>
+          <div>
+            <div class="tabs" role="tablist" aria-label="Prompt examples">
+              <button type="button" role="tab" aria-selected="true" aria-controls="prompt-refine" id="tab-refine">Refine</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="prompt-dispatch" id="tab-dispatch">Research</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="prompt-task" id="tab-task">Execute</button>
+            </div>
+            <div class="prompt tab-panel active" role="tabpanel" id="prompt-refine" aria-labelledby="tab-refine">
+              <code>[$refine] I want to develop this idea:
+
+Describe the users, promise, current workflow, what feels missing, references, constraints, risks, unresolved decisions, MVP proof, and the ambitious version.
+
+Please refine this into definition, design, plan, gaps, blockers, and the next executable task.</code>
+            </div>
+            <div class="prompt tab-panel" role="tabpanel" id="prompt-dispatch" aria-labelledby="tab-dispatch">
+              <code>[$dispatch-spec] Create a research route for this idea.
+
+Streams: source truth, market practice, implementation, risks, validation or fixtures.
+
+Output: source ledger, claim map, implications, blockers, and next work-pack.</code>
+            </div>
+            <div class="prompt tab-panel" role="tabpanel" id="prompt-task" aria-labelledby="tab-task">
+              <code>[$task-session] Execute &lt;work-pack path&gt; --swu &lt;SWU-ID&gt;
+
+Use only when scope, source links, write boundaries, blockers, validation, and completion evidence are clear.</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="inner">
+          <div class="section-head">
+            <p class="eyebrow">Evidence ladder</p>
+            <h2>The closer you get to mutation, the heavier the evidence should become.</h2>
+          </div>
+          <div class="evidence-grid">
+            <div class="evidence"><b>Prompt evidence</b><p>User, pain, promise, constraints, unknowns, examples, and success signal.</p></div>
+            <div class="evidence"><b>Design evidence</b><p>Definitions, views, trade-offs, candidate comparisons, and rejected alternatives.</p></div>
+            <div class="evidence"><b>Execution evidence</b><p>Work-pack, SWU, write scope, validation commands, receipts, and changed files.</p></div>
+            <div class="evidence"><b>Residue evidence</b><p>Blocked claims, next routes, human review needs, and reusable lessons.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-note">
+      Source fixture: <code>development/user-guide/fixtures/whisper-idea-to-mvp/</code>. Refine run: <code>development/user-guide/refinement-runs/20260601T211736Z-html-fixture-whisper-cores/</code>.
+    </footer>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
+        panels.forEach((panel) => panel.classList.toggle('active', panel.id === tab.getAttribute('aria-controls')));
+      });
+    });
+  </script>
+</body>
+</html>

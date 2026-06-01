@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CyberAlchemy is an operating language for turning ambitious ideas into governed, evidenced, reusable tools.">
+  <title>CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515;
+      --muted: #626262;
+      --paper: #fdfaf3;
+      --surface: #fffdf8;
+      --line: #e3ded2;
+      --red: #e60023;
+      --orange: #e85d18;
+      --teal: #088f8a;
+      --green: #2f8b57;
+      --blue: #2e6bb8;
+      --violet: #5c55b8;
+      --shadow: 0 18px 60px rgba(21, 21, 21, .12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 14px clamp(18px, 4vw, 52px);
+      background: rgba(253, 250, 243, .88);
+      border-bottom: 1px solid rgba(227, 222, 210, .84);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 180px;
+      font-weight: 850;
+      text-decoration: none;
+      letter-spacing: 0;
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    nav {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    nav a {
+      min-height: 34px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    nav a:hover {
+      background: #f2eee3;
+      color: var(--ink);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 94vh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      padding: 112px clamp(18px, 5vw, 70px) 54px;
+      border-bottom: 1px solid var(--line);
+      background: #fbf8ef;
+    }
+
+    #system-map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: .88;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(253, 250, 243, .98) 0%, rgba(253, 250, 243, .86) 42%, rgba(253, 250, 243, .52) 100%),
+        linear-gradient(0deg, rgba(253, 250, 243, .98) 0%, rgba(253, 250, 243, .14) 32%, rgba(253, 250, 243, .05) 100%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 940px;
+      font-size: clamp(54px, 8vw, 112px);
+      line-height: .88;
+    }
+
+    h2 {
+      max-width: 860px;
+      font-size: clamp(32px, 4.6vw, 62px);
+      line-height: .98;
+    }
+
+    h3 {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.64;
+    }
+
+    .lead {
+      max-width: 730px;
+      margin-top: 22px;
+      color: #383838;
+      font-size: clamp(18px, 2.3vw, 24px);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 15px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 820;
+      box-shadow: 0 6px 18px rgba(20, 20, 20, .06);
+    }
+
+    .button.primary {
+      border-color: var(--red);
+      background: var(--red);
+      color: white;
+    }
+
+    section {
+      padding: clamp(48px, 8vw, 92px) clamp(18px, 5vw, 70px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      margin-bottom: 30px;
+    }
+
+    .section-head p {
+      max-width: 780px;
+      margin-top: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 9px 24px rgba(22, 22, 22, .05);
+    }
+
+    .panel p {
+      margin-top: 10px;
+    }
+
+    .panel .tag {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #f1eadc;
+      color: #6f5a3c;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .loop {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .step {
+      min-height: 158px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .step b {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      color: white;
+      font-size: 13px;
+    }
+
+    .step:nth-child(2) b { background: var(--orange); }
+    .step:nth-child(3) b { background: var(--blue); }
+    .step:nth-child(4) b { background: var(--violet); }
+    .step:nth-child(5) b { background: var(--green); }
+    .step:nth-child(6) b { background: var(--teal); }
+
+    .evidence {
+      display: grid;
+      grid-template-columns: minmax(260px, .72fr) minmax(360px, 1.28fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .code {
+      overflow: auto;
+      padding: 18px;
+      border-radius: 8px;
+      background: #171717;
+      color: #fff8eb;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .artifact-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .artifact-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 760;
+    }
+
+    .artifact-list span {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .footer {
+      padding: 28px clamp(18px, 5vw, 70px);
+      background: #151515;
+      color: #fdfaf3;
+    }
+
+    .footer p {
+      color: #c7c1b5;
+    }
+
+    @media (max-width: 920px) {
+      .grid-3,
+      .grid-2,
+      .evidence {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 86vh;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        position: static;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 54px;
+      }
+
+      h1 {
+        font-size: clamp(46px, 18vw, 74px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-logo.png" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#method">Method</a>
+      <a href="#loop">Loop</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#start">Start</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-label="CyberAlchemy">
+      <canvas id="system-map" aria-hidden="true"></canvas>
+      <div class="hero-content">
+        <p class="eyebrow">An operating language for agentic creation</p>
+        <h1>CyberAlchemy</h1>
+        <p class="lead">Turn ambitious ideas into named workflows, governed artifacts, validator-backed evidence, and reusable tools that people can actually understand.</p>
+        <div class="actions">
+          <a class="button primary" href="arcanum-development-loop.html">Explore the Arcanum loop</a>
+          <a class="button" href="arcanum-development-guide.pdf">Open the printable guide</a>
+          <a class="button" href="https://github.com/cyberAlchemyAI/Arcanum">GitHub</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The method</p>
+          <h2>Language becomes a way to build operational memory.</h2>
+          <p>CyberAlchemy treats names, prompts, schemas, validations, and artifacts as working material. A good name is not decoration; it is a handle for a repeatable process.</p>
+        </div>
+        <div class="grid-3">
+          <article class="panel">
+            <span class="tag">name</span>
+            <h3>Give the pattern a handle</h3>
+            <p>Start with the messy thing you keep doing. Name it so it can be pointed at, improved, taught, and reused.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">shape</span>
+            <h3>Turn intent into artifacts</h3>
+            <p>Use refine, invoke, guides, x-rays, work-packs, and task-sessions to make the idea inspectable before mutation.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">prove</span>
+            <h3>Keep evidence with the work</h3>
+            <p>Every serious output should leave receipts: sources, decisions, validators, screenshots, residues, and the next route.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="loop">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Arcanum loop</p>
+          <h2>From a wild idea to a validated working slice.</h2>
+        </div>
+        <div class="loop" aria-label="CyberAlchemy development loop">
+          <article class="step"><b>1</b><h3>Prompt</h3><p>Describe the idea, user, promise, constraints, unknowns, and ambitious future.</p></article>
+          <article class="step"><b>2</b><h3>Refine</h3><p>Extract the core shape, compare routes, expose gaps, and choose the next owner.</p></article>
+          <article class="step"><b>3</b><h3>Invoke</h3><p>Author definition, design, layering, work-pack, and handoff artifacts.</p></article>
+          <article class="step"><b>4</b><h3>Route</h3><p>Use decision-gate, dispatch-spec, x-ray, or another refine pass when uncertainty appears.</p></article>
+          <article class="step"><b>5</b><h3>Execute</h3><p>Run one bounded task-session with validation and synchronized evidence.</p></article>
+          <article class="step"><b>6</b><h3>Learn</h3><p>Preserve residue, telemetry, follow-up gaps, and the next loop.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="inner evidence">
+        <div>
+          <p class="eyebrow">Evidence-backed imagination</p>
+          <h2>Designers and builders can be ambitious without becoming vague.</h2>
+          <p class="lead">The Whisper example shows how a broad writing idea becomes cores, candidate routes, hard gates, composition parts, validators, and task-session receipts. The same structure can shape a tool, product workflow, frontend validator, or research route.</p>
+        </div>
+        <div class="artifact-list">
+          <a href="arcanum-development-loop.html">Arcanum development loop <span>HTML guide</span></a>
+          <a href="arcanum-development-guide.pdf">Printable guide <span>PDF</span></a>
+          <a href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/ux-evidence-validator">UX evidence validator <span>sigil</span></a>
+          <a href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/development/user-guide/fixtures/whisper-idea-to-mvp">Whisper idea fixture <span>source</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="start">
+      <div class="inner grid-2">
+        <div>
+          <p class="eyebrow">Start here</p>
+          <h2>Ask for the shape, not the implementation first.</h2>
+          <p class="lead">The best first prompt is rich, unfinished, and honest about what is exciting, risky, unclear, and worth proving.</p>
+        </div>
+        <pre class="code">[$refine] I want to develop this idea:
+
+Describe the product, audience, promise, current workflow, missing pieces, constraints, risks, unresolved decisions, MVP proof, and ambitious future.
+
+Please refine this into definition, design, plan, gaps, blockers, and the next executable task.</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>CyberAlchemy</h3>
+      <p>Built from the Arcanum framework: reusable agent capabilities, governed synthesis, and evidence-preserving development loops.</p>
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('system-map');
+    const ctx = canvas.getContext('2d');
+    const labels = ['refine', 'invoke', 'x-ray', 'guide', 'whisper', 'task-session', 'evidence', 'residue', 'validator'];
+    let nodes = [];
+
+    function resize() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = Math.floor(canvas.offsetWidth * ratio);
+      canvas.height = Math.floor(canvas.offsetHeight * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      nodes = labels.map((label, i) => {
+        const angle = (Math.PI * 2 * i) / labels.length;
+        const radius = Math.min(w, h) * (0.22 + (i % 3) * 0.055);
+        return {
+          label,
+          x: w * 0.68 + Math.cos(angle) * radius,
+          y: h * 0.46 + Math.sin(angle) * radius,
+          vx: Math.sin(angle) * 0.12,
+          vy: Math.cos(angle) * 0.1,
+          color: ['#e60023', '#e85d18', '#088f8a', '#2e6bb8', '#5c55b8'][i % 5]
+        };
+      });
+    }
+
+    function draw() {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.lineWidth = 1;
+      for (let i = 0; i < nodes.length; i += 1) {
+        for (let j = i + 1; j < nodes.length; j += 1) {
+          const a = nodes[i];
+          const b = nodes[j];
+          const distance = Math.hypot(a.x - b.x, a.y - b.y);
+          if (distance < 260) {
+            ctx.strokeStyle = `rgba(21, 21, 21, ${Math.max(0.04, 0.16 - distance / 1900)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      nodes.forEach((node) => {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < w * 0.38 || node.x > w * 0.96) node.vx *= -1;
+        if (node.y < h * 0.12 || node.y > h * 0.82) node.vy *= -1;
+        ctx.fillStyle = 'rgba(255,255,255,.86)';
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#151515';
+        ctx.font = '700 11px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.label, node.x, node.y + 4);
+      });
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+  </script>
+</body>
+</html>
