@@ -45,7 +45,7 @@ If a close boundary exists, observe the closed bundle.
 
 If close data is missing, observe the latest checkpoint and emit capability telemetry with status `partial` or `interrupted`. The recommendation should be `resume-or-reflect`.
 
-Use `scripts/observe-run-with-codex.sh` when Codex CLI is available and a bounded AI observer is desired. The script reads only the run bundle and writes `observer-output.json`.
+Use `scripts/observe-run-with-codex.sh` only as an explicit legacy Codex observer when Codex CLI is available and a bounded AI observer is desired. Native agent/subagent routes should return the observer fields in their receipt. The script reads only the run bundle and writes `observer-output.json`.
 
 ## Runtime Policy
 

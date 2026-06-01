@@ -80,9 +80,9 @@ The observability handoff is hook-first. Telemetry emission must be enforced by 
 | reflection route | report written, skipped with reason, or queued | pass or flag |
 | hook enforcement | Codex hook or deterministic wrapper performed the observation handoff | pass or flag |
 
-## Command And Hook Contract
+## Native Runtime And Hook Contract
 
-Arcanum-managed Codex commands must make observer envelope setup task zero. Codex hooks and `tools/arcanum --exec` perform the deterministic observability handoff. The system must not rely on the agent remembering to call `signal-observer`.
+Arcanum-managed runtime packages and explicit legacy command adapters must make observer envelope setup task zero. Native agent receipts, Codex hooks, and deterministic wrappers such as `tools/arcanum --exec --adapter native-skill` perform the observability handoff. The system must not rely on the agent remembering to call `signal-observer`.
 
 Required phases:
 
@@ -99,9 +99,9 @@ Required capability kinds:
 
 | Kind | Example Adapter | Required `capability.kind` |
 | --- | --- | --- |
-| skill | `.codex/commands/arcanum-orchestrate.md` | `skill` |
-| sigil | `.codex/commands/arcanum-sigil-signal-observer.md` | `sigil` |
-| spell | `.codex/commands/arcanum-spell-invoke.md` | `spell` |
+| skill | generated native package such as `arcanum-orchestrate/SKILL.md` | `skill` |
+| sigil | generated native package such as `arcanum-sigil-signal-observer/SKILL.md` | `sigil` |
+| spell | generated native package such as `arcanum-spell-invoke/SKILL.md` | `spell` |
 
 Adapter controls:
 
@@ -112,7 +112,7 @@ Adapter controls:
 
 ## Automatic Attachment
 
-OIL should be attached through Arcanum command generation, not by hand-editing each sigil command. The propagation owner is the command-surface installer/generator: when it creates or refreshes a Codex command, the command must include observer envelope task-zero metadata and the installed hooks must be present.
+OIL should be attached through Arcanum runtime package generation, not by hand-editing each generated package or command. The propagation owner is the runtime installer/generator: when it creates or refreshes a native package or explicit legacy Codex command, the artifact must include observer envelope task-zero metadata and the installed hooks must be present.
 
 Recommended generated marker:
 
@@ -124,15 +124,16 @@ Recommended generated marker:
 <!-- arcanum:command <command> -->
 ```
 
-Codex commands are the installed runtime surface:
+Generated native packages are the installed runtime surface. Legacy Codex commands are compatibility adapters only:
 
-- command: `.codex/commands/<command>.md`
-- bare-id alias for sigils and spells: `.codex/commands/<id>.md`
+- native package: host-specific skill directory such as `$CODEX_HOME/skills/<package>/SKILL.md`, `.github/skills/<package>/SKILL.md`, or `.claude/skills/<package>/SKILL.md`
+- legacy command: `.codex/commands/<command>.md`
+- legacy bare-id alias for sigils and spells: `.codex/commands/<id>.md`
 - hook config: `.codex/hooks.json`
 - hook scripts: `.codex/hooks/`
 - required closeout: `UserPromptSubmit` opens the envelope, `PostToolUse` records evidence, `Stop` closes through `observe-invocation.sh`
 
-Prefixed commands such as `arcanum-spell-invoke` remain stable compatibility names. Bare aliases such as `invoke` and `interrogation` are the preferred user-facing command names when there is no collision.
+Prefixed names such as `arcanum-spell-invoke` remain stable compatibility names. Bare aliases such as `invoke` and `interrogation` are preferred user-facing package names when the host runtime supports them and there is no collision.
 
 Existing adapters should be refreshed idempotently by marker block. If a file has local changes and no safe marker insertion point, report a conflict instead of overwriting.
 

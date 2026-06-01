@@ -1,5 +1,7 @@
 # Codex Goal Runtime Adapter
 
+Status: legacy compatibility adapter. New Task Session runtime handoffs should use [Generic Runtime Handoff](runtime-handoff.md) and treat Codex as the `codex-exec` runtime adapter when needed.
+
 ## Identity
 
 | Field | Value |

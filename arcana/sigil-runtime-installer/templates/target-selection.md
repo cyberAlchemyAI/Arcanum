@@ -3,12 +3,12 @@
 ## Install Request
 
 - Repository: {repository}
-- Requested target: codex | none | undecided
+- Requested target: codex-commands | none | undecided
 - Command name: {command}
-- Command surface: .codex/commands
+- Legacy command surface: .codex/commands
 
 ## Decision
 
-- Selected target: codex | none
+- Selected target: codex-commands | none
 - Rationale: {rationale}
 - Path override: {path-or-none}

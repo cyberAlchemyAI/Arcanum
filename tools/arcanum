@@ -6,17 +6,30 @@ usage() {
 Usage:
   tools/arcanum --list
   tools/arcanum --resolve <command>
+  tools/arcanum --list-adapters
+  tools/arcanum --resolve-adapter <adapter-id>
+  tools/arcanum --get-default-adapter
+  tools/arcanum --set-default-adapter <adapter-id>
   tools/arcanum [--print-prompt] <command> [arguments...]
-  tools/arcanum --exec [--output <path>] <command> [arguments...]
+  tools/arcanum --exec [--adapter <adapter-id>] [--output <path>] [--timeout <seconds>] <command> [arguments...]
 
 Examples:
   tools/arcanum /invoke define a cache invalidation sigil
+  tools/arcanum /invoke refresh with REFRESH-REPORT.md from latest session evidence
   tools/arcanum --exec invoke define a cache invalidation sigil
+  tools/arcanum --exec --timeout 1800 refine run a bounded refinement loop
+  tools/arcanum --exec --adapter codex-skill invoke define a cache invalidation sigil
+  tools/arcanum --exec --adapter claude-skill invoke define a cache invalidation sigil
+  tools/arcanum --exec --adapter copilot-instructions invoke define a cache invalidation sigil
+  tools/arcanum --exec --adapter dry-run invoke define a cache invalidation sigil
   tools/arcanum --resolve interrogation
+  tools/arcanum --list-adapters
 
 This is the repository-local Arcanum command surface. It accepts bare aliases
 such as invoke and slash-like aliases such as /invoke, resolves them through
-.codex/commands, and can run the selected command through the Codex CLI.
+.codex/commands, and can prepare or run the selected command through a runtime
+adapter. Runtime-native adapters emit handoff and receipt contracts; legacy
+model CLI adapters are explicit opt-in.
 USAGE
 }
 
@@ -25,12 +38,250 @@ script_dir="$(cd "$(dirname "$script_path")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 commands_dir="$repo_root/.codex/commands"
 observability_dir="$repo_root/.arcanum/observability"
+runtime_config_file="$repo_root/.arcanum/runtime/config.json"
+runtime_adapters_dir="$repo_root/.arcanum/runtime/adapters"
 observer="$repo_root/framework/observability/scripts/observe-invocation.sh"
 reflector="$repo_root/framework/observability/scripts/reflect-invocation-signals.sh"
+source_codex_home="${ARCANUM_SOURCE_CODEX_HOME:-${CODEX_HOME:-$HOME/.codex}}"
 
 mode="prompt"
 output_path=""
 command_name=""
+adapter_id="${ARCANUM_RUNTIME_ADAPTER:-}"
+adapter_explicit="false"
+runtime_timeout_seconds="${ARCANUM_EXEC_TIMEOUT_SECONDS:-${ARCANUM_CODEX_EXEC_TIMEOUT_SECONDS:-1800}}"
+
+timestamp() {
+	date -u +%Y-%m-%dT%H:%M:%SZ
+}
+
+path_abs() {
+	local path="$1"
+	if [[ "$path" == /* ]]; then
+		printf '%s\n' "$path"
+	else
+		printf '%s\n' "$repo_root/$path"
+	fi
+}
+
+rel_path() {
+	local path="$1"
+	case "$path" in
+		"$repo_root"/*) printf '%s\n' "${path#$repo_root/}" ;;
+		*) printf '%s\n' "$path" ;;
+	esac
+}
+
+adapter_exists() {
+	case "$1" in
+		native-skill|codex-skill|claude-skill|copilot-instructions|local-skill|dry-run|codex-exec|codex-bypass) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+adapter_profile_json() {
+	local selected_adapter="$1"
+	case "$selected_adapter" in
+		native-skill|codex-skill|claude-skill|copilot-instructions|local-skill)
+			local runtime_kind="native-agent-skill-surface"
+			local package_shape="host-inferred native skill or instruction package"
+			local alias_note=""
+			case "$selected_adapter" in
+				native-skill)
+					runtime_kind="abstract-native-runtime-selector"
+					package_shape="selected host-native package"
+					;;
+				codex-skill)
+					package_shape="\$CODEX_HOME/skills/<name>/SKILL.md"
+					;;
+				claude-skill)
+					package_shape=".claude/skills/<name>/SKILL.md plus optional .claude/agents/<name>.md"
+					;;
+				copilot-instructions)
+					package_shape=".github/skills/<name>/SKILL.md plus .github/instructions/*.instructions.md"
+					;;
+				local-skill)
+					runtime_kind="compatibility-alias"
+					package_shape="\$CODEX_HOME/skills/<name>/SKILL.md"
+					alias_note="Compatibility alias for codex-skill while older artifacts are migrated."
+					;;
+			esac
+			jq -n \
+				--arg adapter_id "$selected_adapter" \
+				--arg runtime_kind "$runtime_kind" \
+				--arg package_shape "$package_shape" \
+				--arg alias_note "$alias_note" \
+				'{
+					adapter_id:$adapter_id,
+					runtime_kind:$runtime_kind,
+					execution_mode:"parent-orchestrated-handoff",
+					state_model:"current-session-and-native-runtime",
+					isolation_model:"no-nested-model-cli",
+					input_shape:"command-prompt-plus-dispatch-step",
+					output_shape:"artifact-plus-stage-receipt",
+					failure_model:"passed|flagged|blocked|interrupted|timeout",
+					package_shape:$package_shape,
+					alias_note:(if $alias_note == "" then null else $alias_note end),
+					capabilities:["represent native runtime execution without spawning nested model CLI","return handoff and receipt requirements for parent orchestration","record canonical source and alias provenance for generated native packages"],
+					limitations:["not callable as an autonomous shell-only model runtime","requires the parent runtime to own skill or agent execution and join"],
+					validation_surface:["adapter profile evidence","dispatch-spec validation","stage receipt validation","observer or fallback telemetry receipt"]
+				}'
+			;;
+		dry-run)
+			jq -n \
+				'{
+					adapter_id:"dry-run",
+					runtime_kind:"dry-run",
+					execution_mode:"simulated",
+					state_model:"stateless",
+					isolation_model:"filesystem-output-only",
+					input_shape:"command-prompt",
+					output_shape:"requested-output",
+					failure_model:"passed|blocked|failed",
+					capabilities:["validate command-surface adapter dispatch without external execution"],
+					limitations:["does not prove model-backed execution"],
+					validation_surface:["tools/arcanum --exec --adapter dry-run","requested output exists"]
+				}'
+			;;
+			codex-exec)
+				jq -n \
+					'{
+						adapter_id:"codex-exec",
+					runtime_kind:"model-backed-cli",
+					execution_mode:"synchronous-process",
+					state_model:"normal-codex-cli-state",
+					isolation_model:"no-run-local-codex-home-by-default",
+					input_shape:"command-prompt",
+					output_shape:"requested-output",
+					failure_model:"passed|flagged|blocked|failed",
+					capabilities:["execute Codex CLI with an Arcanum command prompt","capture final output in the requested output path"],
+					limitations:["does not use native /goal","does not own orchestrator semantics","does not create per-run private CLI state links by default"],
+					timeout_control:"--timeout <seconds> or ARCANUM_EXEC_TIMEOUT_SECONDS; 0 disables the wrapper timeout",
+						validation_surface:["adapter profile evidence","Codex CLI exit classification","timeout classification","STATUS.json validation_grade","events.jsonl closeout"]
+					}'
+				;;
+			codex-bypass)
+				jq -n \
+					'{
+						adapter_id:"codex-bypass",
+						runtime_kind:"model-backed-cli",
+						execution_mode:"synchronous-process",
+						state_model:"normal-codex-cli-state",
+						isolation_model:"codex-cli-danger-full-access",
+						input_shape:"command-prompt",
+						output_shape:"requested-output",
+						failure_model:"passed|flagged|blocked|failed",
+						capabilities:["execute Codex CLI with an Arcanum command prompt when workspace-write sandboxing is unavailable","capture final output in the requested output path"],
+						limitations:["bypasses Codex CLI sandbox and approval prompts","intended only for externally trusted automation environments"],
+						timeout_control:"--timeout <seconds> or ARCANUM_EXEC_TIMEOUT_SECONDS; 0 disables the wrapper timeout",
+						validation_surface:["adapter profile evidence","Codex CLI exit classification","timeout classification","STATUS.json validation_grade","events.jsonl closeout"]
+					}'
+				;;
+		*) return 1 ;;
+	esac
+}
+
+list_adapters() {
+	printf 'native-skill\n'
+	printf 'codex-skill\n'
+	printf 'claude-skill\n'
+	printf 'copilot-instructions\n'
+	printf 'local-skill\n'
+	printf 'dry-run\n'
+	printf 'codex-exec\n'
+	printf 'codex-bypass\n'
+}
+
+resolve_adapter() {
+	local selected_adapter="$1"
+	if ! adapter_exists "$selected_adapter"; then
+		printf 'ERROR: unknown runtime adapter: %s\n' "$selected_adapter" >&2
+		return 1
+	fi
+	printf 'ADAPTER=%s\n' "$selected_adapter"
+	printf 'PROFILE_SOURCE=static\n'
+	adapter_profile_json "$selected_adapter"
+}
+
+infer_command_surface() {
+	if [[ -d "$commands_dir" ]]; then
+		printf 'codex\n'
+	else
+		printf 'none\n'
+	fi
+}
+
+write_runtime_config() {
+	local default_adapter="$1"
+	local command_surface="$2"
+	local default_json
+	mkdir -p "$(dirname "$runtime_config_file")" "$runtime_adapters_dir"
+	adapter_profile_json "native-skill" > "$runtime_adapters_dir/native-skill.json"
+	adapter_profile_json "codex-skill" > "$runtime_adapters_dir/codex-skill.json"
+	adapter_profile_json "claude-skill" > "$runtime_adapters_dir/claude-skill.json"
+	adapter_profile_json "copilot-instructions" > "$runtime_adapters_dir/copilot-instructions.json"
+	adapter_profile_json "local-skill" > "$runtime_adapters_dir/local-skill.json"
+	adapter_profile_json "dry-run" > "$runtime_adapters_dir/dry-run.json"
+	adapter_profile_json "codex-exec" > "$runtime_adapters_dir/codex-exec.json"
+	adapter_profile_json "codex-bypass" > "$runtime_adapters_dir/codex-bypass.json"
+	if [[ -z "$default_adapter" || "$default_adapter" == "none" || "$default_adapter" == "null" ]]; then
+		default_json="null"
+	else
+		default_json="$(jq -Rn --arg value "$default_adapter" '$value')"
+	fi
+	jq -n \
+		--arg command_surface "$command_surface" \
+		--argjson default_adapter "$default_json" \
+		'{
+			schema_version:"arcanum.runtime.config.v1",
+			command_surface:$command_surface,
+			default_adapter:$default_adapter,
+			adapters:{
+					"native-skill":{enabled:true,profile_path:".arcanum/runtime/adapters/native-skill.json"},
+					"codex-skill":{enabled:true,profile_path:".arcanum/runtime/adapters/codex-skill.json"},
+					"claude-skill":{enabled:true,profile_path:".arcanum/runtime/adapters/claude-skill.json"},
+					"copilot-instructions":{enabled:true,profile_path:".arcanum/runtime/adapters/copilot-instructions.json"},
+					"local-skill":{enabled:true,profile_path:".arcanum/runtime/adapters/local-skill.json"},
+					"codex-exec":{enabled:true,profile_path:".arcanum/runtime/adapters/codex-exec.json"},
+					"codex-bypass":{enabled:true,profile_path:".arcanum/runtime/adapters/codex-bypass.json"},
+					"dry-run":{enabled:true,profile_path:".arcanum/runtime/adapters/dry-run.json"}
+			}
+		}' > "$runtime_config_file"
+}
+
+get_default_adapter() {
+	if [[ -f "$runtime_config_file" ]] && command -v jq >/dev/null 2>&1; then
+		jq -r '.default_adapter // empty' "$runtime_config_file"
+		return 0
+	fi
+	if [[ -d "$commands_dir" ]]; then
+		printf 'codex-skill\n'
+	fi
+}
+
+set_default_adapter() {
+	local selected_adapter="$1"
+	if ! adapter_exists "$selected_adapter"; then
+		printf 'ERROR: unknown runtime adapter: %s\n' "$selected_adapter" >&2
+		printf 'Try: tools/arcanum --list-adapters\n' >&2
+		return 1
+	fi
+	if ! command -v jq >/dev/null 2>&1; then
+		printf 'ERROR: jq is required to update runtime config\n' >&2
+		return 1
+	fi
+	local command_surface
+	command_surface="$(infer_command_surface)"
+	if [[ -f "$runtime_config_file" ]]; then
+		command_surface="$(jq -r '.command_surface // empty' "$runtime_config_file")"
+		if [[ -z "$command_surface" ]]; then
+			command_surface="$(infer_command_surface)"
+		fi
+	fi
+	write_runtime_config "$selected_adapter" "$command_surface"
+	printf 'DEFAULT_ADAPTER=%s\n' "$selected_adapter"
+	printf 'CONFIG=%s\n' "${runtime_config_file#$repo_root/}"
+}
 
 find_codex() {
 	if [[ -n "${CODEX_BIN:-}" && -x "${CODEX_BIN:-}" ]]; then
@@ -133,17 +384,1048 @@ build_prompt() {
 	local adapter_rel="$2"
 	local request="$3"
 	cat <<PROMPT
-Use the Arcanum command surface for command \`$selected\`.
+Execute the already-dispatched Arcanum command \`$selected\`.
 
 1. Read \`$adapter_rel\`.
 2. Follow that command's process and embedded canonical contract.
 3. Treat the user request below as the command arguments.
 4. Treat observer envelope setup as task zero.
 5. Preserve the command output contract and include observability closeout status when available.
+6. Do not call \`tools/arcanum --exec\`, \`codex exec\`, or any nested model-backed runtime for this same command. This process is already the command-backed stage execution; produce the command artifact directly.
 
 User request:
 $request
 PROMPT
+}
+
+trim_ws() {
+	local value="$1"
+	value="${value#"${value%%[![:space:]]*}"}"
+	value="${value%"${value##*[![:space:]]}"}"
+	printf '%s' "$value"
+}
+
+slugify() {
+	local value="$1"
+	value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-{2,}/-/g')"
+	if [[ -z "$value" ]]; then
+		value="target"
+	fi
+	printf '%s' "$value"
+}
+
+extract_request_value() {
+	local request="$1"
+	local key="$2"
+	local value=""
+	value="$(printf '%s\n' "$request" | sed -nE "s/(^|.*[;[:space:]])${key}=([^;]+).*/\2/p" | head -n 1)"
+	trim_ws "$value"
+}
+
+extract_refine_target() {
+	local request="$1"
+	local target
+	target="$(extract_request_value "$request" "target")"
+	if [[ -n "$target" ]]; then
+		printf '%s' "$target"
+		return 0
+	fi
+	local token
+	for token in $request; do
+		case "$token" in
+			--*|*=*) ;;
+			*)
+				printf '%s' "$token"
+				return 0
+				;;
+		esac
+	done
+}
+
+extract_refine_preset() {
+	local request="$1"
+	local preset
+	preset="$(extract_request_value "$request" "preset")"
+	if [[ -z "$preset" && "$request" =~ --preset[[:space:]]+([^[:space:];]+) ]]; then
+		preset="${BASH_REMATCH[1]}"
+	fi
+	case "$preset" in
+		compact|standard|full|deep) printf '%s' "$preset" ;;
+		*) printf 'standard' ;;
+	esac
+}
+
+extract_refine_research() {
+	local request="$1"
+	local research
+	research="$(extract_request_value "$request" "research")"
+	if [[ -z "$research" && "$request" =~ --research[[:space:]]+([^[:space:];]+) ]]; then
+		research="${BASH_REMATCH[1]}"
+	fi
+	case "$research" in
+		no|no-research) printf 'no-research' ;;
+		bounded|bounded-research) printf 'bounded-research' ;;
+		if-gap|research-if-gap-appears|"") printf 'research-if-gap-appears' ;;
+		*) printf '%s' "$research" ;;
+	esac
+}
+
+extract_existing_refine_run_dir() {
+	local request="$1"
+	local run_dir=""
+	if [[ "$request" =~ use[[:space:]]+existing[[:space:]]+run[[:space:]]+folder[[:space:]]+([^;]+) ]]; then
+		run_dir="${BASH_REMATCH[1]}"
+	fi
+	trim_ws "$run_dir"
+}
+
+resolve_refine_run_dir() {
+	local target="$1"
+	local request="$2"
+	local run_stamp="$3"
+	local explicit
+	explicit="$(extract_existing_refine_run_dir "$request")"
+	if [[ -n "$explicit" ]]; then
+		path_abs "$explicit"
+		return 0
+	fi
+	if [[ "$target" == *"/refinement-runs/"* ]]; then
+		if [[ -d "$(path_abs "$target")" ]]; then
+			path_abs "$target"
+		else
+			path_abs "$(dirname "$target")"
+		fi
+		return 0
+	fi
+	if [[ -d "$(path_abs "$target")" ]]; then
+		path_abs "$target/development/refinement-runs/${run_stamp}-$(slugify "$(basename "$target")")"
+		return 0
+	fi
+	if [[ -e "$(path_abs "$target")" ]]; then
+		path_abs "$(dirname "$target")/development/refinement-runs/${run_stamp}-$(slugify "$(basename "$target")")"
+		return 0
+	fi
+	path_abs ".arcanum/refinement-runs/${run_stamp}-$(slugify "$target")"
+}
+
+write_refine_block_stage() {
+	local artifact="$1"
+	local title="$2"
+	local owner="$3"
+	local command_file="$4"
+	local requested_mode="$5"
+	local reason="$6"
+	mkdir -p "$(dirname "$artifact")"
+	cat > "$artifact" <<STAGE
+# $title
+
+## Status
+
+\`block\`
+
+## Command
+
+- Owner command: \`$owner\`
+- Resolved command file: \`${command_file:-n/a}\`
+- Requested mode: \`${requested_mode:-n/a}\`
+
+## Blocked Reason
+
+$reason
+STAGE
+}
+
+record_refine_stage() {
+	local stage_jsonl="$1"
+	local stage="$2"
+	local owner="$3"
+	local command_file="$4"
+	local artifact="$5"
+	local status="$6"
+	local verdict="$7"
+	local blocked_reason="$8"
+	local evidence_kind="${9:-}"
+	local handoff_path="${10:-}"
+	local receipt_path="${11:-}"
+	local artifact_path="$artifact"
+	if [[ -z "$evidence_kind" ]]; then
+		if [[ "$status" == "block" ]]; then
+			evidence_kind="blocked"
+		elif [[ "$status" == "flag" ]]; then
+			evidence_kind="handoff_prepared"
+		elif [[ "$stage" == "Task Zero Observer Envelope" ]]; then
+			evidence_kind="observer_envelope"
+		elif [[ "$stage" == "Research decision" ]]; then
+			evidence_kind="decision_record"
+		elif [[ "$status" == "pass" && -n "$artifact" ]]; then
+			evidence_kind="owner_artifact"
+		else
+			evidence_kind="unknown"
+		fi
+	fi
+	if [[ -z "$handoff_path" && "$evidence_kind" == "handoff_prepared" ]]; then
+		handoff_path="$artifact"
+	fi
+	if [[ -z "$receipt_path" && ( "$evidence_kind" == "receipt" || "$evidence_kind" == "observer_envelope" || "$evidence_kind" == "decision_record" ) ]]; then
+		receipt_path="$artifact"
+	fi
+	jq -cn \
+		--arg stage "$stage" \
+		--arg owner "$owner" \
+		--arg command_file "$command_file" \
+		--arg artifact "$artifact" \
+		--arg artifact_path "$artifact_path" \
+		--arg handoff_path "$handoff_path" \
+		--arg receipt_path "$receipt_path" \
+		--arg evidence_kind "$evidence_kind" \
+		--arg status "$status" \
+		--arg verdict "$verdict" \
+		--arg blocked_reason "$blocked_reason" \
+		'{
+			stage:$stage,
+			owner:$owner,
+			command_file:(if $command_file == "" then null else $command_file end),
+			artifact:(if $artifact == "" then null else $artifact end),
+			artifact_path:(if $artifact_path == "" then null else $artifact_path end),
+			handoff_path:(if $handoff_path == "" then null else $handoff_path end),
+			receipt_path:(if $receipt_path == "" then null else $receipt_path end),
+			evidence_kind:$evidence_kind,
+			status:$status,
+			verdict:(if $verdict == "" then null else $verdict end),
+			blocked_reason:(if $blocked_reason == "" then null else $blocked_reason end)
+		}' >> "$stage_jsonl"
+}
+
+refine_artifact_is_usable() {
+	local artifact="$1"
+	[[ -s "$artifact" ]] || return 1
+	if refine_artifact_is_runtime_handoff_stub "$artifact"; then
+		return 1
+	fi
+	! grep -Eiq '(^|\n)[[:space:]]*(BLOCK:|(-[[:space:]]*)?Status:[[:space:]]*`?block`?([[:space:]]|$)|Blocked before task zero|[a-z-]+ did not produce command output)' "$artifact"
+}
+
+refine_artifact_is_runtime_handoff_stub() {
+	local artifact="$1"
+	[[ -s "$artifact" ]] || return 1
+	grep -Eq '^# Arcanum Runtime-Native Handoff$' "$artifact" \
+		&& grep -Eq '^STATUS:[[:space:]]*flag$' "$artifact"
+}
+
+refine_context_builder_persisted_is_usable() {
+	local run_dir="$1"
+	local context_pack="$run_dir/context-builder/context-pack.md"
+	local context_index="$run_dir/context-builder/context-index.json"
+	[[ -s "$context_pack" && -s "$context_index" ]] || return 1
+	jq empty "$context_index" >/dev/null 2>&1
+}
+
+kill_process_tree() {
+	local pid="$1"
+	local child
+	for child in $(pgrep -P "$pid" 2>/dev/null || true); do
+		kill_process_tree "$child"
+	done
+	kill "$pid" 2>/dev/null || true
+}
+
+run_refine_command_stage() {
+	local stage_jsonl="$1"
+	local run_dir="$2"
+	local stage_file="$3"
+	local stage_title="$4"
+	local owner="$5"
+	local requested_mode="$6"
+	local stage_request="$7"
+	local prior_status="$8"
+	local dependency_reason="$9"
+	local stage_adapter="${ARCANUM_REFINE_STAGE_ADAPTER:-local-skill}"
+	local stage_timeout="${ARCANUM_REFINE_STAGE_TIMEOUT_SECONDS:-900}"
+	local output_grace="${ARCANUM_REFINE_STAGE_OUTPUT_GRACE_SECONDS:-20}"
+	local artifact="$run_dir/stages/$stage_file"
+	local artifact_rel
+	artifact_rel="$(rel_path "$artifact")"
+	local command_rel
+	command_rel="$(resolve_command "$owner" || true)"
+	if [[ "$prior_status" != "pass" ]]; then
+		write_refine_block_stage "$artifact" "$stage_title" "$owner" "$command_rel" "$requested_mode" "$dependency_reason"
+		record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "block" "" "$dependency_reason"
+		printf 'block'
+		return 0
+	fi
+	if [[ -z "$command_rel" ]]; then
+		local reason="Command \`$owner\` could not be resolved through tools/arcanum."
+		write_refine_block_stage "$artifact" "$stage_title" "$owner" "" "$requested_mode" "$reason"
+		record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "" "$artifact_rel" "block" "" "$reason"
+		printf 'block'
+		return 0
+	fi
+	local log_dir="$run_dir/stages/.logs"
+	local log_file="$log_dir/${stage_file%.md}.log"
+	mkdir -p "$log_dir"
+	rm -f "$artifact"
+	set +e
+	(
+		ARCANUM_REFINE_NATIVE=0 "$repo_root/tools/arcanum" \
+			--exec \
+			--adapter "$stage_adapter" \
+			--timeout "$stage_timeout" \
+			--output "$artifact" \
+			"$owner" \
+			"$stage_request"
+	) > "$log_file" 2>&1 &
+	local stage_pid="$!"
+	local stage_exit=""
+	local stage_forced_complete="0"
+	local usable_seen_at="0"
+	local deadline=0
+	if [[ "$stage_timeout" =~ ^[0-9]+$ && "$stage_timeout" -gt 0 ]]; then
+		deadline=$((SECONDS + stage_timeout))
+	fi
+	while kill -0 "$stage_pid" 2>/dev/null; do
+			if refine_artifact_is_usable "$artifact" || { [[ "$owner" == "context-builder" ]] && refine_context_builder_persisted_is_usable "$run_dir"; }; then
+			if [[ "$usable_seen_at" -eq 0 ]]; then
+				usable_seen_at="$SECONDS"
+			fi
+			if [[ "$output_grace" =~ ^[0-9]+$ && "$((SECONDS - usable_seen_at))" -ge "$output_grace" ]]; then
+				kill_process_tree "$stage_pid"
+				sleep 1
+				kill -KILL "$stage_pid" 2>/dev/null || true
+				wait "$stage_pid" 2>/dev/null || true
+				stage_exit="0"
+				stage_forced_complete="1"
+				break
+			fi
+		else
+			usable_seen_at="0"
+		fi
+		if [[ "$deadline" -gt 0 && "$SECONDS" -ge "$deadline" ]]; then
+			kill_process_tree "$stage_pid"
+			sleep 1
+			kill -KILL "$stage_pid" 2>/dev/null || true
+			wait "$stage_pid" 2>/dev/null || true
+			stage_exit="124"
+			break
+		fi
+		sleep 5
+	done
+	if [[ -z "$stage_exit" ]]; then
+		wait "$stage_pid"
+		stage_exit="$?"
+	fi
+	set -e
+		if refine_artifact_is_runtime_handoff_stub "$artifact"; then
+			local reason="Stage produced a runtime-native handoff stub only; owner-stage execution receipt is still required."
+			record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "flag" "$reason" "" "handoff_prepared" "$artifact_rel" ""
+			printf 'flag'
+			return 0
+		fi
+		if refine_artifact_is_usable "$artifact"; then
+			local verdict="stage command produced output"
+		if [[ "$stage_forced_complete" == "1" ]]; then
+			verdict="stage command produced usable output; lingering child was stopped after output grace"
+		fi
+		if [[ "$stage_exit" -ne 0 ]]; then
+			verdict="stage command produced usable output; wrapper exit was $stage_exit"
+		fi
+		record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "pass" "$verdict" ""
+			printf 'pass'
+			return 0
+		fi
+		if [[ "$owner" == "context-builder" ]]; then
+			local context_pack="$run_dir/context-builder/context-pack.md"
+			local context_index="$run_dir/context-builder/context-index.json"
+			local observer_envelope="$run_dir/context-builder/observer-envelope.json"
+			if [[ -s "$context_pack" && -s "$context_index" ]] && jq empty "$context_index" >/dev/null 2>&1; then
+				cat > "$artifact" <<CONTEXT_STAGE
+# Context Builder Evidence Baseline
+
+## Status
+
+\`pass\`
+
+## Verdict
+
+Context Builder persisted command-owned handoff artifacts even though the Codex CLI did not write a final last-message artifact before wrapper closeout.
+
+## Artifacts
+
+- Context pack: \`$(rel_path "$context_pack")\`
+- Context index: \`$(rel_path "$context_index")\`
+- Observer envelope: \`$(rel_path "$observer_envelope")\`
+
+## Validation
+
+- \`jq empty $(rel_path "$context_index")\`: pass
+CONTEXT_STAGE
+				record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "pass" "persisted context-builder handoff artifacts validated" "" "receipt" "" "$(rel_path "$context_index")"
+				printf 'pass'
+				return 0
+			fi
+		fi
+		local reason="Stage command did not produce pass evidence. See $(rel_path "$log_file")."
+	if [[ ! -s "$artifact" ]]; then
+		write_refine_block_stage "$artifact" "$stage_title" "$owner" "$command_rel" "$requested_mode" "$reason"
+	fi
+	record_refine_stage "$stage_jsonl" "$stage_title" "$owner" "$command_rel" "$artifact_rel" "block" "" "$reason"
+	printf 'block'
+}
+
+write_refine_research_decision() {
+	local stage_jsonl="$1"
+	local run_dir="$2"
+	local research="$3"
+	local prior_status="$4"
+	local artifact="$run_dir/stages/04-research-decision.md"
+	local artifact_rel
+	artifact_rel="$(rel_path "$artifact")"
+	mkdir -p "$(dirname "$artifact")"
+	cat > "$artifact" <<RESEARCH
+# Research Decision
+
+## Status
+
+\`pass\`
+
+## Mode
+
+\`$research\`
+
+## Decision
+
+Use local repository and supplied context for this Refine pass unless a completed critique or distill stage identifies a named external-context gap. Bounded external research is not executed by the native root orchestrator without explicit confirmation.
+
+## Confirmation State
+
+- Bounded research selected by user: $(if [[ "$research" == "bounded-research" ]]; then printf 'yes'; else printf 'no'; fi)
+- Gap-triggered research confirmed: no
+- External sources used: none
+
+## Dependency State
+
+Previous stage status: \`$prior_status\`
+RESEARCH
+	record_refine_stage "$stage_jsonl" "Research decision" "refine" "" "$artifact_rel" "pass" "$research recorded; external research not executed" "" "decision_record" "" "$artifact_rel"
+}
+
+write_native_refine_seed_if_missing() {
+	local run_dir="$1"
+	local target="$2"
+	local request="$3"
+	local preset="$4"
+	local research="$5"
+	local seed="$run_dir/REFINE-SEED-PROPOSAL.md"
+	if [[ -f "$seed" ]]; then
+		return 0
+	fi
+	cat > "$seed" <<SEED
+# Refine Seed Proposal
+
+## Target
+
+\`$target\`
+
+## Source Request
+
+$request
+
+## Runtime Configuration
+
+- Preset: \`$preset\`
+- Research: \`$research\`
+
+## Validation Surface
+
+- command resolution through \`tools/arcanum --resolve\`
+- command-backed stage output artifacts under \`stages/\`
+- final \`RUN-MANIFEST.md\`, \`evidence-index.json\`, and \`RESULT.md\`
+SEED
+}
+
+write_native_refine_handoffs() {
+	local run_dir="$1"
+	local target="$2"
+	local request="$3"
+	local preset="$4"
+	local research="$5"
+	local dispatch_validation="$6"
+	cat > "$run_dir/GOAL-HANDOFF.md" <<HANDOFF
+# Goal Handoff: Native Refine Orchestration
+
+## Objective
+
+Run the canonical Refine loop for \`$target\` without recursive Codex execution.
+
+## Runtime Mode
+
+- Preset: \`$preset\`
+- Research: \`$research\`
+- Stage dispatch owner: root \`tools/arcanum\` process
+- Dispatch route: \`REFINE-DISPATCH.json\`
+- Dispatch validation: \`$dispatch_validation\`
+
+## Stage Dispatch Contract
+
+The root process dispatches stage commands through:
+
+\`\`\`bash
+tools/arcanum --exec --adapter <stage-adapter> --timeout <seconds> --output <stage-output> <command> <stage-request>
+\`\`\`
+
+The Refine model is not asked to spawn child model-backed CLI processes from inside an agent sandbox.
+
+## Source Request
+
+$request
+HANDOFF
+	cat > "$run_dir/RUNTIME-HANDOFF.md" <<RUNTIME
+# Runtime Handoff
+
+This run uses native Refine orchestration in \`tools/arcanum\`.
+
+- target: \`$target\`
+- root command: \`tools/arcanum --exec refine ...\`
+- child stage adapter: \`${ARCANUM_REFINE_STAGE_ADAPTER:-local-skill}\`
+- child stage timeout: \`${ARCANUM_REFINE_STAGE_TIMEOUT_SECONDS:-900}\`
+- dispatch route: \`REFINE-DISPATCH.json\`
+- dispatch validation: \`$dispatch_validation\`
+
+The purpose of this handoff is to prevent Codex-inside-Codex recursion.
+RUNTIME
+}
+
+write_native_refine_dispatch() {
+	local run_dir="$1"
+	local target="$2"
+	local request="$3"
+	local preset="$4"
+	local research="$5"
+	local run_id
+	run_id="$(basename "$run_dir")"
+	local dispatch="$run_dir/REFINE-DISPATCH.json"
+	local dispatch_rel
+	dispatch_rel="$(rel_path "$dispatch")"
+	local result_rel
+	result_rel="$(rel_path "$run_dir/RESULT.md")"
+	local template="$repo_root/arcana/refine/templates/refine-dispatch.json"
+	if [[ ! -f "$template" ]]; then
+		printf 'block: missing arcana/refine/templates/refine-dispatch.json'
+		return 0
+	fi
+	jq \
+		--arg run_id "$run_id" \
+		--arg request "$request" \
+		--arg target "$target" \
+		--arg result "$result_rel" \
+		--arg research "$research" \
+		'
+		def replace_placeholders:
+			walk(if type == "string" then
+				gsub("<run-id>"; $run_id)
+				| gsub("<operator request>"; $request)
+				| gsub("<target>"; $target)
+			else . end);
+		replace_placeholders
+		| .dispatch_id = $run_id
+		| .intent.raw = $request
+		| .intent.objective = ("Run the canonical Refine loop for " + $target + " and produce RESULT.md.")
+		| .intent.target_artifact = $result
+		| .intent.operator_sentence = $request
+		| .route_menu.selected_item_id = "baseline_sequence"
+		| .subagent_strategy.status = "none"
+		| .subagent_strategy.trigger = "Native root Refine run uses the canonical local sequence without delegated sibling agents."
+		| .subagent_strategy.explanation = "No subagents are used for this native local validation run; stages are dispatched through the configured runtime adapter boundary."
+		| .subagent_strategy.context = [$target, $request]
+		| .subagent_strategy.roles = []
+		| .subagent_strategy.parallelism = "none"
+		| .subagent_strategy.join_policy = "none"
+		| .subagent_strategy.authorization = "not_needed"
+		| .subagent_strategy.permission_prompt = "No subagents are requested for this native local Refine run."
+		| .subagent_strategy.receipt_requirements = []
+		| (.steps[] | select(.step_id == "s04-research-decision") | .mode) = $research
+		' "$template" > "$dispatch"
+	local validator="$repo_root/formulae/dispatch-spec/scripts/validate-dispatch.py"
+	if [[ ! -x "$validator" && ! -f "$validator" ]]; then
+		printf 'block: missing formulae/dispatch-spec/scripts/validate-dispatch.py'
+		return 0
+	fi
+	local validation_output
+	if validation_output="$(python3 "$validator" "$dispatch" 2>&1)"; then
+		printf 'pass'
+	else
+		printf 'block: %s' "$validation_output" > "$run_dir/REFINE-DISPATCH.validation.log"
+		printf 'block'
+	fi
+}
+
+write_native_refine_outputs() {
+	local run_dir="$1"
+	local output_abs="$2"
+	local target="$3"
+	local request="$4"
+	local preset="$5"
+	local research="$6"
+	local stage_jsonl="$7"
+	local final_status="$8"
+	local dispatch_validation="$9"
+	local stage_rows
+	stage_rows="$(jq -r '"| " + .stage + " | " + .owner + " | `" + .status + "` | `" + (.evidence_kind // "unknown") + "` | " + ((.verdict // .blocked_reason // "") | gsub("\\n"; " ")) + " |"' "$stage_jsonl")"
+	local run_dir_rel
+	run_dir_rel="$(rel_path "$run_dir")"
+	local seed_rel="$run_dir_rel/REFINE-SEED-PROPOSAL.md"
+	local goal_rel="$run_dir_rel/GOAL-HANDOFF.md"
+	local dispatch_rel="$run_dir_rel/REFINE-DISPATCH.json"
+	local result_rel="$run_dir_rel/RESULT.md"
+	local index_rel="$run_dir_rel/evidence-index.json"
+	local manifest_rel="$run_dir_rel/RUN-MANIFEST.md"
+	cat > "$run_dir/RUN-MANIFEST.md" <<MANIFEST
+# Refine Run Manifest
+
+## Status
+
+- Run id: \`$(basename "$run_dir")\`
+- Status: \`$final_status\`
+- Target: \`$target\`
+- Preset: \`$preset\`
+- Research: \`$research\`
+- Dispatch route: \`$dispatch_rel\`
+- Dispatch validation: \`$dispatch_validation\`
+- Runtime topology: native root orchestration
+	- Stage adapter: \`${ARCANUM_REFINE_STAGE_ADAPTER:-local-skill}\`
+
+## Source Request
+
+$request
+
+## Stage Evidence
+
+| Stage | Owner | Status | Evidence Kind | Verdict |
+| --- | --- | --- | --- | --- |
+$stage_rows
+
+## Next Route
+
+If status is \`pass\`, route the resulting plan to Task Session or the requested downstream owner. If status is \`block\`, inspect the first blocked stage artifact and its log under \`stages/.logs/\`.
+MANIFEST
+	jq -n \
+		--arg run_id "$(basename "$run_dir")" \
+		--arg status "$final_status" \
+		--arg target "$target" \
+		--arg preset "$preset" \
+		--arg research "$research" \
+		--arg request "$request" \
+		--arg run_dir "$run_dir_rel" \
+		--arg seed "$seed_rel" \
+		--arg goal "$goal_rel" \
+		--arg dispatch "$dispatch_rel" \
+		--arg result "$result_rel" \
+		--arg manifest "$manifest_rel" \
+		--arg dispatch_validation "$dispatch_validation" \
+		--slurpfile stages "$stage_jsonl" \
+		'{
+			run_id:$run_id,
+			status:$status,
+			target:$target,
+			preset:$preset,
+			research:{mode:$research, external_research_used:false},
+			request:$request,
+			runtime_topology:"native-root-orchestration",
+				stage_adapter:(env.ARCANUM_REFINE_STAGE_ADAPTER // "local-skill"),
+			artifacts:{
+				run_dir:$run_dir,
+				seed:$seed,
+				goal_handoff:$goal,
+				dispatch_route:$dispatch,
+				manifest:$manifest,
+				result:$result
+			},
+			dispatch:{route:$dispatch, validation:$dispatch_validation},
+			stage_evidence:$stages,
+			stage_status_summary:($stages | map({stage,status,evidence_kind,artifact_path,handoff_path,receipt_path,blocked_reason})),
+			recommended_next_route:(if $status == "pass" then "task-session or requested downstream owner" else "inspect first blocked stage and rerun after fixing the stage blocker" end)
+		}' > "$run_dir/evidence-index.json"
+	cat > "$run_dir/RESULT.md" <<RESULT
+# Refine Result
+
+## Verdict
+
+\`$final_status\`
+
+## Summary
+
+Refine ran with native root orchestration. The root \`tools/arcanum\` process owned the canonical loop and dispatched child command stages directly, avoiding Codex-inside-Codex recursion.
+
+## Target
+
+\`$target\`
+
+## Stage Evidence
+
+| Stage | Owner | Status | Evidence Kind | Verdict |
+| --- | --- | --- | --- | --- |
+$stage_rows
+
+## Artifacts
+
+- Run manifest: \`$manifest_rel\`
+- Evidence index: \`$index_rel\`
+- Seed proposal: \`$seed_rel\`
+- Dispatch route: \`$dispatch_rel\`
+- Dispatch validation: \`$dispatch_validation\`
+- Goal handoff: \`$goal_rel\`
+
+## Next Route
+
+$(if [[ "$final_status" == "pass" ]]; then printf 'Use the Invoke Plan output as the handoff to Task Session or the requested downstream owner.'; else printf 'Inspect the first blocked stage artifact and its log under `stages/.logs/`, then rerun Refine after fixing that stage blocker.'; fi)
+RESULT
+	cp "$run_dir/RESULT.md" "$output_abs"
+}
+
+run_native_refine() {
+	local request="$1"
+	local output_abs="$2"
+	local run_stamp="$3"
+	if ! command -v jq >/dev/null 2>&1; then
+		cat > "$output_abs" <<'BLOCK'
+## Refine Result
+
+- Status: `block`
+- Final synthesis: native Refine requires `jq` to write evidence indexes.
+BLOCK
+		return 0
+	fi
+	local target preset research run_dir stage_jsonl status1 status2 status3 status5 status6 status7 status8 status9 status10 final_status dispatch_validation
+	target="$(extract_refine_target "$request")"
+	preset="$(extract_refine_preset "$request")"
+	research="$(extract_refine_research "$request")"
+	if [[ -z "$target" ]]; then
+		cat > "$output_abs" <<'BLOCK'
+## Refine Result
+
+- Target: `unspecified`
+- Status: `block`
+- Final synthesis: blocked before materializing the refinement run because the command arguments were empty. Refine requires a target folder, artifact, idea, design concern, plan, work-pack, or repository area.
+- Recommended next routes: rerun `refine` with a concrete target and optional `--preset` / `--research` flags.
+BLOCK
+		return 0
+	fi
+	run_dir="$(resolve_refine_run_dir "$target" "$request" "$run_stamp")"
+	mkdir -p "$run_dir/stages"
+	stage_jsonl="$run_dir/stages/native-stage-evidence.jsonl"
+	: > "$stage_jsonl"
+	write_native_refine_seed_if_missing "$run_dir" "$target" "$request" "$preset" "$research"
+	dispatch_validation="$(write_native_refine_dispatch "$run_dir" "$target" "$request" "$preset" "$research")"
+	write_native_refine_handoffs "$run_dir" "$target" "$request" "$preset" "$research" "$dispatch_validation"
+	cat > "$run_dir/stages/00-observer-envelope.md" <<ZERO
+# Observer Envelope
+
+## Status
+
+\`pass\`
+
+## Runtime Topology
+
+Native root Refine orchestration.
+
+## Target
+
+\`$target\`
+ZERO
+	record_refine_stage "$stage_jsonl" "Task Zero Observer Envelope" "refine" "" "$(rel_path "$run_dir/stages/00-observer-envelope.md")" "pass" "observer envelope prepared" ""
+	if [[ "$dispatch_validation" != "pass" ]]; then
+		write_refine_block_stage "$run_dir/stages/01-context-builder.md" "Context Builder evidence baseline" "context-builder" "$(resolve_command "context-builder" || true)" "standard" "Dispatch validation failed before stage execution: $dispatch_validation"
+		record_refine_stage "$stage_jsonl" "Context Builder evidence baseline" "context-builder" "$(resolve_command "context-builder" || true)" "$(rel_path "$run_dir/stages/01-context-builder.md")" "block" "" "Dispatch validation failed before stage execution: $dispatch_validation"
+		write_native_refine_outputs "$run_dir" "$output_abs" "$target" "$request" "$preset" "$research" "$stage_jsonl" "block" "$dispatch_validation"
+		return 0
+	fi
+	status1="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "01-context-builder.md" "Context Builder evidence baseline" "context-builder" "standard" "target=$target --strict --emit both --handoff runtime --persist $(rel_path "$run_dir")/context-builder preset=$preset request=$request" "pass" "")"
+	status2="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "02-invoke-define.md" "Invoke Define" "invoke" "define" "define refinement target=$target using seed=$(rel_path "$run_dir/REFINE-SEED-PROPOSAL.md") and context=$(rel_path "$run_dir/stages/01-context-builder.md"); preset=$preset; preserve native output contract" "$status1" "Dependency blocked. Context Builder evidence baseline did not produce pass evidence.")"
+	status3="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "03-interrogation-refine-review.md" "Interrogation refine-review" "interrogation" "refine-review" "mode=refine-review; review invoke define artifact=$(rel_path "$run_dir/stages/02-invoke-define.md"); target=$target; emit pass flag or block with missing decisions" "$status2" "Dependency blocked. Invoke Define did not produce pass evidence.")"
+	write_refine_research_decision "$stage_jsonl" "$run_dir" "$research" "$status3"
+	status5="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "05-distill.md" "Distill" "distill" "standard" "distill target=$target using seed=$(rel_path "$run_dir/REFINE-SEED-PROPOSAL.md"), define=$(rel_path "$run_dir/stages/02-invoke-define.md"), review=$(rel_path "$run_dir/stages/03-interrogation-refine-review.md"), research=$(rel_path "$run_dir/stages/04-research-decision.md"); select smallest coherent refinement unit and rejected alternatives" "$status3" "Dependency blocked. Refine review did not produce pass evidence.")"
+	status6="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "06-invoke-design.md" "Invoke Redefine / Design" "invoke" "design" "design refinement from distill artifact=$(rel_path "$run_dir/stages/05-distill.md"); target=$target; produce design/redefinition artifact and preserve stage ownership" "$status5" "Dependency blocked. Distill did not produce pass evidence.")"
+	status7="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "07-interrogation-refine-design-review.md" "Interrogation refine-design-review" "interrogation" "refine-design-review" "mode=refine-design-review; review design artifact=$(rel_path "$run_dir/stages/06-invoke-design.md"); target=$target; identify repair needs" "$status6" "Dependency blocked. Invoke Design did not produce pass evidence.")"
+	status8="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "08-distill-repair.md" "Distill Repair" "distill" "validate" "validate and repair refinement substrate using design=$(rel_path "$run_dir/stages/06-invoke-design.md") and design_review=$(rel_path "$run_dir/stages/07-interrogation-refine-design-review.md"); target=$target" "$status7" "Dependency blocked. Design review did not produce pass evidence.")"
+	status9="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "09-invoke-plan.md" "Invoke Plan" "invoke" "plan" "plan non-executed next route from repaired substrate=$(rel_path "$run_dir/stages/08-distill-repair.md"); target=$target; include first SWU or explicit block" "$status8" "Dependency blocked. Distill Repair did not produce pass evidence.")"
+	status10="$(run_refine_command_stage "$stage_jsonl" "$run_dir" "10-final-interrogation-and-synthesis.md" "Final Interrogation and Synthesis" "interrogation" "refine-final" "mode=refine-final; review plan=$(rel_path "$run_dir/stages/09-invoke-plan.md"); target=$target; produce final readiness verdict and risks" "$status9" "Dependency blocked. Invoke Plan did not produce pass evidence.")"
+	final_status="pass"
+	for stage_status in "$status1" "$status2" "$status3" "$status5" "$status6" "$status7" "$status8" "$status9" "$status10"; do
+		if [[ "$stage_status" != "pass" ]]; then
+			final_status="block"
+			break
+		fi
+	done
+	write_native_refine_outputs "$run_dir" "$output_abs" "$target" "$request" "$preset" "$research" "$stage_jsonl" "$final_status" "$dispatch_validation"
+}
+
+infer_target_artifact_dir() {
+	local request="$1"
+	local inferred=""
+	if [[ "$request" =~ under[[:space:]]+([^;\ ]+) ]]; then
+		inferred="${BASH_REMATCH[1]}"
+	elif [[ "$request" =~ in[[:space:]]+([^;\ ]+) ]]; then
+		inferred="${BASH_REMATCH[1]}"
+	fi
+	printf '%s\n' "$inferred"
+}
+
+write_expected_command_artifacts() {
+	local target_dir="$1"
+	local request="$2"
+	if [[ -z "$target_dir" ]]; then
+		printf -- '- none inferred\n'
+		return 0
+	fi
+	local emitted=0
+	local artifact
+	for artifact in INVOKE-DEFINE.md INVOKE-DESIGN.md INVOKE-PLAN.md ARCHITECTURE-BUNDLE.md GLOSSARY-CONSISTENCY.md DESIGN-TRANSPORT.md DEFINE-TRANSPORT.md PLAN-TRANSPORT.md IMPLEMENTATION-LAYERING.md WORK-PACK.md EXECUTION-PACK.md REFRESH-REPORT.md REFRESH-PATCH-PROPOSAL.md refresh-report.json; do
+		if [[ "$request" == *"$artifact"* ]]; then
+			printf -- '- %s/%s\n' "$target_dir" "$artifact"
+			emitted=1
+		fi
+	done
+	if [[ "$emitted" -eq 0 ]]; then
+		printf -- '- none inferred\n'
+	fi
+}
+
+write_runtime_handoff() {
+	local handoff_file="$1"
+	local selected="$2"
+	local command_rel="$3"
+	local request="$4"
+	local requested_output="$5"
+	local prompt_text="$6"
+	local timeout_seconds="${7:-0}"
+	local target_artifact_dir
+	target_artifact_dir="$(infer_target_artifact_dir "$request")"
+	mkdir -p "$(dirname "$handoff_file")"
+	{
+	cat <<HANDOFF
+# Runtime Handoff
+
+## Objective
+
+Execute Arcanum command "$selected" through the durable runtime runner and preserve the command surface output contract.
+
+## Orchestrator
+
+- orchestrator_id: tools-arcanum
+- orchestrator_run_id: $(basename "$(dirname "$handoff_file")")
+
+## Target
+
+- target_kind: command
+- target_id: $selected
+
+## Inputs
+
+- command: $selected
+- command_file: $command_rel
+- request: $request
+- requested_output: $requested_output
+- target_artifact_dir: ${target_artifact_dir:-none inferred}
+
+## Allowed Write Scope
+
+- $requested_output
+- .arcanum/runtime/runs/
+- .arcanum/runtime/handoffs/
+- .arcanum/observability/runs/arcanum-command/
+HANDOFF
+	if [[ -n "$target_artifact_dir" ]]; then
+		printf -- '- %s\n' "$target_artifact_dir"
+	fi
+	cat <<HANDOFF
+
+## Expected Outputs
+
+- command output: $requested_output
+- runtime RUN.json
+- runtime STATUS.json
+- runtime events.jsonl
+
+## Expected Command-Owned Artifacts
+
+HANDOFF
+	write_expected_command_artifacts "$target_artifact_dir" "$request"
+	cat <<HANDOFF
+
+## Validation
+
+- requested output path exists
+- runtime RUN.json and STATUS.json are valid JSON
+- runtime status is passed, flagged, blocked, or failed
+- expected command-owned artifacts exist when listed
+
+## Blocked Conditions
+
+- command cannot be resolved
+- runtime runner is unavailable
+- adapter is unavailable
+- requested output cannot be written
+- Codex cannot start safely
+
+## Adapter Preference
+
+- adapter_id: local-skill
+- timeout_seconds: $timeout_seconds
+
+## Nesting Policy
+
+- loop_role: root
+- loop_id: arcanum-command-$selected
+- parent_loop_id: null
+- parent_run_id: null
+
+## Command Prompt
+
+BEGIN COMMAND PROMPT
+$prompt_text
+END COMMAND PROMPT
+HANDOFF
+	} > "$handoff_file"
+}
+
+write_envelope_event() {
+	local events_file="$1"
+	local run_id="$2"
+	local event="$3"
+	local status="$4"
+	local message="$5"
+	local data="${6:-{}}"
+	if ! printf '%s\n' "$data" | jq -e . >/dev/null 2>&1; then
+		data="{}"
+	fi
+	jq -cn \
+		--arg timestamp "$(timestamp)" \
+		--arg run_id "$run_id" \
+		--arg event "$event" \
+		--arg status "$status" \
+		--arg message "$message" \
+		--argjson data "$data" \
+		'{timestamp:$timestamp,run_id:$run_id,event:$event,status:$status,message:$message,data:$data}' \
+		>> "$events_file"
+}
+
+create_runtime_envelope() {
+	local run_dir="$1"
+	local run_id="$2"
+	local selected_adapter="$3"
+	local selected="$4"
+	local command_rel="$5"
+	local request="$6"
+	local requested_output="$7"
+	local prompt_text="$8"
+	local timeout_seconds="$9"
+	local status_file="$run_dir/STATUS.json"
+	local run_file="$run_dir/RUN.json"
+	local events_file="$run_dir/events.jsonl"
+	local artifacts_dir="$run_dir/artifacts"
+	local handoff_file="$run_dir/HANDOFF.md"
+	local started_at
+	started_at="$(timestamp)"
+	mkdir -p "$artifacts_dir" "$run_dir/children" "$run_dir/adapter-state"
+	: > "$events_file"
+	write_runtime_handoff "$handoff_file" "$selected" "$command_rel" "$request" "$requested_output" "$prompt_text" "$timeout_seconds"
+	adapter_profile_json "$selected_adapter" > "$artifacts_dir/adapter-profile.json"
+	jq -n \
+		--arg run_id "$run_id" \
+		--arg adapter_id "$selected_adapter" \
+		--arg target_id "$selected" \
+		--argjson timeout_seconds "$timeout_seconds" \
+		'{
+			schema_version:"arcanum.runtime.run.v1",
+			run_id:$run_id,
+			parent_run_id:null,
+			orchestrator_id:"tools-arcanum",
+			orchestrator_run_id:$run_id,
+			adapter_id:$adapter_id,
+			adapter_profile_path:"artifacts/adapter-profile.json",
+			target_kind:"command",
+			target_id:$target_id,
+			loop_role:"root",
+			loop_id:("arcanum-command-" + $target_id),
+			parent_loop_id:null,
+			stage_number:null,
+			stage_name:null,
+			handoff_path:"HANDOFF.md",
+			status_path:"STATUS.json",
+			result_path:null,
+			events_path:"events.jsonl",
+			artifacts_dir:"artifacts",
+			children_dir:"children",
+			adapter_state_dir:"adapter-state",
+			execution_policy:{
+				timeout_seconds:$timeout_seconds
+			}
+		}' > "$run_file"
+	jq -n \
+		--arg run_id "$run_id" \
+		--arg started_at "$started_at" \
+		'{
+			schema_version:"arcanum.runtime.status.v1",
+			run_id:$run_id,
+			status:"running",
+			adapter_status:"running",
+			validation_grade:null,
+			output_paths:[],
+			blocked_reason:null,
+			error_summary:null,
+			started_at:$started_at,
+			completed_at:null
+		}' > "$status_file"
+	write_envelope_event "$events_file" "$run_id" "created" "queued" "Runtime envelope created."
+	write_envelope_event "$events_file" "$run_id" "adapter-started" "running" "Adapter started."
+}
+
+finish_runtime_envelope() {
+	local run_dir="$1"
+	local run_id="$2"
+	local status="$3"
+	local adapter_status="$4"
+	local validation_grade="$5"
+	local output_path="$6"
+	local blocked_reason="${7:-}"
+	local error_summary="${8:-}"
+	local status_file="$run_dir/STATUS.json"
+	local events_file="$run_dir/events.jsonl"
+	local completed_at
+	completed_at="$(timestamp)"
+	jq -n \
+		--arg run_id "$run_id" \
+		--arg status "$status" \
+		--arg adapter_status "$adapter_status" \
+		--arg validation_grade "$validation_grade" \
+		--arg output_path "$output_path" \
+		--arg blocked_reason "$blocked_reason" \
+		--arg error_summary "$error_summary" \
+		--arg completed_at "$completed_at" \
+		--slurpfile prior "$status_file" \
+		'{
+			schema_version:"arcanum.runtime.status.v1",
+			run_id:$run_id,
+			status:$status,
+			adapter_status:$adapter_status,
+			validation_grade:(if $validation_grade == "" then null else $validation_grade end),
+			output_paths:(if $output_path == "" then [] else [$output_path] end),
+			blocked_reason:(if $blocked_reason == "" then null else $blocked_reason end),
+			error_summary:(if $error_summary == "" then null else $error_summary end),
+			started_at:($prior[0].started_at // null),
+			completed_at:$completed_at
+		}' > "$status_file"
+	case "$status" in
+		passed|flagged)
+			write_envelope_event "$events_file" "$run_id" "result-written" "$status" "Command output written."
+			write_envelope_event "$events_file" "$run_id" "adapter-finished" "$status" "Adapter finished."
+			;;
+		blocked)
+			write_envelope_event "$events_file" "$run_id" "blocked" "$status" "Adapter blocked." "$(jq -cn --arg reason "$blocked_reason" '{blocked_reason:$reason}')"
+			;;
+		failed)
+			write_envelope_event "$events_file" "$run_id" "failed" "$status" "Adapter failed."
+			;;
+	esac
 }
 
 observe_result() {
@@ -298,6 +1580,37 @@ while [[ "$#" -gt 0 ]]; do
 			find "$commands_dir" -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sed 's/\.md$//' | sort
 			exit 0
 			;;
+		--list-adapters)
+			list_adapters
+			exit 0
+			;;
+		--resolve-adapter)
+			mode="resolve-adapter"
+			shift
+			if [[ "$#" -eq 0 ]]; then
+				usage >&2
+				exit 2
+			fi
+			adapter_id="$1"
+			shift
+			break
+			;;
+		--get-default-adapter)
+			mode="get-default-adapter"
+			shift
+			break
+			;;
+		--set-default-adapter)
+			mode="set-default-adapter"
+			shift
+			if [[ "$#" -eq 0 ]]; then
+				usage >&2
+				exit 2
+			fi
+			adapter_id="$1"
+			shift
+			break
+			;;
 		--resolve)
 			mode="resolve"
 			shift
@@ -317,10 +1630,24 @@ while [[ "$#" -gt 0 ]]; do
 			mode="exec"
 			shift
 			;;
-		--output)
-			output_path="$2"
+		--adapter)
+			adapter_id="$2"
+			adapter_explicit="true"
 			shift 2
 			;;
+			--output)
+				output_path="$2"
+				shift 2
+				;;
+			--timeout)
+				if [[ "$#" -lt 2 ]]; then
+					printf 'ERROR: --timeout requires seconds\n' >&2
+					usage >&2
+					exit 2
+				fi
+				runtime_timeout_seconds="$2"
+				shift 2
+				;;
 		--)
 			shift
 			break
@@ -337,6 +1664,31 @@ while [[ "$#" -gt 0 ]]; do
 			;;
 	esac
 done
+
+if [[ "$mode" == "resolve-adapter" ]]; then
+	resolve_adapter "$adapter_id"
+	exit 0
+fi
+
+if [[ "$mode" == "get-default-adapter" ]]; then
+	default_adapter="$(get_default_adapter)"
+	if [[ -z "$default_adapter" ]]; then
+		printf 'DEFAULT_ADAPTER=none\n'
+	else
+		printf 'DEFAULT_ADAPTER=%s\n' "$default_adapter"
+	fi
+	if [[ -f "$runtime_config_file" ]]; then
+		printf 'CONFIG=%s\n' "${runtime_config_file#$repo_root/}"
+	else
+		printf 'CONFIG=implicit\n'
+	fi
+	exit 0
+fi
+
+if [[ "$mode" == "set-default-adapter" ]]; then
+	set_default_adapter "$adapter_id"
+	exit 0
+fi
 
 if [[ -z "$command_name" ]]; then
 	if [[ "$#" -eq 0 ]]; then
@@ -368,32 +1720,263 @@ if [[ "$mode" == "prompt" ]]; then
 	exit 0
 fi
 
-codex_bin="$(find_codex || true)"
-if [[ -z "$codex_bin" ]]; then
-	printf 'ERROR: codex CLI not found on PATH\n' >&2
-	printf 'Set CODEX_BIN to the codex executable path.\n' >&2
-	exit 1
-fi
-
 if [[ -z "$output_path" ]]; then
 	run_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 	output_path=".arcanum/observability/runs/arcanum-command/$run_stamp-$command_name/output.md"
 fi
-output_abs="$repo_root/$output_path"
+output_abs="$(path_abs "$output_path")"
 mkdir -p "$(dirname "$output_abs")"
 
+if [[ -z "$adapter_id" ]]; then
+	adapter_id="$(get_default_adapter)"
+fi
+if [[ -z "$adapter_id" ]]; then
+		adapter_id="native-skill"
+fi
+if ! adapter_exists "$adapter_id"; then
+	printf 'ERROR: unknown runtime adapter: %s\n' "$adapter_id" >&2
+	printf 'Try: tools/arcanum --list-adapters\n' >&2
+	exit 1
+fi
+if [[ ! "$runtime_timeout_seconds" =~ ^[0-9]+$ ]]; then
+	printf 'ERROR: --timeout must be a non-negative integer number of seconds\n' >&2
+	exit 2
+fi
+
+run_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+runtime_envelope_enabled="${ARCANUM_RUNTIME_ENVELOPE:-0}"
+if [[ "${ARCANUM_RUNTIME_RUNNER:-0}" == "1" ]]; then
+	runtime_envelope_enabled="1"
+fi
+runtime_run_dir=""
+runtime_run_id="arcanum-command-$command_name-$run_stamp"
+if [[ "$runtime_envelope_enabled" == "1" ]]; then
+	if ! command -v jq >/dev/null 2>&1; then
+		printf 'ERROR: jq is required for runtime envelope evidence\n' >&2
+		exit 1
+	fi
+	if [[ -n "${ARCANUM_RUNTIME_RUN_DIR:-}" ]]; then
+		runtime_run_dir="$(path_abs "$ARCANUM_RUNTIME_RUN_DIR")"
+		runtime_run_id="$(basename "$runtime_run_dir")"
+	else
+		runtime_run_dir="$repo_root/.arcanum/runtime/runs/$runtime_run_id"
+	fi
+	create_runtime_envelope "$runtime_run_dir" "$runtime_run_id" "$adapter_id" "$command_name" "$command_rel" "$request" "$output_path" "$prompt" "$runtime_timeout_seconds"
+fi
+
 status="completed"
-if ! "$codex_bin" exec \
-	-C "$repo_root" \
-	--sandbox workspace-write \
-	--output-last-message "$output_abs" \
-	"$prompt"; then
-	status="failed"
+runtime_status="passed"
+runtime_adapter_status="passed"
+runtime_validation_grade="execution"
+runtime_blocked_reason=""
+runtime_error_summary=""
+adapter_log=""
+codex_exit=0
+
+if [[ "$command_name" == "refine" && ( "$adapter_id" == "native-skill" || "$adapter_id" == "codex-skill" || "$adapter_id" == "local-skill" || "$adapter_id" == "codex-exec" ) && "${ARCANUM_REFINE_NATIVE:-1}" != "0" ]]; then
+	run_native_refine "$request" "$output_abs" "$run_stamp"
+	runtime_validation_grade="refine-native"
+else
+case "$adapter_id" in
+	native-skill|codex-skill|claude-skill|copilot-instructions|local-skill)
+		runtime_status="flagged"
+		runtime_adapter_status="flagged"
+		runtime_validation_grade="contract"
+		cat > "$output_abs" <<LOCALSKILL
+# Arcanum Runtime-Native Handoff
+
+STATUS: flag
+
+The \`$adapter_id\` adapter does not spawn a nested model-backed CLI process. It preserves the command prompt, requested output path, and receipt contract so the parent native runtime surface can execute the stage directly.
+
+## Command
+
+- Command: \`$command_name\`
+- Command file: \`$command_rel\`
+- Output: \`$output_path\`
+- Adapter: \`$adapter_id\`
+
+## Request
+
+$request
+
+## Receipt Contract
+
+The parent runner or subagent must return:
+
+- \`dispatch_id\` or run id when available
+- \`step_id\` or command name
+- \`capability_ref\`: \`$command_name\`
+- \`execution_surface\`: \`codex-skill\`, \`claude-skill\`, \`copilot-instructions\`, \`native-subagent\`, or \`local-inline\`
+- \`status\`: \`pass\`, \`flag\`, \`block\`, \`interrupted\`, or \`timeout\`
+- artifact paths
+- validation result
+- observability status or returned telemetry receipt
+- blockers and handoff note
+
+## Prompt
+
+\`\`\`markdown
+$prompt
+\`\`\`
+LOCALSKILL
+		;;
+	dry-run)
+		cat > "$output_abs" <<DRYRUN
+# Arcanum Dry Run
+
+PASS: dry-run adapter selected.
+
+- Command: $command_name
+- Command file: $command_rel
+- Output: $output_path
+- Request: $request
+DRYRUN
+		runtime_validation_grade="contract"
+		;;
+		codex-exec|codex-bypass)
+			codex_bin="$(find_codex || true)"
+			if [[ -z "$codex_bin" ]]; then
+			status="failed"
+			runtime_status="blocked"
+			runtime_adapter_status="blocked"
+			runtime_validation_grade="adapter-safety"
+			runtime_blocked_reason="codex-binary-missing"
+			runtime_error_summary="Codex executable was not found."
+			cat > "$output_abs" <<BLOCK
+# Command Result
+
+BLOCK: codex-binary-missing
+
+Codex executable was not found. Set CODEX_BIN to the codex executable path.
+BLOCK
+			else
+				if [[ "$runtime_envelope_enabled" == "1" ]]; then
+					adapter_log="$runtime_run_dir/artifacts/codex-exec.log"
+				else
+				adapter_log="$(mktemp "${TMPDIR:-/tmp}/arcanum-codex-exec-log-XXXXXX")"
+			fi
+				set +e
+				if [[ "$runtime_timeout_seconds" -gt 0 ]] && command -v timeout >/dev/null 2>&1; then
+					if [[ "$adapter_id" == "codex-bypass" ]]; then
+						timeout --kill-after=30s "${runtime_timeout_seconds}s" \
+							"$codex_bin" exec \
+							-C "$repo_root" \
+							--dangerously-bypass-approvals-and-sandbox \
+							--ignore-user-config \
+							--ignore-rules \
+							--output-last-message "$output_abs" \
+							"$prompt" >"$adapter_log" 2>&1
+					else
+						timeout --kill-after=30s "${runtime_timeout_seconds}s" \
+							"$codex_bin" exec \
+							-C "$repo_root" \
+							--sandbox workspace-write \
+							--output-last-message "$output_abs" \
+							"$prompt" >"$adapter_log" 2>&1
+					fi
+				else
+					if [[ "$adapter_id" == "codex-bypass" ]]; then
+							"$codex_bin" exec \
+							-C "$repo_root" \
+							--dangerously-bypass-approvals-and-sandbox \
+							--ignore-user-config \
+							--ignore-rules \
+							--output-last-message "$output_abs" \
+							"$prompt" >"$adapter_log" 2>&1
+					else
+						"$codex_bin" exec \
+							-C "$repo_root" \
+							--sandbox workspace-write \
+							--output-last-message "$output_abs" \
+							"$prompt" >"$adapter_log" 2>&1
+					fi
+				fi
+			codex_exit="$?"
+			set -e
+			if [[ "$codex_exit" -eq 0 && -s "$output_abs" ]] && grep -Eiq '(^|\n)[[:space:]]*(BLOCK:|Blocked before task zero|I could not|cannot safely execute|bubblewrap is unavailable)' "$output_abs"; then
+				status="failed"
+				runtime_status="blocked"
+				runtime_adapter_status="blocked"
+				runtime_validation_grade="adapter-safety"
+				runtime_blocked_reason="codex-output-reported-block"
+				runtime_error_summary="Codex produced an output, but the output reports a blocked command execution. See $(rel_path "$output_abs")."
+			elif [[ "$codex_exit" -eq 124 || "$codex_exit" -eq 137 ]]; then
+				status="failed"
+				runtime_status="blocked"
+				runtime_adapter_status="blocked"
+				runtime_validation_grade="adapter-timeout"
+				runtime_blocked_reason="$adapter_id-timeout"
+				runtime_error_summary="Codex exceeded the configured timeout of ${runtime_timeout_seconds}s. Rerun with --timeout <seconds> or ARCANUM_EXEC_TIMEOUT_SECONDS."
+				if [[ ! -s "$output_abs" ]]; then
+					cat > "$output_abs" <<BLOCK
+# Command Result
+
+BLOCK: $adapter_id-timeout
+
+Codex exceeded the configured timeout of ${runtime_timeout_seconds}s.
+
+Rerun with a larger timeout, for example:
+
+\`\`\`bash
+tools/arcanum --exec --timeout 3600 $command_name "$request"
+\`\`\`
+BLOCK
+				fi
+			elif [[ "$codex_exit" -ne 0 || ! -s "$output_abs" ]]; then
+				status="failed"
+				if [[ ! -s "$output_abs" ]]; then
+					cat > "$output_abs" <<BLOCK
+# Command Result
+
+BLOCK: $adapter_id did not produce command output.
+
+See $(rel_path "$adapter_log").
+BLOCK
+				fi
+				if grep -Eiq 'readonly database|read-only database|failed to initialize state runtime|failed to open state db' "$adapter_log"; then
+					runtime_status="blocked"
+					runtime_adapter_status="blocked"
+					runtime_validation_grade="adapter-safety"
+					runtime_blocked_reason="codex-state-unavailable"
+					runtime_error_summary="Codex could not initialize its local state database in this environment. See $(rel_path "$adapter_log")."
+				elif grep -Eiq 'bubblewrap is unavailable|no system bwrap|codex-resources/bwrap' "$adapter_log"; then
+					runtime_status="blocked"
+					runtime_adapter_status="blocked"
+					runtime_validation_grade="adapter-safety"
+					runtime_blocked_reason="codex-sandbox-unavailable"
+					runtime_error_summary="Codex could not start its sandboxed shell tools in this environment. See $(rel_path "$adapter_log")."
+				elif grep -Eiq 'network|backend|connection|request|api|auth|login|unauthorized|forbidden|read-only file system|failed to initialize' "$adapter_log"; then
+					runtime_status="blocked"
+					runtime_adapter_status="blocked"
+					runtime_validation_grade="adapter-safety"
+					runtime_blocked_reason="codex-backend-or-auth-unavailable"
+					runtime_error_summary="Codex exited before a clean result could be produced. See $(rel_path "$adapter_log")."
+				else
+					runtime_status="failed"
+					runtime_adapter_status="failed"
+					runtime_validation_grade="adapter-safety"
+					runtime_error_summary="Codex process exited nonzero after invocation. See $(rel_path "$adapter_log")."
+				fi
+			fi
+		fi
+		;;
+esac
+fi
+
+if [[ "$runtime_envelope_enabled" == "1" ]]; then
+	finish_runtime_envelope "$runtime_run_dir" "$runtime_run_id" "$runtime_status" "$runtime_adapter_status" "$runtime_validation_grade" "$(rel_path "$output_abs")" "$runtime_blocked_reason" "$runtime_error_summary"
 fi
 
 printf 'COMMAND=%s\n' "$command_name"
 printf 'COMMAND_FILE=%s\n' "$command_rel"
+printf 'ADAPTER=%s\n' "$adapter_id"
 printf 'OUTPUT=%s\n' "$output_path"
+printf 'TIMEOUT_SECONDS=%s\n' "$runtime_timeout_seconds"
+if [[ -n "$runtime_run_dir" ]]; then
+	printf 'RUNTIME_RUN=%s\n' "${runtime_run_dir#$repo_root/}"
+	printf 'RUNTIME_STATUS=%s\n' "$runtime_status"
+fi
 observe_result "$command_name" "$command_rel" "$request" "$status" "$output_path"
 
 if [[ "$status" != "completed" ]]; then

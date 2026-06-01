@@ -1,0 +1,25 @@
+{
+  "adapter_id": "codex-exec",
+  "runtime_kind": "model-backed-cli",
+  "execution_mode": "synchronous-process",
+  "state_model": "normal-codex-cli-state",
+  "isolation_model": "no-run-local-codex-home-by-default",
+  "input_shape": "command-prompt",
+  "output_shape": "requested-output",
+  "failure_model": "passed|flagged|blocked|failed",
+  "capabilities": [
+    "execute Codex CLI with an Arcanum command prompt",
+    "capture final output in the requested output path"
+  ],
+  "limitations": [
+    "does not use native /goal",
+    "does not own orchestrator semantics",
+    "does not create per-run private CLI state links by default"
+  ],
+  "validation_surface": [
+    "adapter profile evidence",
+    "Codex CLI exit classification",
+    "STATUS.json validation_grade",
+    "events.jsonl closeout"
+  ]
+}

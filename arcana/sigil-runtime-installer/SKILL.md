@@ -1,41 +1,41 @@
 ---
 name: sigil-runtime-installer
-description: "Use when installing Arcanum sigils and spells into the Codex command surface."
-argument-hint: "<codex|none> [--repo <path>] [--command <name>] [--dry-run]"
+description: "Use when installing explicit legacy Arcanum Codex command adapters."
+argument-hint: "<codex-commands|none> [--repo <path>] [--command <name>] [--dry-run]"
 tier: arcana
 domain: sigil-runtime-installation
 version: 0.2.0
-origin: updated for Codex-only commands with observer-envelope-first telemetry
+origin: updated for skills-first runtime policy with legacy command compatibility
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions
 ---
 
 # Sigil: Sigil Runtime Installer
 
 <objective>
-Install Codex commands that expose Arcanum sigils and spells while keeping Necronomicon as repository harness state and observability as a hook-backed envelope pipeline.
+Install explicit legacy Codex command adapters for Arcanum sigils and spells while keeping native runtime skills as the default execution surface.
 </objective>
 
 <logic-type>
-Arcana: command generation, repository-local installation, validation, observer hook installation, and Codex routing.
+Arcana: legacy command generation, repository-local installation, validation, observer hook installation, and compatibility routing.
 </logic-type>
 
 <targets>
-- `codex`: create full command files directly under `.codex/commands/`.
+- `codex-commands`: create explicit legacy command files directly under `.codex/commands/`.
 - `none`: install observability and optional Necronomicon state without command files.
 
-Install the general `arcanum-orchestrate` command and individual artifact commands for each selected sigil and spell. Prefixed commands use `arcanum-sigil-<id>` and `arcanum-spell-<id>` as stable compatibility names. Bare aliases use the artifact id, such as `interrogation` or `invoke`, unless the alias would collide. When `ontology-harness` is selected, install `arcanum-ontology-harness`. When Necronomicon harness generation is enabled, install `arcanum-necronomicon`.
+When legacy command compatibility is explicitly selected, install the general `arcanum-orchestrate` command and individual artifact commands for each selected sigil and spell. Prefixed commands use `arcanum-sigil-<id>` and `arcanum-spell-<id>` as stable compatibility names. Bare aliases use the artifact id, such as `interrogation` or `invoke`, unless the alias would collide. When `ontology-harness` is selected, install `arcanum-ontology-harness`. When Necronomicon harness generation is enabled, install `arcanum-necronomicon`.
 
 Generated Codex commands should declare the installed runtime with `arcanum:runtime codex`. Runtime-sensitive sigils may also declare adapter metadata. `task-session` must declare `arcanum:runtime-goal-adapter codex-goal` when installed for Codex so work-pack tasks/SWUs can be delegated through native Codex `/goal` via the `codex-goal-profile` transmutation.
 </targets>
 
 <applicability>
-Use this sigil when a repository should invoke Arcanum sigils from Codex slash-command style commands.
+Use this sigil only when a repository still needs legacy Codex slash-command style adapters. For normal runtime installs, use generated native skills through the install profiles.
 </applicability>
 
 <inputs>
 Expected inputs, if available:
 
-- target runtime: `codex` or `none`,
+- target runtime: `codex-commands` or `none`,
 - repository root,
 - observability path,
 - command name,
@@ -45,36 +45,36 @@ Expected inputs, if available:
 </inputs>
 
 <default-output>
-If no command is provided, install or plan `arcanum-orchestrate` plus individual artifact commands.
+If legacy command compatibility is selected and no command is provided, install or plan `arcanum-orchestrate` plus individual artifact commands.
 
 Default paths:
 
 ```text
-codex -> .codex/commands/arcanum-orchestrate.md
-         .codex/commands/arcanum-sigil-<id>.md
-         .codex/commands/<id>.md
-         .codex/commands/arcanum-spell-<id>.md
-         .codex/commands/<id>.md
-         .codex/commands/arcanum-ontology-harness.md
-         .codex/commands/arcanum-necronomicon.md
-         .codex/hooks.json
-         .codex/hooks/arcanum-user-prompt-submit.sh
-         .codex/hooks/arcanum-post-tool-use.sh
-         .codex/hooks/arcanum-stop.sh
+codex-commands -> .codex/commands/arcanum-orchestrate.md
+                  .codex/commands/arcanum-sigil-<id>.md
+                  .codex/commands/<id>.md
+                  .codex/commands/arcanum-spell-<id>.md
+                  .codex/commands/<id>.md
+                  .codex/commands/arcanum-ontology-harness.md
+                  .codex/commands/arcanum-necronomicon.md
+                  .codex/hooks.json
+                  .codex/hooks/arcanum-user-prompt-submit.sh
+                  .codex/hooks/arcanum-post-tool-use.sh
+                  .codex/hooks/arcanum-stop.sh
 ```
 </default-output>
 
 <process>
 ## Step 1 - Select Target
 
-1. If the target runtime is not provided, ask whether to install `codex` commands or `none`.
+1. If the target runtime is not provided, ask whether to install legacy `codex-commands` or `none`.
 2. Resolve repository root and selected Arcanum artifacts.
 3. Resolve command name, defaulting to `arcanum-orchestrate`.
 4. Detect whether the target install path already exists.
 
 ## Step 2 - Build Command Plan
 
-5. Generate `.codex/commands/` files directly; do not generate `.arcanum/runtimes/`.
+5. Generate `.codex/commands/` files directly only for explicit legacy compatibility; do not generate `.arcanum/runtimes/`.
 6. Add runtime metadata to generated Codex commands and adapter metadata to runtime-sensitive commands.
 7. Every command starts with observer envelope task zero.
 8. Every command embeds or references the canonical sigil/spell snapshot it needs to execute.
@@ -84,7 +84,7 @@ codex -> .codex/commands/arcanum-orchestrate.md
 ## Step 3 - Install Or Dry Run
 
 11. In dry-run mode, return the files that would be created or updated.
-12. In install mode, create or update only `.codex/commands/`, `.codex/hooks.json`, `.codex/hooks/`, `.arcanum/observability/`, and optional `.arcanum/necronomicon/`.
+12. In install mode, create or update `.codex/commands/` only when legacy command compatibility is explicitly selected, plus `.codex/hooks.json`, `.codex/hooks/`, `.arcanum/observability/`, and optional `.arcanum/necronomicon/`.
 13. For sigil and spell artifact commands, install both the prefixed compatibility command and the bare-id command.
 14. If an existing command has unrelated local changes, stop and ask before overwriting unless overwrite was explicitly approved.
 
@@ -103,7 +103,7 @@ codex -> .codex/commands/arcanum-orchestrate.md
 <quality-bar>
 A successful execution must:
 
-- install Codex commands only,
+- install Codex command adapters only when explicitly requested,
 - install bare-id aliases for sigils and spells unless a collision is reported,
 - keep Necronomicon as harness state,
 - install the Necronomicon command when the repository harness is enabled,

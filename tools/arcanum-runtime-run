@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat <<'USAGE'
+Usage:
+  tools/arcanum-runtime-run --adapter <local-skill|dry-run|codex-exec> --handoff <path> --run-dir <path> [--output <path>]
+
+Deprecated compatibility wrapper. New execution should use:
+
+  tools/arcanum --exec --adapter <adapter-id> --output <path> <command> <request>
+USAGE
+}
+
+script_path="${BASH_SOURCE[0]}"
+script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+
+adapter_id=""
+handoff_path=""
+run_dir=""
+output_path=""
+
+extract_field() {
+	local label="$1"
+	local file="$2"
+	sed -n \
+		-e "s/^- ${label}: //p" \
+		-e "s/^- \`${label}\`: //p" \
+		"$file" | head -n 1
+}
+
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+		--help|-h)
+			usage
+			exit 0
+			;;
+		--adapter)
+			adapter_id="$2"
+			shift 2
+			;;
+		--handoff)
+			handoff_path="$2"
+			shift 2
+			;;
+		--run-dir)
+			run_dir="$2"
+			shift 2
+			;;
+		--output)
+			output_path="$2"
+			shift 2
+			;;
+		*)
+			printf 'ERROR: unknown argument: %s\n' "$1" >&2
+			usage >&2
+			exit 2
+			;;
+	esac
+done
+
+if [[ -z "$adapter_id" || -z "$handoff_path" || -z "$run_dir" ]]; then
+	usage >&2
+	exit 2
+fi
+
+handoff_abs="$handoff_path"
+if [[ "$handoff_abs" != /* ]]; then
+	handoff_abs="$repo_root/$handoff_abs"
+fi
+if [[ ! -f "$handoff_abs" ]]; then
+	printf 'ERROR: handoff not found: %s\n' "$handoff_path" >&2
+	exit 1
+fi
+
+command_name="$(extract_field "command" "$handoff_abs")"
+request="$(extract_field "request" "$handoff_abs")"
+requested_output="$(extract_field "requested_output" "$handoff_abs")"
+
+if [[ -z "$command_name" ]]; then
+	command_name="$(extract_field "target_id" "$handoff_abs")"
+fi
+if [[ -z "$command_name" || ! -f "$repo_root/.codex/commands/${command_name#/}.md" ]]; then
+	if [[ -f "$repo_root/.codex/commands/invoke.md" ]]; then
+		command_name="invoke"
+	fi
+fi
+if [[ -z "$request" ]]; then
+	request="execute runtime handoff: $handoff_path"
+fi
+if [[ -z "$output_path" ]]; then
+	output_path="$requested_output"
+fi
+if [[ -z "$output_path" ]]; then
+	output_path="$run_dir/output.md"
+fi
+
+printf 'DEPRECATED=tools/arcanum-runtime-run\n' >&2
+printf 'REPLACEMENT=tools/arcanum --exec --adapter %s --output %s %s\n' "$adapter_id" "$output_path" "$command_name" >&2
+
+ARCANUM_RUNTIME_ENVELOPE=1 \
+ARCANUM_RUNTIME_RUN_DIR="$run_dir" \
+	"$repo_root/tools/arcanum" --exec --adapter "$adapter_id" --output "$output_path" "$command_name" "$request"

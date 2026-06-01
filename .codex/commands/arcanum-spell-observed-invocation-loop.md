@@ -133,7 +133,7 @@ The observability handoff is hook-first. Telemetry emission must be enforced by 
 
 ## Command And Hook Contract
 
-Arcanum-managed Codex commands must make observer envelope setup task zero. Codex hooks and `tools/arcanum --exec` perform the deterministic observability handoff. The system must not rely on the agent remembering to call `signal-observer`.
+Arcanum-managed agent commands must make observer envelope setup task zero. Native agent receipts, Codex hooks, and deterministic wrappers such as `tools/arcanum --exec --adapter local-skill` perform the observability handoff. The system must not rely on the agent remembering to call `signal-observer`.
 
 Required phases:
 

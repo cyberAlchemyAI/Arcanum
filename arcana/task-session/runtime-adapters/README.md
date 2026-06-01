@@ -13,7 +13,7 @@ Task Session owns:
 - result review,
 - evidence synchronization.
 
-The runtime owns only the execution lifecycle it explicitly supports, such as goal continuation, pause, resume, or completion.
+The runtime owns only the execution lifecycle it explicitly supports, such as durable run creation, adapter execution, pause/resume when available, or completion.
 
 ## Adapter Contract
 
@@ -22,7 +22,7 @@ Each adapter should define:
 | Field | Meaning |
 | --- | --- |
 | `runtime_id` | Runtime name, such as `codex`. |
-| `capability_kind` | Runtime capability, such as `goal`, `background-task`, or `subagent`. |
+| `capability_kind` | Runtime capability, such as `durable-run`, `background-task`, or `subagent`. |
 | `availability_check` | How to confirm the runtime feature is available. |
 | `input_contract` | Required fields from the selected work-pack task or SWU. |
 | `context_handoff` | Handoff pack Markdown path, JSON/index path, strict coverage status, and fallback exploration rule. |
@@ -34,8 +34,9 @@ Each adapter should define:
 
 ## Current Adapters
 
-- [Codex Goal](codex-goal.md) - translates one work-pack task/SWU into native Codex `/goal` using the Codex Goal Profile transmutation.
+- [Generic Runtime Handoff](runtime-handoff.md) - creates a durable Arcanum runtime run for one work-pack task/SWU through `tools/arcanum-runtime-run`.
+- [Codex Goal](codex-goal.md) - legacy adapter that translates one work-pack task/SWU into native Codex `/goal` using the Codex Goal Profile transmutation.
 
-Goal-like adapters must block when the session lacks a complete session-evidence handoff pack. A runnable handoff requires Markdown plus JSON/index session evidence, strict obligation coverage, bounded write scope, validation surface, and fallback exploration limited to named gaps.
+Runtime adapters must block when the session lacks a complete session-evidence handoff pack. A runnable handoff requires Markdown plus JSON/index session evidence, strict obligation coverage, bounded write scope, validation surface, and fallback exploration limited to named gaps.
 
 Successful delegation evidence must keep the pack identity first-class: Markdown path, JSON/index path, strict coverage, fallback-search status, and any extra source used by the runtime with the named gap that justified it.

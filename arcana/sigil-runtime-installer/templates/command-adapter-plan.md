@@ -13,7 +13,7 @@
 - Use the embedded canonical artifact snapshot.
 - Execute or guide the selected process.
 - Preserve primary result, validation, files changed, gaps, and next route.
-- Apply Observed Invocation Loop closeout through Codex hooks or `tools/arcanum --exec`.
+- Apply Observed Invocation Loop closeout through native receipts, Codex hooks, deterministic wrappers, or explicit legacy adapters.
 - Report selected route and validation.
 
 <!-- arcanum:capability-id {capability-id} -->

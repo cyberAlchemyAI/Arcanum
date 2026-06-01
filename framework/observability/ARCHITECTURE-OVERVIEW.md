@@ -42,7 +42,7 @@ flowchart TD
 
   SkillSurface --> AgentRun[Capability execution<br/>skill, sigil, or spell]
   CommandSurface --> CmdHooks[Codex hooks<br/>UserPromptSubmit, PostToolUse, Stop]
-  CommandSurface --> ToolsArcanum[tools/arcanum --exec]
+  CommandSurface --> ToolsArcanum[tools/arcanum local-skill handoff]
 
   CmdHooks --> HookBundle[Observed run bundle<br/>.arcanum/observability/runs/arcanum-hooks/*]
   ToolsArcanum --> CmdEnvelope[Command invocation envelope]
@@ -80,9 +80,9 @@ flowchart TD
 | --- | --- | --- |
 | Concept and package contract | `framework/observability/README.md`, `REPOSITORY-PACKAGE.md`, `SIGIL-OBSERVABILITY-HOOK.md`, `OBSERVED-RUNS.md` | Defines schema, storage, hook flow, run bundles, privacy, and reflection integration. |
 | Deterministic observer scripts | `framework/observability/scripts/observe-invocation.sh`, planned `derive-invocation-telemetry.sh`, `record-hook-operation.sh`, `rebuild-observability-indexes.sh`, `compact-observability-store.sh` | Derive run telemetry, validate envelopes, append canonical events, track hook operations, dedupe emissions, rebuild or compact derived state. |
-| Observed run scripts | `start-observed-run.sh`, `checkpoint-observed-run.sh`, `finish-observed-run.sh`, `observe-run-with-codex.sh` | Make long runs recoverable through run bundles and checkpoints. |
+| Observed run scripts | `start-observed-run.sh`, `checkpoint-observed-run.sh`, `finish-observed-run.sh`, legacy `observe-run-with-codex.sh` | Make long runs recoverable through run bundles and checkpoints. |
 | Codex hook bridge | `.codex/hooks.json`, `.codex/hooks/arcanum-*.sh` | Opens envelopes for slash-command invocations, records tool evidence, closes and observes on Stop. |
-| Legacy command wrapper | `tools/arcanum` | Resolves `.codex/commands/*.md`, can run Codex CLI, builds command envelopes, calls observer and reflection scripts. |
+| Deterministic command wrapper | `tools/arcanum` | Resolves command surfaces, writes local-skill handoffs by default, can run explicit legacy adapters, builds command envelopes, calls observer and reflection scripts. |
 | Skill discovery surface | `.agents/skills/*` | Current Codex skill discovery location. Symlinks point to canonical Arcanum capability folders. |
 | Capability observers | `arcana/signal-observer/SKILL.md`, `arcana/workflow-reflect/SKILL.md`, `formulae/observability-setup/SKILL.md` | Agent-level contracts for observing, reflecting, and installing/verifying the package. |
 | Experiment producer | `.agents/skills/experiment-harness` and `arcana/experiment-harness/scripts/observe-harness.sh` | Produces validation reports and converts them into observer-compatible telemetry. |
@@ -137,11 +137,11 @@ Strength: deterministic closeout for `.codex/commands`.
 
 Weakness: it does not currently recognize `$skill-name` skill invocations unless they also map to `.codex/commands`.
 
-### 2. `tools/arcanum --exec` Path
+### 2. `tools/arcanum` Local-Skill Handoff Path
 
 1. `tools/arcanum` resolves an alias through `.codex/commands`.
 2. It builds a prompt around the command adapter.
-3. It runs `codex exec`.
+3. It writes a local-skill handoff and receipt contract, or runs an explicit legacy adapter when selected.
 4. It builds an invocation envelope and calls `observe-invocation.sh`.
 5. It optionally calls `reflect-invocation-signals.sh`.
 

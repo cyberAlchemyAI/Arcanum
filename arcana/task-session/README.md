@@ -2,7 +2,7 @@
 
 Task Session is an Arcana sigil for executing one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, and synchronization.
 
-It is the stable Arcanum execution surface. Runtime-specific goal systems, such as Codex native `/goal`, are treated as adapters rather than as the task-session identity itself.
+It is the stable Arcanum execution surface. Runtime-specific systems, including Codex, are treated as adapters rather than as the task-session identity itself.
 
 It is useful when a task is too consequential for a quick edit but too narrow for a full planning workflow. The sigil keeps the session focused on one task, exposes trade-offs before action, blocks on unresolved gates, and leaves a concise record of what changed and why.
 
@@ -39,7 +39,7 @@ Refinement, discovery, and multi-pass planning should happen before Task Session
 5. Ask the user or auto-select only when explicitly allowed.
 6. Evaluate blockers, dependency gates, context-pack obligations, write scope, and validation gates.
 7. Select the execution runtime for this repository and task.
-8. Execute directly or delegate through a runtime-goal adapter.
+8. Execute directly or delegate through a runtime handoff adapter.
 9. Validate against done criteria and context-pack obligations.
 10. Synchronize task state and related records.
 11. Return a compact session report.
@@ -52,11 +52,11 @@ Use [refine](../refine/) before Task Session when the user has a vague target, f
 
 ## Context Builder Baseline
 
-Task Session must run a context-building pass before decision cards, gate checks, runtime-goal handoff, or mutation. The context pack keeps the selected task/SWU connected to the surrounding architecture, source contracts, work-pack rows, blocker rows, constraints, write scope, validation surface, and local repository conventions.
+Task Session must run a context-building pass before decision cards, gate checks, runtime handoff, or mutation. The context pack keeps the selected task/SWU connected to the surrounding architecture, source contracts, work-pack rows, blocker rows, constraints, write scope, validation surface, and local repository conventions.
 
 If required source context is missing, contradictory, or too weak to check the task safely, Task Session returns `BLOCK` with the smallest context gap to resolve. It should not execute from the task file alone when linked architecture or work-pack context can change the correct implementation choice.
 
-For runtime-goal delegation, Task Session requires a handoff pack from Context Builder. The handoff pack must be emitted as Markdown plus JSON/index, persisted under session/run evidence, and pass strict coverage. Strict coverage means every parsed obligation is covered by selected evidence or explicitly resolved before delegation. Missing, contradictory, stale, unsafe, missing write-scope, or missing validation obligations block goal handoff.
+For runtime delegation, Task Session requires a handoff pack from Context Builder. The handoff pack must be emitted as Markdown plus JSON/index, persisted under session/run evidence, and pass strict coverage. Strict coverage means every parsed obligation is covered by selected evidence or explicitly resolved before delegation. Missing, contradictory, stale, unsafe, missing write-scope, or missing validation obligations block runtime handoff.
 
 ## Work-Pack Runtime Flow
 
@@ -65,22 +65,22 @@ When the input is a `WORK-PACK.md`, Task Session should treat the work-pack as t
 1. Resolve the target work-pack by explicit path or current context.
 2. Select exactly one ready task or SWU.
 3. Build the bounded context pack from the selected task/SWU, parent task file, source links, related architecture/spec artifacts, dependency rows, blocker rows, write scope, done criteria, and validation surface.
-4. If `--via goal` is requested, build a strict handoff pack as session evidence with Markdown plus JSON/index outputs.
+4. If runtime delegation is requested, build a strict handoff pack as session evidence with Markdown plus JSON/index outputs.
 5. Check dependencies, blocker rows, source links, context-pack obligations, strict handoff coverage when applicable, write scope, done criteria, and validation surface.
 6. Choose the repository runtime from the installed command context or explicit user flag.
-7. If the runtime supports goal-like execution, translate the selected task/SWU through the matching runtime-goal adapter and include the handoff pack path/index in the handoff.
+7. If the runtime supports durable execution, translate the selected task/SWU through the matching runtime adapter and include the handoff pack path/index in the handoff.
 8. Let the runtime own continuation while Task Session remains responsible for final evidence review, fallback-exploration review, and work-pack synchronization.
 
 The intended shorthand is:
 
 ```text
-/task-session to <work-pack-path> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <runtime>] [--via goal]
+/task-session to <work-pack-path> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <runtime>] [--via runtime]
 ```
 
 Examples:
 
 ```text
-/task-session to ./arcana/distill/development/WORK-PACK.md --swu SWU-CLO-003-001 --via goal
+/task-session to ./arcana/distill/development/WORK-PACK.md --swu SWU-CLO-003-001 --via runtime
 ```
 
 ## Runtime Adapter Interface
@@ -90,7 +90,7 @@ Task Session supports runtime adapters so the repository can use the best availa
 An adapter defines:
 
 - runtime id,
-- capability kind, such as `goal`,
+- capability kind, such as `durable-run`,
 - availability check,
 - input contract from the selected task/SWU,
 - transformation rule,
@@ -98,9 +98,9 @@ An adapter defines:
 - ownership boundary,
 - blocked fallback.
 
-For goal-like adapters, the input contract also includes the handoff pack Markdown path, JSON/index path, strict coverage status, and fallback exploration rule. An adapter must block when the handoff pack is absent, incomplete, stale, contradictory, unsafe, missing write scope, missing validation, or below strict coverage.
+For runtime adapters, the input contract also includes the handoff pack Markdown path, JSON/index path, strict coverage status, and fallback exploration rule. An adapter must block when the handoff pack is absent, incomplete, stale, contradictory, unsafe, missing write scope, missing validation, or below strict coverage.
 
-The current Codex adapter is [runtime-adapters/codex-goal.md](runtime-adapters/codex-goal.md). It uses [Codex Goal Profile](../../transmutations/codex-goal-profile/) to turn one work-pack task or SWU into a native Codex `/goal` command.
+The current generic adapter is [runtime-adapters/runtime-handoff.md](runtime-adapters/runtime-handoff.md). Legacy native-goal compatibility remains documented under `runtime-adapters/` for old handoffs.
 
 ## Output
 
@@ -131,8 +131,8 @@ For runtime-backed execution, the report also includes:
 When Task Session executes a work-pack task or SWU for a spell or sigil lifecycle, it should return evidence that lifecycle owners and Experiment Harness can consume:
 
 ```yaml
-runtime: codex | local
-adapter: codex-goal | none
+runtime: arcanum-runtime | local
+adapter: runtime-handoff | none
 source_swu: <id or none>
 result: pass | flag | block | interrupted
 files_touched:

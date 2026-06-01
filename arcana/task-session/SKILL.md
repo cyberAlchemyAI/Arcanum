@@ -1,7 +1,7 @@
 ---
 name: task-session
-description: "Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime-goal delegation."
-argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via goal] [--auto] [--dry-run] [--output <path>]"
+description: "Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime handoff delegation."
+argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via runtime] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
 version: 0.3.0
@@ -23,7 +23,7 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 
 | Sigil | Role In Task Session | Required Mode |
 | --- | --- | --- |
-| `context-builder` | Build a bounded context pack from the selected task/SWU, source links, constraints, related architecture/spec artifacts, write scope, and validation surface before decisions, gates, or runtime handoff. For `--via goal`, produce a strict Markdown plus JSON/index handoff pack stored as session evidence. | lean or standard |
+| `context-builder` | Build a bounded context pack from the selected task/SWU, source links, constraints, related architecture/spec artifacts, write scope, and validation surface before decisions, gates, or runtime handoff. For `--via runtime`, produce a strict Markdown plus JSON/index handoff pack stored as session evidence. | lean or standard |
 
 </required-sigils>
 
@@ -35,7 +35,7 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 - `--task <TASK-ID>`: select one task from a work-pack.
 - `--swu <SWU-ID>`: select one Smallest Working Unit from a work-pack.
 - `--runtime <id>`: choose the execution runtime adapter, such as `codex`.
-- `--via goal`: delegate through the selected runtime's goal-like execution adapter when available.
+- `--via runtime`: delegate through the selected runtime adapter when available.
 </flags>
 
 <applicability>
@@ -78,7 +78,7 @@ Expected inputs, if available:
 
 10. Run `context-builder` in lean or standard mode for the selected task/SWU.
 11. Include the task contract, source links, architecture/spec references, work-pack row, dependency rows, blocker rows, write scope, done criteria, validation surface, and known repository conventions.
-12. When `--via goal` is set, request a `codex-goal` handoff pack from Context Builder, emitted as Markdown plus JSON/index and persisted under session/run evidence.
+12. When `--via runtime` is set, request a runtime handoff pack from Context Builder, emitted as Markdown plus JSON/index and persisted under session/run evidence.
 13. Extract hard constraints and cross-artifact obligations from the context pack before selecting an implementation path.
 14. If linked context is missing, contradictory, stale, unsafe, too weak, missing write scope, missing validation, or lacks strict coverage for a runtime handoff, return `BLOCK` with the missing context or contradiction and stop before mutation.
 15. Record the context pack summary, handoff artifact paths, strict coverage status, and the source artifacts that controlled execution.
@@ -107,15 +107,15 @@ Expected inputs, if available:
 ## Step 5 - Select Runtime
 
 24. Resolve the current repository runtime from the installed command context or `--runtime`.
-25. If `--via goal` is set, load the matching runtime-goal adapter from `arcana/task-session/runtime-adapters/`.
-26. For Codex native Goals, use the `codex-goal` adapter and the `codex-goal-profile` transmutation.
-27. If `--via goal` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
+25. If `--via runtime` is set, load the matching runtime adapter from `arcana/task-session/runtime-adapters/`.
+26. For durable Arcanum runtime runs, use the `runtime-handoff` adapter and selected executor adapter such as `native-skill`, `codex-skill`, `claude-skill`, `copilot-instructions`, `dry-run`, or explicit legacy `codex-exec`.
+27. If `--via runtime` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
 28. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
 
 ## Step 6 - Execute Task
 
 29. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
-30. If a runtime-goal adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime command and preserve the Task Session synchronization obligations.
+30. If a runtime adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime handoff and preserve the Task Session synchronization obligations.
 31. If running locally, make only the changes required for the task scope.
 32. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
 
@@ -123,7 +123,7 @@ Expected inputs, if available:
 
 35. Validate against every done criterion and context-pack obligation.
 36. Run relevant checks based on touched assets.
-37. If a runtime-goal adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
+37. If a runtime adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
 38. If validation cannot be run, record why and provide the closest useful substitute.
 39. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
 
@@ -172,11 +172,11 @@ A successful execution of this sigil must:
 - resolve exactly one task scope,
 - resolve exactly one work-pack task or SWU when the input is a work-pack,
 - build a bounded context pack before decisions, gates, runtime selection, or mutation,
-- require strict handoff-pack coverage before `--via goal` delegation,
+- require strict handoff-pack coverage before `--via runtime` delegation,
 - block when required source context is missing, contradictory, or too weak to check constraints,
 - expose meaningful implementation trade-offs,
 - stop before mutation when blockers remain,
-- keep runtime-goal delegation behind an explicit adapter boundary,
+- keep runtime delegation behind an explicit adapter boundary,
 - keep edits within the declared task scope,
 - validate all available done criteria,
 - distinguish task/SWU execution evidence from reusable-behavior experiment evidence,
@@ -189,15 +189,15 @@ Avoid:
 
 - using the sigil for many unrelated tasks at once,
 - executing from the task file alone when source links, architecture, or work-pack context can change the correct implementation choice,
-- delegating through `--via goal` without a complete session-evidence handoff pack and JSON/index,
+- delegating through `--via runtime` without a complete session-evidence handoff pack and JSON/index,
 - treating `--auto` as permission to guess consequential user choices,
 - changing files outside the task scope without recording why,
 - marking completion without evidence,
 - skipping validation because the edit looks small,
 - hiding failed checks inside a success report,
 - letting synchronization updates rewrite unrelated planning or status history.
-- hardcoding Codex `/goal` as the only possible runtime,
-- treating a generated runtime goal as completed work before evidence returns.
+- hardcoding Codex as the only possible runtime,
+- treating a generated runtime handoff as completed work before evidence returns.
 </anti-patterns>
 
 <output-contract>
