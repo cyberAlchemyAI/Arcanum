@@ -1,0 +1,241 @@
+schema_id: user_ledger
+schema_version: 0.1.0
+status: candidate
+owner: user-ledger
+purpose: >
+  Define the candidate protected learning ledger contract for User/Translate/Guide.
+  This schema is local development evidence, not a runtime persistence format.
+
+source_artifacts:
+  - development/user-guide/packages/user-ledger/DEFINE.md
+  - development/user-guide/packages/user-ledger/DESIGN.md
+  - development/user-guide/refinement-runs/20260529T131319Z-user-guide-ledger/RESULT.md
+
+source_of_truth_policy:
+  schema_contract: development/user-guide/packages/user-ledger/USER-LEDGER-SCHEMA.yml
+  first_fixture: development/user-guide/packages/user-ledger/USER-LEDGER-FIXTURE.md
+  runtime_store: deferred
+  notes:
+    - User ledger owns durable learning memory boundaries.
+    - Translate and Guide may return receipts, but User owns ledger writes.
+    - User-local glossary entries do not promote canonical Inventory or Ontology definitions.
+
+enums:
+  concept_status:
+    - unknown
+    - exposed
+    - clarified
+    - practiced
+    - transferable
+    - mastered
+    - stale
+  evidence_type:
+    - none
+    - user_confirmation
+    - teach_back
+    - retrieval
+    - transfer
+    - contrast
+    - blocker_resolution
+  receipt_source:
+    - translate
+    - guide
+    - install_game
+    - manual
+  receipt_status:
+    - proposed
+    - accepted
+    - rejected
+    - deferred
+  visibility_level:
+    - local_private
+    - session_visible
+    - exportable
+    - promotion_candidate
+  residue_kind:
+    - failed_analogy
+    - confusion
+    - missing_domain_anchor
+    - disliked_term
+    - open_question
+    - stale_mastery
+
+row_families:
+  profile_seed:
+    id_field: profile_seed_id
+    required_fields:
+      - profile_seed_id
+      - source
+      - summary
+      - visibility
+    fields:
+      profile_seed_id:
+        type: string
+        pattern: "^UPS-[A-Z0-9-]+$"
+      source:
+        type: string
+      summary:
+        type: string
+      visibility:
+        type: enum
+        enum_ref: visibility_level
+
+  domain_anchor:
+    id_field: domain_anchor_id
+    required_fields:
+      - domain_anchor_id
+      - domain
+      - confidence
+      - evidence
+      - visibility
+    fields:
+      domain_anchor_id:
+        type: string
+        pattern: "^UDA-[A-Z0-9-]+$"
+      domain:
+        type: string
+      confidence:
+        type: string
+      evidence:
+        type: string
+      visibility:
+        type: enum
+        enum_ref: visibility_level
+
+  vocabulary_preference:
+    id_field: vocabulary_preference_id
+    required_fields:
+      - vocabulary_preference_id
+      - preference_type
+      - term_or_style
+      - action
+      - evidence
+    fields:
+      vocabulary_preference_id:
+        type: string
+        pattern: "^UVP-[A-Z0-9-]+$"
+      preference_type:
+        type: string
+      term_or_style:
+        type: string
+      action:
+        type: string
+      evidence:
+        type: string
+
+  concept_state:
+    id_field: concept_state_id
+    required_fields:
+      - concept_state_id
+      - concept
+      - status
+      - evidence_type
+      - evidence_ref
+      - last_receipt_ref
+    fields:
+      concept_state_id:
+        type: string
+        pattern: "^UCS-[A-Z0-9-]+$"
+      concept:
+        type: string
+      status:
+        type: enum
+        enum_ref: concept_status
+      evidence_type:
+        type: enum
+        enum_ref: evidence_type
+      evidence_ref:
+        type: string
+      last_receipt_ref:
+        type: string
+
+  receipt_ref:
+    id_field: receipt_ref_id
+    required_fields:
+      - receipt_ref_id
+      - source
+      - source_receipt_id
+      - proposed_update
+      - status
+    fields:
+      receipt_ref_id:
+        type: string
+        pattern: "^URR-[A-Z0-9-]+$"
+      source:
+        type: enum
+        enum_ref: receipt_source
+      source_receipt_id:
+        type: string
+      proposed_update:
+        type: string
+      status:
+        type: enum
+        enum_ref: receipt_status
+
+  glossary_entry:
+    id_field: glossary_entry_id
+    required_fields:
+      - glossary_entry_id
+      - term
+      - user_definition
+      - concept_state_ref
+      - canonical_promotion_status
+    fields:
+      glossary_entry_id:
+        type: string
+        pattern: "^UGE-[A-Z0-9-]+$"
+      term:
+        type: string
+      user_definition:
+        type: string
+      concept_state_ref:
+        type: string
+      canonical_promotion_status:
+        type: string
+
+  residue:
+    id_field: residue_id
+    required_fields:
+      - residue_id
+      - kind
+      - summary
+      - next_action
+    fields:
+      residue_id:
+        type: string
+        pattern: "^URS-[A-Z0-9-]+$"
+      kind:
+        type: enum
+        enum_ref: residue_kind
+      summary:
+        type: string
+      next_action:
+        type: string
+
+  visibility_rule:
+    id_field: visibility_rule_id
+    required_fields:
+      - visibility_rule_id
+      - scope
+      - rule
+      - enforcement
+    fields:
+      visibility_rule_id:
+        type: string
+        pattern: "^UVR-[A-Z0-9-]+$"
+      scope:
+        type: string
+      rule:
+        type: string
+      enforcement:
+        type: string
+
+validation_rules:
+  - id: VR-MASTERY-ACTIVE-EVIDENCE
+    rule: concept_state.status mastered requires evidence_type teach_back, retrieval, transfer, contrast, or blocker_resolution.
+  - id: VR-PASSIVE-CONFIRMATION-LIMIT
+    rule: evidence_type user_confirmation can raise a concept only to clarified.
+  - id: VR-CANONICAL-PROMOTION-SPLIT
+    rule: glossary_entry.canonical_promotion_status must not be promoted without separate Inventory or Ontology owner review.
+  - id: VR-RECEIPT-OWNER-SPLIT
+    rule: receipt_ref records proposed updates; User ledger owns accepted writes.

@@ -1,0 +1,76 @@
+schema_id: guide_route
+schema_version: 0.1.0
+status: candidate
+owner: guide
+purpose: >
+  Define the candidate Guide route contract for orchestrating understanding
+  without owning User memory or Translate internals.
+
+source_artifacts:
+  - development/user-guide/packages/guide/DEFINE.md
+  - development/user-guide/packages/guide/DESIGN.md
+  - development/user-guide/packages/user-ledger/USER-LEDGER-SCHEMA.yml
+  - development/user-guide/packages/translate/GUIDE-CALL-CONTRACT.md
+
+enums:
+  route_step_kind:
+    - frame
+    - inspect
+    - research
+    - subagent
+    - xray
+    - inventory
+    - translate
+    - explain
+    - validate_understanding
+    - receipt
+  route_status:
+    - draft
+    - pass
+    - flag
+    - block
+
+required_fields:
+  - guide_request_id
+  - target_ref
+  - target_type
+  - user_goal
+  - user_handle_refs
+  - route_steps
+  - validation_prompt
+  - receipt
+  - status
+
+fields:
+  guide_request_id:
+    type: string
+    pattern: "^GRQ-[A-Z0-9-]+$"
+  target_ref:
+    type: string
+  target_type:
+    type: string
+  user_goal:
+    type: string
+  user_handle_refs:
+    type: list
+    item_type: string
+  route_steps:
+    type: list
+    item_type: route_step
+  validation_prompt:
+    type: string
+  receipt:
+    type: string
+  status:
+    type: enum
+    enum_ref: route_status
+
+validation_rules:
+  - id: GR-VR-001
+    rule: Guide may call Translate but must not inline Translate internals.
+  - id: GR-VR-002
+    rule: Guide may propose User ledger updates but must not write User rows directly.
+  - id: GR-VR-003
+    rule: Research or subagent steps require dispatch governance before runtime execution.
+  - id: GR-VR-004
+    rule: Static route fixtures must not execute live subagents.

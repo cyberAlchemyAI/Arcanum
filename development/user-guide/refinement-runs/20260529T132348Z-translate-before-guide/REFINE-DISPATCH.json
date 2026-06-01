@@ -1,0 +1,487 @@
+{
+  "dispatch_id": "refine-translate-before-guide-20260529T132348Z",
+  "parent_dispatch_id": "refine-user-guide-ledger-20260529T131319Z",
+  "intent": {
+    "raw": "Separate vocabulary/domain bridging from Guide by creating a Translate sigil first, so Guide can remain a general orchestration surface that may dispatch subagents and research.",
+    "objective": "Refine the capability boundary and route order for User, Translate, and Guide without implementation.",
+    "target_artifact": "development/user-guide/refinement-runs/20260529T132348Z-translate-before-guide/RESULT.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "user-ledger",
+      "translate",
+      "guide",
+      "dispatch",
+      "subagents",
+      "research",
+      "spell-candidate"
+    ],
+    "operator_sentence": "Maybe Translate should be a sigil before Guide."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "route_menu",
+    "one_or_more_option_set",
+    "approval_checkpoint",
+    "tournament",
+    "pareto_gate",
+    "recomposition_proof",
+    "x_ray",
+    "delegation_boundary",
+    "authority_split_gate",
+    "spell_candidate",
+    "memory_promotion_split",
+    "concrete_path_evidence"
+  ],
+  "route_menu": {
+    "context_hint": "Choose the boundary between Translate and Guide.",
+    "items": [
+      {
+        "id": "translate-before-guide",
+        "label": "Translate Before Guide",
+        "description": "Create Translate as the vocabulary/domain bridge sigil before Guide orchestration.",
+        "capability_ref": "sigil-development",
+        "pattern": "sequential"
+      },
+      {
+        "id": "translate-inside-guide",
+        "label": "Translate Inside Guide",
+        "description": "Keep translation as an internal Guide strategy and defer a separate sigil.",
+        "capability_ref": "spellcraft",
+        "pattern": "route"
+      },
+      {
+        "id": "user-ledger-first-only",
+        "label": "User Ledger First",
+        "description": "Keep the previous route: define the User ledger and Guide receipt before splitting translation.",
+        "capability_ref": "invoke",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "translate-before-guide"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Focused follow-up refinement over an existing result.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "applies_to_steps": [
+        "s01",
+        "s02",
+        "s03",
+        "s04",
+        "s05",
+        "s06",
+        "s07",
+        "s08",
+        "s09",
+        "s10"
+      ],
+      "validation_expectation": "Each stage preserves the prior run and records a boundary decision."
+    },
+    {
+      "overlay_id": "tournament_for_alternatives",
+      "trigger": "There are three viable capability orderings: Translate first, Translate inside Guide, or User ledger only first.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof",
+        "route_menu"
+      ],
+      "applies_to_steps": [
+        "s03",
+        "s05",
+        "s08",
+        "s10"
+      ],
+      "validation_expectation": "Rejected alternatives and recomposition proof are recorded."
+    },
+    {
+      "overlay_id": "xray_for_hidden_structure",
+      "trigger": "Guide now has hidden orchestration responsibilities beyond vocabulary translation.",
+      "techniques": [
+        "x_ray",
+        "delegation_boundary",
+        "authority_split_gate"
+      ],
+      "applies_to_steps": [
+        "s01",
+        "s06",
+        "s07"
+      ],
+      "validation_expectation": "Translate, Guide, User, Research, and subagent responsibilities are separated."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "s01",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../20260529T131319Z-user-guide-ledger/RESULT.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "evidence_artifact": "stages/01-context-builder.md"
+    },
+    {
+      "step_id": "s02",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "evidence_artifact": "stages/02-invoke-define.md"
+    },
+    {
+      "step_id": "s03",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "tournament",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "route_menu"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "join_policy": "pareto",
+      "convergence_criteria": [
+        "Translate has a narrow reusable contract",
+        "Guide remains general enough to orchestrate research and subagents",
+        "User remains ledger owner, not translation engine"
+      ],
+      "evidence_artifact": "stages/03-interrogation-refine-review.md"
+    },
+    {
+      "step_id": "s04",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "techniques": [
+        "approval_checkpoint",
+        "conditional_component"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "evidence_artifact": "stages/04-research-decision.md"
+    },
+    {
+      "step_id": "s05",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "scu_swu_reduction",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "evidence_artifact": "stages/05-distill.md"
+    },
+    {
+      "step_id": "s06",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "x_ray",
+        "delegation_boundary",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "evidence_artifact": "stages/06-invoke-design.md"
+    },
+    {
+      "step_id": "s07",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "memory_promotion_split"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-interrogation-design-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/07-interrogation-design-review.md"
+    },
+    {
+      "step_id": "s08",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-interrogation-design-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "evidence_artifact": "stages/08-distill-repair.md"
+    },
+    {
+      "step_id": "s09",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "spell_candidate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "evidence_artifact": "stages/09-invoke-plan.md"
+    },
+    {
+      "step_id": "s10",
+      "name": "Final Interrogation and Synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "evidence_artifact": "RESULT.md"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-no-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "This run decides a candidate order only; it must not create canonical Translate, Guide, or User sigils/spells.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-guide-general",
+      "kind": "quality",
+      "owner": "guide",
+      "condition": "Guide remains a general orchestration/explanation capability and does not own vocabulary translation internals.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g03-translate-narrow",
+      "kind": "quality",
+      "owner": "translate",
+      "condition": "Translate owns vocabulary/domain mapping and translation receipts, not full teaching orchestration or research dispatch.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g04-user-boundary",
+      "kind": "policy",
+      "owner": "user-ledger",
+      "condition": "User stores preferences, glossary, and receipt evidence; User does not choose explanation routes by itself.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "refine-user-guide-ledger-20260529T131319Z",
+    "signal_grouping": "refine-translate-before-guide-20260529T132348Z",
+    "trace_events": [
+      "seed_proposal_written",
+      "dispatch_route_written",
+      "prior_result_read",
+      "boundary_tournament_recorded",
+      "final_result_written"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b01-translate-guide",
+        "kind": "capability_handoff",
+        "from_owner": "guide",
+        "to_owner": "translate",
+        "applies_to_steps": [
+          "s06",
+          "s09",
+          "s10"
+        ],
+        "contract": "Guide calls Translate when it needs source-domain vocabulary, analogy mapping, metaphor limits, or user-preferred terms.",
+        "on_violation": "flag"
+      },
+      {
+        "boundary_id": "b02-translate-user",
+        "kind": "memory_interaction",
+        "from_owner": "translate",
+        "to_owner": "user-ledger",
+        "applies_to_steps": [
+          "s06",
+          "s10"
+        ],
+        "contract": "Translate reads user vocabulary preferences and returns translation receipts; User owns durable ledger writes.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine for this run only",
+      "execution": "future sigil-development or spellcraft",
+      "validation": "dispatch schema plus route-decision evidence",
+      "evidence": "development/user-guide/refinement-runs/20260529T132348Z-translate-before-guide/",
+      "memory": "no durable user memory writes in this run",
+      "promotion": "future sigil-development"
+    },
+    "state_namespaces": [
+      {
+        "namespace": "ns01-route-decision",
+        "owner": "refine",
+        "write_policy": "Writes are limited to this refinement run folder; canonical Translate, Guide, User, registry, command, and runtime surfaces are blocked."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "route-decision refinement",
+        "target": "canonical sigil/spell promotion",
+        "rule": "A route decision can recommend Translate before Guide but cannot promote it without sigil-development evidence.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Do not create arcana/translate in this run.",
+    "Do not create spells/guide in this run.",
+    "Do not mutate registry entries.",
+    "Do not write persistent user profile state."
+  ]
+}

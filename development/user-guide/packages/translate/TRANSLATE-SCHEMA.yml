@@ -1,0 +1,156 @@
+schema_id: translate
+schema_version: 0.1.0
+status: candidate
+owner: translate
+purpose: >
+  Define the candidate Translate sigil contract for mapping meaning across
+  vocabularies, domains, and concept frames while preserving target truth.
+
+source_artifacts:
+  - development/user-guide/packages/translate/DEFINE.md
+  - development/user-guide/packages/translate/DESIGN.md
+  - development/user-guide/packages/user-ledger/USER-LEDGER-SCHEMA.yml
+  - development/user-guide/refinement-runs/20260529T132348Z-translate-before-guide/RESULT.md
+
+source_of_truth_policy:
+  schema_contract: development/user-guide/packages/translate/TRANSLATE-SCHEMA.yml
+  fixture_corpus: development/user-guide/packages/translate/TRANSLATE-FIXTURES.md
+  runtime_command: deferred
+
+enums:
+  translation_status:
+    - draft
+    - pass
+    - flag
+    - block
+  bridge_quality:
+    - strong
+    - partial
+    - weak
+    - failed
+  research_need:
+    - none
+    - missing_fact
+    - missing_source_domain
+    - missing_target_definition
+    - unsafe_mapping
+
+row_families:
+  translation_request:
+    id_field: translation_request_id
+    required_fields:
+      - translation_request_id
+      - target_concept
+      - source_domain
+      - target_domain
+      - requested_style
+      - user_handle_refs
+    fields:
+      translation_request_id:
+        type: string
+        pattern: "^TRQ-[A-Z0-9-]+$"
+      target_concept:
+        type: string
+      source_domain:
+        type: string
+      target_domain:
+        type: string
+      requested_style:
+        type: string
+      user_handle_refs:
+        type: list
+        item_type: string
+
+  term_map:
+    id_field: term_map_id
+    required_fields:
+      - term_map_id
+      - source_term
+      - target_term
+      - mapping_note
+    fields:
+      term_map_id:
+        type: string
+        pattern: "^TTM-[A-Z0-9-]+$"
+      source_term:
+        type: string
+      target_term:
+        type: string
+      mapping_note:
+        type: string
+
+  bridge_map:
+    id_field: bridge_map_id
+    required_fields:
+      - bridge_map_id
+      - analogy_or_metaphor
+      - maps_well
+      - breaks_here
+      - bridge_quality
+    fields:
+      bridge_map_id:
+        type: string
+        pattern: "^TBM-[A-Z0-9-]+$"
+      analogy_or_metaphor:
+        type: string
+      maps_well:
+        type: string
+      breaks_here:
+        type: string
+      bridge_quality:
+        type: enum
+        enum_ref: bridge_quality
+
+  primitive_alignment:
+    id_field: primitive_alignment_id
+    required_fields:
+      - primitive_alignment_id
+      - concrete_phrase
+      - primitive
+      - alignment_note
+    fields:
+      primitive_alignment_id:
+        type: string
+        pattern: "^TPA-[A-Z0-9-]+$"
+      concrete_phrase:
+        type: string
+      primitive:
+        type: string
+      alignment_note:
+        type: string
+
+  translated_output:
+    id_field: translated_output_id
+    required_fields:
+      - translated_output_id
+      - target_domain_definition
+      - translated_explanation
+      - mapping_limits
+      - research_need
+      - status
+    fields:
+      translated_output_id:
+        type: string
+        pattern: "^TTO-[A-Z0-9-]+$"
+      target_domain_definition:
+        type: string
+      translated_explanation:
+        type: string
+      mapping_limits:
+        type: string
+      research_need:
+        type: enum
+        enum_ref: research_need
+      status:
+        type: enum
+        enum_ref: translation_status
+
+validation_rules:
+  - id: TR-VR-001
+    rule: Every translated_output requires target_domain_definition.
+  - id: TR-VR-002
+    rule: Every bridge_map requires maps_well and breaks_here.
+  - id: TR-VR-003
+    rule: Translate must flag research_need instead of performing research.
+  - id: TR-VR-004
+    rule: Translate may reference User handles but must not write User ledger state directly.

@@ -1,0 +1,64 @@
+schema_id: translate_receipt
+schema_version: 0.1.0
+status: candidate
+owner: translate
+purpose: >
+  Define the receipt Translate returns to User and Guide after producing a
+  vocabulary/domain bridge.
+
+source_artifacts:
+  - development/user-guide/packages/translate/TRANSLATE-SCHEMA.yml
+  - development/user-guide/packages/translate/TRANSLATE-FIXTURES.md
+  - development/user-guide/packages/user-ledger/USER-LEDGER-SCHEMA.yml
+
+required_fields:
+  - receipt_id
+  - translation_request_id
+  - target_concept
+  - source_domain
+  - target_domain
+  - translated_output_ref
+  - mapping_quality
+  - mapping_limits
+  - ledger_update_proposal
+  - user_handle_refs
+  - research_need
+
+fields:
+  receipt_id:
+    type: string
+    pattern: "^TRR-[A-Z0-9-]+$"
+  translation_request_id:
+    type: string
+  target_concept:
+    type: string
+  source_domain:
+    type: string
+  target_domain:
+    type: string
+  translated_output_ref:
+    type: string
+  mapping_quality:
+    type: enum
+    allowed:
+      - strong
+      - partial
+      - weak
+      - failed
+  mapping_limits:
+    type: string
+  ledger_update_proposal:
+    type: string
+  user_handle_refs:
+    type: list
+    item_type: string
+  research_need:
+    type: string
+
+validation_rules:
+  - id: TRR-VR-001
+    rule: Failed mappings may propose residue or vocabulary preference updates, but not mastery updates.
+  - id: TRR-VR-002
+    rule: Receipts reference User handles but do not write User ledger rows directly.
+  - id: TRR-VR-003
+    rule: Research needs are returned to Guide as flags.

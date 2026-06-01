@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distill Invoke Refine - Arcanum Power Presentation</title>
+  <style>
+    :root {
+      --ink: #15171a;
+      --muted: #5f6872;
+      --paper: #f7f4ec;
+      --panel: #fffdf8;
+      --line: #d8d1c2;
+      --red: #b33a2f;
+      --gold: #b7791f;
+      --teal: #21786f;
+      --blue: #345c9c;
+      --green: #3f7a42;
+      --violet: #6f4a8e;
+      --shadow: 0 18px 42px rgba(30, 27, 22, 0.13);
+      --radius: 8px;
+      --max: 1180px;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(120deg, rgba(179, 58, 47, 0.1), transparent 28%),
+        linear-gradient(180deg, #fffaf1 0, var(--paper) 520px, #eef4f1 100%);
+      line-height: 1.5;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(21, 23, 26, 0.13);
+      background: rgba(247, 244, 236, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 230px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .sigil-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid var(--red);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(183, 121, 31, 0.26) 0 18%, transparent 19%),
+        conic-gradient(from 20deg, rgba(33, 120, 111, 0.42), rgba(179, 58, 47, 0.48), rgba(52, 92, 156, 0.42), rgba(33, 120, 111, 0.42));
+      box-shadow: inset 0 0 0 6px #fffdf8;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .nav a,
+    .deck-controls button {
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      color: var(--ink);
+      background: transparent;
+      font: inherit;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .nav a:hover,
+    .deck-controls button:hover {
+      background: rgba(255, 255, 255, 0.75);
+      text-decoration: none;
+      border-color: var(--line);
+    }
+
+    .deck-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 22px 64px;
+    }
+
+    section.slide {
+      min-height: calc(100vh - 64px);
+      padding: 68px 0 48px;
+      display: grid;
+      align-content: center;
+      border-bottom: 1px solid rgba(21, 23, 26, 0.1);
+      scroll-margin-top: 64px;
+    }
+
+    .hero {
+      grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--teal);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 9vw, 7.4rem);
+      max-width: 980px;
+    }
+
+    h2 {
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      max-width: 980px;
+    }
+
+    h3 {
+      font-size: 1.22rem;
+      margin-bottom: 8px;
+    }
+
+    .lede {
+      margin: 20px 0 0;
+      max-width: 760px;
+      font-size: clamp(1.08rem, 2vw, 1.45rem);
+      color: #34383e;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.78);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .wheel {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      position: relative;
+      min-height: 360px;
+    }
+
+    .wheel::before,
+    .wheel::after {
+      content: "";
+      position: absolute;
+      inset: 8%;
+      border: 2px solid rgba(179, 58, 47, 0.38);
+      border-radius: 50%;
+    }
+
+    .wheel::after {
+      inset: 22%;
+      border-color: rgba(52, 92, 156, 0.4);
+      transform: rotate(25deg) scaleX(1.25);
+    }
+
+    .wheel-center {
+      z-index: 2;
+      width: 46%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid rgba(183, 121, 31, 0.58);
+      background: #fffaf0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px;
+      font-weight: 900;
+      font-size: 1.55rem;
+      line-height: 1.08;
+      box-shadow: inset 0 0 0 10px rgba(33, 120, 111, 0.08);
+    }
+
+    .orbit {
+      position: absolute;
+      z-index: 3;
+      width: 132px;
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: #202327;
+      font-weight: 800;
+      text-align: center;
+      padding: 8px;
+      box-shadow: 0 8px 22px rgba(21, 23, 26, 0.1);
+    }
+
+    .o1 { top: 2%; left: 50%; transform: translateX(-50%); border-color: rgba(179, 58, 47, 0.45); }
+    .o2 { right: 1%; top: 29%; border-color: rgba(52, 92, 156, 0.45); }
+    .o3 { right: 10%; bottom: 9%; border-color: rgba(33, 120, 111, 0.45); }
+    .o4 { left: 10%; bottom: 9%; border-color: rgba(63, 122, 66, 0.45); }
+    .o5 { left: 1%; top: 29%; border-color: rgba(183, 121, 31, 0.48); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 18px;
+      min-height: 180px;
+      box-shadow: 0 10px 24px rgba(21, 23, 26, 0.07);
+    }
+
+    .card.featured {
+      border-top: 5px solid var(--red);
+      min-height: 235px;
+    }
+
+    .card.teal { border-top-color: var(--teal); }
+    .card.blue { border-top-color: var(--blue); }
+    .card.green { border-top-color: var(--green); }
+    .card.gold { border-top-color: var(--gold); }
+    .card.violet { border-top-color: var(--violet); }
+
+    .card p { margin: 8px 0 0; color: var(--muted); }
+    .tagline {
+      font-weight: 800;
+      color: #25282d;
+      margin-top: 4px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #fffaf0;
+      color: #34383e;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .command {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      color: #26364f;
+      background: #eef2f8;
+      border-color: #d4ddeb;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .step {
+      min-height: 146px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 16px;
+      position: relative;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      width: 16px;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    .step:last-child::after { display: none; }
+    .step strong { display: block; font-size: 1.05rem; margin-bottom: 8px; }
+    .step span { color: var(--muted); font-size: 0.93rem; }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 30px;
+      align-items: start;
+      margin-top: 28px;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(21, 23, 26, 0.07);
+    }
+
+    .matrix th,
+    .matrix td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 0.95rem;
+    }
+
+    .matrix th {
+      background: #f0eadf;
+      color: #282b30;
+    }
+
+    .matrix tr:last-child td { border-bottom: 0; }
+
+    .callout {
+      border-left: 5px solid var(--teal);
+      background: rgba(255, 253, 248, 0.8);
+      padding: 16px 18px;
+      margin-top: 24px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: #34383e;
+    }
+
+    .slide-counter {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.86rem;
+      margin-bottom: 14px;
+    }
+
+    .source-list {
+      margin: 24px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .source-list li { margin-bottom: 7px; }
+
+    @media (max-width: 980px) {
+      .hero, .split { grid-template-columns: 1fr; }
+      .grid, .grid.two, .grid.four { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .step::after { display: none; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+      .nav { width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 0 16px 48px; }
+      section.slide { min-height: auto; padding: 46px 0; }
+      .grid, .grid.two, .grid.four, .flow { grid-template-columns: 1fr; }
+      .wheel { min-height: 300px; }
+      .orbit { position: static; transform: none; width: 100%; margin: 6px 0; }
+      .wheel::before, .wheel::after { display: none; }
+      .wheel-center { width: 180px; }
+    }
+
+    @media print {
+      .topbar { display: none; }
+      body { background: #fff; }
+      main { max-width: none; padding: 0; }
+      section.slide {
+        min-height: 100vh;
+        page-break-after: always;
+        padding: 48px;
+        border-bottom: 0;
+      }
+      .card, .stage, .matrix { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="sigil-mark" aria-hidden="true"></span><span>Distill Invoke Refine</span></div>
+      <nav class="nav" aria-label="Presentation sections">
+        <a href="#story">Story</a>
+        <a href="#triad">Triad</a>
+        <a href="#distill">Distill</a>
+        <a href="#invoke">Invoke</a>
+        <a href="#refine">Refine</a>
+        <a href="#chain">Chain</a>
+        <a href="#close">Close</a>
+      </nav>
+      <div class="deck-controls" aria-label="Slide controls">
+        <button type="button" id="prev">Prev</button>
+        <button type="button" id="next">Next</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="slide hero" id="story">
+      <div>
+        <p class="eyebrow">The concept engine inside Arcanum</p>
+        <h1>Refine. Invoke. Distill.</h1>
+        <p class="lede">These three powers turn rough intent into governed artifacts and executable direction. Refine runs the discovery loop, Invoke authors the definition/design/plan, and Distill finds the smallest coherent unit that still recomposes into the whole.</p>
+        <div class="pill-row">
+          <span class="pill command">refine</span>
+          <span class="pill command">invoke</span>
+          <span class="pill command">distill</span>
+          <span class="pill">vague intent to artifact</span>
+          <span class="pill">concept compression</span>
+        </div>
+      </div>
+      <div class="stage wheel" aria-label="Arcanum capability wheel">
+        <div class="wheel-center">Idea<br>to<br>Buildable Shape</div>
+        <div class="orbit o1">Seed</div>
+        <div class="orbit o2">Define</div>
+        <div class="orbit o3">Design</div>
+        <div class="orbit o4">Distill</div>
+        <div class="orbit o5">Plan</div>
+      </div>
+    </section>
+
+    <section class="slide" id="triad">
+      <div class="slide-counter">01 / The triad</div>
+      <h2>Each one answers a different question.</h2>
+      <div class="grid">
+        <article class="card featured teal">
+          <h3>Refine</h3>
+          <p class="tagline">What are we really trying to shape?</p>
+          <p>Use it when the target is vague: a folder, design concern, rough product idea, architecture worry, or “this feels wrong.” It builds a seed, runs staged critique and repair, records evidence, and returns a final synthesis with next routes.</p>
+          <div class="pill-row"><span class="pill command">arcana/refine</span><span class="pill">discovery loop</span></div>
+        </article>
+        <article class="card featured gold">
+          <h3>Invoke</h3>
+          <p class="tagline">What artifact should represent this intent?</p>
+          <p>Use it when something needs to become a governed definition, design, plan, work-pack, handoff, or refresh report. It owns authoring outputs and routes the resulting artifact to the lifecycle owner.</p>
+          <div class="pill-row"><span class="pill command">spells/invoke</span><span class="pill">authoring spell</span></div>
+        </article>
+        <article class="card featured blue">
+          <h3>Distill</h3>
+          <p class="tagline">What is the smallest coherent unit?</p>
+          <p>Use it when the idea is too broad, overbuilt, underbuilt, or needs concept-layer optimization. It reduces, challenges, reconciles, and proves how the chosen unit recomposes into the larger design.</p>
+          <div class="pill-row"><span class="pill command">arcana/distill</span><span class="pill">concept optimizer</span></div>
+        </article>
+      </div>
+      <p class="callout">The short version: Refine is the loop, Invoke is the artifact author, Distill is the concept-pressure machine.</p>
+    </section>
+
+    <section class="slide" id="distill">
+      <div class="slide-counter">02 / Distill in detail</div>
+      <h2>Distill finds the unit that is small enough to act on and large enough to still mean something.</h2>
+      <div class="split">
+        <div>
+          <p class="lede">Distill is for models, architectures, plans, workflows, and implementation shapes that feel too big to touch responsibly.</p>
+          <p class="callout">Its power is not “make it smaller.” Its power is selecting the smallest coherent unit with responsibility, inputs, outputs, a boundary, and a recomposition path.</p>
+          <div class="pill-row">
+            <span class="pill">Proposer</span>
+            <span class="pill">Balancer</span>
+            <span class="pill">Orchestrator</span>
+            <span class="pill">recomposition proof</span>
+          </div>
+        </div>
+        <table class="matrix">
+          <thead><tr><th>Distill asks</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>What broad concept layer contains this request?</td><td>Prevents solving the wrong abstraction level.</td></tr>
+            <tr><td>Which smaller concepts must combine for it to work?</td><td>Finds real parts instead of arbitrary fragments.</td></tr>
+            <tr><td>Where does splitting further remove meaning?</td><td>Stops reduction before it creates hidden glue.</td></tr>
+            <tr><td>How does the selected unit recombine upward?</td><td>Proves the unit can serve the larger design.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" id="distill-modes">
+      <div class="slide-counter">03 / Distill modes</div>
+      <h2>Distill has different pressure settings.</h2>
+      <div class="grid">
+        <article class="card featured teal">
+          <h3>Compact</h3>
+          <p class="tagline">Quick bounded pass.</p>
+          <p>One proposal track, one recursive round, and only the always-on gates. Good when the target is clear but needs a sanity-shaped optimization point.</p>
+        </article>
+        <article class="card featured blue">
+          <h3>Standard</h3>
+          <p class="tagline">Default serious planning.</p>
+          <p>One Proposer, one Balancer, two recursive rounds, and reconciliation. This is the normal “help me find the right shape” setting.</p>
+        </article>
+        <article class="card featured green">
+          <h3>Tournament</h3>
+          <p class="tagline">Competing design tracks.</p>
+          <p>Several proposal tracks compete, each balanced, then an evidence-based pitch-off selects the best optimization point.</p>
+        </article>
+        <article class="card featured gold">
+          <h3>Deep</h3>
+          <p class="tagline">High-risk strategic work.</p>
+          <p>More rounds, cycle checks, premortem, triggered techniques, and stronger gates when the cost of choosing the wrong shape is high.</p>
+        </article>
+        <article class="card featured violet">
+          <h3>Validate</h3>
+          <p class="tagline">Critique an existing design.</p>
+          <p>Balancer-led review with optional repair. Useful when you already have an artifact and want to know if its unit boundary holds.</p>
+        </article>
+        <article class="card featured">
+          <h3>Result</h3>
+          <p class="tagline">A navigable optimization record.</p>
+          <p>Target context, chosen unit, concept layer map, technique trace, recomposition proof, deferred complexity, tension ledger, and next route.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide" id="invoke">
+      <div class="slide-counter">04 / Invoke in detail</div>
+      <h2>Invoke turns intent into governed authoring artifacts.</h2>
+      <p class="lede">Invoke is a spell, not a single-purpose sigil. Its job is to discover intent, select the right authoring mode, produce structured artifacts, and hand off to the capability that owns the next lifecycle step.</p>
+      <div class="grid">
+        <article class="card featured teal">
+          <h3>Define</h3>
+          <p class="tagline">Create the authoring baseline.</p>
+          <p>Clarifies intent, chooses templates or recipes, creates a spec and glossary baseline, records unresolved gaps, and prepares downstream design.</p>
+        </article>
+        <article class="card featured blue">
+          <h3>Design</h3>
+          <p class="tagline">Turn definition into architecture.</p>
+          <p>Creates governed design artifacts, checks view coverage, aligns glossary meaning, and preserves design gates before plan work begins.</p>
+        </article>
+        <article class="card featured green">
+          <h3>Plan</h3>
+          <p class="tagline">Create execution-ready planning.</p>
+          <p>Produces implementation plans, implementation layering, validation strategy, work-packs, and Smallest Working Units when complexity requires them.</p>
+        </article>
+        <article class="card featured gold">
+          <h3>Handoff</h3>
+          <p class="tagline">Split or continue work safely.</p>
+          <p>Builds a new session/thread handoff from a prompt, source session reference, and Context Builder selection instead of dumping a whole transcript.</p>
+        </article>
+        <article class="card featured violet">
+          <h3>Refresh</h3>
+          <p class="tagline">Update artifacts from new evidence.</p>
+          <p>Maps source signals to typed deltas, defaults to proposal-only, and treats no-op as valid when the latest evidence is already represented.</p>
+        </article>
+        <article class="card featured">
+          <h3>Ownership Boundary</h3>
+          <p class="tagline">Authoring is not lifecycle completion.</p>
+          <p>Invoke can author for a feature, sigil, spell, or module, but the target owner handles lifecycle mutation, validation, execution, and promotion.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide" id="invoke-gates">
+      <div class="slide-counter">05 / Invoke gates</div>
+      <h2>Invoke is powerful because it refuses vague outputs.</h2>
+      <div class="split">
+        <table class="matrix">
+          <thead><tr><th>Gate</th><th>What it protects</th></tr></thead>
+          <tbody>
+            <tr><td>One-question clarification</td><td>Prevents broad interviews from drowning the user.</td></tr>
+            <tr><td>Template selection evidence</td><td>Prevents arbitrary artifact shape choices.</td></tr>
+            <tr><td>Implementation layering</td><td>Prevents plans from mixing proof, pilot, scale, and polish.</td></tr>
+            <tr><td>Work-pack and SWU coverage</td><td>Prevents vague task labels from becoming execution work.</td></tr>
+            <tr><td>Validation strategy</td><td>Prevents plans that cannot prove completion.</td></tr>
+            <tr><td>Gap ownership split</td><td>Separates Invoke flaws from target-artifact flaws.</td></tr>
+          </tbody>
+        </table>
+        <div>
+          <p class="lede">Invoke’s output contract names mode, status, artifacts, design coverage, glossary consistency, implementation layering, work-pack shape, complexity, decisions, unresolved gaps, and next route.</p>
+          <p class="callout">This makes it excellent for demos: you can show not just the generated artifact, but the governance around why that artifact is ready, flagged, or blocked.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="refine">
+      <div class="slide-counter">06 / Refine in detail</div>
+      <h2>Refine is the front door for unclear targets.</h2>
+      <p class="lede">Use Refine when the user points at a vague idea, folder, design concern, repository area, or rough plan and wants a real synthesis before implementation or lifecycle promotion.</p>
+      <div class="flow">
+        <div class="step"><strong>Seed</strong><span>Resolve the target, propose a refinement seed, and record what kind of output the loop should produce.</span></div>
+        <div class="step"><strong>Research Mode</strong><span>Choose no-research, bounded-research, or research-if-gap-appears, with local evidence kept authoritative.</span></div>
+        <div class="step"><strong>Dispatch</strong><span>Run command-backed stages through the local Arcanum command surface and record each stage in a manifest.</span></div>
+        <div class="step"><strong>Synthesize</strong><span>Combine Context Builder, Invoke, Interrogation, and Distill outputs into a final refined result.</span></div>
+        <div class="step"><strong>Route</strong><span>Recommend the next owner: Invoke, Task Session, Sigil Development, Spellcraft, Decision Gate, or defer.</span></div>
+      </div>
+      <p class="callout">Refine does not pretend the first prompt is already the plan. It makes the plan earn itself through evidence, critique, repair, and route selection.</p>
+    </section>
+
+    <section class="slide" id="refine-loop">
+      <div class="slide-counter">07 / Refine loop</div>
+      <h2>The canonical refinement loop is a composed workflow.</h2>
+      <div class="grid two">
+        <article class="card featured">
+          <h3>1. Evidence Baseline</h3>
+          <p>Context Builder gathers selected evidence and avoids whole-repo wandering. This gives the loop a source-backed starting point.</p>
+        </article>
+        <article class="card featured teal">
+          <h3>2. Invoke Define</h3>
+          <p>Invoke creates a definition baseline so the loop has a concrete artifact to critique rather than only conversation residue.</p>
+        </article>
+        <article class="card featured blue">
+          <h3>3. Interrogation</h3>
+          <p>Critique and readiness checks expose gaps, unresolved assumptions, and questions that matter before the design hardens.</p>
+        </article>
+        <article class="card featured green">
+          <h3>4. Distill</h3>
+          <p>Distill finds the coherent unit, records tensions, proves recomposition, and repairs overbroad or brittle designs.</p>
+        </article>
+        <article class="card featured gold">
+          <h3>5. Invoke Design And Plan</h3>
+          <p>Invoke turns the repaired model into design, implementation layering, plan artifacts, and work-pack material.</p>
+        </article>
+        <article class="card featured violet">
+          <h3>6. Final Synthesis</h3>
+          <p>Refine returns the run manifest, evidence index, result, stage outputs, blocked reasons, and recommended next route.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide" id="chain">
+      <div class="slide-counter">08 / Ownership chain</div>
+      <h2>They compose without stealing each other’s job.</h2>
+      <table class="matrix">
+        <thead>
+          <tr><th>Capability</th><th>Owns</th><th>Does not own</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Refine</strong></td><td>Seed design, research decision, stage dispatch plan, manifest/index, final synthesis, route recommendation.</td><td>Direct implementation or lifecycle promotion.</td></tr>
+          <tr><td><strong>Invoke</strong></td><td>Definition, design, plan, work-pack, handoff, refresh artifacts, and artifact authoring gates.</td><td>Target lifecycle completion, sigil mutation, spell mutation, or task execution.</td></tr>
+          <tr><td><strong>Distill</strong></td><td>Concept-layer reduction, role critique, optimization point, recomposition proof, deferred complexity, next route.</td><td>Writing the full plan or executing the selected unit.</td></tr>
+          <tr><td><strong>Task Session</strong></td><td>One bounded execution task after artifacts and gates are ready.</td><td>Vague discovery, broad design refinement, or concept optimization.</td></tr>
+        </tbody>
+      </table>
+      <p class="callout">That boundary is the secret sauce: the trio can be powerful without becoming one giant “do everything” prompt.</p>
+    </section>
+
+    <section class="slide" id="close">
+      <div class="slide-counter">09 / Demo framing</div>
+      <h2>Show the trio as a transformation pipeline.</h2>
+      <div class="grid three">
+        <article class="card featured teal">
+          <h3>Start with mess</h3>
+          <p>“This folder/design/idea feels wrong.” Refine turns that into a run folder, seed proposal, evidence index, stage outputs, and synthesis.</p>
+        </article>
+        <article class="card featured blue">
+          <h3>Produce artifacts</h3>
+          <p>Invoke converts the refined intent into definition, design, plan, implementation layering, and work-pack outputs with gates.</p>
+        </article>
+        <article class="card featured gold">
+          <h3>Find the unit</h3>
+          <p>Distill shows why the selected unit is the right size, what complexity is deferred, and how it recomposes into the larger system.</p>
+        </article>
+      </div>
+      <ul class="source-list">
+        <li>Grounded in <code>arcana/distill/README.md</code>, <code>spells/invoke/README.md</code>, and <code>arcana/refine/README.md</code>.</li>
+        <li>Companion capabilities still matter: Context Builder supplies evidence, Interrogation critiques, Implementation Layering plans staged delivery, and Task Session executes bounded work.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll("section.slide"));
+    let index = 0;
+
+    function currentIndex() {
+      const midpoint = window.scrollY + window.innerHeight / 2;
+      let active = 0;
+      for (let i = 0; i < slides.length; i += 1) {
+        if (slides[i].offsetTop <= midpoint) active = i;
+      }
+      return active;
+    }
+
+    function go(delta) {
+      index = Math.max(0, Math.min(slides.length - 1, currentIndex() + delta));
+      slides[index].scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("prev").addEventListener("click", () => go(-1));
+    document.getElementById("next").addEventListener("click", () => go(1));
+    window.addEventListener("keydown", event => {
+      if (event.key === "ArrowRight" || event.key === "PageDown") go(1);
+      if (event.key === "ArrowLeft" || event.key === "PageUp") go(-1);
+    });
+  </script>
+</body>
+</html>
