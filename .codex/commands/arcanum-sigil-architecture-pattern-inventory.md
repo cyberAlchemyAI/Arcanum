@@ -99,7 +99,7 @@ architecture/
       README.md
     inventory/
       README.md
-      architecture-inventory.schema.json
+      architecture-inventory.schema.yml
 ```
 
 ## Subagent Mapping
