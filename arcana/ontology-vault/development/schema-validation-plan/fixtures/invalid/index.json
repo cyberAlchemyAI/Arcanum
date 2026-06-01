@@ -1,0 +1,63 @@
+{
+  "fixture_set": "branch-aware-ontology-schema-invalid-fixtures",
+  "fixture_set_status": "candidate",
+  "created_at": "2026-05-29",
+  "task_session": "20260529T001000Z-ovs-swu-002",
+  "swu": "OVS-SWU-002",
+  "format": "json",
+  "fixtures": [
+    {
+      "path": "invalid-record-kind.json",
+      "expected_result": "fail",
+      "expected_rule": "V12",
+      "expected_reason": "Uses an unsupported record_kind value."
+    },
+    {
+      "path": "evidence-input-promoted-authority.json",
+      "expected_result": "fail",
+      "expected_rule": "V13",
+      "expected_reason": "Uses evidence_input as promoted ontology authority."
+    },
+    {
+      "path": "overloaded-status-field.json",
+      "expected_result": "fail",
+      "expected_rule": "V11",
+      "expected_reason": "Uses overloaded status instead of lifecycle_status."
+    },
+    {
+      "path": "claim-role-candidate.json",
+      "expected_result": "fail",
+      "expected_rule": "V11",
+      "expected_reason": "Uses candidate as a claim_role."
+    },
+    {
+      "path": "missing-operational-context.json",
+      "expected_result": "fail",
+      "expected_rule": "V3",
+      "expected_reason": "Operational entry lacks operating_context."
+    },
+    {
+      "path": "missing-bridge-evidence.json",
+      "expected_result": "fail",
+      "expected_rule": "V4",
+      "expected_reason": "Bridge entry lacks bridge_scope and evidence relation."
+    },
+    {
+      "path": "inventory-authority-leakage.json",
+      "expected_result": "fail",
+      "expected_rule": "V5",
+      "expected_reason": "Inventory reference omits non_authority_notice true."
+    },
+    {
+      "path": "collapsed-confidence.json",
+      "expected_result": "fail",
+      "expected_rule": "V8",
+      "expected_reason": "Confidence omits separate evidence and commitment fields."
+    }
+  ],
+  "manual_review_summary": {
+    "targeted_failure_count": 8,
+    "rules_covered": ["V3", "V4", "V5", "V8", "V11", "V12", "V13"],
+    "deferred": ["JSON Schema candidate", "canonical template validation"]
+  }
+}

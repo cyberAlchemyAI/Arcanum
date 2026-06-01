@@ -1,0 +1,58 @@
+{
+  "task_session": "20260529T164000Z-ovs-json",
+  "status": "pass-with-next-blocker",
+  "runtime": "local",
+  "adapter": "none",
+  "swus": [
+    "OVS-JSON-001",
+    "OVS-JSON-002",
+    "OVS-JSON-003"
+  ],
+  "context_pack": "CONTEXT-PACK.md",
+  "result": "RESULT.md",
+  "source_artifacts": [
+    "../../WORK-PACK.md",
+    "../../VALIDATION-REPORT.md",
+    "../../task-sessions/20260529T162952Z-ovs-profile/RESULT.md",
+    "../../../BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+    "../../fixtures/valid/index.json",
+    "../../fixtures/invalid/index.json"
+  ],
+  "updated_artifacts": [
+    "../../schema/branch-aware-ontology-candidate.schema.yml",
+    "../../tests/validate_branch_json_schema.py",
+    "../../VALIDATION-REPORT.md",
+    "../../WORK-PACK.md"
+  ],
+  "validation": [
+    {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\nimport yaml\nyaml.safe_load(Path('arcana/ontology-vault/development/schema-validation-plan/schema/branch-aware-ontology-candidate.schema.yml').read_text())\nPY",
+      "result": "pass"
+    },
+    {
+      "command": "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_schema.py",
+      "result": "pass",
+      "observed": "branch-schema-fixtures: PASS"
+    },
+    {
+      "command": "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_json_schema.py",
+      "result": "pass",
+      "observed": "branch-json-schema-fixtures: PASS"
+    },
+    {
+      "command": "tools/validate-artifact-constitution.sh",
+      "result": "pass-with-existing-warnings"
+    }
+  ],
+  "boundaries_preserved": [
+    "Inventory",
+    "structured-action-schema",
+    "canonical Ontology Vault templates",
+    "DomainSpec files",
+    "CyberAlchemy source ontology"
+  ],
+  "next_blocker": {
+    "id": "canonical-promotion-decision-gate-required",
+    "reason": "Development validation now passes; canonical template/convention mutation requires explicit governance decision."
+  }
+}

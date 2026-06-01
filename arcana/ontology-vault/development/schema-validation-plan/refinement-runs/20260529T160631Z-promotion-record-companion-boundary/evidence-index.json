@@ -1,0 +1,105 @@
+{
+  "run_id": "20260529T160631Z-promotion-record-companion-boundary",
+  "status": "pass",
+  "preset": "standard",
+  "research": "no-research",
+  "target": "arcana/ontology-vault/development/schema-validation-plan/",
+  "seed": "REFINE-SEED-PROPOSAL.md",
+  "dispatch": {
+    "path": "REFINE-DISPATCH.json",
+    "validation": "pass",
+    "dispatch_spec_command": "block",
+    "dispatch_spec_command_reason": "tools/arcanum --resolve dispatch-spec returned unknown Arcanum command"
+  },
+  "runtime_handoff": "RUNTIME-HANDOFF.md",
+  "run_manifest": "RUN-MANIFEST.md",
+  "result": "RESULT.md",
+  "context_builder": {
+    "status": "pass",
+    "handoff": "context-builder/HANDOFF.md",
+    "index": "context-builder/index.json",
+    "dry_run": "stages/00-context-builder-dry-run.md"
+  },
+  "stages": [
+    {
+      "stage": "Invoke Define",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/01-invoke-define.md"
+    },
+    {
+      "stage": "Interrogation refine-review",
+      "owner": "interrogation",
+      "status": "pass",
+      "artifact": "stages/02-interrogation-refine-review.md"
+    },
+    {
+      "stage": "Research decision",
+      "owner": "refine",
+      "status": "pass",
+      "artifact": "stages/03-research-decision.md"
+    },
+    {
+      "stage": "Distill",
+      "owner": "distill",
+      "status": "pass",
+      "artifact": "stages/04-distill.md"
+    },
+    {
+      "stage": "Invoke Redefine / Design",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/05-invoke-design.md"
+    },
+    {
+      "stage": "Interrogation refine-design-review",
+      "owner": "interrogation",
+      "status": "pass",
+      "artifact": "stages/06-interrogation-refine-design-review.md"
+    },
+    {
+      "stage": "Distill Repair",
+      "owner": "distill",
+      "status": "pass",
+      "artifact": "stages/07-distill-repair.md"
+    },
+    {
+      "stage": "Invoke Plan",
+      "owner": "invoke",
+      "status": "pass",
+      "artifact": "stages/08-invoke-plan.md"
+    },
+    {
+      "stage": "Final Interrogation and Synthesis",
+      "owner": "refine",
+      "status": "pass",
+      "artifact": "RESULT.md"
+    }
+  ],
+  "source_artifacts": [
+    "../../WORK-PACK.md",
+    "../../VALIDATION-REPORT.md",
+    "../../task-sessions/20260529T124348Z-ovs-rk-001/RESULT.md",
+    "../../../BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+    "../../fixtures/valid/cyberalchemy-caol-promotion-record.json",
+    "../../fixtures/valid/domainspec-bridge-lifecycle-envelope.json",
+    "../../fixtures/valid/future-system-branch-portability.json"
+  ],
+  "recommendation": {
+    "summary": "Use base schema plus development record-kind profiles before JSON Schema; defer companion templates and separate governed schemas.",
+    "next_route": "OVS-PROFILE-001",
+    "blocks_json_schema_until": [
+      "record-kind profile rules are explicit",
+      "evidence_input has direct valid and invalid fixture coverage",
+      "profile checks are represented in the deterministic validator"
+    ]
+  },
+  "boundaries_preserved": [
+    "Inventory",
+    "structured-action-schema",
+    "canonical Ontology Vault templates",
+    "JSON Schema generation",
+    "DomainSpec files",
+    "CyberAlchemy source ontology"
+  ]
+}

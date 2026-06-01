@@ -1,0 +1,260 @@
+{
+  "dispatch_id": "refine-20260529T104000Z-record-kind-decision",
+  "intent": {
+    "raw": "Refine the blocker from schema validation: decide whether record_kind enters the candidate schema before JSON Schema generation.",
+    "objective": "Produce a non-canonical refinement synthesis for the record_kind schema gap.",
+    "target_artifact": "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+    "arcanum_vocabulary": ["refine", "dispatch-spec", "record_kind", "PromotionRecord", "branch-aware ontology schema"],
+    "operator_sentence": "Resolve the record_kind blocker before JSON Schema generation."
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "Three design options exist for record_kind handling.",
+    "items": [
+      {
+        "id": "add-record-kind",
+        "label": "Add record_kind",
+        "description": "Add a minimal top-level record-family discriminator to the candidate schema.",
+        "capability_ref": "invoke",
+        "pattern": "design"
+      },
+      {
+        "id": "fixture-local",
+        "label": "Keep fixture-local",
+        "description": "Leave record_kind as pressure metadata until more examples exist.",
+        "capability_ref": "refine",
+        "pattern": "synthesis"
+      },
+      {
+        "id": "split-companions",
+        "label": "Split companions",
+        "description": "Plan separate schemas for ontology entries, promotion records, evidence inputs, and bridge validations.",
+        "capability_ref": "invoke",
+        "pattern": "plan"
+      }
+    ],
+    "selected_item_id": "add-record-kind"
+  },
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "tournament",
+    "pareto_gate",
+    "residue_ledger"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Ordinary refinement loop with required stage handoffs and validation evidence.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog",
+        "conditional_component",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": ["context-builder", "invoke-define", "interrogation-review", "distill", "invoke-design", "distill-repair", "invoke-plan", "final-synthesis"],
+      "validation_expectation": "Each step emits or references an artifact handle and preserves owner boundaries."
+    },
+    {
+      "overlay_id": "tournament_for_alternatives",
+      "trigger": "The record_kind gap has three plausible design options.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "residue_ledger"
+      ],
+      "applies_to_steps": ["interrogation-review", "distill", "invoke-design", "distill-repair", "final-synthesis"],
+      "validation_expectation": "Rejected alternatives and residual gaps are named before recommending next route."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "context-builder",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": ["frame_handoff", "handle_handoff"],
+      "inputs": [{"kind": "intent", "ref": "REFINE-SEED-PROPOSAL.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/context-builder.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": ["sequence"],
+      "inputs": [{"kind": "artifact", "ref": "REFINE-SEED-PROPOSAL.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/invoke-define.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "interrogation-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": ["tournament", "pareto_gate"],
+      "roles": ["add-record-kind", "fixture-local", "split-companions"],
+      "inputs": [{"kind": "artifact", "ref": "stages/invoke-define.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/interrogation-review.output.md"}],
+      "join_policy": "pareto",
+      "convergence_criteria": ["Prefer the smallest schema addition that keeps PromotionRecord expressible before JSON Schema."]
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": ["owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "VALIDATION-REPORT.md"}],
+      "outputs": [{"kind": "decision", "ref": "no-research"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "distill",
+      "name": "Distill selected unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": ["scu_swu_reduction", "minimum_component_catalog"],
+      "inputs": [{"kind": "artifact", "ref": "stages/interrogation-review.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/distill.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": ["validation_loop", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "stages/distill.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/invoke-design.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "interrogation-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": ["validation_loop", "data_quality_completeness"],
+      "inputs": [{"kind": "artifact", "ref": "stages/invoke-design.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/interrogation-design-review.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": ["validation_loop", "residue_ledger"],
+      "inputs": [{"kind": "artifact", "ref": "stages/interrogation-design-review.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/distill-repair.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": ["sequence", "residue_ledger"],
+      "inputs": [{"kind": "artifact", "ref": "stages/distill-repair.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/invoke-plan.output.md"}],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "final-synthesis",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": ["validation_loop", "residue_ledger"],
+      "inputs": [{"kind": "artifact", "ref": "stages/invoke-plan.output.md"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "join_policy": "none"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "dispatch-schema-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json validates against formulae/dispatch-spec/dispatch.schema.json.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "owner-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "Ontology Vault",
+      "condition": "No Inventory, structured-action-schema, template, or source schema mutation occurs in this refine run.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "json-schema-block",
+      "kind": "policy",
+      "owner": "Ontology Vault",
+      "condition": "JSON Schema generation remains blocked until record_kind is resolved or explicitly deferred.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "final-synthesis-readiness",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "Final result names recommendation, rejected alternatives, and next route.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "refine.record_kind.seed",
+      "refine.record_kind.dispatch_validated",
+      "refine.record_kind.stage_artifact",
+      "refine.record_kind.final_synthesis"
+    ],
+    "signal_grouping": "refine-20260529T104000Z-record-kind-decision"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "ontology-development-only",
+        "kind": "artifact_import",
+        "from_owner": "schema-validation-plan",
+        "to_owner": "refine",
+        "applies_to_steps": ["context-builder", "invoke-design", "final-synthesis"],
+        "contract": "Use validation report and fixtures as evidence handles only; no schema mutation in this run.",
+        "on_violation": "block"
+      }
+    ]
+  }
+}

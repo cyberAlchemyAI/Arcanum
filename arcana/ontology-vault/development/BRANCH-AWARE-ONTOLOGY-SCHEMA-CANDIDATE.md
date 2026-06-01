@@ -8,6 +8,7 @@ Depends on:
 - `BRANCH-AWARE-ONTOLOGY-CANDIDATE.md`
 - `BRANCH-NAMING-DISTILL.md`
 - `DURABLE-SESSION-CONTEXT.md`
+- `general-ontology-lifecycle/refinement-runs/20260527T010000Z-role-lifecycle-redundancy/RESULT.md`
 
 ## Purpose
 
@@ -80,7 +81,11 @@ flowchart LR
 id: string
 title: string
 entry_type: string
-status: hypothesis | candidate | reviewed | promoted | deprecated | contradicted
+record_kind: ontology_entry | promotion_record | evidence_input | bridge_validation
+lifecycle_status: raw | catalogedEvidence | reviewableSignal | promotionRecordDraft | candidate | premise | reviewed | promoted | contradicted | retired | rejected | deferred
+claim_role: hypothesis | observation | evidence | premise | principle | policy | constraint | invariant | contradiction | retirement | other
+governance_outcome: none | policy | constitution | axiom
+bridge_outcome: aligned | partial | drift | insufficient | contradicted | not_applicable | unknown
 owner: string
 updated_at: YYYY-MM-DD
 
@@ -137,11 +142,12 @@ edges:
     target_branch: meaning | system | operational | bridge | unknown
     evidence_refs:
       - string
-    status: hypothesis | candidate | reviewed | promoted | deprecated | contradicted
+    lifecycle_status: raw | candidate | reviewed | promoted | contradicted | retired | rejected | deferred
+    bridge_outcome: aligned | partial | drift | insufficient | contradicted | not_applicable | unknown
     rationale: string
 
 governance:
-  promotion_state: hypothesis | candidate | reviewed | promoted | deprecated | contradicted
+  promotion_state: hypothesis | candidate | reviewed | promoted | contradicted | retired | rejected | deferred
   next_gate: none | evidence-review | premise-review | bridge-validation | decision-gate | convention-update | lifecycle-owner-review
   mutation_allowed: false
   promotion_blockers:
@@ -156,7 +162,12 @@ All entries require:
 
 - `id`
 - `title`
-- `status`
+- `entry_type`
+- `record_kind`
+- `lifecycle_status`
+- `claim_role`
+- `governance_outcome`
+- `bridge_outcome`
 - `branch_context.primary`
 - `branch_context.system_subject`
 - `branch_context.rationale`
@@ -164,6 +175,17 @@ All entries require:
 - `confidence.evidence`
 - `confidence.commitment`
 - `governance.promotion_state`
+
+Schema-axis rule:
+
+- `record_kind` describes the record family shape.
+- `lifecycle_status` describes governance maturity and permitted reliance.
+- `claim_role` describes what kind of claim, record, or governance function the entry is playing.
+- `governance_outcome` describes an accepted special consequence when applicable.
+- `bridge_outcome` describes cross-branch validation when applicable.
+- Do not use one `type`, `kind`, `status`, `record_kind`, or `entry_type` field to carry all four axes.
+- Do not use `record_kind` as a substitute for lifecycle maturity, claim role, governance outcome, or bridge outcome.
+- Promotion may update `lifecycle_status` or `governance_outcome`; it should not silently rewrite `claim_role`.
 
 Operational entries also require:
 
@@ -363,7 +385,7 @@ If `system_subject` and `operating_context` refer to the same system, then:
 
 ### V9: Promotion Boundary
 
-`status: promoted` requires:
+`lifecycle_status: promoted` requires:
 
 - `governance.promotion_state: promoted`,
 - no open promotion blockers,
@@ -376,6 +398,64 @@ Do not classify an entry as `meaning` merely because it has semantic content.
 
 Use `meaning` only when the claim defines or governs what the system means, values, promises, frames, or tries to make true.
 
+### V11: Role And Lifecycle Axis Split
+
+`lifecycle_status`, `claim_role`, `governance_outcome`, and `bridge_outcome` must remain separate.
+
+Invalid examples:
+
+- `claim_role: candidate`
+- `entry_type: promotedPolicy` as a substitute for `lifecycle_status: promoted` plus `governance_outcome: policy`
+- `bridge_outcome: contradicted` without preserving the challenged claim and counterevidence
+
+Valid examples:
+
+- `lifecycle_status: candidate` with `claim_role: hypothesis`
+- `lifecycle_status: promoted` with `claim_role: policy` and `governance_outcome: policy`
+- `lifecycle_status: contradicted` with `claim_role: contradiction` and `bridge_outcome: contradicted`
+
+### V12: Record Kind
+
+`record_kind` must be one of:
+
+```text
+ontology_entry | promotion_record | evidence_input | bridge_validation
+```
+
+Use `record_kind` for the record-family shape, not for domain class, lifecycle maturity, or branch ownership.
+
+Candidate meaning:
+
+- `ontology_entry`: default ontology-shaped claim, definition, policy, constraint, or relation entry.
+- `promotion_record`: governed change/promotion record about one primary claim.
+- `evidence_input`: evidence object admitted for traceability without becoming ontology authority.
+- `bridge_validation`: record whose primary function is validating, contradicting, or naming alignment/drift across branches.
+
+Promotion records:
+
+- should carry one primary claim,
+- should cite source or evidence pointers,
+- should preserve evidence and commitment confidence,
+- should name review owner, gate, contradiction path, and rollback or retirement path,
+- should not replace ontology entries.
+
+### V13: Record Kind Profiles
+
+The first development JSON Schema should use record-kind profiles, not separate canonical companion schemas.
+
+Profile intent:
+
+- `ontology_entry`: default branch-aware ontology entry. It may describe meaning, system, operational, or bridge claims, but it must not use `entry_type: PromotionRecord`.
+- `promotion_record`: governance/change record about one primary ontology claim. It must preserve evidence, confidence, review gate, contradiction path, and at least one target relation.
+- `bridge_validation`: validation, contradiction, alignment, drift, or evidence-gap record across branches. It must use `branch_context.primary: bridge`, name `bridge_scope`, and carry bridge-alignment confidence.
+- `evidence_input`: admitted evidence for traceability. It must carry at least one source, inventory reference, or validation reference; it must not claim promoted ontology authority.
+
+Profile boundary:
+
+- Profiles are development validation boundaries.
+- Profiles are not canonical templates.
+- Profiles may later justify companion schemas or templates, but only after fixture evidence proves separate ownership is useful.
+
 ## Example Entries
 
 ### Meaning Entry
@@ -384,7 +464,11 @@ Use `meaning` only when the claim defines or governs what the system means, valu
 id: arcanum.meaning.branch_context_discriminator
 title: Branch Context Discriminator
 entry_type: MethodPrimitive
-status: candidate
+record_kind: ontology_entry
+lifecycle_status: candidate
+claim_role: principle
+governance_outcome: none
+bridge_outcome: not_applicable
 owner: Ontology Vault
 updated_at: 2026-05-27
 branch_context:
@@ -443,7 +527,11 @@ governance:
 id: arcanum.operational.self_build_ontology_development
 title: Arcanum Self-Build Ontology Development
 entry_type: OperationalContext
-status: candidate
+record_kind: ontology_entry
+lifecycle_status: candidate
+claim_role: premise
+governance_outcome: none
+bridge_outcome: not_applicable
 owner: Ontology Vault
 updated_at: 2026-05-27
 branch_context:
@@ -500,7 +588,11 @@ governance:
 id: arcanum.bridge.inventory_to_ontology_branch_handoff
 title: Inventory To Ontology Branch Handoff
 entry_type: BridgeRelation
-status: candidate
+record_kind: bridge_validation
+lifecycle_status: candidate
+claim_role: evidence
+governance_outcome: none
+bridge_outcome: insufficient
 owner: Ontology Vault
 updated_at: 2026-05-27
 branch_context:
@@ -546,7 +638,8 @@ edges:
     target_branch: bridge
     evidence_refs:
       - arcana/inventory/development/ONTOLOGY-BRANCH-MODEL-HANDOFF.md
-    status: candidate
+    lifecycle_status: candidate
+    bridge_outcome: insufficient
     rationale: Source handoff establishes boundary between Inventory and Ontology Vault.
 governance:
   promotion_state: candidate
@@ -580,6 +673,7 @@ No template is changed by this candidate.
 | Should relations be embedded or standalone? | Both, with standalone trigger rules. | example validation |
 | Should JSON Schema be generated later? | Yes, after examples stabilize. | implementation-layering |
 | Should structured-action-schema mirror any field? | Not now. | separate handoff |
+| Should lifecycle, role, governance outcome, and bridge outcome remain separate schema axes? | Yes in candidate schema. | example validation |
 
 ## Validation Plan
 
@@ -592,6 +686,9 @@ Use this schema against a small example set:
 5. CyberAlchemy meaning entry: symmetry pursuit or residue reduction.
 6. CyberAlchemy system entry: route ledger or harness.
 7. DomainSpec bridge entry: domain rule tested by pipeline behavior.
+8. Role-axis entry: `lifecycle_status: candidate`, `claim_role: hypothesis`, no governance outcome.
+9. Governance-outcome entry: `lifecycle_status: promoted`, `claim_role: policy`, `governance_outcome: policy`.
+10. Contradiction entry: `lifecycle_status: contradicted`, `claim_role: contradiction`, `bridge_outcome: contradicted`.
 
 Record failures as schema gaps, not as forced data edits.
 

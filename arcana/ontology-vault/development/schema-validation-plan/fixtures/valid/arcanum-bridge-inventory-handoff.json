@@ -1,0 +1,72 @@
+{
+  "id": "arcanum.bridge.inventory_to_ontology_branch_handoff",
+  "title": "Inventory To Ontology Branch Handoff",
+  "entry_type": "BridgeRelation",
+  "record_kind": "bridge_validation",
+  "lifecycle_status": "candidate",
+  "claim_role": "evidence",
+  "governance_outcome": "none",
+  "bridge_outcome": "insufficient",
+  "owner": "Ontology Vault",
+  "updated_at": "2026-05-27",
+  "branch_context": {
+    "primary": "bridge",
+    "local_alias": null,
+    "role_family": "relation",
+    "local_role": "traceability-link",
+    "system_subject": "Arcanum",
+    "operating_context": "ontology-vault development",
+    "bridge_scope": "Inventory evidence capture to Ontology Vault branch governance",
+    "rationale": "Connects Inventory's source-backed handoff to Ontology Vault's branch model authority."
+  },
+  "scope": {
+    "applies_to": ["ontology handoffs from Inventory"],
+    "excludes": ["Inventory promotion authority"],
+    "validity_scope": "branch-aware ontology candidate work",
+    "expiry_condition": "governed handoff schema replaces this candidate"
+  },
+  "content": {
+    "claim": "Inventory may propose branch hints, but Ontology Vault decides branch context.",
+    "definition": null,
+    "purpose": "Preserve evidence handoff without authority leakage.",
+    "examples": ["Inventory handoff provides branch_hint."],
+    "non_examples": ["Inventory branch_hint promoted directly as governed ontology."]
+  },
+  "evidence": {
+    "raw_sources": [
+      {
+        "ref": "arcana/inventory/development/ONTOLOGY-BRANCH-MODEL-HANDOFF.md",
+        "selector": "Boundary With Inventory",
+        "role": "source"
+      }
+    ],
+    "inventory_refs": [],
+    "validation_refs": []
+  },
+  "confidence": {
+    "evidence": "high",
+    "commitment": "medium",
+    "bridge_alignment": "medium",
+    "scope": "medium",
+    "rationale": "The handoff is explicit, but schema validation has not been run."
+  },
+  "edges": [
+    {
+      "type": "traced_to",
+      "target": "arcana/inventory/development/ONTOLOGY-BRANCH-MODEL-HANDOFF.md",
+      "target_branch": "bridge",
+      "evidence_refs": ["arcana/inventory/development/ONTOLOGY-BRANCH-MODEL-HANDOFF.md"],
+      "lifecycle_status": "candidate",
+      "bridge_outcome": "insufficient",
+      "rationale": "Source handoff establishes boundary between Inventory and Ontology Vault."
+    }
+  ],
+  "governance": {
+    "promotion_state": "candidate",
+    "next_gate": "bridge-validation",
+    "mutation_allowed": false,
+    "promotion_blockers": ["candidate schema not validated against example set"],
+    "contradiction_path": "If Inventory starts owning branch context, record authority drift.",
+    "circular_authority_check": "not_applicable"
+  }
+}

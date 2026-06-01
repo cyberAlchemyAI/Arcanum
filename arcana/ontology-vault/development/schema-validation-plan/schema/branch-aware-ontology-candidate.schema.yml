@@ -1,0 +1,686 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://arcanum.local/ontology-vault/development/branch-aware-ontology-candidate.schema.yml
+title: Branch-Aware Ontology Candidate Entry
+description: Development-only JSON Schema for branch-aware ontology candidate fixtures.
+  Non-canonical.
+type: object
+required:
+- id
+- title
+- entry_type
+- record_kind
+- lifecycle_status
+- claim_role
+- governance_outcome
+- bridge_outcome
+- owner
+- updated_at
+- branch_context
+- scope
+- content
+- evidence
+- confidence
+- edges
+- governance
+not:
+  required:
+  - status
+properties:
+  id:
+    type: string
+    minLength: 1
+  title:
+    type: string
+    minLength: 1
+  entry_type:
+    type: string
+    minLength: 1
+  record_kind:
+    enum:
+    - ontology_entry
+    - promotion_record
+    - evidence_input
+    - bridge_validation
+  lifecycle_status:
+    enum:
+    - raw
+    - catalogedEvidence
+    - reviewableSignal
+    - promotionRecordDraft
+    - candidate
+    - premise
+    - reviewed
+    - promoted
+    - contradicted
+    - retired
+    - rejected
+    - deferred
+  claim_role:
+    enum:
+    - hypothesis
+    - observation
+    - evidence
+    - premise
+    - principle
+    - policy
+    - constraint
+    - invariant
+    - contradiction
+    - retirement
+    - other
+  governance_outcome:
+    enum:
+    - none
+    - policy
+    - constitution
+    - axiom
+  bridge_outcome:
+    enum:
+    - aligned
+    - partial
+    - drift
+    - insufficient
+    - contradicted
+    - not_applicable
+    - unknown
+  owner:
+    type: string
+    minLength: 1
+  updated_at:
+    type: string
+    pattern: ^\d{4}-\d{2}-\d{2}$
+  branch_context:
+    $ref: '#/$defs/branch_context'
+  scope:
+    $ref: '#/$defs/scope'
+  content:
+    $ref: '#/$defs/content'
+  evidence:
+    $ref: '#/$defs/evidence'
+  confidence:
+    $ref: '#/$defs/confidence'
+  edges:
+    type: array
+    items:
+      $ref: '#/$defs/edge'
+  governance:
+    $ref: '#/$defs/governance'
+allOf:
+- if:
+    properties:
+      branch_context:
+        properties:
+          primary:
+            const: operational
+        required:
+        - primary
+    required:
+    - branch_context
+  then:
+    properties:
+      branch_context:
+        required:
+        - operating_context
+        properties:
+          operating_context:
+            type: string
+            minLength: 1
+      scope:
+        required:
+        - validity_scope
+        - expiry_condition
+        properties:
+          validity_scope:
+            type: string
+            minLength: 1
+          expiry_condition:
+            type: string
+            minLength: 1
+- if:
+    properties:
+      branch_context:
+        properties:
+          primary:
+            const: bridge
+        required:
+        - primary
+    required:
+    - branch_context
+  then:
+    properties:
+      branch_context:
+        required:
+        - bridge_scope
+        properties:
+          bridge_scope:
+            type: string
+            minLength: 1
+    anyOf:
+    - properties:
+        edges:
+          type: array
+          minItems: 1
+      required:
+      - edges
+    - properties:
+        branch_context:
+          properties:
+            local_role:
+              const: evidence-gap
+          required:
+          - local_role
+      required:
+      - branch_context
+- if:
+    properties:
+      lifecycle_status:
+        const: promoted
+    required:
+    - lifecycle_status
+  then:
+    properties:
+      governance:
+        properties:
+          promotion_state:
+            const: promoted
+          next_gate:
+            const: none
+          promotion_blockers:
+            type: array
+            maxItems: 0
+        required:
+        - promotion_state
+        - next_gate
+        - promotion_blockers
+    anyOf:
+    - properties:
+        evidence:
+          properties:
+            raw_sources:
+              type: array
+              minItems: 1
+    - properties:
+        evidence:
+          properties:
+            validation_refs:
+              type: array
+              minItems: 1
+- if:
+    properties:
+      record_kind:
+        const: ontology_entry
+    required:
+    - record_kind
+  then:
+    not:
+      properties:
+        entry_type:
+          const: PromotionRecord
+      required:
+      - entry_type
+- if:
+    properties:
+      record_kind:
+        const: promotion_record
+    required:
+    - record_kind
+  then:
+    properties:
+      entry_type:
+        const: PromotionRecord
+      edges:
+        type: array
+        minItems: 1
+      governance:
+        properties:
+          next_gate:
+            not:
+              const: none
+          contradiction_path:
+            type: string
+            minLength: 1
+        required:
+        - next_gate
+        - contradiction_path
+    required:
+    - entry_type
+    - edges
+    - governance
+    anyOf:
+    - properties:
+        evidence:
+          properties:
+            raw_sources:
+              type: array
+              minItems: 1
+    - properties:
+        evidence:
+          properties:
+            validation_refs:
+              type: array
+              minItems: 1
+    - properties:
+        evidence:
+          properties:
+            inventory_refs:
+              type: array
+              minItems: 1
+- if:
+    properties:
+      record_kind:
+        const: bridge_validation
+    required:
+    - record_kind
+  then:
+    properties:
+      branch_context:
+        properties:
+          primary:
+            const: bridge
+          bridge_scope:
+            type: string
+            minLength: 1
+        required:
+        - primary
+        - bridge_scope
+      confidence:
+        properties:
+          bridge_alignment:
+            enum:
+            - low
+            - medium
+            - high
+            - unknown
+        required:
+        - bridge_alignment
+    anyOf:
+    - properties:
+        edges:
+          type: array
+          minItems: 1
+      required:
+      - edges
+    - properties:
+        branch_context:
+          properties:
+            local_role:
+              const: evidence-gap
+          required:
+          - local_role
+      required:
+      - branch_context
+- if:
+    properties:
+      record_kind:
+        const: evidence_input
+    required:
+    - record_kind
+  then:
+    properties:
+      lifecycle_status:
+        not:
+          const: promoted
+      claim_role:
+        enum:
+        - evidence
+        - observation
+      governance_outcome:
+        const: none
+      confidence:
+        properties:
+          commitment:
+            enum:
+            - low
+            - unknown
+        required:
+        - commitment
+      governance:
+        properties:
+          promotion_state:
+            not:
+              const: promoted
+        required:
+        - promotion_state
+    anyOf:
+    - properties:
+        evidence:
+          properties:
+            raw_sources:
+              type: array
+              minItems: 1
+    - properties:
+        evidence:
+          properties:
+            validation_refs:
+              type: array
+              minItems: 1
+    - properties:
+        evidence:
+          properties:
+            inventory_refs:
+              type: array
+              minItems: 1
+- if:
+    properties:
+      bridge_outcome:
+        const: contradicted
+    required:
+    - bridge_outcome
+  then:
+    properties:
+      evidence:
+        properties:
+          raw_sources:
+            type: array
+            contains:
+              type: object
+              properties:
+                role:
+                  const: counterevidence
+              required:
+              - role
+        required:
+        - raw_sources
+$defs:
+  branch_context:
+    type: object
+    required:
+    - primary
+    - system_subject
+    - rationale
+    properties:
+      primary:
+        enum:
+        - meaning
+        - system
+        - operational
+        - bridge
+      local_alias:
+        enum:
+        - business
+        - domain
+        - intent
+        - proposition
+        - philosophy
+        - null
+      role_family:
+        enum:
+        - meaning
+        - mechanism
+        - context
+        - relation
+        - evidence
+        - governance
+        - other
+      local_role:
+        type: string
+        minLength: 1
+      system_subject:
+        type: string
+        minLength: 1
+      operating_context:
+        type:
+        - string
+        - 'null'
+      bridge_scope:
+        type:
+        - string
+        - 'null'
+      rationale:
+        type: string
+        minLength: 1
+  scope:
+    type: object
+    required:
+    - applies_to
+    - excludes
+    - validity_scope
+    - expiry_condition
+    properties:
+      applies_to:
+        type: array
+        items:
+          type: string
+      excludes:
+        type: array
+        items:
+          type: string
+      validity_scope:
+        type: string
+      expiry_condition:
+        type: string
+  content:
+    type: object
+    required:
+    - claim
+    - definition
+    - purpose
+    - examples
+    - non_examples
+    properties:
+      claim:
+        type: string
+        minLength: 1
+      definition:
+        type:
+        - string
+        - 'null'
+      purpose:
+        type:
+        - string
+        - 'null'
+      examples:
+        type: array
+        items:
+          type: string
+      non_examples:
+        type: array
+        items:
+          type: string
+  evidence:
+    type: object
+    required:
+    - raw_sources
+    - inventory_refs
+    - validation_refs
+    properties:
+      raw_sources:
+        type: array
+        items:
+          type: object
+          required:
+          - ref
+          - selector
+          - role
+          properties:
+            ref:
+              type: string
+              minLength: 1
+            selector:
+              type:
+              - string
+              - 'null'
+            role:
+              enum:
+              - source
+              - counterevidence
+              - context
+              - prior-decision
+      inventory_refs:
+        type: array
+        items:
+          type: object
+          required:
+          - ref
+          - selector
+          - non_authority_notice
+          properties:
+            ref:
+              type: string
+              minLength: 1
+            selector:
+              type:
+              - string
+              - 'null'
+            non_authority_notice:
+              const: true
+      validation_refs:
+        type: array
+        items:
+          type: object
+          required:
+          - ref
+          - result
+          properties:
+            ref:
+              type: string
+              minLength: 1
+            result:
+              enum:
+              - pass
+              - flag
+              - block
+              - unknown
+  confidence:
+    type: object
+    required:
+    - evidence
+    - commitment
+    - bridge_alignment
+    - scope
+    - rationale
+    properties:
+      evidence:
+        enum:
+        - low
+        - medium
+        - high
+        - unknown
+      commitment:
+        enum:
+        - low
+        - medium
+        - high
+        - unknown
+      bridge_alignment:
+        enum:
+        - low
+        - medium
+        - high
+        - not_applicable
+        - unknown
+      scope:
+        enum:
+        - low
+        - medium
+        - high
+        - unknown
+      rationale:
+        type: string
+        minLength: 1
+  edge:
+    type: object
+    required:
+    - type
+    - target
+    - target_branch
+    - evidence_refs
+    - lifecycle_status
+    - bridge_outcome
+    - rationale
+    properties:
+      type:
+        enum:
+        - realized_by
+        - depends_on
+        - constrained_by
+        - observed_by
+        - tested_by
+        - drifts_from
+        - traced_to
+        - operationalizes
+        - contradicted_by
+        - promotes_to
+        - specializes
+        - generalizes_to
+        - supersedes
+        - related_to
+      target:
+        type: string
+        minLength: 1
+      target_branch:
+        enum:
+        - meaning
+        - system
+        - operational
+        - bridge
+        - unknown
+      evidence_refs:
+        type: array
+        items:
+          type: string
+      lifecycle_status:
+        enum:
+        - raw
+        - candidate
+        - reviewed
+        - promoted
+        - contradicted
+        - retired
+        - rejected
+        - deferred
+      bridge_outcome:
+        enum:
+        - aligned
+        - partial
+        - drift
+        - insufficient
+        - contradicted
+        - not_applicable
+        - unknown
+      rationale:
+        type: string
+        minLength: 1
+  governance:
+    type: object
+    required:
+    - promotion_state
+    - next_gate
+    - mutation_allowed
+    - promotion_blockers
+    - contradiction_path
+    - circular_authority_check
+    properties:
+      promotion_state:
+        enum:
+        - hypothesis
+        - candidate
+        - reviewed
+        - promoted
+        - contradicted
+        - retired
+        - rejected
+        - deferred
+      next_gate:
+        enum:
+        - none
+        - evidence-review
+        - premise-review
+        - bridge-validation
+        - decision-gate
+        - convention-update
+        - lifecycle-owner-review
+      mutation_allowed:
+        const: false
+      promotion_blockers:
+        type: array
+        items:
+          type: string
+      contradiction_path:
+        type: string
+      circular_authority_check:
+        enum:
+        - pass
+        - flag
+        - block
+        - not_applicable

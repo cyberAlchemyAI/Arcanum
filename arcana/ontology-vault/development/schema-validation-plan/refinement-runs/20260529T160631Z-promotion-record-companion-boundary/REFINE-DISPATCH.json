@@ -1,0 +1,239 @@
+{
+  "dispatch_id": "refine-20260529T160631Z-promotion-record-companion-boundary",
+  "intent": {
+    "raw": "Refine PromotionRecord companion boundary first, and other possible model gaps, before JSON Schema generation.",
+    "objective": "Decide which record-kind companion boundaries should be settled before the first development-only branch-aware ontology JSON Schema candidate.",
+    "target_artifact": "arcana/ontology-vault/development/schema-validation-plan/",
+    "arcanum_vocabulary": [
+      "refine",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill",
+      "dispatch-spec",
+      "ontology-vault",
+      "record_kind",
+      "PromotionRecord"
+    ],
+    "operator_sentence": "Get companion boundaries right before hardening the candidate schema."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "dialectic",
+    "tournament",
+    "residue_ledger"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "dialectic_for_schema_boundary_tension",
+      "trigger": "PromotionRecord can be treated as inline record kind, companion schema, workflow receipt, or template.",
+      "techniques": [
+        "dialectic",
+        "zig_zag",
+        "residue_ledger"
+      ],
+      "applies_to_steps": [
+        "interrogation-refine-review",
+        "invoke-design",
+        "interrogation-refine-design-review",
+        "final-synthesis"
+      ],
+      "validation_expectation": "Result must name the tension and preserve the unresolved residue instead of flattening all options into one schema."
+    },
+    {
+      "overlay_id": "tournament_for_companion_models",
+      "trigger": "Multiple plausible companion model boundaries must be compared before JSON Schema generation.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "distill",
+        "invoke-plan",
+        "final-synthesis"
+      ],
+      "validation_expectation": "Result must compare inline-only, companion-schema-now, and layered-companion-later options."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "context-builder",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "handoff",
+      "inputs": [
+        {"kind": "intent", "ref": "REFINE-SEED-PROPOSAL.md"},
+        {"kind": "artifact", "ref": "../../WORK-PACK.md"},
+        {"kind": "artifact", "ref": "../../VALIDATION-REPORT.md"},
+        {"kind": "artifact", "ref": "../../../BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md"}
+      ],
+      "outputs": [
+        {"kind": "handoff", "ref": "context-builder/HANDOFF.md"},
+        {"kind": "artifact", "ref": "context-builder/index.json"}
+      ]
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "inputs": [{"kind": "frame", "ref": "context-builder/HANDOFF.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/01-invoke-define.md"}]
+    },
+    {
+      "step_id": "interrogation-refine-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "dialectic",
+      "roles": ["schema-minimalist", "governance-separation"],
+      "inputs": [{"kind": "artifact", "ref": "stages/01-invoke-define.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/02-interrogation-refine-review.md"}],
+      "convergence_criteria": ["blockers and deferrable gaps are separated"]
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Research Decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "inputs": [{"kind": "artifact", "ref": "stages/02-interrogation-refine-review.md"}],
+      "outputs": [{"kind": "decision", "ref": "stages/03-research-decision.md"}]
+    },
+    {
+      "step_id": "distill",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "inputs": [{"kind": "artifact", "ref": "stages/03-research-decision.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/04-distill.md"}]
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Redefine Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "inputs": [{"kind": "handle", "ref": "stages/04-distill.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/05-invoke-design.md"}]
+    },
+    {
+      "step_id": "interrogation-refine-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "dialectic",
+      "roles": ["json-schema-readiness", "companion-model-governance"],
+      "inputs": [{"kind": "artifact", "ref": "stages/05-invoke-design.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/06-interrogation-refine-design-review.md"}],
+      "convergence_criteria": ["JSON Schema readiness decision is supported by boundary evidence"]
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "inputs": [{"kind": "artifact", "ref": "stages/06-interrogation-refine-design-review.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/07-distill-repair.md"}]
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "inputs": [{"kind": "artifact", "ref": "stages/07-distill-repair.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/08-invoke-plan.md"}]
+    },
+    {
+      "step_id": "final-synthesis",
+      "name": "Final Interrogation and Refine Synthesis",
+      "capability_ref": "refine",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "inputs": [{"kind": "artifact", "ref": "stages/08-invoke-plan.md"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "owner-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "Ontology Vault",
+      "condition": "No Inventory, structured-action-schema, canonical template, or JSON Schema mutation occurs in this refine run.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "model-gap-sweep",
+      "kind": "quality",
+      "owner": "Refine",
+      "condition": "Result covers PromotionRecord plus evidence_input and bridge_validation companion risks.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "next-route-only",
+      "kind": "policy",
+      "owner": "Refine",
+      "condition": "Recommended next routes are not executed inside this refinement.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "seed-created",
+      "dispatch-validated",
+      "stage-evidence-recorded",
+      "final-synthesis-produced"
+    ],
+    "signal_grouping": "refine-20260529T160631Z-promotion-record-companion-boundary"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "ontology-development-only",
+        "kind": "state_write",
+        "from_owner": "Refine",
+        "to_owner": "Ontology Vault development",
+        "applies_to_steps": ["context-builder", "invoke-design", "invoke-plan", "final-synthesis"],
+        "contract": "Write only refinement evidence under the schema-validation-plan refinement run.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "Ontology Vault development",
+      "execution": "Refine local run",
+      "validation": "dispatch schema and local artifact validation",
+      "evidence": "schema validation plan fixtures and reports",
+      "promotion": "future decision gate only"
+    },
+    "promotion_splits": [
+      {
+        "source": "refine result",
+        "target": "canonical Ontology Vault schema/template",
+        "rule": "Refine may recommend promotion or schema split work, but cannot promote or mutate canonical templates.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No JSON Schema generation in this run.",
+    "No canonical template mutation.",
+    "No Inventory mutation.",
+    "No structured-action-schema mutation."
+  ]
+}

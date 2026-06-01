@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graph Memory And Ontology</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101314;
+      --panel: #171d1f;
+      --panel-2: #20282b;
+      --text: #f1efe6;
+      --muted: #bac4c2;
+      --line: #3d4b4e;
+      --teal: #56c6b9;
+      --amber: #f0b35f;
+      --rose: #df7f7b;
+      --green: #8ecf7e;
+      --blue: #88aee8;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(86, 198, 185, 0.16), transparent 34rem), var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 56px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 28px;
+      align-items: end;
+      min-height: 360px;
+      padding-bottom: 34px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      margin-bottom: 18px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 1rem;
+      letter-spacing: 0;
+      margin-bottom: 10px;
+    }
+
+    .kicker {
+      color: var(--teal);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .hero-card, .card, .map-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 22px;
+    }
+
+    .hero-card strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 0.82rem;
+    }
+
+    section {
+      padding: 42px 0;
+      border-bottom: 1px solid rgba(61, 75, 78, 0.65);
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      padding: 22px;
+      min-height: 170px;
+    }
+
+    .card p, li {
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(145px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 22px;
+    }
+
+    .step {
+      position: relative;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      min-height: 142px;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      width: 18px;
+      height: 2px;
+      background: var(--line);
+    }
+
+    .step:last-child::after { display: none; }
+
+    .step .num {
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #071313;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .step h3 { margin-bottom: 8px; }
+    .step p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+    .crosswalk {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .crosswalk th, .crosswalk td {
+      padding: 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .crosswalk th {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+    }
+
+    .crosswalk td {
+      color: var(--muted);
+    }
+
+    .crosswalk tr:last-child td { border-bottom: 0; }
+
+    .map-card {
+      padding: 22px;
+      margin-top: 20px;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-node {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      min-height: 142px;
+    }
+
+    .map-node b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .meaning b { color: var(--amber); }
+    .system b { color: var(--blue); }
+    .operational b { color: var(--green); }
+    .bridge b { color: var(--rose); }
+
+    .callout {
+      border-left: 4px solid var(--teal);
+      padding: 18px 20px;
+      background: rgba(86, 198, 185, 0.08);
+      border-radius: 0 8px 8px 0;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .question {
+      padding: 18px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
+
+    .question span {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .state-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      padding: 20px;
+    }
+
+    .state-card h3 {
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .state-card p {
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .state-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .state-list code {
+      border: 1px solid rgba(186, 196, 194, 0.28);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.18);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .state-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .state-table th, .state-table td {
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .state-table th {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .state-table tr:last-child td { border-bottom: 0; }
+
+    .state-table code {
+      color: var(--text);
+    }
+
+    footer {
+      padding: 28px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 860px) {
+      header, .two, .three, .question-grid, .state-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .flow, .map {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
+        display: none;
+      }
+
+      main {
+        width: min(100% - 24px, 1120px);
+        padding-top: 26px;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      :root {
+        --bg: #101314;
+        --panel: #171d1f;
+        --panel-2: #20282b;
+        --text: #f1efe6;
+        --muted: #d2d8d6;
+        --line: #526164;
+        --teal: #56c6b9;
+        --amber: #f0b35f;
+        --rose: #df7f7b;
+        --green: #8ecf7e;
+        --blue: #88aee8;
+      }
+
+      * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-size: 10.5pt;
+      }
+
+      main {
+        width: 100%;
+        padding: 10mm;
+        background: var(--bg);
+      }
+
+      header {
+        min-height: 0;
+        display: block;
+        padding-bottom: 14pt;
+        break-after: avoid;
+      }
+
+      h1 {
+        font-size: 30pt;
+        line-height: 1;
+        margin-bottom: 10pt;
+      }
+
+      h2 {
+        font-size: 18pt;
+        margin-bottom: 9pt;
+        break-after: avoid;
+      }
+
+      h3 {
+        font-size: 11pt;
+        break-after: avoid;
+      }
+
+      p, li, td {
+        color: var(--muted);
+      }
+
+      section {
+        padding: 18pt 0;
+        border-bottom: 1px solid var(--line);
+        break-inside: auto;
+      }
+
+      .hero-card, .card, .map-card, .state-card, .question, .step, .map-node {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .hero-card {
+        margin-top: 12pt;
+      }
+
+      .two, .three, .state-grid, .question-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10pt;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+        gap: 8pt;
+      }
+
+      .step {
+        min-height: 0;
+      }
+
+      .step::after {
+        display: none;
+      }
+
+      .map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10pt;
+      }
+
+      .crosswalk, .state-table {
+        page-break-inside: auto;
+        break-inside: auto;
+      }
+
+      .crosswalk tr, .state-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .crosswalk th, .state-table th {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+      }
+
+      .badge, .state-list code {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-color: var(--line);
+      }
+
+      .callout {
+        background: rgba(86, 198, 185, 0.12);
+        border-left-color: var(--teal);
+        color: var(--muted);
+      }
+
+      footer {
+        padding-top: 14pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="kicker">Friend summary</p>
+        <h1>Graph memory needs ontology governance.</h1>
+        <p class="lead">The chat is about adaptive retrieval: a local model evaluates requests and responses, a graph database stores weighted relationships, and the query system learns what context matters. Our ontology work is the missing governance layer: it says what kind of relation is being changed, why it is allowed to change, how confident we are, and when a claim is promoted or rejected.</p>
+      </div>
+      <aside class="hero-card">
+        <strong>The shortest version</strong>
+        <p>Your friend is building a memory substrate. We are building the contract that keeps that substrate explainable.</p>
+        <div class="badge-row">
+          <span class="badge">model as evaluator</span>
+          <span class="badge">worker as authority</span>
+          <span class="badge">weighted graph</span>
+          <span class="badge">ontology gates</span>
+        </div>
+      </aside>
+    </header>
+
+    <section>
+      <h2>What they are building</h2>
+      <div class="three">
+        <article class="card">
+          <h3>Embedded graph RAG</h3>
+          <p>A lightweight database that can store chunks and weighted relationships close to the application, without requiring a large external platform first.</p>
+        </article>
+        <article class="card">
+          <h3>Adaptive relevance</h3>
+          <p>The model receives copies of requests and responses, evaluates usefulness, and suggests which relationships should strengthen, weaken, appear, or decay.</p>
+        </article>
+        <article class="card">
+          <h3>Portable mutation layer</h3>
+          <p>A bounded API or worker applies the actual graph mutation, making the system portable, auditable, and usable by smaller local models.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What our ontology work adds</h2>
+      <div class="two">
+        <article class="card">
+          <h3>Typed meaning, not just links</h3>
+          <p>Our branch model separates claims into meaning, system, operational, and bridge contexts. That means the graph can know whether a relation is about a concept, a mechanism, a situated use case, or a validation bridge.</p>
+        </article>
+        <article class="card">
+          <h3>Governed state changes</h3>
+          <p>Our schema separates evidence from commitment. A model can suggest that something seems useful, but promotion, contradiction, and retirement need explicit lifecycle and governance rules.</p>
+        </article>
+      </div>
+
+      <div class="map-card">
+        <div class="map">
+          <div class="map-node meaning"><b>Meaning</b><span>What the system means, values, defines, promises, or tries to make true.</span></div>
+          <div class="map-node system"><b>System</b><span>The machinery that realizes meaning: database, API, worker, schema, retrieval engine.</span></div>
+          <div class="map-node operational"><b>Operational</b><span>How the system is used in a concrete device, robot, user, project, or local context.</span></div>
+          <div class="map-node bridge"><b>Bridge</b><span>Evidence, traceability, validation, contradiction, drift, and relevance updates between branches.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The shared architecture</h2>
+      <div class="flow">
+        <div class="step"><span class="num">1</span><h3>Interaction</h3><p>Requests, responses, files, chunks, and user outcomes create raw evidence.</p></div>
+        <div class="step"><span class="num">2</span><h3>Model evaluates</h3><p>A model proposes labels, usefulness ratings, conflicts, or candidate relations.</p></div>
+        <div class="step"><span class="num">3</span><h3>Worker applies</h3><p>Deterministic code enforces bounded deltas, thresholds, decay, audit, and rollback.</p></div>
+        <div class="step"><span class="num">4</span><h3>Graph retrieves</h3><p>The weighted graph brings back relevant context without the model searching blindly.</p></div>
+        <div class="step"><span class="num">5</span><h3>Ontology governs</h3><p>Branch context, record kind, confidence, and lifecycle say what the update means.</p></div>
+      </div>
+      <p class="callout">The model can reason about which primitive applies. The worker owns mutation. The ontology records the claim, evidence, confidence, branch, and promotion boundary.</p>
+    </section>
+
+    <section>
+      <h2>How their terms map to ours</h2>
+      <table class="crosswalk">
+        <thead>
+          <tr>
+            <th>In the conversation</th>
+            <th>In our ontology model</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Request/response copies</td>
+            <td><code>record_kind: evidence_input</code></td>
+            <td>They are admitted evidence. They are not automatically truth.</td>
+          </tr>
+          <tr>
+            <td>Model rating value in context</td>
+            <td><code>claim_role: observation</code> or <code>evidence</code></td>
+            <td>The model gives an interpretation signal, not direct authority.</td>
+          </tr>
+          <tr>
+            <td>Weighted relationship update</td>
+            <td><code>record_kind: bridge_validation</code></td>
+            <td>The update says one thing supports, contradicts, drifts from, or traces to another.</td>
+          </tr>
+          <tr>
+            <td>Graph mutation API</td>
+            <td>System branch plus governance boundary</td>
+            <td>The API is machinery. It should enforce rules like max delta, audit, rollback, and thresholds.</td>
+          </tr>
+          <tr>
+            <td>Useful relationship becomes reliable</td>
+            <td><code>promotion_record</code></td>
+            <td>A repeated useful signal may become a promoted relation only after review gates.</td>
+          </tr>
+          <tr>
+            <td>Portable device or robot context</td>
+            <td>Operational branch</td>
+            <td>The same memory model may behave differently on a server, phone, robot, or offline device.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>The schema states, in plain language</h2>
+      <p class="lead">The schema is not just a bag of labels. Each field answers a different question about a memory object or graph relation, so the system can adapt without becoming opaque.</p>
+
+      <div class="state-grid">
+        <article class="state-card">
+          <h3>1. Branch context: where the claim belongs</h3>
+          <p>This says what kind of thing the record is about. It prevents a database edge, a user context, and a concept definition from being treated as the same kind of truth.</p>
+          <div class="state-list">
+            <code>meaning</code>
+            <code>system</code>
+            <code>operational</code>
+            <code>bridge</code>
+          </div>
+        </article>
+
+        <article class="state-card">
+          <h3>2. Record kind: what shape the record has</h3>
+          <p>This says what family of record we are looking at. A chunk of evidence, a promoted change record, and a bridge validation need different rules.</p>
+          <div class="state-list">
+            <code>ontology_entry</code>
+            <code>promotion_record</code>
+            <code>evidence_input</code>
+            <code>bridge_validation</code>
+          </div>
+        </article>
+
+        <article class="state-card">
+          <h3>3. Lifecycle status: how relied-on it is</h3>
+          <p>This tracks maturity. A raw signal can influence retrieval lightly, but a promoted claim can shape stronger behavior only after evidence and governance gates.</p>
+          <div class="state-list">
+            <code>raw</code>
+            <code>catalogedEvidence</code>
+            <code>reviewableSignal</code>
+            <code>promotionRecordDraft</code>
+            <code>candidate</code>
+            <code>premise</code>
+            <code>reviewed</code>
+            <code>promoted</code>
+            <code>contradicted</code>
+            <code>retired</code>
+            <code>rejected</code>
+            <code>deferred</code>
+          </div>
+        </article>
+
+        <article class="state-card">
+          <h3>4. Claim role: what the record is doing</h3>
+          <p>This is the semantic job of the claim. It keeps “this is evidence” separate from “this is a policy” or “this contradicts something”.</p>
+          <div class="state-list">
+            <code>hypothesis</code>
+            <code>observation</code>
+            <code>evidence</code>
+            <code>premise</code>
+            <code>principle</code>
+            <code>policy</code>
+            <code>constraint</code>
+            <code>invariant</code>
+            <code>contradiction</code>
+            <code>retirement</code>
+            <code>other</code>
+          </div>
+        </article>
+      </div>
+
+      <table class="state-table">
+        <thead>
+          <tr>
+            <th>State family</th>
+            <th>Values</th>
+            <th>Meaning for graph memory</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Governance outcome</td>
+            <td><code>none</code>, <code>policy</code>, <code>constitution</code>, <code>axiom</code></td>
+            <td>Most graph updates are <code>none</code>. A small number become rules the system must follow, such as a retrieval policy or a constitutional constraint.</td>
+          </tr>
+          <tr>
+            <td>Bridge outcome</td>
+            <td><code>aligned</code>, <code>partial</code>, <code>drift</code>, <code>insufficient</code>, <code>contradicted</code>, <code>not_applicable</code>, <code>unknown</code></td>
+            <td>This says whether an edge actually connects two things well. It is where “this retrieval was useful” becomes explainable instead of just a number.</td>
+          </tr>
+          <tr>
+            <td>Confidence</td>
+            <td><code>evidence</code>, <code>commitment</code>, <code>bridge_alignment</code>, <code>scope</code></td>
+            <td>Evidence can be strong while commitment stays low. That is important for model-scored memory: the system can notice a pattern without trusting it too much yet.</td>
+          </tr>
+          <tr>
+            <td>Governance state</td>
+            <td><code>promotion_state</code>, <code>next_gate</code>, <code>promotion_blockers</code>, <code>contradiction_path</code>, <code>circular_authority_check</code></td>
+            <td>This is the audit layer. It says what must happen before an adaptive relation becomes a stable memory rule.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>What a graph update becomes</h2>
+      <table class="crosswalk">
+        <thead>
+          <tr>
+            <th>Graph event</th>
+            <th>Ontology state</th>
+            <th>Safe mutation rule</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A response used a chunk and the answer improved.</td>
+            <td><code>record_kind: evidence_input</code><br><code>claim_role: evidence</code><br><code>lifecycle_status: catalogedEvidence</code></td>
+            <td>Store it as evidence. Allow small edge reinforcement. Do not promote it as truth.</td>
+          </tr>
+          <tr>
+            <td>The model says two concepts are probably related.</td>
+            <td><code>record_kind: bridge_validation</code><br><code>bridge_outcome: partial</code><br><code>confidence.commitment: low</code></td>
+            <td>Create or update a candidate edge with bounded weight. Require more evidence before retrieval depends on it heavily.</td>
+          </tr>
+          <tr>
+            <td>New evidence conflicts with an old relation.</td>
+            <td><code>claim_role: contradiction</code><br><code>bridge_outcome: contradicted</code><br><code>lifecycle_status: contradicted</code></td>
+            <td>Lower reliance, preserve counterevidence, and route through a contradiction path instead of deleting history.</td>
+          </tr>
+          <tr>
+            <td>A repeated relation becomes stable and useful.</td>
+            <td><code>record_kind: promotion_record</code><br><code>lifecycle_status: promoted</code><br><code>next_gate: none</code></td>
+            <td>Only promote after evidence review. Promotion records explain why the graph is allowed to treat the relation as durable.</td>
+          </tr>
+          <tr>
+            <td>A relation stops being useful in this device or user context.</td>
+            <td><code>lifecycle_status: retired</code> or <code>deferred</code><br><code>bridge_outcome: drift</code></td>
+            <td>Decay or retire it for that operational scope without claiming the relation is globally false.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="callout">This is the deeper connection: a graph database stores the adaptive shape, but the ontology schema stores the reason the shape is allowed to change.</p>
+    </section>
+
+    <section>
+      <h2>The design principle</h2>
+      <div class="two">
+        <article class="card">
+          <h3>Do not make the model the database owner</h3>
+          <p>The model should suggest semantic moves: reinforce this edge, decay that edge, mark conflict, propose a new relation. A deterministic worker should decide whether and how the state changes.</p>
+        </article>
+        <article class="card">
+          <h3>Do not make the graph meaningless state</h3>
+          <p>Every useful edge should eventually answer: what branch does this belong to, what evidence supports it, what confidence is evidence versus commitment, and what gate would promote or retire it?</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Good questions to ask next</h2>
+      <div class="question-grid">
+        <div class="question"><span>1.</span> What are the allowed mutation primitives: reinforce, decay, contradict, trace, promote, retire?</div>
+        <div class="question"><span>2.</span> What is the maximum edge-weight change per observed event?</div>
+        <div class="question"><span>3.</span> What evidence must exist before a relationship can be used for retrieval?</div>
+        <div class="question"><span>4.</span> What separates a useful retrieval hint from a promoted memory claim?</div>
+        <div class="question"><span>5.</span> How does the system roll back a bad model evaluation?</div>
+        <div class="question"><span>6.</span> Which parts must run on device, and which can be platform-side?</div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Status: explanatory, non-canonical. This summary maps an external conversation to the current Arcanum ontology development model. It does not promote ontology conventions or mutate Inventory, structured-action-schema, DomainSpec, or CyberAlchemy.</p>
+    </footer>
+  </main>
+</body>
+</html>

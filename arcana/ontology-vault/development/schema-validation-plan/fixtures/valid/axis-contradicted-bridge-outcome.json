@@ -1,0 +1,77 @@
+{
+  "id": "arcanum.bridge.contradicted_axis_example",
+  "title": "Contradicted Bridge Outcome",
+  "entry_type": "BridgeValidation",
+  "record_kind": "bridge_validation",
+  "lifecycle_status": "contradicted",
+  "claim_role": "contradiction",
+  "governance_outcome": "none",
+  "bridge_outcome": "contradicted",
+  "owner": "Ontology Vault",
+  "updated_at": "2026-05-29",
+  "branch_context": {
+    "primary": "bridge",
+    "local_alias": null,
+    "role_family": "relation",
+    "local_role": "contradiction",
+    "system_subject": "Arcanum",
+    "operating_context": "schema validation fixture",
+    "bridge_scope": "meaning claim to observed system behavior",
+    "rationale": "Tests that contradicted lifecycle status and contradicted bridge outcome remain separate."
+  },
+  "scope": {
+    "applies_to": ["bridge outcome validation"],
+    "excludes": ["real system drift assertion"],
+    "validity_scope": "schema validation fixture",
+    "expiry_condition": "real contradiction fixture replaces synthetic example"
+  },
+  "content": {
+    "claim": "A contradiction record can challenge an active claim while preserving the challenged claim and counterevidence.",
+    "definition": null,
+    "purpose": "Validate contradiction as claim role and bridge outcome.",
+    "examples": ["contradicted lifecycle status with contradiction role."],
+    "non_examples": ["bridge_outcome contradicted without counterevidence."]
+  },
+  "evidence": {
+    "raw_sources": [
+      {
+        "ref": "arcana/ontology-vault/development/BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+        "selector": "V11: Role And Lifecycle Axis Split",
+        "role": "prior-decision"
+      },
+      {
+        "ref": "schema-validation-plan/fixtures/valid/synthetic-counterevidence",
+        "selector": "counterexample",
+        "role": "counterevidence"
+      }
+    ],
+    "inventory_refs": [],
+    "validation_refs": []
+  },
+  "confidence": {
+    "evidence": "medium",
+    "commitment": "low",
+    "bridge_alignment": "medium",
+    "scope": "medium",
+    "rationale": "The fixture preserves a counterevidence pointer so contradiction is not just a label."
+  },
+  "edges": [
+    {
+      "type": "contradicted_by",
+      "target": "arcanum.meaning.branch_context_discriminator",
+      "target_branch": "meaning",
+      "evidence_refs": ["schema-validation-plan/fixtures/valid/synthetic-counterevidence"],
+      "lifecycle_status": "contradicted",
+      "bridge_outcome": "contradicted",
+      "rationale": "Synthetic contradiction edge for schema validation."
+    }
+  ],
+  "governance": {
+    "promotion_state": "contradicted",
+    "next_gate": "decision-gate",
+    "mutation_allowed": false,
+    "promotion_blockers": ["contradiction unresolved"],
+    "contradiction_path": "Resolve, narrow, or accept the contradiction as known risk before promotion.",
+    "circular_authority_check": "not_applicable"
+  }
+}

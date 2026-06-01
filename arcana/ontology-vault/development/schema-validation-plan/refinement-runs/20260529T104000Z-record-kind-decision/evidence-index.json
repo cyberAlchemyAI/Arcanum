@@ -1,0 +1,53 @@
+{
+  "run_id": "20260529T104000Z-record-kind-decision",
+  "status": "pass",
+  "target": "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+  "preset": "compact",
+  "research": {
+    "mode": "no-research",
+    "confirmation_required": false,
+    "reason": "Local validation evidence and CAOL pressure fixture are sufficient for the record_kind decision."
+  },
+  "artifacts": {
+    "seed": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/REFINE-SEED-PROPOSAL.md",
+    "dispatch": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/REFINE-DISPATCH.json",
+    "runtime_handoff": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/RUNTIME-HANDOFF.md",
+    "manifest": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/RUN-MANIFEST.md",
+    "result": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/RESULT.md",
+    "stages": "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/stages/"
+  },
+  "source_selectors": [
+    {
+      "path": "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+      "selector": "Schema Gaps",
+      "summary": "record_kind is useful but not governed in the minimal schema."
+    },
+    {
+      "path": "arcana/ontology-vault/development/schema-validation-plan/fixtures/valid/cyberalchemy-caol-promotion-record.json",
+      "selector": "record_kind",
+      "summary": "PromotionRecord pressure fixture requires record-family semantics."
+    },
+    {
+      "path": "arcana/ontology-vault/development/cyberalchemy-ontology-lifecycle/ONTOLOGY-VAULT-BRIEF.md",
+      "selector": "PromotionRecord Boundary For Ontology Vault",
+      "summary": "PromotionRecord should govern one primary claim and not replace ontology entries."
+    }
+  ],
+  "decision": {
+    "selected": "add_record_kind",
+    "allowed_values": ["ontology_entry", "promotion_record", "evidence_input", "bridge_validation"],
+    "rejected": ["fixture_local_only", "split_companion_schemas_now", "entry_type_only", "claim_role_only"]
+  },
+  "blocked_next": [
+    "JSON Schema generation remains blocked until record_kind is patched into candidate schema, fixtures, and validator."
+  ],
+  "recommended_next_routes": [
+    "task-session: patch candidate schema and validator for record_kind"
+  ],
+  "non_goals": [
+    "canonical mutation",
+    "Inventory mutation",
+    "structured-action-schema mutation",
+    "JSON Schema generation in this refine run"
+  ]
+}

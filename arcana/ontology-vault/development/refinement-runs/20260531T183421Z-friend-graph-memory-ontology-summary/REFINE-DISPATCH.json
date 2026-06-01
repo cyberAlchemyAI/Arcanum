@@ -1,0 +1,227 @@
+{
+  "dispatch_id": "refine-20260531T183421Z-friend-graph-memory-ontology-summary",
+  "intent": {
+    "raw": "Refine this conversation and relate it to the ontology work, then produce an HTML summary to help explain it to a friend.",
+    "objective": "Create a friend-facing explanation that maps adaptive graph memory ideas to the branch-aware ontology validation model.",
+    "target_artifact": "arcana/ontology-vault/development/friend-graph-memory-ontology-summary.html",
+    "arcanum_vocabulary": [
+      "refine",
+      "ontology-vault",
+      "branch_context",
+      "record_kind",
+      "evidence_input",
+      "bridge_validation",
+      "promotion_record"
+    ],
+    "operator_sentence": "Explain how their graph-memory design and our ontology work relate."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "data_quality_completeness",
+    "x_ray",
+    "protected_context_flag"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "xray_for_hidden_structure",
+      "trigger": "The conversation contains an implicit architecture: model evaluator, deterministic worker, graph state, query retrieval, and ontology governance.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "applies_to_steps": [
+        "distill",
+        "invoke-design",
+        "final-synthesis"
+      ],
+      "validation_expectation": "The HTML must expose the hidden structure as a clear map."
+    },
+    {
+      "overlay_id": "protected_context_for_external_conversation",
+      "trigger": "The pasted chat is external and should be treated as evidence input rather than ontology authority.",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard",
+        "local_nuance_coordination"
+      ],
+      "applies_to_steps": [
+        "context-builder",
+        "interrogation-refine-review",
+        "final-synthesis"
+      ],
+      "validation_expectation": "The result must distinguish what the friend has from what our ontology model owns."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "Single-author local refinement is sufficient for a compact explanatory HTML artifact.",
+    "authorization": "not_needed",
+    "parallelism": "none",
+    "join_policy": "none",
+    "receipt_requirements": []
+  },
+  "steps": [
+    {
+      "step_id": "context-builder",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "lean",
+      "pattern": "handoff",
+      "inputs": [
+        {"kind": "intent", "ref": "REFINE-SEED-PROPOSAL.md"},
+        {"kind": "artifact", "ref": "/mnt/c/Users/vlad_/.codex/attachments/2e5e8645-ed19-448d-ac51-c3c666d45b53/pasted-text.txt"},
+        {"kind": "artifact", "ref": "../BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md"}
+      ],
+      "outputs": [
+        {"kind": "handoff", "ref": "context-builder/HANDOFF.md"},
+        {"kind": "artifact", "ref": "context-builder/index.json"}
+      ]
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "inputs": [{"kind": "frame", "ref": "context-builder/HANDOFF.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/01-invoke-define.md"}]
+    },
+    {
+      "step_id": "interrogation-refine-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "inputs": [{"kind": "artifact", "ref": "stages/01-invoke-define.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/02-interrogation-refine-review.md"}]
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Research Decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "inputs": [{"kind": "artifact", "ref": "stages/02-interrogation-refine-review.md"}],
+      "outputs": [{"kind": "decision", "ref": "stages/03-research-decision.md"}]
+    },
+    {
+      "step_id": "distill",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "compact",
+      "pattern": "distill",
+      "inputs": [{"kind": "artifact", "ref": "stages/03-research-decision.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/04-distill.md"}]
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Redefine Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "inputs": [{"kind": "handle", "ref": "stages/04-distill.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/05-invoke-design.md"}]
+    },
+    {
+      "step_id": "interrogation-refine-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "inputs": [{"kind": "artifact", "ref": "stages/05-invoke-design.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/06-interrogation-refine-design-review.md"}]
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "inputs": [{"kind": "artifact", "ref": "stages/06-interrogation-refine-design-review.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/07-distill-repair.md"}]
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "inputs": [{"kind": "artifact", "ref": "stages/07-distill-repair.md"}],
+      "outputs": [{"kind": "artifact", "ref": "stages/08-invoke-plan.md"}]
+    },
+    {
+      "step_id": "final-synthesis",
+      "name": "Final Interrogation and Refine Synthesis",
+      "capability_ref": "refine",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "inputs": [{"kind": "artifact", "ref": "stages/08-invoke-plan.md"}],
+      "outputs": [
+        {"kind": "artifact", "ref": "RESULT.md"},
+        {"kind": "artifact", "ref": "../../friend-graph-memory-ontology-summary.html"}
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "external-context-boundary",
+      "kind": "policy",
+      "owner": "Ontology Vault",
+      "condition": "Pasted conversation is treated as evidence input, not canonical ontology authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "friend-facing-clarity",
+      "kind": "quality",
+      "owner": "Refine",
+      "condition": "HTML explains the overlap without requiring prior Arcanum knowledge.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "no-canonical-mutation",
+      "kind": "promotion_guardrail",
+      "owner": "Ontology Vault",
+      "condition": "No Inventory, structured-action-schema, or canonical template mutation.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "seed-created",
+      "conversation-distilled",
+      "ontology-crosswalk-produced",
+      "html-summary-written"
+    ],
+    "signal_grouping": "refine-20260531T183421Z-friend-graph-memory-ontology-summary"
+  },
+  "boundary_evidence": {
+    "authority": {
+      "evidence": "pasted conversation and local ontology artifacts",
+      "validation": "HTML parser and local artifact validation",
+      "promotion": "none"
+    },
+    "promotion_splits": [
+      {
+        "source": "friend-facing HTML summary",
+        "target": "canonical Ontology Vault schema",
+        "rule": "Summary may explain relationships but cannot promote schema or ontology conventions.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No canonical ontology promotion.",
+    "No Inventory mutation.",
+    "No structured-action-schema mutation.",
+    "No raw chat treated as authority."
+  ]
+}

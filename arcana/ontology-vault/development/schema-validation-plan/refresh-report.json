@@ -1,0 +1,90 @@
+{
+  "id": "ontology-schema-validation-plan-refresh-20260529",
+  "mode": "invoke-refresh",
+  "status": "flag",
+  "date": "2026-05-29",
+  "scope": "development-only ontology schema validation plan",
+  "mutation_mode": "apply-approved",
+  "target_artifacts": [
+    "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md",
+    "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+    "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/RESULT.md"
+  ],
+  "source_signals": [
+    {
+      "kind": "route_changed",
+      "confidence": "high",
+      "evidence": "record_kind refine result recommends patching schema candidate, fixtures, and validator before JSON Schema generation"
+    },
+    {
+      "kind": "artifact_drift",
+      "confidence": "high",
+      "evidence": "WORK-PACK.md still listed fixture format and parser choice as open after fixture validation had passed"
+    },
+    {
+      "kind": "blocker_confirmed",
+      "confidence": "high",
+      "evidence": "VALIDATION-REPORT.md flags record_kind as the active schema gap exposed by the CyberAlchemy PromotionRecord pressure fixture"
+    },
+    {
+      "kind": "boundary_flag",
+      "confidence": "medium",
+      "evidence": "record-kind refine run validated dispatch directly but recorded dispatch-spec command-surface resolution as unavailable"
+    }
+  ],
+  "applied_changes": [
+    {
+      "artifact": "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md",
+      "changes": [
+        "updated Current Blockers for record_kind patch requirements",
+        "replaced stale Current Gaps with current unresolved gaps",
+        "updated Next Route to task-session OVS-RK-001",
+        "added Next SWUs OVS-RK-001 through OVS-RK-004"
+      ]
+    }
+  ],
+  "skipped_changes": [
+    "did not mutate Inventory",
+    "did not mutate structured-action-schema",
+    "did not generate JSON Schema",
+    "did not patch the schema candidate in this refresh"
+  ],
+  "current_blockers": [
+    {
+      "id": "record_kind-not-yet-validated",
+      "blocks": "JSON Schema generation",
+      "next_route": "task-session OVS-RK-001"
+    }
+  ],
+  "next_swus": [
+    {
+      "id": "OVS-RK-001",
+      "goal": "Patch record_kind into the schema candidate minimal shape, required fields, examples, and validation rules."
+    },
+    {
+      "id": "OVS-RK-002",
+      "goal": "Update positive and negative fixtures for record_kind."
+    },
+    {
+      "id": "OVS-RK-003",
+      "goal": "Update tests/validate_branch_schema.py for record_kind."
+    },
+    {
+      "id": "OVS-RK-004",
+      "goal": "Rerun validation and refresh the report."
+    }
+  ],
+  "validation": {
+    "status": "pass-with-existing-warnings",
+    "commands": [
+      "jq empty arcana/ontology-vault/development/schema-validation-plan/refresh-report.json",
+      "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_schema.py",
+      "tools/validate-artifact-constitution.sh"
+    ],
+    "notes": [
+      "branch-schema-fixtures: PASS",
+      "Artifact Constitution result: pass",
+      "Artifact Constitution still reports pre-existing tracked generated-artifact warnings outside this ontology plan."
+    ]
+  }
+}
