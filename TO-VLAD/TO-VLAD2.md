@@ -350,3 +350,40 @@ Q4 (CI gate) is an infrastructure call, listed above with the others. The three 
 3. **Q1 — Is sigil-vs-spec drift actually happening?** → ship Edit 7 or defer.
 
 — V.
+
+---
+
+## Addendum (2026-06-02) — the cross-axis finding (register drift)
+
+This came out of comparing Arcanum's dispatch / discovery / knowledge machinery against the sibling `domainspec`, then run through the same audit pipeline (explorer + skeptic + auditor, subset rule). The audit **corrected my first-pass framing** — the corrections are recorded at the end so they don't creep back.
+
+### 1. Finding 1 is narrower than the real defect
+
+Finding 1 (sigils untyped, one implicit edge) is single-axis. The audit surfaced a second, concrete defect on the *route* side: **register drift across four uncoordinated execution-shape vocabularies that share names but not membership, with no join key:**
+
+- `mode` enum — `formulae/dispatch-spec/dispatch.schema.yml:44-54`: single, sequence, fanout, dialectic, tournament, research, validation, spell-design, implementation-research, mixed.
+- step `pattern` enum — `dispatch.schema.yml:235-247`: a **second** shape vocabulary with **different spellings** — `sequential` (not `sequence`), `xray` (not `x_ray`) — plus `distill` / `synthesis` that appear nowhere else.
+- `technique` ids — `TECHNIQUE-CATALOG.md:17-37`: sequence, zig_zag, dialectic, tournament, x_ray, …
+- Composition Taxonomy — `ARCANUM-DISPATCH-SYNTHESIS.md:29-123`: 9 named shapes.
+
+The four sets do not coincide: some modes have no technique (`research`, `spell-design`, `mixed`); some techniques aren't modes (`zig_zag`, `x_ray`, `toy_game`); the `pattern` enum spells things differently and adds unique entries. Nothing forces a new mode to acquire a matching technique or taxonomy entry. **This is drift, not redundancy** — there are no synonym duplicates to collapse (`zig_zag` ≠ `sequence`).
+
+### 2. The missing piece is cross-axis reconciliation, not a central taxonomy
+
+Arcanum **does** have a per-axis spine: the tier READMEs (`formulae/README.md:7-38`) are a real, self-policing classification, and decentralization is a stated *and implemented* design choice (`AGENT-FRAMEWORK-IMPROVEMENTS.md:78` "a fixed taxonomy contradicts that"; `dispatch.schema.yml` `additionalProperties: true` throughout). So "no spine" would overclaim. What is absent is a link **across** the axes — `sigil-tier ↔ dispatch-mode ↔ sigil-kind ↔ knowledge-promotion` carry no crosswalk. (`kind` is proposal-only — Edit 1 above; the PromotionRecord knowledge taxonomy is candidate-design — `development/cyberalchemy-ontology-lifecycle/ONTOLOGY-ARCHITECTURE.md:3` — and linked to sigils only through a generic capability adapter, not by tier or mode.)
+
+### 3. What this does to Edits 1–2
+
+It widens them. Edits 1–2 are **part cross-axis reconciliation, part greenfield typing**: `kind` / `edges` genuinely don't ship (see Finding 1, "no `kind` field, no `edges` field"), so those *are* new files; but the execution-shape vocabularies already exist and need a **crosswalk, not re-invention**. The fix must be a **thin pointer-index / crosswalk**, never a centralizing enum — a central enum would repeat the violation already on disk: `mode` is a *closed* enum in `dispatch.schema.json` despite the anti-enum principle at `AGENT-FRAMEWORK-IMPROVEMENTS.md:78`.
+
+### 4. Smallest useful first edit
+
+A crosswalk table (one file, or a column set on the existing schema) mapping each execution-shape token to its appearance in {`mode`, `pattern`, `technique`, Composition-Taxonomy}, normalizing the spelling splits (`sequential`/`sequence`, `xray`/`x_ray`), and flagging tokens present in one register but absent in another. That surfaces the drift and gives the validator something to check — without centralizing anything.
+
+### What the audit corrected (recorded for honesty)
+
+- First-pass called this **"triple-counting / redundancy."** Wrong — they are four *different* sets with partial membership, not three copies; the defect is drift.
+- First-pass proposed **"collapse the over-taxonomized duplicates."** Wrong — no synonyms exist to collapse.
+- First-pass implied **TO-VLAD2 already pointed here.** It does not — this memo is single-axis and silent on cross-axis reconciliation; the addendum is a new, wider thesis, not an implication.
+
+— V.

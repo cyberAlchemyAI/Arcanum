@@ -26,6 +26,8 @@ Plus a subtler finding (`arcana/` conflates domain- / meta- / registry-orchestra
 
 **8 edits**, several gated on open questions Q1–Q4 (drift real? six-kind taxonomy right? spell-shape set right? willing to take a CI gate?). Explicitly notes it is *not independent corroboration* of memo 1 — same audit pipeline, one observation from two angles.
 
+> **Addendum (2026-06-02) — the cross-axis finding.** Widens Finding 1 from single-axis to cross-axis: there is **register drift** across four uncoordinated execution-shape vocabularies (`mode` enum, step `pattern` enum, `technique` ids, Composition-Taxonomy) with spelling splits (`sequential`/`sequence`, `xray`/`x_ray`) and no join key. The gap is **cross-axis reconciliation** (`tier ↔ mode ↔ kind ↔ promotion`), not a missing central taxonomy — `tier` is already a real distributed spine, and the fix must be a **thin crosswalk, not a centralizing enum**. Records the audit's corrections to the first-pass framing (it was *not* "triple-counting / redundancy" — it is drift; there are no collapsible duplicates). Audit trail: `domainspec-theorem/research-ai/arcanum-taxonomy-spine-audit/`.
+
 ### [`TO-VLAD3.md`](TO-VLAD3.md) — third pass (2026-06-02)
 **Theme: the *dynamic axis* — how a sigil improves over time from usage.** One thesis, three findings:
 1. **The grading oracle and the sigil-improvement loop are disconnected** — `benchmark/` is a working scalar oracle (`speedupVsBaseline`, numeric thresholds) but grades *external* coding agents and is sigil-blind; the sigil reflection loop emits only categorical signals and human-read proposals. The gap is **the wire between them, not a missing layer.**
