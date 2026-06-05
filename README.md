@@ -231,4 +231,10 @@ To add or revise a reusable spell:
 
 ## License
 
-Copyright © 2026 Cyber Alchemy AI.
+Arcanum is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+You may use, study, modify, and share Arcanum for noncommercial purposes. You may
+not sell Arcanum or use it for commercial purposes without separate written
+permission from Cyber Alchemy AI.
+
+Copyright (c) 2026 Cyber Alchemy AI.
