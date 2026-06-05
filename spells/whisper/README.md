@@ -127,7 +127,7 @@ Each viable candidate must include one coherent selection from all three cores. 
 - Development artifacts: `spells/whisper/development/`.
 - Gate strictness: standard for L0, strict for blocker audience/objective decisions.
 - Interaction mode: guided-auto, with one-question interrogation when a decision changes the draft.
-- Runtime execution: long model-backed work should use native skill/subagent execution with a receipt, or `tools/arcanum --exec --adapter local-skill --timeout <seconds> ...` as a deterministic handoff. Explicit legacy adapters are opt-in.
+- Runtime execution: long model-backed work should use native skill/subagent execution with a receipt. When needed, a deterministic handoff wrapper can prepare receipt metadata; explicit legacy adapters are opt-in.
 
 ## Observability
 

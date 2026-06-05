@@ -26,8 +26,8 @@ Refine owns the seed, research decision, dispatch request, run manifest, evidenc
 | Capability | Required For | Evidence Required |
 | --- | --- | --- |
 | `context-builder` | Build the evidence baseline and runtime handoff context. | Context pack path or blocked coverage reason. |
-| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, command file, and verdict. |
-| `interrogation` | Critique Define, Design, and final synthesis. | Interrogation artifact path, mode, command file, and pass/flag/block verdict. |
+| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, capability handle, and verdict. |
+| `interrogation` | Critique Define, Design, and final synthesis. | Interrogation artifact path, mode, capability handle, and pass/flag/block verdict. |
 | `distill` | Select the coherent unit and run repair/validation before planning. | Distill artifact path, mode, selected unit or repair verdict, and rejected alternatives. |
 | `dispatch-spec` | Validate the canonical stage route, technique references, gates, handoffs, subagent strategy, and observability grouping before execution. | `REFINE-DISPATCH.json`, validation status, blocked fields, cited techniques, subagent strategy, and permission state. |
 | `runtime-handoff` | Prepare or validate the durable runtime handoff when available. | Runtime handoff path, adapter, run folder, or blocked reason. |
@@ -61,7 +61,7 @@ The dispatch document replaces Refine as a freeform orchestrator. Refine defines
 - raw operator intent and refinement objective,
 - the ten canonical stages as ordered dispatch steps,
 - stage owner, mode/configuration, inputs, outputs, runtime adapter, and evidence handles for each runtime-backed stage,
-- gates for command resolution, research confirmation, required artifact existence, owner-boundary preservation, and final synthesis readiness,
+- gates for deterministic capability-handle resolution, research confirmation, required artifact existence, owner-boundary preservation, and final synthesis readiness,
 - observability trace events grouped by `dispatch_id`,
 - a route menu or recorded route decision when more than one technique profile could apply,
 - `subagent_strategy` describing whether role-bound sibling agents are none, recommended, required, or blocked,
@@ -127,19 +127,19 @@ Validation requirements:
 
 <stage-dispatch-contract>
 
-Every executable stage in the validated dispatch must use parent-owned runtime dispatch. Refine verifies deterministic command/capability resolution locally, then either executes the stage inline through the current native runtime surface or asks `tools/arcanum --exec` to prepare a native adapter handoff and receipt contract.
+Every executable stage in the validated dispatch must use parent-owned runtime dispatch. Refine verifies deterministic capability-handle resolution locally, then executes the stage through the current native skill/subagent surface. When a durable handoff artifact is useful, `tools/arcanum --exec` may prepare an adapter handoff and receipt contract; it is not the stage execution primitive.
 
 ```bash
-tools/arcanum --resolve <command>
-tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>
+tools/arcanum --resolve <capability-id>
+tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>
 ```
 
-For native adapters such as `native-skill`, `codex-skill`, `claude-skill`, and `copilot-instructions`, `tools/arcanum --exec` is a deterministic handoff/receipt surface. It must not spawn a nested model-backed CLI. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in only.
+For native adapters such as `native-skill`, `codex-skill`, `claude-skill`, and `copilot-instructions`, `tools/arcanum --exec` is a deterministic handoff/receipt surface. It must not spawn a nested model-backed CLI or replace native skill execution. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in only.
 
 Before a stage runs, Refine must verify:
 
 ```bash
-tools/arcanum --resolve <command>
+tools/arcanum --resolve <capability-id>
 ```
 
 If resolution fails, the stage is `block` and the blocked reason is recorded. Do not replace a required stage with freeform prose when its owner capability is available through the current native runtime.
@@ -148,7 +148,7 @@ For each stage, preserve:
 
 - stage name,
 - owning capability,
-- resolved command or capability handle,
+- resolved capability handle,
 - runtime adapter,
 - requested mode/configuration,
 - output path,
@@ -305,9 +305,9 @@ If no preset is supplied, use `standard`.
 7. Show the Dispatch Spec strategy preview as `Refine Run Strategy Proposal`: inferred target/outcome, overlays, why they apply, subagent strategy, role ownership, join policy, receipts, runtime implications, and deferred work.
 8. Ask permission to run the validated route. When subagents are recommended or required, permission must explicitly cover delegated subagent execution. Stop here until the operator confirms.
 9. Write `RUNTIME-HANDOFF.md` with the runtime objective, validated dispatch reference, strategy permission state, adapter/run fields, blocked fields, and runtime status.
-10. For each runtime-backed stage in the validated dispatch, resolve the command/capability with `tools/arcanum --resolve <command>` when a deterministic command handle exists.
+10. For each runtime-backed stage in the validated dispatch, resolve the capability handle with `tools/arcanum --resolve <capability-id>` when deterministic local resolution exists.
 11. Spawn approved subagents when the confirmed strategy recommends or requires them; collect role receipts before parent synthesis.
-12. Dispatch approved stages through the parent runtime surface or with `tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>` as a handoff/receipt contract, not from a nested model CLI sandbox.
+12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, use `tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>` only as the handoff/receipt contract, not as a nested model CLI sandbox.
 13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
 14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
 15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict.

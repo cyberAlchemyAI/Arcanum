@@ -1,8 +1,8 @@
 ---
 module: skill-surface-dispatch-canonicalization
 version: current
-status: draft
-updatedAt: 2026-06-03
+status: ready-for-approved-live-refresh
+updatedAt: 2026-06-05
 docType: work-pack
 ---
 
@@ -41,8 +41,8 @@ docType: work-pack
 | outputMode | single-file | Split files can be added if execution expands. |
 | executionPackRef | n/a | Current scope is ordered and narrow enough for this coordinator file. |
 | layeringArtifactRef | `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-IMPLEMENTATION-LAYERING.md` | Layer model. |
-| activeLayerWindow | L1 | Staged generation/install validation is complete; active skill-contract migration remains before live refresh. |
-| lastUpdatedAt | 2026-06-03 | Initial invoke plan. |
+| activeLayerWindow | L3-blocked | Source contracts and staged generation/install validation are complete; live refresh is blocked pending explicit approval. |
+| lastUpdatedAt | 2026-06-05 | `SWU-DISP-SURF-002` completed active skill-contract migration. |
 | readinessProfile | pilot | Source and staged install proof before live refresh. |
 
 ## Objective Summary
@@ -67,7 +67,7 @@ docType: work-pack
 | Slice ID | Outcome | Layer | Dependencies | Validation |
 | --- | --- | --- | --- | --- |
 | S-001 | Installed failure is reproduced and traced to source/generator path assumptions. | L0 | none | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-L0-RESULT.md` maps the failure to stale thin live aliases pointing at absent `arcanum-*` packages. |
-| S-002 | Active skill contracts no longer invoke command surfaces for stage execution. | L1 | S-001 | grep of active `SKILL.md` files shows no required `.codex/commands`, `tools/arcanum --exec`, or command-backed stage language outside explicit legacy installer docs. |
+| S-002 | Active skill contracts no longer invoke command surfaces for stage execution. | L1 | S-001 | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-SWU-002-RESULT.md` classifies remaining hits as deterministic handoff metadata, legacy installer ownership, compatibility validation, or bootstrap adapter documentation. |
 | S-003 | Dispatch-spec generated package is canonical or self-sufficient. | L2 | S-001 | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-SWU-004-RESULT.md` proves staged personal and repo installs validate `pass-refine-dispatch.json` with generated package guidance. |
 | S-004 | Live installed surfaces are refreshed after staged proof and approval. | L3 | S-002, S-003, explicit approval | installed `refine` no longer reports missing dispatch-spec dependency files. |
 
@@ -76,7 +76,7 @@ docType: work-pack
 | Task ID | Goal | Layer | Complexity | Source | Gate Status | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | TASK-DISP-SURF-001 | Reproduce and classify dispatch-spec installed dependency gap. | L0 | low | `formulae/dispatch-spec/`, installed `$CODEX_HOME/skills`, repo `.agents` | pass | completed |
-| TASK-DISP-SURF-002 | Rewrite active skill contracts away from command-surface invocation. | L1 | medium | `arcana/refine/SKILL.md`, active orchestration `SKILL.md` files | ready-after-001 | not-started |
+| TASK-DISP-SURF-002 | Rewrite active skill contracts away from command-surface invocation. | L1 | medium | `arcana/refine/SKILL.md`, active orchestration `SKILL.md` files | pass | completed |
 | TASK-DISP-SURF-003 | Fix generated dispatch-spec package dependency resolution. | L2 | medium | `tools/bootstrap_arcanum.sh`, generated package templates | pass | completed |
 | TASK-DISP-SURF-004 | Validate staged installs and dispatch fixtures. | L2 | medium | `/tmp` staged installs, dispatch-spec fixture runner | pass | completed |
 | TASK-DISP-SURF-005 | Refresh live installed Codex packages after approval. | L3 | medium | `/mnt/c/Users/vlad_/.codex/skills`, repo `.agents/skills` | blocked-pending-approval | not-started |
@@ -183,7 +183,7 @@ docType: work-pack
 | SWU ID | Parent Task | Source Anchors | Dependencies | Write Scope | Done Criteria | Acceptance Evidence | Validation Surface | Execution Owner | Handoff Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SWU-DISP-SURF-001 | TASK-DISP-SURF-001 | installed `refine` message; `formulae/dispatch-spec/SKILL.md`; `tools/bootstrap_arcanum.sh` package generation | none | report only | missing dependency path is classified | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-L0-RESULT.md` | `rg` plus file existence checks; dispatch fixture validation | local-fallback | completed |
-| SWU-DISP-SURF-002 | TASK-DISP-SURF-002 | `arcana/refine/SKILL.md` stage-dispatch contract; codex-exec inventory active rows | SWU-DISP-SURF-001 | active skill/source contracts | skills no longer require command-surface invocation | grep report with remaining hit classification | active `SKILL.md` grep | local-fallback | ready-after-001 |
+| SWU-DISP-SURF-002 | TASK-DISP-SURF-002 | `arcana/refine/SKILL.md` stage-dispatch contract; codex-exec inventory active rows | SWU-DISP-SURF-001 | active skill/source contracts | skills no longer require command-surface invocation | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-SWU-002-RESULT.md` | active `SKILL.md` grep plus dispatch fixture suite | local-fallback | completed |
 | SWU-DISP-SURF-003 | TASK-DISP-SURF-003 | `tools/bootstrap_arcanum.sh`; cleanup work-pack alias-only generation | SWU-DISP-SURF-001 | generator/package source | dispatch-spec generated package is canonical/self-sufficient | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-SWU-003-RESULT.md` | staged install checks | local-fallback | completed |
 | SWU-DISP-SURF-004 | TASK-DISP-SURF-004 | dispatch-spec fixtures; staged install roots | SWU-DISP-SURF-003 | `/tmp` staged roots and validation report | staged installs validate without missing `.agents/formulae` files | pass: `formulae/dispatch-spec/development/SKILL-SURFACE-DISPATCH-CANONICALIZATION-SWU-004-RESULT.md` | fixture runner plus package smoke | local-fallback | completed |
 | SWU-DISP-SURF-005 | TASK-DISP-SURF-005 | approved staged report; cleanup backup pattern | SWU-DISP-SURF-004, explicit approval | live generated skill surfaces | live installed aliases refreshed safely | backup manifest and post-refresh report | installed package smoke | manual | blocked-pending-approval |
@@ -209,4 +209,4 @@ docType: work-pack
 
 ## Recommended Next Route
 
-Next ready route is `SWU-DISP-SURF-002` to remove command-surface invocation requirements from active skill contracts. Do not run `SWU-DISP-SURF-005` live refresh until `SWU-DISP-SURF-002` passes and the user explicitly approves mutation of `/mnt/c/Users/vlad_/.codex/skills`.
+Next route is `SWU-DISP-SURF-005`, but it is blocked pending explicit approval to mutate `/mnt/c/Users/vlad_/.codex/skills`. Recommended decision: approve a backed-up live refresh that preserves non-Arcanum and unknown packages, then run the installed-package smoke that originally exposed the missing dispatch-spec dependency files.

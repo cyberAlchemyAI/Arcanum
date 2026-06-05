@@ -82,7 +82,7 @@ The observability handoff is hook-first. Telemetry emission must be enforced by 
 
 ## Native Runtime And Hook Contract
 
-Arcanum-managed runtime packages and explicit legacy command adapters must make observer envelope setup task zero. Native agent receipts, Codex hooks, and deterministic wrappers such as `tools/arcanum --exec --adapter native-skill` perform the observability handoff. The system must not rely on the agent remembering to call `signal-observer`.
+Arcanum-managed runtime packages and explicit legacy command adapters must make observer envelope setup task zero. Native agent receipts, Codex hooks, and deterministic handoff wrappers perform the observability handoff. `tools/arcanum --exec --adapter native-skill` may prepare receipt metadata, but native skill/subagent execution remains the primary runtime surface. The system must not rely on the agent remembering to call `signal-observer`.
 
 Required phases:
 

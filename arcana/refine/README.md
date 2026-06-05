@@ -69,21 +69,21 @@ Refine can select Dispatch Spec technique overlays while preserving the canonica
 
 Technique overlays must change evidence, gates, stage configuration, or recommended next routes. Unused technique labels are validation drift.
 
-Every runtime-backed stage in the validated dispatch must use parent-owned runtime dispatch. Refine first resolves deterministic handles locally:
+Every runtime-backed stage in the validated dispatch must use parent-owned runtime dispatch. Refine first resolves deterministic capability handles locally:
 
 ```bash
-tools/arcanum --resolve <command>
+tools/arcanum --resolve <capability-id>
 ```
 
-When a handoff artifact is useful, Refine can ask the deterministic tool surface for a native runtime receipt contract:
+When a handoff artifact is useful, Refine can ask the deterministic tool surface for a native runtime receipt contract. The stage still runs through the parent native skill/subagent surface:
 
 ```bash
-tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>
+tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>
 ```
 
 For native adapters, `tools/arcanum --exec` prepares the handoff and receipt contract; it does not spawn nested model-backed CLIs. `codex-exec` and `codex-bypass` remain explicit legacy opt-in adapters.
 
-The manifest records the owning capability, resolved handle, runtime adapter, requested mode/config, stage output path, observer status, verdict, and blocked reason.
+The manifest records the owning capability, resolved capability handle, runtime adapter, requested mode/config, stage output path, observer status, verdict, and blocked reason.
 
 ## Research Decision
 

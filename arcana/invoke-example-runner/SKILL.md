@@ -23,7 +23,7 @@ Select an invoke template validation prompt, run it through the active Codex ses
 2. Use `arcanum/spells/invoke/development/select-template-example-prompt.sh` to locate the prompt and capture path.
 3. Prefer `arcanum/spells/invoke/development/run-template-example-with-codex.sh` when the user wants automated CLI execution.
 4. Otherwise read the selected prompt and execute its **Codex Prompt** instructions in the current Codex session.
-5. Use the active native `invoke` or `arcanum-invoke` skill package as the execution surface; use `.codex/commands/arcanum-spell-invoke.md` only when explicit legacy command compatibility is being validated.
+5. Use the active native `invoke` skill package as the execution surface; use `.codex/commands/arcanum-spell-invoke.md` only when explicit legacy command compatibility is being validated.
 6. Save the resulting user-facing `Invoke Result` to the prompt's `Expected Capture Path`.
 7. Return selected prompt, output path, validation state, and next unrun prompt if any.
 </process>
