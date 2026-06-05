@@ -1,67 +1,72 @@
 ---
 module: inventory-whole-arcanum
 version: 0.1.0
-status: flag
-updatedAt: 2026-05-29
+status: pass
+updatedAt: 2026-06-03
 docType: invoke-refresh-report
 invokeMode: refresh
 mutationMode: apply-approved
 ---
 
-# Invoke Refresh Report: W1 Validation Shape
+# Invoke Refresh Report: Native Runtime Proof
 
 ## Scope
 
-Refresh whole-Arcanum Inventory W1 planning artifacts from the user's decision
-signal:
-
-```text
-invoke refresh B
-```
+Refresh whole-Arcanum Inventory from the approved runtime-surface decision:
+legacy `.codex/commands` are no longer live proof for Inventory. The live test
+surface is generated native skill packages plus canonical source contracts.
 
 ## Source Signals
 
-| ID | Type | Source | Claim | Confidence | Safety |
-| --- | --- | --- | --- | --- | --- |
-| refresh-signal-w1-validation-b | blocker_resolved | user message `invoke refresh B` plus `decisions/W1-VALIDATION-SHAPE-DECISION.md` | Option B, slice-aware validator contract, is selected for W1 validation shape. | high | safe |
+| ID | Type | Claim | Confidence | Safety |
+| --- | --- | --- | --- | --- |
+| refresh-signal-native-runtime-proof | route_changed | Legacy command files are excluded from the live proof path. | high | safe |
+| refresh-signal-validator-recovered | blocker_resolved | The stale `.codex/commands/inventory.md` source-ref blocker is gone. | high | safe |
+| refresh-signal-external-install-smoke | evidence_added | A repository-style target installs Inventory/Invoke/Task Session as native Codex skills with zero legacy command files. | high | safe |
 
 ## Applied Changes
 
 | Artifact | Delta |
 | --- | --- |
-| `decisions/W1-VALIDATION-SHAPE-DECISION.md` | Marked resolved and recorded selected option B. |
-| `REFINE-GAP-CHECK.md` | Reclassified validator-shape gap as resolved by decision. |
-| `WORK-PACK.md` | Added W1 validation gate pass and refreshed SWU-WAI-003 execution note. |
-| `work-pack/tasks/TASK-WAI-002-inventory-self-slice.md` | Updated SWU-WAI-003 to include slice-aware validator contract/wrapper before card creation. |
+| `source-manifest.json` | Removed `.codex/commands` as a source family. |
+| `SOURCE-POLICY.md` | Added legacy command files to default exclusions and documented native package runtime treatment. |
+| `cards/runtime/cards.json` | Reframed the runtime card around native packages replacing legacy command-file proof. |
+| `cards/runtime/index.json` | Replaced `commands` tag lookup with `native-skill`. |
+| `cards/runtime/retrieval.json` | Updated query filters and selected-card reason for native runtime testing. |
+| `cards/runtime/COVERAGE.md` | Recorded `.codex/commands` as intentionally omitted legacy adapter state. |
+| `WORK-PACK.md` and task-session evidence | Synchronized wording from command surfaces to native runtime surfaces. |
 
 ## Validation
 
 | Check | Result |
 | --- | --- |
 | `jq empty arcana/inventory/development/whole-arcanum/refresh-report.json` | pass |
-| `rg` for option B and slice-aware terms across target artifacts | pass |
-| `tools/validate-artifact-constitution.sh --self-test` | pass |
-| `tools/validate-artifact-constitution.sh` | flag: fails on unrelated untracked `arcana/ontology-vault/development/schema-validation-plan/schema/branch-aware-ontology-candidate.schema.json` outside this refresh scope |
+| `bash arcana/inventory/scripts/validate-evidence-card-slice.sh arcana/inventory/development/whole-arcanum/cards/runtime` | pass |
+| `bash arcana/inventory/development/whole-arcanum/scripts/validate-whole-arcanum-inventory.sh` | pass |
+| Temp repo-style install with `--profiles repo-codex,repo-local` | pass |
+| Temp target `tools/arcanum --resolve inventory` and `--resolve invoke` | pass |
+| Temp target legacy command files | pass: 0 files |
+
+The Artifact Constitution validator still reports pre-existing benchmark
+generated-artifact warnings, but it returns `result: pass`; the Inventory suite
+returns `RESULT: pass`.
 
 ## Skipped Changes
 
 | Change | Reason |
 | --- | --- |
-| Implement validator wrapper | Belongs to `task-session` execution for `SWU-WAI-003`, not Invoke refresh. |
-| Generate Inventory self-slice cards | Belongs to `task-session`, not Invoke refresh. |
-| Promote EvidenceSet status | Deferred until repeated task-session reuse evidence exists. |
-
-## Result
-
-The W1 validation-shape blocker is resolved. `SWU-WAI-003` can proceed with
-option B: create or wrap a slice-aware validator for conventional files
-(`cards.json`, `index.json`, `retrieval.json`, optional `evidence-sets.json`) and
-then create the Inventory self-slice cards.
-
-Refresh status is `flag`, not `pass`, because the repository-level Artifact
-Constitution validator currently fails on an unrelated ontology-vault `.schema.json`
-artifact outside this Inventory refresh scope.
+| EvidenceSet promotion | Still requires repeated real task-session reuse evidence. |
+| Human UI | Deferred; shell plus `jq` remains enough for agent POC. |
+| Legacy command generation | Explicitly out of scope for live proof. |
+| Real implementation task in another repository | Next user-run step; this refresh proved install/runtime surface only. |
 
 ## Next Route
 
-`task-session` on `SWU-WAI-003`.
+Install into the target repository with native profiles and run one real task:
+
+```bash
+bash tools/bootstrap_arcanum.sh --target <repo> --sigils inventory,task-session --spells invoke --profiles repo-codex,repo-local --clean-legacy-codex-commands --force --no-necronomicon
+```
+
+Then use `$inventory`, `$invoke`, and `$task-session` from the target repo and
+record whether cards or candidate EvidenceSets were useful, stale, or missing.

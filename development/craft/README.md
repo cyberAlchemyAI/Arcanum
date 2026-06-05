@@ -12,9 +12,9 @@ Craft is not canonical authority yet. This package is checkpoint-first: it prese
 
 ## Current Verdict
 
-`refine-validation-stage-receipt-blocked-promotion-deferred`
+`refine-validation-interrogation-receipt-blocked-promotion-deferred`
 
-The recursive-ledger MVP is validated, the pre-architecture gap-closure wave is complete, and the broader Craft method architecture has passed design and plan hardening. Craft now has a candidate validation example suite, validation/recomposition guide, promotion readiness review, and a cleared runtime command-surface smoke for the previously missing `dispatch-spec` and `runtime-handoff` routes. Native Refine evidence classification has been repaired: handoff stubs are no longer counted as completed owner-stage artifacts. The latest Refine validation now blocks honestly because the Context Builder stage has only a prepared runtime-native handoff and still needs an owner-stage execution receipt. Promotion is deferred until repeated local use and receipt-backed validation produce stronger evidence.
+The recursive-ledger MVP is validated, the pre-architecture gap-closure wave is complete, and the broader Craft method architecture has passed design and plan hardening. Craft now has a candidate validation example suite, validation/recomposition guide, promotion readiness review, and historical runtime command-surface smoke for the previously missing `dispatch-spec` and `runtime-handoff` routes. Refine evidence classification has been repaired, Context Builder has durable receipt-backed pass evidence, and `Invoke Define` now has receipt-backed pass evidence. The latest local Refine evidence sync advances the first remaining blocker to `Interrogation refine-review`, which still needs owner-stage receipt evidence. Promotion is deferred until repeated local use and receipt-backed validation produce stronger evidence.
 
 Current operational MVP focus:
 
@@ -69,10 +69,30 @@ Result:                 pass
 Latest Refine validation attempt:
 
 ```text
-Run:    development/craft/development/refinement-runs/20260601T015552Z-craft-validation-md
+Run:    development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof
 Result: block
 Dispatch validation: pass
-Reason: Context Builder evidence baseline is `flag` with `evidence_kind=handoff_prepared`; no owner-stage execution receipt exists yet.
+Receipt-backed stages: Context Builder and Invoke Define are `pass` with `evidence_kind=receipt`.
+Reason: Interrogation refine-review is the first remaining `block`; it has not produced owner-stage pass evidence.
+```
+
+Invoke Define receipt plan:
+
+```text
+Layering:  CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md
+Work-pack: CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md
+Execution: CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md
+Transport: CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md
+Result:    pass
+```
+
+Local skill-surface refresh:
+
+```text
+Report:    CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md
+JSON:      CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-refresh-report.json
+Result:    active route refreshed
+Boundary:  historical command-surface evidence retained; current execution uses local skill contracts
 ```
 
 ## Files
@@ -127,25 +147,31 @@ Reason: Context Builder evidence baseline is `flag` with `evidence_kind=handoff_
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md) | Invoke plan work-pack for the native Refine stage receipt bridge. | active |
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-EXECUTION-PACK.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-EXECUTION-PACK.md) | Wave sequencing for the native stage receipt bridge. | active |
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-PLAN-TRANSPORT.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-PLAN-TRANSPORT.md) | Plan transport/provenance report for the native stage receipt bridge. | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-HANDOFF.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-HANDOFF.md) | Continuation handoff for the current `Invoke Define` owner-stage receipt blocker. | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md) | L0-L3 layer boundary for the `Invoke Define` receipt plan. | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md) | Invoke plan work-pack for producing and ingesting the `Invoke Define` receipt. | pass |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md) | Wave sequencing for the `Invoke Define` receipt plan. | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md) | Plan transport/provenance report for the `Invoke Define` receipt plan. | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) | Invoke refresh report that retires command-surface routing for the active Craft receipt workflow. | active |
 
 ## Current Next Move
 
 ```text
-Create the parent-native stage execution receipt path before treating Craft Refine validation as complete.
+Create or block the Interrogation refine-review owner-stage receipt through local skill-surface execution.
 ```
 
 Recommended route:
 
 ```text
-$task-session development/craft/CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md --task CRAFT-NATIVE-RECEIPT-001
+Prepare the next narrow receipt work-pack for `Interrogation refine-review`, then execute its first ready task through local skill surfaces.
 ```
 
 Why this route:
 
 ```text
-The parent-native receipt bridge has been planned. The next executable step is
-to define the local stage receipt contract before mutating native Refine
-receipt ingestion.
+The Invoke Define owner-stage receipt has been accepted by local evidence sync.
+The next exact blocker is Interrogation refine-review, which remains dependency
+blocking for Distill and later stages until it has owner-stage receipt evidence.
 ```
 
 Use [CRAFT-VALIDATION.md](CRAFT-VALIDATION.md) as the review surface. Promotion remains deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md).

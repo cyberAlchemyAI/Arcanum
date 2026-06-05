@@ -1,7 +1,7 @@
 ---
 module: inventory-whole-arcanum
 task: TASK-WAI-005
-status: blocked-on-W2
+status: completed
 layer: L3
 ---
 
@@ -22,11 +22,23 @@ on unresolved references, malformed card fields, and governance boundary drift.
 
 | SWU | Goal | Write Scope | Done Criteria | Validation |
 | --- | --- | --- | --- | --- |
-| SWU-WAI-011 | Add refresh and lint command contract. | whole-arcanum validator/docs paths | commands are documented and runnable or clearly blocked | command review |
-| SWU-WAI-012 | Write readiness report and next promotion gate. | `READINESS.md` and task-session result | validation results and remaining gaps recorded | full validation suite |
+| SWU-WAI-011 | Add refresh and lint validation contract. | whole-arcanum validator/docs paths | completed | pass: `validate-whole-arcanum-inventory.sh` |
+| SWU-WAI-012 | Write readiness report and next promotion gate. | `READINESS.md` and task-session result | completed | pass: full validation suite |
 
 ## Source Anchors
 
 - `arcana/inventory/scripts/validate-evidence-card-fixtures.sh`
 - L2 coverage reports
 - candidate EvidenceSet reuse evidence
+
+## Completion Evidence
+
+| SWU | Result | Evidence |
+| --- | --- | --- |
+| SWU-WAI-011 | PASS | `OPERATIONAL-COMMANDS.md` and `scripts/validate-whole-arcanum-inventory.sh` exist; full validation suite returns `RESULT: pass`. |
+| SWU-WAI-012 | PASS | `READINESS.md` exists, records validation results and remaining gaps, and the full validation suite returns `RESULT: pass`. |
+
+## Next Unit
+
+No pending SWUs remain. Proceed to a real-task POC using `READINESS.md` and
+`OPERATIONAL-COMMANDS.md`.

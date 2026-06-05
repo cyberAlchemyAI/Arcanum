@@ -12,7 +12,7 @@ Use the parent-native handoff path to produce the first real receipt for the Con
 | Slice | S-NATIVE-RECEIPT-004 |
 | Wave | W2 |
 | Complexity | medium |
-| Status | not-started |
+| Status | completed |
 
 ## Source Contracts
 
@@ -77,6 +77,32 @@ jq '.stage_evidence[] | select(.stage == "Context Builder evidence baseline") | 
 ```
 
 Execution owner: subagent or local-fallback.
+
+## Completion Evidence
+
+| Field | Value |
+| --- | --- |
+| Durable run | `development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof` |
+| Receipt | `development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/01-context-builder.json` |
+| Context pack | `development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/context-builder/context-pack.md` |
+| Context index | `development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/context-builder/context-index.json` |
+| Status | pass |
+
+Validation performed:
+
+```text
+jq empty development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/context-builder/context-index.json
+jq empty development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/01-context-builder.json
+tools/arcanum --exec --adapter local-skill --timeout 240 --output development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/RESULT.md refine 'development/craft/CRAFT-VALIDATION.md --preset standard --research no use existing run folder development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof'
+jq '.stage_evidence[] | select(.stage == "Context Builder evidence baseline") | {status,evidence_kind,handoff_path,receipt_path,blocked_reason}' development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/evidence-index.json
+```
+
+Observed result:
+
+- Context Builder stage records `status=pass`.
+- Context Builder stage records `evidence_kind=receipt`.
+- Context Builder stage records `receipt_path=development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/01-context-builder.json`.
+- The next non-pass stage is `Invoke Define`, which remains `evidence_kind=handoff_prepared`.
 
 Expected result shape:
 

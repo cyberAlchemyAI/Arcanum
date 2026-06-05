@@ -14,11 +14,11 @@ Depends on:
 
 Define a candidate schema for branch-aware ontology entries and relations.
 
-This schema is ontology-owned. It does not mutate Inventory, structured-action-schema, Ontology Vault templates, or any canonical branch conventions. Its job is to make the model concrete enough to validate with Arcanum, CyberAlchemy, DomainSpec, and future-system examples.
+This schema is ontology-owned. It does not mutate Inventory, structured-action-schema, Ontology Vault templates, or any canonical branch conventions. Its job is to make the model concrete enough to validate with Arcanum, CyberAlchemy, DomainSpec, GoldenQuill, and future-system examples.
 
 ## Schema Posture
 
-This is a candidate schema, not a governed schema.
+This is a candidate schema, not a governed schema. Its `promotion_record` record-kind is now canonical as the Ontology Vault governance decision shape, but the full schema, JSON Schema candidate, and authoring templates remain non-canonical until later gates.
 
 Use it to:
 
@@ -439,6 +439,12 @@ Promotion records:
 - should name review owner, gate, contradiction path, and rollback or retirement path,
 - should not replace ontology entries.
 
+Canonical boundary:
+
+- `promotion_record` is the canonical Ontology Vault record-kind for owner-routed promotion decisions.
+- A PromotionRecord records the governance decision around one primary claim or relation; it does not become the claim's owner artifact.
+- Local systems may use local candidate objects, but promotion into reusable ontology authority must be expressible as or projected to a PromotionRecord-compatible decision record.
+
 ### V13: Record Kind Profiles
 
 The first development JSON Schema should use record-kind profiles, not separate canonical companion schemas.
@@ -454,6 +460,7 @@ Profile boundary:
 
 - Profiles are development validation boundaries.
 - Profiles are not canonical templates.
+- `promotion_record` is canonical as a record-kind / governance decision shape, but its profile and any companion template remain candidate authoring surfaces.
 - Profiles may later justify companion schemas or templates, but only after fixture evidence proves separate ownership is useful.
 
 ## Example Entries

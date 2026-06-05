@@ -794,9 +794,19 @@ EOF
 copy_generated_skill_support() {
   local source_file="$1"
   local package_dir="$2"
-  local source_dir support_dir src dst
+  local source_dir support_dir support_file src dst
 
   source_dir="$(dirname "$source_file")"
+  for support_file in README.md TECHNIQUE-CATALOG.md dispatch.schema.yml dispatch.schema.yaml dispatch.schema.json; do
+    src="$source_dir/$support_file"
+    dst="$package_dir/$support_file"
+    [[ -f "$src" ]] || continue
+
+    ensure_clean_destination "$dst"
+    run mkdir -p "$package_dir"
+    copy_file "$src" "$dst"
+  done
+
   for support_dir in templates examples assets scripts development; do
     src="$source_dir/$support_dir"
     dst="$package_dir/$support_dir"

@@ -1,7 +1,7 @@
 ---
 module: inventory-whole-arcanum
 version: 0.1.0
-status: in-progress
+status: complete
 updatedAt: 2026-06-01
 docType: work-pack
 ---
@@ -12,14 +12,14 @@ docType: work-pack
 
 | Field | Value |
 | --- | --- |
-| workPackGateStatus | w1-complete |
+| workPackGateStatus | complete |
 | complexity | high |
 | outputMode | split |
 | executionPackRef | `EXECUTION-PACK.md` |
 | layeringArtifactRef | `IMPLEMENTATION-LAYERING.md` |
-| activeLayerWindow | L2 |
-| nextExecutableSWU | `SWU-WAI-009` |
-| nextRoute | `task-session` |
+| activeLayerWindow | complete |
+| nextExecutableSWU | none |
+| nextRoute | real-task POC |
 
 ## Objective
 
@@ -44,8 +44,8 @@ opening large source files.
 | S-WAI-001 | Source manifest and exclusion policy. | L0 | manifest review, Artifact Constitution validator |
 | S-WAI-002 | Inventory self-slice cards and query examples. | L1 | completed |
 | S-WAI-003 | Governance/lifecycle pilot cards and candidate sets. | L1 | completed |
-| S-WAI-004 | Expanded capability-family cards and indexes. | L2 | partial; arcana coverage report complete |
-| S-WAI-005 | Operational refresh and readiness checks. | L3 | repeatable command suite, readiness report |
+| S-WAI-004 | Expanded capability-family cards and indexes. | L2 | completed |
+| S-WAI-005 | Operational refresh and readiness checks. | L3 | completed |
 
 ## Task Board
 
@@ -54,8 +54,8 @@ opening large source files.
 | [TASK-WAI-001](work-pack/tasks/TASK-WAI-001-source-manifest.md) | Create source manifest and exclusion policy. | L0 | completed |
 | [TASK-WAI-002](work-pack/tasks/TASK-WAI-002-inventory-self-slice.md) | Inventory the Inventory package as the first proof slice. | L1 | completed |
 | [TASK-WAI-003](work-pack/tasks/TASK-WAI-003-governance-lifecycle-slices.md) | Build governance and lifecycle pilot slices. | L1 | completed |
-| [TASK-WAI-004](work-pack/tasks/TASK-WAI-004-expanded-capability-waves.md) | Expand to remaining capability families. | L2 | in-progress |
-| [TASK-WAI-005](work-pack/tasks/TASK-WAI-005-operational-readiness.md) | Harden refresh, validation, and readiness reporting. | L3 | blocked-on-W2 |
+| [TASK-WAI-004](work-pack/tasks/TASK-WAI-004-expanded-capability-waves.md) | Expand to remaining capability families. | L2 | completed |
+| [TASK-WAI-005](work-pack/tasks/TASK-WAI-005-operational-readiness.md) | Harden refresh, validation, and readiness reporting. | L3 | completed |
 
 ## SWU Manifest
 
@@ -69,10 +69,10 @@ opening large source files.
 | SWU-WAI-006 | TASK-WAI-003 | Create invoke/refine/task-session lifecycle cards. | TASK-WAI-001 | `cards/lifecycle/` | completed |
 | SWU-WAI-007 | TASK-WAI-003 | Create cross-pilot EvidenceSet for "can we implement next SWU?" queries. | SWU-WAI-005, SWU-WAI-006 | `evidence-sets/` | completed |
 | SWU-WAI-008 | TASK-WAI-004 | Expand `arcana/` capability families by wave. | W1 | `cards/arcana/` | completed |
-| SWU-WAI-009 | TASK-WAI-004 | Expand `spells/`, `transmutations/`, and `formulae/`. | W1 | `cards/composition/` | coverage report |
-| SWU-WAI-010 | TASK-WAI-004 | Expand `framework/`, `registry/`, `tools/`, and command surfaces. | W1 | `cards/runtime/` | coverage report |
-| SWU-WAI-011 | TASK-WAI-005 | Add refresh and lint command contract for whole inventory. | W2 | validator/docs paths under whole-arcanum pack | command review |
-| SWU-WAI-012 | TASK-WAI-005 | Write readiness report and next promotion gate. | SWU-WAI-011 | `READINESS.md` and task-session result | validation suite |
+| SWU-WAI-009 | TASK-WAI-004 | Expand `spells/`, `transmutations/`, and `formulae/`. | W1 | `cards/composition/` | completed |
+| SWU-WAI-010 | TASK-WAI-004 | Expand `framework/`, `registry/`, `tools/`, and native runtime surfaces. | W1 | `cards/runtime/` | completed |
+| SWU-WAI-011 | TASK-WAI-005 | Add refresh and lint command contract for whole inventory. | W2 | validator/docs paths under whole-arcanum pack | completed |
+| SWU-WAI-012 | TASK-WAI-005 | Write readiness report and next promotion gate. | SWU-WAI-011 | `READINESS.md` and task-session result | completed |
 
 ## Blockers And Gates
 
@@ -88,16 +88,21 @@ opening large source files.
 
 ## Next Step
 
-Run:
+Run the real-task POC:
 
 ```text
-task-session SWU-WAI-009 from arcana/inventory/development/whole-arcanum/WORK-PACK.md
+Use arcana/inventory/development/whole-arcanum/READINESS.md and OPERATIONAL-COMMANDS.md before a real Arcanum implementation task.
 ```
 
 ## Change Log
 
 | Date | Change | Author |
 | --- | --- | --- |
+| 2026-06-01 | Completed SWU-WAI-012 and TASK-WAI-005; readiness report records validation results, promotion gate, deferred decisions, and real-task POC route. | Codex |
+| 2026-06-03 | Refreshed SWU-WAI-010 runtime scope to exclude legacy `.codex/commands` as live proof and use native/generated skill packages plus canonical source contracts for cross-repository testing. | Codex |
+| 2026-06-01 | Completed SWU-WAI-011; whole-inventory validation script and operational command contract pass command review. | Codex |
+| 2026-06-01 | Completed SWU-WAI-010; runtime support cards, index, retrieval fixture, and coverage report pass slice validation, opening L3 operational readiness. | Codex |
+| 2026-06-01 | Completed SWU-WAI-009; composition family cards, index, retrieval fixture, and coverage report pass slice validation. | Codex |
 | 2026-06-01 | Completed SWU-WAI-008; arcana capability-family cards, index, retrieval fixture, and coverage report pass slice validation. | Codex |
 | 2026-06-01 | Completed TASK-WAI-003; governance and lifecycle card slices plus cross-pilot candidate EvidenceSet pass, opening L2 expansion. | Codex |
 | 2026-05-29 | Completed TASK-WAI-002; slice-aware validator, Inventory self-slice cards, retrieval fixture, and candidate EvidenceSet pass. | Codex |

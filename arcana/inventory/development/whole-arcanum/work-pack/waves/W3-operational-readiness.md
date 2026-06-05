@@ -1,7 +1,7 @@
 ---
 module: inventory-whole-arcanum
 wave: W3
-status: blocked-on-W2
+status: completed
 layer: L3
 ---
 
@@ -17,7 +17,14 @@ Can agents refresh, validate, and query the whole-Arcanum inventory repeatedly?
 
 ## Promotion Evidence
 
-- refresh/lint contract exists,
+- refresh/lint validation contract exists:
+  - `OPERATIONAL-COMMANDS.md`,
+  - `scripts/validate-whole-arcanum-inventory.sh`,
 - validation suite is repeatable,
 - readiness report names promotion and deferral gates,
 - no human UI is required for the agent runtime path.
+
+## Current State
+
+`SWU-WAI-011` completed the validation contract and repeatable validation suite.
+`SWU-WAI-012` completed the readiness report and promotion gate. W3 is complete.

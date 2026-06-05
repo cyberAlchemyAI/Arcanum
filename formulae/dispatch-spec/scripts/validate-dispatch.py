@@ -31,8 +31,11 @@ except ImportError as exc:  # pragma: no cover - environment guard
     raise SystemExit(2)
 
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+LOCAL_PACKAGE = SCRIPT_DIR.parent
 ROOT = Path(__file__).resolve().parents[3]
-PACKAGE = ROOT / "formulae" / "dispatch-spec"
+REPO_PACKAGE = ROOT / "formulae" / "dispatch-spec"
+PACKAGE = LOCAL_PACKAGE if (LOCAL_PACKAGE / "dispatch.schema.yml").exists() else REPO_PACKAGE
 SCHEMA_PATH = PACKAGE / "dispatch.schema.yml"
 CATALOG_PATH = PACKAGE / "TECHNIQUE-CATALOG.md"
 

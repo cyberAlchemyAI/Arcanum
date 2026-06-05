@@ -7,7 +7,7 @@
 | Session | Craft durable development session |
 | Started | 2026-05-25 |
 | Scope | `development/craft/` |
-| Status | refine-validation-stage-receipt-blocked-promotion-deferred |
+| Status | refine-validation-interrogation-receipt-blocked-promotion-deferred |
 | Baseline | [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md) |
 
 ## Artifact Ledger
@@ -77,6 +77,12 @@
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md) | Invoke plan work-pack for the native Refine receipt bridge | active |
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-EXECUTION-PACK.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-EXECUTION-PACK.md) | Wave sequencing for the native Refine receipt bridge | active |
 | [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-PLAN-TRANSPORT.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-PLAN-TRANSPORT.md) | Plan transport/provenance report for the native Refine receipt bridge | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-HANDOFF.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-HANDOFF.md) | Continuation handoff for the current `Invoke Define` owner-stage receipt blocker | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md) | L0-L3 layer boundary for the `Invoke Define` receipt plan | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md) | Invoke plan work-pack for producing and ingesting the `Invoke Define` receipt | pass |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md) | Wave sequencing for the `Invoke Define` receipt plan | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md) | Plan transport/provenance report for the `Invoke Define` receipt plan | active |
+| [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) | Invoke refresh report that retires command-surface routing for the active Craft receipt workflow | active |
 
 ## Decision Ledger
 
@@ -117,7 +123,10 @@
 | Arcanum skill runtime interface is deferred side-thread. | A new handoff exists, but the target thread still needs invoke define/design before implementation. | owner artifact: [ARCANUM-SKILL-RUNTIME-HANDOFF.md](ARCANUM-SKILL-RUNTIME-HANDOFF.md); non-blocking for Craft architecture |
 | Runtime command-surface blocker cleared. | `dispatch-spec` and `runtime-handoff` now resolve through `tools/arcanum`, and the Craft Refine dispatch validates. | done in [task-sessions/CRAFT-RUNTIME-003.md](task-sessions/CRAFT-RUNTIME-003.md) |
 | Native Refine stage evidence classification repaired. | The wrapper now writes validated dispatch evidence and distinguishes observer envelopes, handoff preparation, owner artifacts, decision records, receipts, and dependency blocks. | done in [task-sessions/CRAFT-RECEIPT-003.md](task-sessions/CRAFT-RECEIPT-003.md) |
-| Parent-native owner-stage receipt path is planned. | The latest Refine validation blocks honestly: Context Builder produced a runtime-native handoff stub with `evidence_kind=handoff_prepared`, but no owner-stage execution receipt exists yet. | next route: `$task-session development/craft/CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md --task CRAFT-NATIVE-RECEIPT-001` |
+| Context Builder receipt path proved. | The latest Refine validation records Context Builder as `pass` with `evidence_kind=receipt`; the next blocker is `Invoke Define`, which remains `handoff_prepared`. | done; follow-up planned in [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md) |
+| Invoke Define receipt path completed. | The work-pack defined the contract, wrote the receipt, and synchronized local Refine evidence. | done in `CRAFT-INVOKE-RECEIPT-003`; next blocker is Interrogation refine-review |
+| Command-surface routing retired for active Invoke receipt workflow. | The active Craft receipt route now uses local skill contracts directly; old command-surface artifacts remain historical evidence only. | done in [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) |
+| Interrogation refine-review receipt is missing. | Distill and later stages remain dependency-blocked until Interrogation has owner-stage receipt evidence. | next route: create a narrow local-skill receipt work-pack for `Interrogation refine-review` |
 | Craft promotion is deferred. | The readiness review recommends continued local use before canonical promotion. | [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md); use validation guide on another local Craft run |
 
 ## Candidate Work-Pack Seeds
@@ -155,11 +164,14 @@
 | CRAFT-RECEIPT-002 | done | Materialize and validate `REFINE-DISPATCH.json` in native Refine runs. | `CRAFT-REFINE-RUNTIME-STAGE-RECEIPTS-WORK-PACK.md`, `tools/arcanum` |
 | CRAFT-RECEIPT-003 | done | Harden run manifest and evidence index semantics. | `CRAFT-REFINE-RUNTIME-STAGE-RECEIPTS-WORK-PACK.md`, evidence index |
 | CRAFT-RECEIPT-004 | done | Rerun Craft validation and sync honest state. | `CRAFT-REFINE-RUNTIME-STAGE-RECEIPTS-WORK-PACK.md`, README/session ledger |
-| CRAFT-NATIVE-RECEIPT-001 | ready-work-pack | Define the local stage receipt contract. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, receipt schema/example |
-| CRAFT-NATIVE-RECEIPT-002 | ready-after-CRAFT-NATIVE-RECEIPT-001 | Implement receipt ingestion in native Refine. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, `tools/arcanum` |
-| CRAFT-NATIVE-RECEIPT-003 | ready-after-CRAFT-NATIVE-RECEIPT-002 | Add parent-native stage handoff and resume flow. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, `tools/arcanum` |
-| CRAFT-NATIVE-RECEIPT-004 | ready-after-CRAFT-NATIVE-RECEIPT-003 | Produce first Context Builder stage receipt. | generated receipt evidence |
-| CRAFT-NATIVE-RECEIPT-005 | ready-after-CRAFT-NATIVE-RECEIPT-004 | Rerun Craft validation and sync receipt-backed state. | README, SESSION-LEDGER |
+| CRAFT-NATIVE-RECEIPT-001 | done | Define the local stage receipt contract. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, receipt schema/example |
+| CRAFT-NATIVE-RECEIPT-002 | done | Implement receipt ingestion in native Refine. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, `tools/arcanum` |
+| CRAFT-NATIVE-RECEIPT-003 | done | Add parent-native stage handoff and resume flow. | `CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md`, `tools/arcanum` |
+| CRAFT-NATIVE-RECEIPT-004 | done | Produce first Context Builder stage receipt. | generated receipt evidence |
+| CRAFT-NATIVE-RECEIPT-005 | done | Rerun Craft validation and sync receipt-backed state. | README, SESSION-LEDGER |
+| CRAFT-INVOKE-RECEIPT-001 | done | Define the `Invoke Define` receipt artifact contract. | `work-packs/invoke-define-stage-receipt/shared/invoke-define-receipt-contract.md`, task-session evidence |
+| CRAFT-INVOKE-RECEIPT-002 | done | Execute or block the `Invoke Define` owner stage and write the receipt. | `receipts/02-invoke-define.json`, `invoke-define/RESULT.md`, task-session evidence |
+| CRAFT-INVOKE-RECEIPT-003 | done | Re-evaluate Craft validation through the local Refine skill and sync receipt-backed state. | `evidence-index.json`, README, SESSION-LEDGER, task-session evidence |
 | RUNTIME-HANDOFF-001 | done | Create a new-thread handoff for the Arcanum skill runtime interface. | `ARCANUM-SKILL-RUNTIME-HANDOFF.md` |
 
 ## Current Next Move
@@ -167,18 +179,18 @@
 Recommended:
 
 ```text
-$task-session development/craft/CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md --task CRAFT-NATIVE-RECEIPT-001
+Prepare the next narrow receipt work-pack for `Interrogation refine-review`, then execute its first ready task through local skill surfaces.
 ```
 
 Reason:
 
 ```text
-The parent-native receipt bridge is now planned. The next executable step is
-to define the local stage receipt contract before mutating native Refine
-receipt ingestion.
+The Invoke Define owner-stage receipt has been accepted by local evidence sync.
+The next exact blocker is Interrogation refine-review, which remains dependency
+blocking for Distill and later stages until it has owner-stage receipt evidence.
 ```
 
-Promotion is deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md). Use [CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md](CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md) for the next task-session.
+Promotion is deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md). Use the latest receipt-backed run evidence before opening the Interrogation receipt path.
 
 Gate:
 

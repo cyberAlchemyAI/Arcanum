@@ -1,58 +1,99 @@
 {
   "mode": "refresh",
-  "phaseStatus": "flag",
+  "phaseStatus": "pass",
   "mutationMode": "apply-approved",
   "sourceSignals": [
     {
-      "id": "refresh-signal-w1-validation-b",
-      "source_path": "user-message:invoke-refresh-B",
+      "id": "refresh-signal-native-runtime-proof",
+      "source_path": "user-message:2026-06-03-refine-invoke-task-session",
+      "signal_type": "route_changed",
+      "target_artifacts": [
+        "arcana/inventory/development/whole-arcanum/source-manifest.json",
+        "arcana/inventory/development/whole-arcanum/SOURCE-POLICY.md",
+        "arcana/inventory/development/whole-arcanum/cards/runtime/cards.json",
+        "arcana/inventory/development/whole-arcanum/cards/runtime/index.json",
+        "arcana/inventory/development/whole-arcanum/cards/runtime/retrieval.json",
+        "arcana/inventory/development/whole-arcanum/cards/runtime/COVERAGE.md"
+      ],
+      "claim": "Legacy command files are no longer the live runtime invocation proof; native/generated skill packages and canonical source contracts are the cross-repository test surface.",
+      "evidence": "User approved removing the command surface and the repository bootstrap already treats .codex/commands as legacy opt-in.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "refresh-signal-validator-recovered",
+      "source_path": "arcana/inventory/development/whole-arcanum/scripts/validate-whole-arcanum-inventory.sh",
       "signal_type": "blocker_resolved",
       "target_artifacts": [
-        "arcana/inventory/development/whole-arcanum/decisions/W1-VALIDATION-SHAPE-DECISION.md",
-        "arcana/inventory/development/whole-arcanum/REFINE-GAP-CHECK.md",
-        "arcana/inventory/development/whole-arcanum/WORK-PACK.md",
-        "arcana/inventory/development/whole-arcanum/work-pack/tasks/TASK-WAI-002-inventory-self-slice.md"
+        "arcana/inventory/development/whole-arcanum/READINESS.md",
+        "arcana/inventory/development/whole-arcanum/work-pack/tasks/TASK-WAI-005-operational-readiness.md"
       ],
-      "claim": "Option B, slice-aware validator contract, is selected for W1 validation shape.",
-      "evidence": "User requested invoke refresh B after decision-gate options were presented.",
+      "claim": "The stale .codex/commands/inventory.md source reference blocker is resolved.",
+      "evidence": "Full whole-Arcanum validation returns RESULT: pass after the runtime slice refresh.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "refresh-signal-external-install-smoke",
+      "source_path": "temporary-target:/tmp/arcanum-inventory-live-test.hz0KBq",
+      "signal_type": "evidence_added",
+      "target_artifacts": [
+        "arcana/inventory/development/whole-arcanum/READINESS.md",
+        "arcana/inventory/development/whole-arcanum/task-session/NATIVE-RUNTIME-REFRESH-RESULT.md"
+      ],
+      "claim": "Inventory, Invoke, Task Session, and Orchestrate install into a repository-style target as native Codex skills with zero legacy command files.",
+      "evidence": "bootstrap_arcanum.sh with --profiles repo-codex,repo-local created .agents/skills packages, .arcanum/runtime/config.json, tools/arcanum, and no .codex/commands files.",
       "confidence": "high",
       "mutation_safety": "safe"
     }
   ],
   "targetArtifacts": [
-    "arcana/inventory/development/whole-arcanum/decisions/W1-VALIDATION-SHAPE-DECISION.md",
-    "arcana/inventory/development/whole-arcanum/REFINE-GAP-CHECK.md",
+    "arcana/inventory/development/whole-arcanum/source-manifest.json",
+    "arcana/inventory/development/whole-arcanum/SOURCE-POLICY.md",
+    "arcana/inventory/development/whole-arcanum/cards/runtime/cards.json",
+    "arcana/inventory/development/whole-arcanum/cards/runtime/index.json",
+    "arcana/inventory/development/whole-arcanum/cards/runtime/retrieval.json",
+    "arcana/inventory/development/whole-arcanum/cards/runtime/COVERAGE.md",
+    "arcana/inventory/development/whole-arcanum/READINESS.md",
     "arcana/inventory/development/whole-arcanum/WORK-PACK.md",
-    "arcana/inventory/development/whole-arcanum/work-pack/tasks/TASK-WAI-002-inventory-self-slice.md"
+    "arcana/inventory/development/whole-arcanum/task-session/NATIVE-RUNTIME-REFRESH-RESULT.md"
   ],
   "deltaSummary": [
     {
-      "class": "blocker_resolved",
-      "summary": "W1 validation-shape blocker resolved with option B."
+      "class": "route_changed",
+      "summary": "Whole-Arcanum Inventory runtime proof now targets native/generated skill packages instead of legacy command files."
     },
     {
-      "class": "route_changed",
-      "summary": "SWU-WAI-003 now begins with slice-aware validator contract/wrapper before card creation."
+      "class": "blocker_resolved",
+      "summary": "The full whole-Arcanum validator now passes after removing the stale .codex/commands/inventory.md source reference."
+    },
+    {
+      "class": "evidence_added",
+      "summary": "A temporary repo-style bootstrap smoke proved native repo Codex skill installation without legacy commands."
     }
   ],
   "proposedChanges": [],
   "appliedChanges": [
-    "Decision record resolved with option B.",
-    "Refine gap check updated to resolved-by-decision.",
-    "Work-pack gate updated with W1 validation shape pass.",
-    "TASK-WAI-002 SWU-WAI-003 updated with slice-aware validation execution notes."
+    "Removed .codex/commands from the whole-Arcanum source manifest.",
+    "Marked .codex/commands as excluded legacy adapter state in SOURCE-POLICY.md.",
+    "Refreshed the runtime card, index, retrieval fixture, and coverage notes around native runtime proof.",
+    "Synchronized work-pack and task-session evidence wording.",
+    "Recorded external repo-style native install smoke evidence."
   ],
   "skippedChanges": [
-    "Validator wrapper implementation deferred to task-session SWU-WAI-003.",
-    "Inventory self-slice card generation deferred to task-session SWU-WAI-003.",
-    "EvidenceSet promotion remains deferred."
+    "Did not promote EvidenceSets to canonical status; they remain candidate-level.",
+    "Did not build a human UI.",
+    "Did not generate legacy .codex/commands files.",
+    "Did not run a real implementation task in another repository; the completed proof is install/runtime-surface smoke."
   ],
   "blockers": [],
-  "nextRoute": "task-session SWU-WAI-003",
+  "nextRoute": "test in a real target repository using repo-codex,repo-local native skill profiles",
   "validation": [
     "jq empty arcana/inventory/development/whole-arcanum/refresh-report.json: pass",
-    "rg option B and slice-aware refresh terms across target artifacts: pass",
-    "tools/validate-artifact-constitution.sh --self-test: pass",
-    "tools/validate-artifact-constitution.sh: fail due unrelated ontology-vault .schema.json outside refresh scope"
+    "bash arcana/inventory/scripts/validate-evidence-card-slice.sh arcana/inventory/development/whole-arcanum/cards/runtime: RESULT pass",
+    "bash arcana/inventory/development/whole-arcanum/scripts/validate-whole-arcanum-inventory.sh: RESULT pass",
+    "bash tools/bootstrap_arcanum.sh --target /tmp/arcanum-inventory-live-test.hz0KBq --sigils inventory,task-session --spells invoke --profiles repo-codex,repo-local --clean-legacy-codex-commands --force --no-necronomicon: pass",
+    "tools/arcanum --resolve inventory and --resolve invoke in temporary target: pass",
+    "find temporary target .codex/commands: 0 files"
   ]
 }

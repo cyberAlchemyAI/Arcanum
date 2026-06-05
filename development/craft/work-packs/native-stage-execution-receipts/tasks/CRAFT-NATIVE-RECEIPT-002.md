@@ -12,7 +12,7 @@ Teach native Refine to discover, validate, and record an owner-stage receipt bef
 | Slice | S-NATIVE-RECEIPT-002 |
 | Wave | W1 |
 | Complexity | medium |
-| Status | not-started |
+| Status | completed |
 
 ## Source Contracts
 
@@ -76,6 +76,32 @@ jq '.stage_evidence[] | {stage,status,evidence_kind,handoff_path,receipt_path,bl
 ```
 
 Execution owner: local-fallback.
+
+## Completion Evidence
+
+| Field | Value |
+| --- | --- |
+| Receipt path convention | `<run_dir>/receipts/<stage-file-without-md>.json` |
+| Synthetic pass fixture | `/tmp/craft-native-receipt-002/receipts/01-context-builder.json` |
+| Receipt-backed run | `/tmp/craft-native-receipt-002` |
+| Missing-receipt run | `/tmp/craft-native-receipt-002-no-receipt` |
+| Status | pass |
+
+Validation performed:
+
+```text
+bash -n tools/arcanum
+jq empty /tmp/craft-native-receipt-002/receipts/01-context-builder.json
+tools/arcanum --exec --adapter local-skill --timeout 120 --output /tmp/craft-native-receipt-002/RESULT.md refine 'development/craft/CRAFT-VALIDATION.md --preset standard --research no use existing run folder /tmp/craft-native-receipt-002'
+jq '.stage_evidence[] | {stage,status,evidence_kind,handoff_path,receipt_path,blocked_reason}' /tmp/craft-native-receipt-002/evidence-index.json
+tools/arcanum --exec --adapter local-skill --timeout 120 --output /tmp/craft-native-receipt-002-no-receipt-output.md refine 'development/craft/CRAFT-VALIDATION.md --preset standard --research no use existing run folder /tmp/craft-native-receipt-002-no-receipt'
+jq '.stage_evidence[] | select(.stage == "Context Builder evidence baseline") | {stage,status,evidence_kind,handoff_path,receipt_path,blocked_reason}' /tmp/craft-native-receipt-002-no-receipt/evidence-index.json
+```
+
+Observed result:
+
+- With a valid synthetic receipt, `Context Builder evidence baseline` records `status=pass`, `evidence_kind=receipt`, and `receipt_path=/tmp/craft-native-receipt-002/receipts/01-context-builder.json`.
+- Without a receipt, the same stage remains `status=flag`, `evidence_kind=handoff_prepared`, and `receipt_path=null`.
 
 Expected result shape:
 

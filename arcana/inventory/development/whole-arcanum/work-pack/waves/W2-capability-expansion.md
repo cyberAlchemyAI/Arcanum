@@ -1,7 +1,7 @@
 ---
 module: inventory-whole-arcanum
 wave: W2
-status: in-progress
+status: completed
 layer: L2
 ---
 
@@ -20,11 +20,13 @@ ownership boundaries?
 
 - family coverage reports exist:
   - `cards/arcana/COVERAGE.md` completed for `SWU-WAI-008`,
+  - `cards/composition/COVERAGE.md` completed for `SWU-WAI-009`,
+  - `cards/runtime/COVERAGE.md` completed for `SWU-WAI-010`,
 - duplicate concepts and authority conflicts are reported,
 - selectors remain small enough for agent-fast retrieval,
 - validators still pass.
 
 ## Current State
 
-`SWU-WAI-008` completed the first L2 family slice. `SWU-WAI-009` remains the
-next unit for composition surfaces.
+`SWU-WAI-008`, `SWU-WAI-009`, and `SWU-WAI-010` completed the L2 family
+expansion. L3 operational readiness is now open.

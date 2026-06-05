@@ -24,7 +24,6 @@ Inventory may summarize and index tracked source artifacts from these families:
 - `framework/`
 - `registry/`
 - `tools/`
-- `.codex/commands/`
 
 The source boundary starts from `git ls-files`, not untracked filesystem state.
 
@@ -34,6 +33,7 @@ Exclude generated and local runtime paths by default:
 
 - `.arcanum/codex-home/**`
 - `.arcanum/codex-home-smoke/**`
+- `.codex/commands/**`
 - `.arcanum/runtime/**`
 - `.arcanum/observability/runs/**`
 - `.arcanum/observability/reflections/**`
@@ -83,6 +83,13 @@ development contracts when they govern current behavior, such as:
 - validator or migration plans referenced by those files.
 
 Unpromoted run folders and loose experiment output remain excluded.
+
+## Runtime Surface Treatment
+
+Generated native skill packages and reusable source contracts are the active
+runtime proof surface. Legacy `.codex/commands/**` files are local/generated
+adapter surfaces and should not be included as whole-Arcanum source inventory
+unless a future migration task explicitly promotes one as durable evidence.
 
 ## Schema Rule
 

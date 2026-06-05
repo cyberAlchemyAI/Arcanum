@@ -221,11 +221,43 @@ Do not use this sigil when:
 Expected inputs, if available:
 
 - target folder, artifact, idea, design concern, plan, work-pack, or repository area,
+- simple operator sentence such as "refine everything until we have an MVP-ready plan",
 - desired preset: compact, standard, full, or deep,
 - desired research mode: no, bounded, or if-gap,
 - existing source context or constraints,
 - preferred output location for seed artifacts.
 </inputs>
+
+<simple-operator-sentence-policy>
+
+Refine must support a simple operator sentence as the primary user experience.
+When the user says something like:
+
+```text
+$refine refine everything until we have an MVP-ready plan
+```
+
+Refine should infer:
+
+- target: the current repository, folder, feature, or supplied scope called "everything";
+- desired outcome: an MVP-ready non-executed plan;
+- preset: `standard` unless the sentence implies compact/deep;
+- research mode: `research-if-gap-appears` unless the user says otherwise;
+- first action: propose the run strategy, not execute it.
+
+The initial response must be a `Refine Run Strategy Proposal`. It must offer the
+strategy that Dispatch Spec selected, explain why it fits the target context, and
+ask for confirmation. It must not spawn subagents, execute stages, or start the
+canonical loop before confirmation.
+
+After the user confirms, Refine runs the approved refinement session. If the
+approved `subagent_strategy.status` is `recommended` or `required`, the confirmed
+run should spawn the proposed subagents through the current native runtime when
+available and collect their receipts before parent synthesis. If subagents are
+not available, record `subagent_execution=blocked` with the exact reason and
+continue only if the approved strategy allows a non-subagent fallback.
+
+</simple-operator-sentence-policy>
 
 <ownership-boundary>
 
@@ -270,15 +302,16 @@ If no preset is supplied, use `standard`.
 4. Select dispatch technique overlays from the policy above, recording why each selected overlay applies or why it was not selected.
 5. Write `REFINE-DISPATCH.json` as a dispatch-spec document for the canonical ten-stage loop, including route menu/decision, technique overlays, gates, handoffs, and observability.
 6. Validate `REFINE-DISPATCH.json` against `formulae/dispatch-spec/dispatch.schema.yml` and the `dispatch-spec` validator/skill contract, or block with exact missing fields.
-7. Show the Dispatch Spec strategy preview: overlays, why they apply, subagent strategy, role ownership, join policy, receipts, and runtime implications.
-8. Ask permission to run the validated route. When subagents are recommended or required, permission must explicitly cover delegated subagent execution.
+7. Show the Dispatch Spec strategy preview as `Refine Run Strategy Proposal`: inferred target/outcome, overlays, why they apply, subagent strategy, role ownership, join policy, receipts, runtime implications, and deferred work.
+8. Ask permission to run the validated route. When subagents are recommended or required, permission must explicitly cover delegated subagent execution. Stop here until the operator confirms.
 9. Write `RUNTIME-HANDOFF.md` with the runtime objective, validated dispatch reference, strategy permission state, adapter/run fields, blocked fields, and runtime status.
 10. For each runtime-backed stage in the validated dispatch, resolve the command/capability with `tools/arcanum --resolve <command>` when a deterministic command handle exists.
-11. Dispatch approved stages through the parent runtime surface or with `tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>` as a handoff/receipt contract, not from a nested model CLI sandbox.
-12. Record every stage artifact or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
-13. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
-14. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, stage artifacts, research decision, distill repair, invoke plan, and final verdict.
-15. Recommend next routes only after the final synthesis; do not execute them as part of refine.
+11. Spawn approved subagents when the confirmed strategy recommends or requires them; collect role receipts before parent synthesis.
+12. Dispatch approved stages through the parent runtime surface or with `tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>` as a handoff/receipt contract, not from a nested model CLI sandbox.
+13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
+14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
+15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict.
+16. Recommend next routes only after the final synthesis; do not execute them as part of refine.
 </process>
 
 <quality-bar>
@@ -289,7 +322,9 @@ A successful Refine run must:
 - preserve the canonical ten-stage loop,
 - select technique overlays based on target evidence rather than decorating the route with unused technique names,
 - show the Dispatch Spec strategy and ask permission before runtime execution,
+- stop after the strategy proposal until the operator confirms the run,
 - use `tools/arcanum` deterministic resolution and native runtime receipts for runtime-backed stages,
+- collect subagent receipts when approved subagents are used,
 - materialize a target-local run manifest and evidence index,
 - record research mode and confirmation status,
 - preserve each stage command's native artifact ownership,
@@ -330,6 +365,7 @@ Refine is promotion-ready only after experiment evidence shows:
 - bounded research choices are offered and recorded,
 - the dispatch route validates before stage execution,
 - the strategy preview and permission gate occur before runtime-backed or subagent execution,
+- the simple operator sentence path produces a strategy proposal before execution,
 - final synthesis is produced from stage artifacts rather than a route proposal,
 - Task Session and Sigil Development are only next-route recommendations.
 </promotion-gate>
@@ -344,10 +380,31 @@ Avoid:
 - marking refinement complete before final interrogation and synthesis,
 - silently falling back from failed dispatch validation, failed runtime handoff, or failed command dispatch.
 - running runtime-backed stages or subagents before showing the Dispatch Spec strategy and receiving permission.
+- treating a simple "refine everything" request as permission to run before the strategy proposal is confirmed.
 </anti-patterns>
 
 <output-contract>
-Return:
+For the initial strategy proposal, return:
+
+```markdown
+## Refine Run Strategy Proposal
+
+- Target: <inferred target>
+- Desired outcome: <for example, MVP-ready non-executed plan>
+- Preset: compact | standard | full | deep
+- Research: no-research | bounded-research | research-if-gap-appears
+- Dispatch route: <path>
+- Selected overlays: <ids and why each applies>
+- Subagent strategy: <none | recommended | required | blocked>
+- Proposed subagents: <roles, ownership, affected steps>
+- Join policy: <policy>
+- Receipt requirements: <fields>
+- Runtime plan after confirmation: <summary>
+- Deferred work: <items>
+- Confirmation prompt: Confirm to run this strategy?
+```
+
+After confirmation and execution, return:
 
 ```markdown
 ## Refine Result

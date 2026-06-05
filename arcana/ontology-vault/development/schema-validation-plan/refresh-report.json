@@ -1,90 +1,141 @@
 {
-  "id": "ontology-schema-validation-plan-refresh-20260529",
+  "id": "ontology-promotion-record-canonical-record-kind-refresh-20260603",
   "mode": "invoke-refresh",
-  "status": "flag",
-  "date": "2026-05-29",
-  "scope": "development-only ontology schema validation plan",
+  "phaseStatus": "pass",
+  "date": "2026-06-03",
+  "scope": "refresh ontology-vault schema-validation artifacts from GoldenQuill canonical applied PromotionRecord evidence",
   "mutation_mode": "apply-approved",
-  "target_artifacts": [
-    "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md",
-    "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
-    "arcana/ontology-vault/development/schema-validation-plan/refinement-runs/20260529T104000Z-record-kind-decision/RESULT.md"
-  ],
-  "source_signals": [
+  "sourceSignals": [
     {
-      "kind": "route_changed",
+      "id": "goldenquill-canonical-applied-reference",
+      "source_path": "projects/goldenquill/docs/strategy/goldenquill_canonical_promotion_record_refine_2026-06-03.md",
+      "signal_type": "evidence_added",
+      "target_artifacts": [
+        "arcana/ontology-vault/development/schema-validation-plan/GOVERNED-CANDIDATE-BUNDLE.md",
+        "arcana/ontology-vault/development/schema-validation-plan/decision-gates/OVS-GATE-002-promotion-record-companion-boundary.md"
+      ],
+      "claim": "GoldenQuill provides a canonical applied reference for projecting local domain candidates into PromotionRecord-compatible owner decisions.",
+      "evidence": "The GoldenQuill refinement defines MemoryEvidencePacketRef -> PromotionCandidate -> OntologyVaultProjection -> PromotionRecord-compatible OwnerDecision.",
       "confidence": "high",
-      "evidence": "record_kind refine result recommends patching schema candidate, fixtures, and validator before JSON Schema generation"
+      "mutation_safety": "safe"
     },
     {
-      "kind": "artifact_drift",
+      "id": "promotion-record-record-kind-boundary",
+      "source_path": "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+      "signal_type": "status_changed",
+      "target_artifacts": [
+        "arcana/ontology-vault/development/BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+        "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md"
+      ],
+      "claim": "Existing validation supports promotion_record as a stable record-kind boundary.",
+      "evidence": "Deterministic fixture validation and JSON Schema validation pass for record-kind profiles, including promotion_record.",
       "confidence": "high",
-      "evidence": "WORK-PACK.md still listed fixture format and parser choice as open after fixture validation had passed"
+      "mutation_safety": "safe"
     },
     {
-      "kind": "blocker_confirmed",
+      "id": "template-schema-boundary-preserved",
+      "source_path": "arcana/ontology-vault/development/schema-validation-plan/decision-gates/OVS-GATE-002-promotion-record-companion-boundary.md",
+      "signal_type": "route_changed",
+      "target_artifacts": [
+        "arcana/ontology-vault/development/schema-validation-plan/GOVERNED-CANDIDATE-BUNDLE.md",
+        "arcana/ontology-vault/development/schema-validation-plan/README.md"
+      ],
+      "claim": "PromotionRecord can become canonical as a record kind without promoting templates, separate schemas, or external-system obligations.",
+      "evidence": "OVS-GATE-002 selected promotion-record-canonical-record-kind.",
       "confidence": "high",
-      "evidence": "VALIDATION-REPORT.md flags record_kind as the active schema gap exposed by the CyberAlchemy PromotionRecord pressure fixture"
-    },
-    {
-      "kind": "boundary_flag",
-      "confidence": "medium",
-      "evidence": "record-kind refine run validated dispatch directly but recorded dispatch-spec command-surface resolution as unavailable"
+      "mutation_safety": "safe"
     }
   ],
-  "applied_changes": [
+  "targetArtifacts": [
+    "arcana/ontology-vault/development/schema-validation-plan/GOVERNED-CANDIDATE-BUNDLE.md",
+    "arcana/ontology-vault/development/schema-validation-plan/README.md",
+    "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md",
+    "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+    "arcana/ontology-vault/development/BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+    "arcana/ontology-vault/development/schema-validation-plan/decision-gates/OVS-GATE-002-promotion-record-companion-boundary.md"
+  ],
+  "deltaSummary": [
+    {
+      "delta": "status_changed",
+      "summary": "OVS-GATE-002 moved from blocked to pass."
+    },
+    {
+      "delta": "route_changed",
+      "summary": "Next route now favors GoldenQuill L0 PromotionRecord compatibility fixtures or OVS-GATE-003."
+    },
+    {
+      "delta": "evidence_added",
+      "summary": "GoldenQuill canonical applied strategy is now cited as applied evidence."
+    }
+  ],
+  "proposedChanges": [],
+  "appliedChanges": [
+    {
+      "artifact": "arcana/ontology-vault/development/schema-validation-plan/decision-gates/OVS-GATE-002-promotion-record-companion-boundary.md",
+      "changes": [
+        "marked gate pass",
+        "added Option E for canonical record-kind only",
+        "recorded selected decision and deferred companion template/schema gates"
+      ]
+    },
+    {
+      "artifact": "arcana/ontology-vault/development/schema-validation-plan/GOVERNED-CANDIDATE-BUNDLE.md",
+      "changes": [
+        "declared canonical promotion_record record-kind semantics",
+        "added OVS-GATE-002 as follow-up source decision",
+        "added GoldenQuill applied reference"
+      ]
+    },
+    {
+      "artifact": "arcana/ontology-vault/development/BRANCH-AWARE-ONTOLOGY-SCHEMA-CANDIDATE.md",
+      "changes": [
+        "preserved candidate schema posture",
+        "added canonical promotion_record record-kind boundary"
+      ]
+    },
+    {
+      "artifact": "arcana/ontology-vault/development/schema-validation-plan/README.md",
+      "changes": [
+        "added PromotionRecord canonical record-kind exception",
+        "listed OVS-GATE-002 decision record"
+      ]
+    },
+    {
+      "artifact": "arcana/ontology-vault/development/schema-validation-plan/VALIDATION-REPORT.md",
+      "changes": [
+        "added PromotionRecord record-kind refresh scope",
+        "updated next route"
+      ]
+    },
     {
       "artifact": "arcana/ontology-vault/development/schema-validation-plan/WORK-PACK.md",
       "changes": [
-        "updated Current Blockers for record_kind patch requirements",
-        "replaced stale Current Gaps with current unresolved gaps",
-        "updated Next Route to task-session OVS-RK-001",
-        "added Next SWUs OVS-RK-001 through OVS-RK-004"
+        "updated status and current gaps",
+        "added OVS-GQ-001 next SWU"
       ]
     }
   ],
-  "skipped_changes": [
+  "skippedChanges": [
     "did not mutate Inventory",
     "did not mutate structured-action-schema",
-    "did not generate JSON Schema",
-    "did not patch the schema candidate in this refresh"
+    "did not mutate canonical Ontology Vault templates",
+    "did not mutate DomainSpec",
+    "did not mutate CyberAlchemy source ontology",
+    "did not mutate GoldenQuill runtime code or production state",
+    "did not treat the development JSON Schema candidate as final governed schema"
   ],
-  "current_blockers": [
-    {
-      "id": "record_kind-not-yet-validated",
-      "blocks": "JSON Schema generation",
-      "next_route": "task-session OVS-RK-001"
-    }
+  "blockers": [],
+  "deferredGates": [
+    "PromotionRecord authoring template promotion gate",
+    "PromotionRecord separate companion schema gate",
+    "OVS-GATE-003 DomainSpec handoff route",
+    "Label governance gate for meaning"
   ],
-  "next_swus": [
-    {
-      "id": "OVS-RK-001",
-      "goal": "Patch record_kind into the schema candidate minimal shape, required fields, examples, and validation rules."
-    },
-    {
-      "id": "OVS-RK-002",
-      "goal": "Update positive and negative fixtures for record_kind."
-    },
-    {
-      "id": "OVS-RK-003",
-      "goal": "Update tests/validate_branch_schema.py for record_kind."
-    },
-    {
-      "id": "OVS-RK-004",
-      "goal": "Rerun validation and refresh the report."
-    }
-  ],
-  "validation": {
-    "status": "pass-with-existing-warnings",
-    "commands": [
-      "jq empty arcana/ontology-vault/development/schema-validation-plan/refresh-report.json",
-      "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_schema.py",
-      "tools/validate-artifact-constitution.sh"
-    ],
-    "notes": [
-      "branch-schema-fixtures: PASS",
-      "Artifact Constitution result: pass",
-      "Artifact Constitution still reports pre-existing tracked generated-artifact warnings outside this ontology plan."
-    ]
-  }
+  "nextRoute": "task-session: create GoldenQuill L0 PromotionRecord compatibility fixtures",
+  "validation": [
+    "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_schema.py",
+    "python3 arcana/ontology-vault/development/schema-validation-plan/tests/validate_branch_json_schema.py",
+    "python3 -m json.tool arcana/ontology-vault/development/schema-validation-plan/refresh-report.json",
+    "tools/validate-artifact-constitution.sh"
+  ]
 }

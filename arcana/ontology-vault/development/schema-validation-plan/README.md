@@ -1,14 +1,16 @@
 # Branch-Aware Ontology Schema Validation Plan
 
-Status: exploratory, non-canonical
-Date: 2026-05-27
+Status: published candidate bundle
+Date: 2026-06-01
 Owner: Ontology Vault development
 
 ## Purpose
 
-Plan the first test-first validation pass for the branch-aware ontology schema candidate.
+Provide the current published candidate bundle for the branch-aware ontology schema validation surface.
 
-This package does not implement tests. It defines the validation layers, work-pack, task/SWU contracts, and handoff route for creating tests that validate the schema candidate before any canonical template or contract mutation.
+This package now contains the validated development schema, fixtures, validators, JSON Schema candidate, promotion-boundary decisions, and candidate-bundle index. It remains non-canonical as a full schema/template package: publication here means future ontology sessions may cite the bundle as candidate evidence, not that canonical templates or external systems must adopt it.
+
+The exception is the PromotionRecord record-kind boundary. `record_kind: promotion_record` is now canonical as the Ontology Vault governance decision shape for owner-routed promotion decisions. Companion templates, separate schemas, and external-system adoption remain gated.
 
 ## Source Design References
 
@@ -22,17 +24,24 @@ This package does not implement tests. It defines the validation layers, work-pa
 
 | Artifact | Purpose |
 | --- | --- |
+| `GOVERNED-CANDIDATE-BUNDLE.md` | Stable published-candidate index and boundary contract. |
 | `IMPLEMENTATION-LAYERING.md` | L0-L3 validation layers and promotion evidence. |
 | `WORK-PACK.md` | Executable test-first planning contract with tasks and SWUs. |
 | `PLAN-TRANSPORT.md` | Invoke plan provenance and next-route summary. |
+| `VALIDATION-REPORT.md` | Passing validation report for fixtures and JSON Schema candidate. |
+| `decision-gates/OVS-GATE-001-promotion-boundary.md` | Passed promotion-boundary decision selecting the governed candidate bundle. |
+| `decision-gates/OVS-GATE-002-promotion-record-companion-boundary.md` | Passed PromotionRecord boundary decision selecting canonical record-kind semantics while deferring templates and separate schemas. |
+| `schema/branch-aware-ontology-candidate.schema.yml` | Development JSON Schema candidate. |
+| `fixtures/` | Valid and invalid fixture corpus. |
+| `tests/` | Development validators for fixture and JSON Schema behavior. |
 
 ## Boundary
 
-This plan must not mutate:
+This bundle must not mutate:
 
 - Inventory,
 - structured-action-schema,
 - canonical Ontology Vault templates,
 - canonical branch conventions.
 
-The first execution route should create tests and fixtures under development-only paths.
+Canonical template promotion, DomainSpec adoption, CyberAlchemy source mutation, and future-system obligations require later owner-scoped gates.

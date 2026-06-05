@@ -1,0 +1,337 @@
+{
+  "schema_version": "inventory.evidence-card.collection.v0.1",
+  "slice_id": "whole-arcanum.runtime",
+  "slice_status": "candidate",
+  "cards": [
+    {
+      "id": "inventory.card.whole-arcanum.runtime.artifact-constitution-boundary",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Artifact Constitution separates source, durable evidence, generated output, and local runtime state",
+      "summary": "The Artifact Constitution defines source artifacts, durable evidence, generated artifacts, and local runtime artifacts, and requires validation after file-creating tools. It keeps framework, registry, and tools versioned while excluding generated observability ledgers, legacy command adapters, and machine-local runtime state by default.",
+      "source_refs": [
+        {
+          "path": "framework/ARTIFACT-CONSTITUTION.md",
+          "selector": "artifact classes and examples",
+          "selector_type": "line-span",
+          "start_line": 3,
+          "end_line": 72,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "framework/ARTIFACT-CONSTITUTION.md",
+          "selector": "rules and validation contract",
+          "selector_type": "line-span",
+          "start_line": 74,
+          "end_line": 130,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["runtime", "framework", "artifact-constitution", "generated-state", "validation", "whole-arcanum"],
+      "selection_reason": "Runtime and inventory refresh work must know which files are source, durable evidence, generated output, or local state before validating changes.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-010",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["constitution-governance", "task-session", "inventory"],
+      "related_cards": ["inventory.card.whole-arcanum.governance.artifact-constitution"],
+      "claim_shape": {
+        "subject_ref": "artifact-constitution-runtime-boundary",
+        "predicate_label": "classifies",
+        "predicate_status": "captured",
+        "object_ref": "source, durable evidence, generated output, and local runtime state",
+        "target_resolution": "resolved",
+        "evidence_refs": ["framework/ARTIFACT-CONSTITUTION.md:3-72", "framework/ARTIFACT-CONSTITUTION.md:74-130"],
+        "non_authority_notice": "This card summarizes governance behavior; the Artifact Constitution remains canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "framework/ARTIFACT-CONSTITUTION.md:3-72",
+          "confidence": 0.93,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "source-boundary",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-010",
+        "note": "Generated observability indexes and local runtime folders should not become inventory source by accident."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.runtime.durable-runtime-handoff",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Durable runtime handoff keeps orchestrator meaning separate from adapter execution",
+      "summary": "The durable runtime lets orchestrators hand off work through `RUNTIME-HANDOFF.md`, `tools/arcanum --exec`, and adapter-selected execution. Orchestrators own workflow meaning, `tools/arcanum` owns command resolution and adapter selection, and adapters own runtime-specific translation and outcome classification.",
+      "source_refs": [
+        {
+          "path": "framework/runtime/README.md",
+          "selector": "model, ownership, run folder, status model",
+          "selector_type": "line-span",
+          "start_line": 1,
+          "end_line": 51,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "framework/runtime/README.md",
+          "selector": "schema discipline, adapters, runtime config, commands",
+          "selector_type": "line-span",
+          "start_line": 52,
+          "end_line": 115,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["runtime", "framework", "tools-arcanum", "adapter", "handoff", "whole-arcanum"],
+      "selection_reason": "Implementation agents need the runtime ownership boundary before using or documenting command execution surfaces.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-010",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["task-session", "context-builder", "codex-goal-profile"],
+      "related_cards": ["inventory.card.whole-arcanum.composition.transmutation-context-and-planning"],
+      "claim_shape": {
+        "subject_ref": "durable-runtime",
+        "predicate_label": "separates",
+        "predicate_status": "captured",
+        "object_ref": "orchestrator meaning, command resolution, adapter execution, and runtime status",
+        "target_resolution": "resolved",
+        "evidence_refs": ["framework/runtime/README.md:1-51", "framework/runtime/README.md:52-115"],
+        "non_authority_notice": "This card indexes runtime handoff behavior; framework runtime docs remain canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "framework/runtime/README.md:1-51",
+          "confidence": 0.9,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "runtime-boundary",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-010",
+        "note": "Codex, Claude, and Copilot are host surfaces, not the Arcanum runtime model itself."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.runtime.observability-support",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Observability support stores central signals and rebuildable indexes while keeping observation non-mutating",
+      "summary": "Framework observability defines meaningful execution signals, central JSONL ledger ownership, rebuildable by-sigil/by-capability indexes, invocation envelope shape, observer role, and reflection triggers. Observers classify gaps and recommend reflection but should not directly rewrite the observed sigil.",
+      "source_refs": [
+        {
+          "path": "framework/observability/README.md",
+          "selector": "what to observe and where signals belong",
+          "selector_type": "line-span",
+          "start_line": 15,
+          "end_line": 49,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "framework/observability/README.md",
+          "selector": "observer role and reflection triggers",
+          "selector_type": "line-span",
+          "start_line": 51,
+          "end_line": 80,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["runtime", "framework", "observability", "signals", "reflection", "whole-arcanum"],
+      "selection_reason": "Whole-Arcanum readiness depends on knowing how telemetry and reflection evidence should be represented without treating generated ledgers as source.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-010",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["signal-observer", "workflow-reflect", "observability-setup"],
+      "related_cards": ["inventory.card.whole-arcanum.arcana.observability-reflection-family"],
+      "claim_shape": {
+        "subject_ref": "framework-observability",
+        "predicate_label": "records",
+        "predicate_status": "captured",
+        "object_ref": "central signals, rebuildable indexes, observer gaps, and reflection triggers",
+        "target_resolution": "resolved",
+        "evidence_refs": ["framework/observability/README.md:15-49", "framework/observability/README.md:51-80"],
+        "non_authority_notice": "This card summarizes observability support; framework observability docs remain canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "framework/observability/README.md:15-49",
+          "confidence": 0.9,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "telemetry-boundary",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-010",
+        "note": "The central ledger is source of truth; by-sigil and by-capability indexes are rebuildable generated views."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.runtime.registry-navigation",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "source-summary",
+      "title": "Registry files are quick-reference navigation, not canonical capability contracts",
+      "summary": "The sigil registry is a quick-reference index that summarizes what each sigil does, when to use it, tier, and folder. It also records entry requirements and a maintenance rule, but full instructions remain in the referenced sigil folders.",
+      "source_refs": [
+        {
+          "path": "registry/SIGILS.md",
+          "selector": "registry purpose and table",
+          "selector_type": "line-span",
+          "start_line": 1,
+          "end_line": 38,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "registry/SIGILS.md",
+          "selector": "entry requirements and maintenance rule",
+          "selector_type": "line-span",
+          "start_line": 87,
+          "end_line": 101,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["runtime", "registry", "navigation", "sigils", "whole-arcanum"],
+      "selection_reason": "Agents should use registry files for discovery and navigation while opening canonical skill files for execution authority.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-010",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["inventory", "context-builder", "sigil-runtime-installer"],
+      "related_cards": ["inventory.card.whole-arcanum.arcana.decision-and-scope-governance"],
+      "claim_shape": {
+        "subject_ref": "registry-sigils",
+        "predicate_label": "indexes",
+        "predicate_status": "captured",
+        "object_ref": "discoverable sigil folders and usage summaries",
+        "target_resolution": "resolved",
+        "evidence_refs": ["registry/SIGILS.md:1-38", "registry/SIGILS.md:87-101"],
+        "non_authority_notice": "Registry entries are navigation summaries; referenced sigil folders remain canonical."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "registry/SIGILS.md:1-38",
+          "confidence": 0.86,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "navigation-boundary",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-010",
+        "note": "Registry updates should follow capability additions, removals, renames, moves, or material purpose changes."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    },
+    {
+      "id": "inventory.card.whole-arcanum.runtime.command-surface",
+      "schema_version": "inventory.evidence-card.v0.2",
+      "profile": "full",
+      "card_type": "method",
+      "title": "Native runtime packages replace legacy command files as the live invocation surface",
+      "summary": "`tools/arcanum` still documents deterministic capability listing, resolution, and adapter handoff mechanics, but whole-Arcanum Inventory no longer treats `.codex/commands` as source evidence. Live behavior should be tested through canonical source contracts and generated native skill packages, with legacy command files excluded unless a future migration explicitly promotes one as durable evidence.",
+      "source_refs": [
+        {
+          "path": "tools/arcanum",
+          "selector": "usage, command surface, adapters, and command resolution setup",
+          "selector_type": "line-span",
+          "start_line": 4,
+          "end_line": 46,
+          "fragment_kind": "section"
+        },
+        {
+          "path": "tools/arcanum",
+          "selector": "adapter profile and list/resolve functions",
+          "selector_type": "line-span",
+          "start_line": 76,
+          "end_line": 205,
+          "fragment_kind": "section"
+        }
+      ],
+      "authority_level": "inventory-knowledge",
+      "tags": ["runtime", "tools", "native-skill", "codex", "adapter", "whole-arcanum"],
+      "selection_reason": "The agent-fast inventory needs to preserve the boundary between current native skill invocation and legacy command-file adapters before using runtime surfaces as evidence.",
+      "captured": {
+        "by": "agent",
+        "at": "2026-06-01",
+        "tool_or_command": "task-session SWU-WAI-010",
+        "source_stage": "manual"
+      },
+      "promotion_status": "captured",
+      "promotion_owner": "none",
+      "governed_ref": "",
+      "handoff_targets": ["sigil-runtime-installer", "task-session", "observed-invocation-loop"],
+      "related_cards": ["inventory.card.whole-arcanum.runtime.durable-runtime-handoff"],
+      "claim_shape": {
+        "subject_ref": "arcanum-native-runtime-surface",
+        "predicate_label": "supersedes",
+        "predicate_status": "captured",
+        "object_ref": "legacy command-file invocation for Inventory live proof",
+        "target_resolution": "resolved",
+        "evidence_refs": ["tools/arcanum:4-46", "tools/arcanum:76-205"],
+        "non_authority_notice": "Runtime adapters expose capabilities; canonical behavior remains in source skill and spell contracts plus generated native runtime packages."
+      },
+      "trace": [
+        {
+          "field": "summary",
+          "rule": "source-backed-summary",
+          "source_ref": "tools/arcanum:4-46",
+          "confidence": 0.9,
+          "decision": "assigned"
+        }
+      ],
+      "residue": {
+        "type": "legacy-command-boundary",
+        "status": "resolved",
+        "surfaced_by": "SWU-WAI-010",
+        "note": "Legacy command files are not part of the live Inventory promotion proof; use native skill packages and canonical source contracts for cross-repository testing."
+      },
+      "open_questions": [],
+      "updated_at": "2026-06-01"
+    }
+  ]
+}

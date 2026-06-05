@@ -1,8 +1,8 @@
 # Branch-Aware Ontology Schema Validation Report
 
 Status: pass
-Date: 2026-05-29
-Scope: development-only schema fixtures and validator
+Date: 2026-06-01
+Scope: published candidate bundle validation surface plus PromotionRecord record-kind refresh
 
 ## Verdict
 
@@ -10,7 +10,9 @@ The schema validation pass is usable and passes deterministic fixture validation
 
 The earlier `record_kind` flag has been resolved for the candidate validation surface. `record_kind` is now documented in the schema candidate, present in fixtures, and enforced by validator rule `V12`.
 
-This remains development-only and non-canonical. Passing validation means the candidate shape is coherent enough for the next governed design step; it does not promote Ontology Vault templates or branch conventions.
+This remains non-canonical as a full schema/template package. Passing validation means the candidate shape is coherent enough to publish as a governed candidate bundle; it does not promote Ontology Vault templates, Inventory fields, structured-action-schema fields, or external-system adoption obligations.
+
+The PromotionRecord refresh promotes only the `promotion_record` record-kind semantics as canonical ontology governance. Companion templates, separate schemas, and external adoption remain gated.
 
 ## Commands
 
@@ -62,12 +64,13 @@ tools/validate-artifact-constitution.sh
 - The first development-only JSON Schema candidate validates the fixture corpus.
 - Inventory can appear as evidence only when non-authority is explicit.
 - DomainSpec and future-system placeholders can be represented without mutating external systems.
+- GoldenQuill provides a canonical applied reference showing that local domain candidates can project into PromotionRecord-compatible owner decisions.
 
 ## Schema Gaps
 
 | Gap | Evidence | Severity | Recommended route |
 | --- | --- | --- | --- |
-| PromotionRecord may need a companion schema or template. | CAOL pressure fixture and record-kind refinement result | non-blocking design gap | defer until JSON Schema profiles prove separate ownership is useful |
+| PromotionRecord may need a companion schema or template. | CAOL pressure fixture, record-kind refinement result, and GoldenQuill applied reference | non-blocking authoring gap | keep record-kind canonical; defer companion template/schema until fixtures prove separate ownership is useful |
 | Full DomainSpec validation still requires a DomainSpec-owned package. | DomainSpec fixture uses `local_role: evidence-gap` | non-blocking | separate DomainSpec handoff |
 
 ## Fixture Gaps
@@ -75,7 +78,7 @@ tools/validate-artifact-constitution.sh
 | Gap | Reason |
 | --- | --- |
 | No real future-system source fixture yet. | Placeholder intentionally avoids pretending evidence exists. |
-| No canonical template validation. | Templates must not mutate before schema decisions. |
+| No canonical template validation. | Templates must not mutate before a template-specific gate. |
 
 ## Boundary Check
 
@@ -88,12 +91,42 @@ No mutation was made to:
 - DomainSpec files,
 - CyberAlchemy source ontology.
 
+## Published Candidate Bundle
+
+The validated surface is now indexed at:
+
+```text
+GOVERNED-CANDIDATE-BUNDLE.md
+```
+
+Publication status:
+
+```text
+published candidate
+```
+
+This status permits future ontology development sessions to cite the bundle as current candidate evidence. It does not make the JSON Schema final canonical truth or make record-kind profiles mandatory authoring templates.
+
+PromotionRecord boundary:
+
+```text
+record_kind: promotion_record is canonical as the Ontology Vault governance decision shape.
+```
+
+This does not make the JSON Schema candidate final canonical truth and does not make record-kind profiles mandatory authoring templates.
+
 ## Next Route
 
 Recommended next route:
 
 ```text
-decision-gate or invoke plan: decide whether to promote any part of this development-only schema toward canonical Ontology Vault templates/conventions
+task-session: create GoldenQuill L0 PromotionRecord compatibility fixtures
 ```
 
-Do not mutate canonical templates, Inventory, or structured-action-schema during the next route.
+Alternative next route:
+
+```text
+decision-gate OVS-GATE-003: decide DomainSpec handoff route
+```
+
+Do not mutate canonical templates, Inventory, structured-action-schema, DomainSpec, or CyberAlchemy during the next route.

@@ -12,7 +12,7 @@ Make native Refine emit enough stage handoff context for a parent-native worker 
 | Slice | S-NATIVE-RECEIPT-003 |
 | Wave | W2 |
 | Complexity | medium |
-| Status | not-started |
+| Status | completed |
 
 ## Source Contracts
 
@@ -78,6 +78,29 @@ rg -n "expected_receipt_path|resume_command|stage_request|handoff_path" <generat
 ```
 
 Execution owner: local-fallback.
+
+## Completion Evidence
+
+| Field | Value |
+| --- | --- |
+| Generated run | `/tmp/craft-native-receipt-003` |
+| Stage handoff | `/tmp/craft-native-receipt-003/stages/01-context-builder.md` |
+| Status | pass |
+
+Validation performed:
+
+```text
+bash -n tools/arcanum
+tools/arcanum --exec --adapter local-skill --timeout 120 --output /tmp/craft-native-receipt-003-output.md refine 'development/craft/CRAFT-VALIDATION.md --preset standard --research no use existing run folder /tmp/craft-native-receipt-003'
+rg -n "expected_receipt_path|resume_command|stage_request|handoff_path" /tmp/craft-native-receipt-003/stages/01-context-builder.md
+```
+
+Observed result:
+
+- Generated stage handoff includes `handoff_path`.
+- Generated stage handoff includes `expected_receipt_path`.
+- Generated stage handoff includes concrete `resume_command`.
+- Generated stage handoff preserves the stage request for parent-native execution.
 
 Expected result shape:
 

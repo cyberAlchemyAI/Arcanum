@@ -26,7 +26,7 @@ the rollout safely.
 - Schema governance: `framework/SCHEMA-CONSTITUTION.md`
 - Repository surfaces observed on 2026-05-29:
   - source-like: `arcana/`, `spells/`, `transmutations/`, `formulae/`,
-    `framework/`, `registry/`, `tools/`, `.codex/commands/`
+    `framework/`, `registry/`, `tools/`, and native runtime package surfaces
   - candidate durable evidence: curated fixtures, readiness reports, validation
     reports, and selected task-session results named by work-packs
   - excluded by default: local runtime state, generated observability ledgers,

@@ -12,7 +12,7 @@ Rerun Craft Refine validation after the Context Builder receipt path exists, the
 | Slice | S-NATIVE-RECEIPT-005 |
 | Wave | W3 |
 | Complexity | low |
-| Status | not-started |
+| Status | completed |
 
 ## Source Contracts
 
@@ -75,6 +75,31 @@ rg -n "receipt|refine|promotion.*defer|next" development/craft/README.md develop
 ```
 
 Execution owner: manual.
+
+## Completion Evidence
+
+| Field | Value |
+| --- | --- |
+| Latest receipt-backed run | `development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof` |
+| Dispatch validation | pass |
+| Run status | block |
+| First remaining blocker | `Invoke Define` has `evidence_kind=handoff_prepared` and no receipt. |
+| Package sync | pass |
+| Promotion status | deferred |
+
+Validation performed:
+
+```text
+python3 formulae/dispatch-spec/scripts/validate-dispatch.py development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/REFINE-DISPATCH.json
+jq '.stage_evidence[] | {stage,status,evidence_kind,handoff_path,receipt_path,blocked_reason}' development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/evidence-index.json
+rg -n "receipt|refine|promotion.*defer|next|Invoke Define" development/craft/README.md development/craft/SESSION-LEDGER.md
+```
+
+Result:
+
+- Craft now has durable receipt-backed validation evidence for the Context Builder stage.
+- The current validation blocker has moved to the next owner stage: `Invoke Define` needs its own parent-native receipt.
+- Promotion remains deferred.
 
 Expected result shape:
 

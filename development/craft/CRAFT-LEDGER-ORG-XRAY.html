@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craft Ledger Organization X-Ray</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f4ee;
+      --ink: #1f2428;
+      --muted: #5d6670;
+      --line: #cbc3b6;
+      --panel: #fffaf2;
+      --panel-2: #eef6f2;
+      --panel-3: #f7ece7;
+      --panel-4: #eef2fa;
+      --green: #227a55;
+      --teal: #137784;
+      --blue: #2f5e9e;
+      --amber: #99680f;
+      --coral: #b64d32;
+      --violet: #6b57a6;
+      --shadow: 0 14px 34px rgba(31, 36, 40, .11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      padding: .1rem .32rem;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: rgba(255, 255, 255, .68);
+      color: #423518;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(210px, 270px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 26px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 250, 242, .96);
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .side-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.08;
+    }
+
+    .side-note {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 4px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    nav a {
+      padding: 7px 8px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      background: #f0eadf;
+      color: var(--ink);
+      outline: none;
+    }
+
+    main {
+      min-width: 0;
+      padding: 38px min(5vw, 64px) 72px;
+    }
+
+    .hero {
+      min-height: clamp(430px, 78vh, 720px);
+      display: grid;
+      align-content: center;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 42px;
+    }
+
+    h1 {
+      max-width: 1060px;
+      margin: 0;
+      font-size: clamp(40px, 6.8vw, 86px);
+      line-height: .96;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 900px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 24px);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 1060px;
+    }
+
+    .status {
+      min-height: 86px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 250, 242, .78);
+      box-shadow: var(--shadow);
+    }
+
+    .status strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 22px;
+      line-height: 1.05;
+    }
+
+    .status span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      max-width: 1180px;
+      margin: 0 auto 56px;
+      padding-top: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lead {
+      max-width: 840px;
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .layer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+
+    .layer-controls button {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf2;
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .layer-controls button[aria-pressed="true"] {
+      border-color: #1d554d;
+      background: #dceee9;
+      color: #143f39;
+    }
+
+    .xray-board {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .diagram,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .diagram {
+      min-height: 440px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      min-height: 166px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card[data-tone="green"] {
+      background: var(--panel-2);
+    }
+
+    .card[data-tone="coral"] {
+      background: var(--panel-3);
+    }
+
+    .card[data-tone="blue"] {
+      background: var(--panel-4);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      margin-bottom: 10px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .lane {
+      min-height: 178px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf2;
+    }
+
+    .lane strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+    }
+
+    .lane span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 126px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .step::after {
+      content: "->";
+      position: absolute;
+      right: -18px;
+      top: 42px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .step:last-child::after {
+      content: "";
+    }
+
+    .callout {
+      padding: 18px;
+      border-left: 5px solid var(--amber);
+      border-radius: 8px;
+      background: #fff4d9;
+      color: #49370d;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .58);
+      color: var(--muted);
+    }
+
+    [data-layer] {
+      transition: opacity .16s ease, transform .16s ease;
+    }
+
+    body.filter-ledger [data-layer]:not([data-layer~="ledger"]),
+    body.filter-roles [data-layer]:not([data-layer~="roles"]),
+    body.filter-blockers [data-layer]:not([data-layer~="blockers"]),
+    body.filter-enablers [data-layer]:not([data-layer~="enablers"]),
+    body.filter-org [data-layer]:not([data-layer~="org"]) {
+      opacity: .2;
+    }
+
+    body.filter-ledger .content-layer:not([data-layer~="ledger"]),
+    body.filter-roles .content-layer:not([data-layer~="roles"]),
+    body.filter-blockers .content-layer:not([data-layer~="blockers"]),
+    body.filter-enablers .content-layer:not([data-layer~="enablers"]),
+    body.filter-org .content-layer:not([data-layer~="org"]) {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+      }
+
+      nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .status-strip,
+      .grid,
+      .xray-board,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        padding: 28px 16px 56px;
+      }
+
+      nav {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 30px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <p class="kicker">x-ray artifact</p>
+      <h2 class="side-title">Craft Ledger X-Ray</h2>
+      <p class="side-note">A ledger-first explanation: what the rows mean, how to read them, and how they keep fast human plus agent work reviewable.</p>
+      <nav aria-label="Page sections">
+        <a href="#ledger">Ledger</a>
+        <a href="#row-families">Rows</a>
+        <a href="#roles">Roles</a>
+        <a href="#blockers">Blockers</a>
+        <a href="#enablers">Enablers</a>
+        <a href="#org-loop">Org Loop</a>
+        <a href="#evidence">Evidence</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <p class="kicker">Craft recursive ledger</p>
+        <h1>Craft is a ledger for agentic development state.</h1>
+        <p class="hero-copy">The page starts from the ledger itself: each important work signal becomes a row with a parent context, artifact link, relation, typed blocker or enabler, decision, evidence, and next move.</p>
+        <div class="status-strip" aria-label="Current Craft facts">
+          <div class="status">
+            <strong>candidate</strong>
+            <span>Craft remains local to <code>development/craft/</code> until explicit promotion.</span>
+          </div>
+          <div class="status">
+            <strong>YAML first</strong>
+            <span><code>CRAFT-LEDGER-SCHEMA.yml</code> owns fields, enums, and validation rules.</span>
+          </div>
+          <div class="status">
+            <strong>5 row families</strong>
+            <span>Contexts, artifacts, relations, typed items, and decisions.</span>
+          </div>
+          <div class="status">
+            <strong>validated MVP</strong>
+            <span><code>LEDGER-VALIDATION.md</code> reports a pass for current rules.</span>
+          </div>
+        </div>
+      </header>
+
+      <section id="ledger">
+        <h2>Read The Ledger First</h2>
+        <p class="lead">The Craft ledger is not a status board. It is a structured record of the work state. A team can ask the ledger: what context are we in, what artifact changed, what relation matters, what blocker or enabler exists, what decision was made, and what next move is allowed.</p>
+
+        <div class="layer-controls" aria-label="Layer filter">
+          <button type="button" data-filter="all" aria-pressed="true">All layers</button>
+          <button type="button" data-filter="ledger" aria-pressed="false">Ledger</button>
+          <button type="button" data-filter="roles" aria-pressed="false">Roles</button>
+          <button type="button" data-filter="blockers" aria-pressed="false">Blockers</button>
+          <button type="button" data-filter="enablers" aria-pressed="false">Enablers</button>
+          <button type="button" data-filter="org" aria-pressed="false">Org loop</button>
+        </div>
+
+        <div class="xray-board">
+          <div class="diagram" aria-label="Craft ledger layers diagram">
+            <svg viewBox="0 0 920 560" role="img" aria-labelledby="diagram-title diagram-desc">
+              <title id="diagram-title">Craft ledger row model</title>
+              <desc id="diagram-desc">A work signal becomes concrete ledger rows: context, artifact, relation, typed item, decision, evidence, and parent update.</desc>
+              <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#5d6670"></path>
+                </marker>
+              </defs>
+
+              <rect x="28" y="42" width="190" height="78" rx="8" fill="#fff4d9" stroke="#99680f" data-layer="org ledger"></rect>
+              <text x="48" y="76" fill="#1f2428" font-size="18" font-weight="800" data-layer="org ledger">New task or blocker</text>
+              <text x="48" y="101" fill="#5d6670" font-size="13" data-layer="org ledger">task, blocker, enabler, decision</text>
+
+              <rect x="308" y="36" width="246" height="90" rx="8" fill="#eef6f2" stroke="#227a55" data-layer="ledger"></rect>
+              <text x="328" y="71" fill="#1f2428" font-size="18" font-weight="800" data-layer="ledger">Context row</text>
+              <text x="328" y="96" fill="#5d6670" font-size="13" data-layer="ledger">scope, parent, gate, next move</text>
+
+              <rect x="668" y="42" width="202" height="78" rx="8" fill="#eef2fa" stroke="#2f5e9e" data-layer="ledger enablers"></rect>
+              <text x="688" y="76" fill="#1f2428" font-size="18" font-weight="800" data-layer="ledger enablers">Artifact rows</text>
+              <text x="688" y="101" fill="#5d6670" font-size="13" data-layer="ledger enablers">files, receipts, validations</text>
+
+              <path d="M218 81 H308" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="org ledger"></path>
+              <path d="M554 81 H668" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="ledger"></path>
+
+              <rect x="86" y="224" width="206" height="92" rx="8" fill="#f7ece7" stroke="#b64d32" data-layer="blockers roles"></rect>
+              <text x="106" y="258" fill="#1f2428" font-size="18" font-weight="800" data-layer="blockers roles">Typed item row</text>
+              <text x="106" y="283" fill="#5d6670" font-size="13" data-layer="blockers roles">blocker, gate, or enabler</text>
+
+              <rect x="356" y="224" width="208" height="92" rx="8" fill="#fffaf2" stroke="#6b57a6" data-layer="roles ledger"></rect>
+              <text x="376" y="258" fill="#1f2428" font-size="18" font-weight="800" data-layer="roles ledger">Lane fields</text>
+              <text x="376" y="283" fill="#5d6670" font-size="13" data-layer="roles ledger">who must judge the row</text>
+
+              <rect x="636" y="224" width="210" height="92" rx="8" fill="#eef6f2" stroke="#137784" data-layer="enablers roles"></rect>
+              <text x="656" y="258" fill="#1f2428" font-size="18" font-weight="800" data-layer="enablers roles">Relation row</text>
+              <text x="656" y="283" fill="#5d6670" font-size="13" data-layer="enablers roles">blocks, enables, informs</text>
+
+              <path d="M431 126 V224" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="ledger roles"></path>
+              <path d="M292 270 H356" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="blockers roles"></path>
+              <path d="M564 270 H636" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="enablers roles"></path>
+
+              <rect x="94" y="424" width="214" height="84" rx="8" fill="#eef2fa" stroke="#2f5e9e" data-layer="org roles"></rect>
+              <text x="114" y="457" fill="#1f2428" font-size="18" font-weight="800" data-layer="org roles">Work move</text>
+              <text x="114" y="482" fill="#5d6670" font-size="13" data-layer="org roles">run, review, or handoff</text>
+
+              <rect x="374" y="424" width="206" height="84" rx="8" fill="#fff4d9" stroke="#99680f" data-layer="blockers enablers org"></rect>
+              <text x="394" y="457" fill="#1f2428" font-size="18" font-weight="800" data-layer="blockers enablers org">Evidence</text>
+              <text x="394" y="482" fill="#5d6670" font-size="13" data-layer="blockers enablers org">why the row can be trusted</text>
+
+              <rect x="646" y="424" width="202" height="84" rx="8" fill="#eef6f2" stroke="#227a55" data-layer="ledger org enablers"></rect>
+              <text x="666" y="457" fill="#1f2428" font-size="18" font-weight="800" data-layer="ledger org enablers">Parent update</text>
+              <text x="666" y="482" fill="#5d6670" font-size="13" data-layer="ledger org enablers">what changes upstream</text>
+
+              <path d="M460 316 C420 370 292 364 216 424" stroke="#5d6670" stroke-width="2" fill="none" marker-end="url(#arrow)" data-layer="roles org"></path>
+              <path d="M308 466 H374" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="org"></path>
+              <path d="M580 466 H646" stroke="#5d6670" stroke-width="2" marker-end="url(#arrow)" data-layer="org enablers"></path>
+              <path d="M747 424 C794 346 759 167 769 120" stroke="#5d6670" stroke-width="2" fill="none" marker-end="url(#arrow)" data-layer="ledger org"></path>
+            </svg>
+          </div>
+
+          <div class="panel content-layer" data-layer="ledger org">
+            <span class="tag">Core reading</span>
+            <h3>The ledger answers concrete questions.</h3>
+            <ul class="source-list">
+              <li>Where is this work located in the larger effort?</li>
+              <li>Which artifact, decision, blocker, gate, or enabler changed?</li>
+              <li>Which lane must judge or review the change?</li>
+              <li>What evidence makes the status believable?</li>
+              <li>What parent context or next move is affected?</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="row-families">
+        <h2>Five Row Families</h2>
+        <p class="lead">The current MVP ledger has five row families. They are deliberately plain: enough structure for humans to read, enough schema discipline for future validation and indexing.</p>
+
+        <div class="grid">
+          <div class="card" data-tone="green" data-layer="ledger">
+            <span class="tag">contexts</span>
+            <h3>Where the work lives</h3>
+            <p>A context row names the parent, purpose, stage, gate, next move, and owned artifacts. This is how projects inside projects stay visible.</p>
+          </div>
+          <div class="card" data-tone="blue" data-layer="ledger">
+            <span class="tag">artifacts</span>
+            <h3>What exists</h3>
+            <p>An artifact row points to a file, work-pack, schema, validation report, receipt, handoff, or source baseline owned by a context.</p>
+          </div>
+          <div class="card" data-layer="ledger enablers">
+            <span class="tag">relations</span>
+            <h3>How things connect</h3>
+            <p>A relation row says one thing contains, blocks, enables, depends on, informs, or supersedes another thing.</p>
+          </div>
+          <div class="card" data-tone="coral" data-layer="ledger blockers enablers roles">
+            <span class="tag">typed items</span>
+            <h3>What needs attention</h3>
+            <p>A typed item row records a blocker, gate, or enabler with type, lane, source, target, status, evidence, and closure condition.</p>
+          </div>
+          <div class="card" data-tone="blue" data-layer="ledger org">
+            <span class="tag">decisions</span>
+            <h3>What authority chose</h3>
+            <p>A decision row records selections, waivers, approvals, deferrals, and rejections so exceptions do not disappear into memory.</p>
+          </div>
+        </div>
+
+        <div class="panel content-layer" data-layer="ledger" style="margin-top: 14px;">
+          <span class="tag">how to read a row</span>
+          <h3>Start with the ID, then follow the references.</h3>
+          <ul class="source-list">
+            <li><code>CTX-*</code> rows tell you the work boundary and next move.</li>
+            <li><code>ART-*</code> rows tell you which file or receipt carries evidence.</li>
+            <li><code>REL-*</code> rows tell you why one context affects another.</li>
+            <li><code>BLK-*</code>, <code>GATE-*</code>, and <code>ENA-*</code> rows tell you what is blocked, checked, or unlocked.</li>
+            <li><code>DEC-*</code> rows tell you when a human or governance choice changed the path.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="roles">
+        <h2>Lane Fields</h2>
+        <p class="lead">Lanes are fields on typed ledger rows. They say what kind of judgment the row needs before naming a specific person, team, or agent.</p>
+
+        <div class="matrix">
+          <div class="lane" data-layer="roles org">
+            <strong>business</strong>
+            <span>Intent, value, scope, acceptance meaning, trade-offs, and user impact.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>tech</strong>
+            <span>Architecture, feasibility, implementation design, data shape, and integration.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>qa</strong>
+            <span>Test planning, regression safety, acceptance readiness, and defect confirmation.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>validator</strong>
+            <span>Independent confirmation that evidence satisfies the current gate.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>auditor</strong>
+            <span>Traceability, provenance, promotion evidence, and process conformance.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>governance</strong>
+            <span>Ownership, authority, promotion permission, policy, and route legitimacy.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>planner</strong>
+            <span>Sequence, dependencies, SWU/task breakdown, and cross-context coordination.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>operations</strong>
+            <span>Tooling, runtime access, environment constraints, budget, compute, and availability.</span>
+          </div>
+          <div class="lane" data-layer="roles org">
+            <strong>integrator</strong>
+            <span>Recomposition between child work, parent contexts, and downstream contracts.</span>
+          </div>
+          <div class="lane" data-layer="roles blockers">
+            <strong>blocker_refiner</strong>
+            <span>Clarifies raw blockers before anyone claims resolution.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="blockers">
+        <h2>Blocker Layer</h2>
+        <p class="lead">A blocker is not just a red status. In Craft it has a base type, lane ownership, source, target, status, evidence, closure condition, and sometimes a waiver decision.</p>
+
+        <div class="timeline">
+          <div class="step" data-layer="blockers">
+            <span class="tag">1</span>
+            <h3>raw</h3>
+            <p>Something is stuck, but the cause or owner is still unclear.</p>
+          </div>
+          <div class="step" data-layer="blockers roles">
+            <span class="tag">2</span>
+            <h3>typed</h3>
+            <p>The blocker gets a base condition type and primary lane.</p>
+          </div>
+          <div class="step" data-layer="blockers roles">
+            <span class="tag">3</span>
+            <h3>refined</h3>
+            <p>Evidence, closure condition, source, target, and route are explicit.</p>
+          </div>
+          <div class="step" data-layer="blockers">
+            <span class="tag">4</span>
+            <h3>proposed</h3>
+            <p>A responsible lane claims a possible resolution with evidence.</p>
+          </div>
+          <div class="step" data-layer="blockers enablers">
+            <span class="tag">5</span>
+            <h3>resolved</h3>
+            <p>Closure is allowed only when evidence or an explicit waiver exists.</p>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 16px;" data-layer="blockers org">
+          Raw-to-resolved is prohibited. That rule is the speed governor that keeps agentic work from producing false closure faster than people can detect it.
+        </div>
+      </section>
+
+      <section id="enablers">
+        <h2>Enabler Layer</h2>
+        <p class="lead">Enablers are the positive side of the same system. They say which artifact, decision, validation, resource, or design structure opens the next move for another context.</p>
+
+        <div class="grid">
+          <div class="card" data-tone="green" data-layer="enablers ledger">
+            <span class="tag">schema</span>
+            <h3>Design enabler</h3>
+            <p>A structured schema makes fixture rows consistent enough for review, validation, and later indexing.</p>
+          </div>
+          <div class="card" data-tone="blue" data-layer="enablers roles">
+            <span class="tag">evidence</span>
+            <h3>Validation enabler</h3>
+            <p>Examples, tests, review notes, and receipts let validators decide pass, flag, block, deferred, or waived.</p>
+          </div>
+          <div class="card" data-tone="coral" data-layer="enablers org">
+            <span class="tag">sequence</span>
+            <h3>Sequence enabler</h3>
+            <p>A completed SWU or work-pack unlocks the next child context and updates the parent next move.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="org-loop">
+        <h2>How A Team Uses The Ledger</h2>
+        <p class="lead">The organization model is simpler when everything starts as ledger maintenance. Every meeting, review, agent run, or handoff should either update a row, add evidence to a row, close a row, or create the next row.</p>
+
+        <div class="two-col">
+          <div class="panel content-layer" data-layer="org roles">
+            <span class="tag">non-technical lanes</span>
+            <h3>Business and governance can own real state.</h3>
+            <p>They define context purpose, acceptance meaning, trade-off decisions, waivers, promotion permission, and priority intent without editing code or pretending to validate implementation details.</p>
+          </div>
+          <div class="panel content-layer" data-layer="org roles">
+            <span class="tag">technical lanes</span>
+            <h3>Developers keep implementation from swallowing authority.</h3>
+            <p>They own architecture, interfaces, schema shape, integration, recomposition, runtime constraints, and the technical part of closure evidence.</p>
+          </div>
+          <div class="panel content-layer" data-layer="org blockers">
+            <span class="tag">agent lanes</span>
+            <h3>Agents produce bounded moves, not invisible certainty.</h3>
+            <p>An agent run should create or update artifacts, surface blockers, propose enablers, and attach evidence. It should not silently close raw blockers or promote candidate authority.</p>
+          </div>
+          <div class="panel content-layer" data-layer="org enablers">
+            <span class="tag">review lanes</span>
+            <h3>QA, validator, and auditor protect throughput.</h3>
+            <p>Their job is not to slow every move. It is to make closure cheap to trust by checking evidence, lane ownership, decision provenance, and recomposition.</p>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top: 14px;">
+          <div class="card" data-layer="org ledger">
+            <span class="tag">1</span>
+            <h3>Open a context</h3>
+            <p>Name the parent, purpose, stage, gate, next move, and owned artifacts.</p>
+          </div>
+          <div class="card" data-layer="org roles">
+            <span class="tag">2</span>
+            <h3>Assign lanes</h3>
+            <p>Use lanes for responsibility type before assigning specific people or agents.</p>
+          </div>
+          <div class="card" data-layer="org blockers">
+            <span class="tag">3</span>
+            <h3>Refine blockers</h3>
+            <p>Turn vague stoppage into typed, lane-owned, evidence-backed rows.</p>
+          </div>
+          <div class="card" data-layer="org enablers">
+            <span class="tag">4</span>
+            <h3>Record enablers</h3>
+            <p>Show which artifact, decision, validation, or resource unlocks what.</p>
+          </div>
+          <div class="card" data-layer="org ledger">
+            <span class="tag">5</span>
+            <h3>Validate evidence</h3>
+            <p>Use pass, flag, block, waived, and deferred as real review outcomes.</p>
+          </div>
+          <div class="card" data-layer="org ledger">
+            <span class="tag">6</span>
+            <h3>Recompose</h3>
+            <p>Close the child unit only after the parent context and next move are updated.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="evidence">
+        <h2>Evidence Boundary</h2>
+        <p class="lead">This x-ray separates facts directly grounded in Craft artifacts from the applied operating model for organizations.</p>
+
+        <div class="two-col">
+          <div class="panel">
+            <span class="tag">source-backed</span>
+            <h3>Directly grounded facts</h3>
+            <ul class="source-list">
+              <li><code>README.md</code> states Craft is candidate, local, checkpoint-first, and not canonical authority.</li>
+              <li><code>CRAFT-LEDGER-SCHEMA.yml</code> defines row families, enums, operational lanes, validation rules, and blocker lifecycle rules.</li>
+              <li><code>LEDGER.md</code> instantiates contexts, artifacts, relations, typed items, and decisions.</li>
+              <li><code>LEDGER-VALIDATION.md</code> reports pass for current schema and blocker lifecycle checks.</li>
+              <li><code>CRAFT-ARCHITECTURE.md</code> defines Craft as an orchestrating method that routes to existing Arcanum capabilities without replacing their authority.</li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <span class="tag">applied interpretation</span>
+            <h3>Organization-use model</h3>
+            <ul class="source-list">
+              <li>Use lanes as a shared language for mixed technical and non-technical responsibility.</li>
+              <li>Treat agent runs as ledger mutations plus evidence, not as free-floating chat conclusions.</li>
+              <li>Use blocker refinement as the minimum safety rule for fast parallel work.</li>
+              <li>Keep role delegation automation manual until repeated ledger states prove the mappings.</li>
+              <li>Keep promotion, runtime mutation, indexes, and scoring gated by explicit evidence and authority.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll("[data-filter]"));
+    const filters = ["ledger", "roles", "blockers", "enablers", "org"];
+
+    function setFilter(filter) {
+      document.body.classList.remove(...filters.map((name) => `filter-${name}`));
+      if (filter !== "all") {
+        document.body.classList.add(`filter-${filter}`);
+      }
+
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setFilter(button.dataset.filter));
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Work-Pack: Test-First Branch-Aware Ontology Schema Validation
 
-Status: validated
+Status: validated; published candidate bundle; PromotionRecord canonical record-kind
 Mode: non-executed
 Complexity: medium
 Owner: Ontology Vault development
@@ -213,7 +213,7 @@ Smallest Working Units:
 
 ## Current Blockers
 
-No active blocker remains in the development validation surface.
+No active blocker remains for publishing the current validation surface as a governed candidate bundle.
 
 The previous blockers are resolved for development validation:
 
@@ -226,29 +226,40 @@ The previous blockers are resolved for development validation:
 - validator rule `V13` enforces profile checks for `ontology_entry`, `promotion_record`, `bridge_validation`, and `evidence_input`;
 - the first development-only JSON Schema candidate validates the fixture corpus;
 - deterministic fixture validation passes.
+- OVS-GATE-001 selected `promote-governed-candidate-bundle`, allowing the bundle to be indexed as a published candidate.
+- OVS-GATE-002 selected `promotion-record-canonical-record-kind`, making `promotion_record` canonical as an Ontology Vault governance decision shape while keeping templates and separate schemas gated.
 
 ## Current Gaps
 
-- PromotionRecord companion schema/template split is deferred until JSON Schema profiles prove separate ownership is useful.
+- PromotionRecord companion schema/template split is deferred; the record-kind is canonical, but authoring templates and separate schemas still need narrower evidence and gates.
 - Full DomainSpec validation still requires a DomainSpec-owned package; current DomainSpec coverage is a boundary-preserving pressure fixture.
 - The future-system fixture is intentionally placeholder-level until a real future-system source exists.
 - `dispatch-spec` command-surface resolution is unavailable in the refine run; direct schema validation works, but command-backed refine remains flagged.
-- Canonical template/convention promotion is blocked pending a decision gate.
+- Canonical template/convention promotion remains blocked pending later, narrower gates.
+- GoldenQuill L0 fixtures are now the best next evidence source for applied PromotionRecord compatibility.
 
 ## Next Route
 
 Recommended next route:
 
 ```text
-decision-gate or invoke plan: decide whether to promote any development-only schema surface toward canonical Ontology Vault templates/conventions
+task-session: create GoldenQuill L0 PromotionRecord compatibility fixtures
 ```
 
-Do not mutate canonical templates, Inventory, or structured-action-schema during the next route.
+Alternative next route:
+
+```text
+decision-gate OVS-GATE-003: decide DomainSpec handoff route
+```
+
+Do not mutate canonical templates, Inventory, structured-action-schema, DomainSpec, or CyberAlchemy during the next route.
 
 ## Next SWUs
 
 | SWU | Goal | Verification |
 | --- | --- | --- |
-| OVS-GATE-001 | Decide promotion boundary for development-only schema, JSON Schema, and profiles. | Decision gate names what can be promoted, deferred, or rejected. |
-| OVS-GATE-002 | Decide whether PromotionRecord needs companion template/schema work. | PromotionRecord ownership boundary is explicit before template mutation. |
+| OVS-PUBLISH-001 | Publish governed candidate-bundle index. | `GOVERNED-CANDIDATE-BUNDLE.md` exists and points to schema, fixtures, validators, validation report, and OVS-GATE-001. |
+| OVS-GATE-001 | Decide promotion boundary for development-only schema, JSON Schema, and profiles. | Complete: selected `promote-governed-candidate-bundle`. |
+| OVS-GATE-002 | Decide PromotionRecord canonical record-kind and companion template/schema boundary. | Complete: selected `promotion-record-canonical-record-kind`; template/schema work remains deferred. |
 | OVS-GATE-003 | Decide DomainSpec handoff route. | DomainSpec-owned package remains separate from general ontology mechanics. |
+| OVS-GQ-001 | Add GoldenQuill L0 PromotionRecord compatibility fixtures. | GoldenQuill local candidates project to PromotionRecord-compatible owner decisions without production mutation. |

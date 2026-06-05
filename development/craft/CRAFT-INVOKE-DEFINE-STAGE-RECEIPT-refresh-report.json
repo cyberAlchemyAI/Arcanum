@@ -1,0 +1,52 @@
+{
+  "refresh_id": "CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-20260602",
+  "target": "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT active workflow surfaces",
+  "mode": "apply-approved",
+  "date": "2026-06-02",
+  "status": "pass",
+  "source_signals": [
+    {
+      "type": "artifact_drift",
+      "summary": "Active task 003 steering still referenced the retired command surface.",
+      "decision": "Refresh active steering artifacts to local skill surfaces."
+    },
+    {
+      "type": "route_changed",
+      "summary": "User explicitly requested local skill surface instead of command surface.",
+      "decision": "Treat command-surface references as historical unless they are completed evidence."
+    },
+    {
+      "type": "status_changed",
+      "summary": "Invoke Define owner-stage receipt exists after task 002.",
+      "decision": "Change state from receipt-planned to local-skill sync pending."
+    }
+  ],
+  "refreshed_artifacts": [
+    "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-HANDOFF.md",
+    "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-IMPLEMENTATION-LAYERING.md",
+    "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md",
+    "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md",
+    "development/craft/work-packs/invoke-define-stage-receipt/waves/W2.md",
+    "development/craft/work-packs/invoke-define-stage-receipt/tasks/CRAFT-INVOKE-RECEIPT-003.md",
+    "development/craft/README.md",
+    "development/craft/SESSION-LEDGER.md"
+  ],
+  "preserved_historical_surfaces": [
+    "development/craft/CRAFT-RUNTIME-*",
+    "development/craft/task-sessions/CRAFT-RUNTIME-*.md",
+    "older generated stage handoff resume text"
+  ],
+  "current_execution_surface": "local skills",
+  "next_route": {
+    "skill": "task-session",
+    "work_pack": "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md",
+    "task": "CRAFT-INVOKE-RECEIPT-003",
+    "followed_by": "local Refine skill review via arcana/refine/SKILL.md"
+  },
+  "boundaries": [
+    "Do not use tools/arcanum for this active Craft receipt workflow.",
+    "Do not use .codex/commands for this active Craft receipt workflow.",
+    "Do not promote Craft from this refresh.",
+    "Do not mutate canonical runtime surfaces from this refresh."
+  ]
+}

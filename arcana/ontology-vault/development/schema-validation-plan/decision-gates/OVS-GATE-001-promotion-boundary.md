@@ -1,20 +1,23 @@
 # Decision Gate: OVS-GATE-001 Promotion Boundary
 
-Status: blocked
+Status: pass
 Date: 2026-05-31
+Resolved: 2026-06-01T07:43:33Z
 Target scope: branch-aware ontology development schema, JSON Schema, record-kind profiles, and templates
 
-## Blocked Work
+## Previously Blocked Work
 
-The development validation surface is passing, but canonical mutation is blocked until the promotion boundary is explicit.
+The development validation surface is passing, but canonical mutation was blocked until the promotion boundary became explicit.
 
-Blocked downstream work:
+Previously blocked downstream work:
 
 - canonical Ontology Vault template mutation,
 - canonical branch convention update,
 - treating the development JSON Schema as governed schema,
 - requiring Inventory or structured-action-schema to emit/adopt ontology fields,
 - promoting `record_kind` profiles into authoring templates.
+
+The gate now resolves what may proceed: the validated development surface can move forward as a governed candidate bundle only. Final canonical templates and external-system obligations remain out of scope.
 
 ## Evidence
 
@@ -206,6 +209,43 @@ Rationale:
 - They are not yet mature enough to become final canonical templates or required external-system obligations.
 - This answers the "why not everything?" concern by allowing everything to travel together as candidate evidence, while refusing only the unsafe part: final authority over templates and adopters.
 
+## Selected Option
+
+Selected:
+
+```text
+promote-governed-candidate-bundle
+```
+
+Decision source:
+
+```text
+User selected "option E" through decision-gate on 2026-06-01.
+```
+
+Decision rationale:
+
+- Promote the whole validated development surface as one coherent candidate package.
+- Preserve the distinction between candidate validation and canonical authoring authority.
+- Keep canonical Ontology Vault templates unmutated until a later template-specific gate.
+- Keep Inventory and structured-action-schema as evidence or handoff surfaces, not emitters or ontology authorities.
+- Keep DomainSpec, CyberAlchemy, and future-system adoption as separate owner-scoped work.
+
+Allowed next work:
+
+- Create or refresh a governed candidate-bundle index.
+- Reference the development schema, JSON Schema candidate, fixtures, validators, and validation report as candidate evidence.
+- Plan follow-up gates for templates, PromotionRecord companion work, and DomainSpec handoff.
+
+Still disallowed by this gate:
+
+- promoting canonical Ontology Vault templates,
+- requiring Inventory to emit ontology fields,
+- mutating structured-action-schema,
+- treating the JSON Schema candidate as final canonical schema,
+- mutating DomainSpec or CyberAlchemy source packages,
+- requiring future systems to adopt the fields.
+
 ## Deferred Decisions
 
 - Whether `promotion_record` needs a companion schema/template.
@@ -213,16 +253,12 @@ Rationale:
 - Whether the mutation primitive catalog should become part of ontology core or a bridge/profile extension.
 - Whether `meaning` becomes canonical as the long-term first branch label.
 
-## Required User Decision
+## Gate Result
 
-Select one:
+Result:
 
 ```text
-A: promote-nothing
-B: promote-minimal-vocabulary
-C: promote-vocabulary-and-profile-templates
-D: promote-json-schema-candidate
-E: promote-governed-candidate-bundle
+PASS
 ```
 
-No canonical mutation should proceed until this gate is resolved.
+No blocker remains for creating a governed candidate-bundle index. Canonical template mutation remains blocked behind a later, narrower gate.

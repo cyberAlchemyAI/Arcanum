@@ -12,7 +12,7 @@ Define the minimal stage receipt contract required for native Refine to distingu
 | Slice | S-NATIVE-RECEIPT-001 |
 | Wave | W0 |
 | Complexity | medium |
-| Status | not-started |
+| Status | completed |
 
 ## Source Contracts
 
@@ -74,6 +74,21 @@ rg -n "receipt_id|evidence_kind|handoff_path|status|validation|blockers" develop
 ```
 
 Execution owner: local-fallback.
+
+## Completion Evidence
+
+| Field | Value |
+| --- | --- |
+| Receipt contract | `development/craft/work-packs/native-stage-execution-receipts/receipt-contract.md` |
+| Contract status | pass |
+| Validation | `rg -n "receipt_id|evidence_kind|handoff_path|status|validation|blockers" development/craft/CRAFT-NATIVE-STAGE-EXECUTION-RECEIPTS-WORK-PACK.md development/craft/work-packs/native-stage-execution-receipts` |
+
+Result:
+
+- Required receipt fields are named.
+- Allowed statuses and native Refine stage mappings are defined.
+- Handoff stubs are explicitly excluded from receipt evidence.
+- Context Builder pass and block examples are included.
 
 Expected result shape:
 
