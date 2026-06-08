@@ -36,6 +36,8 @@ evidence.
 | Runtime support slice | pass | `cards/runtime/` validates and has `COVERAGE.md`; legacy command-file proof is excluded. |
 | Candidate EvidenceSets | pass | `evidence-sets/evidence-sets.json` references known cards. |
 | Operational validation contract | pass | `OPERATIONAL-COMMANDS.md` and `scripts/validate-whole-arcanum-inventory.sh` exist. |
+| Inventorization method | pass | `INVENTORIZATION-METHOD.md` explains how to continue inventorizing Arcanum without broad source dumping. |
+| Inventorization tracker | pass | `INVENTORIZATION-TRACKER.md` records current slices, gaps, queue, and update rules. |
 | Validation suite | pass | `validate-whole-arcanum-inventory.sh` returns `RESULT: pass`. |
 | Native install smoke | pass | Temporary target installed `inventory`, `invoke`, `task-session`, and `orchestrate` under `.agents/skills/` with zero `.codex/commands` files. |
 
@@ -92,12 +94,11 @@ wait until these conditions are met:
 ## Remaining Gaps
 
 - The current cards are high-value clustered slices, not exhaustive package
-  coverage.
+  coverage; the tracker records this as intentional missing coverage.
 - Retrieval is file-based `jq`; there is no dedicated native wrapper yet.
 - EvidenceSets are candidate-level and should not be treated as canonical
   context-builder contracts.
-- Coverage reports name omissions but do not yet create backlog items for every
-  omitted artifact.
+- The method and tracker are new and still need to be exercised in a real task.
 
 ## External Repository Test
 

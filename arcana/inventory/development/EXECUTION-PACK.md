@@ -1,50 +1,44 @@
-# Execution Pack: inventory-evidence-card
+# Execution Pack: Inventory Interface, Linking, And Indexing
 
 ## Planning Control Fields
 
 | Field | Value | Notes |
 | --- | --- | --- |
-| planningGateStatus | pass | Static package, validator layer, and sequential task-session policy completed. |
-| complexity | medium | Requires waves and task files. |
-| baselineWave | W0 | Static templates first. |
+| planningGateStatus | pass | Design refresh complete; first implementation unit is ready. |
+| complexity | medium | Skill contract, templates, validators, pilot slice. |
+| baselineWave | W-INT-0 | Interface contract first. |
 | activePlanRef | `IMPLEMENTATION-PLAN.md` | Current implementation plan. |
 | workPackManifest | `WORK-PACK.md` | Canonical executable manifest. |
 | layeringArtifact | `IMPLEMENTATION-LAYERING.md` | Layer governance. |
-| activeLayerWindow | L5 | Candidate EvidenceSet schema layer completed. |
-| lastPlannedAt | 2026-05-29 | Sequential task-session policy added. |
-| readinessProfile | candidate-evidenceset-schema-complete | Agent/runtime validator and candidate EvidenceSet checks pass. |
+| activeLayerWindow | L0-L3 | Interface contract through readiness sync. |
+| lastPlannedAt | 2026-06-05 | Invoke refresh pivoted active pack to interface/link/index. |
+| readinessProfile | interface-link-index-ready-for-task-session | Ready for bounded task-session. |
 
 ## Wave Status Board
 
 | Wave | Objective | Entry Gate | Exit Gate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| [W0](work-pack/waves/W0-static-templates.md) | Promote static templates. | package exists | template review passes | completed | TASK-001, TASK-002 |
-| [W1](work-pack/waves/W1-pilot-fixtures.md) | Create pilot card, index, and retrieval fixtures. | W0 pass | JSON and fixture review pass | completed | TASK-003 |
-| [W2](work-pack/waves/W2-handoff-docs.md) | Create handoff examples and docs updates. | W1/TASK-002 pass | non-authority and mode contract review pass | completed | TASK-004, TASK-005 |
-| [W3](work-pack/waves/W3-readiness.md) | Close readiness and gaps. | W0-W2 pass | acceptance checklist recorded | completed | TASK-006 |
-| [W4](work-pack/waves/W4-validator-runtime.md) | Implement fast agent/runtime validator. | W0-W3 pass and validator surface selected | shell plus `jq` validator runs and readiness is synchronized | completed | TASK-007 |
+| W-INT-0 | Add default interface contract. | active design exists | SKILL/README describe auto flow and confirmation | ready | TASK-INT-001 |
+| W-INT-1 | Add interface and index templates. | W-INT-0 pass | templates exist and examples parse | blocked | TASK-INT-002, TASK-INT-003 |
+| W-INT-2 | Add validator and pilot slice. | W-INT-1 pass | validator and pilot pass | blocked | TASK-INT-004, TASK-INT-005 |
+| W-INT-3 | Sync docs/readiness. | W-INT-2 pass | readiness and next route updated | blocked | TASK-INT-006 |
 
 ## Delivery Stage Coverage
 
 | Stage | Required | Wave Mapping | Status | Evidence | Skip Reason |
 | --- | --- | --- | --- | --- | --- |
-| discover | yes | W0 | complete | refreshed package source contracts |  |
-| design-baseline | yes | W0 | complete | `ARCHITECTURE.md` |  |
-| specification | yes | W0 | complete | `SPEC.md`, `CONCEPT-MODEL.md` |  |
-| tests | yes | W1, W4 | complete | pilot fixtures and executable validator pass |  |
-| implementation | yes | W0-W4 | complete | static artifacts and validator complete |  |
-| telemetry-spec | yes | W3 | complete | `OBSERVABILITY.md` |  |
-| deployment | yes | W3 | skipped | n/a | no release/deployment in this package |
-| readiness-review | yes | W3-W4 | complete | TASK-006 and TASK-007 complete |  |
-| completion-verify | yes | W4 | complete | TASK-007 |  |
-| audit-alignment | yes | W4 | complete | TASK-007 |  |
-| audit-layering | yes | W4 | complete | TASK-007 |  |
+| discover | yes | complete before refresh | complete | `INTERFACE-REFINE-SYNTHESIS.md` |  |
+| design-baseline | yes | complete before refresh | complete | `ARCHITECTURE.md`, `INTERFACE-ARCHITECTURE.md` |  |
+| specification | yes | W-INT-0 | ready | `arcana/inventory/SKILL.md` update pending |  |
+| implementation | yes | W-INT-0..2 | ready | `WORK-PACK.md` |  |
+| tests | yes | W-INT-1..2 | blocked | index examples and validator pending |  |
+| telemetry-spec | no | W-INT-3 | deferred | existing observability can be reused later | not needed for first interface contract |
+| readiness-review | yes | W-INT-3 | blocked | `READINESS.md` | waits for pilot proof |
 
 ## Task-Session Continuation Boundaries
 
-- Completed waves W0-W3 remain historical evidence and should not be rerun unless their artifacts change.
-- Completed W4 batch execution remains historical evidence and should not be used as the forward execution rule.
-- Future Inventory work-pack execution is sequential-only: one ready task or SWU per task-session run.
-- Continue to the next unit only after the current unit returns `PASS`, validation has run, and synchronization evidence is recorded.
-- At the first blocker-level gap or consequential multi-option decision, stop task-session execution and run `decision-gate` with the blocked task-session context.
-- Resume task-session only after the decision record returns `PASS`, or keep the work-pack blocked if decision-gate returns `BLOCK`.
+- Execute one SWU at a time.
+- Start with `SWU-INT-001`.
+- Do not begin pilot slice mutation until interface and index templates exist.
+- Keep archived research folders as evidence only.
+- At the first blocker-level decision, stop and route to `decision-gate`.

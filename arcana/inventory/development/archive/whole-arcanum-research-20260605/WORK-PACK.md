@@ -99,6 +99,7 @@ Use arcana/inventory/development/whole-arcanum/READINESS.md and OPERATIONAL-COMM
 | Date | Change | Author |
 | --- | --- | --- |
 | 2026-06-01 | Completed SWU-WAI-012 and TASK-WAI-005; readiness report records validation results, promotion gate, deferred decisions, and real-task POC route. | Codex |
+| 2026-06-05 | Added `INVENTORIZATION-METHOD.md` and `INVENTORIZATION-TRACKER.md` so agents can explain and track how to continue inventorizing Arcanum. | Codex |
 | 2026-06-03 | Refreshed SWU-WAI-010 runtime scope to exclude legacy `.codex/commands` as live proof and use native/generated skill packages plus canonical source contracts for cross-repository testing. | Codex |
 | 2026-06-01 | Completed SWU-WAI-011; whole-inventory validation script and operational command contract pass command review. | Codex |
 | 2026-06-01 | Completed SWU-WAI-010; runtime support cards, index, retrieval fixture, and coverage report pass slice validation, opening L3 operational readiness. | Codex |
