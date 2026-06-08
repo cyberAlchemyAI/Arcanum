@@ -1,0 +1,168 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "sourceSignals": [
+    {
+      "id": "SIG-MOGT-REFRESH-001",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#verdict",
+      "signal_type": "status_changed",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/WORK-PACK.md",
+        "research/mogt-agentic-conversation/development/MOGT-LIVE-EXPERIMENT-APPROVAL-CHECKLIST.md"
+      ],
+      "claim": "Live evidence approval is repair-needed and live experiments are not approved.",
+      "evidence": "Approval result records approval_verdict: repair-needed and states live experiments are not approved.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-002",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#calibration-status",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/WORK-PACK.md",
+        "research/mogt-agentic-conversation/development/MOGT-REVIEWER-RUBRIC-DRAFT.md"
+      ],
+      "claim": "3-5 calibration examples are required before production scoring.",
+      "evidence": "Approval result and rubric both name the calibration requirement.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-003",
+      "source_path": "research/mogt-agentic-conversation/experiments/E1-tradeoff-traceability-baseline/protocol.md; research/mogt-agentic-conversation/experiments/E2-pareto-arbitration-quality/protocol.md; research/mogt-agentic-conversation/experiments/E4-overhead-feasibility-envelope/protocol.md",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/WORK-PACK.md"
+      ],
+      "claim": "E1, E2, and E4 hard gates G1-G3 remain pending.",
+      "evidence": "Protocol gate tables list G1, G2, and G3 as pending for E1, E2, and E4.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-004",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#next-recommended-route",
+      "signal_type": "route_changed",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/WORK-PACK.md"
+      ],
+      "claim": "Next route should be MOGT-LIVE-APPROVAL-REPAIR-PACK.",
+      "evidence": "Approval result recommends MOGT-LIVE-APPROVAL-REPAIR-PACK.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-005",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#live-run-parameter-status",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/WORK-PACK.md"
+      ],
+      "claim": "Concrete live model/run parameters are not approved.",
+      "evidence": "Approval result lists required live-run parameters and states they are not approved.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-006",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#evidence-mutation-policy",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md"
+      ],
+      "claim": "Evidence-status mutation and paper result rewrite remain blocked.",
+      "evidence": "Approval result states no updates were made to evidence status, paper result sections, or publication claims.",
+      "confidence": "high",
+      "mutation_safety": "blocked"
+    },
+    {
+      "id": "SIG-MOGT-REFRESH-007",
+      "source_path": "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md#e3-decision",
+      "signal_type": "no_op",
+      "target_artifacts": [
+        "research/mogt-agentic-conversation/development/MOGT-LIVE-EXPERIMENT-APPROVAL-CHECKLIST.md"
+      ],
+      "claim": "E3 is second-wave by default.",
+      "evidence": "Approval result and checklist both preserve E3 as second-wave by default.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md",
+    "research/mogt-agentic-conversation/development/MOGT-LIVE-EXPERIMENT-APPROVAL-CHECKLIST.md",
+    "research/mogt-agentic-conversation/development/MOGT-REVIEWER-RUBRIC-DRAFT.md",
+    "research/mogt-agentic-conversation/development/WORK-PACK.md",
+    "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md",
+    "research/mogt-agentic-conversation/experiments/E1-tradeoff-traceability-baseline/protocol.md",
+    "research/mogt-agentic-conversation/experiments/E2-pareto-arbitration-quality/protocol.md",
+    "research/mogt-agentic-conversation/experiments/E4-overhead-feasibility-envelope/protocol.md"
+  ],
+  "deltaSummary": [
+    {
+      "delta": "status_changed",
+      "targetArtifact": "research/mogt-agentic-conversation/development/WORK-PACK.md",
+      "proposedState": "Add MOGT-LIVE-APPROVAL-REPAIR-PACK as a proposed follow-up work-pack section.",
+      "evidence": [
+        "SIG-MOGT-REFRESH-001",
+        "SIG-MOGT-REFRESH-004"
+      ]
+    },
+    {
+      "delta": "blocker_opened",
+      "targetArtifact": "research/mogt-agentic-conversation/development/WORK-PACK.md",
+      "proposedState": "Represent calibration, protocol gates, live-run parameters, and mutation policy as repair SWUs.",
+      "evidence": [
+        "SIG-MOGT-REFRESH-002",
+        "SIG-MOGT-REFRESH-003",
+        "SIG-MOGT-REFRESH-005",
+        "SIG-MOGT-REFRESH-006"
+      ]
+    },
+    {
+      "delta": "no_op",
+      "targetArtifact": "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md",
+      "proposedState": "No evidence-status updates.",
+      "evidence": [
+        "SIG-MOGT-REFRESH-006"
+      ]
+    },
+    {
+      "delta": "no_op",
+      "targetArtifact": "research/mogt-agentic-conversation/development/MOGT-LIVE-EXPERIMENT-APPROVAL-CHECKLIST.md",
+      "proposedState": "No checklist patch needed; repair-needed verdict is already represented.",
+      "evidence": [
+        "SIG-MOGT-REFRESH-001",
+        "SIG-MOGT-REFRESH-007"
+      ]
+    }
+  ],
+  "proposedChanges": [
+    "Create or append MOGT-LIVE-APPROVAL-REPAIR-PACK with SWU-MOGT-REPAIR-001 through SWU-MOGT-REPAIR-006.",
+    "Keep E3 second-wave by default.",
+    "Preserve evidence boundary: no live experiment, no evidence-status promotion, no paper result rewrite."
+  ],
+  "appliedChanges": [],
+  "skippedChanges": [
+    "Direct WORK-PACK mutation skipped because refresh mode is proposal-only.",
+    "Evidence status mutation skipped because claim-bearing live evidence does not exist.",
+    "Paper result rewrite skipped because publication claims remain unsupported."
+  ],
+  "blockers": [
+    "Calibration examples missing.",
+    "E1 G1-G3 pending.",
+    "E2 G1-G3 pending.",
+    "E4 G1-G3 pending.",
+    "Live-run parameters missing.",
+    "Evidence mutation policy missing."
+  ],
+  "nextRoute": "task-session",
+  "validation": [
+    "sed -n '1,220p' research/mogt-agentic-conversation/development/MOGT-LIVE-EVIDENCE-APPROVAL-RESULT.md",
+    "sed -n '1,180p' research/mogt-agentic-conversation/development/MOGT-LIVE-EXPERIMENT-APPROVAL-CHECKLIST.md",
+    "sed -n '1,220p' research/mogt-agentic-conversation/development/WORK-PACK.md",
+    "sed -n '1,140p' research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md",
+    "rg -n \"G1|G2|G3|pending\" research/mogt-agentic-conversation/experiments/E1-tradeoff-traceability-baseline/protocol.md research/mogt-agentic-conversation/experiments/E2-pareto-arbitration-quality/protocol.md research/mogt-agentic-conversation/experiments/E4-overhead-feasibility-envelope/protocol.md"
+  ]
+}
