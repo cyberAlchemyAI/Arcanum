@@ -36,6 +36,27 @@ Generated commands use their embedded canonical instruction snapshots and the ob
 | Codex commands | `.codex/commands/<command>.md` | Legacy command contract with observer task-zero block and embedded canonical snapshot |
 | None | n/a | Observability and optional Necronomicon state only |
 
+This sigil owns only the legacy `.codex/commands/` surface. Native runtime skill
+surfaces are owned by `tools/bootstrap_arcanum.sh` profiles.
+
+## Claude Code surface (owned by `bootstrap --profile claude`)
+
+`tools/bootstrap_arcanum.sh --profile claude` generates `.claude/skills/<name>/SKILL.md`
+for every sigil and spell plus `.claude/agents/arcanum-stage-worker.md`. At generation
+time the canonical Arcanum tool vocabulary is mapped to real Claude Code tool names so
+the generated `allowed-tools` are valid (sources are never edited):
+
+| Canonical (source) | Claude (generated) |
+| --- | --- |
+| `Task` | `Agent` |
+| `AskQuestions` | `AskUserQuestion` |
+| all others (`Read`, `Write`, `Edit`, `Bash`, `Glob`, `Grep`) | unchanged |
+
+The generated surface is validated by `tools/validate-claude-skills.sh`, which blocks an
+install (and fails CI) if any package has a non-Claude tool name, a `name` that does not
+match its directory, a missing description, or a dangling `skills:` reference. Regenerate
+and validate with `make claude-skills` (optionally `TARGET=<repo>`).
+
 ## Output
 
 The sigil can produce:

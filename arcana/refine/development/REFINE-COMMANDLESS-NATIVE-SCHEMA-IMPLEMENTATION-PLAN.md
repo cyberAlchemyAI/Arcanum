@@ -1,6 +1,6 @@
 ---
 module: refine-commandless-native-schema
-status: plan-ready
+status: implemented-with-known-flag
 docType: implementation-plan
 owner: refine
 authoredBy: invoke-plan-through-refine-strategy
@@ -387,14 +387,14 @@ python3 arcana/refine/scripts/generate-refine-dispatch.py --seed arcana/refine/d
 
 | ID | Status | Gap | Owner | Clear By |
 | --- | --- | --- | --- | --- |
-| B-RCNS-001 | open | Active Refine validation still blocks on command resolution today. | Refine | SWU-RCNS-004 |
-| B-RCNS-002 | open | Refine dispatch template still includes command-resolution gate today. | Refine + Dispatch Spec | SWU-RCNS-003 |
-| B-RCNS-003 | open | Dispatch validator does not yet explicitly block active command-interface proof gates. | Dispatch Spec | SWU-RCNS-006 |
-| B-RCNS-004 | open | Capability handles are not truly validated yet; `capability_ref` is currently only a non-empty string. | Dispatch Spec | SWU-RCNS-006 |
-| B-RCNS-005 | open | Rich native stage receipt fields are not schema-enforced yet. | Dispatch Spec | SWU-RCNS-006 |
-| B-RCNS-006 | open | Bootstrap still contains deprecated command generation logic, currently behind flags but mixed in active docs. | Runtime package generator | SWU-RCNS-007 |
+| B-RCNS-001 | closed | Active Refine validation no longer blocks on command resolution. The current example output still flags missing native receipt proof. | Refine | SWU-RCNS-004 |
+| B-RCNS-002 | closed | Refine dispatch template now uses `g03-native-capability-receipts`. | Refine + Dispatch Spec | SWU-RCNS-003 |
+| B-RCNS-003 | closed | Dispatch validator blocks active command-interface proof gates unless the route is explicitly legacy compatibility. | Dispatch Spec | SWU-RCNS-006 |
+| B-RCNS-004 | closed | Validator now checks native capability handle shape and flags non-canonical handles without candidate metadata. | Dispatch Spec | SWU-RCNS-006 |
+| B-RCNS-005 | closed | Dispatch schema and validator now support/enforce native stage receipt fields. | Dispatch Spec | SWU-RCNS-006 |
+| B-RCNS-006 | closed | Bootstrap default staged installs do not generate `.codex/commands`; deprecated command generation remains behind explicit legacy flags. | Runtime package generator | SWU-RCNS-007 |
 | B-RCNS-007 | deferred | Live installed packages under user Codex home may need refresh after source changes. | User + Task Session | approve live refresh after staged proof |
 
 ## Recommended Next Route
 
-Start with `SWU-RCNS-001` through `task-session`. It is report-only, creates the active/historical/legacy classification needed for safe mutation, and lets later SWUs edit source without confusing prior run evidence with current policy.
+All source-level SWUs in this plan have been executed through the local Task Session route. Remaining work is limited to refreshing a non-blocked live Refine example that produces native receipts and optionally refreshing live installed packages under `$CODEX_HOME` after explicit approval and backup.

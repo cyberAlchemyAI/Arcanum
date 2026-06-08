@@ -19,39 +19,73 @@ Keep critical definitions authoritative, interpretable, discoverable, and tracea
 Arcana: semantic authority governance with drift detection and remediation routing.
 </logic-type>
 
+<project-authority-boundary>
+Definitions Governance is the maintainer process, not the canonical definition
+store.
+
+When used in any repository, resolve the consuming project's root and write to
+that project's configured definitions surface. Do not place project definitions
+inside the installed sigil package, copied skill directory, `.codex/skills`
+snapshot, `.agents/skills` symlink target, or `arcana/definitions-governance/`
+unless the repository has explicitly configured that path as its project-level
+definition authority.
+
+Default project-level convention when no authority source exists:
+
+```text
+definitions/
+  DEFINITIONS.md
+  DEFINITIONS-INDEX.md
+  DEFINITION-DRIFT-AUDIT.md
+```
+
+For this Arcanum repository, the canonical project-level source is
+`definitions/DEFINITIONS.md` and the lookup layer is
+`definitions/DEFINITIONS-INDEX.md`.
+</project-authority-boundary>
+
 <process>
-1. Resolve the repository's authority model:
+1. Resolve the consuming project's authority model from the project root, not
+   from the installed sigil package:
    - canonical definitions source,
    - lookup or index layer,
    - narrative consumers,
    - operational consumers,
    - validation checks.
-2. Read the canonical definitions source and index before making changes.
-3. Add or update critical terms with stable IDs when the repository uses IDs.
-4. For formal or mathematical constructs, keep the minimum interpretation package together:
+2. If no canonical definitions source exists, initialize the default
+   project-level `definitions/` surface unless the user or repository metadata
+   names a different location.
+3. Read the canonical definitions source and index before making changes.
+4. Add or update critical terms with stable IDs when the repository uses IDs.
+5. For formal or mathematical constructs, keep the minimum interpretation package together:
    - formal expression,
    - variable or notation meaning,
    - operational interpretation,
    - plain-language intuition.
-5. Keep explanatory intuition colocated with the definition and clearly non-normative.
-6. Sync lookup or index artifacts so definitions are discoverable.
-7. Audit downstream drift:
+6. Keep explanatory intuition colocated with the definition and clearly non-normative.
+7. Sync lookup or index artifacts so definitions are discoverable.
+8. Audit downstream drift:
    - conflicting wording,
    - stale anchors,
    - undefined critical terms,
    - narrative text that redefines authority,
    - missing references.
-8. Emit remediation items with target files and recommended action.
-9. Run available structure, link, or schema validation checks.
+9. Emit remediation items with target files and recommended action.
+10. Run available structure, link, or schema validation checks.
 </process>
 
 <authority-rule>
-Only the configured canonical definitions source may define normative semantics. Narrative, summary, protocol, planning, or presentation artifacts may explain or reference definitions, but should not redefine them.
+Only the consuming project's configured canonical definitions source may define
+normative semantics. Narrative, summary, protocol, planning, presentation,
+runtime, install-surface, or copied skill artifacts may explain or reference
+definitions, but should not redefine them.
 </authority-rule>
 
 <quality-bar>
 A successful execution must:
 
+- resolve and report the consuming project's canonical definitions path,
+- avoid writing project definitions into the sigil package or installed skill copy,
 - keep critical terms in the canonical source,
 - preserve stable IDs when used,
 - colocate plain-language intuition with formal definitions,
@@ -64,6 +98,8 @@ A successful execution must:
 <anti-patterns>
 Avoid:
 
+- using the sigil's own folder as the default project definition authority,
+- treating copied skill packages as canonical definition stores,
 - letting narrative artifacts become hidden definition authorities,
 - adding formulas without symbol meaning and plain-language intent,
 - creating detached intuition that can drift away from the definition,
@@ -84,6 +120,7 @@ Return:
 - Undefined critical terms: <count>
 - Conflicting consumers: <count>
 - Validation: pass | fail | not run
+- Canonical source: <project-relative path>
 - Follow-ups: <ordered remediation list>
 ```
 </output-contract>

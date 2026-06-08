@@ -1,0 +1,56 @@
+{
+  "xray_version": "0.2.0-seed",
+  "example_id": "visual-layered-order-ingestion",
+  "mode": "process",
+  "target_boundary": "Order ingestion process from merchant CSV upload through validation, pricing queue handoff, error report creation, and weekly support review.",
+  "renderer_level": "L0",
+  "layer_interaction": ["stacked", "isolate", "compare"],
+  "lanes": {
+    "surface": {
+      "handle": "surface.summary",
+      "evidence": ["The source describes an order ingestion process."],
+      "inference": ["The inspection goal is to understand routing and failure paths."]
+    },
+    "properties": {
+      "handle": "properties.catalog",
+      "evidence": ["Input format is CSV.", "Currency is normalized.", "Support review cadence is weekly."],
+      "inference": ["Required fields and currency format are process invariants."]
+    },
+    "components": {
+      "handle": "components.map",
+      "evidence": ["merchant", "validator", "pricing queue", "error report", "support"],
+      "inference": ["accepted rows and rejected rows are intermediate process states."]
+    },
+    "internal_dependencies": {
+      "handle": "dependencies.internal",
+      "evidence": ["Pricing queue receives accepted rows after validation.", "Error report receives rejected rows after validation."],
+      "inference": ["Validation must run before either downstream branch can be trusted."]
+    },
+    "external_dependencies": {
+      "handle": "dependencies.external",
+      "evidence": ["Merchant provides the CSV.", "Support reviews recurring rejection causes."],
+      "inference": ["Pricing queue and support process are adjacent systems outside the validator boundary."]
+    },
+    "flow": {
+      "handle": "flow.graph",
+      "evidence": ["upload", "required-field check", "currency normalization", "accepted to pricing queue", "rejected to error report", "support review"],
+      "inference": ["The branch point is validator acceptance."]
+    },
+    "lifecycle": {
+      "handle": "lifecycle.timeline",
+      "evidence": ["CSV upload starts the process.", "Weekly support review follows repeated rejection causes."],
+      "inference": ["Review outcomes may update validation rules in a later process cycle."]
+    },
+    "risk_questions": {
+      "handle": "risk.questions",
+      "evidence": [],
+      "inference": ["Who owns validator rules?", "Where are error reports stored?", "What happens when pricing queue delivery fails?"]
+    },
+    "visual_composition": {
+      "handle": "visual.model",
+      "evidence": ["L0 static HTML/SVG is sufficient for this small process."],
+      "inference": ["Use stacked translucent layers for surface, flow, dependencies, and risk."]
+    }
+  }
+}
+

@@ -1,0 +1,30 @@
+{
+  "run_id": "claude-compat-20260608",
+  "target": "arcanum/ Claude skill surface + installer",
+  "status": "pass",
+  "artifacts": {
+    "seed_proposal": "REFINE-SEED-PROPOSAL.md",
+    "dispatch": "REFINE-DISPATCH.json",
+    "runtime_handoff": "RUNTIME-HANDOFF.md",
+    "manifest": "RUN-MANIFEST.md",
+    "result": "RESULT.md"
+  },
+  "stages": [
+    {"n": 1, "name": "context-builder", "artifact": "stages/01-context-builder.md", "status": "pass"},
+    {"n": 6, "name": "design-tournament", "artifact": "stages/02-design-tournament.md", "status": "pass"},
+    {"n": 7, "name": "interrogation-distill", "artifact": "stages/03-interrogation-distill.md", "status": "pass"}
+  ],
+  "key_evidence": {
+    "fatal_defect": "bootstrap_arcanum.sh:883-909 copies allowed-tools verbatim; 21 sigils carry Task/AskQuestions (not real Claude tools).",
+    "secondary_bugs": [
+      "bootstrap_arcanum.sh:1131 creates empty arcanum-orchestrate/ dir",
+      "orchestrate package name!=dir (dir orchestrate vs name arcanum-orchestrate)",
+      "stage-worker skills: arcanum-orchestrate dangles when prefixed_skill_packages=false (default)"
+    ],
+    "no_claude_validation": "no validate*claude tooling exists",
+    "doctrine_conflict": "sigil-runtime-installer/SKILL.md:118-126 forbids Claude trees while bootstrap writes them",
+    "dogfood_state": "no .claude/skills/ committed in this repo"
+  },
+  "decisions": ["D1 claude allowed-tools map", "D2 orchestrate identity fix", "D3 validator script", "D4 blocking post-step", "D5 doctrine reword", "D6 narrow body fix", "D7 dogfood make target", "D8 CI", "D9 optional doc"],
+  "rejected": ["source vocabulary edit of 20 files", "codex/copilot DROP or reverse-map", "frontmatter trim"]
+}

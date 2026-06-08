@@ -1,0 +1,941 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/formulae/dispatch-spec/dispatch.schema.yml",
+  "title": "Arcanum Dispatch Spec",
+  "description": "Draft schema for describing a governed Arcanum sigil/spell dispatch route.",
+  "type": "object",
+  "required": [
+    "dispatch_id",
+    "intent",
+    "mode",
+    "steps",
+    "gates",
+    "observability"
+  ],
+  "properties": {
+    "dispatch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_dispatch_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "intent": {
+      "type": "object",
+      "required": [
+        "raw",
+        "objective"
+      ],
+      "properties": {
+        "raw": {
+          "type": "string",
+          "minLength": 1
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_artifact": {
+          "type": "string"
+        },
+        "arcanum_vocabulary": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "operator_sentence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "single",
+        "sequence",
+        "fanout",
+        "dialectic",
+        "tournament",
+        "research",
+        "validation",
+        "spell-design",
+        "implementation-research",
+        "mixed"
+      ]
+    },
+    "route_menu": {
+      "type": "object",
+      "description": "ChoiceCard-like bounded menu of possible routes or capabilities.",
+      "properties": {
+        "context_hint": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 9,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "description"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "capability_ref": {
+                "type": "string"
+              },
+              "pattern": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "selected_item_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "techniques": {
+      "type": "array",
+      "description": "Dispatch-level technique ids selected from TECHNIQUE-CATALOG.md or locally justified extensions.",
+      "items": {
+        "$ref": "#/$defs/technique_ref"
+      }
+    },
+    "technique_overlays": {
+      "type": "array",
+      "description": "Optional named technique profiles a route proposer may activate without changing the core dispatch schema.",
+      "items": {
+        "type": "object",
+        "required": [
+          "overlay_id",
+          "trigger",
+          "techniques",
+          "applies_to_steps",
+          "validation_expectation"
+        ],
+        "properties": {
+          "overlay_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "trigger": {
+            "type": "string",
+            "minLength": 1
+          },
+          "techniques": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/technique_ref"
+            }
+          },
+          "applies_to_steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "validation_expectation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "subagent_strategy": {
+      "type": "object",
+      "description": "Optional execution strategy for role-bound subagents or delegated sibling agents.",
+      "required": [
+        "status",
+        "explanation",
+        "authorization"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "none",
+            "recommended",
+            "required",
+            "blocked"
+          ]
+        },
+        "trigger": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "role_id",
+              "purpose",
+              "owns"
+            ],
+            "properties": {
+              "role_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owns": {
+                "type": "string",
+                "minLength": 1
+              },
+              "applies_to_steps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "parallelism": {
+          "type": "string",
+          "enum": [
+            "none",
+            "fanout",
+            "dialectic",
+            "tournament",
+            "mixed"
+          ]
+        },
+        "join_policy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "all",
+            "quorum",
+            "ranked",
+            "pareto",
+            "parent_synthesis",
+            "human_gate"
+          ]
+        },
+        "authorization": {
+          "type": "string",
+          "enum": [
+            "not_needed",
+            "requires_user_permission",
+            "approved",
+            "blocked"
+          ]
+        },
+        "permission_prompt": {
+          "type": "string"
+        },
+        "receipt_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "subagent_lifecycle": {
+      "type": "object",
+      "description": "Optional runtime ledger proving each delegated subagent was joined, closed, blocked, timed out with residue, or handed off.",
+      "required": [
+        "status",
+        "agents"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "none",
+            "pass",
+            "flag",
+            "block"
+          ]
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "agent_id",
+              "role_id",
+              "spawn_status"
+            ],
+            "properties": {
+              "agent_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "role_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lane_name": {
+                "type": "string"
+              },
+              "spawn_status": {
+                "type": "string",
+                "enum": [
+                  "spawned",
+                  "blocked"
+                ]
+              },
+              "spawn_error": {
+                "type": "string"
+              },
+              "join_status": {
+                "type": "string",
+                "enum": [
+                  "not_needed",
+                  "pending",
+                  "completed",
+                  "timed_out",
+                  "blocked",
+                  "handed_off",
+                  "closed_without_result"
+                ]
+              },
+              "join_timeout_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "receipt_artifact": {
+                "type": "string"
+              },
+              "close_status": {
+                "type": "string",
+                "enum": [
+                  "not_needed",
+                  "pending",
+                  "closed",
+                  "already_closed",
+                  "handed_off",
+                  "blocked"
+                ]
+              },
+              "close_error": {
+                "type": "string"
+              },
+              "residue": {
+                "type": "string"
+              },
+              "reroute": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "native_stage_receipts": {
+      "type": "array",
+      "description": "Expected or observed receipts for native runtime-backed dispatch stages.",
+      "items": {
+        "type": "object",
+        "required": [
+          "step_id",
+          "capability_ref",
+          "receipt_kind",
+          "status"
+        ],
+        "properties": {
+          "dispatch_id": {
+            "type": "string"
+          },
+          "step_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "capability_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "receipt_kind": {
+            "type": "string",
+            "enum": [
+              "native-stage",
+              "subagent",
+              "handoff",
+              "blocked"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "flag",
+              "block",
+              "not_run"
+            ]
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "validation": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "observer_status": {
+            "type": "string"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "residue": {
+            "type": "string"
+          },
+          "handoff_note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "step_id",
+          "name",
+          "capability_ref",
+          "pattern",
+          "inputs",
+          "outputs"
+        ],
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "capability_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mode": {
+            "type": "string"
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "route",
+              "sequential",
+              "fanout",
+              "dialectic",
+              "tournament",
+              "distill",
+              "xray",
+              "decision",
+              "validation",
+              "toy_game",
+              "synthesis",
+              "handoff"
+            ]
+          },
+          "parallel": {
+            "type": "boolean"
+          },
+          "techniques": {
+            "type": "array",
+            "description": "Technique ids used by this step. Use catalog ids where possible; local extensions must include a source note.",
+            "items": {
+              "$ref": "#/$defs/technique_ref"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "inputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "intent",
+                    "frame",
+                    "handle",
+                    "decision",
+                    "ledger",
+                    "human_answer",
+                    "external_context",
+                    "artifact"
+                  ]
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "frame",
+                    "handle",
+                    "decision",
+                    "ledger",
+                    "artifact",
+                    "route_menu",
+                    "handoff",
+                    "trace_event"
+                  ]
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "join_policy": {
+            "type": "string",
+            "enum": [
+              "none",
+              "all",
+              "quorum",
+              "ranked",
+              "pareto",
+              "parent_synthesis",
+              "human_gate"
+            ]
+          },
+          "convergence_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_artifact": {
+            "type": "string"
+          },
+          "stop_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "gate_id",
+          "kind",
+          "owner",
+          "condition"
+        ],
+        "properties": {
+          "gate_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "policy",
+              "decision",
+              "quality",
+              "promotion_guardrail",
+              "validation",
+              "human_approval"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "condition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "on_fail": {
+            "type": "string",
+            "enum": [
+              "block",
+              "flag",
+              "defer",
+              "ask",
+              "reroute"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "observability": {
+      "type": "object",
+      "required": [
+        "trace_events"
+      ],
+      "properties": {
+        "dispatch_id_required": {
+          "type": "boolean"
+        },
+        "parent_dispatch_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "trace_events": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "signal_grouping": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "boundary_evidence": {
+      "type": "object",
+      "description": "Optional boundary/evidence contract for cross-capability handoffs, authority ownership, receipts, state namespaces, and promotion splits.",
+      "properties": {
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundary"
+          }
+        },
+        "authority": {
+          "$ref": "#/$defs/authority_map"
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/receipt_expectation"
+          }
+        },
+        "state_namespaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/state_namespace"
+          }
+        },
+        "promotion_splits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/promotion_split"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "promotion_guardrails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "technique_ref": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "source"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "arcanum-dispatch-synthesis",
+                "pole-data-standards",
+                "local-extension"
+              ]
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "validation_note": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "boundary": {
+      "type": "object",
+      "required": [
+        "boundary_id",
+        "kind",
+        "contract",
+        "on_violation"
+      ],
+      "properties": {
+        "boundary_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "capability_handoff",
+            "artifact_import",
+            "human_approval",
+            "evidence_return",
+            "memory_interaction",
+            "state_write",
+            "external_context"
+          ]
+        },
+        "from_owner": {
+          "type": "string"
+        },
+        "to_owner": {
+          "type": "string"
+        },
+        "applies_to_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 1
+        },
+        "on_violation": {
+          "$ref": "#/$defs/gate_action"
+        }
+      },
+      "additionalProperties": true
+    },
+    "authority_map": {
+      "type": "object",
+      "properties": {
+        "lifecycle": {
+          "type": "string"
+        },
+        "execution": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "memory": {
+          "type": "string"
+        },
+        "promotion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "receipt_expectation": {
+      "type": "object",
+      "required": [
+        "receipt_id",
+        "producer",
+        "required_fields",
+        "on_missing"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "run_id",
+              "session_id",
+              "artifacts",
+              "validation_result",
+              "dispatch_id",
+              "step_id",
+              "capability_ref",
+              "status",
+              "validation",
+              "observer_status",
+              "blockers",
+              "handoff_note",
+              "approval_record",
+              "audit_reference",
+              "residue"
+            ]
+          }
+        },
+        "stores": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "on_missing": {
+          "$ref": "#/$defs/gate_action"
+        }
+      },
+      "additionalProperties": true
+    },
+    "state_namespace": {
+      "type": "object",
+      "required": [
+        "namespace",
+        "owner",
+        "write_policy"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "write_policy": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "promotion_split": {
+      "type": "object",
+      "required": [
+        "source",
+        "target",
+        "rule",
+        "on_violation"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "on_violation": {
+          "$ref": "#/$defs/gate_action"
+        }
+      },
+      "additionalProperties": true
+    },
+    "gate_action": {
+      "type": "string",
+      "enum": [
+        "block",
+        "flag",
+        "defer",
+        "ask",
+        "reroute"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

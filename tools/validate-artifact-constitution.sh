@@ -8,6 +8,8 @@ constitution="framework/ARTIFACT-CONSTITUTION.md"
 schema_constitution="framework/SCHEMA-CONSTITUTION.md"
 metadata_constitution="framework/ARTIFACT-METADATA-CONSTITUTION.md"
 metadata_validator="tools/validate-artifact-metadata.py"
+markdown_linking_constitution="framework/MARKDOWN-LINKING-CONSTITUTION.md"
+markdown_link_checker="tools/check_markdown_links.sh"
 
 failures=()
 warnings=()
@@ -202,6 +204,14 @@ validate_schema_markdown_boundary() {
 	fi
 }
 
+validate_markdown_linking_constitution() {
+	if [[ -f "$markdown_linking_constitution" && -f "$markdown_link_checker" ]]; then
+		if ! bash "$markdown_link_checker" "$markdown_linking_constitution" --check-anchors >/dev/null; then
+			add_failure "markdown linking constitution has broken local links or anchors: $markdown_linking_constitution"
+		fi
+	fi
+}
+
 run_self_test() {
 	local tmp_dir
 	local bad_chart
@@ -212,6 +222,8 @@ run_self_test() {
 	local bad_schema_md
 	local good_schema_md
 	local paired_schema_md
+	local good_md
+	local bad_md
 
 	tmp_dir="$(mktemp -d)"
 
@@ -224,6 +236,8 @@ run_self_test() {
 	bad_schema_md="$tmp_dir/templates/example-schema.md"
 	good_schema_md="$tmp_dir/templates/prose-schema.md"
 	paired_schema_md="$tmp_dir/templates/paired-schema.md"
+	good_md="$tmp_dir/good-links.md"
+	bad_md="$tmp_dir/bad-links.md"
 
 	printf '<script>const option = { title: { text: "Bad\\nTitle" } };</script>\n' > "$bad_chart"
 	printf '<script>const option = { title: { text: "Good<br>Title" } };</script>\n' > "$good_chart"
@@ -234,6 +248,9 @@ run_self_test() {
 	printf '# Prose Schema Notes\n\nSchema Artifact Role: non-canonical\n' > "$good_schema_md"
 	printf '# Paired Schema\n\nCanonical schema companion exists.\n' > "$paired_schema_md"
 	printf 'type: object\n' > "$tmp_dir/templates/paired.schema.yml"
+	printf '# Target\n\n## Anchor\n\nContent.\n' > "$tmp_dir/target.md"
+	printf '# Good Links\n\n[Target](target.md#anchor)\n' > "$good_md"
+	printf '# Bad Links\n\n[Missing](missing.md)\n' > "$bad_md"
 
 	failures=()
 	validate_chart_line_breaks "$bad_chart"
@@ -296,10 +313,21 @@ run_self_test() {
 		exit 1
 	fi
 
+	if ! bash "$markdown_link_checker" "$good_md" --check-anchors >/dev/null; then
+		printf 'self-test failed: good markdown link fixture did not pass\n' >&2
+		exit 1
+	fi
+
+	if bash "$markdown_link_checker" "$bad_md" >/dev/null; then
+		printf 'self-test failed: bad markdown link fixture passed unexpectedly\n' >&2
+		exit 1
+	fi
+
 	printf 'Artifact Constitution validator self-test\n'
 	printf 'chart line-break fixtures: pass\n'
 	printf 'schema format fixtures: pass\n'
 	printf 'schema markdown boundary fixtures: pass\n'
+	printf 'markdown link fixtures: pass\n'
 	rm -rf "$tmp_dir"
 }
 
@@ -323,6 +351,16 @@ fi
 if [[ ! -f "$metadata_validator" ]]; then
 	add_failure "missing artifact metadata validator: $metadata_validator"
 fi
+
+if [[ ! -f "$markdown_linking_constitution" ]]; then
+	add_failure "missing markdown linking constitution: $markdown_linking_constitution"
+fi
+
+if [[ ! -f "$markdown_link_checker" ]]; then
+	add_failure "missing markdown link checker: $markdown_link_checker"
+fi
+
+validate_markdown_linking_constitution
 
 while IFS= read -r path; do
 	[[ -n "$path" ]] || continue
