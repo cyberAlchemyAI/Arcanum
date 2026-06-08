@@ -103,6 +103,8 @@ Examples:
 - [Artifact Metadata Constitution](ARTIFACT-METADATA-CONSTITUTION.md) governs
   artifact intent/type tags used to select constitutions and validation
   profiles.
+- [Markdown Linking Constitution](MARKDOWN-LINKING-CONSTITUTION.md) governs
+  Markdown link hygiene, source references, and relation-like edge declarations.
 
 ## Validation Contract
 
