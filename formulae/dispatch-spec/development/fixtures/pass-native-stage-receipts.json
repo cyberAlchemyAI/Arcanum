@@ -1,0 +1,51 @@
+{
+  "dispatch_id": "fixture-pass-native-stage-receipts",
+  "intent": {
+    "raw": "run native receipt route",
+    "objective": "Validate native receipt enforcement."
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "validation_loop"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Native step",
+      "capability_ref": "refine",
+      "pattern": "validation",
+      "techniques": ["validation_loop"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": ["block if native receipt is missing"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g03-native-capability-receipts",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Each native runtime-backed stage records a native stage receipt before pass is claimed.",
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "fixture-pass-native-stage-receipts",
+      "step_id": "s1",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": ["RESULT.md"],
+      "validation": ["fixture review pass"],
+      "observer_status": "not_run",
+      "blockers": [],
+      "residue": "",
+      "handoff_note": "fixture receipt"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"],
+    "signal_grouping": "dispatch_id"
+  }
+}

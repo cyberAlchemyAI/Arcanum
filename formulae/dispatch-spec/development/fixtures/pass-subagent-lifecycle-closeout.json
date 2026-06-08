@@ -1,0 +1,112 @@
+{
+  "dispatch_id": "fixture-pass-subagent-lifecycle-closeout",
+  "intent": {
+    "raw": "run mostly AFK research with delegated lanes",
+    "objective": "Show that delegated subagents can pass only when lifecycle closeout is explicit."
+  },
+  "mode": "research",
+  "techniques": ["execution_receipt_handoff", "role_projection_boundary", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "Research lanes can run independently and return receipts.",
+    "explanation": "Delegated lanes are useful, but the parent must prove closeout before success.",
+    "roles": [
+      {
+        "role_id": "paper-context",
+        "purpose": "Recover related-paper context.",
+        "owns": "context receipt",
+        "applies_to_steps": ["s1"]
+      },
+      {
+        "role_id": "license-boundary",
+        "purpose": "Check the definition-card boundary.",
+        "owns": "boundary receipt",
+        "applies_to_steps": ["s1"]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Spawn the research lanes and require lifecycle closeout receipts?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "agent-paper-context-001",
+        "role_id": "paper-context",
+        "lane_name": "related papers",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/subagents/paper-context.md",
+        "close_status": "closed"
+      },
+      {
+        "agent_id": "agent-license-boundary-001",
+        "role_id": "license-boundary",
+        "lane_name": "definition-card boundary",
+        "spawn_status": "blocked",
+        "spawn_error": "thread cap reached before spawn",
+        "residue": "Definition-card check was not executed by a sibling lane.",
+        "reroute": "parent lane performs the check before reporting success"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Run delegated research lanes",
+      "capability_ref": "task-session",
+      "pattern": "fanout",
+      "parallel": true,
+      "techniques": ["execution_receipt_handoff"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "subagent-lifecycle-ledger"}],
+      "join_policy": "parent_synthesis",
+      "stop_conditions": ["block if any spawned agent is unjoined or unclosed"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Parent report requires subagent_lifecycle.status=pass before success.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "receipts": [
+      {
+        "receipt_id": "r1",
+        "producer": "task-session",
+        "required_fields": ["artifacts", "validation_result", "residue"],
+        "stores": ["research/autobayes/subagents/paper-context.md"],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["subagent_spawned", "subagent_joined", "subagent_closed"],
+    "signal_grouping": "dispatch_id"
+  }
+}
