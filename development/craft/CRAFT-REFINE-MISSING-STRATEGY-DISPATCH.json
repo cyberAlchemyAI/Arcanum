@@ -1,0 +1,700 @@
+{
+  "dispatch_id": "craft-refine-missing-strategy-20260605",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Create a dispatch-backed strategy so Refine can inspect everything still missing for Craft, surface blockers and gaps for decision, build the follow-on work, and run a first live test.",
+    "objective": "Prepare a validator-backed local skill-surface strategy for completing Craft's remaining receipt-backed refinement path without promoting Craft or using the retired command surface as execution authority.",
+    "target_artifact": "development/craft/",
+    "operator_sentence": "refine everything that is still missing for craft, get all blockers and gaps so we can decide, build it after, and do first live test",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "refine",
+      "task-session",
+      "receipt",
+      "owner-stage evidence",
+      "local skill surface",
+      "promotion deferred"
+    ]
+  },
+  "mode": "mixed",
+  "route_menu": {
+    "context_hint": "Craft is already architected locally; the first missing blocker is Interrogation refine-review owner-stage receipt evidence.",
+    "items": [
+      {
+        "id": "local-receipt-sequence",
+        "label": "Local receipt sequence",
+        "description": "Continue the existing Refine run by creating local owner-stage receipts in dependency order.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      },
+      {
+        "id": "broad-promotion-review",
+        "label": "Promotion review",
+        "description": "Attempt to decide canonical promotion now. This is rejected because Craft promotion remains deferred.",
+        "capability_ref": "decision-gate",
+        "pattern": "decision"
+      }
+    ],
+    "selected_item_id": "local-receipt-sequence"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "residue_ledger"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "local_skill_receipt_completion",
+      "trigger": "Craft's latest run has receipt-backed Context Builder and Invoke Define stages, but Interrogation refine-review remains the first blocked owner stage.",
+      "techniques": [
+        "sequence",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "owner_boundary_check"
+      ],
+      "applies_to_steps": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Each owner-stage pass must cite a receipt file, owner artifact path, validation result, and downstream blocker update before the next stage is attempted."
+    },
+    {
+      "overlay_id": "first_live_test_gate",
+      "trigger": "The user asked to build after deciding and do the first live test.",
+      "techniques": [
+        "validation_loop",
+        "toy_game",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "S11"
+      ],
+      "validation_expectation": "Run one bounded live Craft scenario against the resulting plan and record pass, flag, or block without promoting Craft."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The missing-gap sweep spans architecture evidence, receipt evidence, runtime boundary evidence, and promotion readiness.",
+    "explanation": "Role-bound sibling agents can inspect separate evidence lanes without mixing authority: one for Craft product gaps, one for Refine receipt continuity, one for runtime/local-skill boundary drift, and one for validation/live-test readiness.",
+    "context": [
+      "development/craft/SESSION-LEDGER.md names Interrogation refine-review as the next missing receipt.",
+      "development/craft/README.md preserves promotion deferral.",
+      "development/craft/CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md retires command-surface routing for the active workflow."
+    ],
+    "roles": [
+      {
+        "role_id": "receipt-continuity-auditor",
+        "purpose": "Inspect run evidence and list remaining owner-stage receipts in dependency order.",
+        "owns": "receipt-gap lane",
+        "applies_to_steps": [
+          "S1",
+          "S3",
+          "S5"
+        ]
+      },
+      {
+        "role_id": "craft-gap-auditor",
+        "purpose": "Inspect Craft architecture, validation examples, readiness review, and ledger artifacts for remaining non-runtime gaps.",
+        "owns": "Craft product and method gap lane",
+        "applies_to_steps": [
+          "S4",
+          "S5"
+        ]
+      },
+      {
+        "role_id": "boundary-auditor",
+        "purpose": "Check that local skill execution, generated command-surface history, and promotion boundaries are not conflated.",
+        "owns": "authority and state boundary lane",
+        "applies_to_steps": [
+          "S1",
+          "S2",
+          "S5",
+          "S11"
+        ]
+      },
+      {
+        "role_id": "live-test-designer",
+        "purpose": "Define the smallest live Craft scenario that can validate the completed missing-gap plan.",
+        "owns": "first live test lane",
+        "applies_to_steps": [
+          "S9",
+          "S10",
+          "S11"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Approve spawning four local role-bound subagents for the Craft missing-gap sweep before executing the full Refine run?",
+    "receipt_requirements": [
+      "Each subagent returns files inspected, blockers found, gaps found, recommended next route, and confidence.",
+      "No subagent mutates canonical registry, runtime, sigil, spell, or promotion surfaces.",
+      "All claims cite concrete local paths."
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "S0",
+      "name": "Current Craft evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "lean-strategy",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator sentence and development/craft/"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "development/craft/CRAFT-REFINE-MISSING-STRATEGY.md#evidence-baseline"
+        },
+        {
+          "kind": "handle",
+          "ref": "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/evidence-index.json"
+        }
+      ],
+      "stop_conditions": [
+        "Block if Craft README, SESSION-LEDGER, or latest evidence-index cannot be read."
+      ]
+    },
+    {
+      "step_id": "S1",
+      "name": "Stale blocker repair gate",
+      "capability_ref": "refine",
+      "mode": "local-evidence-sync",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "data_quality_accuracy",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S0.evidence-baseline"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-REFINE-MISSING-LIVE-TEST.md#stale-blocker-check"
+        }
+      ],
+      "evidence_artifact": "development/craft/CRAFT-REFINE-MISSING-LIVE-TEST.md#stale-blocker-check",
+      "stop_conditions": [
+        "Flag if the stage file still says Invoke Define is missing after evidence-index says Invoke Define has receipt-backed pass evidence."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Strategy preview and permission checkpoint",
+      "capability_ref": "refine",
+      "mode": "strategy-preview",
+      "pattern": "decision",
+      "techniques": [
+        "route_menu",
+        "approval_checkpoint",
+        "one_or_more_option_set"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S0.evidence-baseline"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "approval to run full missing-gap Refine sweep with recommended subagents"
+        }
+      ],
+      "stop_conditions": [
+        "Stop before subagent fanout until the operator approves the role-bound strategy."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Interrogation refine-review owner receipt",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "sequential",
+      "techniques": [
+        "execution_receipt_handoff",
+        "artifact_contract_bridge",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "S2.approved-strategy"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/02-invoke-define.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/interrogation-refine-review/RESULT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/03-interrogation-refine-review.json"
+        }
+      ],
+      "stop_conditions": [
+        "Write a block receipt instead of proceeding if Interrogation cannot produce owner-stage evidence."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Research decision refresh",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "techniques": [
+        "residue_ledger",
+        "approval_checkpoint"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S3.interrogation-receipt"
+        },
+        {
+          "kind": "ledger",
+          "ref": "development/craft/SESSION-LEDGER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "research mode for remaining Craft missing-gap sweep"
+        }
+      ],
+      "stop_conditions": [
+        "Ask before external research if local evidence is insufficient."
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Remaining blockers and gaps x-ray",
+      "capability_ref": "refine",
+      "mode": "gap-inventory",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "residue_ledger",
+        "memory_loop",
+        "data_quality_deduplication",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "S4.research-decision"
+        },
+        {
+          "kind": "frame",
+          "ref": "S0.evidence-baseline"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-BLOCKERS-AND-GAPS.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "development/craft/SESSION-LEDGER.md#Open Gaps"
+        }
+      ],
+      "stop_conditions": [
+        "Block if blockers cannot be tied to concrete paths or owner capabilities."
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Smallest coherent completion unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "scu_swu_reduction",
+        "recomposition_proof",
+        "pareto_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S5.CRAFT-MISSING-BLOCKERS-AND-GAPS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "minimum Craft completion unit and rejected alternatives"
+        }
+      ],
+      "stop_conditions": [
+        "Flag if the selected unit cannot recompose into the full Craft readiness target."
+      ]
+    },
+    {
+      "step_id": "S7",
+      "name": "Craft missing-work design refresh",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S6.minimum-completion-unit"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-DESIGN.md"
+        }
+      ],
+      "stop_conditions": [
+        "Do not redesign completed Craft architecture unless S5 proves a concrete gap."
+      ]
+    },
+    {
+      "step_id": "S8",
+      "name": "Design critique and repair gate",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "sequential",
+      "techniques": [
+        "zig_zag",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S7.CRAFT-MISSING-WORK-DESIGN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-DESIGN-REVIEW.md"
+        }
+      ],
+      "evidence_artifact": "development/craft/CRAFT-MISSING-WORK-DESIGN-REVIEW.md",
+      "stop_conditions": [
+        "Return to S7 if review finds a block-level design defect."
+      ]
+    },
+    {
+      "step_id": "S9",
+      "name": "Non-executed build plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "scu_swu_reduction",
+        "execution_receipt_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S8.CRAFT-MISSING-WORK-DESIGN-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-EXECUTION-PACK.md"
+        }
+      ],
+      "stop_conditions": [
+        "Do not execute build tasks until task-session receives an explicit ready work-pack task."
+      ]
+    },
+    {
+      "step_id": "S10",
+      "name": "Decision synthesis",
+      "capability_ref": "refine",
+      "mode": "final-synthesis",
+      "pattern": "synthesis",
+      "techniques": [
+        "residue_ledger",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S9.CRAFT-MISSING-WORK-WORK-PACK.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "S5.CRAFT-MISSING-BLOCKERS-AND-GAPS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-DECISION-PACK.md"
+        }
+      ],
+      "stop_conditions": [
+        "Ask the operator before building any nontrivial implementation or promotion task."
+      ]
+    },
+    {
+      "step_id": "S11",
+      "name": "First live test",
+      "capability_ref": "task-session",
+      "mode": "first-live-test",
+      "pattern": "toy_game",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "S10.operator-build-decision"
+        },
+        {
+          "kind": "artifact",
+          "ref": "S9.CRAFT-MISSING-WORK-WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-MISSING-WORK-LIVE-TEST.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-refine-missing-strategy-20260605:first-live-test"
+        }
+      ],
+      "evidence_artifact": "development/craft/CRAFT-MISSING-WORK-LIVE-TEST.md",
+      "stop_conditions": [
+        "Run only the first ready task selected by the approved work-pack.",
+        "Block instead of mutating if no ready task exists."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json validates with formulae/dispatch-spec/scripts/validate-dispatch.py.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2",
+      "kind": "promotion_guardrail",
+      "owner": "Craft",
+      "condition": "Craft remains candidate-local; no registry, ontology, inventory, sigil, spell, or canonical runtime promotion happens in this strategy.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3",
+      "kind": "policy",
+      "owner": "Craft",
+      "condition": "Active execution uses local skill surfaces and concrete local artifact receipts; command-surface history is evidence only.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Subagent fanout and full missing-gap Refine execution require explicit operator approval after strategy preview.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "G5",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "No downstream stage is marked pass without an owner artifact, receipt, and validation result.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G6",
+      "kind": "decision",
+      "owner": "operator",
+      "condition": "Build execution and first live test happen only after the blocker/gap decision pack is reviewed.",
+      "on_fail": "ask"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "signal_grouping": "craft-refine-missing-strategy-20260605",
+    "trace_events": [
+      "strategy-dispatch-created",
+      "dispatch-validator-result",
+      "stale-blocker-live-test",
+      "strategy-preview-shown",
+      "subagent-authorization-state",
+      "first-live-test-result"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1",
+        "kind": "capability_handoff",
+        "from_owner": "refine",
+        "to_owner": "interrogation",
+        "applies_to_steps": [
+          "S3",
+          "S8"
+        ],
+        "contract": "Interrogation owns critique artifacts and must return an owner-stage artifact plus receipt before Refine marks the stage pass.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2",
+        "kind": "evidence_return",
+        "from_owner": "task-session",
+        "to_owner": "refine",
+        "applies_to_steps": [
+          "S11"
+        ],
+        "contract": "The first live test returns task-session evidence and does not become canonical Craft promotion evidence without review.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B3",
+        "kind": "state_write",
+        "from_owner": "refine",
+        "to_owner": "Craft development package",
+        "applies_to_steps": [
+          "S1",
+          "S5",
+          "S7",
+          "S9",
+          "S10",
+          "S11"
+        ],
+        "contract": "Writes stay under development/craft/ and run evidence folders unless a later reviewed plan changes scope.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "Craft development package",
+      "execution": "local skill surfaces and task-session",
+      "validation": "Refine plus owner-stage receipts",
+      "evidence": "development/craft/development/refinement-runs and development/craft/task-sessions",
+      "memory": "observability ledger only; no memory promotion from this dispatch",
+      "promotion": "deferred explicit review only"
+    },
+    "receipts": [
+      {
+        "receipt_id": "03-interrogation-refine-review",
+        "producer": "interrogation",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/03-interrogation-refine-review.json"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "first-live-test",
+        "producer": "task-session",
+        "required_fields": [
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "development/craft/CRAFT-MISSING-WORK-LIVE-TEST.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "development/craft/",
+        "owner": "Craft development package",
+        "write_policy": "candidate-local source and planning artifacts only"
+      },
+      {
+        "namespace": "development/craft/development/refinement-runs/",
+        "owner": "Refine run evidence",
+        "write_policy": "stage evidence, receipts, manifests, and results only"
+      },
+      {
+        "namespace": ".arcanum/observability/",
+        "owner": "observability package",
+        "write_policy": "generated telemetry and reflection state only"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "execution evidence and receipts",
+        "target": "canonical sigil or spell promotion",
+        "rule": "Evidence can inform promotion review but cannot directly promote canonical knowledge; explicit owner review is required.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Craft remains under development/craft/ until explicit promotion review.",
+    "Execution evidence may inform but cannot directly change canonical sigil, spell, registry, runtime, ontology, inventory, or glossary authority.",
+    "The strategy may prepare a build plan and first live test, but build execution requires a ready task-session task and operator decision."
+  ]
+}

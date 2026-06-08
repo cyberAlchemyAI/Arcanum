@@ -1,0 +1,248 @@
+ledger_id: craft.interaction.example
+schema_ref: development/craft/CRAFT-INTERACTION-LEDGER-SCHEMA.yml
+schema_version: 0.1.0
+status: candidate-local-fixture
+
+contexts:
+  - context_id: CTX-INTERACTION-ROOT
+    parent_id: root
+    title: Craft Interaction Test
+    purpose: Show Craft routing work to owner capabilities without claiming their authority.
+    stage: validate
+    gate: flag
+    next_move: Open residue for the blocked decision and keep route validation separate from execution.
+    owned_artifacts:
+      - ART-INVOKE-PLAN
+      - ART-DISPATCH
+      - ART-TASK-REPORT
+      - ART-DECISION
+    notes: Root context for interaction fixture.
+  - context_id: CTX-INTERACTION-TASK
+    parent_id: CTX-INTERACTION-ROOT
+    title: Execute Interface Slice
+    purpose: Represent one task-session child context and recompose its result.
+    stage: closed
+    gate: pass
+    next_move: Recomposition completed into CTX-INTERACTION-ROOT.
+    owned_artifacts:
+      - ART-TASK-REPORT
+    notes: Closed only after receipt and recomposition evidence.
+
+artifacts:
+  - artifact_id: ART-INVOKE-PLAN
+    owner_context_id: CTX-INTERACTION-ROOT
+    path: development/craft/CRAFT-INTERFACE-WORK-PACK.md
+    artifact_type: invoke-plan-work-pack
+    status: active
+    notes: Planning evidence, not execution evidence.
+  - artifact_id: ART-DISPATCH
+    owner_context_id: CTX-INTERACTION-ROOT
+    path: development/craft/CRAFT-INTERACTION-DISPATCH.json
+    artifact_type: dispatch-route
+    status: active
+    notes: Route-shape evidence only.
+  - artifact_id: ART-TASK-REPORT
+    owner_context_id: CTX-INTERACTION-TASK
+    path: development/craft/task-sessions/example-CRAFT-INTERFACE-001-RESULT.md
+    artifact_type: task-session-report
+    status: planned
+    notes: Example path for owner execution receipt.
+  - artifact_id: ART-DECISION
+    owner_context_id: CTX-INTERACTION-ROOT
+    path: docs/decisions/craft-interface-development-risk-gates.md
+    artifact_type: decision-record
+    status: active
+    notes: Decision-gate evidence.
+
+route_handoffs:
+  - handoff_id: HND-INVOKE-PLAN-001
+    context_id: CTX-INTERACTION-ROOT
+    capability_ref: invoke
+    mode: plan
+    objective: Author a work-pack for the Craft interface.
+    source_artifacts:
+      - development/craft/CRAFT-INTERFACE-REFINE.md
+    ledger_conditions:
+      - missing plan artifact
+    expected_outputs:
+      - development/craft/CRAFT-INTERFACE-WORK-PACK.md
+    expected_receipt_fields:
+      - artifacts
+      - mode_status
+      - unresolved_gaps
+      - next_route
+    status: completed
+  - handoff_id: HND-DISPATCH-001
+    context_id: CTX-INTERACTION-ROOT
+    capability_ref: dispatch-spec
+    mode: validate
+    objective: Validate the Craft interaction route shape.
+    source_artifacts:
+      - development/craft/CRAFT-INTERACTION-DISPATCH.json
+    ledger_conditions:
+      - route shape uncertainty
+    expected_outputs:
+      - dispatch validation result
+    expected_receipt_fields:
+      - validation_result
+      - blocked_fields
+      - promotion_guardrail_status
+    status: completed
+  - handoff_id: HND-TASK-SESSION-001
+    context_id: CTX-INTERACTION-TASK
+    capability_ref: task-session
+    mode: single-task
+    objective: Execute CRAFT-INTERFACE-001 and return task evidence.
+    source_artifacts:
+      - development/craft/CRAFT-INTERFACE-WORK-PACK.md
+    ledger_conditions:
+      - one executable task
+    expected_outputs:
+      - CRAFT-INTERFACE.md
+      - CRAFT-INTERFACE-VALIDATION.md
+    expected_receipt_fields:
+      - validation_result
+      - files_updated
+      - residue
+      - synchronized_records
+    status: completed
+  - handoff_id: HND-DECISION-001
+    context_id: CTX-INTERACTION-ROOT
+    capability_ref: decision-gate
+    mode: blocker-only
+    objective: Resolve whether local interface work waits for aggregate Refine receipt pass.
+    source_artifacts:
+      - development/craft/CRAFT-INTERFACE-DEVELOPMENT-GAP-REVIEW.md
+    ledger_conditions:
+      - possible background Refine blocker
+    expected_outputs:
+      - docs/decisions/craft-interface-development-risk-gates.md
+    expected_receipt_fields:
+      - result
+      - selected_option
+      - rationale
+      - blockers_remaining
+    status: completed
+
+receipts:
+  - receipt_id: RCT-INVOKE-PLAN-001
+    handoff_id: HND-INVOKE-PLAN-001
+    producer: invoke
+    status: pass
+    artifacts:
+      - development/craft/CRAFT-INTERFACE-WORK-PACK.md
+    validation_result: Work-pack exists and is planning evidence only.
+    audit_reference: ART-INVOKE-PLAN
+    residue: Execution still requires task-session.
+  - receipt_id: RCT-DISPATCH-001
+    handoff_id: HND-DISPATCH-001
+    producer: dispatch-spec
+    status: pass
+    artifacts:
+      - development/craft/CRAFT-INTERACTION-DISPATCH.json
+    validation_result: Dispatch route validates; no execution is implied.
+    audit_reference: ART-DISPATCH
+    residue: Execute owner tasks separately.
+  - receipt_id: RCT-TASK-SESSION-001
+    handoff_id: HND-TASK-SESSION-001
+    producer: task-session
+    status: pass
+    artifacts:
+      - development/craft/CRAFT-INTERFACE.md
+      - development/craft/CRAFT-INTERFACE-VALIDATION.md
+    validation_result: Task evidence can close child only after recomposition event.
+    audit_reference: ART-TASK-REPORT
+    residue: none
+  - receipt_id: RCT-DECISION-001
+    handoff_id: HND-DECISION-001
+    producer: decision-gate
+    status: pass
+    artifacts:
+      - docs/decisions/craft-interface-development-risk-gates.md
+    validation_result: Local interface work may continue while aggregate Refine block remains background state.
+    audit_reference: ART-DECISION
+    residue: Refine completion remains blocked for promotion claims.
+
+route_events:
+  - event_id: EVT-ROUTE-001
+    context_id: CTX-INTERACTION-ROOT
+    event_type: route_classified
+    capability_ref: invoke
+    summary: Missing work-pack routed to invoke plan.
+    evidence: HND-INVOKE-PLAN-001
+    handoff_id: HND-INVOKE-PLAN-001
+  - event_id: EVT-HANDOFF-001
+    context_id: CTX-INTERACTION-ROOT
+    event_type: handoff_created
+    capability_ref: dispatch-spec
+    summary: Dispatch route validation handoff created.
+    evidence: HND-DISPATCH-001
+    handoff_id: HND-DISPATCH-001
+  - event_id: EVT-RECEIPT-001
+    context_id: CTX-INTERACTION-ROOT
+    event_type: receipt_received
+    capability_ref: dispatch-spec
+    summary: Dispatch receipt received as route-shape evidence only.
+    evidence: RCT-DISPATCH-001
+    receipt_id: RCT-DISPATCH-001
+    handoff_id: HND-DISPATCH-001
+  - event_id: EVT-APPLY-001
+    context_id: CTX-INTERACTION-TASK
+    event_type: receipt_applied
+    capability_ref: task-session
+    summary: Task-session pass applied to child context after validation evidence.
+    evidence: RCT-TASK-SESSION-001
+    receipt_id: RCT-TASK-SESSION-001
+    handoff_id: HND-TASK-SESSION-001
+    application_policy: recompose-child
+  - event_id: EVT-RECOMPOSE-001
+    context_id: CTX-INTERACTION-TASK
+    event_type: recomposition_completed
+    capability_ref: task-session
+    summary: Child task result recomposed into root context.
+    evidence: REL-RECOMPOSE-INTERACTION-001
+    receipt_id: RCT-TASK-SESSION-001
+  - event_id: EVT-RESIDUE-001
+    context_id: CTX-INTERACTION-ROOT
+    event_type: residue_opened
+    capability_ref: decision-gate
+    summary: Refine completion remains background residue for promotion claims.
+    evidence: RCT-DECISION-001
+    receipt_id: RCT-DECISION-001
+    handoff_id: HND-DECISION-001
+    application_policy: open-residue
+
+relations:
+  - relation_id: REL-RECOMPOSE-INTERACTION-001
+    source_id: CTX-INTERACTION-TASK
+    target_id: CTX-INTERACTION-ROOT
+    type: informs
+    status: resolved
+    reason: Task-session child can close only after recomposition evidence returns to parent.
+    evidence: EVT-RECOMPOSE-001
+  - relation_id: REL-DISPATCH-SHAPE-001
+    source_id: RCT-DISPATCH-001
+    target_id: CTX-INTERACTION-ROOT
+    type: informs
+    status: active
+    reason: Dispatch pass informs route shape only.
+    evidence: EVT-RECEIPT-001
+
+gaps:
+  - gap_id: GAP-REFINE-BACKGROUND-001
+    scope_id: CTX-INTERACTION-ROOT
+    summary: Aggregate Refine receipt remains blocked for Refine completion or promotion claims.
+    severity: flag
+    treatment: defer
+    owner: refine
+    status: active
+    evidence: RCT-DECISION-001
+
+recomposition:
+  - child_id: CTX-INTERACTION-TASK
+    parent_id: CTX-INTERACTION-ROOT
+    summary: Task-session receipt is accepted for the child context and updates parent route memory.
+    evidence: EVT-RECOMPOSE-001
+    residue: Dispatch pass remains route-shape evidence only; Refine completion remains background.
+    next_parent_move: Continue local Craft interface validation without promotion claim.
+    status: pass

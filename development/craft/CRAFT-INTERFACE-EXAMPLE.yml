@@ -1,0 +1,157 @@
+ledger_id: craft.interface.example
+schema_ref: development/craft/CRAFT-INTERFACE-LEDGER-SCHEMA.yml
+schema_version: 0.1.0
+status: candidate-local-fixture
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+
+contexts:
+  - context_id: CTX-CRAFT-TEST
+    parent_id: root
+    title: Craft Interface Test Project
+    purpose: Prove a target project can start and operate a recursive Craft ledger.
+    stage: plan
+    gate: flag
+    next_move: Execute child context CTX-CRAFT-BLOCKER to refine the storage blocker.
+    owned_artifacts:
+      - ART-CRAFT-MD
+      - ART-LEDGER-YML
+    notes: Root context created by start_project.
+  - context_id: CTX-CRAFT-BLOCKER
+    parent_id: CTX-CRAFT-TEST
+    title: Storage Blocker Refinement
+    purpose: Refine the ambiguity around the Craft ledger source of truth.
+    stage: validate
+    gate: pass
+    next_move: Recompose storage decision into CTX-CRAFT-TEST.
+    owned_artifacts:
+      - ART-STORAGE-NOTE
+    notes: Child context opened with explicit recomposition target.
+
+artifacts:
+  - artifact_id: ART-LEDGER-YML
+    owner_context_id: CTX-CRAFT-TEST
+    path: .craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured source of truth.
+  - artifact_id: ART-CRAFT-MD
+    owner_context_id: CTX-CRAFT-TEST
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view, not source of truth.
+  - artifact_id: ART-STORAGE-NOTE
+    owner_context_id: CTX-CRAFT-BLOCKER
+    path: .craft/artifacts/storage-source-note.md
+    artifact_type: evidence
+    status: active
+    notes: Evidence used for blocker refinement and recomposition.
+
+descriptions:
+  - description_id: DESC-CRAFT-TEST-001
+    context_id: CTX-CRAFT-TEST
+    description: Local project uses Craft to track state, blockers, gaps, definitions, and next moves.
+    status: active
+    evidence: start_project input
+  - description_id: DESC-CRAFT-BLOCKER-001
+    context_id: CTX-CRAFT-BLOCKER
+    description: Child context checks whether CRAFT.md or .craft/ledger.yml owns state.
+    status: active
+    evidence: open_child_context input
+
+definitions:
+  - definition_id: DEF-LOCAL-LEDGER-001
+    scope_id: CTX-CRAFT-TEST
+    term: local Craft ledger
+    statement: A target-project .craft/ledger.yml file that owns Craft state for that project.
+    status: candidate
+    evidence: CRAFT-INTERFACE.md
+
+gaps:
+  - gap_id: GAP-VALIDATOR-001
+    scope_id: CTX-CRAFT-TEST
+    summary: Executable receipt validation is deferred until repeated examples exist.
+    severity: flag
+    treatment: defer
+    owner: development/craft
+    status: active
+    evidence: CRAFT-INTERFACE-DEVELOPMENT-GAP-REVIEW.md
+
+typed_items:
+  - item_id: BLK-STORAGE-SOURCE-001
+    kind: blocker
+    base_type: authority_blocker
+    context_type: craft.source_of_truth_gate
+    primary_lane: governance
+    secondary_lanes:
+      - tech
+      - validator
+    source_id: CTX-CRAFT-BLOCKER
+    target_id: CTX-CRAFT-TEST
+    status: resolved
+    refinement_status: resolved
+    default_role: governance_reviewer
+    delegation_route: none
+    closure_condition: .craft/ledger.yml is named source of truth and CRAFT.md is named human view.
+    evidence: ART-STORAGE-NOTE
+    decision_ref: DEC-STORAGE-SOURCE-001
+    reason: Prevent Markdown view from becoming canonical ledger source.
+  - item_id: ENA-RECOMPOSE-001
+    kind: enabler
+    base_type: recomposition_enabler
+    context_type: craft.recomposition_gate
+    primary_lane: planner
+    secondary_lanes:
+      - validator
+    source_id: CTX-CRAFT-BLOCKER
+    target_id: CTX-CRAFT-TEST
+    status: active
+    refinement_status: refined
+    default_role: planner
+    delegation_route: none
+    closure_condition: Parent next move updated with child evidence.
+    evidence: REL-RECOMPOSE-001
+    decision_ref: none
+    reason: Child context has explicit path back to parent.
+
+decisions:
+  - decision_id: DEC-STORAGE-SOURCE-001
+    scope_id: CTX-CRAFT-TEST
+    decision_type: selection
+    selected: .craft/ledger.yml is source of truth; CRAFT.md is human view.
+    rationale: This preserves the hard gate and keeps structured state authoritative.
+    evidence: docs/decisions/craft-interface-development-risk-gates.md
+    status: closed
+
+relations:
+  - relation_id: REL-CONTAINS-001
+    source_id: CTX-CRAFT-TEST
+    target_id: CTX-CRAFT-BLOCKER
+    type: contains
+    status: active
+    reason: Storage blocker is a child context of the root Craft project.
+    evidence: open_child_context
+  - relation_id: REL-BLOCKS-001
+    source_id: BLK-STORAGE-SOURCE-001
+    target_id: CTX-CRAFT-TEST
+    type: blocks
+    status: resolved
+    reason: Root context could not proceed until source-of-truth ambiguity closed.
+    evidence: DEC-STORAGE-SOURCE-001
+  - relation_id: REL-RECOMPOSE-001
+    source_id: CTX-CRAFT-BLOCKER
+    target_id: CTX-CRAFT-TEST
+    type: informs
+    status: resolved
+    reason: Child context returns source-of-truth decision to parent.
+    evidence: ART-STORAGE-NOTE
+
+recomposition:
+  - child_id: CTX-CRAFT-BLOCKER
+    parent_id: CTX-CRAFT-TEST
+    summary: Source-of-truth ambiguity resolved; parent keeps .craft/ledger.yml as source and CRAFT.md as view.
+    evidence: DEC-STORAGE-SOURCE-001
+    residue: Executable validation remains deferred.
+    next_parent_move: Create interface validation guide and live-test recipe.
+    status: pass

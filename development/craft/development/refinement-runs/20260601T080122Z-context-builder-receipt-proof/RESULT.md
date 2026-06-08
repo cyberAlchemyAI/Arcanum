@@ -6,7 +6,7 @@
 
 ## Summary
 
-Refine evidence was synchronized locally from receipt-backed stage artifacts. The current run remains blocked, but `Invoke Define` now has receipt-backed pass evidence and the first remaining blocker has advanced to `Interrogation refine-review`.
+Refine evidence was synchronized locally from receipt-backed stage artifacts. The current run remains blocked, but the active continuation now uses one aggregate Refine receipt rather than one receipt per internal Refine stage. `Distill` and later stages are internal Refine evidence, not standalone receipt gates.
 
 ## Target
 
@@ -19,14 +19,20 @@ Refine evidence was synchronized locally from receipt-backed stage artifacts. Th
 | Task Zero Observer Envelope | refine | `pass` | `observer_envelope` | observer envelope prepared |
 | Context Builder evidence baseline | context-builder | `pass` | `receipt` | Stage receipt reported pass. |
 | Invoke Define | invoke | `pass` | `receipt` | Stage receipt reported pass. |
-| Interrogation refine-review | interrogation | `block` | `blocked` | Dependency blocked. Interrogation refine-review has not produced owner-stage pass evidence. |
+| Interrogation refine-review | interrogation | `pass` | `receipt` | Stage receipt reported pass. |
 | Research decision | refine | `pass` | `decision_record` | no-research recorded; external research not executed |
-| Distill | distill | `block` | `blocked` | Dependency blocked. Refine review did not produce pass evidence. |
+| Distill | distill | `block` | `blocked` | Dependency blocked. Distill has not produced owner-stage pass evidence. |
 | Invoke Redefine / Design | invoke | `block` | `blocked` | Dependency blocked. Distill did not produce pass evidence. |
 | Interrogation refine-design-review | interrogation | `block` | `blocked` | Dependency blocked. Invoke Design did not produce pass evidence. |
 | Distill Repair | distill | `block` | `blocked` | Dependency blocked. Design review did not produce pass evidence. |
 | Invoke Plan | invoke | `block` | `blocked` | Dependency blocked. Distill Repair did not produce pass evidence. |
 | Final Interrogation and Synthesis | interrogation | `block` | `blocked` | Dependency blocked. Invoke Plan did not produce pass evidence. |
+
+## Aggregate Receipt
+
+| Receipt | Status | Evidence Kind | Verdict |
+| --- | --- | --- | --- |
+| `receipts/refine-run.json` | `block` | `receipt` | Aggregate Refine receipt exists and records incomplete internal Refine work. |
 
 ## Artifacts
 
@@ -39,4 +45,4 @@ Refine evidence was synchronized locally from receipt-backed stage artifacts. Th
 
 ## Next Route
 
-Create or block the `Interrogation refine-review` owner-stage receipt through local skill-surface execution, then synchronize the run evidence again.
+Continue the current Refine run under the aggregate receipt model. Do not create a standalone Distill receipt unless a later decision explicitly reopens the stage-receipt route.

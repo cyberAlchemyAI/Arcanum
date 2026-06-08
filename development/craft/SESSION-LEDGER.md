@@ -7,7 +7,7 @@
 | Session | Craft durable development session |
 | Started | 2026-05-25 |
 | Scope | `development/craft/` |
-| Status | refine-validation-interrogation-receipt-blocked-promotion-deferred |
+| Status | refine-validation-aggregate-refine-receipt-block-promotion-deferred |
 | Baseline | [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md) |
 
 ## Artifact Ledger
@@ -83,6 +83,21 @@
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md) | Wave sequencing for the `Invoke Define` receipt plan | active |
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md) | Plan transport/provenance report for the `Invoke Define` receipt plan | active |
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) | Invoke refresh report that retires command-surface routing for the active Craft receipt workflow | active |
+| [CRAFT-REFINE-MISSING-STRATEGY.md](CRAFT-REFINE-MISSING-STRATEGY.md) | Dispatch-backed strategy for refining all remaining Craft blockers and gaps before build/live test | active |
+| [CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json](CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json) | Validator-backed dispatch route for the Craft missing-work strategy | pass |
+| [CRAFT-REFINE-MISSING-LIVE-TEST.md](CRAFT-REFINE-MISSING-LIVE-TEST.md) | First bounded live test for the strategy dispatch and pre-execution evidence baseline | pass |
+| [CRAFT-REFINE-MISSING-APPROVED-RUN.md](CRAFT-REFINE-MISSING-APPROVED-RUN.md) | Approved subagent strategy run synthesis and first live-test decision | pass |
+| [CRAFT-MISSING-BLOCKERS-AND-GAPS.md](CRAFT-MISSING-BLOCKERS-AND-GAPS.md) | Consolidated blockers, deferred gaps, and boundary risks from the approved strategy run | active |
+| [CRAFT-MISSING-WORK-DESIGN.md](CRAFT-MISSING-WORK-DESIGN.md) | Missing-work design for the first remaining receipt blocker | pass |
+| [CRAFT-MISSING-WORK-DESIGN-REVIEW.md](CRAFT-MISSING-WORK-DESIGN-REVIEW.md) | Review of the missing-work design before execution | pass |
+| [CRAFT-MISSING-WORK-EXECUTION-PACK.md](CRAFT-MISSING-WORK-EXECUTION-PACK.md) | Execution sequencing for the first missing-work live-test task | pass |
+| [CRAFT-MISSING-WORK-WORK-PACK.md](CRAFT-MISSING-WORK-WORK-PACK.md) | Completed work-pack for producing the Interrogation refine-review receipt | pass |
+| [CRAFT-MISSING-WORK-LIVE-TEST.md](CRAFT-MISSING-WORK-LIVE-TEST.md) | Current live-test result: Interrogation receipt passed; Distill is next blocker | pass |
+| [CRAFT-REFINE-SINGLE-RECEIPT-WORK-PACK.md](CRAFT-REFINE-SINGLE-RECEIPT-WORK-PACK.md) | Completed work-pack for producing one aggregate Refine receipt for the current run | pass |
+| [task-sessions/20260605T184704Z-CRAFT-MISSING-INTERROGATION-001-CONTEXT.md](task-sessions/20260605T184704Z-CRAFT-MISSING-INTERROGATION-001-CONTEXT.md) | Context evidence for the Interrogation receipt live-test task | pass |
+| [task-sessions/20260605T184704Z-CRAFT-MISSING-INTERROGATION-001-RESULT.md](task-sessions/20260605T184704Z-CRAFT-MISSING-INTERROGATION-001-RESULT.md) | Result evidence for the Interrogation receipt live-test task | pass |
+| [task-sessions/20260607T175719Z-CRAFT-REFINE-SINGLE-RECEIPT-001-CONTEXT.md](task-sessions/20260607T175719Z-CRAFT-REFINE-SINGLE-RECEIPT-001-CONTEXT.md) | Context evidence for the aggregate Refine receipt task | pass |
+| [task-sessions/20260607T175719Z-CRAFT-REFINE-SINGLE-RECEIPT-001-RESULT.md](task-sessions/20260607T175719Z-CRAFT-REFINE-SINGLE-RECEIPT-001-RESULT.md) | Result evidence for the aggregate Refine receipt task | pass |
 
 ## Decision Ledger
 
@@ -107,6 +122,7 @@
 | Split runtime interface work into a new lifecycle thread. | yes | The command interface spans Arcanum runtime adapters, observation envelopes, skill execution capture, and CI, so it should not stay inside Craft ledger work. | accepted |
 | Defer Craft promotion after architecture hardening. | defer | Architecture, examples, and validation guide are coherent locally, but canonical promotion needs repeated-use evidence and any target registry/ontology conflict review. | accepted |
 | Clear missing command-surface routes before rerunning Refine validation. | yes | `dispatch-spec` and `runtime-handoff` were the concrete blockers reported by prior Refine validation. | accepted |
+| Treat Refine as one receipt-bearing capability for the current continuation. | yes | The operator decided to continue the Craft route but stop treating each internal Refine stage as a separate active receipt gate. | accepted |
 
 ## Open Gaps
 
@@ -126,7 +142,10 @@
 | Context Builder receipt path proved. | The latest Refine validation records Context Builder as `pass` with `evidence_kind=receipt`; the next blocker is `Invoke Define`, which remains `handoff_prepared`. | done; follow-up planned in [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-WORK-PACK.md) |
 | Invoke Define receipt path completed. | The work-pack defined the contract, wrote the receipt, and synchronized local Refine evidence. | done in `CRAFT-INVOKE-RECEIPT-003`; next blocker is Interrogation refine-review |
 | Command-surface routing retired for active Invoke receipt workflow. | The active Craft receipt route now uses local skill contracts directly; old command-surface artifacts remain historical evidence only. | done in [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) |
-| Interrogation refine-review receipt is missing. | Distill and later stages remain dependency-blocked until Interrogation has owner-stage receipt evidence. | next route: create a narrow local-skill receipt work-pack for `Interrogation refine-review` |
+| Interrogation refine-review receipt completed. | The first live test produced receipt-backed Interrogation pass evidence. | done; next blocker is Distill |
+| Stage-level Distill receipt route superseded. | The operator selected a single Refine receipt model, so Distill becomes internal Refine evidence rather than the next standalone receipt gate. | superseded by [docs/decisions/craft-distill-receipt-route.md](../../docs/decisions/craft-distill-receipt-route.md) |
+| Aggregate Refine receipt exists. | The receipt honestly records current Refine status as `block` because internal Refine work remains incomplete. | done in `CRAFT-REFINE-SINGLE-RECEIPT-001`; continue internal Refine work under aggregate receipt model |
+| Missing-work strategy exists. | The strategy now gives a validator-backed route to refine remaining blockers and gaps, decide, build after approval, and run the first live test. | dispatch pass; next decision is whether to approve recommended subagent fanout |
 | Craft promotion is deferred. | The readiness review recommends continued local use before canonical promotion. | [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md); use validation guide on another local Craft run |
 
 ## Candidate Work-Pack Seeds
@@ -172,6 +191,8 @@
 | CRAFT-INVOKE-RECEIPT-001 | done | Define the `Invoke Define` receipt artifact contract. | `work-packs/invoke-define-stage-receipt/shared/invoke-define-receipt-contract.md`, task-session evidence |
 | CRAFT-INVOKE-RECEIPT-002 | done | Execute or block the `Invoke Define` owner stage and write the receipt. | `receipts/02-invoke-define.json`, `invoke-define/RESULT.md`, task-session evidence |
 | CRAFT-INVOKE-RECEIPT-003 | done | Re-evaluate Craft validation through the local Refine skill and sync receipt-backed state. | `evidence-index.json`, README, SESSION-LEDGER, task-session evidence |
+| CRAFT-MISSING-INTERROGATION-001 | done | Produce the `Interrogation refine-review` owner-stage receipt and sync state. | `receipts/03-interrogation-refine-review.json`, `interrogation-refine-review/RESULT.md`, task-session evidence |
+| CRAFT-REFINE-SINGLE-RECEIPT-001 | done | Define and produce or block one aggregate Refine receipt for the current run. | `receipts/refine-run.json`, `REFINE-RECEIPT.md`, synced run evidence |
 | RUNTIME-HANDOFF-001 | done | Create a new-thread handoff for the Arcanum skill runtime interface. | `ARCANUM-SKILL-RUNTIME-HANDOFF.md` |
 
 ## Current Next Move
@@ -179,19 +200,38 @@
 Recommended:
 
 ```text
-Prepare the next narrow receipt work-pack for `Interrogation refine-review`, then execute its first ready task through local skill surfaces.
+Use `receipts/refine-run.json` as the single Refine receipt and update it when internal Refine evidence is completed or intentionally blocked.
 ```
 
 Reason:
 
 ```text
-The Invoke Define owner-stage receipt has been accepted by local evidence sync.
-The next exact blocker is Interrogation refine-review, which remains dependency
-blocking for Distill and later stages until it has owner-stage receipt evidence.
+The aggregate Refine receipt exists and reports `block` because internal Refine
+work remains incomplete. Distill and later stages should stay internal Refine
+evidence rather than becoming standalone receipt gates.
 ```
 
-Promotion is deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md). Use the latest receipt-backed run evidence before opening the Interrogation receipt path.
+Promotion is deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md). Use the latest receipt-backed run evidence before opening the aggregate Refine receipt path.
 
 Gate:
 
 Do not mutate canonical Arcanum registry, commands, runtime adapters, sigils, or spells until Craft has a reviewed architecture package and explicit promotion decision.
+
+## Append-Only Sync: Craft Interface Goal Execution
+
+Timestamp: `2026-06-08T03:03:46Z`
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| CRAFT-INTERFACE-001 | done | `CRAFT-INTERFACE.md`, `CRAFT-INTERFACE-LEDGER-SCHEMA.yml`, `CRAFT-INTERFACE-EXAMPLE.yml`, `CRAFT-INTERFACE-VALIDATION.md`, `CRAFT-LIVE-TEST-RECIPE.md` |
+| CRAFT-INTERACTION-001 | done | `CRAFT-INTERACTION-CONTRACT.md`, `CRAFT-INTERACTION-LEDGER-SCHEMA.yml`, `CRAFT-INTERACTION-EXAMPLE.yml`, `CRAFT-INTERACTION-VALIDATION.md` |
+| Validation | pass | YAML parse check passed for generated schema/example files; `CRAFT-INTERFACE-DISPATCH.json` and `CRAFT-INTERACTION-DISPATCH.json` both validate with `formulae/dispatch-spec/scripts/validate-dispatch.py`. |
+| Boundary | pass | No command surfaces, runtime adapters, registries, sigils, spells, canonical glossary state, or promotion artifacts were intentionally changed by this task. |
+
+Next move:
+
+```text
+Use the local interface and interaction artifacts for the first Craft live test
+in another repository. Runtime helpers, executable receipt validation, generated
+indexes, scoring, and promotion remain deferred.
+```

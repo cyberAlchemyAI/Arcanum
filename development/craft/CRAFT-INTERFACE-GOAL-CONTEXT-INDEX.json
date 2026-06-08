@@ -1,0 +1,100 @@
+{
+  "schema": "craft.goal_context_index",
+  "version": "0.1.0",
+  "status": "strict-coverage-pass",
+  "work_pack": "development/craft/CRAFT-INTERFACE-WORK-PACK.md",
+  "selected_unit": "ordered-sequence:CRAFT-INTERFACE-001,CRAFT-INTERACTION-001",
+  "context_markdown": "development/craft/CRAFT-INTERFACE-GOAL-CONTEXT.md",
+  "tasks": [
+    {
+      "task_id": "CRAFT-INTERFACE-001",
+      "output_files": [
+        "development/craft/CRAFT-INTERFACE.md",
+        "development/craft/CRAFT-INTERFACE-LEDGER-SCHEMA.yml",
+        "development/craft/CRAFT-INTERFACE-EXAMPLE.yml",
+        "development/craft/CRAFT-INTERFACE-VALIDATION.md",
+        "development/craft/CRAFT-LIVE-TEST-RECIPE.md"
+      ],
+      "required_methods": [
+        "start_project",
+        "state",
+        "describe",
+        "add_blocker",
+        "refine_blocker",
+        "add_enabler",
+        "next",
+        "open_decision",
+        "decide",
+        "add_gap",
+        "add_definition",
+        "open_child_context",
+        "link",
+        "validate",
+        "recompose",
+        "export_ledger"
+      ]
+    },
+    {
+      "task_id": "CRAFT-INTERACTION-001",
+      "depends_on": [
+        "CRAFT-INTERFACE-001"
+      ],
+      "output_files": [
+        "development/craft/CRAFT-INTERACTION-CONTRACT.md",
+        "development/craft/CRAFT-INTERACTION-LEDGER-SCHEMA.yml",
+        "development/craft/CRAFT-INTERACTION-EXAMPLE.yml",
+        "development/craft/CRAFT-INTERACTION-VALIDATION.md"
+      ],
+      "required_methods": [
+        "classify_route",
+        "prepare_handoff",
+        "receive_receipt",
+        "apply_receipt",
+        "open_residue"
+      ],
+      "required_capability_contracts": [
+        "refine",
+        "decision-gate",
+        "invoke",
+        "task-session",
+        "dispatch-spec"
+      ]
+    }
+  ],
+  "source_contracts": [
+    "development/craft/CRAFT-INTERFACE-WORK-PACK.md",
+    "development/craft/CRAFT-INTERFACE-REFINE.md",
+    "development/craft/CRAFT-INTERFACE-CREATION-PLAN.md",
+    "development/craft/CRAFT-INTERACTION-DESIGN.md",
+    "development/craft/CRAFT-INTERFACE-DEVELOPMENT-GAP-REVIEW.md",
+    "docs/decisions/craft-interface-development-risk-gates.md",
+    "development/craft/CRAFT-ARCHITECTURE.md",
+    "development/craft/CRAFT-LEDGER-SCHEMA.yml",
+    "development/craft/LEDGER.md",
+    "development/craft/CRAFT-VALIDATION.md"
+  ],
+  "write_scope": {
+    "allowed": [
+      "named task output files",
+      "append-only development/craft/SESSION-LEDGER.md synchronization"
+    ],
+    "forbidden": [
+      "command surfaces",
+      "runtime adapters",
+      "registries",
+      "sigils",
+      "spells",
+      "canonical glossary state",
+      "promotion artifacts outside development/craft"
+    ]
+  },
+  "validation": [
+    "yaml.safe_load on interface and interaction schema/example yml files",
+    "formulae/dispatch-spec/scripts/validate-dispatch.py development/craft/CRAFT-INTERFACE-DISPATCH.json",
+    "formulae/dispatch-spec/scripts/validate-dispatch.py development/craft/CRAFT-INTERACTION-DISPATCH.json",
+    "manual done-criteria review from work-pack and gap review"
+  ],
+  "fallback_exploration": "named-gaps-only",
+  "extra_source_reporting": "required",
+  "blocked_stop_condition": "stop on hard-gate violation, missing source, contradiction, or validation failure after bounded repair"
+}
