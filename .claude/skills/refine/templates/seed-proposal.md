@@ -1,0 +1,36 @@
+# Refine Seed Proposal
+
+- Target: `<target>`
+- Seed needed: `yes | no`
+- Source context: `<paths/selectors>`
+- Write scope: `<paths or none>`
+- Done criteria: `<criteria>`
+- Validation surface: `<commands or review evidence>`
+- Preset: `compact | standard | full | deep`
+- Loop count: canonical default loop, budget tuned by preset
+- Research: `no-research | bounded-research | research-if-gap-appears`
+- Dispatch route: `REFINE-DISPATCH.json`
+- Dispatch validation: `pass | flag | block | not_run`
+- Dispatch techniques: `sequence`, `frame_handoff`, `validation_loop`, `owner_boundary_check`, `observability_grouping`, `<additional applied techniques>`
+- Technique overlays selected: `baseline_sequence`, `<optional overlays>`
+- Technique overlays considered but not selected: `<overlay ids and reason>`
+- Planned execution stages:
+  - Context Builder evidence baseline: `context-builder`, `standard`, `--strict --emit both --handoff runtime`
+  - Invoke Define: `invoke define`
+  - Interrogation: `interrogation --mode refine-review`
+  - Research decision: `refine`
+  - Distill: `distill`, `standard`
+  - Invoke Redefine / Design: `invoke design`
+  - Interrogation: `interrogation --mode refine-design-review`
+  - Distill Repair: `distill`, `validate` or repair-focused request
+  - Invoke Plan: `invoke plan`
+  - Final Interrogation and Synthesis: `interrogation --mode refine-final`, then Refine synthesis
+- Runtime default: `arcanum-runtime`
+- Runtime eligibility: `pass | block`
+- Blocked runtime fields: `<items or none>`
+- Run manifest: `RUN-MANIFEST.md`
+- Evidence index: `evidence-index.json`
+- Dispatch route: `REFINE-DISPATCH.json`
+- Runtime handoff: `RUNTIME-HANDOFF.md`
+- Result artifact: `RESULT.md`
+- Recommended next routes: `<items or none>`

@@ -1,0 +1,3 @@
+```text
+/goal Execute MOGT-LIVE-EVIDENCE-APPROVAL as an approval-gate task, not a live experiment. Work from research/mogt-agentic-conversation/development/goals/mogt-live-evidence-approval/ and read 01-outcome.md, 02-verification.md, 03-constraints-boundaries.md, 04-iteration-stop.md, and 05-reporting.md before editing. Use the rehearsal report, finalized reviewer rubric, live approval checklist, evidence status, and E1-E4 protocols. Keep E3 second-wave by default, require 3-5 calibration examples before production scoring, do not run live experiments, and stop with BLOCK if approval cannot be decided from local evidence.
+```

@@ -1,0 +1,47 @@
+name: Validate Claude Skills
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "arcana/**"
+      - "transmutations/**"
+      - "formulae/**"
+      - "spells/**"
+      - "tools/bootstrap_arcanum.sh"
+      - "tools/validate-claude-skills.sh"
+      - ".github/workflows/claude-skills.yml"
+  pull_request:
+    paths:
+      - "arcana/**"
+      - "transmutations/**"
+      - "formulae/**"
+      - "spells/**"
+      - "tools/bootstrap_arcanum.sh"
+      - "tools/validate-claude-skills.sh"
+      - ".github/workflows/claude-skills.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Claude skill surface to a throwaway target
+        run: |
+          mkdir -p "$RUNNER_TEMP/claude-target"
+          bash tools/bootstrap_arcanum.sh \
+            --target "$RUNNER_TEMP/claude-target" \
+            --profile claude \
+            --sigils all \
+            --spells all \
+            --force
+
+      - name: Validate generated packages
+        run: bash tools/validate-claude-skills.sh "$RUNNER_TEMP/claude-target/.claude/skills"

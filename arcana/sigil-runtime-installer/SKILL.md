@@ -30,6 +30,8 @@ Generated Codex commands should declare the installed runtime with `arcanum:runt
 
 <applicability>
 Use this sigil only when a repository still needs legacy Codex slash-command style adapters. For normal runtime installs, use generated native skills through the install profiles.
+
+The Claude Code skill surface (`.claude/skills/`, `.claude/agents/`) is owned by `tools/bootstrap_arcanum.sh --profile claude`, which generates the packages, maps tool vocabulary to Claude names, and validates the result via `tools/validate-claude-skills.sh`. This sigil governs only the legacy `.codex/commands/` surface.
 </applicability>
 
 <inputs>
@@ -118,7 +120,7 @@ A successful execution must:
 <anti-patterns>
 Avoid:
 
-- installing GitHub Copilot, Claude, or `.arcanum/runtimes/` adapter trees,
+- this legacy command installer itself generating GitHub Copilot, Claude, or `.arcanum/runtimes/` adapter trees; those native runtime skill surfaces are owned and validated by `tools/bootstrap_arcanum.sh` profiles (`--profile claude`, `--profile github-copilot`), not by this legacy Codex command path,
 - overwriting existing command files without checking ownership,
 - embedding stale or untraceable copies of sigil instructions in command files,
 - making a consuming repository's generated command the canonical sigil source,

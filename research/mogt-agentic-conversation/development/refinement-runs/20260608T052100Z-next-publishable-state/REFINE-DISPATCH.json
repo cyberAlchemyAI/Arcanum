@@ -1,0 +1,661 @@
+{
+  "dispatch_id": "mogt-next-publishable-state-20260608",
+  "parent_dispatch_id": "mogt-publication-research-20260607",
+  "intent": {
+    "raw": "Refine next steps after MOGT harness fixture validation and show current versus desired state.",
+    "objective": "Produce a governed non-executed refinement strategy that moves MOGT from fixture-validation-ready to paper-ready evidence and synthesis, while preserving approval gates for live experiments and evidence-status mutation.",
+    "target_artifact": "research/mogt-agentic-conversation/papers/mogt-agentic-conversation-paper.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "dispatch-spec",
+      "research-evidence-harness",
+      "publication-research-pipeline",
+      "codex-goal-profile",
+      "evidence boundary",
+      "approval checkpoint"
+    ],
+    "operator_sentence": "Refine next steps and show current and desired state."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "concrete_path_evidence",
+    "approval_checkpoint",
+    "artifact_contract_bridge",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "residue_ledger",
+    "pareto_gate",
+    "protected_context_flag"
+  ],
+  "route_menu": {
+    "context_hint": "MOGT is fixture-validation-ready but not paper-ready. The route must choose how to move from synthetic evidence to claim-bearing evidence.",
+    "items": [
+      {
+        "id": "dry-run-rehearsal-first",
+        "label": "Dry-run rehearsal first",
+        "description": "Use current fixtures to rehearse S4, harden result reporting, and prepare live approval without claim updates.",
+        "capability_ref": "task-session",
+        "pattern": "sequential"
+      },
+      {
+        "id": "live-evidence-approval-first",
+        "label": "Live evidence approval first",
+        "description": "Prepare reviewer rubric, protocol gates, model-call approval, and then run claim-bearing experiments.",
+        "capability_ref": "decision-gate",
+        "pattern": "decision"
+      },
+      {
+        "id": "paper-synthesis-audit-first",
+        "label": "Paper synthesis audit first",
+        "description": "Audit current paper claims against synthetic-only evidence before any live route.",
+        "capability_ref": "invoke",
+        "pattern": "validation"
+      }
+    ],
+    "selected_item_id": "dry-run-rehearsal-first"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "publication_evidence_gap",
+      "trigger": "The harness is fixture-ready but paper claims still lack claim-bearing evidence.",
+      "techniques": [
+        "validation_loop",
+        "concrete_path_evidence",
+        "approval_checkpoint",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "S1",
+        "S4",
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Every next step must distinguish fixture readiness, dry-run evidence, live evidence, and publication claim support."
+    },
+    {
+      "overlay_id": "evidence_boundary_protection",
+      "trigger": "Synthetic fixtures must not mutate MOGT evidence status or paper result claims.",
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary",
+        "memory_promotion_split",
+        "protected_context_flag"
+      ],
+      "applies_to_steps": [
+        "S3",
+        "S4",
+        "S7",
+        "S10"
+      ],
+      "validation_expectation": "The route must block evidence-status mutation until approved claim-bearing evidence exists."
+    },
+    {
+      "overlay_id": "mogt_metric_readiness",
+      "trigger": "MOGT runtime receipts and Pareto/frontier metrics now exist as fixture mechanics.",
+      "techniques": [
+        "pareto_gate",
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "applies_to_steps": [
+        "S5",
+        "S6",
+        "S8",
+        "S9"
+      ],
+      "validation_expectation": "Next research tasks must use the metric tools as gates, not as proof of live research claims."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The desired paper-ready state requires independent literature, protocol, metric, and paper-claim review lanes.",
+    "explanation": "Subagents can accelerate independent critique lanes while the parent keeps evidence-status, approval, and synthesis authority.",
+    "context": [
+      "Current local harness evidence is synthetic-only.",
+      "Prior-art freshness and novelty framing may require bounded external research later.",
+      "Reviewer rubric calibration and paper-claim audit are separable lanes.",
+      "Tool lessons must be separated from canonical contract mutation."
+    ],
+    "roles": [
+      {
+        "role_id": "novelty-ledger-reviewer",
+        "purpose": "Refresh local prior-art and novelty gaps before publication framing.",
+        "owns": "sources or inventory update proposal; no canonical evidence-status mutation.",
+        "applies_to_steps": [
+          "S4",
+          "S9"
+        ]
+      },
+      {
+        "role_id": "protocol-and-rubric-critic",
+        "purpose": "Check whether E1-E4 protocols and reviewer rubrics are ready for claim-bearing runs.",
+        "owns": "protocol/rubric readiness critique.",
+        "applies_to_steps": [
+          "S6",
+          "S8"
+        ]
+      },
+      {
+        "role_id": "paper-claim-auditor",
+        "purpose": "Compare paper claims against fixture-only evidence and identify unsupported sections.",
+        "owns": "paper claim audit inputs.",
+        "applies_to_steps": [
+          "S9",
+          "S10"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Approve subagents for novelty, protocol/rubric, and paper-claim audit lanes?",
+      "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "receipt_artifact",
+      "close_status",
+      "residue",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "019ea677-3958-78f2-bbcd-852921b05392",
+        "role_id": "novelty-ledger-reviewer",
+        "lane_name": "novelty-ledger-reviewer",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/subagents/novelty-ledger-reviewer-receipt.md",
+        "close_status": "closed",
+        "residue": "Bounded web novelty refresh remains needed before publication framing.",
+        "reroute": "S1 bounded novelty sweep"
+      },
+      {
+        "agent_id": "019ea67b-c669-7080-862d-4504e0fdda84",
+        "role_id": "protocol-and-rubric-critic",
+        "lane_name": "protocol-and-rubric-critic",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/subagents/protocol-and-rubric-critic-receipt.md",
+        "close_status": "closed",
+        "residue": "Reviewer/rubric calibration, protocol gate closure, and E3 coverage remain.",
+        "reroute": "MOGT-S4-DRY-RUN-REHEARSAL"
+      },
+      {
+        "agent_id": "019ea67e-43eb-7122-b445-57cfce659aee",
+        "role_id": "paper-claim-auditor",
+        "lane_name": "paper-claim-auditor",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/subagents/paper-claim-auditor-receipt.md",
+        "close_status": "closed",
+        "residue": "Publishability is blocked by missing empirical evidence and source normalization.",
+        "reroute": "evidence execution and source-normalization before paper promotion"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/01-current-state-baseline.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if current harness results cannot be resolved locally."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Invoke Define current and desired states",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define-current-desired-state.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if desired state collapses fixture-readiness into publication-readiness."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "owner_boundary_check",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define-current-desired-state.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "current-desired-state-review"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/01-current-state-baseline.md",
+      "stop_conditions": [
+        "Block if synthetic fixture evidence is treated as claim support."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "protected_context_flag",
+        "approval_checkpoint"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "current-desired-state-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "external-research-deferred-until-named-gap"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Ask before external research unless the user explicitly selects bounded research."
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Distill next coherent unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "pareto_gate",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "external-research-deferred-until-named-gap"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "next-unit-dry-run-rehearsal-first"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the next unit tries to combine dry-run rehearsal, live experiments, and paper rewrite in one execution."
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Invoke Redefine Design next route",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "artifact_contract_bridge",
+        "handle_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "next-unit-dry-run-rehearsal-first"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design-next-route.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the design mutates canonical tools instead of producing handoffs."
+      ]
+    },
+    {
+      "step_id": "S7",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design-next-route.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "next-route-design-review"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/06-design-next-route.md",
+      "stop_conditions": [
+        "Block if evidence-status mutation lacks claim-bearing evidence."
+      ]
+    },
+    {
+      "step_id": "S8",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "next-route-design-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "repair-verdict"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/06-design-next-route.md",
+      "stop_conditions": [
+        "Block if the repaired route still overclaims fixture evidence."
+      ]
+    },
+    {
+      "step_id": "S9",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "approval_checkpoint",
+        "memory_promotion_split"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "repair-verdict"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan-next-steps.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the plan omits live-experiment approval gates."
+      ]
+    },
+    {
+      "step_id": "S10",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "observability_grouping",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan-next-steps.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if final synthesis does not distinguish current and desired states."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "dispatch-shape-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json validates before runtime-backed stage execution.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "strategy-preview-before-execution",
+      "kind": "human_approval",
+      "owner": "refine",
+      "condition": "Show this strategy proposal and wait for operator confirmation before runtime-backed stages or subagents.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "live-experiment-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Live model calls, reviewer scoring, and evidence-status mutation require explicit later approval.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "evidence-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "Synthetic fixture evidence cannot support publication claims.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "mogt-publication-research-20260607",
+    "trace_events": [
+      "strategy-proposal-created",
+      "dispatch-validated",
+      "handle-handoff-prepared",
+      "permission-pending",
+      "runtime-stages-not-run"
+    ],
+    "signal_grouping": "mogt-next-publishable-state-20260608"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "fixture-vs-live-evidence",
+        "kind": "evidence_return",
+        "from_owner": "research-evidence-harness",
+        "to_owner": "mogt-paper",
+        "applies_to_steps": [
+          "S3",
+          "S4",
+          "S7",
+          "S10"
+        ],
+        "contract": "Fixture readiness is not publication evidence and cannot mutate paper claims.",
+        "on_violation": "block",
+        "owner": "refine",
+        "rule": "Fixture readiness is not publication evidence."
+      },
+      {
+        "boundary_id": "tool-lessons-vs-canonical-mutation",
+        "kind": "state_write",
+        "from_owner": "mogt-research",
+        "to_owner": "arcanum-canonical-tools",
+        "applies_to_steps": [
+          "S9",
+          "S10"
+        ],
+        "contract": "Tool lessons become handoffs unless the owning lifecycle approves mutation.",
+        "on_violation": "block",
+        "owner": "refine",
+        "rule": "Tool lessons become handoffs unless the owning lifecycle approves mutation."
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "strategy-proposal-receipt",
+        "producer": "refine",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "dispatch_id",
+          "status",
+          "blockers",
+          "handoff_note"
+        ],
+        "stores": [
+          "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/evidence-index.json"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research/mogt-agentic-conversation/results",
+        "owner": "mogt-research",
+        "write_policy": "No evidence-status mutation from fixture-only evidence."
+      },
+      {
+        "namespace": "arcana|formulae|spells canonical contracts",
+        "owner": "arcanum-capability-owners",
+        "write_policy": "Only handoff proposals may be written by this refine route."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "fixture-validation-report.md",
+        "target": "results/MOGT-EVIDENCE-STATUS.md",
+        "rule": "Synthetic fixture readiness may inform next route planning but cannot promote claim support.",
+        "on_violation": "block"
+      },
+      {
+        "source": "MOGT tool lessons",
+        "target": "Whisper, Dispatch Spec, Research Evidence Harness canonical contracts",
+        "rule": "Lessons must be recorded as handoffs or development proposals until owner lifecycle approval.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "mogt-next-publishable-state-20260608",
+      "step_id": "S1",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/01-current-state-baseline.md"
+      ],
+      "validation": [
+        "local current state baseline read"
+      ],
+      "observer_status": "not_run",
+      "blockers": [],
+      "residue": "runtime-backed stages pending user confirmation",
+      "handoff_note": "strategy proposal only"
+    },
+    {
+      "dispatch_id": "mogt-next-publishable-state-20260608",
+      "step_id": "S10",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/stages/10-final-synthesis.md",
+        "research/mogt-agentic-conversation/development/refinement-runs/20260608T052100Z-next-publishable-state/RESULT.md"
+      ],
+      "validation": [
+        "subagent receipts joined",
+        "final synthesis distinguishes fixture readiness from publication readiness"
+      ],
+      "observer_status": "not_run",
+      "blockers": [],
+      "residue": "next route MOGT-S4-DRY-RUN-REHEARSAL",
+      "handoff_note": "runtime-backed stages materialized in parent refine execution"
+    }
+  ]
+}

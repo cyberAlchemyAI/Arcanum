@@ -834,7 +834,11 @@ copy_generated_skill_support() {
     copy_file "$src" "$dst"
   done
 
-  for support_dir in templates examples assets scripts development; do
+  # Copy only runtime-relevant support directories. `development/` holds
+  # authoring/governance history (refresh packs, task sessions, evidence,
+  # fixtures) that is not needed to run the skill and would bloat every
+  # generated package, so it is intentionally excluded.
+  for support_dir in templates examples assets scripts; do
     src="$source_dir/$support_dir"
     dst="$package_dir/$support_dir"
     [[ -d "$src" ]] || continue
@@ -863,6 +867,56 @@ copy_generated_skill_support() {
   done
 }
 
+# Emit a source SKILL.md frontmatter+body to stdout, skipping the leading `---`.
+# Replaces the `name:` line when name_override is given, and for runtime=claude
+# maps Codex-flavored tool tokens in `allowed-tools` to their real Claude names
+# (Task -> Agent, AskQuestions -> AskUserQuestion). Other runtimes pass through
+# unchanged. Sources are never edited; the rewrite happens only on the generated
+# copy.
+emit_generated_skill_stream() {
+  local source_file="$1"
+  local runtime="$2"
+  local name_override="${3:-}"
+
+  tail -n +2 "$source_file" | awk -v name="$name_override" -v runtime="$runtime" '
+    BEGIN { in_fm=1; replaced=0 }
+    in_fm && $0 == "---" {
+      if (name != "" && !replaced) { print "name: " name; replaced=1 }
+      print
+      in_fm=0
+      next
+    }
+    in_fm && $0 ~ /^name:/ {
+      if (name != "") {
+        if (!replaced) { print "name: " name; replaced=1 }
+        next
+      }
+      print
+      next
+    }
+    in_fm && runtime == "claude" && $0 ~ /^allowed-tools:/ {
+      hdr = $0
+      sub(/^allowed-tools:[[:space:]]*/, "", hdr)
+      n = split(hdr, arr, /,/)
+      out = ""
+      delete seen
+      for (i = 1; i <= n; i++) {
+        t = arr[i]
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
+        if (t == "") continue
+        if (t == "Task") t = "Agent"
+        else if (t == "AskQuestions") t = "AskUserQuestion"
+        if (t in seen) continue
+        seen[t] = 1
+        out = (out == "" ? t : out ", " t)
+      }
+      print "allowed-tools: " out
+      next
+    }
+    { print }
+  '
+}
+
 write_generated_skill_file() {
   local runtime="$1"
   local package_dir="$2"
@@ -883,30 +937,7 @@ write_generated_skill_file() {
     if [[ "$(head -n 1 "$source_file")" == "---" ]]; then
       printf '%s\n' '---'
       generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of"
-      if [[ -n "$name_override" ]]; then
-        tail -n +2 "$source_file" | awk -v name="$name_override" '
-          BEGIN { in_fm=1; replaced=0 }
-          in_fm && $0 == "---" {
-            if (!replaced) {
-              print "name: " name
-              replaced=1
-            }
-            print
-            in_fm=0
-            next
-          }
-          in_fm && $0 ~ /^name:/ {
-            if (!replaced) {
-              print "name: " name
-              replaced=1
-            }
-            next
-          }
-          { print }
-        '
-      else
-        tail -n +2 "$source_file"
-      fi
+      emit_generated_skill_stream "$source_file" "$runtime" "$name_override"
     else
       if [[ -n "$name_override" ]]; then
         cat <<EOF
@@ -975,7 +1006,7 @@ write_orchestrate_skill_file() {
   {
     cat <<EOF
 ---
-name: arcanum-orchestrate
+name: $(basename "$package_dir")
 description: "Route repository work through installed Arcanum capabilities."
 $(generated_skill_provenance_fields "$runtime" "arcanum/runtime/orchestrate" "null")
 ---
@@ -995,9 +1026,10 @@ $(installed_capability_list_markdown)
 <process>
 1. Classify the request as authoring, refinement, task execution, observability, install/setup, validation, or help.
 2. Prefer the host runtime's native skill, agent, or instruction execution for model-backed work.
-3. Use \`tools/arcanum --resolve\`, adapter profiles, and validators for deterministic resolution only.
-4. Do not spawn nested model-backed CLIs for the same stage.
-5. Return capability, mode, execution surface, status, artifacts, validation, observer status, blockers, and handoff note.
+3. Use native skills, subagents, and dispatch-spec validators for active execution evidence.
+4. Treat \`tools/arcanum\` helpers as deterministic handoff preparation or explicit legacy compatibility only.
+5. Do not spawn nested model-backed CLIs for the same stage.
+6. Return capability, mode, receipt kind, execution surface, status, artifacts, validation, observer status, blockers, and handoff note.
 </process>
 EOF
   } > "$dst"
@@ -1127,7 +1159,7 @@ write_claude_surface() {
 
   local claude_root="$target_root/.claude"
   write_runtime_skill_packages "claude" "$claude_root/skills" "arcanum-"
-  run mkdir -p "$claude_root/skills/arcanum-orchestrate" "$claude_root/agents"
+  run mkdir -p "$claude_root/agents"
 
   write_text_file "$claude_root/agents/arcanum-stage-worker.md" "---
 description: Execute one bounded Arcanum stage and return a telemetry receipt.
@@ -1138,7 +1170,7 @@ tools:
   - Bash
   - Edit
 skills:
-  - arcanum-orchestrate
+  - orchestrate
 ---
 
 # Arcanum Stage Worker
@@ -1156,7 +1188,7 @@ Rules:
 
   write_file_if_missing "$target_root/CLAUDE.md" "# Claude Code Instructions
 
-Use the project Arcanum skill at \`.claude/skills/arcanum-orchestrate/SKILL.md\` for Arcanum work.
+Use the project Arcanum skill at \`.claude/skills/orchestrate/SKILL.md\` for Arcanum work.
 
 Use \`.claude/agents/arcanum-stage-worker.md\` for bounded sidecar stages when subagent delegation is helpful.
 
@@ -1168,6 +1200,21 @@ Preserve Arcanum boundaries:
 - \`tools/arcanum\` is a deterministic resolver, validator, handoff, and legacy adapter surface.
 - Native skills and subagents are preferred over nested model-backed CLI execution.
 "
+
+  # Blocking gate: a generated package with a non-Claude tool name, a name that
+  # does not match its directory, a missing description, or a dangling skills:
+  # reference must fail the install rather than ship a silently broken skill.
+  if [[ "$dry_run" != "true" ]]; then
+    if [[ -x "$script_dir/validate-claude-skills.sh" ]]; then
+      if ! "$script_dir/validate-claude-skills.sh" "$claude_root/skills"; then
+        echo "Claude skill surface failed validation; install blocked." >&2
+        echo "Fix the canonical sources and regenerate (do not edit generated packages)." >&2
+        exit 1
+      fi
+    else
+      echo "Warning: validate-claude-skills.sh not found; skipping Claude surface validation." >&2
+    fi
+  fi
 }
 
 write_copilot_surface() {
@@ -1446,13 +1493,13 @@ EOF
   if [[ "$sigil" == "task-session" ]] && surface_enabled "codex"; then
     body+=$'\n\n'
     body+="## Repository Runtime Interface"$'\n\n'
-    body+="This installed command runs through the repository Arcanum command surface."$'\n\n'
-    body+="Task Session is the stable Arcanum coordinator. Runtime-backed execution defaults to the local skill/subagent surface. \`tools/arcanum --exec\` remains a deterministic handoff and legacy adapter compatibility surface."$'\n\n'
+    body+="This deprecated installed command is a compatibility entry point for repositories that explicitly request legacy Codex command files."$'\n\n'
+    body+="Task Session is the stable Arcanum coordinator. Runtime-backed execution defaults to the local skill/subagent surface. \`tools/arcanum --exec\` remains a deterministic handoff and legacy adapter compatibility surface, not active native execution proof."$'\n\n'
     body+="For this repository, the installed default adapter is selected in \`$install_prefix/runtime/config.json\` and can be changed without editing command files:"$'\n\n'
     body+="- inspect: \`tools/arcanum --get-default-adapter\`"$'\n'
     body+="- change: \`tools/arcanum --set-default-adapter <adapter-id>\`"$'\n'
-    body+="- override one run: \`tools/arcanum --exec --adapter <adapter-id> ...\`"$'\n\n'
-    body+="When the user asks Task Session to execute a work-pack through a runtime, resolve one task/SWU from the work-pack, check blockers, then delegate only the selected command execution through the configured adapter. Task Session still owns final evidence review and work-pack synchronization."
+    body+="- override one legacy/handoff run: \`tools/arcanum --exec --adapter <adapter-id> ...\`"$'\n\n'
+    body+="When the user asks Task Session to execute a work-pack through a runtime, resolve one task/SWU from the work-pack, check blockers, then delegate only the selected native capability or approved subagent work through the configured adapter. Task Session still owns final evidence review and work-pack synchronization."
   fi
   write_command_file "$command" "Arcanum Sigil: $display_title" "$sigil" "sigil" "$tier" "$body"
   [[ "$dry_run" == "true" ]] || append_sigil_snapshot "$sigil" "$tier" "$dst"

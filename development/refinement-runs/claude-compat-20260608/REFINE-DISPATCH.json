@@ -1,0 +1,40 @@
+{
+  "dispatch_id": "claude-compat-20260608",
+  "operator_intent": "Make all sigils and spells compatible with Claude and have the current installer install everything correctly.",
+  "refinement_objective": "MVP-ready non-executed plan that makes every Arcanum sigil/spell install as a valid, working Claude Code skill via bootstrap_arcanum.sh, with validation and dogfooding.",
+  "preset": "full",
+  "research_mode": "research-if-gap-appears",
+  "schema_validation": "hand-validated against formulae/dispatch-spec/dispatch.schema.yml; native dispatch-spec skill not installed (native_capability=blocked)",
+  "selected_overlays": [
+    {"id": "tournament_for_alternatives", "why": "Two plausible designs (generator-only vs source-vocabulary) needed head-to-head comparison."},
+    {"id": "baseline_sequence", "why": "Ordinary refinement spine: context -> define -> critique -> distill -> design -> plan."}
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "roles": ["context-builder", "design-A", "design-B", "interrogation-distill"],
+    "join_policy": "parent collects receipts before synthesis",
+    "authorization": "granted by operator (full preset, subagents)",
+    "native_capability": "blocked",
+    "substituted_with": "claude-agent"
+  },
+  "stages": [
+    {"n": 1, "name": "Context Builder", "owner": "context-builder", "surface": "claude-agent", "receipt": "stages/01-context-builder.md", "status": "pass"},
+    {"n": 2, "name": "Invoke Define", "owner": "refine-inline", "surface": "main-loop", "receipt": "REFINE-SEED-PROPOSAL.md", "status": "pass"},
+    {"n": 3, "name": "Interrogation refine-review", "owner": "interrogation", "surface": "folded-into-stage-9", "status": "pass"},
+    {"n": 4, "name": "Research decision", "owner": "refine", "status": "pass", "verdict": "no external research (local defect)"},
+    {"n": 5, "name": "Distill", "owner": "distill", "surface": "folded-into-stage-9", "status": "pass"},
+    {"n": 6, "name": "Invoke Design (tournament A/B)", "owner": "invoke", "surface": "claude-agent", "receipt": "stages/02-design-tournament.md", "status": "pass"},
+    {"n": 7, "name": "Interrogation refine-design-review", "owner": "interrogation", "surface": "claude-agent", "receipt": "stages/03-interrogation-distill.md", "status": "pass"},
+    {"n": 8, "name": "Distill Repair", "owner": "distill", "surface": "claude-agent", "receipt": "stages/03-interrogation-distill.md", "status": "pass", "verdict": "repaired: added orchestrate name!=dir + empty-dir bugs"},
+    {"n": 9, "name": "Invoke Plan", "owner": "invoke", "surface": "main-loop", "receipt": "RESULT.md", "status": "pass"},
+    {"n": 10, "name": "Final Interrogation + Synthesis", "owner": "refine", "surface": "main-loop", "receipt": "RESULT.md", "status": "pass"}
+  ],
+  "gates": {
+    "native_capability_handles": "blocked-recorded",
+    "stage_receipts": "present",
+    "research_confirmation": "no-research-confirmed",
+    "required_artifacts": "present",
+    "owner_boundary": "preserved",
+    "final_synthesis_readiness": "ready"
+  }
+}
