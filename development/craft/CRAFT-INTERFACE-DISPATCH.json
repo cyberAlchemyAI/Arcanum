@@ -1,0 +1,267 @@
+{
+  "dispatch_id": "craft-interface-refine-20260607",
+  "parent_dispatch_id": "craft-refine-missing-strategy-20260605",
+  "intent": {
+    "raw": "Refine a local Craft interface that can start a Craft project and operate the recursive ledger.",
+    "objective": "Create a one-pass task-session route for a local file-backed Craft interface without command-surface refresh or canonical promotion.",
+    "target_artifact": "development/craft/CRAFT-INTERFACE-WORK-PACK.md",
+    "arcanum_vocabulary": [
+      "craft",
+      "refine",
+      "dispatch-spec",
+      "decision-gate",
+      "task-session",
+      "recursive ledger",
+      "local skill surface"
+    ]
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "residue_ledger"
+  ],
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Refine interface seed",
+      "capability_ref": "refine",
+      "mode": "local-interface-seed",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "user request for Craft interface"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-ARCHITECTURE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-LEDGER-SCHEMA.yml"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "development/craft/CRAFT-INTERFACE-REFINE.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if Craft architecture or ledger schema cannot be read."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Local authority decision gate",
+      "capability_ref": "decision-gate",
+      "mode": "boundary-check",
+      "pattern": "decision",
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S1.interface-seed"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "proceed with local file-backed interface; defer runtime and promotion"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the route requires command refresh, registry mutation, or Craft promotion."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Create one-pass work pack",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "handoff",
+      "techniques": [
+        "execution_receipt_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S1.interface-seed"
+        },
+        {
+          "kind": "decision",
+          "ref": "S2.local-authority"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERFACE-WORK-PACK.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "development/craft/CRAFT-INTERFACE-CREATION-PLAN.md"
+        }
+      ],
+      "stop_conditions": [
+        "Flag if the work pack omits a live-test recipe or recursive validation criteria."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Execute interface task",
+      "capability_ref": "task-session",
+      "mode": "single-task",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERFACE-WORK-PACK.md#Task CRAFT-INTERFACE-001"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERFACE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERFACE-EXAMPLE.yml"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-LIVE-TEST-RECIPE.md"
+        }
+      ],
+      "evidence_artifact": "development/craft/CRAFT-INTERFACE-VALIDATION.md",
+      "stop_conditions": [
+        "Block if recursive recomposition or local authority boundaries are missing."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1",
+      "kind": "promotion_guardrail",
+      "owner": "craft",
+      "condition": "The interface route must not promote Craft, glossary definitions, sigils, spells, ontology, inventory, or command surfaces.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "The one-pass build must include recursive context validation and a live-test recipe.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "craft-refine-missing-strategy-20260605",
+    "trace_events": [
+      "dispatch_validated",
+      "interface_refined",
+      "task_pack_created",
+      "interface_task_completed"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "The interface slice is narrow and can be created as one bounded task-session.",
+    "explanation": "Subagents are not needed until the interface is tested across multiple projects or runtime shapes.",
+    "context": [
+      "Craft promotion is deferred.",
+      "The requested work is a local interface contract and one-pass creation plan."
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "permission_prompt": "",
+    "receipt_requirements": []
+  },
+  "promotion_guardrails": [
+    "No command-surface refresh.",
+    "No registry mutation.",
+    "No canonical glossary promotion.",
+    "No sigil or spell promotion."
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "local-craft-interface",
+        "kind": "state_write",
+        "from_owner": "development/craft",
+        "to_owner": "target project local Craft workspace",
+        "applies_to_steps": [
+          "S1",
+          "S2",
+          "S3",
+          "S4"
+        ],
+        "contract": "All outputs remain local candidate artifacts under development/craft/ until a later owner route approves installation or promotion.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "development/craft",
+      "execution": "task-session",
+      "validation": "dispatch-spec",
+      "evidence": "task-session",
+      "memory": "none",
+      "promotion": "owning capability"
+    },
+    "state_namespaces": [
+      {
+        "namespace": ".craft/ledger.yml",
+        "owner": "target project local Craft workspace",
+        "write_policy": "The interface may write only target-project local Craft state and must not write Arcanum canonical state."
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "CRAFT-INTERFACE-001",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "development/craft/CRAFT-INTERFACE-VALIDATION.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "development/craft/",
+        "target": "canonical registry or installed skill surface",
+        "rule": "Requires a later owner route and approval.",
+        "on_violation": "block"
+      }
+    ]
+  }
+}

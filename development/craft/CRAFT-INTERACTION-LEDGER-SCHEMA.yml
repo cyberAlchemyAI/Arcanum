@@ -1,0 +1,189 @@
+schema_id: craft.interaction_ledger
+schema_version: 0.1.0
+status: candidate-local
+owner_surface: development/craft
+
+extends:
+  - development/craft/CRAFT-INTERFACE-LEDGER-SCHEMA.yml
+
+enums:
+  capability_ref:
+    - refine
+    - decision-gate
+    - invoke
+    - task-session
+    - dispatch-spec
+  handoff_status:
+    - planned
+    - active
+    - completed
+    - blocked
+    - superseded
+  receipt_status:
+    - pass
+    - flag
+    - block
+    - superseded
+  route_event_type:
+    - route_classified
+    - handoff_created
+    - receipt_received
+    - receipt_applied
+    - residue_opened
+    - recomposition_completed
+  application_policy:
+    - record-only
+    - apply-to-context
+    - open-residue
+    - recompose-child
+
+row_families:
+  route_handoffs:
+    id_field: handoff_id
+    description: Durable handoff from Craft to one owner capability.
+    required_fields:
+      - handoff_id
+      - context_id
+      - capability_ref
+      - mode
+      - objective
+      - source_artifacts
+      - ledger_conditions
+      - expected_outputs
+      - expected_receipt_fields
+      - status
+    fields:
+      handoff_id:
+        type: string
+        pattern: "^HND-[A-Z0-9-]+$"
+      context_id:
+        type: reference
+        references: contexts.context_id
+      capability_ref:
+        type: enum
+        enum_ref: capability_ref
+      mode:
+        type: string
+      objective:
+        type: string
+      source_artifacts:
+        type: list
+        item_type: string
+      ledger_conditions:
+        type: list
+        item_type: string
+      expected_outputs:
+        type: list
+        item_type: string
+      expected_receipt_fields:
+        type: list
+        item_type: string
+      status:
+        type: enum
+        enum_ref: handoff_status
+
+  receipts:
+    id_field: receipt_id
+    description: Capability-owned output evidence recorded by Craft.
+    required_fields:
+      - receipt_id
+      - handoff_id
+      - producer
+      - status
+      - artifacts
+      - validation_result
+      - audit_reference
+      - residue
+    fields:
+      receipt_id:
+        type: string
+        pattern: "^RCT-[A-Z0-9-]+$"
+      handoff_id:
+        type: reference
+        references: route_handoffs.handoff_id
+      producer:
+        type: enum
+        enum_ref: capability_ref
+      status:
+        type: enum
+        enum_ref: receipt_status
+      artifacts:
+        type: list
+        item_type: string
+      validation_result:
+        type: string
+      audit_reference:
+        type: string
+      residue:
+        type: string
+
+  route_events:
+    id_field: event_id
+    description: Ordered route-memory events for classification, handoff, receipt, residue, and recomposition.
+    required_fields:
+      - event_id
+      - context_id
+      - event_type
+      - capability_ref
+      - summary
+      - evidence
+    optional_fields:
+      - receipt_id
+      - handoff_id
+      - application_policy
+    fields:
+      event_id:
+        type: string
+        pattern: "^EVT-[A-Z0-9-]+$"
+      context_id:
+        type: reference
+        references: contexts.context_id
+      event_type:
+        type: enum
+        enum_ref: route_event_type
+      capability_ref:
+        type: enum
+        enum_ref: capability_ref
+      summary:
+        type: string
+      evidence:
+        type: string
+      receipt_id:
+        type: reference
+        references: receipts.receipt_id
+      handoff_id:
+        type: reference
+        references: route_handoffs.handoff_id
+      application_policy:
+        type: enum
+        enum_ref: application_policy
+
+interaction_methods:
+  - classify_route
+  - prepare_handoff
+  - receive_receipt
+  - apply_receipt
+  - open_residue
+
+validation_rules:
+  - id: CX-R001
+    rule: A route_handoff must name exactly one owner capability.
+    on_fail: block
+  - id: CX-R002
+    rule: A receipt must reference one route_handoff.
+    on_fail: block
+  - id: CX-R003
+    rule: Craft records native verdicts but does not rewrite them.
+    on_fail: block
+  - id: CX-R004
+    rule: A blocked receipt cannot close a Craft context.
+    on_fail: block
+  - id: CX-R005
+    rule: Dispatch validation is route-shape evidence only.
+    on_fail: block
+  - id: CX-R006
+    rule: Task-session pass requires recomposition evidence before Craft closure.
+    on_fail: block
+  - id: CX-R007
+    rule: Invoke plan output is authoring/planning evidence, not execution evidence.
+    on_fail: flag

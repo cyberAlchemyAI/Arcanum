@@ -12,9 +12,9 @@ Craft is not canonical authority yet. This package is checkpoint-first: it prese
 
 ## Current Verdict
 
-`refine-validation-interrogation-receipt-blocked-promotion-deferred`
+`refine-validation-aggregate-refine-receipt-block-promotion-deferred`
 
-The recursive-ledger MVP is validated, the pre-architecture gap-closure wave is complete, and the broader Craft method architecture has passed design and plan hardening. Craft now has a candidate validation example suite, validation/recomposition guide, promotion readiness review, and historical runtime command-surface smoke for the previously missing `dispatch-spec` and `runtime-handoff` routes. Refine evidence classification has been repaired, Context Builder has durable receipt-backed pass evidence, and `Invoke Define` now has receipt-backed pass evidence. The latest local Refine evidence sync advances the first remaining blocker to `Interrogation refine-review`, which still needs owner-stage receipt evidence. Promotion is deferred until repeated local use and receipt-backed validation produce stronger evidence.
+The recursive-ledger MVP is validated, the pre-architecture gap-closure wave is complete, and the broader Craft method architecture has passed design and plan hardening. Craft now has a candidate validation example suite, validation/recomposition guide, promotion readiness review, and historical runtime command-surface smoke for the previously missing `dispatch-spec` and `runtime-handoff` routes. Refine evidence classification has been repaired, Context Builder, Invoke Define, and Interrogation refine-review now have receipt-backed pass evidence. The single aggregate Refine receipt now exists and reports `block`: `Distill` remains important internal Refine evidence, but it is no longer the active standalone receipt gate. Promotion is deferred until repeated local use and receipt-backed validation produce stronger evidence.
 
 Current operational MVP focus:
 
@@ -72,8 +72,10 @@ Latest Refine validation attempt:
 Run:    development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof
 Result: block
 Dispatch validation: pass
-Receipt-backed stages: Context Builder and Invoke Define are `pass` with `evidence_kind=receipt`.
-Reason: Interrogation refine-review is the first remaining `block`; it has not produced owner-stage pass evidence.
+Receipt-backed stages: Context Builder, Invoke Define, and Interrogation refine-review are `pass` with `evidence_kind=receipt`.
+Historical stage-model reason: Distill is the first remaining `block`; it has not produced owner-stage pass evidence.
+Active decision: continue with one aggregate Refine receipt instead of one receipt per internal Refine stage.
+Aggregate receipt: receipts/refine-run.json reports `block` because internal Refine work remains incomplete.
 ```
 
 Invoke Define receipt plan:
@@ -93,6 +95,27 @@ Report:    CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md
 JSON:      CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-refresh-report.json
 Result:    active route refreshed
 Boundary:  historical command-surface evidence retained; current execution uses local skill contracts
+```
+
+Refine missing-work strategy:
+
+```text
+Strategy:  CRAFT-REFINE-MISSING-STRATEGY.md
+Dispatch:  CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json
+Live test: CRAFT-MISSING-WORK-LIVE-TEST.md
+Result:    dispatch validation pass; first live test advanced blocker to Distill
+Boundary:  full Refine run and subagent fanout require operator approval
+```
+
+Single Refine receipt decision:
+
+```text
+Decision: docs/decisions/craft-distill-receipt-route.md
+Work-pack: CRAFT-REFINE-SINGLE-RECEIPT-WORK-PACK.md
+Selected route: treat Refine as one receipt-bearing capability
+Receipt: development/craft/development/refinement-runs/20260601T080122Z-context-builder-receipt-proof/receipts/refine-run.json
+Result: block; internal Refine work remains incomplete
+Boundary: existing stage receipts are historical evidence; current execution uses local skill contracts
 ```
 
 ## Files
@@ -153,25 +176,36 @@ Boundary:  historical command-surface evidence retained; current execution uses 
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-EXECUTION-PACK.md) | Wave sequencing for the `Invoke Define` receipt plan. | active |
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-PLAN-TRANSPORT.md) | Plan transport/provenance report for the `Invoke Define` receipt plan. | active |
 | [CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md](CRAFT-INVOKE-DEFINE-STAGE-RECEIPT-REFRESH-REPORT.md) | Invoke refresh report that retires command-surface routing for the active Craft receipt workflow. | active |
+| [CRAFT-REFINE-MISSING-STRATEGY.md](CRAFT-REFINE-MISSING-STRATEGY.md) | Dispatch-backed strategy for refining all remaining Craft blockers and gaps before build/live test. | active |
+| [CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json](CRAFT-REFINE-MISSING-STRATEGY-DISPATCH.json) | Validator-backed dispatch route for the Craft missing-work strategy. | pass |
+| [CRAFT-REFINE-MISSING-LIVE-TEST.md](CRAFT-REFINE-MISSING-LIVE-TEST.md) | First bounded live test for the strategy dispatch and pre-execution evidence baseline. | pass |
+| [CRAFT-REFINE-MISSING-APPROVED-RUN.md](CRAFT-REFINE-MISSING-APPROVED-RUN.md) | Approved subagent strategy run synthesis and first live-test decision. | pass |
+| [CRAFT-MISSING-BLOCKERS-AND-GAPS.md](CRAFT-MISSING-BLOCKERS-AND-GAPS.md) | Consolidated blockers, deferred gaps, and boundary risks found by the approved strategy run. | active |
+| [CRAFT-MISSING-WORK-DESIGN.md](CRAFT-MISSING-WORK-DESIGN.md) | Missing-work design for converting the first remaining blocker into a receipt task. | pass |
+| [CRAFT-MISSING-WORK-DESIGN-REVIEW.md](CRAFT-MISSING-WORK-DESIGN-REVIEW.md) | Review of the missing-work design before execution. | pass |
+| [CRAFT-MISSING-WORK-EXECUTION-PACK.md](CRAFT-MISSING-WORK-EXECUTION-PACK.md) | Execution sequencing for the first missing-work live-test task. | pass |
+| [CRAFT-MISSING-WORK-WORK-PACK.md](CRAFT-MISSING-WORK-WORK-PACK.md) | Completed work-pack for producing the Interrogation refine-review receipt. | pass |
+| [CRAFT-MISSING-WORK-LIVE-TEST.md](CRAFT-MISSING-WORK-LIVE-TEST.md) | Current live-test result: Interrogation receipt passed; Distill is next blocker. | pass |
+| [CRAFT-REFINE-SINGLE-RECEIPT-WORK-PACK.md](CRAFT-REFINE-SINGLE-RECEIPT-WORK-PACK.md) | Completed work-pack for producing one aggregate Refine receipt for the current run. | pass |
 
 ## Current Next Move
 
 ```text
-Create or block the Interrogation refine-review owner-stage receipt through local skill-surface execution.
+Continue the current Refine run under the aggregate receipt model.
 ```
 
 Recommended route:
 
 ```text
-Prepare the next narrow receipt work-pack for `Interrogation refine-review`, then execute its first ready task through local skill surfaces.
+Use `receipts/refine-run.json` as the single Refine receipt and update it when internal Refine evidence is completed or intentionally blocked.
 ```
 
 Why this route:
 
 ```text
-The Invoke Define owner-stage receipt has been accepted by local evidence sync.
-The next exact blocker is Interrogation refine-review, which remains dependency
-blocking for Distill and later stages until it has owner-stage receipt evidence.
+The aggregate Refine receipt exists and reports `block` because internal Refine
+work remains incomplete. Distill and later stages should stay internal Refine
+evidence rather than becoming standalone receipt gates.
 ```
 
 Use [CRAFT-VALIDATION.md](CRAFT-VALIDATION.md) as the review surface. Promotion remains deferred by [CRAFT-PROMOTION-READINESS.md](CRAFT-PROMOTION-READINESS.md).

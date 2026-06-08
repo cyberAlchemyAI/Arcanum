@@ -1,0 +1,181 @@
+schema_id: craft.interface_ledger
+schema_version: 0.1.0
+status: candidate-local
+owner_surface: development/craft
+source_of_truth_policy:
+  target_project_source: .craft/ledger.yml
+  human_view: CRAFT.md
+  generated_index: deferred
+  notes:
+    - .craft/ledger.yml is authoritative for target project Craft state.
+    - CRAFT.md is a human-readable view or summary.
+    - Candidate definitions remain local unless promoted by an owner route.
+
+extends:
+  - development/craft/CRAFT-LEDGER-SCHEMA.yml
+
+enums:
+  definition_status:
+    - candidate
+    - active-local
+    - superseded
+    - promoted-by-owner
+  gap_status:
+    - active
+    - planned
+    - resolved
+    - waived
+    - superseded
+  gap_severity:
+    - info
+    - flag
+    - block
+    - deferred
+  gap_treatment:
+    - plan
+    - defer
+    - waive
+    - delegate
+    - split
+  description_status:
+    - active
+    - superseded
+
+row_families:
+  descriptions:
+    id_field: description_id
+    description: Versioned working descriptions for Craft contexts.
+    required_fields:
+      - description_id
+      - context_id
+      - description
+      - status
+    optional_fields:
+      - evidence
+    fields:
+      description_id:
+        type: string
+        pattern: "^DESC-[A-Z0-9-]+$"
+      context_id:
+        type: reference
+        references: contexts.context_id
+      description:
+        type: string
+      status:
+        type: enum
+        enum_ref: description_status
+      evidence:
+        type: string
+
+  definitions:
+    id_field: definition_id
+    description: Local candidate definitions scoped to a Craft context.
+    required_fields:
+      - definition_id
+      - scope_id
+      - term
+      - statement
+      - status
+      - evidence
+    fields:
+      definition_id:
+        type: string
+        pattern: "^DEF-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+      term:
+        type: string
+      statement:
+        type: string
+      status:
+        type: enum
+        enum_ref: definition_status
+      evidence:
+        type: string
+
+  gaps:
+    id_field: gap_id
+    description: Missing, deferred, or weak areas that remain visible in Craft.
+    required_fields:
+      - gap_id
+      - scope_id
+      - summary
+      - severity
+      - treatment
+      - owner
+      - status
+      - evidence
+    fields:
+      gap_id:
+        type: string
+        pattern: "^GAP-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+      summary:
+        type: string
+      severity:
+        type: enum
+        enum_ref: gap_severity
+      treatment:
+        type: enum
+        enum_ref: gap_treatment
+      owner:
+        type: string
+      status:
+        type: enum
+        enum_ref: gap_status
+      evidence:
+        type: string
+
+interface_methods:
+  project_lifecycle:
+    - start_project
+    - state
+    - validate
+    - export_ledger
+  context_lifecycle:
+    - open_child_context
+    - describe
+    - next
+    - recompose
+  condition_operations:
+    - add_blocker
+    - refine_blocker
+    - add_enabler
+  decision_operations:
+    - open_decision
+    - decide
+  residue_operations:
+    - add_gap
+    - add_definition
+    - link
+
+validation_rules:
+  - id: CI-R001
+    rule: Active contexts must have exactly one current next_move.
+    on_fail: block
+  - id: CI-R002
+    rule: Non-root contexts must have a parent and recomposition path.
+    on_fail: block
+  - id: CI-R003
+    rule: Raw blockers cannot be marked resolved directly.
+    on_fail: block
+  - id: CI-R004
+    rule: Blocking active decisions stop dependent execution.
+    on_fail: block
+  - id: CI-R005
+    rule: Definitions stay local candidates unless promoted by owner route.
+    on_fail: block
+  - id: CI-R006
+    rule: Closed contexts require validation evidence and recomposition evidence.
+    on_fail: block
+  - id: CI-R007
+    rule: Work-packs are artifacts owned by contexts, not ledger roots.
+    on_fail: flag

@@ -1,0 +1,289 @@
+{
+  "dispatch_id": "craft-interaction-design-20260607",
+  "parent_dispatch_id": "craft-interface-refine-20260607",
+  "intent": {
+    "raw": "Design how Craft and its interface interact with other sigils and spells like refine, decision-gate, invoke, task-session, and dispatch-spec.",
+    "objective": "Produce a validator-backed interaction design that keeps Craft as a recursive ledger and route-memory surface while preserving owner capability authority.",
+    "target_artifact": "development/craft/CRAFT-INTERACTION-DESIGN.md",
+    "arcanum_vocabulary": [
+      "craft",
+      "refine",
+      "decision-gate",
+      "invoke",
+      "task-session",
+      "dispatch-spec",
+      "handoff",
+      "receipt",
+      "recomposition",
+      "recursive ledger"
+    ]
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "residue_ledger"
+  ],
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Refine interaction boundary",
+      "capability_ref": "refine",
+      "mode": "interaction-design",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "user request for Craft interaction design"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-ARCHITECTURE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERFACE-REFINE.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "development/craft/CRAFT-INTERACTION-DESIGN.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if Craft is made owner of another capability lifecycle."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Check owner authority",
+      "capability_ref": "decision-gate",
+      "mode": "blocker-only",
+      "pattern": "decision",
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S1.interaction-boundary"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "Craft remains ledger/router; called capabilities own native verdicts and lifecycle artifacts."
+        }
+      ],
+      "stop_conditions": [
+        "Block if interaction design requires Craft to auto-select consequential decisions or overwrite native verdicts."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Author future build handoff",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "handoff",
+      "techniques": [
+        "execution_receipt_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S1.interaction-boundary"
+        },
+        {
+          "kind": "decision",
+          "ref": "S2.owner-authority"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERACTION-DESIGN.md#Next Build Slice"
+        }
+      ],
+      "stop_conditions": [
+        "Flag if no future task slice is named."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Validate interaction route",
+      "capability_ref": "dispatch-spec",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERACTION-DISPATCH.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "dispatch validation output"
+        }
+      ],
+      "evidence_artifact": "terminal validation: formulae/dispatch-spec/scripts/validate-dispatch.py development/craft/CRAFT-INTERACTION-DISPATCH.json",
+      "stop_conditions": [
+        "Block if dispatch validation fails."
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Execute later as task-session",
+      "capability_ref": "task-session",
+      "mode": "future-single-task",
+      "pattern": "handoff",
+      "techniques": [
+        "execution_receipt_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "development/craft/CRAFT-INTERACTION-DESIGN.md#Next Build Slice"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "future CRAFT-INTERACTION-001 task-session receipt"
+        }
+      ],
+      "stop_conditions": [
+        "Do not execute before a work-pack task exists."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1",
+      "kind": "promotion_guardrail",
+      "owner": "craft",
+      "condition": "Craft interaction design must not promote Craft or any candidate definitions, sigils, spells, ontology, inventory, or command surfaces.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The interaction route must preserve owner boundaries and receipt handoffs.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "craft-interface-refine-20260607",
+    "trace_events": [
+      "dispatch_validated",
+      "interaction_design_refined",
+      "owner_boundary_checked",
+      "future_task_slice_named"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "The requested design is bounded to named capability interactions and can be handled in one parent refinement.",
+    "explanation": "Subagents are deferred until multi-project live tests or competing runtime shapes need parallel review.",
+    "context": [
+      "Craft architecture already names these capabilities in its dependency interface view.",
+      "The current request asks for design, not execution."
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "permission_prompt": "",
+    "receipt_requirements": []
+  },
+  "promotion_guardrails": [
+    "No command-surface refresh.",
+    "No registry mutation.",
+    "No canonical glossary promotion.",
+    "No sigil or spell promotion.",
+    "Dispatch validation is route-shape evidence, not execution evidence."
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "craft-to-owner-capability",
+        "kind": "capability_handoff",
+        "from_owner": "craft",
+        "to_owner": "refine, decision-gate, invoke, task-session, or dispatch-spec",
+        "applies_to_steps": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5"
+        ],
+        "contract": "Craft records handoffs and receipts, while the called capability owns its native artifact contract, validation, and verdict.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "development/craft",
+      "execution": "task-session",
+      "validation": "dispatch-spec",
+      "evidence": "task-session",
+      "memory": "none",
+      "promotion": "owning capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "CRAFT-INTERACTION-DESIGN",
+        "producer": "refine",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "development/craft/CRAFT-INTERACTION-DESIGN.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": ".craft/ledger.yml",
+        "owner": "target project local Craft workspace",
+        "write_policy": "Craft may write route_handoffs, receipts, route_events, and ledger state only inside the target project Craft workspace."
+      },
+      {
+        "namespace": "owner capability artifacts",
+        "owner": "called capability",
+        "write_policy": "Craft may reference owner artifacts and receipts but must not rewrite native verdicts."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "Craft interaction evidence",
+        "target": "canonical sigil, spell, glossary, registry, or runtime surface",
+        "rule": "Requires a later owner route and explicit approval.",
+        "on_violation": "block"
+      }
+    ]
+  }
+}
