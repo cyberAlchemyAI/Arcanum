@@ -765,6 +765,33 @@ installed_capability_list_markdown() {
   done
 }
 
+derive_skill_description() {
+  # Derive a Claude/Codex skill description for a source file that has no
+  # frontmatter of its own (e.g. spell README.md). Uses the first paragraph of
+  # the "## Purpose" section, collapsed to a single YAML-safe line.
+  local source_file="$1"
+  local fallback="$2"
+  local desc
+  desc="$(awk '
+    /^##[[:space:]]+Purpose([[:space:]]|$)/ { grab=1; next }
+    grab && /^##[[:space:]]/ { exit }
+    grab {
+      if ($0 ~ /^[[:space:]]*$/) { if (collected) exit; else next }
+      line=$0
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+      out = (out=="" ? line : out " " line)
+      collected=1
+    }
+    END { print out }
+  ' "$source_file")"
+  if [[ -z "$desc" ]]; then
+    desc="$fallback"
+  fi
+  desc="${desc//\\/\\\\}"
+  desc="${desc//\"/\\\"}"
+  printf '%s' "$desc"
+}
+
 generated_skill_provenance_fields() {
   local runtime="$1"
   local canonical_source="$2"
@@ -885,6 +912,7 @@ write_generated_skill_file() {
         cat <<EOF
 ---
 name: $name_override
+description: "$(derive_skill_description "$source_file" "Composed Arcanum spell: $name_override.")"
 $(generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of")
 ---
 
@@ -998,11 +1026,11 @@ write_runtime_skill_packages() {
       visible_name="$alias_slug"
     fi
     write_generated_skill_file "$runtime" "$root/$visible_name" "$canonical_source" "$source_file" "null" "$visible_name"
+    if [[ "$visible_name" != "$sigil" ]]; then
+      write_generated_alias_skill "$runtime" "$root/$sigil" "$canonical_source" "$visible_name" "$sigil"
+    fi
     if [[ "$prefixed_skill_packages" == "true" && -n "$prefix_name" ]]; then
       write_generated_alias_skill "$runtime" "$root/$package_name" "$canonical_source" "$visible_name" "$sigil"
-      if [[ "$visible_name" != "$sigil" ]]; then
-        write_generated_alias_skill "$runtime" "$root/$sigil" "$canonical_source" "$visible_name" "$sigil"
-      fi
     fi
   done
 

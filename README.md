@@ -92,6 +92,15 @@ The Method, Observability Layer, and Experiment Harness are highlighted above. T
 - [Validation Experiment Protocol](framework/VALIDATION-EXPERIMENT-PROTOCOL.md) - release-gate experiments for spells, sigils, and templates.
 - [Sigil Template](framework/templates/sigil-template.md) - base structure for new `SKILL.md` files.
 
+## Canonical Definitions
+
+Arcanum-wide terminology authority lives in [Definitions](definitions/). Use
+[Canonical Definitions](definitions/DEFINITIONS.md) for normative meanings and
+[Definitions Index](definitions/DEFINITIONS-INDEX.md) for lookup aliases.
+
+Local glossaries may explain bounded project or capability vocabulary, but they
+should reference project-level definition IDs instead of redefining global terms.
+
 ## Capability Model
 
 Arcanum capabilities are organized by how they reason and how much governance they need.
