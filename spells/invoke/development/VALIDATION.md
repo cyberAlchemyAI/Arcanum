@@ -21,7 +21,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Template scaffold coverage | pass | [../templates/README.md](../templates/README.md) declares family scaffold requirements; `generic`, `research`, `architecture`, `spell`, `sigil`, and `ux-plan` folders include README, primary template, passing example, and missing-input example. Historical `implementation-plan` scaffolding is no longer part of the active plan surface. |
 | Template task matrix coverage | pass | [TEMPLATE-VALIDATION-TASKS.md](TEMPLATE-VALIDATION-TASKS.md) lists low, medium, and complex tasks for Module Formulae, standalone companions, and each dedicated family. |
 | Template prompt coverage | pass | [TEMPLATE-EXAMPLE-RUNBOOK.md](TEMPLATE-EXAMPLE-RUNBOOK.md) explains how to run every generated prompt in Codex; `example-prompts/` contains one prompt per template task. |
-| Prompt selector coverage | pass | [select-template-example-prompt.sh](select-template-example-prompt.sh) resolves exact task IDs, template+complexity pairs, and `next`; Codex command bridges exist for `arcanum-sigil-invoke-example-runner`; [run-template-example-with-codex.sh](run-template-example-with-codex.sh) provides bounded `codex exec` automation. |
+| Prompt selector coverage | pass | [select-template-example-prompt.sh](select-template-example-prompt.sh) resolves exact task IDs, template+complexity pairs, and `next`; command bridges are legacy example-runner compatibility only; [run-template-example-with-codex.sh](run-template-example-with-codex.sh) remains an explicit legacy adapter test. |
 | Example output coverage | pass | Saved example outputs under `example-outputs/` are checked for real `Invoke Result` shape and rejected if they are save-summary responses; architecture outputs must include a full architecture artifact with all required sections. |
 | Define gate coverage | pass | [../define.md](../define.md) blocks missing core goals, flags unapproved candidate-template cases, gates glossary promotion, and defines transport behavior. |
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
@@ -29,7 +29,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Handoff gate coverage | pass | [../handoff.md](../handoff.md) requires a new-session prompt, source session reference, handoff type, Context Builder selection, selected/excluded context, and explicit next route. |
 | Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, and pass/flag/block/no-op statuses. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
-| Codex adapter readiness | pass | Root-level `.arcanum/runtimes/codex/commands/arcanum-spell-invoke.md` and `.codex/commands/arcanum-spell-invoke.md` exist and route Codex to canonical `arcanum/spells/invoke` contracts. |
+| Native authoring readiness | pass | `README.md`, `define.md`, `design.md`, and `plan.md` do not require deprecated command files as readiness evidence; plan SWUs include native receipt/subagent result shape. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
 | Integration replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-001` proves define artifacts feed design inputs, preserve glossary terms, emit six views, and route next to `plan`. |
 | Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. The canonical work-pack hierarchy, navigable table links, and new SWU handoff fields are a contract refresh and should be covered in the next plan fixture refresh. |
@@ -225,7 +225,7 @@ The runner checks both the realistic user-request fixture files and their expect
 
 1. The contract layer is coherent enough to run validation fixtures.
 2. The template inventory is structurally complete for the declared candidate families.
-3. Codex can discover `invoke` through the root-level `.codex/commands/arcanum-spell-invoke.md` bridge.
+3. Native Invoke authoring does not depend on `.codex/commands`; command bridges are preserved only as explicit legacy example-runner compatibility.
 4. L1 design fixtures produce recorded dry-run evidence and pass.
 5. The define-to-design integration fixture proves cross-stage handoff at the artifact level.
 

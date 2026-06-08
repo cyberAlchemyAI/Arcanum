@@ -1,0 +1,456 @@
+{
+  "dispatch_id": "autobayes-subagent-closeout-hardening-20260607",
+  "parent_dispatch_id": "autobayes-research-20260606",
+  "intent": {
+    "raw": "Refine then invoke a plan then codex-goal-profile so AutoBayes research can run mostly AFK while Task Session and Dispatch Spec always know subagents are properly closed.",
+    "objective": "Create a non-executed hardening plan, work-pack SWU, context handoff pack, and native Codex goal profile for subagent lifecycle closeout hardening.",
+    "target_artifact": "research/autobayes/work-pack/goals/TASK-AB-AFK-001-GOAL.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "invoke",
+      "codex-goal-profile",
+      "task-session",
+      "dispatch-spec",
+      "subagent_strategy",
+      "execution_receipt_handoff",
+      "observability",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Harden subagent lifecycle receipts so full-AFK research can safely continue through a native Codex goal."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "residue_ledger",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "concrete_path_evidence",
+    "approval_semantics_map"
+  ],
+  "route_menu": {
+    "context_hint": "The selected route is plan-first hardening: produce artifacts and a Codex goal profile before canonical implementation.",
+    "items": [
+      {
+        "id": "plan-first-goal-profile",
+        "label": "Plan first",
+        "description": "Create a hardening plan, work-pack SWU, context handoff, and native goal profile before implementation.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      },
+      {
+        "id": "direct-canonical-edit",
+        "label": "Direct edit",
+        "description": "Mutate Task Session and Dispatch Spec immediately; rejected because the user asked for refine, invoke plan, and goal profile.",
+        "capability_ref": "task-session",
+        "pattern": "handoff"
+      }
+    ],
+    "selected_item_id": "plan-first-goal-profile"
+  },
+  "steps": [
+    {
+      "step_id": "s01-context",
+      "name": "Build evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/sessions/task-session-autobayes-all-possible-subagents-result.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/sessions/task-session-autobayes-full-mode-result.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "subagent-closeout-context-frame"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if task-session evidence cannot prove the thread-cap and closeout residues"
+      ]
+    },
+    {
+      "step_id": "s02-define",
+      "name": "Invoke Define hardening target",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "subagent-closeout-context-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s03-review",
+      "name": "Review definition",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "definition-review-ledger"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/03-interrogation-review.md"
+    },
+    {
+      "step_id": "s04-research-decision",
+      "name": "Record research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "definition-review-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "research-decision-no-research"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s05-distill",
+      "name": "Distill coherent hardening unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "research-decision-no-research"
+        },
+        {
+          "kind": "ledger",
+          "ref": "definition-review-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "subagent-lifecycle-ledger-unit"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s06-design",
+      "name": "Invoke Design hardening architecture",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "subagent-lifecycle-ledger-unit"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s07-design-review",
+      "name": "Review design",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "design-review-ledger"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/07-design-review.md"
+    },
+    {
+      "step_id": "s08-repair",
+      "name": "Distill repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "design-review-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "hardened-plan-unit"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s09-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "hardened-plan-unit"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/work-pack/WORK-PACK.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "s10-goal-profile",
+      "name": "Create Codex goal profile",
+      "capability_ref": "codex-goal-profile",
+      "mode": "synthesis",
+      "pattern": "handoff",
+      "techniques": [
+        "handle_handoff",
+        "approval_semantics_map",
+        "delegation_boundary",
+        "execution_receipt_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/work-pack/context/TASK-AB-AFK-001-CONTEXT.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/work-pack/goals/TASK-AB-AFK-001-GOAL.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-subagent-closeout-goal-profile-created"
+        }
+      ],
+      "join_policy": "none"
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The future goal may need broad AFK research lanes, but this refinement run is plan-first and does not spawn subagents.",
+    "explanation": "The hardening plan should require subagent lifecycle receipts before parent Task Session completion whenever delegated lanes are used.",
+    "context": [
+      "Previous AutoBayes runs showed a thread-cap blocked lane and required explicit parent closeout of spawned agents.",
+      "Task Session needs a durable ledger of spawned, joined, timed out, blocked, and closed agents."
+    ],
+    "roles": [
+      {
+        "role_id": "spawn-ledger-auditor",
+        "purpose": "Check that every spawned lane is represented in the lifecycle ledger.",
+        "owns": "subagent lifecycle ledger",
+        "applies_to_steps": [
+          "s09-plan",
+          "s10-goal-profile"
+        ]
+      },
+      {
+        "role_id": "receipt-closeout-checker",
+        "purpose": "Check that every completed lane has a receipt and every open lane has closeout status.",
+        "owns": "receipt completeness gate",
+        "applies_to_steps": [
+          "s09-plan",
+          "s10-goal-profile"
+        ]
+      },
+      {
+        "role_id": "thread-cap-sentinel",
+        "purpose": "Record spawn failures and reroute blocked lanes into parent or later goals.",
+        "owns": "thread-cap residue",
+        "applies_to_steps": [
+          "s09-plan",
+          "s10-goal-profile"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Allow future Codex goal runs to spawn research subagents only when they record spawned, joined, timed-out, blocked, and closed statuses?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "artifact_paths",
+      "residue",
+      "reroute",
+      "thread_cap_status"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "plan-before-canonical-mutation",
+        "kind": "capability_handoff",
+        "from_owner": "refine",
+        "to_owner": "codex-goal-profile",
+        "applies_to_steps": [
+          "s10-goal-profile"
+        ],
+        "contract": "Refine and Invoke produce a plan and work-pack; canonical Task Session or Dispatch Spec edits are deferred to a native Codex goal.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine",
+      "execution": "native Codex goal",
+      "validation": "dispatch-spec",
+      "evidence": "task-session",
+      "memory": "inventory",
+      "promotion": "owning capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "subagent-lifecycle-hardening-receipt",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "residue",
+          "audit_reference"
+        ],
+        "stores": [
+          "research/autobayes/work-pack/goals/TASK-AB-AFK-001-GOAL.md",
+          "research/autobayes/work-pack/context/TASK-AB-AFK-001-CONTEXT.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "autobayes-research-plan",
+        "owner": "research/autobayes",
+        "write_policy": "Plan artifacts only; canonical capability edits require the generated Codex goal."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "AutoBayes research hardening plan",
+        "target": "canonical Task Session or Dispatch Spec behavior",
+        "rule": "requires native Codex goal execution and validation before promotion",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "dispatch-validates",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json must pass the repository dispatch validator.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "plan-before-mutation",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "This run may plan canonical Task Session and Dispatch Spec hardening but must not mutate their canonical files.",
+      "on_fail": "block",
+      "techniques": [
+        "owner_boundary_check"
+      ]
+    },
+    {
+      "gate_id": "goal-readiness",
+      "kind": "quality",
+      "owner": "codex-goal-profile",
+      "condition": "The selected work-pack unit must have bounded write scope, concrete validation, and handoff Markdown plus JSON index.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "autobayes-research-20260606",
+    "trace_events": [
+      "subagent-closeout-hardening-context-built",
+      "subagent-closeout-hardening-plan-created",
+      "subagent-closeout-hardening-goal-profile-created"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "No canonical Task Session or Dispatch Spec mutation in the refinement run.",
+    "No subagent spawning in the refinement run; future spawning is governed by the generated goal.",
+    "No Inventory, Ontology, glossary, sigil, spell, or runtime promotion without owner review."
+  ]
+}

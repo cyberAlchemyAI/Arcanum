@@ -1,0 +1,231 @@
+{
+  "dispatch_id": "autobayes-research-closure-plan-20260607",
+  "parent_dispatch_id": "autobayes-research-20260606",
+  "intent": {
+    "raw": "Refine all next steps, invoke a whole plan for closing the AutoBayes research, then produce a Codex goal profile for the rest of the learning research.",
+    "objective": "Create a governed full closure plan and native Codex goal profile for SWU-AB-LEARN-001.",
+    "target_artifact": "research/autobayes/work-pack/goals/TASK-AB-LEARN-001-GOAL.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "invoke",
+      "codex-goal-profile",
+      "task-session",
+      "dispatch-spec",
+      "subagent_lifecycle",
+      "residue",
+      "glossary",
+      "definitions",
+      "distill",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Close the AutoBayes learning tower into a source-backed Arcanum operator pack, with no hidden open subagents and no silent canonical promotion."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "residue_ledger",
+    "owner_boundary_check",
+    "observability_grouping",
+    "route_projection_boundary",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "approval_semantics_map"
+  ],
+  "route_menu": {
+    "context_hint": "The selected route closes the existing tower rather than starting a new broad survey.",
+    "items": [
+      {
+        "id": "closure-goal-profile",
+        "label": "Closure goal",
+        "description": "Produce a whole closure plan and native Codex goal profile for the remaining learning research.",
+        "capability_ref": "invoke",
+        "pattern": "sequential"
+      },
+      {
+        "id": "run-research-now",
+        "label": "Run now",
+        "description": "Execute research immediately; deferred because the user asked for refine, invoke plan, and goal profile.",
+        "capability_ref": "task-session",
+        "pattern": "handoff"
+      }
+    ],
+    "selected_item_id": "closure-goal-profile"
+  },
+  "steps": [
+    {
+      "step_id": "s01-context",
+      "name": "Frame closure obligations",
+      "capability_ref": "context-builder",
+      "pattern": "sequential",
+      "techniques": ["frame_handoff", "concrete_path_evidence", "residue_ledger"],
+      "inputs": [
+        {"kind": "intent", "ref": "intent.raw"},
+        {"kind": "artifact", "ref": "research/autobayes/NEXT.md"},
+        {"kind": "artifact", "ref": "research/autobayes/residue/open-residue.md"},
+        {"kind": "artifact", "ref": "research/autobayes/work-pack/context/TASK-AB-LEARN-001-CONTEXT.md"}
+      ],
+      "outputs": [
+        {"kind": "frame", "ref": "autobayes-closure-context-frame"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if the strict context handoff pack is missing or incomplete"
+      ]
+    },
+    {
+      "step_id": "s02-invoke-plan",
+      "name": "Invoke whole closure plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": ["handle_handoff", "validation_loop", "owner_boundary_check"],
+      "inputs": [
+        {"kind": "frame", "ref": "autobayes-closure-context-frame"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/09-invoke-plan.md"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if the plan grants canonical Arcanum mutation authority"
+      ]
+    },
+    {
+      "step_id": "s03-goal-profile",
+      "name": "Project plan into native Codex goal profile",
+      "capability_ref": "codex-goal-profile",
+      "pattern": "handoff",
+      "techniques": ["route_projection_boundary", "execution_receipt_handoff", "approval_semantics_map"],
+      "inputs": [
+        {"kind": "artifact", "ref": "stages/09-invoke-plan.md"},
+        {"kind": "artifact", "ref": "research/autobayes/work-pack/WORK-PACK.md"},
+        {"kind": "artifact", "ref": "research/autobayes/work-pack/context/TASK-AB-LEARN-001-CONTEXT.json"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "research/autobayes/work-pack/goals/TASK-AB-LEARN-001-GOAL.md"},
+        {"kind": "trace_event", "ref": "autobayes-research-closure-goal-profile-created"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if the goal lacks verification, boundaries, iteration policy, or stop conditions"
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The closure task may benefit from role-bound lanes, but this refinement run only creates the plan and goal profile.",
+    "explanation": "Future goal execution can use subagents for paper ledger, definitions, examples, related work, bridge decisions, and distill synthesis, provided each lane returns lifecycle closeout.",
+    "context": [
+      "The previous distill-steward lane was blocked by thread cap.",
+      "Subagent closeout hardening is now complete.",
+      "The remaining research objects are separable but must be joined by parent synthesis."
+    ],
+    "roles": [
+      {
+        "role_id": "paper-ledger-steward",
+        "purpose": "Close paper claim ledger and formal layer mapping.",
+        "owns": "paper source ledger",
+        "applies_to_steps": ["s02-invoke-plan", "s03-goal-profile"]
+      },
+      {
+        "role_id": "definition-card-steward",
+        "purpose": "Close glossary and definition cards without promotion drift.",
+        "owns": "definition and glossary cards",
+        "applies_to_steps": ["s02-invoke-plan", "s03-goal-profile"]
+      },
+      {
+        "role_id": "distill-steward",
+        "purpose": "Produce the final Arcanum operator-facing learning pack.",
+        "owns": "distilled knowledge and final synthesis",
+        "applies_to_steps": ["s02-invoke-plan", "s03-goal-profile"]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Allow the future Codex goal to spawn closure research subagents only when every lane records lifecycle closeout?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "residue",
+      "reroute",
+      "artifact_paths",
+      "source_gap_addressed",
+      "validation_result"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "local-research-only",
+        "kind": "state_write",
+        "from_owner": "codex-goal-profile",
+        "to_owner": "research/autobayes",
+        "applies_to_steps": ["s02-invoke-plan", "s03-goal-profile"],
+        "contract": "Closure artifacts may update local research outputs but must not mutate canonical Arcanum source or promotion surfaces.",
+        "on_violation": "block"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "closure-goal-profile",
+        "producer": "codex-goal-profile",
+        "required_fields": ["artifacts", "validation_result", "residue"],
+        "stores": ["research/autobayes/work-pack/goals/TASK-AB-LEARN-001-GOAL.md"],
+        "on_missing": "block"
+      }
+    ],
+    "authority_map": {
+      "lifecycle": "native Codex goal owns continuation and completion",
+      "execution": "task-session or native goal execution owns research mutation",
+      "validation": "dispatch-spec validates route shape; parent goal validates final artifacts",
+      "evidence": "research/autobayes owns local research evidence",
+      "memory": "no automatic memory or ontology promotion",
+      "promotion": "no canonical promotion in this route"
+    }
+  },
+  "gates": [
+    {
+      "gate_id": "g01-dispatch-valid",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "This dispatch validates before the native goal profile is treated as ready.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-local-research-only",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "The closure plan cannot promote AutoBayes terms into canonical Arcanum vocabulary.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g03-subagent-closeout",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "If future execution spawns subagents, hidden open agents block success.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "autobayes-research-20260606",
+    "trace_events": [
+      "dispatch_validated",
+      "closure_plan_created",
+      "goal_profile_created"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Local AutoBayes research may propose Arcanum work-pack candidates but cannot mutate canonical Arcanum definitions.",
+    "Closure success requires explicit residue for every unresolved source or analogy.",
+    "Subagent fanout success requires lifecycle closeout."
+  ]
+}
