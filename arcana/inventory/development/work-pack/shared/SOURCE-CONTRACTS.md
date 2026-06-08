@@ -1,50 +1,52 @@
-# Source Contracts: Inventory Evidence-Card
+---
+module: inventory-interface-link-index
+version: current
+status: active
+updatedAt: 2026-06-05
+docType: source-contracts
+---
 
-## Invoke Result
+# Source Contracts: Inventory Interface, Linking, And Indexing
 
-- Mode: context/source companion
-- Spell: invoke
-- Phase status: pass
+## Active Source Anchors
 
-## Development Sources
-
-| Source | Role |
+| Source | Use |
 | --- | --- |
-| `SPEC.md` | Module scope and capability map. |
-| `GLOSSARY.md` | Candidate terminology. |
-| `CONCEPT-MODEL.md` | Records, value types, and enumerations. |
-| `OPERATIONS.md` | Actions, read views, and validation behavior. |
-| `FLOWS-POLICIES.md` | Source-to-card, retrieval, handoff, and policy flows. |
-| `INTERFACES.md` | Template and packet interfaces. |
-| `ARCHITECTURE.md` | Six-view design bundle. |
-| `templates/` | Candidate production template sources. |
+| `INTERFACE-ARCHITECTURE.md` | interface modes, auto flow, confirmation contract |
+| `INDEX-TECHNIQUE-RESEARCH.md` | index technique backlog and JSON shapes |
+| `LINKING-DISCIPLINE.md` | source refs, edge vocabulary, backlink rules |
+| `INTERFACE-REFINE-SYNTHESIS.md` | next implementation units and open decisions |
+| `arcana/inventory/SKILL.md` | production skill contract to update |
+| `arcana/inventory/README.md` | human-facing capability explanation to update |
+| `arcana/inventory/templates/` | production template target |
+| `arcana/inventory/scripts/` | validator target |
 
-## Pilot Source Anchors
+## Archived Evidence
 
-Pilot fixtures should start from the ranked source slice in `../../POC-CANDIDATES.md`.
+These paths are reference evidence only:
 
-The broad allowed source pool remains:
+```text
+archive/domainspec-core-research-20260605/
+archive/whole-arcanum-research-20260605/
+archive/evidence-card-work-pack-20260529/
+```
 
-- `../cyberAlchemy/agentic-system-inventory-ontology-pipeline.md`
-- `../cyberAlchemy/agentic-system-architecture.md`
-- `../cyberAlchemy/agentic-system-knowledge-map.md`
-- `../cyberAlchemy/agentic-system-ontology-entry-model.md`
-- `spells/necronomicon/development/KNOWLEDGE-SUBSTRATE-FLOW.md`
-- `framework/CYBERALCHEMY-METHOD.md`
-- `extraction-research/inventory.md`
-- `extraction-research/ontology-vault.md`
-- `development/craft/CRAFT-RECURSIVE-LEDGER-DEFINE.md`
-- `development/craft/CRAFT-LEDGER-TYPE-SYSTEM.md`
-- `development/craft/CRAFT-INITIAL-DEFINITION.md`
-- `development/craft/DURABLE-SESSION-CONTEXT.md`
-- `development/craft/SESSION-LEDGER.md`
+Do not resume archived tracks as active work without a new decision.
 
-From this development directory, use `../../../../cyberAlchemy/...`.
+## Write Boundary
 
-## Authority Rules
+Allowed for active execution:
 
-- Raw sources remain source authority.
-- Inventory owns cards, indexes, lint findings, and handoff projections.
-- Ontology Vault owns governed meaning, relations, confidence, and promotion.
-- Definitions Governance owns canonical definitions.
-- Handoff packets are non-authoritative read models.
+- `arcana/inventory/SKILL.md`
+- `arcana/inventory/README.md`
+- `arcana/inventory/templates/`
+- `arcana/inventory/scripts/`
+- `arcana/inventory/development/pilot/interface-link-index/`
+- `arcana/inventory/development/`
+
+Blocked unless separately approved:
+
+- nested submodules,
+- archived research folders,
+- ontology/definition promotion artifacts,
+- generated runtime state.

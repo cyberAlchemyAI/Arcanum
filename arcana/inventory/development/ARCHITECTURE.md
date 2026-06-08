@@ -1,146 +1,157 @@
 ---
-module: inventory-evidence-card
+module: inventory-interface-link-index
 version: current
 status: draft
-updatedAt: 2026-05-26
+updatedAt: 2026-06-05
 docType: architecture-bundle
 ---
 
-# Architecture Bundle: Inventory Evidence-Card
+# Architecture Bundle: Inventory Interface, Linking, And Indexing
 
 ## Invoke Result
 
-- Mode: design
+- Mode: refresh
 - Spell: invoke
 - Canonical ID: invoke
 - Scope: library
 - Phase status: pass
-- Mode contract: `../../../spells/invoke/design.md`
-- Outputs: `ARCHITECTURE.md`, `TEMPLATE-MANIFEST.md`, `GLOSSARY-CONSISTENCY.md`, `DESIGN-TRANSPORT.md`
-- Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
-- Template/profile selection: Module Formulae architecture profile plus Inventory evidence-card templates
-- Implementation layering: `IMPLEMENTATION-LAYERING.md`
-- Work-pack: n/a for design mode; executable work-pack provided by plan mode
-- Decisions: one canonical `evidence-card`; optional shapes are profiles; downstream packets are projections
-- Unresolved gaps: executable validator and command integration deferred
-- Next route: plan/task-session
+- Mode contract: `../../../spells/invoke/refresh.md`
+- Outputs: `ARCHITECTURE.md`, `IMPLEMENTATION-PLAN.md`, `WORK-PACK.md`, `READINESS.md`, `REFRESH-REPORT.md`
+- Mutation mode: apply-approved
+- Source signals: user correction, interface-indexing refine synthesis, DomainSpec linking discipline, existing Inventory evidence-card/index work
+- Next route: task-session
 
 ## Design Intent
 
-Inventory gains an evidence-card layer that captures source-backed reusable knowledge as one canonical unit. The architecture preserves raw-source authority, keeps ontology and definition governance downstream, and gives Context Builder/Invoke task-shaped retrieval instead of full wiki dumps.
+Inventory should become a chat-first interface backed by JSON indexes and
+Markdown records.
 
-## Inputs
+The active development objective is no longer whole-Arcanum inventorization or
+whole-`domainspec-core` tagging. Those are archived research inputs. The active
+objective is the reusable Inventory interface:
 
-- `SPEC.md`
-- `GLOSSARY.md`
-- `CONCEPT-MODEL.md`
-- source evidence summarized in `work-pack/shared/SOURCE-CONTRACTS.md`
+```text
+$inventory
+  -> infer target
+  -> ask confirmation
+  -> inventorize a bounded slice
+  -> update JSON indexes
+  -> write Markdown coverage/explanation
+  -> expose lookup/status/explain views
+```
 
-## 1. Context View
+## Active Architecture References
+
+| Artifact | Role |
+| --- | --- |
+| `INTERFACE-ARCHITECTURE.md` | product/interface architecture and default `$inventory` behavior |
+| `INDEX-TECHNIQUE-RESEARCH.md` | index techniques to add to Inventory |
+| `LINKING-DISCIPLINE.md` | DomainSpec-style linking discipline adapted to Inventory |
+| `INTERFACE-REFINE-SYNTHESIS.md` | refined synthesis and next implementation units |
+
+Historical scope-specific research now lives under:
+
+```text
+archive/domainspec-core-research-20260605/
+archive/whole-arcanum-research-20260605/
+```
+
+These archives may be cited as evidence, but they are not active development
+roots.
+
+## Context View
 
 ```mermaid
 graph TD
-    Raw[Raw repository sources] --> Inventory[Inventory evidence-card layer]
-    Inventory --> Indexes[Generated indexes]
-    Inventory --> Retrieval[Task-shaped retrieval]
-    Retrieval --> ContextBuilder[Context Builder]
-    Retrieval --> Invoke[Invoke]
-    Retrieval --> Harness[Repository Harness]
-    Inventory --> Handoffs[Candidate handoff packets]
-    Handoffs --> Ontology[Ontology Vault]
-    Handoffs --> Definitions[Definitions Governance]
+    Prompt[User prompt] --> Infer[Target inference]
+    Infer --> Confirm[Confirmation proposal]
+    Confirm -->|approved| Slice[Bounded inventory slice]
+    Confirm -->|not approved| Ask[Clarify or stop]
+    Slice --> Cards[cards.json]
+    Slice --> Coverage[COVERAGE.md]
+    Cards --> Selector[selector-index.json]
+    Cards --> Link[link-index.json]
+    Link --> Backlink[backlink-index.json]
+    Cards --> Tags[tag-index.json]
+    Coverage --> Gap[gap-risk-index.json]
+    Selector --> Lookup[Lookup/status/explain views]
+    Link --> Lookup
+    Tags --> Lookup
+    Gap --> Lookup
 ```
 
-Rules:
+## Core Components
 
-- Raw sources remain authority.
-- Inventory owns cards, selectors, indexes, lint findings, and handoff projections.
-- Ontology Vault owns governed meaning, relations, confidence, branches, and promotion.
-- Definitions Governance owns canonical definitions and glossary synchronization.
-
-## 2. High-Level Structure View
-
-```mermaid
-graph TD
-    Select[Source selection] --> Capture[Card capture]
-    Capture --> SharedValidation[Shared schema validation]
-    SharedValidation --> ProfileValidation[card_type profile validation]
-    ProfileValidation --> Store[Card store]
-    Store --> IndexBuild[Index build]
-    IndexBuild --> Retrieval[Retrieval composer]
-    Retrieval --> Packet[Handoff packet builder]
-    ProfileValidation --> Lint[Lint and residue]
-```
-
-## 3. Low-Level Components View
-
-| Component | Purpose | Contract |
-| --- | --- | --- |
-| Evidence-card schema | Shared record shape. | `CONCEPT-MODEL.md`, `templates/evidence-card-schema.md` |
-| Authoring template | Human/agent fillable card. | `templates/evidence-card.md` |
-| Validation profiles | Required and type-specific checks. | `templates/evidence-card-lint.md` |
-| Index families | Lookup by id, source, tag, type, authority, promotion, handoff, cohort, related, residue, trace. | `templates/evidence-card-index.md` |
-| Retrieval composer | Compact task-shaped output. | `FLOWS-POLICIES.md` |
-| Handoff builders | Downstream candidate packets. | `INTERFACES.md` |
-
-## 4. Workflow Process View
-
-```mermaid
-graph TD
-    W1[Select bounded source scope] --> W2[Extract reusable evidence]
-    W2 --> W3[Draft evidence-card]
-    W3 --> W4[Validate schema and vocabularies]
-    W4 --> W5[Validate profile and authority rules]
-    W5 --> W6{Valid?}
-    W6 -->|yes| W7[Persist card and update indexes]
-    W6 -->|no| W8[Record lint finding or residue]
-    W7 --> W9[Compose retrieval or handoff]
-```
-
-## 5. Decision Flow View
-
-```mermaid
-graph TD
-    D1[Selected evidence] --> D2{Source-first bounded section?}
-    D2 -->|yes| D3[source-summary]
-    D2 -->|no| D4{Reusable concept?}
-    D4 -->|yes| D5[concept]
-    D4 -->|no| D6{Repeatable method?}
-    D6 -->|yes| D7[method]
-    D6 -->|no| D8{Reviewable assertion?}
-    D8 -->|yes| D9{Relation-shaped handoff needed?}
-    D9 -->|yes| D10[relation-candidate]
-    D9 -->|no| D11[claim]
-    D8 -->|no| D12{Unresolved ambiguity?}
-    D12 -->|yes| D13[question]
-    D12 -->|no| D14[residue or reject]
-```
-
-## 6. Dependency Interface View
-
-| Interface | Producer | Consumer | Contract |
+| Component | Purpose | Format | Owner |
 | --- | --- | --- | --- |
-| Evidence-card template | Inventory development | Inventory maintainers | Source-backed fillable card. |
-| Lookup output | Inventory | Context Builder, Invoke | Selected cards, selectors, authority levels, gaps, excluded matches. |
-| Ontology packet | Inventory | Ontology Vault | Candidate claim/relation/contradiction/lesson cards with non-authority notice. |
-| Definitions packet | Inventory | Definitions Governance | Candidate term evidence without canonical status. |
-| Pilot fixtures | Inventory development | Future validators | Bounded JSON examples for card, index, retrieval, and handoff checks. |
+| Auto interface | infer target and ask confirmation | Markdown + transient JSON | Inventory |
+| Target proposal | show source anchors, write scope, exclusions, and risks | Markdown | Inventory |
+| Evidence cards | source-backed reusable records | JSON | Inventory |
+| Coverage report | human explanation, omissions, gaps | Markdown | Inventory |
+| Selector index | map source selectors to cards/records | JSON | Inventory |
+| Link index | typed read-model links among sources/cards/records | JSON | Inventory |
+| Backlink index | generated reverse links | JSON | Inventory |
+| Traceability matrix | source -> card -> validation mapping | JSON | Inventory |
+| Gap/risk queue | operational residue and next owner | JSON | Inventory |
+| Projection index | future HTML/SQLite/vector projections | JSON | Inventory |
+
+## Interface Modes
+
+| Mode | User Shape | Internal Route |
+| --- | --- | --- |
+| `auto` | `$inventory` or vague ask | infer target -> confirmation |
+| `inventorize` | "inventorize X" | confirmation -> ingest/backfill slice |
+| `lookup` | "what do we know about X?" | lookup/query |
+| `status` | "what is missing?" | index/readiness/lint summary |
+| `continue` | "continue inventory" | next backlog/tracker item |
+| `explain` | "I am lost" | package state and next safe move |
+
+## Linking Discipline
+
+Inventory adopts DomainSpec's useful minimum:
+
+- stable IDs,
+- source-of-truth links,
+- controlled typed links,
+- traceability rows,
+- generated backlinks,
+- explicit exclusions,
+- owner handoffs for authority questions.
+
+Inventory links are read models. They do not promote ontology relations,
+canonical definitions, lifecycle status, runtime authority, or repository
+organization decisions.
+
+## JSON And Markdown Rule
+
+| Use JSON For | Use Markdown For |
+| --- | --- |
+| cards | confirmation proposals |
+| indexes | coverage reports |
+| link/backlink rows | architecture/design/plan docs |
+| query/retrieval fixtures | human-readable lookup summaries |
+| traceability rows | handoff explanations |
+| gap/risk queue | rationale and omissions |
+
+JSON is the machine index. Markdown is the human interface and review surface.
 
 ## Design Decisions
 
 | ID | Decision | Rationale |
 | --- | --- | --- |
-| D1 | Keep one canonical `evidence-card` schema. | Avoids taxonomy sprawl and preserves Distill output. |
-| D2 | Use `card_type` profiles. | Allows specific validation without separate storage families. |
-| D3 | Add `profile`, `captured`, `trace`, and `residue`. | Supports migration, provenance, auditability, and honest gaps. |
-| D4 | Treat handoff packets as read models. | Prevents Inventory from claiming downstream authority. |
-| D5 | Pilot with shaped CyberAlchemy sources only. | Validates shape without whole-repo ingest. |
+| D1 | Add default `$inventory` auto interface. | The user should not need internal command modes to inventorize. |
+| D2 | Require confirmation before mutation. | Prevents broad accidental ingest and wrong target assumptions. |
+| D3 | Use JSON indexes and Markdown records. | Reviewable, git-friendly, shell/JQ-validatable. |
+| D4 | Add selector/link/backlink/traceability/gap indexes. | Tags alone are not enough for reliable reuse. |
+| D5 | Keep projections read-only. | Future HTML/SQLite/vector surfaces must not become canonical source. |
+| D6 | Archive scope-specific research. | Whole-Arcanum and whole-repo research are evidence, not the active objective. |
 
 ## Open Risks
 
-| Risk ID | Risk | Impact | Mitigation |
-| --- | --- | --- | --- |
-| R1 | Evidence-card becomes too generic. | medium | Enforce required fields, profiles, and lint rules. |
-| R2 | Promotion metadata creates authority confusion. | high | Validate owner/status pairs and require non-authority notices. |
-| R3 | Minimal profile becomes a dumping ground. | medium | Require source refs, selection reason, captured metadata, and residue for missing detail. |
-| R4 | Trace confidence is mistaken for ontology confidence. | high | State extraction/rule confidence only in schema and docs. |
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Auto mode infers too broadly | high | confidence field plus confirmation proposal and stop condition |
+| Tags become definitions | high | route canonical terms to Definitions Governance |
+| Links become ontology | high | non-authority notice and Ontology Vault handoff |
+| JSON indexes drift from Markdown | medium | generated backlinks and validation task |
+| Interface grows into full UI too early | medium | chat-first views only for MVP |

@@ -1,4 +1,13 @@
-# Refresh Report: Inventory Development Package Complete Reset
+---
+module: inventory-interface-link-index
+version: current
+status: pass
+updatedAt: 2026-06-05
+docType: refresh-report
+mode: invoke-refresh
+---
+
+# Refresh Report: Inventory Interface, Linking, And Indexing
 
 ## Invoke Result
 
@@ -10,52 +19,64 @@
 - Mode contract: `../../../spells/invoke/refresh.md`
 - Outputs: `REFRESH-REPORT.md`, `refresh-report.json`
 - Mutation mode: apply-approved
-- Source signals: user correction, invoke output contracts, prior package artifact drift
+- Source signals: user correction, interface-indexing refine synthesis, existing whole-Arcanum/whole-repo research drift
 - Target artifacts: `arcana/inventory/development/`
-- Applied changes: removed old development files, created a complete invoke-shaped package, and added data-backed POC validation gates
+- Applied changes: active pack refreshed around interface/link/index; old scope-specific directories archived
 - Next route: task-session
-
-## Identity
-
-- Source session reference: current thread
-- Evidence date: 2026-05-26
-- Refresh scope: complete refresh of Inventory development package using correct output contracts
-- Target lifecycle owner: Inventory development cycle
 
 ## Source Signals
 
 | Signal ID | Type | Source | Claim | Confidence | Mutation Safety |
 | --- | --- | --- | --- | --- | --- |
-| RS-INV-REFRESH-001 | artifact_drift | user request | Prior package had wrong artifacts and was too planning-only. | high | safe |
-| RS-INV-REFRESH-002 | route_changed | user request | Old files can be removed completely. | high | safe |
-| RS-INV-REFRESH-003 | evidence_added | `spells/invoke/define.md`, `design.md`, `plan.md`, `refresh.md` | Correct output contracts include spec, glossary, architecture, templates, plans, work-pack, execution pack, and reports. | high | safe |
-| RS-INV-REFRESH-004 | evidence_added | `presentation.html` and distill pass | POC questions should be decided with observed gates: source slice, card size, selector quality, validation strictness, retrieval value, and handoff safety. | high | safe |
+| RS-INT-001 | route_changed | user request | Active work should first develop Inventory interface, links, and indexes. | high | safe |
+| RS-INT-002 | artifact_drift | prior active package | `whole-arcanum/` and `domainspec-core/` directories made the active objective look like broad inventorization. | high | safe |
+| RS-INT-003 | evidence_added | `INTERFACE-ARCHITECTURE.md` | `$inventory` needs default auto behavior with target inference and confirmation. | high | safe |
+| RS-INT-004 | evidence_added | `INDEX-TECHNIQUE-RESEARCH.md` | Tags alone are insufficient; selector, link, backlink, traceability, query, projection, and gap indexes are needed. | high | safe |
+| RS-INT-005 | evidence_added | `LINKING-DISCIPLINE.md` | DomainSpec linking discipline should shape Inventory stable IDs, source refs, typed links, traceability, and generated backlinks. | high | safe |
 
 ## Applied Changes
 
-- Removed the previous `arcana/inventory/development/` contents.
-- Created define outputs: `SPEC.md`, `GLOSSARY.md`, `DEFINE-TRANSPORT.md`.
-- Created design outputs: `ARCHITECTURE.md`, `CONCEPT-MODEL.md`, `OPERATIONS.md`, `FLOWS-POLICIES.md`, `INTERFACES.md`, `GLOSSARY-CONSISTENCY.md`, `DESIGN-TRANSPORT.md`.
-- Created template outputs: `TEMPLATE-MANIFEST.md` and `templates/*`.
-- Created plan outputs: `IMPLEMENTATION-LAYERING.md`, `IMPLEMENTATION-PLAN.md`, `WORK-PACK.md`, `EXECUTION-PACK.md`, and split `work-pack/` files.
-- Created observability and refresh outputs: `OBSERVABILITY.md`, `REFRESH-REPORT.md`, `refresh-report.json`.
-- Added `POC-VALIDATION.md` and synced plan/work-pack validation language to the data-backed gates.
+- Moved scope-specific research roots to:
+  - `archive/domainspec-core-research-20260605/`
+  - `archive/whole-arcanum-research-20260605/`
+- Promoted interface/link/index design artifacts to the active development root:
+  - `INTERFACE-ARCHITECTURE.md`
+  - `INDEX-TECHNIQUE-RESEARCH.md`
+  - `LINKING-DISCIPLINE.md`
+  - `INTERFACE-REFINE-SYNTHESIS.md`
+- Refreshed active package entrypoints:
+  - `ARCHITECTURE.md`
+  - `IMPLEMENTATION-PLAN.md`
+  - `WORK-PACK.md`
+  - `READINESS.md`
+  - `REFRESH-REPORT.md`
 
 ## Skipped Changes
 
 | Candidate Change | Reason Skipped |
 | --- | --- |
-| Production Inventory template mutation | This refresh rebuilds development package outputs; production mutation is represented as SWUs. |
-| Runtime validator implementation | Deferred until static lint contract and pilot fixtures pass. |
-| CyberAlchemy source ingest | Out of scope; pilot fixtures will use shaped source selectors. |
+| Delete archived research evidence | Preserve prior work as reference evidence. |
+| Update `arcana/inventory/SKILL.md` now | This is first execution task `SWU-INT-001`. |
+| Add production templates now | This is task `TASK-INT-002` and `TASK-INT-003`. |
+| Extend validator now | This depends on production index templates. |
+| Create first pilot slice now | Pilot target still requires confirmation after interface contract exists. |
 
 ## Validation
 
-- Structure check: required top-level artifacts, 4 development templates, 6 task files, and 4 wave files.
-- JSON check: `refresh-report.json` parses.
-- Contract check: artifacts include define, design, template, plan, work-pack, execution, observability, and refresh outputs.
-- POC gate check: `POC-VALIDATION.md` contains six measurable continue/refine gates.
+- Active artifact presence review: pass.
+- Scope boundary review: pass; old directories are archived, not active roots.
+- Next task readiness: pass; `SWU-INT-001` is ready.
 
 ## Next Route
 
-Recommended route: task-session, beginning with `SWU-INV-KS-001`.
+Recommended route:
+
+```text
+task-session -> SWU-INT-001
+```
+
+Task:
+
+```text
+Update Inventory SKILL/README with default auto interface, target inference, and confirmation behavior.
+```

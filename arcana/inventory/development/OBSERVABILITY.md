@@ -1,33 +1,53 @@
 ---
-module: inventory-evidence-card
+module: inventory-interface-link-index
 version: current
 status: draft
-updatedAt: 2026-05-26
+updatedAt: 2026-06-05
 docType: observability
 ---
 
-# Observability: Inventory Evidence-Card
+# Observability: Inventory Interface, Linking, And Indexing
 
-## Signal Inventory
+## Purpose
 
-| Signal Family | Purpose | Source Contract |
-| --- | --- | --- |
-| Template integrity | Detect missing or drifted template fields. | `TEMPLATE-MANIFEST.md`, `CONCEPT-MODEL.md` |
-| Fixture validity | Track pilot parse and schema review status. | `IMPLEMENTATION-PLAN.md` |
-| Authority boundary | Detect false promotion or downstream ownership confusion. | `FLOWS-POLICIES.md`, `INTERFACES.md` |
-| Execution readiness | Track task/SWU completion and blocker age. | `WORK-PACK.md`, `EXECUTION-PACK.md` |
+Track whether the new Inventory interface and index/link substrate help agents
+inventorize safely and reuse context faster.
 
-## Signals
+## Recommended Signals
 
-| Signal | Instrument Type | Attributes | Alert Rule |
-| --- | --- | --- | --- |
-| inventory.template.missing_field | Counter | template, field | Any increment blocks readiness. |
-| inventory.fixture.parse_failure | Counter | fixture, error | Any increment blocks fixture promotion. |
-| inventory.authority_boundary.violation | Counter | artifact, rule | Any increment requires review. |
-| inventory.workpack.blocker_age | Gauge | blocker_id | Review when blocker persists across sessions. |
+| Signal | Meaning |
+| --- | --- |
+| `inventory.auto.started` | `$inventory` default interface started. |
+| `inventory.target.inferred` | target/action inferred from prompt. |
+| `inventory.confirmation.shown` | mutation proposal shown to user. |
+| `inventory.confirmation.approved` | user approved bounded mutation. |
+| `inventory.confirmation.rejected` | user rejected or changed target. |
+| `inventory.slice.created` | bounded slice created. |
+| `inventory.index.updated` | JSON index updated. |
+| `inventory.link.validation.failed` | link/index validation failed. |
+| `inventory.lookup.used` | lookup/status/explain used Inventory indexes. |
+| `inventory.gap.opened` | gap/risk queue row opened. |
 
-## Traceability Rules
+## Metrics
 
-1. Every readiness claim must cite an artifact path.
-2. Every fixture failure must link to the fixture and rule.
-3. Every authority-boundary finding must name the downstream owner.
+| Metric | Use |
+| --- | --- |
+| target inference confidence | identify vague prompts that need better questions |
+| confirmation rejection rate | detect bad inference or unsafe proposals |
+| source anchors per slice | prevent broad ingestion |
+| selected vs excluded cards | measure retrieval precision |
+| validation failures by class | harden templates and validator |
+| gaps opened/closed | track operational residue |
+
+## MVP Requirement
+
+The first pilot slice should record:
+
+- target proposal,
+- approval state,
+- source anchor count,
+- cards created,
+- indexes updated,
+- validation result,
+- gaps opened,
+- next route.

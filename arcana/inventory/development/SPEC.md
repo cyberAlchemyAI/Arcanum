@@ -1,106 +1,92 @@
 ---
-module: inventory-evidence-card
+module: inventory-interface-link-index
 version: current
 status: draft
-updatedAt: 2026-05-26
-docType: module-spec
+updatedAt: 2026-06-05
+docType: spec
 ---
 
-# Inventory Evidence-Card Development Package
+# SPEC: Inventory Interface, Linking, And Indexing
 
-## Invoke Result
+## Objective
 
-- Mode: define
-- Spell: invoke
-- Canonical ID: invoke
-- Scope: library
-- Phase status: pass
-- Mode contract: `../../../spells/invoke/define.md`
-- Outputs: `SPEC.md`, `GLOSSARY.md`, `IMPLEMENTATION-LAYERING.md`, `DEFINE-TRANSPORT.md`
-- Template selection: Module Formulae bundle plus standalone work-pack companions
-- Decisions: refresh the development package as a complete artifact set; remove old collapsed/refinement files
-- Unresolved gaps: executable validator language and command integration remain deferred
-- Next route: invoke design/plan artifacts in this package, then task-session by SWU
+Inventory must provide a clear user-facing interface for inventorization:
 
-## Mission
-
-Inventory Evidence-Card adds a reusable knowledge-shape layer to the Inventory sigil. It lets Inventory capture source-backed evidence as one canonical `evidence-card` unit, index cards for task-shaped retrieval, lint authority boundaries, and prepare downstream handoff packets without promoting ontology relations or canonical definitions.
-
-## Ownership Boundary
-
-- Owns: evidence-card schema contracts, authoring templates, lint rules, index and retrieval conventions, bounded pilot fixtures, and Inventory-mode documentation updates.
-- Does Not Own: Ontology Vault promotion, canonical Definitions Governance terms, CyberAlchemy production ingest, command-runtime integration, or source document mutation.
-
-## Capability Map
-
-```mermaid
-graph TD
-    SourceSelection[Shaped source selection] --> CardCapture[Evidence-card capture]
-    CardCapture --> Validation[Schema and profile validation]
-    Validation --> Indexing[Index and retrieval surfaces]
-    Indexing --> Handoff[Downstream handoff projections]
-    Validation --> Lint[Lint and residue reporting]
+```text
+$inventory
+  -> infer what the user wants inventorized
+  -> ask for confirmation
+  -> inventorize a bounded target
+  -> update JSON indexes and Markdown records
+  -> make the result reusable through lookup/status/explain views
 ```
 
-## Capabilities
+## Scope
 
-| Capability | Outcome | Key Contracts | Detail |
-| --- | --- | --- | --- |
-| Evidence-card schema | One canonical record shape for reusable evidence. | `CONCEPT-MODEL.md`, `templates/evidence-card-schema.md` | Required fields, profiles, controlled vocabularies, selectors, trace, and residue. |
-| Evidence-card authoring | Fillable template for humans and agents. | `templates/evidence-card.md` | Full and minimal profile guidance. |
-| Evidence-card lint | Reviewable validation contract before runtime code. | `templates/evidence-card-lint.md`, `OPERATIONS.md` | Required fields, enum values, owner/status pairs, selector stability, non-authority checks. |
-| Index and retrieval | Task-shaped lookup surfaces. | `templates/evidence-card-index.md`, `FLOWS-POLICIES.md` | Selected cards, excluded matches, trace notes, unresolved questions, handoff candidates. |
-| Handoff projection | Candidate packets for downstream owners. | `INTERFACES.md`, `ARCHITECTURE.md` | Ontology and Definitions packets preserve source refs and non-authority notices. |
-| Development execution | Split, SWU-ready implementation package. | `WORK-PACK.md`, `EXECUTION-PACK.md`, `work-pack/` | One-SWU execution from schema through readiness. |
+This spec covers the active development track for:
 
-## Concept Index
+- default/no-mode `$inventory` behavior,
+- target inference,
+- confirmation proposals,
+- JSON index templates,
+- Markdown coverage/explanation records,
+- DomainSpec-style linking discipline,
+- link/index validation,
+- one interface-driven pilot slice.
 
-| Concept | ID | Type | Source |
-| --- | --- | --- | --- |
-| EvidenceCard | inventory.EvidenceCard | Record | `CONCEPT-MODEL.md` |
-| EvidenceCardProfile | inventory.EvidenceCardProfile | Enumeration | `CONCEPT-MODEL.md` |
-| SourceRef | inventory.SourceRef | Value Type | `CONCEPT-MODEL.md` |
-| TraceEntry | inventory.TraceEntry | Value Type | `CONCEPT-MODEL.md` |
-| Residue | inventory.Residue | Value Type | `CONCEPT-MODEL.md` |
-| ValidateEvidenceCard | inventory.ValidateEvidenceCard | Action | `OPERATIONS.md` |
-| ComposeRetrieval | inventory.ComposeRetrieval | Flow | `FLOWS-POLICIES.md` |
-| BuildHandoffPacket | inventory.BuildHandoffPacket | Flow | `FLOWS-POLICIES.md` |
+This spec does not cover:
 
-## Relationship Map
+- whole-repository ingest,
+- whole-Arcanum continuation,
+- database or vector search implementation,
+- human web UI,
+- ontology relation promotion,
+- canonical definition promotion.
 
-| From | Edge | To | Evidence | Notes |
-| --- | --- | --- | --- | --- |
-| inventory.EvidenceCard | cites | inventory.SourceRef | `CONCEPT-MODEL.md` | Every material card requires source refs. |
-| inventory.ValidateEvidenceCard | enforces | inventory.EvidenceCard | `OPERATIONS.md` | Static lint precedes runtime validator work. |
-| inventory.ComposeRetrieval | reads | inventory.EvidenceCard | `FLOWS-POLICIES.md` | Retrieval is task-shaped. |
-| inventory.BuildHandoffPacket | projects | inventory.EvidenceCard | `INTERFACES.md` | Projection is not downstream promotion. |
+## Core Concepts
 
-## Supporting Contracts
-
-| Contract Document | Purpose |
+| Concept | Meaning |
 | --- | --- |
-| `GLOSSARY.md` | Candidate terminology and ownership boundaries. |
-| `CONCEPT-MODEL.md` | Structural card records, value types, and enumerations. |
-| `OPERATIONS.md` | Actions and read views for validation, capture, lookup, and lint. |
-| `FLOWS-POLICIES.md` | Source-to-card, retrieval, handoff, and drift policies. |
-| `INTERFACES.md` | Template outputs and downstream packet shapes. |
-| `ARCHITECTURE.md` | Six-view design bundle. |
-| `TEMPLATE-MANIFEST.md` | Development template inventory and target production paths. |
-| `IMPLEMENTATION-PLAN.md` | Delivery slices and task decomposition. |
-| `OBSERVABILITY.md` | Signals and review telemetry for future runs. |
-| `WORK-PACK.md` | Canonical executable plan. |
+| Inventory interface | Chat-first layer that translates user intent into safe Inventory actions. |
+| Target inference | Classification of the requested source/scope/action before mutation. |
+| Confirmation proposal | Human-readable proposal that names target, sources, outputs, exclusions, and non-goals. |
+| Bounded slice | Small inventorization unit with source anchors and retrieval question. |
+| JSON index | Machine-readable lookup structure owned by Inventory. |
+| Markdown record | Human-readable explanation, coverage report, or handoff. |
+| Selector index | Source-selector-to-card lookup. |
+| Link index | Typed read-model links among sources, cards, records, and owners. |
+| Backlink index | Generated reverse lookup derived from link index. |
+| Gap/risk queue | Operational residue and next-owner list. |
 
-## External Dependencies
+## Required Behavior
 
-| Capability | Depends On | Via | Why |
-| --- | --- | --- | --- |
-| Context Builder | selected evidence and task obligations | lookup output | Downstream context packs need selector-level evidence. |
-| Ontology Vault | candidate relation/claim packets | handoff projection | Ontology owns governed meaning and confidence. |
-| Definitions Governance | candidate terms | handoff projection | Definitions owns canonical glossary promotion. |
-| CyberAlchemy pilot sources | shaped source selection | fixtures | Pilot validates card shape without production ingest. |
+1. `$inventory` defaults to `auto`.
+2. `auto` infers action and target from prompt/session context.
+3. Any mutation requires a confirmation proposal.
+4. Technical modes remain available as internal routes.
+5. JSON indexes and Markdown records are both updated by successful slice runs.
+6. Links and tags remain Inventory read models, not downstream authority.
+7. Lookup/status/explain views expose selected evidence, exclusions, gaps, and
+   next owners.
 
-## Change History
+## Acceptance Criteria
 
-| Date | Change | Author |
+| ID | Criterion | Evidence |
 | --- | --- | --- |
-| 2026-05-26 | Complete development package refresh with correct invoke output contracts. | Codex |
+| AC-001 | Default interface contract documented. | `arcana/inventory/SKILL.md`, `README.md` |
+| AC-002 | Confirmation proposal template exists. | `arcana/inventory/templates/target-confirmation.md` |
+| AC-003 | Target inference template exists. | `arcana/inventory/templates/target-inference.json` |
+| AC-004 | Index templates exist and parse. | `arcana/inventory/templates/*index*.json` |
+| AC-005 | Link validation rejects unsafe relations. | validator output |
+| AC-006 | First pilot slice proves the interface. | `development/pilot/interface-link-index/` |
+
+## Active Plan
+
+Use:
+
+- `ARCHITECTURE.md`
+- `IMPLEMENTATION-LAYERING.md`
+- `IMPLEMENTATION-PLAN.md`
+- `WORK-PACK.md`
+- `EXECUTION-PACK.md`
+- `READINESS.md`

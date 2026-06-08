@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Indexing Architecture X-Ray</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #14212f;
+      --muted: #576575;
+      --line: #c9d3df;
+      --page: #f5f7fa;
+      --panel: #ffffff;
+      --soft: #eef3f7;
+      --blue: #2563eb;
+      --green: #0f7b63;
+      --amber: #a65f00;
+      --red: #b42318;
+      --violet: #6b4fd8;
+      --teal: #0b7285;
+      --shadow: 0 12px 30px rgba(20, 33, 47, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      max-width: 920px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .meta {
+      max-width: 880px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .controls,
+    .panel,
+    .layer-card,
+    .evidence-card,
+    .risk-table {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .controls p {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    button {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #edf4ff;
+      color: #1647a3;
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .panel-head p {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .xray-map {
+      width: 100%;
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(37, 99, 235, 0.05) 0 24%, transparent 24%),
+        linear-gradient(90deg, transparent 0 24%, rgba(15, 123, 99, 0.05) 24% 49%, transparent 49%),
+        linear-gradient(90deg, transparent 0 49%, rgba(166, 95, 0, 0.06) 49% 74%, transparent 74%),
+        linear-gradient(90deg, transparent 0 74%, rgba(180, 35, 24, 0.05) 74% 100%),
+        #fbfcfd;
+      overflow: hidden;
+    }
+
+    .node rect,
+    .source-block,
+    .boundary {
+      fill: #ffffff;
+      stroke: #5d6b7a;
+      stroke-width: 2;
+    }
+
+    .node text,
+    .map-label,
+    .small-label {
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      fill: var(--ink);
+    }
+
+    .node text { font-size: 14px; font-weight: 700; }
+    .small-label { font-size: 12px; fill: var(--muted); }
+    .map-label { font-size: 13px; font-weight: 800; }
+
+    .node.interface rect { stroke: var(--blue); }
+    .node.slice rect { stroke: var(--green); }
+    .node.index rect { stroke: var(--amber); }
+    .node.governance rect { stroke: var(--red); }
+    .node.external rect { stroke: var(--violet); stroke-dasharray: 8 5; }
+
+    .arrow {
+      fill: none;
+      stroke: #4f5d6c;
+      stroke-width: 2.4;
+      marker-end: url(#arrow);
+    }
+
+    .arrow.interface { stroke: var(--blue); }
+    .arrow.slice { stroke: var(--green); }
+    .arrow.index { stroke: var(--amber); }
+    .arrow.governance { stroke: var(--red); }
+    .arrow.external { stroke: var(--violet); stroke-dasharray: 7 5; }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .layer-card {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      min-height: 170px;
+    }
+
+    .layer-card p,
+    .layer-card li {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: max-content;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .lane-interface { border-top: 4px solid var(--blue); }
+    .lane-slice { border-top: 4px solid var(--green); }
+    .lane-index { border-top: 4px solid var(--amber); }
+    .lane-governance { border-top: 4px solid var(--red); }
+    .lane-flow { border-top: 4px solid var(--teal); }
+    .lane-external { border-top: 4px solid var(--violet); }
+
+    .artifact-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .evidence-card {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      box-shadow: none;
+    }
+
+    .evidence-card code {
+      display: inline-block;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      color: #1f3a63;
+      font-size: 0.83rem;
+    }
+
+    .risk-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      box-shadow: none;
+    }
+
+    .risk-table th,
+    .risk-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.88rem;
+    }
+
+    .risk-table th {
+      background: var(--soft);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    .hide-layer .layer-card { display: none; }
+    .show-interface .lane-interface,
+    .show-slice .lane-slice,
+    .show-index .lane-index,
+    .show-governance .lane-governance,
+    .show-flow .lane-flow,
+    .show-external .lane-external { display: grid; }
+
+    .dimmed { opacity: 0.18; }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      .controls {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .controls p { grid-column: 1 / -1; }
+      .layer-grid,
+      .artifact-list { grid-template-columns: 1fr; }
+      .xray-map { min-height: 720px; }
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 1240px); padding-top: 18px; }
+      .controls { grid-template-columns: 1fr; }
+      .panel { padding: 14px; }
+      .panel-head { display: grid; }
+      .xray-map { min-height: 820px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="chips" aria-label="artifact metadata">
+        <span class="chip">mode: architecture</span>
+        <span class="chip">renderer: L0 static HTML/SVG</span>
+        <span class="chip">target: Inventory interface, indexing, linking</span>
+        <span class="chip">status: x-ray explanation artifact</span>
+      </div>
+      <h1>Inventory Indexing Architecture X-Ray</h1>
+      <p class="meta">A layered view of how Inventory is meant to move from a chat prompt into a confirmed inventory slice, then into JSON indexes and Markdown read surfaces without stealing authority from Definitions, Ontology, source owners, or decision gates.</p>
+    </header>
+
+    <div class="layout">
+      <aside class="controls" aria-label="layer filters">
+        <p>Select a layer to isolate the lane cards and dim unrelated map nodes.</p>
+        <button type="button" data-filter="all" aria-pressed="true">Show all</button>
+        <button type="button" data-filter="interface" aria-pressed="false">Interface</button>
+        <button type="button" data-filter="slice" aria-pressed="false">Slice</button>
+        <button type="button" data-filter="index" aria-pressed="false">Index</button>
+        <button type="button" data-filter="governance" aria-pressed="false">Governance</button>
+        <button type="button" data-filter="flow" aria-pressed="false">Flow</button>
+        <button type="button" data-filter="external" aria-pressed="false">External</button>
+      </aside>
+
+      <section class="content">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Architecture Map</h2>
+              <p>The map uses x-ray library patterns: dependency boundary, lifecycle stack, evidence-inference split, nodes, arrows, and risk markers. Solid paths are source-backed by active Inventory docs; dashed paths represent external owners or read-model projections.</p>
+            </div>
+          </div>
+
+          <svg class="xray-map" viewBox="0 0 1080 560" role="img" aria-labelledby="mapTitle mapDesc">
+            <title id="mapTitle">Inventory architecture map</title>
+            <desc id="mapDesc">Chat prompt enters Inventory auto mode, target resolution and confirmation produce a slice, slice artifacts feed deterministic JSON indexes, and governance boundaries route ontology and definition authority outward.</desc>
+            <defs>
+              <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+                <path d="M2,2 L10,6 L2,10 Z" fill="#4f5d6c"></path>
+              </marker>
+            </defs>
+
+            <text x="44" y="32" class="map-label">Interface Layer</text>
+            <text x="310" y="32" class="map-label">Slice Layer</text>
+            <text x="584" y="32" class="map-label">Index Layer</text>
+            <text x="846" y="32" class="map-label">Authority Layer</text>
+
+            <g data-map-layer="interface" class="node interface">
+              <rect x="38" y="72" width="190" height="72" rx="8"></rect>
+              <text x="58" y="102">$inventory auto</text>
+              <text x="58" y="124" class="small-label">No-mode call becomes target inference</text>
+            </g>
+            <g data-map-layer="interface" class="node interface">
+              <rect x="38" y="184" width="190" height="82" rx="8"></rect>
+              <text x="58" y="214">Confirmation</text>
+              <text x="58" y="236" class="small-label">One concise proposal before mutation</text>
+            </g>
+            <g data-map-layer="interface" class="node interface">
+              <rect x="38" y="306" width="190" height="92" rx="8"></rect>
+              <text x="58" y="336">Chat Views</text>
+              <text x="58" y="358" class="small-label">home, target, lookup, status, gaps</text>
+            </g>
+
+            <g data-map-layer="slice" class="node slice">
+              <rect x="316" y="82" width="190" height="90" rx="8"></rect>
+              <text x="336" y="112">Bounded Slice</text>
+              <text x="336" y="134" class="small-label">smallest safe target</text>
+              <text x="336" y="154" class="small-label">source anchors plus exclusions</text>
+            </g>
+            <g data-map-layer="slice" class="node slice">
+              <rect x="316" y="212" width="190" height="118" rx="8"></rect>
+              <text x="336" y="242">Slice Artifacts</text>
+              <text x="336" y="264" class="small-label">cards.json</text>
+              <text x="336" y="284" class="small-label">index.json, retrieval.json</text>
+              <text x="336" y="304" class="small-label">COVERAGE.md</text>
+            </g>
+
+            <g data-map-layer="index" class="node index">
+              <rect x="596" y="58" width="206" height="126" rx="8"></rect>
+              <text x="616" y="88">Lookup Indexes</text>
+              <text x="616" y="110" class="small-label">tag, surface, selector</text>
+              <text x="616" y="130" class="small-label">link, backlink</text>
+              <text x="616" y="150" class="small-label">query pattern</text>
+            </g>
+            <g data-map-layer="index" class="node index">
+              <rect x="596" y="224" width="206" height="110" rx="8"></rect>
+              <text x="616" y="254">Traceability</text>
+              <text x="616" y="276" class="small-label">source to card to validation</text>
+              <text x="616" y="296" class="small-label">gap/risk queue</text>
+            </g>
+            <g data-map-layer="index" class="node index">
+              <rect x="596" y="374" width="206" height="86" rx="8"></rect>
+              <text x="616" y="404">Read Projections</text>
+              <text x="616" y="426" class="small-label">Markdown, HTML, SQLite, vector later</text>
+            </g>
+
+            <g data-map-layer="governance" class="node governance">
+              <rect x="858" y="62" width="184" height="96" rx="8"></rect>
+              <text x="878" y="92">Source Owners</text>
+              <text x="878" y="114" class="small-label">source files stay read-only</text>
+              <text x="878" y="134" class="small-label">authority_owner is explicit</text>
+            </g>
+            <g data-map-layer="external" class="node external">
+              <rect x="858" y="198" width="184" height="96" rx="8"></rect>
+              <text x="878" y="228">Definitions</text>
+              <text x="878" y="250" class="small-label">Inventory links only</text>
+              <text x="878" y="270" class="small-label">canonical terms stay external</text>
+            </g>
+            <g data-map-layer="external" class="node external">
+              <rect x="858" y="334" width="184" height="96" rx="8"></rect>
+              <text x="878" y="364">Ontology Vault</text>
+              <text x="878" y="386" class="small-label">semantic relation promotion</text>
+              <text x="878" y="406" class="small-label">is not Inventory authority</text>
+            </g>
+
+            <path data-map-layer="flow" class="arrow interface" d="M228 108 C270 108 272 120 316 126"></path>
+            <path data-map-layer="flow" class="arrow interface" d="M133 144 L133 184"></path>
+            <path data-map-layer="flow" class="arrow slice" d="M228 225 C272 226 276 260 316 270"></path>
+            <path data-map-layer="flow" class="arrow slice" d="M411 172 L411 212"></path>
+            <path data-map-layer="flow" class="arrow index" d="M506 270 C544 270 552 126 596 122"></path>
+            <path data-map-layer="flow" class="arrow index" d="M506 284 C546 284 552 280 596 280"></path>
+            <path data-map-layer="flow" class="arrow index" d="M699 334 L699 374"></path>
+            <path data-map-layer="governance" class="arrow governance" d="M802 118 C830 118 830 110 858 110"></path>
+            <path data-map-layer="external" class="arrow external" d="M802 280 C830 278 830 246 858 246"></path>
+            <path data-map-layer="external" class="arrow external" d="M802 280 C830 284 830 382 858 382"></path>
+
+            <text x="240" y="96" class="small-label">target proposal</text>
+            <text x="520" y="118" class="small-label">card refs and selectors</text>
+            <text x="812" y="100" class="small-label">authority refs</text>
+            <text x="812" y="260" class="small-label">handoff only</text>
+          </svg>
+        </article>
+
+        <article class="panel" id="laneCards">
+          <div class="panel-head">
+            <div>
+              <h2>Lane Handles</h2>
+              <p>Each card is a consumable x-ray handle. Evidence labels point to the active Inventory docs, while inference labels call out interpretation made for the visual layer.</p>
+            </div>
+          </div>
+
+          <div class="layer-grid">
+            <section class="layer-card lane-interface" data-lane="interface">
+              <span class="tag">surface.summary</span>
+              <h3>Inventory is an interface first</h3>
+              <p>Calling Inventory should identify what the user wants to inventorize, ask for confirmation, then produce a lookup-ready package.</p>
+              <p class="muted">Evidence: INTERFACE-ARCHITECTURE lines 14-20 and 24-33.</p>
+            </section>
+
+            <section class="layer-card lane-interface" data-lane="interface">
+              <span class="tag">properties.catalog</span>
+              <h3>Core invariants</h3>
+              <ul>
+                <li>No-mode defaults to auto.</li>
+                <li>Mutation waits for confirmation.</li>
+                <li>User does not need internal modes.</li>
+                <li>Chat views precede full browser UI.</li>
+              </ul>
+              <p class="muted">Evidence: INTERFACE-ARCHITECTURE lines 35-52, 120-137, 192-203.</p>
+            </section>
+
+            <section class="layer-card lane-slice" data-lane="slice">
+              <span class="tag">components.map</span>
+              <h3>Slice package</h3>
+              <p>A confirmed run creates one bounded slice with `cards.json`, `index.json`, `retrieval.json`, and `COVERAGE.md`.</p>
+              <p class="muted">Evidence: INTERFACE-ARCHITECTURE lines 139-161 and 192-200.</p>
+            </section>
+
+            <section class="layer-card lane-index" data-lane="index">
+              <span class="tag">dependencies.internal</span>
+              <h3>Deterministic index stack</h3>
+              <p>Inventory should prioritize tag, surface, selector, link, traceability, and gap/risk indexes before semantic search.</p>
+              <p class="muted">Evidence: INDEX-TECHNIQUE-RESEARCH lines 314-339 and 358-372.</p>
+            </section>
+
+            <section class="layer-card lane-index" data-lane="index">
+              <span class="tag">flow.graph</span>
+              <h3>Lookup path</h3>
+              <p>Selectors tie claims to source context, links connect cards and records, backlinks are generated from link-index, and retrieval fixtures shape answers.</p>
+              <p class="muted">Evidence: INDEX-TECHNIQUE-RESEARCH lines 36-158 and LINKING-DISCIPLINE lines 100-115.</p>
+            </section>
+
+            <section class="layer-card lane-external" data-lane="external">
+              <span class="tag">dependencies.external</span>
+              <h3>Authority stays outside Inventory</h3>
+              <p>Definitions Governance owns definitions, Ontology Vault owns semantic relation promotion, and source owners own source files.</p>
+              <p class="muted">Evidence: INTERFACE-ARCHITECTURE lines 178-190 and LINKING-DISCIPLINE lines 47-57, 186-187.</p>
+            </section>
+
+            <section class="layer-card lane-governance" data-lane="governance">
+              <span class="tag">lifecycle.timeline</span>
+              <h3>Operational lifecycle</h3>
+              <p>Intent capture -> target resolution -> confirmation -> slice execution -> index update -> status/lookup -> gap or owner handoff.</p>
+              <p class="muted">Evidence: INTERFACE-ARCHITECTURE lines 54-176. Ordering is source-backed; lifecycle label is x-ray composition.</p>
+            </section>
+
+            <section class="layer-card lane-governance" data-lane="governance">
+              <span class="tag">risk.questions</span>
+              <h3>Risk questions</h3>
+              <ul>
+                <li>Where is confirmation state persisted?</li>
+                <li>Which validator proves index consistency first?</li>
+                <li>How is low confidence target inference represented?</li>
+              </ul>
+              <p class="muted">Inference from documented gaps and MVP requirements.</p>
+            </section>
+
+            <section class="layer-card lane-flow" data-lane="flow">
+              <span class="tag">visual.model</span>
+              <h3>Visual composition</h3>
+              <p>The page uses a dependency boundary plus evidence split: internal Inventory read models on the left, external authority owners on the right.</p>
+              <p class="muted">Source: x-ray library patterns; inference: layout selected for this architecture.</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Artifacts And Indexes</h2>
+              <p>Inventory's current direction is a small linked-data system stored in JSON and Markdown. JSON carries canonical machine lookup; Markdown carries human-readable projections and coverage.</p>
+            </div>
+          </div>
+          <div class="artifact-list">
+            <section class="evidence-card">
+              <h3>Slice files</h3>
+              <code>slices/&lt;slice-id&gt;/cards.json</code>
+              <code>slices/&lt;slice-id&gt;/index.json</code>
+              <code>slices/&lt;slice-id&gt;/retrieval.json</code>
+              <code>slices/&lt;slice-id&gt;/COVERAGE.md</code>
+            </section>
+            <section class="evidence-card">
+              <h3>Core indexes</h3>
+              <code>indexes/tag-index.json</code>
+              <code>indexes/surface-index.json</code>
+              <code>indexes/selector-index.json</code>
+              <code>indexes/link-index.json</code>
+              <code>indexes/traceability-matrix.json</code>
+              <code>indexes/gap-risk-index.json</code>
+            </section>
+            <section class="evidence-card">
+              <h3>Optional read models</h3>
+              <code>indexes/backlink-index.json</code>
+              <code>indexes/query-pattern-index.json</code>
+              <code>indexes/projection-index.json</code>
+            </section>
+            <section class="evidence-card">
+              <h3>Deferred power tools</h3>
+              <code>vector index</code>
+              <code>SQLite projection</code>
+              <code>full browser UI</code>
+              <code>embedding search</code>
+              <code>automatic graph inference</code>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Evidence Boundary</h2>
+              <p>The x-ray separates active-document facts from explanatory inference so the diagram does not become accidental architecture authority.</p>
+            </div>
+          </div>
+          <table class="risk-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>What the page claims</th>
+                <th>Evidence or note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Source-backed</td>
+                <td>Inventory should infer target, ask confirmation, and create/update a bounded inventory slice.</td>
+                <td>INTERFACE-ARCHITECTURE lines 14-20 and 24-33.</td>
+              </tr>
+              <tr>
+                <td>Source-backed</td>
+                <td>Machine links are canonical Inventory indexes; Markdown links are readable projections.</td>
+                <td>LINKING-DISCIPLINE lines 100-115.</td>
+              </tr>
+              <tr>
+                <td>Source-backed</td>
+                <td>Immediate priority is deterministic source authority, links, tags, traceability, and gap/risk, not semantic search.</td>
+                <td>INDEX-TECHNIQUE-RESEARCH lines 314-339 and 358-372.</td>
+              </tr>
+              <tr>
+                <td>Inference</td>
+                <td>The four-column visual map is the clearest explanation layout for the current package.</td>
+                <td>Chosen with x-ray dependency-boundary and evidence-inference-split patterns.</td>
+              </tr>
+              <tr>
+                <td>Open question</td>
+                <td>The exact implementation home for confirmation state and validators still needs a task-session or work-pack decision.</td>
+                <td>Derived from MVP requirements and documented validation gaps.</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll("[data-filter]"));
+    const body = document.body;
+    const mapItems = Array.from(document.querySelectorAll("[data-map-layer]"));
+
+    function applyFilter(filter) {
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+      });
+
+      body.classList.remove(
+        "hide-layer",
+        "show-interface",
+        "show-slice",
+        "show-index",
+        "show-governance",
+        "show-flow",
+        "show-external"
+      );
+
+      if (filter === "all") {
+        mapItems.forEach((item) => item.classList.remove("dimmed"));
+        return;
+      }
+
+      body.classList.add("hide-layer", `show-${filter}`);
+      mapItems.forEach((item) => {
+        item.classList.toggle("dimmed", item.dataset.mapLayer !== filter);
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => applyFilter(button.dataset.filter));
+    });
+  </script>
+</body>
+</html>
