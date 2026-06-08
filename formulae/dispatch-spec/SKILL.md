@@ -85,6 +85,9 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 20. Execution evidence must not directly promote Inventory, Ontology, glossary, sigil, or spell knowledge.
 21. `subagent_strategy.status=recommended|required` must name roles, join policy, authorization, and the reason subagents fit the problem shape.
 22. Recommended or required subagent execution should default to `authorization=requires_user_permission` until the operator approves the run.
+23. Recommended or required subagent execution must include lifecycle receipt fields: `agent_id`, `role_id`, `spawn_status`, `join_status`, `close_status`, `residue`, and `reroute`.
+24. A `subagent_lifecycle.status=pass` ledger must prove every spawned agent reached a terminal join state and terminal close state.
+25. Blocked spawn, timed-out join, blocked join, or thread-cap failure only passes as named residue with a reroute or handoff.
 
 ## Subagent Strategy
 
@@ -109,6 +112,30 @@ Minimum fields:
 - `permission_prompt`: the prompt the orchestrator should show before execution.
 - `receipt_requirements`: evidence each subagent must return.
 
+## Subagent Lifecycle
+
+Use `subagent_lifecycle` only after a runtime or parent route has attempted
+delegated execution. It is the closeout ledger for AFK-safe dispatches: the
+parent cannot report success while a spawned sibling agent remains open,
+unjoined, hidden, or only implicitly abandoned.
+
+Minimum fields:
+
+- `status`: `none`, `pass`, `flag`, or `block`.
+- `agents`: one entry per attempted delegated agent.
+- `agent_id`: stable runtime or parent-assigned identifier.
+- `role_id`: matching role from `subagent_strategy.roles`.
+- `spawn_status`: `spawned` or `blocked`.
+- `join_status`: `completed`, `timed_out`, `blocked`, `handed_off`, `closed_without_result`, `pending`, or `not_needed`.
+- `close_status`: `closed`, `already_closed`, `handed_off`, `blocked`, `pending`, or `not_needed`.
+- `receipt_artifact`: required when `join_status=completed`.
+- `residue`: required for blocked spawn, timed-out join, blocked join, or other non-happy-path closeout.
+- `reroute`: required when work is handed off, blocked, timed out, or capped by runtime/thread limits.
+
+`status=pass` is only valid when every spawned agent has a terminal join and
+terminal close state. Hidden open subagents, pending joins, and pending close
+states return `block`.
+
 ## Output Contract
 
 ```markdown
@@ -122,6 +149,7 @@ Minimum fields:
 - Gates: <pass | flag | block with reasons>
 - Handoffs: <frame/handle/decision/ledger summary>
 - Subagent strategy: <none | recommended | required | blocked, roles, join policy, authorization>
+- Subagent lifecycle: <n/a | pass | flag | block, open agents, residue, reroute>
 - Observability: <dispatch_id coverage and trace events>
 - Promotion guardrail: pass | flag | block
 - Required repairs: <none or list>
@@ -130,6 +158,6 @@ Minimum fields:
 
 ## Failure Policy
 
-- Return `block` when required fields are missing, step dependencies are impossible, or promotion authority is falsely claimed.
+- Return `block` when required fields are missing, step dependencies are impossible, promotion authority is falsely claimed, or delegated subagents remain unjoined/unclosed.
 - Return `flag` when the document is usable but has weak evidence names, candidate capabilities, or incomplete observability metadata.
 - Return `pass` only when the route is explicit, gated, observable, and handoff-ready.

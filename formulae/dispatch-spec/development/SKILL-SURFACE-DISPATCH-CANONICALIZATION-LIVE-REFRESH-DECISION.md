@@ -1,7 +1,7 @@
 ---
 module: skill-surface-dispatch-canonicalization
 version: current
-status: blocked-pending-user-decision
+status: pass
 updatedAt: 2026-06-05
 docType: decision-gate
 blocker: B-DISP-SURF-001
@@ -12,6 +12,10 @@ blocker: B-DISP-SURF-001
 ## Decision Needed
 
 `SWU-DISP-SURF-005` would mutate the machine-global Codex skill discovery surface under `/mnt/c/Users/vlad_/.codex/skills`. Source contracts and staged installs now pass, but live refresh still requires explicit approval.
+
+## Selected Decision
+
+Option A was approved by the user with reply `A` on 2026-06-05. The approved action is a backed-up live refresh that preserves non-Arcanum and unknown packages.
 
 ## Options
 
@@ -32,4 +36,4 @@ Choose Option A if the goal is to fix the installed version now. The staged evid
 
 ## Stop Condition
 
-Do not run `SWU-DISP-SURF-005` until the user explicitly approves Option A or Option B.
+Resolved. `SWU-DISP-SURF-005` may run under Option A and must preserve the backup evidence.

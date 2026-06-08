@@ -1,0 +1,34 @@
+{
+  "dispatch_id": "fixture-block-command-interface-active-proof",
+  "intent": {
+    "raw": "run command proof route",
+    "objective": "Validate deprecated command-interface proof is blocked."
+  },
+  "mode": "sequence",
+  "techniques": ["sequence"],
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Command proof step",
+      "capability_ref": "refine",
+      "pattern": "sequential",
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "artifact", "ref": "RESULT.md"}],
+      "stop_conditions": ["block if command proof fails"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-command-proof",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Each command-backed stage resolves through tools/arcanum --resolve before execution.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated"],
+    "signal_grouping": "dispatch_id"
+  }
+}

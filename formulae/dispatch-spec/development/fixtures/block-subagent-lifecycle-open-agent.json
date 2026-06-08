@@ -1,0 +1,75 @@
+{
+  "dispatch_id": "fixture-block-subagent-lifecycle-open-agent",
+  "intent": {
+    "raw": "run AFK research with an open delegated lane",
+    "objective": "Show that pending delegated subagents block parent success."
+  },
+  "mode": "research",
+  "techniques": ["execution_receipt_handoff", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "Research lanes are required for broad coverage.",
+    "explanation": "The route requires sibling lanes, so closeout evidence is mandatory.",
+    "roles": [
+      {
+        "role_id": "related-work",
+        "purpose": "Collect related work.",
+        "owns": "related-work receipt",
+        "applies_to_steps": ["s1"]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "all",
+    "authorization": "approved",
+    "permission_prompt": "Spawn the related-work lane and require closeout?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "residue",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "agent-related-work-001",
+        "role_id": "related-work",
+        "spawn_status": "spawned",
+        "join_status": "pending",
+        "close_status": "pending"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Run related-work lane",
+      "capability_ref": "task-session",
+      "pattern": "fanout",
+      "parallel": true,
+      "techniques": ["execution_receipt_handoff"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "ledger", "ref": "subagent-lifecycle-ledger"}],
+      "join_policy": "all",
+      "stop_conditions": ["block if the related-work lane remains pending"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Pending subagent joins and closes block parent success.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["subagent_spawned"],
+    "signal_grouping": "dispatch_id"
+  }
+}
