@@ -1,0 +1,388 @@
+{
+  "dispatch_id": "refine-commandless-native-schema-plan",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Remove deprecated command-interface dependency from Refine and Invoke, refresh definitions, designs, architecture, schema enforcement, and subagent strategy into an implementation-ready plan.",
+    "objective": "Prepare a non-executed implementation plan for migrating Refine and Invoke to native skill/subagent capability handles, dispatch-spec schemas, receipts, and validator-backed evidence.",
+    "target_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "invoke",
+      "dispatch-spec",
+      "native skill",
+      "subagent strategy",
+      "schema enforcement",
+      "receipt"
+    ],
+    "operator_sentence": "command interface should be removed, it is already deprecated; refresh definitions, designs, architecture, schemas, and subagent strategy into a clear implementation plan"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "This is a planning route, not runtime-backed stage execution. The selected route removes command-interface dependency from active contracts while preserving historical evidence.",
+    "items": [
+      {
+        "id": "commandless_native_schema",
+        "label": "Commandless native schema migration",
+        "description": "Replace active command-interface dependencies with native capability handles, dispatch schemas, receipts, and subagent lifecycle validation.",
+        "pattern": "sequential"
+      },
+      {
+        "id": "compatibility_only",
+        "label": "Compatibility-only migration",
+        "description": "Keep tools/arcanum as active resolver and only clarify deprecated behavior.",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "commandless_native_schema"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "evidence_receipt_link",
+    "artifact_contract_bridge",
+    "state_namespace_boundary"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "route_menu_for_policy_tension",
+      "trigger": "Existing migration plans keep a deterministic command compatibility role, while the operator now wants command-interface dependency removed from active governance.",
+      "techniques": [
+        "route_menu",
+        "approval_checkpoint",
+        "owner_boundary_check"
+      ],
+      "applies_to_steps": [
+        "s01-refresh-definition-boundary",
+        "s02-refresh-architecture",
+        "s05-final-plan"
+      ],
+      "validation_expectation": "The plan names what is removed, what is preserved as historical or legacy compatibility, and what remains outside Refine/Invoke ownership."
+    },
+    {
+      "overlay_id": "subagent_schema_receipts",
+      "trigger": "The target spans active contracts, schemas, validators, generated packages, and runtime evidence. Independent review lanes can clear gaps without mutating source.",
+      "techniques": [
+        "role_projection_boundary",
+        "execution_receipt_handoff",
+        "evidence_receipt_link"
+      ],
+      "applies_to_steps": [
+        "s03-schema-enforcement",
+        "s04-validation-and-fixtures",
+        "s05-final-plan"
+      ],
+      "validation_expectation": "Subagent use requires explicit roles, parent synthesis, receipt requirements, and closeout evidence before any implementation claims pass."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The migration crosses separate concerns that can be reviewed independently: active Refine/Invoke wording, dispatch schema enforcement, generated install/runtime surfaces, and validation fixtures.",
+    "explanation": "Use role-bound subagents for audit and implementation execution slices only after this plan is approved. The parent coordinator owns synthesis, sequencing, and source mutation decisions.",
+    "context": [
+      "Command interface is deprecated for active Refine/Invoke governance.",
+      "Dispatch-spec schema and validator remain the enforceable route contract.",
+      "Subagents should clear bounded side lanes and return receipts, not own promotion."
+    ],
+    "roles": [
+      {
+        "role_id": "active-contract-auditor",
+        "purpose": "Audit active Refine, Invoke, and generated package source for command-interface dependency that must be removed or reclassified.",
+        "owns": "active wording inventory and replacement categories",
+        "applies_to_steps": [
+          "s01-refresh-definition-boundary",
+          "s02-refresh-architecture"
+        ]
+      },
+      {
+        "role_id": "schema-validator-auditor",
+        "purpose": "Audit dispatch-spec schemas, validators, and fixtures for capability-handle, receipt, and subagent lifecycle enforcement gaps.",
+        "owns": "schema and validator gap report",
+        "applies_to_steps": [
+          "s03-schema-enforcement",
+          "s04-validation-and-fixtures"
+        ]
+      },
+      {
+        "role_id": "install-surface-auditor",
+        "purpose": "Audit bootstrap, generated native packages, and local installed surfaces for deprecated command-interface assumptions.",
+        "owns": "install and generated-surface migration list",
+        "applies_to_steps": [
+          "s02-refresh-architecture",
+          "s04-validation-and-fixtures"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Spawn the listed auditors for implementation slices after this plan is approved?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "residue",
+      "reroute",
+      "files_or_surfaces_reviewed",
+      "findings",
+      "validation_impact"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s01-refresh-definition-boundary",
+      "name": "Refresh Definition Boundary",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "definition-boundary-frame"
+        }
+      ],
+      "evidence_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md",
+      "stop_conditions": [
+        "block if active command-interface dependency is not distinguished from historical evidence or legacy compatibility"
+      ]
+    },
+    {
+      "step_id": "s02-refresh-architecture",
+      "name": "Refresh Architecture",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "definition-boundary-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "architecture-frame"
+        }
+      ],
+      "evidence_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md"
+    },
+    {
+      "step_id": "s03-schema-enforcement",
+      "name": "Plan Schema Enforcement",
+      "capability_ref": "dispatch-spec",
+      "mode": "validation",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "execution_receipt_handoff",
+        "evidence_receipt_link"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "architecture-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "schema-enforcement-ledger"
+        }
+      ],
+      "evidence_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md"
+    },
+    {
+      "step_id": "s04-validation-and-fixtures",
+      "name": "Plan Validation And Fixtures",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "minimum_component_catalog",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "schema-enforcement-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "work-pack-plan"
+        }
+      ],
+      "evidence_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md"
+    },
+    {
+      "step_id": "s05-final-plan",
+      "name": "Final Refine Synthesis",
+      "capability_ref": "refine",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": [
+        "owner_boundary_check",
+        "observability_grouping",
+        "role_projection_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "work-pack-plan"
+        },
+        {
+          "kind": "ledger",
+          "ref": "schema-enforcement-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "plan_completed"
+        }
+      ],
+      "evidence_artifact": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-commandless-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "Active Refine and Invoke governance must not require .codex/commands, slash commands, command files, or tools/arcanum command resolution as execution proof.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-legacy-preservation",
+      "kind": "policy",
+      "owner": "task-session",
+      "condition": "Historical evidence and explicit legacy compatibility surfaces are classified rather than rewritten as active policy.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g03-schema-enforcement",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Dispatch schema and validator enforce native capability handles, subagent lifecycle receipts, route validation, and artifact completeness before pass.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g04-subagent-permission",
+      "kind": "human_approval",
+      "owner": "refine",
+      "condition": "Subagent execution requires explicit operator permission and receipt closeout.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g05-no-lifecycle-overclaim",
+      "kind": "promotion_guardrail",
+      "owner": "invoke",
+      "condition": "Invoke authors define, design, and plan artifacts but does not claim implementation or lifecycle promotion completion.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "active-policy-vs-history",
+        "kind": "artifact_import",
+        "contract": "Active canonical contracts are mutable under approved task-session work; historical run evidence is preserved and classified.",
+        "on_violation": "flag",
+        "applies_to_steps": [
+          "s01-refresh-definition-boundary",
+          "s04-validation-and-fixtures"
+        ]
+      },
+      {
+        "boundary_id": "native-skill-vs-command-interface",
+        "kind": "capability_handoff",
+        "contract": "Native skill and subagent receipts are execution evidence; command-interface resolution is deprecated and cannot satisfy active Refine or Invoke stage proof.",
+        "on_violation": "block",
+        "applies_to_steps": [
+          "s02-refresh-architecture",
+          "s03-schema-enforcement",
+          "s05-final-plan"
+        ]
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "native-stage-receipt",
+        "producer": "native skill or approved subagent",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "RUN-MANIFEST.md",
+          "evidence-index.json"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "canonical-source",
+        "owner": "capability owner",
+        "write_policy": "approved task-session only"
+      },
+      {
+        "namespace": "generated-runtime-package",
+        "owner": "bootstrap generator",
+        "write_policy": "regenerate from canonical source"
+      },
+      {
+        "namespace": "historical-evidence",
+        "owner": "run artifact owner",
+        "write_policy": "preserve by default"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This dispatch is a planning route, not implementation completion evidence.",
+    "Removing command-interface dependency from active contracts does not delete historical evidence.",
+    "Refine may recommend Task Session for implementation but must not execute the plan inside this planning route."
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "strategy_selected",
+      "plan_authored",
+      "schema_gap_recorded",
+      "subagent_strategy_recorded",
+      "implementation_plan_ready"
+    ],
+    "signal_grouping": "dispatch_id"
+  }
+}

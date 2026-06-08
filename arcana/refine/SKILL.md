@@ -53,15 +53,15 @@ Every refine run uses this stage list. Presets tune budget, depth, and configura
 
 <dispatch-spec-contract>
 
-Every materialized refine run must write `REFINE-DISPATCH.json` before runtime-backed stage execution. The dispatch must conform to `formulae/dispatch-spec/dispatch.schema.yml` and should cite applicable techniques from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`.
+Every materialized refine run must write `REFINE-DISPATCH.json` before native runtime-backed stage execution. The dispatch must conform to `formulae/dispatch-spec/dispatch.schema.yml` and should cite applicable techniques from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`.
 
 The dispatch document replaces Refine as a freeform orchestrator. Refine defines the fixed canonical loop, research policy, and final synthesis, but the route artifact must carry:
 
 - `dispatch_id` tied to the run id,
 - raw operator intent and refinement objective,
 - the ten canonical stages as ordered dispatch steps,
-- stage owner, mode/configuration, inputs, outputs, runtime adapter, and evidence handles for each runtime-backed stage,
-- gates for deterministic capability-handle resolution, research confirmation, required artifact existence, owner-boundary preservation, and final synthesis readiness,
+- stage owner, mode/configuration, inputs, outputs, runtime surface, and native receipt handles for each runtime-backed stage,
+- gates for native capability handles, stage receipts, research confirmation, required artifact existence, owner-boundary preservation, and final synthesis readiness,
 - observability trace events grouped by `dispatch_id`,
 - a route menu or recorded route decision when more than one technique profile could apply,
 - `subagent_strategy` describing whether role-bound sibling agents are none, recommended, required, or blocked,
@@ -125,53 +125,44 @@ Validation requirements:
 
 </technique-overlay-policy>
 
-<stage-dispatch-contract>
+<stage-receipt-contract>
 
-Every executable stage in the validated dispatch must use parent-owned runtime dispatch. Refine verifies deterministic capability-handle resolution locally, then executes the stage through the current native skill/subagent surface. When a durable handoff artifact is useful, `tools/arcanum --exec` may prepare an adapter handoff and receipt contract; it is not the stage execution primitive.
+Every executable stage in the validated dispatch must use parent-owned native runtime dispatch. A selected stage is complete only when it records a native receipt or an explicit blocked reason. The receipt may come from the parent coordinator, the owning native skill, an approved subagent, or a deterministic adapter handoff that is clearly outside the execution success gate.
 
-```bash
-tools/arcanum --resolve <capability-id>
-tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>
-```
+Deprecated command files, slash commands, and command-resolution checks are not active Refine success gates. `tools/arcanum` may remain as explicit legacy compatibility or deterministic handoff preparation, but a missing command interface must not block a stage when the native capability is available through the current host runtime. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in only.
 
-For native adapters such as `native-skill`, `codex-skill`, `claude-skill`, and `copilot-instructions`, `tools/arcanum --exec` is a deterministic handoff/receipt surface. It must not spawn a nested model-backed CLI or replace native skill execution. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in only.
-
-Before a stage runs, Refine must verify:
-
-```bash
-tools/arcanum --resolve <capability-id>
-```
-
-If resolution fails, the stage is `block` and the blocked reason is recorded. Do not replace a required stage with freeform prose when its owner capability is available through the current native runtime.
+Before a stage runs, Refine must identify the owning capability handle and the expected receipt shape. If the capability is unavailable through the current native runtime, the stage is `block` and the blocked reason is recorded. Do not replace a required stage with freeform prose when its owner capability is available through the current native runtime.
 
 For each stage, preserve:
 
 - stage name,
 - owning capability,
-- resolved capability handle,
-- runtime adapter,
+- capability handle,
+- receipt kind,
+- runtime surface,
 - requested mode/configuration,
 - output path,
 - status and verdict,
+- receipt artifact or structured receipt fields,
 - observer status when available,
 - blocked reason when no artifact exists.
 
-</stage-dispatch-contract>
+</stage-receipt-contract>
 
 <stage-configuration>
 
 Default configuration:
 
-- Context Builder: command `context-builder`; mode `standard`; request includes `--strict --emit both --handoff runtime --persist <run-folder>/context-builder`.
-- Invoke Define: command `invoke`; mode `define`; input is `REFINE-SEED-PROPOSAL.md` plus Context Builder outputs.
-- Interrogation 1: command `interrogation`; mode `refine-review`.
+- Context Builder: capability `context-builder`; mode `standard`; request includes `--strict --emit both --handoff runtime --persist <run-folder>/context-builder`.
+- Invoke Define: capability `invoke`; mode `define`; input is `REFINE-SEED-PROPOSAL.md` plus Context Builder outputs.
+- Interrogation 1: capability `interrogation`; mode `refine-review`.
 - Research Decision: owner `refine`; mode `no-research`, `bounded-research`, or `research-if-gap-appears`.
-- Distill: command `distill`; mode `standard`.
-- Invoke Redefine / Design: command `invoke`; mode `design`; request explicitly frames the run as redefining/designing from prior artifacts.
-- Interrogation 2: command `interrogation`; mode `refine-design-review`.
-- Distill Repair: command `distill`; mode `validate` or an explicitly repair-focused request.
-- Invoke Plan: command `invoke`; mode `plan`; output is a non-executed plan artifact.
-- Final Interrogation and Synthesis: command `interrogation`; mode `refine-final`, followed by Refine-owned synthesis.
+- Distill: capability `distill`; mode `standard`.
+- Invoke Redefine / Design: capability `invoke`; mode `design`; request explicitly frames the run as redefining/designing from prior artifacts.
+- Interrogation 2: capability `interrogation`; mode `refine-design-review`.
+- Distill Repair: capability `distill`; mode `validate` or an explicitly repair-focused request.
+- Invoke Plan: capability `invoke`; mode `plan`; output is a non-executed plan artifact.
+- Final Interrogation and Synthesis: capability `interrogation`; mode `refine-final`, followed by Refine-owned synthesis.
 
 </stage-configuration>
 
@@ -193,7 +184,7 @@ Required contents:
 - `RESULT.md`
 - `stages/`
 
-Refine owns this folder, the seed proposal, the dispatch request, the runtime handoff, the research decision reference, the final result, and the evidence index. Dispatch Spec owns route-shape validation. Stage commands own their own artifacts. The manifest and index reference those artifacts; they do not copy or redefine them.
+Refine owns this folder, the seed proposal, the dispatch request, the runtime handoff, the research decision reference, the final result, and the evidence index. Dispatch Spec owns route-shape validation. Stage capabilities own their own artifacts. The manifest and index reference those artifacts; they do not copy or redefine them.
 
 A selected stage is invalid when it has neither an artifact path nor a blocked reason. A stage marked `pass` is invalid when its artifact path is missing or does not exist.
 
@@ -305,9 +296,9 @@ If no preset is supplied, use `standard`.
 7. Show the Dispatch Spec strategy preview as `Refine Run Strategy Proposal`: inferred target/outcome, overlays, why they apply, subagent strategy, role ownership, join policy, receipts, runtime implications, and deferred work.
 8. Ask permission to run the validated route. When subagents are recommended or required, permission must explicitly cover delegated subagent execution. Stop here until the operator confirms.
 9. Write `RUNTIME-HANDOFF.md` with the runtime objective, validated dispatch reference, strategy permission state, adapter/run fields, blocked fields, and runtime status.
-10. For each runtime-backed stage in the validated dispatch, resolve the capability handle with `tools/arcanum --resolve <capability-id>` when deterministic local resolution exists.
+10. For each runtime-backed stage in the validated dispatch, identify the native capability handle and required receipt fields before execution.
 11. Spawn approved subagents when the confirmed strategy recommends or requires them; collect role receipts before parent synthesis.
-12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, use `tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>` only as the handoff/receipt contract, not as a nested model CLI sandbox.
+12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, record it as compatibility or handoff preparation; do not count command-interface execution as the native stage proof.
 13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
 14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
 15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict.
@@ -323,13 +314,13 @@ A successful Refine run must:
 - select technique overlays based on target evidence rather than decorating the route with unused technique names,
 - show the Dispatch Spec strategy and ask permission before runtime execution,
 - stop after the strategy proposal until the operator confirms the run,
-- use `tools/arcanum` deterministic resolution and native runtime receipts for runtime-backed stages,
+- use native capability handles and native runtime receipts for runtime-backed stages,
 - collect subagent receipts when approved subagents are used,
 - materialize a target-local run manifest and evidence index,
 - record research mode and confirmation status,
-- preserve each stage command's native artifact ownership,
+- preserve each stage capability's native artifact ownership,
 - cite dispatch techniques only when they are expressed by steps, gates, handoffs, or validation notes,
-- block unavailable commands or unsafe runtime handoff with exact missing fields,
+- block unavailable native capabilities or unsafe runtime handoff with exact missing fields,
 - produce a final refined synthesis,
 - keep Task Session and Sigil Development out of the loop except as optional next-route recommendations.
 </quality-bar>
@@ -346,7 +337,7 @@ Recommended signal fields:
 - runtime handoff status,
 - dispatch strategy status,
 - subagent strategy status and authorization,
-- stage command resolution status,
+- native capability receipt status,
 - run manifest path,
 - evidence index path,
 - runtime handoff path,
@@ -360,8 +351,8 @@ Refine is promotion-ready only after experiment evidence shows:
 
 - vague targets produce useful seed proposals,
 - the ten-stage loop is represented in manifest/index evidence,
-- runtime-backed stages resolve through `tools/arcanum` or native runtime package handles,
-- blocked command or runtime execution records exact missing fields,
+- runtime-backed stages produce native capability receipts or blocked reasons,
+- blocked native capability or runtime execution records exact missing fields,
 - bounded research choices are offered and recorded,
 - the dispatch route validates before stage execution,
 - the strategy preview and permission gate occur before runtime-backed or subagent execution,
@@ -378,7 +369,7 @@ Avoid:
 - replacing runtime-backed stages with hand-written prose,
 - running external research without the selected mode and confirmation,
 - marking refinement complete before final interrogation and synthesis,
-- silently falling back from failed dispatch validation, failed runtime handoff, or failed command dispatch.
+- silently falling back from failed dispatch validation, failed runtime handoff, or failed native stage receipt.
 - running runtime-backed stages or subagents before showing the Dispatch Spec strategy and receiving permission.
 - treating a simple "refine everything" request as permission to run before the strategy proposal is confirmed.
 </anti-patterns>

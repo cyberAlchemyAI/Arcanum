@@ -67,16 +67,30 @@ else
 fi
 rm -f "$generated_dispatch"
 
-for command in refine context-builder invoke interrogation distill; do
-	if ! "$root/tools/arcanum" --resolve "$command" >/dev/null 2>&1; then
-		printf 'BLOCK: tools/arcanum cannot resolve required command: %s\n' "$command"
+if ! rg -q -- '"gate_id": "g03-native-capability-receipts"' "$artifact/templates/refine-dispatch.json"; then
+	printf 'BLOCK: refine dispatch template is missing native capability receipt gate\n'
+	refine_live_validation="block"
+fi
+
+if rg -q -- 'tools/arcanum --resolve|tools/arcanum --exec|command-backed|command file|Command file|\\.codex/commands' \
+	"$artifact/SKILL.md" \
+	"$artifact/README.md" \
+	"$artifact/REFINEMENT-LOOP.md" \
+	"$artifact/templates/runtime-handoff.md" \
+	"$artifact/templates/run-manifest.md" \
+	"$artifact/templates/evidence-index.json" \
+	"$artifact/templates/usage-telemetry.md" \
+	"$artifact/templates/reflection-report.md" \
+	"$artifact/templates/refine-dispatch.json"; then
+	if ! rg -q -- 'Deprecated command files|explicit legacy compatibility|Legacy model CLI adapters|not active .*success gates' \
+		"$artifact/SKILL.md" \
+		"$artifact/README.md" \
+		"$artifact/REFINEMENT-LOOP.md" \
+		"$artifact/templates/runtime-handoff.md" \
+		"$artifact/templates/refine-dispatch.json"; then
+		printf 'BLOCK: active Refine contract has unclassified command-interface wording\n'
 		refine_live_validation="block"
 	fi
-done
-
-if ! "$root/tools/arcanum" --resolve /refine >/dev/null 2>&1; then
-	printf 'BLOCK: tools/arcanum cannot resolve slash command: /refine\n'
-	refine_live_validation="block"
 fi
 
 if [[ -f "$xray_output" ]]; then
@@ -92,7 +106,7 @@ if [[ -f "$xray_output" ]]; then
 		has_loop_evidence_section="0"
 		has_all_loop_stage_names="0"
 		has_stage_evidence_marker="0"
-		has_command_evidence="0"
+		has_native_receipt_evidence="0"
 		manifest_rel=""
 		index_rel=""
 		runtime_rel=""
@@ -117,10 +131,10 @@ if [[ -f "$xray_output" ]]; then
 			has_all_loop_stage_names="1"
 		fi
 		rg -q -- 'artifact path|Artifact path|observation envelope|observation summary|invocation summary|verdict|blocked reason|Result: (PASS|FLAG|BLOCK)|Status: (pass|flag|block)' "$xray_output" && has_stage_evidence_marker="1" || true
-		rg -q -- 'tools/arcanum|Command file|command file|\\.codex/commands/' "$xray_output" && has_command_evidence="1" || true
+		rg -q -- 'native receipt|Native receipt|receipt artifact|Receipt artifact|capability handle|capability_ref|approved subagent|blocked reason' "$xray_output" && has_native_receipt_evidence="1" || true
 
-		if [[ "$has_runtime_handoff" == "0" || "$has_dispatch_route" == "0" || "$has_final_refinement_evidence" == "0" || "$has_loop_authority" == "0" || "$has_loop_evidence_section" == "0" || "$has_all_loop_stage_names" == "0" || "$has_stage_evidence_marker" == "0" || "$has_command_evidence" == "0" ]]; then
-			printf 'FLAG: sigil-new-low output does not prove the canonical refine loop with dispatch route, runtime handoff, and command-stage evidence\n'
+		if [[ "$has_runtime_handoff" == "0" || "$has_dispatch_route" == "0" || "$has_final_refinement_evidence" == "0" || "$has_loop_authority" == "0" || "$has_loop_evidence_section" == "0" || "$has_all_loop_stage_names" == "0" || "$has_stage_evidence_marker" == "0" || "$has_native_receipt_evidence" == "0" ]]; then
+			printf 'FLAG: sigil-new-low output does not prove the canonical refine loop with dispatch route, runtime handoff, and native receipt evidence\n'
 			refine_live_validation="flag"
 		fi
 
@@ -215,22 +229,23 @@ if [[ -f "$xray_output" ]]; then
 					status="$(jq -r '.status // ""' <<<"$stage_json")"
 					artifact_path="$(jq -r '.artifact_path // ""' <<<"$stage_json")"
 					blocked_reason="$(jq -r '.blocked_reason // ""' <<<"$stage_json")"
-					command="$(jq -r '.command // ""' <<<"$stage_json")"
-					command_file="$(jq -r '.command_file // ""' <<<"$stage_json")"
+					capability_ref="$(jq -r '.capability_ref // ""' <<<"$stage_json")"
+					receipt_kind="$(jq -r '.receipt_kind // ""' <<<"$stage_json")"
+					receipt_artifact="$(jq -r '.receipt_artifact // ""' <<<"$stage_json")"
 					if [[ -z "$artifact_path" && -z "$blocked_reason" ]]; then
 						printf 'FLAG: evidence index stage has neither artifact path nor blocked reason: %s\n' "$stage"
 						if [[ "$refine_live_validation" == "pass" ]]; then
 							refine_live_validation="flag"
 						fi
 					fi
-					if [[ "$stage" != "Research decision" && ( -z "$command" || -z "$command_file" ) ]]; then
-						printf 'FLAG: evidence index stage is missing command evidence: %s\n' "$stage"
+					if [[ -z "$capability_ref" || -z "$receipt_kind" ]]; then
+						printf 'FLAG: evidence index stage is missing native capability receipt evidence: %s\n' "$stage"
 						if [[ "$refine_live_validation" == "pass" ]]; then
 							refine_live_validation="flag"
 						fi
 					fi
-					if [[ "$status" == "pass" && ( -z "$artifact_path" || ! -f "$root/$artifact_path" ) ]]; then
-						printf 'BLOCK: evidence index stage is pass but artifact is missing: %s -> %s\n' "$stage" "$artifact_path"
+					if [[ "$status" == "pass" && ( ( -z "$artifact_path" || ! -f "$root/$artifact_path" ) && ( -z "$receipt_artifact" || ! -f "$root/$receipt_artifact" ) ) ]]; then
+						printf 'BLOCK: evidence index stage is pass but artifact/receipt is missing: %s -> %s / %s\n' "$stage" "$artifact_path" "$receipt_artifact"
 						refine_live_validation="block"
 					fi
 				done < <(jq -c '.stages[]?' "$index_abs")

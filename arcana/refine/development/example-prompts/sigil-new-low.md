@@ -16,7 +16,7 @@ sigil-development
 
 ## User Request
 
-Use Refine to run the refinement loop defined in `arcana/refine/REFINEMENT-LOOP.md` for a new Arcana sigil development seed for `x-ray`, then validate `REFINE-DISPATCH.json` through dispatch-spec and continue through deterministic `tools/arcanum` stage dispatch far enough to return the final refinement result or a blocked result with exact stage evidence.
+Use Refine to run the refinement loop defined in `arcana/refine/REFINEMENT-LOOP.md` for a new Arcana sigil development seed for `x-ray`, then validate `REFINE-DISPATCH.json` through dispatch-spec and continue through native capability or approved subagent stage receipts far enough to return the final refinement result or a blocked result with exact stage evidence.
 
 `x-ray` should accept any context supplied by the user and create an HTML page with a user-driven explanation of what that context is about. The intent is to create a dynamic, structured view of a component, plan, architecture, process, or system. It should guide the user step by step so they understand what they are asking `x-ray` to analyze. The experience should be UX-driven, using constructed visual explanations or diagram-like images where useful. It should explain data flow, transformations, process steps, actors, and relationships.
 
@@ -39,16 +39,16 @@ The result must include:
   - Distill Repair,
   - Invoke Plan,
   - Final Interrogation and Synthesis,
-- for every loop stage: command, resolved command file, mode/config, artifact path, observation envelope or invocation summary, pass/flag/block verdict, or explicit blocked reason,
+- for every loop stage: capability handle, capability source, receipt kind, receipt artifact or structured receipt fields, mode/config, artifact path, observation envelope or invocation summary, pass/flag/block verdict, or explicit blocked reason,
 - the dispatch route validation status,
 - the runtime execution status,
 - the final refinement output for `x-ray`,
 - the research mode, preset, loop count, planned and executed stages,
 - runtime eligibility,
-- evidence that `tools/arcanum` remained the command dispatch surface,
+- evidence that native capability or approved subagent receipts were used as stage proof,
 - and any blocked fields if final execution could not complete.
 
-If the run can only produce a proposal and cannot execute the refinement loop stages through the installed skills, return `Status: flag` or `Status: block` and explain which loop-stage evidence is missing. A proposal-only output is not refine experiment evidence.
+If the run can only produce a proposal and cannot execute the refinement loop stages through native skills or approved subagents, return `Status: flag` or `Status: block` and explain which loop-stage receipt evidence is missing. A proposal-only output is not refine experiment evidence.
 
 When blocked, still write the run manifest and evidence index. Each selected stage must have either an existing artifact path produced by the owning skill or an explicit blocked reason.
 

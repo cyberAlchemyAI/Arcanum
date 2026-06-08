@@ -2,7 +2,7 @@
 
 ## Goal
 
-Validate that `refine` can run the refinement loop from `arcana/refine/REFINEMENT-LOOP.md` for a new-sigil idea and move from seed proposal into final refinement evidence through dispatch-spec route validation and deterministic `tools/arcanum` stage dispatch.
+Validate that `refine` can run the refinement loop from `arcana/refine/REFINEMENT-LOOP.md` for a new-sigil idea and move from seed proposal into final refinement evidence through dispatch-spec route validation and native capability or approved subagent stage receipts.
 
 ## Prompt
 
@@ -25,7 +25,7 @@ Validate that `refine` can run the refinement loop from `arcana/refine/REFINEMEN
 - Output must include final refinement evidence, not only a route proposal.
 - Output must include loop-stage evidence from `arcana/refine/REFINEMENT-LOOP.md`; planned stage names alone are not enough.
 - Output must point to a materialized target-local run manifest and evidence index.
-- If final deterministic command dispatch did not happen, output must say `Status: flag` or `Status: block` and explain which dispatch validation or command-backed stages are missing.
+- If final native receipt proof did not happen, output must say `Status: flag` or `Status: block` and explain which dispatch validation or native runtime-backed stages are missing.
 
 ## Anti-Patterns
 

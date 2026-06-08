@@ -26,34 +26,23 @@ Run bounded discovery and design refinement. The loop turns a vague target or de
 
 Refine first writes `REFINE-DISPATCH.json`, a dispatch-spec route for the canonical ten-stage loop. That route must validate before runtime-backed stages run.
 
-The dispatch route records stage order, command owners, mode/configuration, inputs, outputs, gates, observability events, route-menu decisions, and technique references from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`.
+The dispatch route records stage order, capability owners, mode/configuration, inputs, outputs, gates, observability events, route-menu decisions, native receipts, and technique references from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`.
 
-Refine then runs runtime-backed stages through parent-owned native runtime execution, using `tools/arcanum` for deterministic resolution and optional handoff/receipt generation:
+Refine then runs runtime-backed stages through parent-owned native runtime execution. Deprecated command files, slash commands, and command-resolution checks are not active success gates. A stage passes only when it records a native receipt from the owning capability, an approved subagent receipt, or an explicit blocked reason.
 
-```bash
-tools/arcanum --resolve <command>
-tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>
-```
-
-For native adapters, `tools/arcanum --exec` prepares a handoff/receipt contract. It must not spawn a nested model-backed CLI. Explicit legacy adapters such as `codex-exec` and `codex-bypass` remain opt-in.
-
-Each command must first resolve through:
-
-```bash
-tools/arcanum --resolve <command>
-```
-
-The loop is not valid if execution merely labels hand-written prose as Context Builder, Invoke, Interrogation, or Distill output, or if `REFINE-DISPATCH.json` is missing for a materialized run.
+`tools/arcanum` may still prepare deterministic handoff contracts or explicit legacy adapter runs, but that compatibility surface is outside the native Refine success gate. The loop is not valid if execution merely labels hand-written prose as Context Builder, Invoke, Interrogation, or Distill output, or if `REFINE-DISPATCH.json` is missing for a materialized run.
 
 Each dispatched stage must preserve:
 
-- the resolved command or capability handle,
-- the runtime adapter,
+- the capability handle,
+- the receipt kind,
+- the runtime surface,
 - the requested mode/configuration,
 - the stage artifact path,
 - the stage observation envelope or invocation summary when available,
+- the receipt artifact or structured receipt fields,
 - a pass/flag/block verdict when the stage provides one,
-- or an explicit blocked reason when the command is unavailable.
+- or an explicit blocked reason when the native capability is unavailable.
 
 ## Required Local Baseline
 
@@ -80,7 +69,7 @@ Every refine run uses this stage list. Presets tune budget/configuration; they d
 
 ## Stage Configuration
 
-| Stage | Command | Mode/Config | Output |
+| Stage | Capability | Mode/Config | Output |
 | --- | --- | --- | --- |
 | Context Builder evidence baseline | `context-builder` | `standard`; include `--strict --emit both --handoff runtime --persist <run-folder>/context-builder` | Context pack and index, or blocked coverage reason. |
 | Invoke Define | `invoke` | `define` | Define artifact or blocked reason. |
@@ -182,4 +171,4 @@ Required contents:
 - `RESULT.md`
 - `stages/`
 
-The manifest is an index, not a replacement for stage artifacts. Each stage row must reference the artifact produced by its owning command or record an explicit blocked reason. A selected stage without an artifact path or blocked reason is invalid. A stage marked `pass` must reference an artifact path that exists.
+The manifest is an index, not a replacement for stage artifacts. Each stage row must reference the artifact produced by its owning capability plus the native receipt, or record an explicit blocked reason. A selected stage without an artifact path or blocked reason is invalid. A stage marked `pass` must reference an artifact path or receipt that exists.

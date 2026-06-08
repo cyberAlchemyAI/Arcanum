@@ -10,7 +10,7 @@ A meaningful execution is any run where `refine` attempts to produce one of:
 - a research decision,
 - a dispatch-spec route,
 - a runtime handoff report,
-- deterministic Arcanum stage dispatch evidence,
+- native capability or approved subagent stage receipt evidence,
 - a run manifest and evidence index,
 - a final refined synthesis.
 
@@ -45,13 +45,15 @@ A meaningful execution is any run where `refine` attempts to produce one of:
     "invoke_plan": "required | pass | flag | block",
     "final_interrogation_synthesis": "required | pass | flag | block"
   },
-  "stage_commands": [
+  "stage_receipts": [
     {
       "stage": "<stage>",
-      "command": "<command>",
-      "command_file": "<resolved command file>",
+      "capability_ref": "<capability-id>",
+      "capability_source": "<native capability source or candidate metadata>",
       "mode_config": "<mode/config>",
       "output": "<path or none>",
+      "receipt_kind": "native-stage | subagent | handoff | blocked",
+      "receipt_artifact": "<path or none>",
       "status": "pass | flag | block",
       "observer_status": "<status or n/a>",
       "blocked_reason": "<reason or none>"

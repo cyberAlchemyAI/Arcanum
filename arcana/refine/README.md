@@ -54,7 +54,7 @@ Context Builder evidence baseline
   -> Final Interrogation and Synthesis
 ```
 
-Every materialized run first writes `REFINE-DISPATCH.json`, validated by [Dispatch Spec](../../formulae/dispatch-spec/README.md). The dispatch route carries the canonical stage order, command owners, modes, handoffs, gates, trace events, route-menu decisions, and technique references.
+Every materialized run first writes `REFINE-DISPATCH.json`, validated by [Dispatch Spec](../../formulae/dispatch-spec/README.md). The dispatch route carries the canonical stage order, capability owners, modes, handoffs, gates, native receipts, trace events, route-menu decisions, and technique references.
 
 Refine can select Dispatch Spec technique overlays while preserving the canonical ten-stage loop:
 
@@ -69,21 +69,11 @@ Refine can select Dispatch Spec technique overlays while preserving the canonica
 
 Technique overlays must change evidence, gates, stage configuration, or recommended next routes. Unused technique labels are validation drift.
 
-Every runtime-backed stage in the validated dispatch must use parent-owned runtime dispatch. Refine first resolves deterministic capability handles locally:
+Every runtime-backed stage in the validated dispatch must use parent-owned native runtime dispatch. Deprecated command files, slash commands, and command-resolution checks are not active Refine success gates. The stage passes only when it records a native receipt from the owning capability, an approved subagent receipt, or an explicit blocked reason.
 
-```bash
-tools/arcanum --resolve <capability-id>
-```
+`tools/arcanum` may remain as deterministic handoff preparation or explicit legacy compatibility. It does not replace native skill/subagent execution, and `codex-exec` or `codex-bypass` remain explicit legacy opt-in adapters.
 
-When a handoff artifact is useful, Refine can ask the deterministic tool surface for a native runtime receipt contract. The stage still runs through the parent native skill/subagent surface:
-
-```bash
-tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>
-```
-
-For native adapters, `tools/arcanum --exec` prepares the handoff and receipt contract; it does not spawn nested model-backed CLIs. `codex-exec` and `codex-bypass` remain explicit legacy opt-in adapters.
-
-The manifest records the owning capability, resolved capability handle, runtime adapter, requested mode/config, stage output path, observer status, verdict, and blocked reason.
+The manifest records the owning capability, capability handle, runtime surface, receipt kind, requested mode/config, stage output path, receipt artifact or fields, observer status, verdict, and blocked reason.
 
 ## Research Decision
 
@@ -125,4 +115,4 @@ development/run-validation-fixtures.sh
 development/write-experiment-report.sh
 ```
 
-Promotion requires realistic live outputs for seed proposal, research decision, valid dispatch route, runtime handoff, valid manifest/index evidence, deterministic `tools/arcanum` stage dispatch evidence, and final synthesis. Proposal-only output is preflight evidence, not completed refinement evidence.
+Promotion requires realistic live outputs for seed proposal, research decision, valid dispatch route, runtime handoff, valid manifest/index evidence, native capability or approved subagent receipts, and final synthesis. Proposal-only output is preflight evidence, not completed refinement evidence.

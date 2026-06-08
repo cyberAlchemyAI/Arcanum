@@ -21,14 +21,15 @@ Run the canonical Refine loop for `<target>` using parent-owned native runtime d
 - Technique catalog: `formulae/dispatch-spec/TECHNIQUE-CATALOG.md`
 - Technique overlays: `<selected overlay ids>`
 
-## Stage Dispatch Contract
+## Stage Receipt Contract
 
-```bash
-tools/arcanum --resolve <command>
-tools/arcanum --exec --adapter native-skill --output <stage-output> <command> <stage-request>
-```
+- Capability handle: `<capability-id>`
+- Runtime surface: `native skill | approved subagent | deterministic handoff | legacy compatibility`
+- Receipt kind: `native-stage | subagent | handoff | blocked`
+- Receipt artifact: `<path or blocked reason>`
+- Receipt status: `pass | flag | block | not_run`
 
-Native adapters produce handoff/receipt contracts and must not spawn nested model-backed CLIs. Legacy model CLI adapters require explicit operator selection.
+Deprecated command files, slash commands, and command-resolution checks are not active success gates. Legacy model CLI adapters require explicit operator selection and cannot satisfy native stage proof by themselves.
 
 ## Handoff Requirements
 
