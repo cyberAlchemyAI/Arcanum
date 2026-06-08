@@ -1,0 +1,20 @@
+dependencies:
+  - dependency_id: dep-mogt-gate-walkthrough-baseline
+    type: method_dependency
+    provider_project: mars
+    provider_artifact: exports/methods/gate-walkthrough-minimum.md
+    provider_version_or_commit: 0.1.0
+    consumer_project: mogt-agentic-conversation
+    consumer_purpose: reuse the minimum MARS gate walkthrough before the first live experiment run
+    validation_gate: G1
+    fallback_plan: block live execution until a local equivalent walkthrough is authored and approved
+
+  - dependency_id: dep-mogt-signal-observation-baseline
+    type: method_dependency
+    provider_project: mars
+    provider_artifact: exports/methods/signal-observation-baseline.md
+    provider_version_or_commit: 0.1.0
+    consumer_project: mogt-agentic-conversation
+    consumer_purpose: align telemetry envelopes for gate outcomes and decision-quality signals
+    validation_gate: G2
+    fallback_plan: use a local temporary telemetry schema, mark the deviation, and block claim upgrades until normalized

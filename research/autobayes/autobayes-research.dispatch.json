@@ -1,0 +1,694 @@
+{
+  "dispatch_id": "autobayes-research-20260606",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Create a research strategy with dispatch-spec so we can understand AutoBayes, its related papers, the paper content, glossary, definitions, distilled knowledge, and translate it for the Arcanum developer without limiting the specification.",
+    "objective": "Plan a governed full-mode research tower for AutoBayes arXiv:2503.18608 that follows the domainspec-lean-formalization research-gpt example, produces glossary, definitions, distilled knowledge, related-paper mapping, Arcanum bridge decisions, and preserves promotion guardrails.",
+    "target_artifact": "research/autobayes/README.md",
+    "arcanum_vocabulary": [
+      "sigil",
+      "spell",
+      "dispatch-spec",
+      "context-builder",
+      "robot-talks",
+      "distill",
+      "feature-glossary",
+      "definitions-governance",
+      "ontology-vault",
+      "task-session",
+      "experiment-harness",
+      "observability",
+      "residue",
+      "handoff",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Use a research tower and full-mode dispatch fanout to understand AutoBayes in source language first, then translate it into Arcanum-shaped mental models for the operator."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "residue_ledger",
+    "x_ray",
+    "dialectic",
+    "validation_loop",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "concrete_path_evidence",
+    "approval_semantics_map"
+  ],
+  "route_menu": {
+    "context_hint": "The selected route mirrors ../domainspec-lean-formalization/research-gpt: a reflection tower with corpus, residue map, closure plan, gates, open residue, and next actions.",
+    "items": [
+      {
+        "id": "tower-first-full-mode",
+        "label": "Tower-first full mode",
+        "description": "Build the research tower, then authorize role-bound subagent research for source, related literature, glossary, distill, and Arcanum bridge lanes.",
+        "capability_ref": "dispatch-spec",
+        "pattern": "route"
+      },
+      {
+        "id": "paper-summary-first",
+        "label": "Paper summary first",
+        "description": "Summarize the AutoBayes paper before governance artifacts; faster but weaker for durable Arcanum reuse.",
+        "capability_ref": "distill",
+        "pattern": "distill"
+      },
+      {
+        "id": "glossary-first",
+        "label": "Glossary first",
+        "description": "Stabilize terms before broad related-paper research; useful if terminology drift is the main blocker.",
+        "capability_ref": "feature-glossary",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "tower-first-full-mode"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "research-tower-discipline",
+      "trigger": "The user asked to follow the domainspec-lean-formalization example and go full mode.",
+      "techniques": [
+        "x_ray",
+        "residue_ledger",
+        "validation_loop",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "recover-source-context",
+        "build-research-tower",
+        "paper-and-related-work-fanout",
+        "synthesize-arcanum-interface"
+      ],
+      "validation_expectation": "Every research output must preserve source terms, name residues, and distinguish source-backed claims from Arcanum analogies."
+    },
+    {
+      "overlay_id": "promotion-protection",
+      "trigger": "The route creates glossary, definitions, and distilled knowledge that could be mistaken for canonical Arcanum knowledge.",
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "state_namespace_boundary",
+        "memory_promotion_split"
+      ],
+      "applies_to_steps": [
+        "build-glossary-definitions-distills",
+        "synthesize-arcanum-interface",
+        "prepare-next-handoff"
+      ],
+      "validation_expectation": "Research artifacts may propose candidate vocabulary, but canonical promotion requires owner review outside this dispatch."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "recover-source-context",
+      "name": "Recover paper, local precedent, and source context",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "external_context",
+          "ref": "https://arxiv.org/pdf/2503.18608"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../domainspec-lean-formalization/research-gpt/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../domainspec-lean-formalization/research-gpt/TOWER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "autobayes-source-orientation-frame"
+        },
+        {
+          "kind": "route_menu",
+          "ref": "autobayes-research-route-menu"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-source-context-recovered"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the AutoBayes paper cannot be accessed.",
+        "Flag if the local Lean formalization example cannot be inspected."
+      ]
+    },
+    {
+      "step_id": "build-research-tower",
+      "name": "Build tower artifacts matching the Lean formalization example",
+      "capability_ref": "dispatch-spec",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "autobayes-source-orientation-frame"
+        },
+        {
+          "kind": "frame",
+          "ref": "autobayes-research-route-menu"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/TOWER.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/levels/L0-corpus.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/levels/L1-residue-map.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/levels/L2-closure-plan.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-research-tower-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The tower names levels, promotion rule, closure modes, and open residues.",
+        "The tower mirrors the Lean formalization example without copying its mathematics.",
+        "The tower speaks in Arcanum vocabulary while preserving source terms."
+      ],
+      "stop_conditions": [
+        "Block if the route grants promotion authority.",
+        "Flag if the tower lacks closure gates."
+      ]
+    },
+    {
+      "step_id": "paper-and-related-work-fanout",
+      "name": "Run full-mode paper and related-literature research fanout",
+      "capability_ref": "robot-talks",
+      "pattern": "fanout",
+      "parallel": true,
+      "roles": [
+        "paper-architect",
+        "inversion-chain-rule-reader",
+        "gvi-blr-comparator",
+        "statistical-games-reader",
+        "ppl-contrast-reader",
+        "arcanum-bridge-writer",
+        "glossary-steward",
+        "distill-steward"
+      ],
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "autobayes-source-orientation-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/levels/L2-closure-plan.md"
+        },
+        {
+          "kind": "human_answer",
+          "ref": "subagent-execution-approval"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "autobayes-full-mode-agent-findings-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/sessions/full-mode-source-receipts.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-full-mode-fanout-completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Each role returns source-backed findings, open residue, and confidence.",
+        "Each role distinguishes paper claims, related-paper claims, and Arcanum analogies.",
+        "No role promotes glossary, ontology, sigil, spell, or runtime authority."
+      ],
+      "evidence_artifact": "research/autobayes/sessions/full-mode-source-receipts.md",
+      "stop_conditions": [
+        "Block until the operator approves delegated full-mode subagents.",
+        "Block synthesis if a role lacks source evidence.",
+        "Flag if related papers are unavailable and classify the gap as missing-source residue."
+      ]
+    },
+    {
+      "step_id": "build-glossary-definitions-distills",
+      "name": "Produce glossary, definitions, and distilled knowledge",
+      "capability_ref": "feature-glossary",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "memory_promotion_split",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/levels/L1-residue-map.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "autobayes-full-mode-agent-findings-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/GLOSSARY.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/DEFINITIONS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/DISTILLED-KNOWLEDGE.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-glossary-definitions-distills-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Each glossary term preserves the paper term before Arcanum translation.",
+        "Each definition states status: source-backed, seed, analogy, candidate, or rejected.",
+        "Each distill gives the operator a reusable Arcanum-shaped mental model."
+      ],
+      "stop_conditions": [
+        "Block canonical promotion of glossary or definitions.",
+        "Flag analogy-heavy entries that lack source definition."
+      ]
+    },
+    {
+      "step_id": "synthesize-arcanum-interface",
+      "name": "Synthesize the AutoBayes to Arcanum bridge",
+      "capability_ref": "distill",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "dialectic",
+        "owner_boundary_check",
+        "memory_promotion_split"
+      ],
+      "roles": [
+        "source-loyal-reading",
+        "arcanum-operator-translation"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/GLOSSARY.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/DEFINITIONS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/DISTILLED-KNOWLEDGE.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "autobayes-full-mode-agent-findings-ledger"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/arcanum-interface.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "autobayes-arcanum-interface-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-arcanum-interface-synthesized"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Name borrow-now, analogy-only, reject, and promote-residue categories.",
+        "Preserve source term visibility in every bridge.",
+        "Identify which Arcanum owners would need to approve any future mutation."
+      ],
+      "stop_conditions": [
+        "Block if the synthesis claims AutoBayes as an Arcanum spec.",
+        "Block if candidate bridge work skips owner review."
+      ]
+    },
+    {
+      "step_id": "validate-and-record-residue",
+      "name": "Validate dispatch, gates, and open residue",
+      "capability_ref": "dispatch-spec",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/autobayes-research.dispatch.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/gates/closure-gates.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "autobayes-arcanum-interface-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/residue/open-residue.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/NEXT.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-dispatch-validated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/autobayes/autobayes-research.dispatch.json",
+      "convergence_criteria": [
+        "The dispatch validates against formulae/dispatch-spec/scripts/validate-dispatch.py.",
+        "Open residue has named next objects.",
+        "Next actions are executable and ordered."
+      ],
+      "stop_conditions": [
+        "Block if validation fails.",
+        "Flag if open residue lacks owner or next route."
+      ]
+    },
+    {
+      "step_id": "prepare-next-handoff",
+      "name": "Prepare next-route handoff for full research execution",
+      "capability_ref": "invoke",
+      "pattern": "handoff",
+      "parallel": false,
+      "techniques": [
+        "approval_semantics_map",
+        "execution_receipt_handoff",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/NEXT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/autobayes-research.dispatch.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "autobayes-full-mode-research-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "autobayes-next-handoff-prepared"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Ask operator approval before executing subagent fanout.",
+        "Defer implementation changes until research closure."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The research problem spans one primary paper, multiple related theoretical and PPL papers, glossary stabilization, distillation, and Arcanum bridge synthesis.",
+    "explanation": "Role-bound sibling agents reduce term drift by separating source reading, related-work comparison, operator-facing distillation, and promotion-guardrail stewardship.",
+    "context": [
+      "The user asked to go full mode and to follow the domainspec-lean-formalization research tower example while making the language fit the Arcanum developer."
+    ],
+    "roles": [
+      {
+        "role_id": "paper-architect",
+        "purpose": "Extract AutoBayes section structure, definitions, claims, and examples.",
+        "owns": "source reading",
+        "applies_to_steps": [
+          "paper-and-related-work-fanout",
+          "build-glossary-definitions-distills"
+        ]
+      },
+      {
+        "role_id": "inversion-chain-rule-reader",
+        "purpose": "Close the Bayesian inversion chain-rule prerequisite.",
+        "owns": "related-paper reading",
+        "applies_to_steps": [
+          "paper-and-related-work-fanout"
+        ]
+      },
+      {
+        "role_id": "gvi-blr-comparator",
+        "purpose": "Compare AutoBayes with generalized variational inference and Bayesian learning rule.",
+        "owns": "related-framework comparison",
+        "applies_to_steps": [
+          "paper-and-related-work-fanout"
+        ]
+      },
+      {
+        "role_id": "statistical-games-reader",
+        "purpose": "Clarify parameterized statistical games and optimization semantics.",
+        "owns": "technical substrate reading",
+        "applies_to_steps": [
+          "paper-and-related-work-fanout",
+          "synthesize-arcanum-interface"
+        ]
+      },
+      {
+        "role_id": "glossary-steward",
+        "purpose": "Stabilize source terms and block canonical promotion drift.",
+        "owns": "glossary and definitions",
+        "applies_to_steps": [
+          "build-glossary-definitions-distills"
+        ]
+      },
+      {
+        "role_id": "distill-steward",
+        "purpose": "Turn source-backed findings into Arcanum-shaped mental models.",
+        "owns": "distilled knowledge",
+        "applies_to_steps": [
+          "build-glossary-definitions-distills",
+          "synthesize-arcanum-interface"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Run the AutoBayes full-mode research fanout with paper, related-literature, glossary, distill, and Arcanum-bridge roles, returning source-backed receipts only?",
+    "receipt_requirements": [
+      "source claims with citation or artifact path",
+      "derived readings clearly marked",
+      "Arcanum analogies clearly marked",
+      "open residues with next object",
+      "confidence and missing-source notes"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "research-to-glossary-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "robot-talks",
+        "to_owner": "feature-glossary",
+        "applies_to_steps": [
+          "build-glossary-definitions-distills"
+        ],
+        "contract": "Full-mode research receipts may update local research glossary artifacts but cannot promote canonical Arcanum vocabulary.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "research-to-arcanum-interface-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "distill",
+        "to_owner": "arcanum-owner-review",
+        "applies_to_steps": [
+          "synthesize-arcanum-interface",
+          "prepare-next-handoff"
+        ],
+        "contract": "Arcanum bridge outputs are candidate readings until an owning capability approves mutation.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "dispatch-spec",
+      "execution": "task-session-or-approved-subagents",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "owning Arcanum capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "full-mode-source-receipts",
+        "producer": "robot-talks",
+        "required_fields": [
+          "session_id",
+          "artifacts",
+          "audit_reference",
+          "residue",
+          "validation_result"
+        ],
+        "stores": [
+          "research/autobayes/sessions/full-mode-source-receipts.md"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "dispatch-validation-receipt",
+        "producer": "dispatch-spec",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "research/autobayes/autobayes-research.dispatch.json"
+        ],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research-autobayes",
+        "owner": "research/autobayes",
+        "write_policy": "Research artifacts may be written under research/autobayes only unless a later approved task expands scope."
+      },
+      {
+        "namespace": "arcanum-canonical",
+        "owner": "registry and owning capability folders",
+        "write_policy": "No writes from this dispatch without explicit owner-review task."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research/autobayes local glossary and distills",
+        "target": "canonical Arcanum glossary, ontology, sigil, spell, or runtime contract",
+        "rule": "requires owner review and separate promotion route",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "source-visibility",
+      "kind": "quality",
+      "owner": "context-builder",
+      "condition": "Every research claim must distinguish AutoBayes source claims, related-paper claims, derived readings, Arcanum analogies, candidate bridges, and open questions.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "tower-shape",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The research artifact set must include README, TOWER, L0 corpus, L1 residue map, L2 closure plan, closure gates, open residue, glossary, definitions, distilled knowledge, and NEXT.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "subagent-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Recommended full-mode subagent execution requires explicit operator approval before delegated research runs.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Research outputs may propose candidate mappings but must not promote glossary, ontology, sigil, spell, memory, or runtime authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "operator-language",
+      "kind": "quality",
+      "owner": "distill",
+      "condition": "Distilled knowledge must be written for the Arcanum developer, preserving source language while translating into sigil, spell, dispatch, residue, handoff, and observability terms.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The dispatch must pass formulae/dispatch-spec/scripts/validate-dispatch.py before being treated as handoff-ready.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "autobayes-source-context-recovered",
+      "autobayes-research-tower-built",
+      "autobayes-full-mode-fanout-completed",
+      "autobayes-glossary-definitions-distills-built",
+      "autobayes-arcanum-interface-synthesized",
+      "autobayes-dispatch-validated",
+      "autobayes-next-handoff-prepared"
+    ],
+    "signal_grouping": "autobayes-research"
+  },
+  "promotion_guardrails": [
+    "Do not promote AutoBayes terms into canonical Arcanum vocabulary without owner review.",
+    "Do not treat the research tower as an implementation plan until a later approved task-session exists.",
+    "Do not collapse AutoBayes syntax, inversion, loss, parameter exposure, and optimization semantics into one Arcanum concept.",
+    "Do not treat related-paper summaries as source-closed until the related papers have been read.",
+    "Do not execute full-mode subagents without explicit operator approval."
+  ]
+}

@@ -1,3 +1,14 @@
+---
+name: invoke
+description: "Use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution."
+argument-hint: "<define|design|plan|handoff|refresh|full|validate> <target-or-intent> [--output <path>] [--dry-run]"
+tier: spells
+domain: lifecycle-authoring
+version: 0.2.0
+origin: canonical Arcanum spell for intent-to-artifact authoring
+allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
+---
+
 # Invoke
 
 ## Identity
@@ -11,6 +22,8 @@
 Invoke turns vague development intent into governed authoring artifacts. The root spell file stays intentionally compact and delegates mode behavior to per-mode contracts under `spells/invoke/`.
 
 Invoke is an authoring front door, not the lifecycle owner for every artifact it can describe. It discovers intent, shapes definitions, designs, and plans, then hands off to the capability that owns the target lifecycle.
+
+Invoke does not require deprecated command files, slash commands, or command-resolution bridges as authoring readiness evidence. When an Invoke-authored plan prepares later execution, it should name native capability handles, expected receipts, validation surfaces, and subagent/local fallback boundaries. Legacy command adapters may remain as explicit example-runner compatibility only.
 
 ## Trigger Conditions
 

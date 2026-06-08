@@ -160,12 +160,18 @@ The expected subagent result shape is:
 ```yaml
 swu_id: <id>
 result: pass | flag | block | interrupted
+capability_ref: <native capability handle or owner id>
+receipt_kind: native-stage | subagent | local-fallback | blocked
+receipt_artifact: <path or none>
 files_touched:
   - <path>
 validation:
   - <command or review check and result>
 blockers:
   - <blocker or none>
+residue:
+  - <unresolved evidence or none>
+reroute: <next owner or none>
 handoff_note: <what the parent coordinator needs next>
 ```
 

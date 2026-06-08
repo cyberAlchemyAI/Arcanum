@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MOGT Experiment Run Row",
+  "description": "Append-only JSONL row schema for MOGT dry-run and live experiment evidence capture.",
+  "type": "object",
+  "required": [
+    "experiment_id",
+    "run_id",
+    "timestamp",
+    "project_id",
+    "scenario_id",
+    "policy_regime",
+    "model",
+    "model_temperature",
+    "system_prompt_hash",
+    "operator",
+    "objective_vector",
+    "candidate_actions",
+    "selected_action",
+    "policy_trace",
+    "reviewer_scores",
+    "token_cost",
+    "latency_ms",
+    "turn_count",
+    "tool_calls",
+    "protocol_deviations"
+  ],
+  "properties": {
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^E[1-4]$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project_id": {
+      "type": "string",
+      "const": "mogt-agentic-conversation"
+    },
+    "scenario_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_regime": {
+      "type": "string",
+      "enum": [
+        "heuristic",
+        "weighted_sum",
+        "pareto_guided",
+        "bargaining_guided"
+      ]
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_temperature": {
+      "type": "number",
+      "minimum": 0
+    },
+    "system_prompt_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective_vector": {
+      "$ref": "#/$defs/objective_vector"
+    },
+    "candidate_actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/candidate_action"
+      }
+    },
+    "selected_action": {
+      "$ref": "#/$defs/selected_action"
+    },
+    "policy_trace": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "reviewer_scores": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/score"
+      }
+    },
+    "token_cost": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "latency_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "turn_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tool_calls": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "protocol_deviations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "traceability_coverage": {
+      "$ref": "#/$defs/score"
+    },
+    "acceptance_score": {
+      "$ref": "#/$defs/score"
+    },
+    "dominated_selection": {
+      "type": "boolean"
+    },
+    "decision_quality_score": {
+      "$ref": "#/$defs/score"
+    },
+    "regret_or_proxy": {
+      "type": "number",
+      "minimum": 0
+    },
+    "frontier_membership": {
+      "type": "boolean"
+    },
+    "convergence_status": {
+      "type": "string",
+      "enum": [
+        "converged",
+        "deadlocked",
+        "oscillating",
+        "escalated",
+        "not_evaluated"
+      ]
+    },
+    "cycle_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "escalation_events": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "conflict_resolution_quality": {
+      "$ref": "#/$defs/score"
+    },
+    "overhead_acceptability_ratio": {
+      "type": "number",
+      "minimum": 0
+    },
+    "quality_retention": {
+      "$ref": "#/$defs/score"
+    },
+    "reviewer_burden": {
+      "type": "number",
+      "minimum": 0
+    },
+    "evidence_class": {
+      "type": "string",
+      "enum": [
+        "synthetic_fixture",
+        "dry_run",
+        "live_experiment"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objective_vector": {
+      "type": "object",
+      "required": [
+        "quality",
+        "cost",
+        "latency",
+        "safety",
+        "escalation_risk"
+      ],
+      "properties": {
+        "quality": {
+          "$ref": "#/$defs/score"
+        },
+        "cost": {
+          "$ref": "#/$defs/score"
+        },
+        "latency": {
+          "$ref": "#/$defs/score"
+        },
+        "safety": {
+          "$ref": "#/$defs/score"
+        },
+        "escalation_risk": {
+          "$ref": "#/$defs/score"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/score"
+      }
+    },
+    "candidate_action": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "objective_vector"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "objective_vector": {
+          "$ref": "#/$defs/objective_vector"
+        }
+      },
+      "additionalProperties": true
+    },
+    "selected_action": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "selection_reason"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "experiment_id": {
+            "const": "E1"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "traceability_coverage",
+          "acceptance_score"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment_id": {
+            "const": "E2"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "dominated_selection",
+          "decision_quality_score",
+          "regret_or_proxy",
+          "frontier_membership"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment_id": {
+            "const": "E3"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "convergence_status",
+          "cycle_count",
+          "escalation_events",
+          "conflict_resolution_quality"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "experiment_id": {
+            "const": "E4"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "overhead_acceptability_ratio",
+          "quality_retention",
+          "reviewer_burden"
+        ]
+      }
+    }
+  ]
+}

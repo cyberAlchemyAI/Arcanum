@@ -1,0 +1,244 @@
+{
+  "dispatch_id": "publication-research-pipeline-mogt-20260607",
+  "intent": {
+    "raw": "Create the draft publication research pipeline route for MOGT using Research Tower for learning and Research Evidence Harness for experiment mechanics.",
+    "objective": "Chain source understanding, evidence harness dry-run validation, bounded SWU execution, claim adjudication, paper rewrite, and export packaging without overclaiming evidence.",
+    "target_artifact": "research/mogt-agentic-conversation",
+    "arcanum_vocabulary": [
+      "research-tower",
+      "research-evidence-harness",
+      "publication-research-pipeline",
+      "task-session",
+      "codex-goal-profile"
+    ],
+    "operator_sentence": "Use the proposed sigil and spell to decide and execute the next MOGT steps from the already planned work-pack."
+  },
+  "mode": "spell-design",
+  "route_menu": {
+    "context_hint": "MOGT is already structurally scaffolded and blocked on evidence mechanics, not source-learning alone.",
+    "items": [
+      {
+        "id": "spell-plus-new-sigil",
+        "label": "Spell plus evidence sigil",
+        "description": "Keep Research Tower focused on learning, create Research Evidence Harness for data mechanics, and compose both in a publication pipeline spell.",
+        "capability_ref": "spellcraft",
+        "pattern": "sequence"
+      },
+      {
+        "id": "research-tower-expansion",
+        "label": "Expand Research Tower",
+        "description": "Add experiment mechanics directly to Research Tower, risking a broad mixed-purpose sigil.",
+        "capability_ref": "research-tower",
+        "pattern": "sequential"
+      },
+      {
+        "id": "mogt-local-only",
+        "label": "MOGT local only",
+        "description": "Implement MOGT harness mechanics without a reusable Arcanum owner.",
+        "capability_ref": "task-session",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "spell-plus-new-sigil"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "owner-boundary",
+      "trigger": "Research Tower, evidence mechanics, and paper rewrite have different authority boundaries.",
+      "techniques": [
+        "owner_boundary_check",
+        "frame_handoff",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "route-decision",
+        "evidence-harness",
+        "goal-profile"
+      ],
+      "validation_expectation": "Each step names the owning capability and does not mutate another capability's internal contract."
+    },
+    {
+      "overlay_id": "dry-run-before-live",
+      "trigger": "MOGT has no live experiment evidence and must not upgrade claims from fixture data.",
+      "techniques": [
+        {
+          "id": "dry_run_fixture_gate",
+          "source": "local-extension",
+          "purpose": "Require synthetic fixture validation before live run claims.",
+          "validation_note": "Expressed in evidence-harness and goal-profile gates."
+        }
+      ],
+      "applies_to_steps": [
+        "evidence-harness",
+        "goal-profile"
+      ],
+      "validation_expectation": "The route blocks live experiment execution until schema and fixture validation pass."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "Initial draft route and next SWU are locally decidable.",
+    "explanation": "Subagents are not needed for the initial schema/validator SWU; later prior-art or review-rubric phases may add delegated lanes.",
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "receipt_requirements": []
+  },
+  "steps": [
+    {
+      "step_id": "route-decision",
+      "name": "Select spell plus new evidence sigil route",
+      "capability_ref": "refine",
+      "mode": "design",
+      "pattern": "decision",
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-sentence"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "spell-plus-new-sigil"
+        }
+      ]
+    },
+    {
+      "step_id": "tower-handoff",
+      "name": "Keep Research Tower as learning owner and hand off evidence mechanics",
+      "capability_ref": "research-tower",
+      "mode": "handoff",
+      "pattern": "handoff",
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "spell-plus-new-sigil"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/research-tower/SKILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "research-evidence-harness-handoff"
+        }
+      ]
+    },
+    {
+      "step_id": "evidence-harness",
+      "name": "Use Research Evidence Harness for MOGT schema and fixture validation",
+      "capability_ref": "research-evidence-harness",
+      "mode": "dry-run",
+      "pattern": "validation",
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "research-evidence-harness-handoff"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/schema/mogt-run.schema.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/tools/validate-mogt-run-jsonl.*"
+        }
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/development/fixtures/"
+    },
+    {
+      "step_id": "goal-profile",
+      "name": "Generate native Codex goal for SWU-MOGT-HARNESS-001",
+      "capability_ref": "codex-goal-profile",
+      "mode": "profile",
+      "pattern": "handoff",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/goals/mogt-harness-001/README.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "native-codex-goal-swu-mogt-harness-001"
+        }
+      ]
+    },
+    {
+      "step_id": "bounded-execution",
+      "name": "Execute the next MOGT SWU only after goal approval",
+      "capability_ref": "task-session",
+      "mode": "swu",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "native-codex-goal-swu-mogt-harness-001"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/TASK-MOGT-HARNESS-001-RESULT.md"
+        }
+      ],
+      "stop_conditions": [
+        "Stop before live experiment execution.",
+        "Stop with BLOCK if schema and validator cannot be completed from local evidence."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "dispatch-spec",
+      "condition": "The route must not promote the draft sigil, draft spell, MARS assets, or MOGT findings into canonical Arcanum authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "dry-run-before-live",
+      "kind": "validation",
+      "owner": "research-evidence-harness",
+      "condition": "Synthetic passing and failing fixtures must validate before any live run or evidence-status upgrade.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "goal-write-scope",
+      "kind": "policy",
+      "owner": "codex-goal-profile",
+      "condition": "The native Codex goal must keep writes inside the SWU-MOGT-HARNESS-001 declared scope.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "publication-pipeline-route-selected",
+      "research-tower-evidence-handoff-recorded",
+      "research-evidence-harness-draft-created",
+      "mogt-harness-goal-profile-created"
+    ],
+    "signal_grouping": "publication-research-pipeline-mogt-20260607"
+  },
+  "promotion_guardrails": [
+    "Draft sigil and spell are not promoted by this route.",
+    "Dry-run fixtures do not support MOGT claims.",
+    "MARS assets are reference evidence until separately absorbed."
+  ]
+}

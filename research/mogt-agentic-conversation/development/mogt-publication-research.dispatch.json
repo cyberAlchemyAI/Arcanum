@@ -1,0 +1,1095 @@
+{
+  "dispatch_id": "mogt-publication-research-20260607",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Create a research strategy and DAG for the MOGT paper so the final result can be ready to publish, including web prior-art research, experiment design, experiment-harness feasibility, refine/invoke development fallback, and lessons for Whisper and Dispatch Spec.",
+    "objective": "Plan and validate a governed publication route from the existing MOGT scaffold to a paper-ready artifact with prior-art novelty, live experiment evidence, claim adjudication, paper rewrite, and tool feedback loops.",
+    "target_artifact": "research/mogt-agentic-conversation/papers/mogt-agentic-conversation-paper.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "experiment-harness",
+      "refine",
+      "invoke",
+      "whisper",
+      "pareto_gate",
+      "toy_game",
+      "tournament",
+      "subagent_lifecycle",
+      "evidence receipt",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Use Dispatch Spec to design the full MOGT research route, use Experiment Harness when possible, reroute through Refine and Invoke when tooling is missing, and feed lessons back into Whisper and Dispatch Spec."
+  },
+  "mode": "mixed",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "handle_handoff",
+    "residue_ledger",
+    "x_ray",
+    "tournament",
+    "toy_game",
+    "pareto_gate",
+    "validation_loop",
+    "delegation_boundary",
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "evidence_receipt_link",
+    "concrete_path_evidence",
+    "approval_checkpoint",
+    "artifact_contract_bridge",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "observability_grouping"
+  ],
+  "route_menu": {
+    "context_hint": "The selected route extends the existing MOGT scaffold into a publication DAG rather than replacing it.",
+    "items": [
+      {
+        "id": "publication-evidence-first",
+        "label": "Publication evidence first",
+        "description": "Close novelty, harness feasibility, experiments, claim adjudication, and paper rewrite in order.",
+        "capability_ref": "dispatch-spec",
+        "pattern": "route"
+      },
+      {
+        "id": "paper-prose-first",
+        "label": "Paper prose first",
+        "description": "Rewrite the paper before live evidence; faster but risks unsupported claims.",
+        "capability_ref": "whisper",
+        "pattern": "synthesis"
+      },
+      {
+        "id": "tooling-first",
+        "label": "Tooling first",
+        "description": "Build a MOGT runner before validating the research plan; useful only if harness feasibility is already known to be blocked.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "publication-evidence-first"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "publication_evidence_route",
+      "trigger": "The paper has design artifacts but result-facing sections are blocked by missing live evidence.",
+      "techniques": [
+        "sequence",
+        "validation_loop",
+        "concrete_path_evidence",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "S0",
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "validation_expectation": "Each paper-readiness step must produce a path-cited artifact or a blocked reason before downstream publication claims are upgraded."
+    },
+    {
+      "overlay_id": "mogt_game_metric_overlay",
+      "trigger": "The user wants multi-objective game-theoretic agent interaction, not only multi-agent discussion.",
+      "techniques": [
+        "tournament",
+        "toy_game",
+        "pareto_gate",
+        "residue_ledger"
+      ],
+      "applies_to_steps": [
+        "S2",
+        "S4",
+        "S5",
+        "S7"
+      ],
+      "validation_expectation": "Experiment steps must name objective vectors, scoring/payoff evidence, convergence criteria, and failure interpretation."
+    },
+    {
+      "overlay_id": "delegated_research_closeout",
+      "trigger": "Literature, metric, paper-review, and tool-feedback lanes can run in parallel but must not leave hidden open subagents.",
+      "techniques": [
+        "delegation_boundary",
+        "role_projection_boundary",
+        "execution_receipt_handoff",
+        "evidence_receipt_link"
+      ],
+      "applies_to_steps": [
+        "S1",
+        "S2",
+        "S6",
+        "S8",
+        "S9"
+      ],
+      "validation_expectation": "Every delegated lane returns a receipt and lifecycle closeout; unresolved lanes become residue with reroute."
+    },
+    {
+      "overlay_id": "promotion_protection",
+      "trigger": "Research outputs may feed Whisper and Dispatch Spec but must not silently mutate canonical spell or formulae contracts.",
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary",
+        "memory_promotion_split",
+        "approval_checkpoint"
+      ],
+      "applies_to_steps": [
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Tool lessons remain proposal or development-pack material until owned lifecycle approval exists."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The route includes independent literature, theory, experiment, paper, and tool-feedback lanes.",
+    "explanation": "Role-bound subagents can accelerate source-heavy research and critique lanes, while the parent keeps dispatch validation, experiment gating, synthesis, and paper-readiness authority.",
+    "context": [
+      "AutoBayes shows a tower/DAG pattern with source-backed residue and subagent closeout.",
+      "Whisper supports domain-bound Pareto tournaments but not a general MOGT engine.",
+      "Dispatch Spec validates route shape and lifecycle receipts but does not compute game metrics.",
+      "The MOGT project scaffold has paper contracts and experiment bundles but no live evidence."
+    ],
+    "roles": [
+      {
+        "role_id": "literature-cartographer",
+        "purpose": "Expand prior-art and novelty ledger for MOGT, LLM debate/equilibrium, multi-issue negotiation, MOO, and agent frameworks.",
+        "owns": "sources/MOGT-NOVELTY-LEDGER.md and inventory/mogt-related-work-matrix.md",
+        "applies_to_steps": [
+          "S1"
+        ]
+      },
+      {
+        "role_id": "theory-metric-critic",
+        "purpose": "Validate the objective vector, Pareto/game metrics, and theory consistency.",
+        "owns": "foundations/MOGT-METRIC-MODEL.md critique inputs",
+        "applies_to_steps": [
+          "S2"
+        ]
+      },
+      {
+        "role_id": "experiment-runner-designer",
+        "purpose": "Assess Experiment Harness feasibility and specify any missing MOGT runner components.",
+        "owns": "development/HARNESS-FEASIBILITY.md findings",
+        "applies_to_steps": [
+          "S3",
+          "S4"
+        ]
+      },
+      {
+        "role_id": "paper-synthesis-reviewer",
+        "purpose": "Review paper sections against evidence status and publication claims.",
+        "owns": "papers/PAPER-REVIEW.md update inputs",
+        "applies_to_steps": [
+          "S8"
+        ]
+      },
+      {
+        "role_id": "tool-feedback-analyst",
+        "purpose": "Separate reusable lessons for Whisper and Dispatch Spec from publication-specific evidence.",
+        "owns": "development/TOOL-LESSONS-FOR-WHISPER.md and development/TOOL-LESSONS-FOR-DISPATCH-SPEC.md inputs",
+        "applies_to_steps": [
+          "S9"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Approve role-bound subagents for the MOGT literature, theory/metrics, harness feasibility, paper review, and tool-feedback lanes?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "receipt_artifact",
+      "close_status",
+      "residue",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "S0",
+      "name": "Recover MOGT scaffold and current blockers",
+      "capability_ref": "context-builder",
+      "mode": "strict-context",
+      "pattern": "xray",
+      "parallel": false,
+      "techniques": [
+        "x_ray",
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/registry/RESEARCH-GRAPH.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/PAPER-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "mogt-scaffold-readiness-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/scaffold-readiness.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.scaffold.recovered"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/scaffold-readiness.md",
+      "stop_conditions": [
+        "Block if the MOGT project folder cannot be resolved.",
+        "Flag if paper contracts or experiment bundles are missing."
+      ]
+    },
+    {
+      "step_id": "S1",
+      "name": "Run source-backed prior-art and novelty sweep",
+      "capability_ref": "research",
+      "mode": "web-and-local",
+      "pattern": "fanout",
+      "parallel": true,
+      "roles": [
+        "literature-cartographer",
+        "paper-adjacency-skeptic",
+        "source-ledger-steward"
+      ],
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "mogt-scaffold-readiness-frame"
+        },
+        {
+          "kind": "external_context",
+          "ref": "web search: multi-objective game theory LLM agents Pareto-Nash debate negotiation tool use"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/sources/REFERENCE-LEDGER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-prior-art-novelty-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/sources/MOGT-NOVELTY-LEDGER.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/inventory/mogt-related-work-matrix.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.prior_art.completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Each related-work cluster has a source-backed entry or missing-source residue.",
+        "The novelty claim distinguishes exact duplicates from adjacent work.",
+        "No web source is promoted into canonical definitions without local source-ledger normalization."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/sources/MOGT-NOVELTY-LEDGER.md",
+      "stop_conditions": [
+        "Block publication novelty claims if exact prior work is found and not addressed.",
+        "Flag if any key cluster remains under-searched."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Close MOGT objective vector and game metrics",
+      "capability_ref": "distill",
+      "mode": "metric-model",
+      "pattern": "synthesis",
+      "parallel": true,
+      "roles": [
+        "theory-metric-critic",
+        "pareto-measurement-reviewer"
+      ],
+      "techniques": [
+        "pareto_gate",
+        "toy_game",
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-prior-art-novelty-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/definitions/DEFINITIONS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/foundations/METHODOLOGY-AND-THEORY.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/foundations/MOGT-METRIC-MODEL.md"
+        },
+        {
+          "kind": "decision",
+          "ref": "mogt-metric-model-closed"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.metrics.closed"
+        }
+      ],
+      "join_policy": "pareto",
+      "convergence_criteria": [
+        "Objective vector dimensions are fixed for E1-E4.",
+        "Pareto dominance and scalarization sensitivity are defined or explicitly rejected.",
+        "Negotiation stability and overhead metrics have run-data fields."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/foundations/MOGT-METRIC-MODEL.md",
+      "stop_conditions": [
+        "Block live experiments if objective vector fields cannot be logged.",
+        "Flag if any metric requires human review without a rubric."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Decide Experiment Harness feasibility",
+      "capability_ref": "experiment-harness",
+      "mode": "validate-feasibility",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "route_menu",
+        "approval_checkpoint",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "mogt-metric-model-closed"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/EXPERIMENTS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/experiment-harness/SKILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "harness-ready-or-development-pack-required"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/HARNESS-FEASIBILITY.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.harness.feasibility_decided"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Decision names whether Experiment Harness can run MOGT dry-runs and reports.",
+        "If not ready, missing tooling is listed as development-pack tasks."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/development/HARNESS-FEASIBILITY.md",
+      "stop_conditions": [
+        "Block live runs if harness cannot preserve JSONL, objective vectors, scoring evidence, and reports.",
+        "Reroute to Refine plus Invoke when tooling is missing."
+      ]
+    },
+    {
+      "step_id": "S3B",
+      "name": "Create Refine and Invoke development pack if harness blocks",
+      "capability_ref": "refine",
+      "mode": "invoke-plan-fallback",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "scu_swu_reduction",
+        "frame_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "harness-ready-or-development-pack-required"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/HARNESS-FEASIBILITY.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/README.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "mogt-runner-development-pack"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/WORK-PACK.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.development_pack.created_or_skipped"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "If harness passes, this step records a skip reason.",
+        "If harness blocks, work-pack tasks cover runner, validators, metric calculator, result summaries, and claim updates."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/development/WORK-PACK.md",
+      "stop_conditions": [
+        "Block if missing tooling is needed but no work-pack is produced.",
+        "Block if the fallback claims to complete Experiment Harness lifecycle work without owner approval."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Run experiment dry-runs and fixture validation",
+      "capability_ref": "experiment-harness",
+      "mode": "dry-run",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "evidence_receipt_link"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "harness-ready-or-development-pack-required"
+        },
+        {
+          "kind": "handle",
+          "ref": "mogt-runner-development-pack"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/EXPERIMENTS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/fixture-validation-report.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "mogt-dry-run-receipts"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.dry_runs.validated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/fixture-validation-report.md",
+      "stop_conditions": [
+        "Block live runs if any policy regime cannot be logged or scored.",
+        "Block if raw logs or output reports are empty, self-referential, or missing."
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Execute E1 E2 and E4 first live wave",
+      "capability_ref": "experiment-harness",
+      "mode": "run-first-wave",
+      "pattern": "tournament",
+      "parallel": false,
+      "roles": [
+        "heuristic-baseline",
+        "weighted-sum-policy",
+        "pareto-guided-policy",
+        "bargaining-guided-policy"
+      ],
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "validation_loop",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-dry-run-receipts"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E1-tradeoff-traceability-baseline/protocol.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E2-pareto-arbitration-quality/protocol.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E4-overhead-feasibility-envelope/protocol.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-first-wave-run-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/*/data/*.jsonl"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/*/results/*.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.first_wave.completed"
+        }
+      ],
+      "join_policy": "pareto",
+      "convergence_criteria": [
+        "Each policy regime has comparable run records.",
+        "Traceability, quality, and overhead are scored from the same metadata envelope.",
+        "Rejected alternatives and dominance decisions are preserved."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/experiments/*/results/*.md",
+      "stop_conditions": [
+        "Block if data integrity metadata is incomplete.",
+        "Flag if model/provider drift makes paired comparisons invalid."
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Analyze first wave and adjudicate C1 C2 C4",
+      "capability_ref": "task-session",
+      "mode": "analysis-and-claim-update",
+      "pattern": "synthesis",
+      "parallel": true,
+      "roles": [
+        "analysis-reviewer",
+        "claim-adjudicator",
+        "graph-updater"
+      ],
+      "techniques": [
+        "validation_loop",
+        "artifact_contract_bridge",
+        "concrete_path_evidence",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-first-wave-run-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/registry/RESEARCH-GRAPH.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/registry/RESEARCH-GRAPH.md"
+        },
+        {
+          "kind": "decision",
+          "ref": "first-wave-claim-adjudication"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.first_wave.adjudicated"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "C1 C2 and C4 statuses are updated only from live evidence.",
+        "Graph result nodes and evidence-status edges are added before paper rewrite.",
+        "Contradicted or insufficient claims remain visibly downgraded."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md",
+      "stop_conditions": [
+        "Block paper result sections if claim statuses are not adjudicated.",
+        "Block if analysis cannot be traced to run data."
+      ]
+    },
+    {
+      "step_id": "S7",
+      "name": "Execute E3 negotiation stability wave",
+      "capability_ref": "experiment-harness",
+      "mode": "run-negotiation-wave",
+      "pattern": "dialectic",
+      "parallel": false,
+      "roles": [
+        "conflicting-objective-agent",
+        "mediator-orchestrator",
+        "stability-critic"
+      ],
+      "techniques": [
+        "dialectic",
+        "pareto_gate",
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "first-wave-claim-adjudication"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E3-negotiation-stability-under-conflict/protocol.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-negotiation-wave-run-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E3-negotiation-stability-under-conflict/data/*.jsonl"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/experiments/E3-negotiation-stability-under-conflict/results/*.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.negotiation_wave.completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Negotiation episodes measure oscillation, deadlock, convergence, and unresolved disagreement.",
+        "Stability gains are separated from generic agent discussion fluency.",
+        "C3 is adjudicated from evidence after the run."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/experiments/E3-negotiation-stability-under-conflict/results/*.md",
+      "stop_conditions": [
+        "Block if conflict scenarios do not expose genuine objective tension.",
+        "Flag if E3 overhead violates the envelope learned in E4."
+      ]
+    },
+    {
+      "step_id": "S8",
+      "name": "Rewrite paper from evidence and update review",
+      "capability_ref": "whisper",
+      "mode": "paper-evidence-rewrite",
+      "pattern": "synthesis",
+      "parallel": true,
+      "roles": [
+        "paper-synthesis-reviewer",
+        "validity-threat-reviewer"
+      ],
+      "techniques": [
+        "artifact_contract_bridge",
+        "pareto_gate",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "mogt-negotiation-wave-run-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/PAPER-SPEC.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/results/MOGT-EVIDENCE-STATUS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/mogt-agentic-conversation-paper.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/PAPER-REVIEW.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.paper.rewritten"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "PSEC-04 through PSEC-06 cite concrete result nodes.",
+        "PSEC-07 names live-run validity threats.",
+        "The abstract and contribution claims match evidence status exactly."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/papers/PAPER-REVIEW.md",
+      "stop_conditions": [
+        "Block publication if any empirical claim lacks evidence linkage.",
+        "Flag if prose uses Whisper-specific objectives as general MOGT metrics."
+      ]
+    },
+    {
+      "step_id": "S9",
+      "name": "Extract lessons for Whisper and Dispatch Spec",
+      "capability_ref": "workflow-reflect",
+      "mode": "tool-feedback",
+      "pattern": "handoff",
+      "parallel": true,
+      "roles": [
+        "tool-feedback-analyst",
+        "dispatch-fixture-designer",
+        "whisper-transport-reviewer"
+      ],
+      "techniques": [
+        "evidence_summary_handoff",
+        "state_namespace_boundary",
+        "memory_promotion_split",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/PAPER-REVIEW.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/whisper/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "formulae/dispatch-spec/SKILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/TOOL-LESSONS-FOR-WHISPER.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/TOOL-LESSONS-FOR-DISPATCH-SPEC.md"
+        },
+        {
+          "kind": "handoff",
+          "ref": "whisper-dispatch-spec-development-followups"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.tool_lessons.extracted"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Lessons separate publication-specific evidence from reusable tool gaps.",
+        "Dispatch Spec remains validator, not experiment engine.",
+        "Whisper lessons are proposed as transport/review improvements, not silent spell mutation."
+      ],
+      "evidence_artifact": "research/mogt-agentic-conversation/development/TOOL-LESSONS-FOR-DISPATCH-SPEC.md",
+      "stop_conditions": [
+        "Block canonical Whisper or Dispatch Spec mutations without owner lifecycle approval.",
+        "Flag if lessons cannot be tied to MOGT run evidence."
+      ]
+    },
+    {
+      "step_id": "S10",
+      "name": "Package publication exports",
+      "capability_ref": "task-session",
+      "mode": "publication-export",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "handle_handoff",
+        "concrete_path_evidence",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/papers/mogt-agentic-conversation-paper.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "whisper-dispatch-spec-development-followups"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/exports/paper/"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/exports/data/"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.publication.package_ready"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/exports/",
+      "stop_conditions": [
+        "Block export if paper, data, protocols, sources, and replication notes do not align.",
+        "Flag any pending source normalization waiver."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-scaffold-exists",
+      "kind": "validation",
+      "owner": "context-builder",
+      "condition": "MOGT project scaffold, paper contracts, experiment bundles, and evidence status are resolved by concrete paths.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-novelty-ledger-before-claim",
+      "kind": "quality",
+      "owner": "research",
+      "condition": "Novelty claims are backed by source-ledger entries and exact/adjacent prior-art classification.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-harness-before-live-runs",
+      "kind": "validation",
+      "owner": "experiment-harness",
+      "condition": "Experiment Harness or a Refine/Invoke development pack can preserve JSONL data, objective vectors, scoring evidence, and reports.",
+      "on_fail": "reroute"
+    },
+    {
+      "gate_id": "G4-subagent-closeout",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Any spawned subagent has terminal join and terminal close status or explicit residue and reroute.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5-claim-adjudication-before-paper",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "Evidence status and research graph result nodes are updated before result-facing paper sections are rewritten.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G6-no-silent-tool-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "workflow-reflect",
+      "condition": "Lessons for Whisper and Dispatch Spec remain proposal/handoff artifacts until the owning lifecycle approves mutation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G7-publication-export-complete",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Paper, protocols, data, source ledger, replication notes, and evidence status are aligned before export.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "signal_grouping": "mogt-publication-research-20260607",
+    "trace_events": [
+      "mogt.scaffold.recovered",
+      "mogt.prior_art.completed",
+      "mogt.metrics.closed",
+      "mogt.harness.feasibility_decided",
+      "mogt.development_pack.created_or_skipped",
+      "mogt.dry_runs.validated",
+      "mogt.first_wave.completed",
+      "mogt.first_wave.adjudicated",
+      "mogt.negotiation_wave.completed",
+      "mogt.paper.rewritten",
+      "mogt.tool_lessons.extracted",
+      "mogt.publication.package_ready"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-research-to-experiment",
+        "kind": "capability_handoff",
+        "from_owner": "research and metric synthesis lanes",
+        "to_owner": "experiment-harness or MOGT runner development pack",
+        "applies_to_steps": [
+          "S3",
+          "S4",
+          "S5",
+          "S7"
+        ],
+        "contract": "Research frames and metric definitions become experiment inputs only through a feasibility decision, dry-run fixtures, and reportable evidence.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-experiment-to-paper",
+        "kind": "evidence_return",
+        "from_owner": "experiment-harness",
+        "to_owner": "paper synthesis",
+        "applies_to_steps": [
+          "S6",
+          "S8"
+        ],
+        "contract": "Paper result sections may synthesize only concrete run data, result summaries, claim adjudication, and graph result nodes.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B3-tool-feedback",
+        "kind": "capability_handoff",
+        "from_owner": "MOGT research project",
+        "to_owner": "Whisper and Dispatch Spec lifecycle owners",
+        "applies_to_steps": [
+          "S9"
+        ],
+        "contract": "MOGT may produce lessons and handoffs; canonical tool mutation requires the owning lifecycle outside this dispatch.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B4-external-web-evidence",
+        "kind": "external_context",
+        "from_owner": "web sources",
+        "to_owner": "MOGT source ledger",
+        "applies_to_steps": [
+          "S1"
+        ],
+        "contract": "Web findings are stored as source-ledger or novelty-ledger entries with provenance and do not become canonical definitions without normalization.",
+        "on_violation": "flag"
+      }
+    ],
+    "authority": {
+      "lifecycle": "MOGT research project owner",
+      "execution": "experiment-harness or task-session depending on step",
+      "validation": "dispatch-spec for route shape; experiment-harness for experiment output shape",
+      "evidence": "MOGT project evidence/status artifacts",
+      "memory": "project-local source ledger and optional observability",
+      "promotion": "no Inventory, Ontology, Whisper, or Dispatch Spec promotion inside this dispatch"
+    },
+    "receipts": [
+      {
+        "receipt_id": "subagent-closeout-receipt",
+        "producer": "parent research route for each delegated subagent",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "research/mogt-agentic-conversation/development/subagent-receipts/",
+          ".arcanum/observability when available"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "experiment-run-receipt",
+        "producer": "experiment-harness or MOGT runner",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "research/mogt-agentic-conversation/experiments/*/data/",
+          "research/mogt-agentic-conversation/experiments/*/results/"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "mogt-project-source",
+        "owner": "MOGT research project",
+        "write_policy": "Write only inside research/mogt-agentic-conversation unless a handoff explicitly targets another owner."
+      },
+      {
+        "namespace": "arcanum-tool-source",
+        "owner": "Whisper, Dispatch Spec, Invoke, Refine, and Experiment Harness lifecycle owners",
+        "write_policy": "Do not mutate from this dispatch; emit handoff or work-pack proposals only."
+      },
+      {
+        "namespace": "external-web-evidence",
+        "owner": "source ledger",
+        "write_policy": "Normalize into ledger entries before use in paper claims."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "MOGT experiment evidence",
+        "target": "paper claims",
+        "rule": "Evidence may upgrade paper claims only after claim adjudication and graph update.",
+        "on_violation": "block"
+      },
+      {
+        "source": "MOGT tool lessons",
+        "target": "Whisper or Dispatch Spec canonical contracts",
+        "rule": "Lessons are proposal/handoff material until owner lifecycle approval.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This dispatch does not promote MOGT vocabulary into canonical Arcanum definitions.",
+    "This dispatch does not mutate Whisper or Dispatch Spec canonical source.",
+    "This dispatch does not treat subagent discussion as experiment evidence without run data and receipts.",
+    "This dispatch does not mark the paper publishable until empirical claims are adjudicated from live results."
+  ]
+}

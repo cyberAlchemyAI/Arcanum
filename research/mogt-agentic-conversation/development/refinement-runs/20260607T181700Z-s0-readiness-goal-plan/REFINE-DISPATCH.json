@@ -1,0 +1,460 @@
+{
+  "dispatch_id": "mogt-s0-readiness-goal-plan-20260607",
+  "parent_dispatch_id": "mogt-publication-research-20260607",
+  "intent": {
+    "raw": "Refine S0 for MOGT, invoke a plan, and produce a split Codex goal profile because native goal text has a practical 4000-character limit.",
+    "objective": "Materialize S0 readiness, Invoke plan, work-pack, strict context handoff, and a split Codex goal profile for the next MOGT harness-feasibility execution.",
+    "target_artifact": "research/mogt-agentic-conversation/development/goals/mogt-s0-readiness/",
+    "operator_sentence": "Refine S0, then invoke a plan, then create a Codex goal profile split into separate Markdown files."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "scu_swu_reduction",
+    "artifact_contract_bridge",
+    "concrete_path_evidence"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "compact_goal_profile_authoring",
+      "trigger": "The native Codex goal command must remain compact while preserving a fuller execution contract.",
+      "techniques": [
+        "scu_swu_reduction",
+        "handle_handoff",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "S9",
+        "S10"
+      ],
+      "validation_expectation": "Goal command delegates detail to separate Markdown part files and each part stays under 4000 characters."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "This is a local artifact-authoring run with no delegated subagent lanes.",
+    "authorization": "not_needed",
+    "parallelism": "none",
+    "join_policy": "none",
+    "roles": [],
+    "receipt_requirements": []
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/stages/01-context-builder-s0.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "s0-context-frame"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the MOGT project folder or publication dispatch cannot be resolved."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Invoke Define skipped as existing scaffold definition",
+      "capability_ref": "invoke",
+      "mode": "define-check",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "s0-context-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "existing-mogt-define-artifacts"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if existing MOGT definitions and paper contracts are insufficient to scope S0."
+      ],
+      "convergence_criteria": [
+        "Existing MOGT project definitions and paper contracts are sufficient for S0 goal authoring."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Interrogation refine-review substitute",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "existing-mogt-define-artifacts"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "s0-goal-authoring-safe"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/scaffold-readiness.md",
+      "stop_conditions": [
+        "Block if S0 would require live experiments or paper-result rewrites."
+      ],
+      "convergence_criteria": [
+        "The execution goal is bounded to readiness and harness feasibility, not live experiments."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "s0-goal-authoring-safe"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "no-external-research-for-s0"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if external research is needed for S0 authoring."
+      ],
+      "convergence_criteria": [
+        "External prior-art research belongs to S1, not S0."
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Distill selected execution unit",
+      "capability_ref": "distill",
+      "mode": "scu-swu",
+      "pattern": "distill",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "no-external-research-for-s0"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "SWU-MOGT-S0-001"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if more than one execution unit remains selected."
+      ],
+      "convergence_criteria": [
+        "The smallest executable unit is harness feasibility after scaffold readiness."
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Invoke design check",
+      "capability_ref": "invoke",
+      "mode": "design-check",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "SWU-MOGT-S0-001"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "s0-execution-design"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if write scope cannot be kept inside MOGT development artifacts."
+      ]
+    },
+    {
+      "step_id": "S7",
+      "name": "Interrogation design-review substitute",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "s0-execution-design"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "goal-split-required"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/goals/mogt-s0-readiness/README.md",
+      "stop_conditions": [
+        "Block if the native goal command cannot be kept compact."
+      ],
+      "convergence_criteria": [
+        "Native goal command remains compact and refers to part files."
+      ]
+    },
+    {
+      "step_id": "S8",
+      "name": "Distill repair",
+      "capability_ref": "distill",
+      "mode": "repair",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "goal-split-required"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "split-goal-file-set"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/mogt-agentic-conversation/development/goals/mogt-s0-readiness/",
+      "stop_conditions": [
+        "Block if split goal files cannot preserve verification and stop rules."
+      ]
+    },
+    {
+      "step_id": "S9",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "split-goal-file-set"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/WORK-PACK.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if Invoke plan lacks work-pack mapping or verification surface."
+      ]
+    },
+    {
+      "step_id": "S10",
+      "name": "Final synthesis and Codex Goal Profile",
+      "capability_ref": "codex-goal-profile",
+      "mode": "profile",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "artifact_contract_bridge",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/context/s0-context-pack.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/goals/mogt-s0-readiness/CODEX-GOAL-PROFILE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/RESULT.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mogt.s0.goal_profile.created"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if any goal part exceeds 4000 characters.",
+        "Block if the profile omits handoff pack, strict coverage, verification, boundaries, or stop condition."
+      ],
+      "convergence_criteria": [
+        "Goal command and each goal part are under 4000 characters.",
+        "Profile references work-pack, handoff pack, strict coverage, validation surface, and stop condition."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-local-context-only",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "S0 goal authoring uses local evidence only.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-goal-size",
+      "kind": "validation",
+      "owner": "codex-goal-profile",
+      "condition": "Each goal Markdown file is under 4000 characters.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-no-canonical-tool-mutation",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "This run does not mutate canonical tool contracts.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "mogt-publication-research-20260607",
+    "signal_grouping": "mogt-s0-readiness-goal-plan-20260607",
+    "trace_events": [
+      "mogt.s0.context_built",
+      "mogt.s0.invoke_plan_created",
+      "mogt.s0.goal_profile.created"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-goal-profile-handoff",
+        "kind": "capability_handoff",
+        "from_owner": "refine and invoke authoring run",
+        "to_owner": "native Codex goal runtime",
+        "applies_to_steps": [
+          "S9",
+          "S10"
+        ],
+        "contract": "The authoring run produces a compact goal command plus separate Markdown part files; native Codex owns goal execution after the operator starts it.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-no-canonical-tool-mutation",
+        "kind": "state_write",
+        "from_owner": "MOGT research project",
+        "to_owner": "Arcanum canonical tool contracts",
+        "applies_to_steps": [
+          "S4",
+          "S10"
+        ],
+        "contract": "This run may reference tool contracts but must not mutate canonical Whisper, Dispatch Spec, Experiment Harness, Invoke, or Refine files.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "MOGT research project",
+      "execution": "native Codex goal after operator starts the goal",
+      "validation": "dispatch-spec and codex-goal-profile checks",
+      "evidence": "MOGT development refinement-run artifacts",
+      "promotion": "no canonical Arcanum promotion in this run"
+    },
+    "receipts": [
+      {
+        "receipt_id": "goal-profile-authoring-receipt",
+        "producer": "refine/invoke/codex-goal-profile authoring run",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "residue"
+        ],
+        "stores": [
+          "research/mogt-agentic-conversation/development/refinement-runs/20260607T181700Z-s0-readiness-goal-plan/"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "mogt-development",
+        "owner": "MOGT research project",
+        "write_policy": "Write S0 readiness and goal authoring artifacts only."
+      },
+      {
+        "namespace": "canonical-arcanum-tools",
+        "owner": "respective Arcanum capability owners",
+        "write_policy": "Read-only for this run."
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This run authors an execution goal only; it does not run MOGT experiments.",
+    "This run does not update MOGT claim support statuses.",
+    "This run does not mutate canonical Arcanum tool contracts."
+  ]
+}

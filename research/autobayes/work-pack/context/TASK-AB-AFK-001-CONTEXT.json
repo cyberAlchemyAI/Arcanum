@@ -1,0 +1,39 @@
+{
+  "task_id": "TASK-AB-AFK-001",
+  "swu_id": "SWU-AB-AFK-001",
+  "strict_coverage": "pass",
+  "work_pack": "research/autobayes/work-pack/WORK-PACK.md",
+  "task_file": "research/autobayes/work-pack/tasks/TASK-AB-AFK-001-subagent-closeout-hardening.md",
+  "context_pack": "research/autobayes/work-pack/context/TASK-AB-AFK-001-CONTEXT.md",
+  "source_artifacts": [
+    "research/autobayes/sessions/task-session-autobayes-full-mode-result.md",
+    "research/autobayes/sessions/task-session-autobayes-all-possible-subagents-result.md",
+    "research/autobayes/sessions/full-mode-source-receipts.md",
+    "research/autobayes/development/refinement-runs/20260607T044519Z-subagent-closeout-hardening/REFINE-SEED-PROPOSAL.md",
+    "research/autobayes/development/refinement-runs/20260607T044519Z-subagent-closeout-hardening/stages/09-invoke-plan.md"
+  ],
+  "write_scope": {
+    "safe_first": [
+      "research/autobayes/work-pack/",
+      "research/autobayes/development/refinement-runs/20260607T044519Z-subagent-closeout-hardening/"
+    ],
+    "conditional_canonical": [
+      "arcana/task-session/SKILL.md",
+      "formulae/dispatch-spec/SKILL.md",
+      "formulae/dispatch-spec/dispatch.schema.yml",
+      "formulae/dispatch-spec/dispatch.schema.json",
+      "formulae/dispatch-spec/scripts/validate-dispatch.py",
+      "formulae/dispatch-spec/development/fixtures/"
+    ]
+  },
+  "validation": [
+    "formulae/dispatch-spec/scripts/validate-dispatch.py research/autobayes/development/refinement-runs/20260607T044519Z-subagent-closeout-hardening/REFINE-DISPATCH.json --json",
+    "formulae/dispatch-spec/development/run-validation-fixtures.sh if canonical Dispatch Spec files change"
+  ],
+  "fallback_exploration": "named gaps only",
+  "blockers": [
+    "hidden open subagents can pass",
+    "canonical mutation without owner-ready rationale",
+    "missing handoff Markdown or JSON index"
+  ]
+}

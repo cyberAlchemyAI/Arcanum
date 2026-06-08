@@ -1,0 +1,642 @@
+{
+  "dispatch_id": "monoidal-categories-multicategories-research-20260607",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Run Research Tower on the local paper Monoidal Categories and Multicategories so the research can be executed, audited, and extended.",
+    "objective": "Plan and execute a governed notation-heavy research tower for Oliver Lugg's Monoidal Categories and Multicategories, producing source-first claims, notation bridge, glossary, definitions, distilled knowledge, equivalence proof spine, Arcanum bridge decisions, final learning pack, and explicit residue.",
+    "target_artifact": "research/monoidal-categories-multicategories/FINAL-LEARNING-PACK.md",
+    "arcanum_vocabulary": [
+      "research-tower",
+      "dispatch-spec",
+      "context-builder",
+      "feature-glossary",
+      "definitions-governance",
+      "distill",
+      "task-session",
+      "residue",
+      "promotion guardrail",
+      "subagent closeout"
+    ],
+    "operator_sentence": "Use a notation-first Research Tower route to learn the Leinster-Hermida equivalence in source language first, then translate it into Arcanum-safe operator knowledge without promoting category-theory terms into canon."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "residue_ledger",
+    "validation_loop",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "concrete_path_evidence"
+  ],
+  "route_menu": {
+    "context_hint": "The source is a notation-heavy 51-page category theory paper. The selected route is standard Research Tower execution with proof-spine closure, not full formalization.",
+    "items": [
+      {
+        "id": "standard-notation-heavy-tower",
+        "label": "Standard notation-heavy tower",
+        "description": "Build a complete local research tower with notation bridge, claim ledger, glossary, definitions, distill, proof spine, bridge decision, and final learning pack.",
+        "capability_ref": "research-tower",
+        "pattern": "sequential"
+      },
+      {
+        "id": "deep-proof-audit",
+        "label": "Deep proof audit",
+        "description": "Spawn role-bound proof and bibliography lanes to audit every omitted or diagram-heavy proof step.",
+        "capability_ref": "task-session",
+        "pattern": "fanout"
+      },
+      {
+        "id": "compact-summary",
+        "label": "Compact summary",
+        "description": "Produce only a short source summary and glossary; faster but not enough to test Research Tower.",
+        "capability_ref": "distill",
+        "pattern": "distill"
+      }
+    ],
+    "selected_item_id": "standard-notation-heavy-tower"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "notation-heavy-discipline",
+      "trigger": "The paper depends on formal notation for categories, multicategories, tensor products, coherence isomorphisms, representations, and the functor V.",
+      "techniques": [
+        "concrete_path_evidence",
+        "frame_handoff",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "recover-pdf-source",
+        "build-notation-bridge",
+        "synthesize-final-pack"
+      ],
+      "validation_expectation": "The final learning pack must point to a notation bridge before using theorem-spine notation."
+    },
+    {
+      "overlay_id": "promotion-protection",
+      "trigger": "The run creates glossary, definitions, and Arcanum bridge decisions that could be mistaken for canonical terms.",
+      "techniques": [
+        "memory_promotion_split",
+        "state_namespace_boundary",
+        "execution_receipt_handoff"
+      ],
+      "applies_to_steps": [
+        "build-glossary-definitions-distill",
+        "build-arcanum-bridge",
+        "validate-and-record"
+      ],
+      "validation_expectation": "All outputs remain local research artifacts unless a separate governed promotion decision is opened."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "recover-pdf-source",
+      "name": "Recover local PDF source and source selectors",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "external_context",
+          "ref": "/mnt/c/Users/vlad_/Downloads/Monoidal Categories and Multicategories.pdf"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/research-tower/SKILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "mcm-source-orientation-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/levels/L0-corpus.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-pdf-source-recovered"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the PDF cannot be read or extracted.",
+        "Flag if extraction drops theorem-critical notation."
+      ]
+    },
+    {
+      "step_id": "build-tower-scaffold",
+      "name": "Build Research Tower scaffold and closure plan",
+      "capability_ref": "research-tower",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "mcm-source-orientation-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/TOWER.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/levels/L1-residue-map.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/levels/L2-closure-plan.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-tower-scaffold-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Tower names the source boundary, reading order, artifact roles, and local-only promotion scope.",
+        "Residue separates standard operator understanding from proof audit and formalization."
+      ],
+      "stop_conditions": [
+        "Block if the tower claims canonical promotion authority.",
+        "Flag if closure gates are missing."
+      ]
+    },
+    {
+      "step_id": "build-notation-bridge",
+      "name": "Build notation bridge before synthesis",
+      "capability_ref": "research-tower",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/levels/L0-corpus.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/NOTATION.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/shared-notation-glossary.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "mcm-notation-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-notation-bridge-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Paper-specific notation is explained before the theorem spine.",
+        "Reusable notation patterns are linked to the shared research notation glossary."
+      ],
+      "stop_conditions": [
+        "Block if `C(A1 ... An; B)`, tensor notation, coherence notation, and `V(C)` are unexplained."
+      ]
+    },
+    {
+      "step_id": "extract-claim-and-proof-spine",
+      "name": "Extract source claim ledger and equivalence proof spine",
+      "capability_ref": "research-tower",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "mcm-source-orientation-frame"
+        },
+        {
+          "kind": "frame",
+          "ref": "mcm-notation-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/paper-claim-ledger.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/equivalence-spine-card.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "mcm-proof-spine-ledger"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-proof-spine-extracted"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Every theorem-spine claim has source-kind labeling.",
+        "The proof route preserves construction direction: `UMonCat -> Multicat -> RMulticat` and back through representability."
+      ],
+      "stop_conditions": [
+        "Block if the theorem is generalized from `RMulticat` to all `Multicat`.",
+        "Flag omitted diagram-heavy proof details as explicit residue."
+      ]
+    },
+    {
+      "step_id": "build-glossary-definitions-distill",
+      "name": "Build glossary, governed definitions, and distilled operator knowledge",
+      "capability_ref": "definitions-governance",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "memory_promotion_split",
+        "frame_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/paper-claim-ledger.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/NOTATION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/GLOSSARY.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/DEFINITIONS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/DISTILLED-KNOWLEDGE.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-glossary-definitions-distill-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Glossary terms preserve source meaning before Arcanum reading.",
+        "Definitions include formal shape, intuition, and misuse warning.",
+        "Distill names what representability contributes."
+      ],
+      "stop_conditions": [
+        "Block canonical promotion of category-theory vocabulary.",
+        "Flag analogy-heavy entries without source meaning."
+      ]
+    },
+    {
+      "step_id": "build-arcanum-bridge",
+      "name": "Build Arcanum bridge decisions",
+      "capability_ref": "distill",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "memory_promotion_split",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/DISTILLED-KNOWLEDGE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/equivalence-spine-card.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/arcanum-bridge-decision.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "mcm-arcanum-bridge-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-arcanum-bridge-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Bridge decisions classify borrow-carefully, analogy-only, block, and promotion candidates.",
+        "No category-theory term is promoted into Arcanum canon."
+      ],
+      "stop_conditions": [
+        "Block if `tensor`, `multicategory`, or `representability` are promoted as runtime terms."
+      ]
+    },
+    {
+      "step_id": "synthesize-final-pack",
+      "name": "Synthesize final learning pack",
+      "capability_ref": "research-tower",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/NOTATION.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/GLOSSARY.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/DEFINITIONS.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/DISTILLED-KNOWLEDGE.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/tracks/arcanum-bridge-decision.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/FINAL-LEARNING-PACK.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-final-learning-pack-built"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Final pack begins from notation and source-first spine.",
+        "Final pack includes borrow, analogy-only, block, closed residue, and honest cutoff."
+      ],
+      "stop_conditions": [
+        "Block if the final pack omits the notation entry point.",
+        "Block if the final pack claims proof-formalization closure."
+      ]
+    },
+    {
+      "step_id": "validate-and-record",
+      "name": "Validate route, artifacts, and residue",
+      "capability_ref": "dispatch-spec",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "execution_receipt_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/monoidal-categories-multicategories-research.dispatch.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/gates/closure-gates.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/FINAL-LEARNING-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/monoidal-categories-multicategories/residue/open-residue.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/research-tower/development/test-run-monoidal-categories-multicategories.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "mcm-dispatch-validated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/monoidal-categories-multicategories/monoidal-categories-multicategories-research.dispatch.json",
+      "convergence_criteria": [
+        "Dispatch validates against the Dispatch Spec validator.",
+        "Open residue has named next routes.",
+        "Research Tower test result records hardening lessons."
+      ],
+      "stop_conditions": [
+        "Block if dispatch validation fails.",
+        "Flag if residue lacks next route."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "A deeper execution would need separate proof-audit, bibliography, notation, and Arcanum-bridge lanes.",
+    "explanation": "The standard parent-lane run can close operator understanding, but full confidence in the proof details and bibliography comparison benefits from role-bound sibling agents with explicit closeout.",
+    "context": [
+      "The current selected route is standard notation-heavy execution.",
+      "Deep proof audit and external-source verification remain open residue."
+    ],
+    "roles": [
+      {
+        "role_id": "proof-spine-auditor",
+        "purpose": "Audit the theorem route, omitted diagram chases, and full/faithful/essentially-surjective claims.",
+        "owns": "proof residue",
+        "applies_to_steps": [
+          "extract-claim-and-proof-spine"
+        ]
+      },
+      {
+        "role_id": "notation-steward",
+        "purpose": "Verify that theorem-critical notation is explained before synthesis.",
+        "owns": "notation bridge",
+        "applies_to_steps": [
+          "build-notation-bridge",
+          "synthesize-final-pack"
+        ]
+      },
+      {
+        "role_id": "bibliography-checker",
+        "purpose": "Check Hermida, Leinster, and related cited works when a deep pass is authorized.",
+        "owns": "related-source verification",
+        "applies_to_steps": [
+          "extract-claim-and-proof-spine"
+        ]
+      },
+      {
+        "role_id": "arcanum-bridge-steward",
+        "purpose": "Preserve analogy-only boundaries and block accidental vocabulary promotion.",
+        "owns": "promotion guardrail",
+        "applies_to_steps": [
+          "build-glossary-definitions-distill",
+          "build-arcanum-bridge"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Spawn proof, notation, bibliography, and Arcanum-bridge research lanes for a deeper Research Tower pass?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "assigned_question",
+      "source_evidence",
+      "artifacts_reviewed",
+      "spawn_status",
+      "join_status",
+      "integration_decision",
+      "residue",
+      "reroute",
+      "close_status"
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "g-source-readable",
+      "kind": "validation",
+      "owner": "context-builder",
+      "condition": "The local PDF is readable and theorem-critical sections can be extracted or cited by page/section.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-notation-first",
+      "kind": "validation",
+      "owner": "research-tower",
+      "condition": "NOTATION.md exists before final synthesis and explains category, multicategory, tensor, representation, and V notation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "definitions-governance",
+      "condition": "Glossary, definitions, bridge, and final pack are local-research-only and do not promote category-theory terms into canonical Arcanum artifacts.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-subagent-closeout",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "If deep subagents are spawned, every lane must have joined, closed, blocked with residue, or handed off before parent success.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The dispatch validates with formulae/dispatch-spec/scripts/validate-dispatch.py.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "local-research-only",
+        "kind": "state_write",
+        "from_owner": "research-tower",
+        "to_owner": "definitions-governance",
+        "applies_to_steps": [
+          "build-glossary-definitions-distill",
+          "build-arcanum-bridge",
+          "synthesize-final-pack",
+          "validate-and-record"
+        ],
+        "contract": "Research outputs may recommend analogy or future work, but cannot promote Inventory, Ontology, glossary, sigil, spell, or runtime terms.",
+        "on_violation": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research/monoidal-categories-multicategories/",
+        "owner": "research-tower",
+        "write_policy": "write local research artifacts only; no canonical promotion",
+        "promotion_scope": "local-research-only"
+      },
+      {
+        "namespace": "research/shared-notation-glossary.md",
+        "owner": "research-tower",
+        "write_policy": "append reusable research notation explanations only; no canonical glossary promotion",
+        "promotion_scope": "local-research-only"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research/monoidal-categories-multicategories/",
+        "target": "Inventory/Ontology/canonical glossary/sigil/spell/runtime contracts",
+        "rule": "Research artifacts can list promotion candidates, but mutation of canonical targets requires a separate governed promotion decision.",
+        "on_violation": "block"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "mcm-standard-run-receipt",
+        "producer": "research-tower",
+        "required_fields": [
+          "artifacts",
+          "validation_result",
+          "residue",
+          "audit_reference"
+        ],
+        "stores": [
+          "arcana/research-tower/development/test-run-monoidal-categories-multicategories.md"
+        ],
+        "on_missing": "flag"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "mcm-pdf-source-recovered",
+      "mcm-tower-scaffold-built",
+      "mcm-notation-bridge-built",
+      "mcm-proof-spine-extracted",
+      "mcm-glossary-definitions-distill-built",
+      "mcm-arcanum-bridge-built",
+      "mcm-final-learning-pack-built",
+      "mcm-dispatch-validated"
+    ],
+    "signal_grouping": "dispatch_id"
+  }
+}
