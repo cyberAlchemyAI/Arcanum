@@ -23,7 +23,7 @@ refine to arcana/refine/development/WORK-PACK.md --swu SWU-REFINE-002
 - Runtime default: arcanum-runtime
 - Runtime eligibility: pass | block
 - Runtime handoff: `RUNTIME-HANDOFF.md`
-- Confirmation required: yes for command-backed stage dispatch
+- Confirmation required: yes for native runtime-backed stages and delegated subagents
 
 ## Expected Behavior
 

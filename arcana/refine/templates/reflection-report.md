@@ -7,7 +7,7 @@ Use this report when `refine` reaches a manual, usage, output, gap, or severe-ga
 - Sigil: refine
 - Tier: arcana
 - Trigger: manual | usage-threshold | output-threshold | gap-threshold | severe-gap
-- Observer pass: command dispatch | local review
+- Observer pass: native receipt review | local review
 - Signals reviewed: <count and paths>
 - Period or usage window: <range>
 
@@ -18,7 +18,7 @@ Use this report when `refine` reaches a manual, usage, output, gap, or severe-ga
 | Meaningful executions | <n> | <notes> |
 | Seed proposals | <n> | <notes> |
 | Runtime handoffs | <n> | <notes> |
-| Command dispatches | <n> | <notes> |
+| Native stage receipts | <n> | <notes> |
 | Research decisions | <n> | <notes> |
 | Final syntheses | <n> | <notes> |
 | Quality Bar failures | <n> | <notes> |
@@ -34,7 +34,7 @@ Use this report when `refine` reaches a manual, usage, output, gap, or severe-ga
 ## Contract Check
 
 - Refine preserves the canonical ten-stage loop: yes | no
-- Command-backed stages resolve through `tools/arcanum`: yes | no
+- Runtime-backed stages produce native receipts or blocked reasons: yes | no
 - Stage artifacts remain owned by their native capabilities: yes | no
 - Research still requires the selected mode and confirmation before browsing: yes | no
 - Task Session and Sigil Development remain next-route recommendations only: yes | no

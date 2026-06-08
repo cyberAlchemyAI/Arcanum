@@ -153,6 +153,9 @@ def generate(seed: dict[str, Any]) -> dict[str, Any]:
     doc["intent"]["arcanum_vocabulary"] = sorted(
         set(doc["intent"].get("arcanum_vocabulary", [])) | {"refine", "dispatch-spec", *overlays}
     )
+    for receipt in doc.get("native_stage_receipts", []) or []:
+        if isinstance(receipt, dict):
+            receipt["dispatch_id"] = run_id
 
     selected_menu = "baseline_sequence"
     for overlay in overlays:
@@ -171,7 +174,7 @@ def generate(seed: dict[str, Any]) -> dict[str, Any]:
             {
                 "status": "recommended",
                 "trigger": f"Selected overlays imply delegated review: {', '.join(overlays)}.",
-                "explanation": f"Dispatch Spec recommends role-bound reviewers ({role_ids}) because the target context selected overlays that benefit from independent critique before command-backed stage execution.",
+                "explanation": f"Dispatch Spec recommends role-bound reviewers ({role_ids}) because the target context selected overlays that benefit from independent critique before native runtime-backed stage execution.",
                 "context": [
                     f"Target: {target}",
                     f"Preset: {preset}",
@@ -182,7 +185,7 @@ def generate(seed: dict[str, Any]) -> dict[str, Any]:
                 "parallelism": "fanout" if len(selected_roles) > 1 else "none",
                 "join_policy": "parent_synthesis",
                 "authorization": "requires_user_permission",
-                "permission_prompt": "Dispatch Spec recommends the listed subagent strategy for this refinement. Run these delegated reviewers before command-backed stages?",
+                "permission_prompt": "Dispatch Spec recommends the listed subagent strategy for this refinement. Run these delegated reviewers before native runtime-backed stages?",
             }
         )
     elif isinstance(doc.get("subagent_strategy"), dict):

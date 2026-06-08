@@ -128,20 +128,23 @@ Expected inputs, if available:
 35. Validate against every done criterion and context-pack obligation.
 36. Run relevant checks based on touched assets.
 37. If a runtime adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
-38. If validation cannot be run, record why and provide the closest useful substitute.
-39. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
+38. If the task-session route spawned, inherited, or requested subagents, verify the subagent lifecycle ledger before reporting success: every agent must be joined, closed, blocked with residue, timed out with residue and reroute, or handed off with reroute.
+39. Treat hidden open agents, pending joins, pending closes, and unreported thread-cap failures as `BLOCK`, not as successful fallback exploration.
+40. If validation cannot be run, record why and provide the closest useful substitute.
+41. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
 
 ## Step 8 - Synchronize Evidence
 
-40. Update the task record when evidence supports completion.
-41. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
-42. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
-43. If no synchronization is needed, report why.
+42. Update the task record when evidence supports completion.
+43. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
+44. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
+45. If no synchronization is needed, report why.
 
 ## Step 9 - Report
 
-44. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, files updated, validations, experiment harness status, and remaining follow-up.
-45. When the result is `BLOCK` because a decision is required, append a `Decision Gate Result` section that names the target scope, lists the blocker question, presents 2-4 concrete options with trade-offs, records the recommended option if one exists, and points to the decision artifact path.
+46. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, subagent closeout, files updated, validations, experiment harness status, and remaining follow-up.
+47. Report subagent closeout as `n/a`, `pass`, `flag`, or `block`; when it is not `n/a`, include counts for spawned, joined, closed, blocked, timed-out, handed-off, open, plus residue and reroute paths.
+48. When the result is `BLOCK` because a decision is required, append a `Decision Gate Result` section that names the target scope, lists the blocker question, presents 2-4 concrete options with trade-offs, records the recommended option if one exists, and points to the decision artifact path.
 </process>
 
 <authority-rule>
@@ -160,6 +163,7 @@ Recommended signals:
 - fallback exploration/search status,
 - decision count,
 - gate result,
+- subagent closeout result and unresolved agent count when delegated execution is present,
 - files changed count,
 - validation commands,
 - validation result,
@@ -183,6 +187,7 @@ A successful execution of this sigil must:
 - stop before mutation when blockers remain,
 - run `decision-gate` before reporting blocker-level human approval, destructive cleanup, rollout, or policy choices,
 - keep runtime delegation behind an explicit adapter boundary,
+- block success when delegated subagents remain open, pending, hidden, or only implicitly abandoned,
 - keep edits within the declared task scope,
 - validate all available done criteria,
 - distinguish task/SWU execution evidence from reusable-behavior experiment evidence,
@@ -205,6 +210,7 @@ Avoid:
 - ending with a vague approval request when a blocker-level decision could be presented as concrete options with context.
 - hardcoding Codex as the only possible runtime,
 - treating a generated runtime handoff as completed work before evidence returns.
+- reporting AFK research as successful while subagent joins, closes, residues, or reroutes are unproven.
 </anti-patterns>
 
 <output-contract>
@@ -223,6 +229,7 @@ Return:
 - Runtime: <runtime id or local>
 - Adapter: <adapter id or none>
 - Gate verdict: <summary>
+- Subagent closeout: n/a | pass | flag | block, <spawned/joined/closed/blocked/timed_out/handed_off/open counts, residue, reroute>
 - Files updated: <paths or none>
 - Validation: <commands and results>
 - Experiment harness: pass | flag | block | not_run | not_applicable

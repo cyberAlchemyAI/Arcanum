@@ -1,0 +1,37 @@
+{
+  "context_pack": "SWU-RCNS-001",
+  "source_work_pack": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-IMPLEMENTATION-PLAN.md",
+  "source_dispatch": "arcana/refine/development/REFINE-COMMANDLESS-NATIVE-SCHEMA-DISPATCH.json",
+  "strict_coverage": "pass",
+  "selected_unit": {
+    "swu_id": "SWU-RCNS-001",
+    "parent_task": "TASK-RCNS-001",
+    "goal": "Inventory active command-interface dependencies and classify them.",
+    "write_scope": [
+      "arcana/refine/development/SWU-RCNS-001-ACTIVE-SURFACE-INVENTORY.md"
+    ],
+    "dependencies": [],
+    "execution_owner": "local-fallback or active-contract-auditor subagent receipt",
+    "acceptance_evidence": "classification report has no unknown active hits"
+  },
+  "validation": {
+    "command": "rg -n \"tools/arcanum --resolve|tools/arcanum --exec|\\\\.codex/commands|command-backed|command file|slash command|/refine|/invoke\" arcana/refine spells/invoke formulae/dispatch-spec tools/bootstrap_arcanum.sh --glob '!**/development/refinement-runs/**'",
+    "required_result": "all active hits classified"
+  },
+  "fallback_exploration": {
+    "mode": "named gaps only",
+    "allowed_gaps": [
+      "generated or historical output needs nearby path context",
+      "active file ownership is unclear",
+      "nearest capability README, SKILL, or validation file is needed"
+    ],
+    "blocked_broadening": "unrelated Arcanum cleanup"
+  },
+  "stop_conditions": [
+    "active hits cannot be classified",
+    "grep command cannot run",
+    "write scope would need to leave arcana/refine/development",
+    "required source file is missing"
+  ]
+}
+

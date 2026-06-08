@@ -34,21 +34,17 @@ Prefer the installed native skill package and the canonical source contract:
 
 - active package: `refine`
 - canonical source: `arcanum/arcana/refine/SKILL.md`
-- deterministic resolver, when present: `arcanum/tools/arcanum --resolve refine`
+- deterministic helper, when explicitly used: legacy compatibility or handoff preparation only
 
-If deterministic resolution is unavailable, follow `arcanum/arcana/refine/SKILL.md` directly and record the missing resolver as a runtime-surface gap. Do not require `.codex/commands/` for normal Refine execution.
+If the deterministic helper is unavailable, follow `arcanum/arcana/refine/SKILL.md` directly and record the missing helper as a compatibility-surface gap. Do not require `.codex/commands/` or slash-command resolution for normal Refine execution.
 
 ## Stage Dispatch
 
 Refine should first write `REFINE-DISPATCH.json` and validate it through `formulae/dispatch-spec/dispatch.schema.yml`. Native runtime-backed stages run only after the route shape, technique references, gates, handoffs, and observability grouping are valid.
 
-Refine then uses the parent native skill/subagent surface for stage work. When a durable adapter handoff is useful, the deterministic tool surface can prepare a receipt contract:
+Refine then uses the parent native skill/subagent surface for stage work. When a durable adapter handoff is useful, record that handoff as compatibility or receipt preparation; do not count command-interface execution as native stage proof.
 
-```bash
-arcanum/tools/arcanum --exec --adapter native-skill --output <stage-output> <capability-id> <stage-request>
-```
-
-Record each owning capability, resolved capability handle, requested mode/config, artifact path, observer status, verdict, and blocked reason in the manifest/index.
+Record each owning capability, capability handle, receipt kind, receipt artifact or fields, requested mode/config, artifact path, observer status, verdict, and blocked reason in the manifest/index.
 
 ## Runtime Boundary
 
