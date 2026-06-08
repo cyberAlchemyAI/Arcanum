@@ -254,3 +254,63 @@ fast as Arcanum succeeds.
 3. **Q3 — pay for the demotion-reversal lock now, or defer to reflection scale?**
 
 — V.
+
+---
+
+## Addendum (2026-06-08) — a sixth axis, audited and killed
+
+A candidate sixth memo was floated and run through the same pipeline (3 explorers
+on disjoint slices → 2 skeptics on independent vectors → reviser). It does not
+ship; recorded here so the cut is visible rather than silent.
+
+**The proposal.** A *tensioned multi-agent / candidate-set composition* axis: the
+claim that Arcanum can generate **multiple** candidates (`distill` tournament mode;
+whisper `pareto_tournament` / `scu_candidate_set`) but **nowhere requires them to be
+tensioned** (structurally anti-correlated), so a Pareto/tournament gate over
+correlated candidates composes bias with falsely-high confidence — the
+Krogh–Vedelsby bad regime. The recursive hook: these memos themselves run on
+tensioned dispatch, yet the framework never publishes that discipline (the
+TO-VLAD5 move, re-pointed). Prior art it would cite:
+`domainspec/vault/discovery/{anti-bias-vector-composition, subagents-topologies,
+noise-reducer}`.
+
+**What survived the explorers (factual spine holds).** The gap is literally real:
+`spells/whisper/tools/validate-whisper-draft.py` runs green and enforces ≥2
+candidates + scores + hard gates + dominance/consensus rules but **never checks
+anti-correlation**; `formulae/dispatch-spec/dispatch.schema.yml` offers
+`parallelism: [fanout, dialectic, tournament]` and requires roles to differ only by
+`purpose`. So the collapse-test premise ("a real fan-out surface exists") passes.
+
+**Why it was killed anyway.**
+
+1. **Category error (scope skeptic).** The cited parent
+   (`anti-bias-vector-composition`) self-scopes to *N agents reading one artifact
+   from N stances* and explicitly "does not apply" to single-agent stages.
+   Krogh–Vedelsby governs an **ensemble of estimators whose errors can correlate**.
+   The whisper tournament is **single-author Pareto selection over candidate
+   designs**, differentiated by objective-coverage (resonance/relevance/trajectory)
+   — no N agents, no shared artifact, no averaged error term. The theorem does not
+   transfer without a bridge nobody supplied.
+2. **Zero witnessed harm (collapse skeptic).** The one fully-populated live
+   candidate set holds three **non-correlated** framings; the `citation_integrity`
+   hard gate actually fired and demoted one; the distill Proposer/Balancer pair
+   actually changed a selection. The bad regime requires correlated candidates and
+   has a witness count of zero. The fan-out path is exercised ~twice in repo
+   history at 1-maintainer / ~12-spell scale, and the proposed gate presupposes a
+   single bias axis where the real surface has three orthogonal objectives — so the
+   fix has no well-formed target.
+3. **Borrowed, not new.** The fix-shape ("thin field + gate, not a centralizing
+   engine") is TO-VLAD2's crosswalk language; "declared-tension across every
+   fan-out surface" is exactly the per-sigil ceremony **memo 5 already killed**; the
+   recursive hook is memo 5 re-pointed, which by memo 5's own bar is only
+   *conditional* novelty.
+
+**What is left (subset rule).** A descriptive, non-actionable observation, not a
+finding: *Arcanum's tournament/candidate schemas enforce non-domination and
+coverage, never structural opposition; the* `domainspec` *prior art that does encode
+opposition is scoped to research-dispatch, a different object.* This becomes
+load-bearing **only if** Arcanum later grows a genuine N-agent fan-out surface
+(several agents investigating one artifact), at which point the ensemble discipline
+would transfer and earn a memo. Until then: no TO-VLAD6.
+
+— V.
