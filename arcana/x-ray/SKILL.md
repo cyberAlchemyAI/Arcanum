@@ -97,18 +97,40 @@ Expected inputs:
 - optional depth, audience, privacy, or visual style constraints.
 </inputs>
 
+<reader-onramp>
+An `x-ray` page must teach the target to a reader who may not already know the domain.
+
+Before composing the visual page, identify the likely reader baseline from the user request or source context:
+
+- `newcomer`: needs plain definitions, why-it-matters framing, and step-by-step causality.
+- `working-reader`: understands the domain category but not this target's local structure.
+- `expert`: can handle compact terms, but still needs local evidence and boundary clarity.
+- `unknown`: default to `newcomer` for explanation text and `working-reader` for labels.
+
+For every important lane, provide an on-ramp before the detail:
+
+1. Name the thing in ordinary language.
+2. Say why it matters in this target.
+3. Explain what changes, moves, depends on it, or can fail because of it.
+4. Only then introduce local terms, handles, or technical labels.
+
+Avoid explanations that require prior knowledge of the target's domain vocabulary. If a technical term is unavoidable, define it where the reader first needs it. Visual labels may be compact, but adjacent text must make the label understandable.
+</reader-onramp>
+
 <process>
 1. Resolve the input context and identify the target boundary.
 2. Select an inspection mode or ask one clarification question when mode ambiguity changes the lane set.
-3. Build an evidence boundary that separates source-backed facts from inference.
-4. Select the required lanes for the mode and record omitted-lane reasons.
-5. Produce lane handles for surface, properties, components, internal dependencies, external dependencies, flow, lifecycle, risk questions, and visual composition as relevant.
-6. Select YAML-backed visual library components and patterns from `arcana/x-ray/library/` that fit the lane handles.
-7. Nudge the user to add a custom shape, chart, or pattern when the target has a domain-specific form that the starter library cannot represent honestly.
-8. Compose the lane handles into an HTML page model with selectable visual layers.
-9. Use L0 static HTML/SVG by default; add Mermaid or 3D adapters only when they clarify the target and validation remains available.
-10. Validate that every visual element maps back to source evidence or an explicit inference.
-11. Report missing context, unsupported visual adapters, or target-size blockers honestly.
+3. Identify the reader baseline and explanation depth from the request; when unknown, default to newcomer-friendly prose.
+4. Build an evidence boundary that separates source-backed facts from inference.
+5. Select the required lanes for the mode and record omitted-lane reasons.
+6. Produce lane handles for surface, properties, components, internal dependencies, external dependencies, flow, lifecycle, risk questions, and visual composition as relevant.
+7. Add reader on-ramps for important lane content: plain name, why it matters, causal role, then local or technical term.
+8. Select YAML-backed visual library components and patterns from `arcana/x-ray/library/` that fit the lane handles.
+9. Nudge the user to add a custom shape, chart, or pattern when the target has a domain-specific form that the starter library cannot represent honestly.
+10. Compose the lane handles into an HTML page model with selectable visual layers.
+11. Use L0 static HTML/SVG by default; add Mermaid or 3D adapters only when they clarify the target and validation remains available.
+12. Validate that every visual element maps back to source evidence or an explicit inference, and that every important technical label has a nearby plain-language explanation.
+13. Report missing context, unsupported visual adapters, or target-size blockers honestly.
 </process>
 
 <output-contract>
@@ -121,6 +143,7 @@ Return:
 - Mode: object | artifact | architecture | codebase | process | mixed | unknown
 - Target boundary: <resolved scope or blocked reason>
 - User intent: <resolved intent or open question>
+- Reader baseline: newcomer | working-reader | expert | unknown
 - Output: <html path or planned output>
 - Lane handles:
   - surface: <handle or omitted reason>
@@ -136,6 +159,7 @@ Return:
 - Renderer level: L0 | L1 | L2 | L3 | L4 | blocked
 - Visual library: <YAML components/patterns used and custom shape/chart/pattern nudge if relevant>
 - Evidence boundary: <source-backed facts vs inference>
+- Reader on-ramp: <plain-language definitions, why-it-matters framing, or omitted reason>
 - Validation: <checks performed or blocked reason>
 ```
 </output-contract>
@@ -146,6 +170,8 @@ A successful `x-ray` run must:
 - identify the mode and target boundary,
 - preserve the user's inspection intent,
 - produce a structured explanation rather than a loose summary,
+- teach prerequisite concepts before relying on target-specific jargon,
+- make each important technical label understandable to a reader without assumed prior domain knowledge,
 - include properties, components, flows, internal dependencies, external dependencies, assumptions, and open questions when relevant,
 - emit lane handles that can be consumed by the visual composition step,
 - use reusable YAML-backed visual components and patterns only when they preserve the evidence/inference boundary,
@@ -162,6 +188,8 @@ Avoid:
 - inventing system structure not grounded in supplied context,
 - producing decorative visuals that do not explain the target,
 - skipping the user's intent and defaulting to generic documentation,
+- using expert shorthand where the reader needs a plain-language bridge,
+- drawing labels, arrows, or layers whose meaning is only clear to someone who already understands the target,
 - treating every target as software architecture,
 - claiming production renderer readiness from seed artifacts,
 - requiring Mermaid, Three.js, Kroki, or remote rendering for baseline success,

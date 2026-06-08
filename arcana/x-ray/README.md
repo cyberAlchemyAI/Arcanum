@@ -16,6 +16,8 @@ Raw context can be hard to inspect because structure is often implicit. A system
 
 `x-ray` makes that structure visible by splitting a target into explanation lanes. Each lane gives one vision of the target, such as properties, components, internal dependencies, external dependencies, flow, lifecycle, or risk questions. The lane handles compose into a local HTML page where layers can be stacked, isolated, compared, or traced.
 
+`x-ray` should also make the structure learnable. The output must not assume the reader already knows the target's domain vocabulary. Important concepts need a small on-ramp: what the thing is in ordinary language, why it matters here, what it changes or depends on, and only then the local technical label.
+
 ## Modes
 
 | Mode | Use When |
@@ -53,6 +55,15 @@ The first renderer level is intentionally simple:
 - layer controls,
 - source evidence and inference markers,
 - internal and external dependency sections.
+
+Each page should declare a reader baseline:
+
+| Reader Baseline | Use When | Explanation Style |
+| --- | --- | --- |
+| `newcomer` | The reader may not know the domain or target vocabulary. | Define terms at first use, explain why each layer matters, and show cause/effect step by step. |
+| `working-reader` | The reader knows the general domain but not this target's local structure. | Keep local terms compact but explain target-specific boundaries, dependencies, and failure points. |
+| `expert` | The reader knows the domain and needs a fast structural inspection. | Use compact labels while preserving evidence, inference, and local boundary clarity. |
+| `unknown` | The prompt does not reveal the audience. | Default prose to `newcomer` and visual labels to `working-reader`. |
 
 Later renderer levels may add Mermaid diagrams, CSS 3D transforms, Three.js, or Kroki-generated SVG, but those are optional adapters. A valid baseline `x-ray` result must not depend on remote rendering or 3D.
 
