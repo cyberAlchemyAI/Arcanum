@@ -198,25 +198,89 @@ decision trace is not auditable and overhead is unexplained.
 
 ## Reviewer Score Sheet
 
+Reviewer lane: `MODEL_Y` (Reviewer A = MODEL_Y_REVIEWER_1, Reviewer B =
+MODEL_Y_REVIEWER_2). Scores collected via two isolated independent reviewer
+sessions per the `20260608T154611Z-calibration-reviewers` handoff. Human and
+Model X lanes remain pending.
+
 | Example | Dimension | Reviewer A Score | Reviewer B Score | Difference | Adjudication Required? | Adjudication Note |
 | --- | --- | --- | --- | --- | --- | --- |
-| CAL-E1-EASY | `traceability_coverage` | pending | pending | pending | pending | pending |
-| CAL-E1-EASY | `acceptance_score` | pending | pending | pending | pending | pending |
-| CAL-E2-AMBIGUOUS | `decision_quality_score` | pending | pending | pending | pending | pending |
-| CAL-E2-AMBIGUOUS | `frontier_traceability` | pending | pending | pending | pending | pending |
-| CAL-E4-BOUNDARY | `overhead_acceptability` | pending | pending | pending | pending | pending |
-| CAL-E4-BOUNDARY | `quality_retention` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `traceability_coverage` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `acceptance_score` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `decision_quality_score` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `frontier_traceability` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `overhead_acceptability` | pending | pending | pending | pending | pending |
-| CAL-FAIL-OPAQUE | `quality_retention` | pending | pending | pending | pending | pending |
+| CAL-E1-EASY | `traceability_coverage` | 1.0 | 0.95 | 0.05 | no | Both judge the trace fully inspectable (1.0 anchor); B's minor deduction for only two candidates shown. |
+| CAL-E1-EASY | `acceptance_score` | 0.7 | 0.7 | 0.00 | no | Agreement: action accepted and justified but trades quality/safety vs Candidate B; defensible rather than clearly best. |
+| CAL-E2-AMBIGUOUS | `decision_quality_score` | 0.75 | 0.7 | 0.05 | no | Agreement: selected action is a frontier member, plausible/among-best but not unambiguously optimal vs Candidate C. |
+| CAL-E2-AMBIGUOUS | `frontier_traceability` | 1.0 | 0.9 | 0.10 | no | Both find frontier/dominance auditable; B deducts slightly because dominance is asserted, not derived from vectors. |
+| CAL-E4-BOUNDARY | `overhead_acceptability` | 0.6 | 0.65 | 0.05 | no | Agreement: tolerable-with-caveats; both flag absence of a defined operating-envelope threshold. |
+| CAL-E4-BOUNDARY | `quality_retention` | 0.8 | 0.8 | 0.00 | no | Agreement: reported retention 0.82 improves over heuristic; value self-reported in trace. |
+| CAL-FAIL-OPAQUE | `traceability_coverage` | 0.0 | 0.05 | 0.05 | no | Agreement: rationale opaque (0.0 anchor); B's minimal nonzero only because the selected action is named. |
+| CAL-FAIL-OPAQUE | `acceptance_score` | 0.1 | 0.15 | 0.05 | no | Agreement: plausible-but-unauditable answer is rejected per calibration intent. |
+| CAL-FAIL-OPAQUE | `decision_quality_score` | 0.15 | 0.1 | 0.05 | no | Agreement: no candidates/vectors recorded; quality unsubstantiated, scored near zero. |
+| CAL-FAIL-OPAQUE | `frontier_traceability` | 0.0 | 0.0 | 0.00 | no | Agreement: frontier/dominance note absent (exact 0.0 anchor). |
+| CAL-FAIL-OPAQUE | `overhead_acceptability` | 0.1 | 0.1 | 0.00 | no | Agreement: high unexplained cost/latency, no acceptability ratio. |
+| CAL-FAIL-OPAQUE | `quality_retention` | 0.2 | 0.2 | 0.00 | no | Agreement: no baseline; retention indeterminate, scored low conservatively. |
+
+## Human Reviewer Lane (cross-lane comparison vs MODEL_Y)
+
+Human reviewer scored independently after the MODEL_Y lane, using the same
+0..1 rubric anchors. "Gap" is the maximum absolute difference between the human
+score and either MODEL_Y reviewer; gaps greater than `0.25` are flagged for
+adjudication before production scoring.
+
+| Example | Dimension | Human Score | Model Y (R1/R2) | Max Gap | Adjudication Required? |
+| --- | --- | --- | --- | --- | --- |
+| CAL-E1-EASY | `traceability_coverage` | 0.8 | 1.0 / 0.95 | 0.20 | no |
+| CAL-E1-EASY | `acceptance_score` | 1.0 | 0.7 / 0.7 | 0.30 | yes |
+| CAL-E2-AMBIGUOUS | `decision_quality_score` | 1.0 | 0.75 / 0.7 | 0.30 | yes |
+| CAL-E2-AMBIGUOUS | `frontier_traceability` | 1.0 | 1.0 / 0.9 | 0.10 | no |
+| CAL-E4-BOUNDARY | `overhead_acceptability` | 1.0 | 0.6 / 0.65 | 0.40 | yes |
+| CAL-E4-BOUNDARY | `quality_retention` | 1.0 | 0.8 / 0.8 | 0.20 | no |
+| CAL-FAIL-OPAQUE | `traceability_coverage` | 0.0 | 0.0 / 0.05 | 0.05 | no |
+| CAL-FAIL-OPAQUE | `acceptance_score` | 0.1 | 0.1 / 0.15 | 0.05 | no |
+| CAL-FAIL-OPAQUE | `decision_quality_score` | 0.1 | 0.15 / 0.1 | 0.05 | no |
+| CAL-FAIL-OPAQUE | `frontier_traceability` | 0.0 | 0.0 / 0.0 | 0.00 | no |
+| CAL-FAIL-OPAQUE | `overhead_acceptability` | 0.1 | 0.1 / 0.1 | 0.00 | no |
+| CAL-FAIL-OPAQUE | `quality_retention` | 0.2 | 0.2 / 0.2 | 0.00 | no |
+
+### Human vs MODEL_Y adjudication notes
+
+- Three rows exceed the `0.25` threshold, all in the same direction: the human
+  scored borderline-positive decisions more leniently than the conservative
+  MODEL_Y lane.
+  - `CAL-E1-EASY / acceptance_score`: human 1.0 vs Model Y 0.7. Human treats
+    the speed/cost trade as clearly correct; Model Y notes the chosen action
+    gave up quality (0.82 -> 0.72) and safety (0.91 -> 0.86).
+  - `CAL-E2-AMBIGUOUS / decision_quality_score`: human 1.0 vs Model Y 0.7-0.75.
+    Human reads "ask clarifying question" as best-available; Model Y holds that
+    frontier membership alone does not establish optimality vs Candidate C.
+  - `CAL-E4-BOUNDARY / overhead_acceptability`: human 1.0 vs Model Y 0.6-0.65.
+    Human accepts the overhead outright; Model Y flags the missing defined
+    operating-envelope threshold and scores it as tolerable-with-caveats.
+- Failure case (`CAL-FAIL-OPAQUE`) shows full human/Model Y agreement: both
+  refuse to reward a plausible-but-unauditable answer.
+- Recommended anchor alignment before production scoring: agree on how
+  generously to score borderline-acceptable decisions and what overhead counts
+  as "clearly acceptable" absent a numeric envelope.
+
+## Calibration Notes (MODEL_Y lane)
+
+- Two independent isolated `MODEL_Y` reviewer sessions scored all 12 pending
+  rows. Within-model independence preserved (neither saw the other's scores).
+- All first-wave dimensions represented; E3 `conflict_resolution_quality`
+  excluded as second-wave by default.
+- Maximum within-model disagreement is `0.10` (`frontier_traceability` on
+  CAL-E2-AMBIGUOUS); no row exceeds the `0.25` adjudication threshold, so no
+  Model Y adjudication is required.
+- Open gap: the actual `MODEL_Y` model id/version was not chosen in the source
+  handoff; record it before production scoring.
 
 ## Current Status
 
-Calibration examples are ready for independent reviewer scoring.
+MODEL_Y lane scored (within-model pass) and the human reviewer lane scored,
+with cross-lane comparison recorded. Human/Model Y agreement is strong on the
+failure case and clarity dimensions, with 3 flagged disagreements (>0.25) on
+borderline-positive decisions where the human scored more leniently.
 
-This artifact does not complete calibration by itself. It must be updated with
-two independent reviewer score columns and adjudication notes before production
-scoring or live evidence approval.
+Calibration is NOT yet complete. Remaining before production scoring or live
+evidence approval:
+1. Resolve the 3 human/Model Y adjudication rows (anchor-alignment discussion).
+2. Score the Model X reviewer lane (still pending).
+3. Save final calibration sign-off, ideally via a `task-session` continuation.
