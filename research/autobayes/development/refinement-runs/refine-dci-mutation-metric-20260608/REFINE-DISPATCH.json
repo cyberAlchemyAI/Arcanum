@@ -1,0 +1,793 @@
+{
+  "dispatch_id": "refine-dci-mutation-metric-20260608",
+  "parent_dispatch_id": "refine-coherence-metric-20260608",
+  "intent": {
+    "raw": "But the thing is that maybe in the future I'll make mutations to skills, and this could impact the metric, or does it not make sense?",
+    "objective": "Refine, through the canonical ten-stage loop, a non-executed design for DCI as a controlled skill-mutation regression metric — delta-DCI(skill v_old to v_new) on a fixed workload — establishing version tagging, fixed-workload replay, and observer independence, with a real power analysis on the telemetry, and an explicit block if observer co-mutation cannot be cheaply neutralized; without editing canonical packages.",
+    "target_artifact": "arcanum/research/autobayes/development/refinement-runs/refine-dci-mutation-metric-20260608/RESULT.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "experiment-harness",
+      "observability",
+      "sigil-development",
+      "workflow-reflect",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill",
+      "residue",
+      "skill mutation"
+    ],
+    "operator_sentence": "Make DCI a before/after regression signal for skill edits, and prove it is not just measuring whether the skill grades itself more leniently."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "residue_ledger",
+    "memory_loop",
+    "scu_swu_reduction",
+    "tournament",
+    "pareto_gate",
+    "recomposition_proof",
+    "toy_game",
+    "concrete_path_evidence",
+    "execution_receipt_handoff",
+    "observability_grouping",
+    "state_namespace_boundary",
+    "memory_promotion_split",
+    "minimum_component_catalog"
+  ],
+  "route_menu": {
+    "context_hint": "Three differential designs could carry the regression metric; the design stage records a route decision over them, ranked by observer-independence.",
+    "items": [
+      {
+        "id": "ground-truth-differential",
+        "label": "Observer-independent ground-truth differential",
+        "description": "Replay a fixed fixture corpus through v_old and v_new and score with observer-independent signals (git file-rework, fixture pass/fail, downstream failure). Survives observer co-mutation.",
+        "capability_ref": "invoke",
+        "pattern": "tournament"
+      },
+      {
+        "id": "harness-replay-selfobserver",
+        "label": "Harness replay with bundled observer",
+        "description": "Fixed-workload replay but scored with the skill's own observer; holds workload constant but stays contaminated if the mutation changes reporting.",
+        "capability_ref": "invoke",
+        "pattern": "sequential"
+      },
+      {
+        "id": "live-version-slice",
+        "label": "Live version-slice",
+        "description": "Slice live telemetry by skill_version; cheapest but neither workload-fixed nor observer-frozen; weakest.",
+        "capability_ref": "distill",
+        "pattern": "distill"
+      }
+    ],
+    "selected_item_id": "ground-truth-differential"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Every refine run preserves the canonical ordered loop with safe handoffs and observability.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog"
+      ],
+      "applies_to_steps": [
+        "ctx-baseline",
+        "invoke-define",
+        "interrogation-refine-review",
+        "invoke-plan",
+        "final-interrogation-synthesis"
+      ],
+      "validation_expectation": "Each non-first stage consumes a prior handoff, stages keep owner boundaries, and trace events group by dispatch_id."
+    },
+    {
+      "overlay_id": "memory_residue_for_context_recovery",
+      "trigger": "The redesign builds on the prior DCI run and its critique (circular self-report, ceiling skew, sigil-identity confound).",
+      "techniques": [
+        "memory_loop",
+        "residue_ledger",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "ctx-baseline",
+        "research-decision",
+        "distill-select"
+      ],
+      "validation_expectation": "The prior DCI design and critique are cited by path; the differential framing is justified against the named earlier failures."
+    },
+    {
+      "overlay_id": "tournament_for_alternatives",
+      "trigger": "Three differential designs (ground-truth, harness-replay, live-slice) must be compared, ranked by observer-independence and feasibility.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "invoke-design"
+      ],
+      "validation_expectation": "The design stage declares the three differential roles, a pareto criterion over observer-independence, workload control, and cost, and a recomposition proof into a skill-mutation gate."
+    },
+    {
+      "overlay_id": "toy_game_for_low_cost_falsification",
+      "trigger": "The differential must be power-analyzed on real telemetry before any harness integration is planned; if it needs hundreds of runs per mutation it is impractical.",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "applies_to_steps": [
+        "distill-repair"
+      ],
+      "validation_expectation": "The repair stage runs a real power analysis on sigil-invocations.jsonl (and a simulated mutation slice), reports the runs needed to detect a residue-rate shift, and names the failure interpretation if detection is impractical or observer-contaminated."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "ctx-baseline",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "memory_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../refine-coherence-metric-20260608/RESULT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../../../framework/observability/templates/invocation-envelope.json"
+        },
+        {
+          "kind": "external_context",
+          "ref": "arcanum/.arcanum/observability/signals/sigil-invocations.jsonl"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "mutation-metric-evidence-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-context-baseline-built"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the prior DCI result and critique cannot be read.",
+        "Flag if the telemetry lacks any version-like or fixture-like key for a differential."
+      ]
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define the differential metric objective",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "mutation-metric-evidence-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-define-produced"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the define does not state the observer-co-mutation threat as the make-or-break.",
+        "Flag if version tagging or fixed-workload control is left implicit."
+      ]
+    },
+    {
+      "step_id": "interrogation-refine-review",
+      "name": "Interrogation refine-review of the define",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-define-interrogated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/03-interrogation-refine-review.md",
+      "stop_conditions": [
+        "Block if the differential is contaminated by observer co-mutation with no countermeasure.",
+        "Flag if the workload is not held fixed between v_old and v_new."
+      ]
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Refine research decision",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "memory_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "mut-research-decision"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-research-decided"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Default to no-research; the differential is a local design question.",
+        "Ask the operator before any external pass on rare-event change-detection methods."
+      ]
+    },
+    {
+      "step_id": "distill-select",
+      "name": "Distill the coherent unit of comparison",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "scu_swu_reduction",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "mut-research-decision"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill-select.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-distilled"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The unit of comparison is one (skill_version, fixture-corpus) cell, with the residue signal and the version key named.",
+        "The observer-independent ground-truth signal set is named (git file-rework, fixture pass/fail, downstream failure).",
+        "Rejected comparison designs are recorded with the reason."
+      ],
+      "stop_conditions": [
+        "Block if no version key can identify a mutation boundary.",
+        "Flag if no observer-independent ground-truth signal is available."
+      ]
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Design the differential via tournament",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "tournament",
+      "parallel": false,
+      "roles": [
+        "ground-truth-differential-designer",
+        "harness-replay-designer",
+        "live-version-slice-designer"
+      ],
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill-select.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "mutation-metric-evidence-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-design-produced"
+        }
+      ],
+      "join_policy": "ranked",
+      "convergence_criteria": [
+        "Each design states its version-tagging, workload-control, scoring source, and observer-independence.",
+        "A pareto gate ranks the three on observer-independence, workload control, and cost.",
+        "The winning design proves recomposition into a concrete skill-mutation gate (run before/after a skill edit)."
+      ],
+      "stop_conditions": [
+        "Block if every design is observer-contaminated.",
+        "Flag if the tournament collapses to one design without recording the comparison."
+      ]
+    },
+    {
+      "step_id": "interrogation-design-review",
+      "name": "Interrogation refine-design-review of the differential design",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-design-interrogated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/07-interrogation-design-review.md",
+      "stop_conditions": [
+        "Block if the winning design cannot detect a real mutation effect distinct from a reporting change.",
+        "Flag if the attribution window or version key is ambiguous."
+      ]
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair via power analysis on real telemetry",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "toy_game",
+      "parallel": false,
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-power-analysis.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-power-analysis-run"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/08-distill-repair-power-analysis.md",
+      "stop_conditions": [
+        "Block if the differential cannot be computed on the real store at all.",
+        "Flag and record as assessment failure if detecting a residue-rate shift needs an impractical number of runs."
+      ]
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan the skill-mutation gate (non-executed)",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "parallel": false,
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-power-analysis.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-plan-produced"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the plan implies editing canonical packages instead of proposing harness/observability/sigil-development configs.",
+        "Flag if the plan lacks the observer-independence solution or the minimum-runs threshold."
+      ]
+    },
+    {
+      "step_id": "final-interrogation-synthesis",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-power-analysis.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        },
+        {
+          "kind": "handoff",
+          "ref": "mutation-metric-harness-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-mut-synthesis-produced"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "Block if RESULT.md is synthesized from the route instead of the power analysis and stage artifacts.",
+        "Block if the verdict claims the metric makes sense without the observer-independence solution proven.",
+        "Flag if any open residue lacks an owner or next route."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The design stage is a tournament across three differential designs that differ mainly in observer-independence, plus a feasibility reviewer who must run a real power analysis to decide whether the differential is detectable at all.",
+    "explanation": "One designer per differential keeps the ground-truth, harness-replay, and live-slice framings independent so the observer-independence comparison is fair; a separate feasibility reviewer runs the power analysis without a designer's optimism.",
+    "context": [
+      "The prior DCI run failed as an absolute gauge for exactly the reasons (self-report, confound) that the differential framing must prove it escapes.",
+      "Residue is rare (~10% of records); detecting a mutation-induced shift may need many runs — only a real power analysis settles it."
+    ],
+    "roles": [
+      {
+        "role_id": "ground-truth-differential-designer",
+        "purpose": "Design the observer-independent differential (git file-rework, fixture pass/fail, downstream failure) over a fixed-fixture replay.",
+        "owns": "ground-truth differential design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "harness-replay-designer",
+        "purpose": "Design the fixed-workload replay differential scored with the bundled observer, and state exactly where it stays contaminated.",
+        "owns": "harness-replay design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "live-version-slice-designer",
+        "purpose": "Design the live version-slice differential and its weaknesses (no workload control, no observer freeze).",
+        "owns": "live-slice design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "power-analysis-reviewer",
+        "purpose": "Run a real power analysis on the telemetry: how many runs to detect a residue-rate shift, and whether the effect separates from a reporting change.",
+        "owns": "feasibility / power analysis",
+        "applies_to_steps": [
+          "distill-repair"
+        ]
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "ranked",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Run the skill-mutation differential refine loop with three parallel differential designers (ground-truth, harness-replay, live-slice) and a power-analysis reviewer over the real signal store, returning ranked designs and a feasibility verdict only?",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute",
+      "version-tagging, workload-control, scoring source, and observer-independence",
+      "power-analysis result: minimum runs to detect a residue-rate shift"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "a54a80b356cb7e580",
+        "role_id": "ground-truth-differential-designer",
+        "lane_name": "differential-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "Git-rework anchor is structurally observer-independent; weakness = trailing signal (post-hoc, not pre-merge)."
+      },
+      {
+        "agent_id": "ac9826efa8fa68769",
+        "role_id": "harness-replay-designer",
+        "lane_name": "differential-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "Fixed-workload replay; cheap; but execution-prose can prime the bundled observer (confound no freeze/diff catches)."
+      },
+      {
+        "agent_id": "a867a73e0b434f714",
+        "role_id": "live-version-slice-designer",
+        "lane_name": "differential-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "Cheapest; confounded by design (workload drift + observer co-mutation); valid only as a screening canary."
+      },
+      {
+        "agent_id": "a0121922320a9c34e",
+        "role_id": "power-analysis-reviewer",
+        "lane_name": "power-analysis",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/08-distill-repair-power-analysis.md",
+        "close_status": "closed",
+        "residue": "Verdict gross-regression-only-canary: Δ=0.20 needs 36 paired runs, available ~10; needs 50-100 fixtures/skill."
+      }
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "design-to-power-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "distill",
+        "applies_to_steps": [
+          "distill-repair"
+        ],
+        "contract": "The winning differential design is a candidate until the power analysis shows the mutation effect is detectable and observer-independent.",
+        "on_violation": "flag"
+      },
+      {
+        "boundary_id": "plan-to-harness-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "refine",
+        "to_owner": "experiment-harness",
+        "applies_to_steps": [
+          "final-interrogation-synthesis"
+        ],
+        "contract": "The plan is a candidate replay + gate proposal; running mutations through the harness and integrating the gate is owned by experiment-harness, observability, and sigil-development, not this refine loop.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine",
+      "execution": "approved-subagents-and-native-stages",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "experiment-harness-observability-and-sigil-development-owners"
+    },
+    "receipts": [
+      {
+        "receipt_id": "refine-stage-receipts",
+        "producer": "refine",
+        "required_fields": [
+          "run_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation_result",
+          "residue"
+        ],
+        "stores": [
+          "arcanum/research/autobayes/development/refinement-runs/refine-dci-mutation-metric-20260608/RUN-MANIFEST.md",
+          "arcanum/research/autobayes/development/refinement-runs/refine-dci-mutation-metric-20260608/evidence-index.json"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "refine-mut-run",
+        "owner": "arcanum/research/autobayes/development/refinement-runs/refine-dci-mutation-metric-20260608",
+        "write_policy": "This refine run may write only inside its own run folder."
+      },
+      {
+        "namespace": "observability-signals",
+        "owner": "arcanum/.arcanum/observability/signals",
+        "write_policy": "The signal store is read-only for this run; the power analysis reads it and writes results only into the run folder."
+      },
+      {
+        "namespace": "canonical-capabilities",
+        "owner": "arcanum capability packages",
+        "write_policy": "No edits to observability, experiment-harness, sigil-development, or sigil packages from this run; integration is a separate owner task."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "refine differential design and power-analysis evidence",
+        "target": "canonical observability envelope, experiment-harness, or sigil-development gate",
+        "rule": "requires owner review and a separate promotion route",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "g-capability-handles",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Each runtime-backed stage must name an available native capability handle before execution, or block with the missing handle.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-stage-receipts",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Each runtime-backed stage must record a stage receipt artifact path or an explicit blocked reason before it is marked complete.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-observer-independence",
+      "kind": "quality",
+      "owner": "interrogation",
+      "condition": "The differential must separate a real mutation effect from a change in the skill's own reporting; a design that cannot is blocked, and the metric is declared not-sensible-as-built unless an observer-independent ground-truth signal is named.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-power-feasibility",
+      "kind": "validation",
+      "owner": "distill",
+      "condition": "A real power analysis on the telemetry must report the minimum runs to detect a residue-rate shift; if impractical, record as an assessment failure rather than claiming the metric works.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g-owner-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Stages may propose a candidate differential, an envelope field, and a replay config but must not edit canonical observability, experiment-harness, sigil-development, or sigil packages.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-final-synthesis-readiness",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "RESULT.md must be synthesized from the power analysis and stage artifacts, and must give an honest does-it-make-sense verdict, not a route restatement.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "refine-coherence-metric-20260608",
+    "trace_events": [
+      "refine-mut-context-baseline-built",
+      "refine-mut-define-produced",
+      "refine-mut-define-interrogated",
+      "refine-mut-research-decided",
+      "refine-mut-distilled",
+      "refine-mut-design-produced",
+      "refine-mut-design-interrogated",
+      "refine-mut-power-analysis-run",
+      "refine-mut-plan-produced",
+      "refine-mut-synthesis-produced"
+    ],
+    "signal_grouping": "refine-dci-mutation-metric"
+  },
+  "promotion_guardrails": [
+    "Do not claim the differential makes sense unless observer co-mutation is cheaply neutralized by a named ground-truth signal.",
+    "Do not present a DCI shift as a real mutation effect without a fixed workload held between versions.",
+    "Do not treat the metric as detectable without a real power analysis on the telemetry.",
+    "Do not edit canonical observability, experiment-harness, sigil-development, or sigil packages from this run.",
+    "Do not execute the differential-designer or power-analysis subagents without explicit operator approval."
+  ]
+}
