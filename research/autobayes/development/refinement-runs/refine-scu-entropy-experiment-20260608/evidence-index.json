@@ -1,0 +1,40 @@
+{
+  "run_id": "refine-scu-entropy-experiment-20260608",
+  "dispatch_id": "refine-scu-entropy-experiment-20260608",
+  "parent_dispatch_id": "craft-entropy-search-20260608",
+  "status": "pass",
+  "preset": "full",
+  "research_mode": "no-research",
+  "dispatch_validation": "pass",
+  "subagent_authorization": "approved",
+  "owned_artifacts": [
+    "REFINE-SEED-PROPOSAL.md",
+    "REFINE-DISPATCH.json",
+    "RUNTIME-HANDOFF.md",
+    "RUN-MANIFEST.md",
+    "RESULT.md",
+    "evidence-index.json"
+  ],
+  "stages": [
+    { "stage": 1, "capability": "context-builder", "artifact": "stages/02-invoke-define.md#frame", "status": "pass", "receipt_kind": "native-stage" },
+    { "stage": 2, "capability": "invoke", "artifact": "stages/02-invoke-define.md", "status": "pass", "receipt_kind": "native-stage" },
+    { "stage": 3, "capability": "interrogation", "artifact": "stages/03-interrogation-refine-review.md", "status": "flag", "receipt_kind": "native-stage" },
+    { "stage": 4, "capability": "refine", "artifact": "stages/04-research-decision.md", "status": "pass", "receipt_kind": "native-stage" },
+    { "stage": 5, "capability": "distill", "artifact": "stages/05-distill-select.md", "status": "pass", "receipt_kind": "native-stage" },
+    { "stage": 6, "capability": "invoke", "artifact": "stages/06-invoke-design.md", "status": "pass", "receipt_kind": "subagent" },
+    { "stage": 7, "capability": "interrogation", "artifact": "stages/07-interrogation-design-review.md", "status": "flag", "receipt_kind": "native-stage" },
+    { "stage": 8, "capability": "distill", "artifact": "stages/08-distill-repair-pilot.md", "status": "pass", "receipt_kind": "subagent" },
+    { "stage": 9, "capability": "invoke", "artifact": "stages/09-invoke-plan.md", "status": "pass", "receipt_kind": "native-stage" },
+    { "stage": 10, "capability": "interrogation", "artifact": "RESULT.md", "status": "pass", "receipt_kind": "native-stage" }
+  ],
+  "subagents": [
+    { "role_id": "proxy-A-semantic-entropy-designer", "agent_id": "a6a30a1d4da026afb", "stage": 6, "join_status": "completed", "close_status": "closed", "receipt_artifact": "stages/06-invoke-design.md" },
+    { "role_id": "proxy-B-mdl-description-length-designer", "agent_id": "a0b98eeab5d253d40", "stage": 6, "join_status": "completed", "close_status": "closed", "receipt_artifact": "stages/06-invoke-design.md" },
+    { "role_id": "proxy-C-residue-rate-designer", "agent_id": "a974d9e386b43c115", "stage": 6, "join_status": "completed", "close_status": "closed", "receipt_artifact": "stages/06-invoke-design.md" },
+    { "role_id": "falsification-pilot-reviewer", "agent_id": "a8166a0fc7630867c", "stage": 8, "join_status": "completed", "close_status": "closed", "receipt_artifact": "stages/08-distill-repair-pilot.md" }
+  ],
+  "next_routes": [
+    "experiment-harness",
+    "decision-gate:R1-term-split"
+  ]
+}

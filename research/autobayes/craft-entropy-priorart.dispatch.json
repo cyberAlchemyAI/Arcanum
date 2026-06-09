@@ -1,0 +1,750 @@
+{
+  "dispatch_id": "craft-entropy-priorart-20260608",
+  "parent_dispatch_id": "refine-scu-entropy-experiment-20260608",
+  "intent": {
+    "raw": "Research if there is prior art on this, and we are not just restating.",
+    "objective": "Run an adversarial prior-art and novelty audit over the Craft translation-entropy / SCU-U-curve / measurement-design claim bundle, searching external literature and local sources to mark each claim restatement, partial-overlap, or novel-synthesis, and converge on an honest statement of what (if anything) is novel, without promoting canonical Arcanum or Craft authority.",
+    "target_artifact": "research/autobayes/CRAFT-ENTROPY-PRIOR-ART-STRATEGY.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "context-builder",
+      "robot-talks",
+      "distill",
+      "dialectic",
+      "residue",
+      "protected context",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Default to assuming we are restating known work; only call something novel if a specific, citable gap in the prior art survives an adversarial search."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "residue_ledger",
+    "dialectic",
+    "validation_loop",
+    "owner_boundary_check",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "protected_context_flag",
+    "state_namespace_boundary",
+    "memory_promotion_split"
+  ],
+  "route_menu": {
+    "context_hint": "The audit can be prosecutorial (assume restatement) or generous (assume novelty). The prosecutorial route is selected to avoid motivated novelty claims.",
+    "items": [
+      {
+        "id": "prosecutorial-fanout",
+        "label": "Prosecutorial full-mode fanout",
+        "description": "Assume restatement; fan out six lanes to find the closest prior work for each claim; require a specific surviving gap before any novelty verdict.",
+        "capability_ref": "dispatch-spec",
+        "pattern": "route"
+      },
+      {
+        "id": "single-lane-bias-variance",
+        "label": "Single lane: bias-variance only",
+        "description": "Only check whether the U-curve is bias-variance/double-descent restated; fastest but ignores MDL, semantic entropy, decomposition, and SE evidence.",
+        "capability_ref": "distill",
+        "pattern": "distill"
+      },
+      {
+        "id": "novelty-first",
+        "label": "Novelty-first drafting",
+        "description": "Draft a novelty claim then look for support; rejected as motivated-reasoning-prone, recorded for contrast only.",
+        "capability_ref": "distill",
+        "pattern": "synthesis"
+      }
+    ],
+    "selected_item_id": "prosecutorial-fanout"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "prosecutorial-discipline",
+      "trigger": "Attractive claim bundles are most often restatements under new vocabulary, so the audit must default to restatement and demand a cited surviving gap for any novelty.",
+      "techniques": [
+        "concrete_path_evidence",
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "frame-priorart-claims",
+        "priorart-fanout",
+        "restatement-dialectic"
+      ],
+      "validation_expectation": "Every claim is marked restatement, partial-overlap, or novel-synthesis with a citation; a novel-synthesis mark must name the specific gap the cited art leaves."
+    },
+    {
+      "overlay_id": "external-evidence-protection",
+      "trigger": "The audit relies on external web literature that must not silently become canonical Arcanum knowledge.",
+      "techniques": [
+        "protected_context_flag",
+        "delegation_boundary",
+        "state_namespace_boundary",
+        "memory_promotion_split"
+      ],
+      "applies_to_steps": [
+        "priorart-fanout",
+        "restatement-dialectic",
+        "prepare-handoff"
+      ],
+      "validation_expectation": "External sources are flagged protected context, remain candidate, and cannot be promoted to canonical vocabulary from this audit."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "frame-priorart-claims",
+      "name": "Extract the exact claims to audit for prior art",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608/RESULT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/craft-entropy-definition-card.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../development/craft/CRAFT-INITIAL-DEFINITION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "priorart-claims-frame"
+        },
+        {
+          "kind": "handle",
+          "ref": "priorart-claim-list"
+        },
+        {
+          "kind": "route_menu",
+          "ref": "priorart-route-menu"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-claims-extracted"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the refine result and definition card cannot be read.",
+        "Flag if a claim cannot be stated crisply enough to search against."
+      ]
+    },
+    {
+      "step_id": "define-priorart-lanes",
+      "name": "Define the prior-art search lanes",
+      "capability_ref": "dispatch-spec",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "route_menu"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "priorart-claims-frame"
+        },
+        {
+          "kind": "handle",
+          "ref": "priorart-claim-list"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/CRAFT-ENTROPY-PRIOR-ART-STRATEGY.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "priorart-lane-index"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-lanes-defined"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Each lane maps to one or more claims and names the literature it must search.",
+        "Lanes cover bias-variance, MDL/bottleneck, semantic entropy, decomposition/long-context, functorial inversion, and empirical unit-size evidence.",
+        "Each lane has a closing mark vocabulary: restatement, partial-overlap, novel-synthesis."
+      ],
+      "stop_conditions": [
+        "Block if any audited claim has no lane.",
+        "Flag if two lanes are indistinguishable in their search targets."
+      ]
+    },
+    {
+      "step_id": "priorart-fanout",
+      "name": "Run full-mode lane-by-lane prior-art search",
+      "capability_ref": "robot-talks",
+      "capability_status": "candidate",
+      "pattern": "fanout",
+      "parallel": true,
+      "roles": [
+        "bias-variance-doubledescent-searcher",
+        "mdl-bottleneck-searcher",
+        "semantic-entropy-uncertainty-searcher",
+        "decomposition-longcontext-searcher",
+        "functorial-bayesian-inversion-searcher",
+        "empirical-unit-size-defect-searcher"
+      ],
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "protected_context_flag"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "priorart-claims-frame"
+        },
+        {
+          "kind": "handle",
+          "ref": "priorart-lane-index"
+        },
+        {
+          "kind": "human_answer",
+          "ref": "priorart-subagent-approval"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "priorart-findings-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/sessions/craft-entropy-priorart-receipts.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-fanout-completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Each lane returns the closest prior work with a citation or URL.",
+        "Each lane marks each assigned claim restatement, partial-overlap, or novel-synthesis.",
+        "Any novel-synthesis mark names the specific gap the cited art leaves.",
+        "No lane promotes glossary, ontology, sigil, spell, or Craft-definition authority."
+      ],
+      "evidence_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+      "stop_conditions": [
+        "Block until the operator approves delegated full-mode web search subagents.",
+        "Block a novelty verdict that lacks a cited disconfirming search.",
+        "Flag any claim whose literature cannot be reached and record it as missing-source residue."
+      ]
+    },
+    {
+      "step_id": "restatement-dialectic",
+      "name": "Adjudicate restatement vs novelty",
+      "capability_ref": "distill",
+      "pattern": "dialectic",
+      "parallel": false,
+      "roles": [
+        "restatement-prosecutor",
+        "novelty-defender"
+      ],
+      "techniques": [
+        "dialectic",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "priorart-findings-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608/RESULT.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/craft-entropy-novelty-verdict.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "priorart-verdict-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-verdict-converged"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The prosecutor preserves the restatement reading and the defender the novelty reading until synthesis.",
+        "Each claim C1-C8 gets one verdict: restatement, partial-overlap, or novel-synthesis with a cited gap.",
+        "The overall verdict states plainly whether the bundle is novel synthesis, narrow novelty, or restatement.",
+        "No verdict claims novelty without a surviving, cited gap."
+      ],
+      "stop_conditions": [
+        "Block if the synthesis edits CRAFT-INITIAL-DEFINITION.md instead of producing a verdict card.",
+        "Block any novelty claim that the prosecutor refutes with a single citation.",
+        "Flag if the defender cannot name any gap and the verdict is forced to full restatement."
+      ]
+    },
+    {
+      "step_id": "validate-and-record",
+      "name": "Validate the audit route and record open residue",
+      "capability_ref": "dispatch-spec",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/craft-entropy-priorart.dispatch.json"
+        },
+        {
+          "kind": "frame",
+          "ref": "priorart-verdict-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/residue/craft-entropy-priorart-residue.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-audit-validated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/autobayes/craft-entropy-priorart.dispatch.json",
+      "convergence_criteria": [
+        "The dispatch validates against formulae/dispatch-spec/scripts/validate-dispatch.py.",
+        "Each restatement and each surviving novelty gap names a next object.",
+        "Unreached literature is recorded as missing-source residue."
+      ],
+      "stop_conditions": [
+        "Block if validation fails.",
+        "Flag if open residue lacks an owner or next route."
+      ]
+    },
+    {
+      "step_id": "prepare-handoff",
+      "name": "Prepare candidate-only novelty handoff",
+      "capability_ref": "invoke",
+      "pattern": "handoff",
+      "parallel": false,
+      "techniques": [
+        "memory_promotion_split",
+        "execution_receipt_handoff",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/craft-entropy-novelty-verdict.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/residue/craft-entropy-priorart-residue.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "priorart-novelty-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "priorart-handoff-prepared"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Defer any positioning or publication claim until the novelty verdict is owner-reviewed.",
+        "Ask operator approval before treating any novelty claim as established."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The claim bundle spans six distinct literatures (bias-variance, MDL/bottleneck, semantic entropy, decomposition/long-context, functorial inversion, empirical unit-size) that need independent web search to avoid one reviewer's familiarity bias deciding novelty.",
+    "explanation": "Role-bound sibling searchers keep each literature independent so a restatement in one field is not missed because another field looks novel, and a final dialectic adversarially adjudicates the marks.",
+    "context": [
+      "The refine run produced an attractive bundle; attractive bundles are the most likely to be restatements under new vocabulary.",
+      "Each literature has its own venues and terminology that a single searcher would under-cover."
+    ],
+    "roles": [
+      {
+        "role_id": "bias-variance-doubledescent-searcher",
+        "purpose": "Find whether the U-curve / interior-minimum claim is bias-variance or double descent restated.",
+        "owns": "bias-variance lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "mdl-bottleneck-searcher",
+        "purpose": "Find whether SCU-as-minimizer and spread-vs-fidelity are MDL, rate-distortion, or information-bottleneck restated.",
+        "owns": "MDL / bottleneck lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "semantic-entropy-uncertainty-searcher",
+        "purpose": "Find whether semantic-cluster entropy of LLM outputs is already established uncertainty quantification.",
+        "owns": "semantic entropy lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "decomposition-longcontext-searcher",
+        "purpose": "Find whether optimal task-decomposition granularity and long-context decay are already studied for LLMs.",
+        "owns": "decomposition / long-context lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "functorial-bayesian-inversion-searcher",
+        "purpose": "Find whether schema/data/residue as functorial Bayesian inversion is already covered by the tower's literature and Spivak.",
+        "owns": "functorial inversion lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "empirical-unit-size-defect-searcher",
+        "purpose": "Find whether optimal work-unit size minimizing defects/residue is established software-engineering or agent-decomposition evidence.",
+        "owns": "empirical unit-size lane",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ]
+      },
+      {
+        "role_id": "restatement-prosecutor",
+        "purpose": "Argue every claim is prior art and refute novelty marks with citations.",
+        "owns": "restatement adjudication",
+        "applies_to_steps": [
+          "restatement-dialectic"
+        ]
+      },
+      {
+        "role_id": "novelty-defender",
+        "purpose": "Argue for the narrowest defensible surviving novelty gap, or concede restatement.",
+        "owns": "novelty adjudication",
+        "applies_to_steps": [
+          "restatement-dialectic"
+        ]
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Run the prior-art audit fanout across six literature lanes with web search, then an adversarial restatement-vs-novelty dialectic, returning cited prior-art receipts and per-claim verdicts only?",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute",
+      "closest prior work with citation or URL",
+      "per-claim mark: restatement, partial-overlap, or novel-synthesis with surviving gap"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "ae870e5bc543b0779",
+        "role_id": "bias-variance-doubledescent-searcher",
+        "lane_name": "L1",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "partial-overlap; Wu 2025 CoT-length U is the closest threat; full text unparsed (see R-PA4)."
+      },
+      {
+        "agent_id": "a4cd19f4dac9a862a",
+        "role_id": "mdl-bottleneck-searcher",
+        "lane_name": "L2",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "restatement; C2/C3 are Rissanen two-part code + information bottleneck."
+      },
+      {
+        "agent_id": "a28d56622c0f0ae7b",
+        "role_id": "semantic-entropy-uncertainty-searcher",
+        "lane_name": "L3",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "restatement; proxy A is literally Kuhn/Farquhar semantic entropy."
+      },
+      {
+        "agent_id": "a81a004dc311976d3",
+        "role_id": "decomposition-longcontext-searcher",
+        "lane_name": "L4",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "partial-overlap; RAG granularity already shows interior optimum; task-unit optimum open."
+      },
+      {
+        "agent_id": "a865fc32aba073256",
+        "role_id": "functorial-bayesian-inversion-searcher",
+        "lane_name": "L5",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "restatement, no gap; tower already imports Spivak/Cho-Jacobs/St Clere Smithe."
+      },
+      {
+        "agent_id": "a5ad003a438ad6419",
+        "role_id": "empirical-unit-size-defect-searcher",
+        "lane_name": "L6",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-priorart-receipts.md",
+        "close_status": "closed",
+        "residue": "partial-overlap; diff-size optimum solid, module-size contested (El Emam/Koru), see R-PA3."
+      },
+      {
+        "agent_id": "a2c54cbba34cff034",
+        "role_id": "restatement-prosecutor",
+        "lane_name": "adjudication",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/tracks/craft-entropy-novelty-verdict.md",
+        "close_status": "closed",
+        "residue": "verdict: restatement-with-one-narrow-surviving-gap (C6+C8 conjunction, fragile)."
+      },
+      {
+        "agent_id": "aa21d20fd894c36f6",
+        "role_id": "novelty-defender",
+        "lane_name": "adjudication",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/tracks/craft-entropy-novelty-verdict.md",
+        "close_status": "closed",
+        "residue": "narrowest survivor = r* codebook-invariance + blind-rubric co-location protocol, not the U-curve."
+      },
+      {
+        "agent_id": "ae6b634e4cea93cf4",
+        "role_id": "mdl-bottleneck-searcher",
+        "lane_name": "second-pass-R-PA2",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/tracks/craft-entropy-novelty-verdict.md",
+        "close_status": "closed",
+        "residue": "Protocol novelty collapsed: NML gives codebook-invariance by construction; stability selection + multiverse + convergent validity cover the rest."
+      },
+      {
+        "agent_id": "accb57463f34fa85f",
+        "role_id": "bias-variance-doubledescent-searcher",
+        "lane_name": "second-pass-R-PA4",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/tracks/craft-entropy-novelty-verdict.md",
+        "close_status": "closed",
+        "residue": "Axis novelty collapsed: Wu 2025 model is axis-agnostic; translation-unit size relabels their N."
+      },
+      {
+        "agent_id": "a5cda86f1d74972a5",
+        "role_id": "empirical-unit-size-defect-searcher",
+        "lane_name": "second-pass-R-PA3",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/tracks/craft-entropy-novelty-verdict.md",
+        "close_status": "closed",
+        "residue": "Module-size U is likely a spurious-ratio artifact (El Emam/Koru); drop it, restrict C8 to diff-size + LLM-subtask."
+      }
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "fanout-to-dialectic-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "robot-talks",
+        "to_owner": "distill",
+        "applies_to_steps": [
+          "restatement-dialectic"
+        ],
+        "contract": "Lane prior-art receipts feed the adjudication dialectic as candidate evidence; they do not by themselves settle novelty.",
+        "on_violation": "flag"
+      },
+      {
+        "boundary_id": "external-source-boundary",
+        "kind": "external_context",
+        "from_owner": "web-literature",
+        "to_owner": "research-autobayes",
+        "applies_to_steps": [
+          "priorart-fanout"
+        ],
+        "contract": "External web sources are protected context: cited and summarized, never promoted into canonical Arcanum vocabulary.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "verdict-to-owner-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "distill",
+        "to_owner": "craft-definition-owner",
+        "applies_to_steps": [
+          "validate-and-record",
+          "prepare-handoff"
+        ],
+        "contract": "The novelty verdict is a candidate reading until the Craft definition owner reviews any positioning or publication claim.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "dispatch-spec",
+      "execution": "approved-subagents",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "craft-definition-owner"
+    },
+    "receipts": [
+      {
+        "receipt_id": "priorart-search-receipts",
+        "producer": "robot-talks",
+        "required_fields": [
+          "session_id",
+          "artifacts",
+          "audit_reference",
+          "residue",
+          "validation_result"
+        ],
+        "stores": [
+          "research/autobayes/sessions/craft-entropy-priorart-receipts.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research-autobayes",
+        "owner": "research/autobayes",
+        "write_policy": "This audit may write only under research/autobayes."
+      },
+      {
+        "namespace": "external-literature",
+        "owner": "web sources",
+        "write_policy": "External sources are referenced and summarized only; no canonical promotion from this audit."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research/autobayes prior-art receipts and novelty verdict",
+        "target": "canonical Craft definition, Arcanum glossary, or any novelty/publication claim",
+        "rule": "requires owner review and a separate promotion route",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "claim-crispness",
+      "kind": "quality",
+      "owner": "context-builder",
+      "condition": "Each audited claim must be stated crisply enough to search the literature against, distinguishing the Craft framing from the underlying formal object.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "lane-coverage",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Every audited claim must be assigned to a lane and return a closest prior work with a citation, or be recorded as missing-source residue.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "subagent-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Recommended full-mode web-search subagents require explicit operator approval before delegated search runs.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "novelty-burden",
+      "kind": "quality",
+      "owner": "distill",
+      "condition": "A novel-synthesis verdict must name a specific gap the cited prior art leaves; any novelty claim refuted by a single citation must be downgraded to restatement or partial-overlap.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "external-context-protection",
+      "kind": "policy",
+      "owner": "arcanum",
+      "condition": "External web sources are protected context and must not be promoted into canonical Arcanum glossary, ontology, sigil, spell, or the Craft definition.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The dispatch must pass formulae/dispatch-spec/scripts/validate-dispatch.py before being treated as handoff-ready.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "refine-scu-entropy-experiment-20260608",
+    "trace_events": [
+      "priorart-claims-extracted",
+      "priorart-lanes-defined",
+      "priorart-fanout-completed",
+      "priorart-verdict-converged",
+      "priorart-audit-validated",
+      "priorart-handoff-prepared"
+    ],
+    "signal_grouping": "craft-entropy-priorart"
+  },
+  "promotion_guardrails": [
+    "Do not call any claim novel without an adversarial disconfirming search and a specific surviving gap.",
+    "Do not promote prior-art findings or the novelty verdict into canonical Arcanum glossary, ontology, sigil, spell, or the Craft definition.",
+    "Do not let one familiar literature decide novelty for a claim that belongs to another field.",
+    "Do not treat external web sources as source-closed until they are actually read, not just retrieved by title.",
+    "Do not execute the web-search subagents without explicit operator approval."
+  ]
+}

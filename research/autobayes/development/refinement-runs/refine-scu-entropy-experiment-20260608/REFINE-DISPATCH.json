@@ -1,0 +1,792 @@
+{
+  "dispatch_id": "refine-scu-entropy-experiment-20260608",
+  "parent_dispatch_id": "craft-entropy-search-20260608",
+  "intent": {
+    "raw": "How can we set an experiment to measure this? The U-curve has a real, citable shape (bias-variance / MDL) but no measured axis. 'SCU is the local minimum of entropy' remains a hypothesis, and 'SCU selection is the pre-translation control on E' is unfalsifiable until an entropy proxy is instrumented.",
+    "objective": "Refine, through the canonical ten-stage loop, a falsifiable, non-executed experiment design that instruments at least one translation-entropy proxy against work-unit size and tests whether the SCU sits at an interior minimum, producing an experiment-harness handoff without running a live experiment or editing the Craft definition.",
+    "target_artifact": "arcanum/research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608/RESULT.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill",
+      "dispatch-spec",
+      "experiment-harness",
+      "SCU",
+      "translation entropy",
+      "residue",
+      "falsifiability"
+    ],
+    "operator_sentence": "Instrument an entropy proxy so the SCU U-curve becomes a measured, falsifiable claim instead of an asserted one."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "residue_ledger",
+    "scu_swu_reduction",
+    "tournament",
+    "pareto_gate",
+    "recomposition_proof",
+    "toy_game",
+    "memory_loop",
+    "concrete_path_evidence",
+    "execution_receipt_handoff",
+    "observability_grouping",
+    "minimum_component_catalog"
+  ],
+  "route_menu": {
+    "context_hint": "More than one measurement profile could carry the experiment, so the design stage records a route decision over entropy proxies.",
+    "items": [
+      {
+        "id": "tournament-all-three-proxies",
+        "label": "Tournament across all three proxies",
+        "description": "Compare semantic-entropy dispersion, two-part MDL description length, and post-hoc residue rate under a pareto gate, then select or combine.",
+        "capability_ref": "invoke",
+        "pattern": "tournament"
+      },
+      {
+        "id": "single-proxy-semantic-entropy",
+        "label": "Single proxy: semantic-entropy dispersion",
+        "description": "Instrument only self-consistency / semantic-entropy dispersion; most literal entropy but ignores the MDL minimizer that most directly yields a U-curve.",
+        "capability_ref": "invoke",
+        "pattern": "sequential"
+      },
+      {
+        "id": "single-proxy-mdl",
+        "label": "Single proxy: two-part description length (MDL)",
+        "description": "Instrument only schema/context bits + residue/repair bits; gives an interior minimizer by construction but is the least literal as an 'entropy'.",
+        "capability_ref": "invoke",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": "tournament-all-three-proxies"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Every refine run preserves the canonical ordered loop with safe handoffs and observability.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog"
+      ],
+      "applies_to_steps": [
+        "ctx-baseline",
+        "invoke-define",
+        "interrogation-refine-review",
+        "invoke-plan",
+        "final-interrogation-synthesis"
+      ],
+      "validation_expectation": "Each non-first stage consumes a prior handoff, stages keep owner boundaries, and trace events group by dispatch_id."
+    },
+    {
+      "overlay_id": "tournament_for_alternatives",
+      "trigger": "Three candidate entropy proxies (semantic-entropy, MDL, residue-rate) and a competing rate-distortion hypothesis must be compared before a measurable axis is chosen.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "invoke-design"
+      ],
+      "validation_expectation": "The design stage declares proxy roles, a pareto/convergence criterion over measurability, cost, and falsifiability, and a recomposition proof back into the experiment plan."
+    },
+    {
+      "overlay_id": "toy_game_for_low_cost_falsification",
+      "trigger": "The selected proxy must survive a cheap controlled falsification before an expensive full sweep is planned.",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "applies_to_steps": [
+        "distill-repair"
+      ],
+      "validation_expectation": "The repair stage runs a small pilot over a handful of units, names the expected U-shape, and names the failure interpretation if no interior minimum appears."
+    },
+    {
+      "overlay_id": "memory_residue_for_context_recovery",
+      "trigger": "The experiment builds directly on prior search residue (R1–R5) and rejected candidates from the entropy search session.",
+      "techniques": [
+        "memory_loop",
+        "residue_ledger",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "ctx-baseline",
+        "research-decision",
+        "distill-select"
+      ],
+      "validation_expectation": "Prior residue and rejected proxies are cited by path and not silently re-derived or promoted."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "ctx-baseline",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "memory_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../residue/craft-entropy-open-residue.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../tracks/craft-entropy-definition-card.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../../../development/craft/CRAFT-INITIAL-DEFINITION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "scu-entropy-evidence-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-context-baseline-built"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the Craft entropy definition or the search residue cannot be read.",
+        "Flag if the prior entropy session receipts are unavailable."
+      ]
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define the experiment objective",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "scu-entropy-evidence-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-define-produced"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the define artifact cannot name a measurable entropy axis candidate.",
+        "Flag if the independent variable (unit size) is left implicit."
+      ]
+    },
+    {
+      "step_id": "interrogation-refine-review",
+      "name": "Interrogation refine-review of the define artifact",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-define-interrogated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/03-interrogation-refine-review.md",
+      "stop_conditions": [
+        "Block if the define claims falsifiability without naming a failing condition.",
+        "Flag if entropy is conflated with residue without acknowledging the search card."
+      ]
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Refine research decision",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "memory_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-interrogation-refine-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "scu-entropy-research-decision"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-research-decided"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Ask the operator before any external research pass.",
+        "Flag if a named external gap (e.g. a settled semantic-entropy estimator) is found and left unresolved."
+      ]
+    },
+    {
+      "step_id": "distill-select",
+      "name": "Distill the coherent measurable unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "scu_swu_reduction",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "scu-entropy-research-decision"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill-select.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-distilled"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The selected unit is one entropy proxy plus one unit-size variable that can be swept on a fixed corpus.",
+        "Rejected proxies are recorded with the reason they were not selected.",
+        "The selected unit has a recomposition path into a full experiment plan."
+      ],
+      "stop_conditions": [
+        "Block if no proxy is independently measurable.",
+        "Flag if the selected unit cannot recompose into a sweep."
+      ]
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Redefine / Design the experiment via proxy tournament",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "tournament",
+      "parallel": false,
+      "roles": [
+        "proxy-A-semantic-entropy-designer",
+        "proxy-B-mdl-description-length-designer",
+        "proxy-C-residue-rate-designer"
+      ],
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill-select.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "scu-entropy-evidence-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-design-produced"
+        }
+      ],
+      "join_policy": "ranked",
+      "convergence_criteria": [
+        "Each proxy role specifies its metric, estimator, cost, and the U-curve it predicts against unit size.",
+        "A pareto gate ranks proxies on measurability, cost, and falsifiability and records the rejected alternatives.",
+        "The winning design proves recomposition into a full unit-size sweep with a controlled corpus and a pre-registered prediction."
+      ],
+      "stop_conditions": [
+        "Block if no proxy yields a pre-registerable, failable prediction.",
+        "Flag if the tournament collapses to one proxy without recording the comparison."
+      ]
+    },
+    {
+      "step_id": "interrogation-design-review",
+      "name": "Interrogation refine-design-review of the experiment design",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-design-interrogated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/07-interrogation-design-review.md",
+      "stop_conditions": [
+        "Block if the design cannot fail (no falsification condition survives critique).",
+        "Flag if confounds between unit size and corpus difficulty are unaddressed."
+      ]
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair via low-cost falsification pilot",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "toy_game",
+      "parallel": false,
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-interrogation-design-review.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-pilot.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-pilot-run"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "stages/08-distill-repair-pilot.md",
+      "stop_conditions": [
+        "Block if the pilot cannot be specified at fixture scale.",
+        "Flag and record as assessment failure if the pilot shows no interior minimum on the toy corpus."
+      ]
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan the non-executed experiment",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-pilot.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-plan-produced"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the plan implies running the experiment instead of handing it to experiment-harness.",
+        "Flag if the plan lacks a pre-registered prediction or stop rule."
+      ]
+    },
+    {
+      "step_id": "final-interrogation-synthesis",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair-pilot.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        },
+        {
+          "kind": "handoff",
+          "ref": "scu-entropy-experiment-harness-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-scu-synthesis-produced"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "Block if RESULT.md is synthesized from the route instead of the stage artifacts.",
+        "Flag if any open residue lacks an owner or next route."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The design stage is a tournament across three candidate entropy proxies, each needing independent metric/estimator/cost/prediction design to avoid one proxy's framing dominating the comparison.",
+    "explanation": "One designer per proxy keeps the semantic-entropy, MDL, and residue-rate framings independent so the pareto comparison is fair, and a pilot reviewer keeps the falsification honest.",
+    "context": [
+      "The measurable axis is contested; the prior search marked L-scu and L-info promote-residue with a rate-distortion alternative.",
+      "A single author would likely collapse the three proxies toward whichever is easiest to instrument."
+    ],
+    "roles": [
+      {
+        "role_id": "proxy-A-semantic-entropy-designer",
+        "purpose": "Design the self-consistency / semantic-entropy dispersion proxy and its predicted U-curve.",
+        "owns": "semantic-entropy proxy design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "proxy-B-mdl-description-length-designer",
+        "purpose": "Design the two-part description-length (MDL) proxy and its interior minimizer.",
+        "owns": "MDL proxy design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "proxy-C-residue-rate-designer",
+        "purpose": "Design the post-hoc residue / validation-failure-rate proxy and its regression on unit size.",
+        "owns": "residue-rate proxy design",
+        "applies_to_steps": [
+          "invoke-design"
+        ]
+      },
+      {
+        "role_id": "falsification-pilot-reviewer",
+        "purpose": "Specify and adversarially review the low-cost pilot so a no-interior-minimum result is recorded as a real falsification.",
+        "owns": "toy-game pilot review",
+        "applies_to_steps": [
+          "distill-repair"
+        ]
+      }
+    ],
+    "parallelism": "tournament",
+    "join_policy": "ranked",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Run the SCU entropy experiment refine loop with three parallel proxy designers (semantic-entropy, MDL, residue-rate) and a falsification-pilot reviewer, returning ranked design receipts only?",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute",
+      "proxy metric, estimator, cost, and predicted U-curve",
+      "falsification condition per proxy"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "a6a30a1d4da026afb",
+        "role_id": "proxy-A-semantic-entropy-designer",
+        "lane_name": "design-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "Key finding: Proxy A is monotone decreasing (left arm only), not U-shaped."
+      },
+      {
+        "agent_id": "a0b98eeab5d253d40",
+        "role_id": "proxy-B-mdl-description-length-designer",
+        "lane_name": "design-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "U is free by construction; content is r* invariance across reference models/serializations."
+      },
+      {
+        "agent_id": "a974d9e386b43c115",
+        "role_id": "proxy-C-residue-rate-designer",
+        "lane_name": "design-tournament",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/06-invoke-design.md",
+        "close_status": "closed",
+        "residue": "Measures realized E_energy trace, not pressure; cheapest; survivorship risk needs repair-budget lock."
+      },
+      {
+        "agent_id": "a8166a0fc7630867c",
+        "role_id": "falsification-pilot-reviewer",
+        "lane_name": "repair-pilot",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/08-distill-repair-pilot.md",
+        "close_status": "closed",
+        "residue": "Design falsifiable only after demoting B's U to zero-information and capping Proxy C repair budget."
+      }
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "design-to-plan-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "distill",
+        "applies_to_steps": [
+          "distill-repair"
+        ],
+        "contract": "The winning proxy design is a candidate until the falsification pilot supports a pre-registerable prediction.",
+        "on_violation": "flag"
+      },
+      {
+        "boundary_id": "plan-to-harness-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "refine",
+        "to_owner": "experiment-harness",
+        "applies_to_steps": [
+          "final-interrogation-synthesis"
+        ],
+        "contract": "The plan is a non-executed experiment handoff; running it and reporting results is owned by experiment-harness, not this refine loop.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine",
+      "execution": "approved-subagents-and-native-stages",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "craft-definition-owner"
+    },
+    "receipts": [
+      {
+        "receipt_id": "refine-stage-receipts",
+        "producer": "refine",
+        "required_fields": [
+          "run_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation_result",
+          "residue"
+        ],
+        "stores": [
+          "arcanum/research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608/RUN-MANIFEST.md",
+          "arcanum/research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608/evidence-index.json"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "refine-scu-entropy-run",
+        "owner": "arcanum/research/autobayes/development/refinement-runs/refine-scu-entropy-experiment-20260608",
+        "write_policy": "This refine run may write only inside its own run folder."
+      },
+      {
+        "namespace": "craft-development",
+        "owner": "arcanum/development/craft",
+        "write_policy": "No writes to the Craft definition from this run; experiment results route through a separate owner-approved task."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "refine experiment design and pilot evidence",
+        "target": "canonical Craft definition or Arcanum glossary",
+        "rule": "requires owner review and a separate promotion route",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "g-capability-handles",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Each runtime-backed stage must name an available native capability handle before execution, or block with the missing handle.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-stage-receipts",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Each runtime-backed stage must record a stage receipt artifact path or an explicit blocked reason before it is marked complete.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-research-confirmation",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Any external research pass requires explicit operator confirmation under research-if-gap-appears.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g-subagent-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Recommended proxy-designer and pilot-reviewer subagents require explicit operator approval before delegated execution.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g-falsifiability",
+      "kind": "quality",
+      "owner": "interrogation",
+      "condition": "The experiment must define a measurable entropy axis, an independent unit-size variable, a pre-registered U-curve prediction, and a condition under which the SCU-minimum hypothesis would be falsified.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-owner-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Stages may propose candidate readings but must not edit the Craft definition or promote canonical Arcanum glossary, ontology, sigil, or spell knowledge.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-final-synthesis-readiness",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "RESULT.md must be synthesized from stage artifacts and the falsification pilot, not from the route artifact.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "craft-entropy-search-20260608",
+    "trace_events": [
+      "refine-scu-context-baseline-built",
+      "refine-scu-define-produced",
+      "refine-scu-define-interrogated",
+      "refine-scu-research-decided",
+      "refine-scu-distilled",
+      "refine-scu-design-produced",
+      "refine-scu-design-interrogated",
+      "refine-scu-pilot-run",
+      "refine-scu-plan-produced",
+      "refine-scu-synthesis-produced"
+    ],
+    "signal_grouping": "refine-scu-entropy-experiment"
+  },
+  "promotion_guardrails": [
+    "Do not run the live experiment inside this refine loop; produce a non-executed plan and an experiment-harness handoff.",
+    "Do not edit CRAFT-INITIAL-DEFINITION.md from this run; experiment evidence routes through a separate owner-approved task.",
+    "Do not pre-register a prediction that cannot fail; an unfalsifiable design is a block, not a pass.",
+    "Do not collapse the three entropy proxies before the pareto comparison is recorded.",
+    "Do not execute proxy-designer or pilot-reviewer subagents without explicit operator approval."
+  ]
+}

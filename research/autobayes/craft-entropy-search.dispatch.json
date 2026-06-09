@@ -1,0 +1,671 @@
+{
+  "dispatch_id": "craft-entropy-search-20260608",
+  "parent_dispatch_id": "autobayes-research-20260606",
+  "intent": {
+    "raw": "Create a search strategy inside research/autobayes relating to CRAFT-INITIAL-DEFINITION.md for the entropy definition, for example.",
+    "objective": "Search the AutoBayes research tower corpus and its related literature for source-backed objects that ground, contrast, or bound the Craft 'translation entropy' definition, mark each as borrow/analogy/reject/promote-residue, and return a sharpened entropy definition card with an honesty boundary, without promoting canonical Arcanum knowledge.",
+    "target_artifact": "research/autobayes/CRAFT-ENTROPY-SEARCH-STRATEGY.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "context-builder",
+      "robot-talks",
+      "distill",
+      "residue",
+      "handoff",
+      "search lane",
+      "honesty boundary",
+      "promotion guardrail"
+    ],
+    "operator_sentence": "Use the AutoBayes tower as the corpus and search lane by lane to find what formal uncertainty object Craft 'translation entropy' is, is like, or is not, then translate the verdict into an operator-facing definition card."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "residue_ledger",
+    "scu_swu_reduction",
+    "dialectic",
+    "validation_loop",
+    "owner_boundary_check",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "memory_promotion_split"
+  ],
+  "route_menu": {
+    "context_hint": "The search strategy is scoped to the Craft entropy definition and reuses the AutoBayes tower as its corpus and the domainspec-lean-formalization tower as a precedent for search discipline.",
+    "items": [
+      {
+        "id": "lane-first-full-mode",
+        "label": "Lane-first full mode",
+        "description": "Define entropy search lanes, then authorize role-bound subagent search across information-theoretic, free-energy, GVI, statistical-games, PPL, and SCU lanes before contrast and synthesis.",
+        "capability_ref": "dispatch-spec",
+        "pattern": "route"
+      },
+      {
+        "id": "single-lane-info-theoretic",
+        "label": "Single lane: information-theoretic only",
+        "description": "Only test whether Craft entropy is conditional entropy H(D|S); fastest but leaves free-energy and loss readings unsearched.",
+        "capability_ref": "distill",
+        "pattern": "distill"
+      },
+      {
+        "id": "definition-card-first",
+        "label": "Definition card first",
+        "description": "Draft the entropy definition card before searching; useful only if terminology stabilization, not grounding, is the blocker.",
+        "capability_ref": "distill",
+        "pattern": "synthesis"
+      }
+    ],
+    "selected_item_id": "lane-first-full-mode"
+  },
+  "technique_overlays": [
+    {
+      "overlay_id": "source-discipline",
+      "trigger": "Craft translation entropy currently reads like Shannon entropy, free energy, and a GVI loss at once, with no source-backed grounding.",
+      "techniques": [
+        "concrete_path_evidence",
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "recover-entropy-frame",
+        "entropy-source-fanout",
+        "contrast-and-mark"
+      ],
+      "validation_expectation": "Every lane must cite a concrete source object or path, mark borrow/analogy/reject/promote-residue, and never assert formal equivalence without a citation."
+    },
+    {
+      "overlay_id": "candidate-only-protection",
+      "trigger": "The search produces readings of a Craft definition that could be mistaken for an approved Craft edit or canonical Arcanum knowledge.",
+      "techniques": [
+        "delegation_boundary",
+        "owner_boundary_check",
+        "memory_promotion_split",
+        "state_namespace_boundary"
+      ],
+      "applies_to_steps": [
+        "contrast-and-mark",
+        "validate-and-record",
+        "prepare-handoff"
+      ],
+      "validation_expectation": "Entropy findings remain candidate readings; editing CRAFT-INITIAL-DEFINITION.md or promoting canonical vocabulary requires a separate owner-approved task."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "recover-entropy-frame",
+      "name": "Recover the Craft entropy definition and tower corpus",
+      "capability_ref": "context-builder",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../development/craft/CRAFT-INITIAL-DEFINITION.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/TOWER.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/GLOSSARY.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "craft-entropy-orientation-frame"
+        },
+        {
+          "kind": "route_menu",
+          "ref": "craft-entropy-search-lanes-menu"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-frame-recovered"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if the Craft entropy section of CRAFT-INITIAL-DEFINITION.md cannot be read.",
+        "Flag if the AutoBayes tower corpus cannot be inspected."
+      ]
+    },
+    {
+      "step_id": "define-search-lanes",
+      "name": "Define the bounded entropy search lanes",
+      "capability_ref": "dispatch-spec",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "route_menu",
+        "scu_swu_reduction"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "craft-entropy-orientation-frame"
+        },
+        {
+          "kind": "handle",
+          "ref": "craft-entropy-search-lanes-menu"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/CRAFT-ENTROPY-SEARCH-STRATEGY.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "craft-entropy-lane-index"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-lanes-defined"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Each lane names a Craft entropy target, a source object to search, and a default skeptical hypothesis.",
+        "Each lane is a single coherent search unit with one closing mark and a recomposition target into the definition card.",
+        "Lane coverage spans information-theoretic, free-energy, GVI, statistical-games, PPL, and SCU readings."
+      ],
+      "stop_conditions": [
+        "Block if any lane lacks a source object to search.",
+        "Flag if lanes overlap so much they cannot be searched independently."
+      ]
+    },
+    {
+      "step_id": "entropy-source-fanout",
+      "name": "Run full-mode lane-by-lane entropy source search",
+      "capability_ref": "robot-talks",
+      "capability_status": "candidate",
+      "pattern": "fanout",
+      "parallel": true,
+      "roles": [
+        "info-theoretic-entropy-searcher",
+        "free-energy-elbo-searcher",
+        "gvi-loss-searcher",
+        "statistical-games-searcher",
+        "ppl-variance-searcher",
+        "scu-minimization-searcher"
+      ],
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "craft-entropy-orientation-frame"
+        },
+        {
+          "kind": "handle",
+          "ref": "craft-entropy-lane-index"
+        },
+        {
+          "kind": "human_answer",
+          "ref": "subagent-execution-approval"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "craft-entropy-search-findings-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/sessions/craft-entropy-search-receipts.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-fanout-completed"
+        }
+      ],
+      "join_policy": "parent_synthesis",
+      "convergence_criteria": [
+        "Each lane returns the closest source-backed formal object with a citation or concrete path.",
+        "Each lane returns one mark: borrow, analogy, reject, or promote-residue, plus open residue.",
+        "No lane asserts formal equivalence between Craft entropy and a source object without a citation.",
+        "No lane promotes glossary, ontology, sigil, spell, or Craft-definition authority."
+      ],
+      "evidence_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+      "stop_conditions": [
+        "Block until the operator approves delegated full-mode search subagents.",
+        "Block synthesis if a lane asserts a borrow without a cited source.",
+        "Flag any lane that cannot reach a source and record it as missing-source residue."
+      ]
+    },
+    {
+      "step_id": "contrast-and-mark",
+      "name": "Contrast Craft entropy against source objects and converge a verdict",
+      "capability_ref": "distill",
+      "pattern": "dialectic",
+      "parallel": false,
+      "roles": [
+        "source-loyal-formal-reading",
+        "craft-operator-translation"
+      ],
+      "techniques": [
+        "dialectic",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "craft-entropy-search-findings-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "../../development/craft/CRAFT-INITIAL-DEFINITION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/craft-entropy-definition-card.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "craft-entropy-bridge-frame"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-verdict-converged"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The two roles preserve a source-loyal formal reading and a Craft-operator reading until synthesis.",
+        "The verdict is exactly one of: operational proxy for a named divergence/loss, distinct operational construct, or current metaphor with a minimal source-backed reformulation.",
+        "Each of the four PCRA properties (probabilistic spread, contextual dependence, relational load, attentional decay) is marked separately rather than collapsed into one symbol.",
+        "The card states an explicit honesty boundary and never claims a proven formal isomorphism."
+      ],
+      "stop_conditions": [
+        "Block if the synthesis edits CRAFT-INITIAL-DEFINITION.md instead of producing a candidate card.",
+        "Block if the verdict claims formal equivalence without source backing.",
+        "Flag if any PCRA property is left unmarked."
+      ]
+    },
+    {
+      "step_id": "validate-and-record",
+      "name": "Validate the search route and record open residue",
+      "capability_ref": "dispatch-spec",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/craft-entropy-search.dispatch.json"
+        },
+        {
+          "kind": "frame",
+          "ref": "craft-entropy-bridge-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/residue/craft-entropy-open-residue.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-search-validated"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/autobayes/craft-entropy-search.dispatch.json",
+      "convergence_criteria": [
+        "The dispatch validates against formulae/dispatch-spec/scripts/validate-dispatch.py.",
+        "Each lane mark and each unresolved residue names a next object.",
+        "Promote-residue lanes are sharpened into named next search objects."
+      ],
+      "stop_conditions": [
+        "Block if validation fails.",
+        "Flag if open residue lacks an owner or next route."
+      ]
+    },
+    {
+      "step_id": "prepare-handoff",
+      "name": "Prepare candidate-only handoff to the Craft definition owner",
+      "capability_ref": "invoke",
+      "pattern": "handoff",
+      "parallel": false,
+      "techniques": [
+        "memory_promotion_split",
+        "execution_receipt_handoff",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/tracks/craft-entropy-definition-card.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/autobayes/residue/craft-entropy-open-residue.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "craft-entropy-candidate-reading-handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "craft-entropy-handoff-prepared"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Defer any edit to CRAFT-INITIAL-DEFINITION.md until a separate owner-approved task exists.",
+        "Ask operator approval before promoting any candidate entropy reading."
+      ]
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The entropy definition must be searched against six distinct uncertainty objects (information-theoretic, free energy, GVI loss, statistical games, PPL variance, SCU minimization) that need separate source reading to avoid term collapse.",
+    "explanation": "Role-bound sibling searchers keep each candidate formal object in its own lane so probabilistic spread, contextual dependence, relational load, and attentional decay are not collapsed into one borrowed symbol, and so each mark is independently source-backed.",
+    "context": [
+      "Craft translation entropy currently has no source grounding and reads like several different formal objects at once.",
+      "The AutoBayes tower already names the related literature needed for each lane."
+    ],
+    "roles": [
+      {
+        "role_id": "info-theoretic-entropy-searcher",
+        "purpose": "Test whether Craft entropy maps to Shannon, differential, or conditional entropy H(D|S).",
+        "owns": "information-theoretic lane",
+        "applies_to_steps": [
+          "entropy-source-fanout"
+        ]
+      },
+      {
+        "role_id": "free-energy-elbo-searcher",
+        "purpose": "Test whether Craft entropy is really a divergence or free-energy/ELBO objective mislabeled as entropy.",
+        "owns": "free-energy lane",
+        "applies_to_steps": [
+          "entropy-source-fanout"
+        ]
+      },
+      {
+        "role_id": "gvi-loss-searcher",
+        "purpose": "Test whether Craft entropy maps to the GVI loss/divergence/regularizer triple.",
+        "owns": "generalized-variational-inference lane",
+        "applies_to_steps": [
+          "entropy-source-fanout"
+        ]
+      },
+      {
+        "role_id": "statistical-games-searcher",
+        "purpose": "Test whether relational load and optimization semantics map to parameterized statistical games and the Bayesian lens.",
+        "owns": "statistical-games lane",
+        "applies_to_steps": [
+          "entropy-source-fanout"
+        ]
+      },
+      {
+        "role_id": "ppl-variance-searcher",
+        "purpose": "Test whether probabilistic spread and attentional decay map to PPL guide-program mismatch and amortized-inference variance.",
+        "owns": "probabilistic-programming lane",
+        "applies_to_steps": [
+          "entropy-source-fanout"
+        ]
+      },
+      {
+        "role_id": "scu-minimization-searcher",
+        "purpose": "Test whether the non-linear fidelity curve and SCU local minimum map to free-energy minimization or bias/variance trade-off.",
+        "owns": "scu-minimization lane",
+        "applies_to_steps": [
+          "entropy-source-fanout",
+          "contrast-and-mark"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Run the Craft entropy search fanout across information-theoretic, free-energy, GVI, statistical-games, PPL, and SCU lanes, returning source-backed receipts and one mark per lane only?",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute",
+      "lane mark: borrow, analogy, reject, or promote-residue",
+      "source citation or concrete path per claim"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "a7daecfef11529bd0",
+        "role_id": "info-theoretic-entropy-searcher",
+        "lane_name": "L-info",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=analogy; conditional entropy requires an undefined p(D|S); U-shape unexplained, see R5 rate-distortion."
+      },
+      {
+        "agent_id": "ab76531167fcba30d",
+        "role_id": "free-energy-elbo-searcher",
+        "lane_name": "L-free",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=promote-residue; E conflates energy term (=residue) and spread term; split proposed in R1."
+      },
+      {
+        "agent_id": "ac7bda58d94e3ea45",
+        "role_id": "gvi-loss-searcher",
+        "lane_name": "L-gvi",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=analogy; entropy better modeled as a modular loss/divergence/feasible-set triple than one scalar."
+      },
+      {
+        "agent_id": "ad01c9486ecd0028f",
+        "role_id": "statistical-games-searcher",
+        "lane_name": "L-games",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=promote-residue; relational load is lax composition defect (mutual-information gap), not entropy; measurability open in R4."
+      },
+      {
+        "agent_id": "a378c1ce59e01741e",
+        "role_id": "ppl-variance-searcher",
+        "lane_name": "L-ppl",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=promote-residue; definitional spread vs runtime suboptimality conflated; attentional decay belongs to neither."
+      },
+      {
+        "agent_id": "a550c009c1233ec47",
+        "role_id": "scu-minimization-searcher",
+        "lane_name": "L-scu",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "research/autobayes/sessions/craft-entropy-search-receipts.md",
+        "close_status": "closed",
+        "residue": "mark=promote-residue; bias-variance/MDL U-shape is real but the entropy axis is unmeasured; instrumentation in R3."
+      }
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "fanout-to-contrast-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "robot-talks",
+        "to_owner": "distill",
+        "applies_to_steps": [
+          "contrast-and-mark"
+        ],
+        "contract": "Lane search receipts feed the contrast dialectic as candidate readings; they cannot themselves edit the Craft definition.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "contrast-to-craft-owner-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "distill",
+        "to_owner": "craft-definition-owner",
+        "applies_to_steps": [
+          "validate-and-record",
+          "prepare-handoff"
+        ],
+        "contract": "The entropy definition card is a candidate reading until the Craft definition owner approves any change to CRAFT-INITIAL-DEFINITION.md.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "dispatch-spec",
+      "execution": "approved-subagents",
+      "validation": "dispatch-spec",
+      "evidence": "signal-observer",
+      "memory": "inventory",
+      "promotion": "craft-definition-owner"
+    },
+    "receipts": [
+      {
+        "receipt_id": "craft-entropy-search-receipts",
+        "producer": "robot-talks",
+        "required_fields": [
+          "session_id",
+          "artifacts",
+          "audit_reference",
+          "residue",
+          "validation_result"
+        ],
+        "stores": [
+          "research/autobayes/sessions/craft-entropy-search-receipts.md"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research-autobayes",
+        "owner": "research/autobayes",
+        "write_policy": "This search may write only under research/autobayes."
+      },
+      {
+        "namespace": "craft-development",
+        "owner": "arcanum/development/craft",
+        "write_policy": "No writes to arcanum/development/craft from this dispatch without a separate owner-approved task."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research/autobayes craft entropy definition card and search receipts",
+        "target": "canonical Craft definition, Arcanum glossary, ontology, sigil, or spell",
+        "rule": "requires owner review and a separate promotion route",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate_id": "source-visibility",
+      "kind": "quality",
+      "owner": "context-builder",
+      "condition": "Every entropy claim must distinguish source-backed objects, derived readings, Craft analogies, candidate bridges, and open questions.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "lane-coverage",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "Every named lane must return a source-backed object with a mark, or be recorded as missing-source residue.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "subagent-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "Recommended full-mode search subagents require explicit operator approval before delegated search runs.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "honesty-boundary",
+      "kind": "quality",
+      "owner": "distill",
+      "condition": "The entropy verdict must mark borrow, analogy, reject, or promote-residue per lane and must not claim a proven formal isomorphism between Craft entropy and any source object.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Search outputs may propose candidate entropy bridges but must not promote canonical Arcanum glossary, ontology, sigil, spell, the Craft definition, memory, or runtime authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The dispatch must pass formulae/dispatch-spec/scripts/validate-dispatch.py before being treated as handoff-ready.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "autobayes-research-20260606",
+    "trace_events": [
+      "craft-entropy-frame-recovered",
+      "craft-entropy-lanes-defined",
+      "craft-entropy-fanout-completed",
+      "craft-entropy-verdict-converged",
+      "craft-entropy-search-validated",
+      "craft-entropy-handoff-prepared"
+    ],
+    "signal_grouping": "craft-entropy-search"
+  },
+  "promotion_guardrails": [
+    "Do not treat Craft translation entropy as formally identical to Shannon entropy, differential entropy, conditional entropy, KL divergence, free energy, or any single AutoBayes objective without a cited source.",
+    "Do not promote the Craft entropy definition card into canonical Arcanum glossary, ontology, sigil, spell, or the Craft definition itself from this search alone.",
+    "Do not treat related-paper objects as source-closed until the cited papers are actually read.",
+    "Do not collapse probabilistic spread, contextual dependence, relational load, and attentional decay into one borrowed formal symbol.",
+    "Do not execute the search fanout subagents without explicit operator approval."
+  ]
+}
