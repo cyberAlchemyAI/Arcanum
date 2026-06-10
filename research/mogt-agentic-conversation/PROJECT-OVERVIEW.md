@@ -1,8 +1,29 @@
 # Multi-Objective Game Theory for Agentic Conversation Decisions
 
+> Scoping + status artifact. Plain language first, then the formal scope tables.
+> Every status claim points to its source file. ⚠️ marks things that are
+> **designed but not yet tested**. New to the project? Read [README.md](README.md)
+> first — it explains MOGT from scratch with a worked example.
+
 ## Summary
 
-This project investigates whether multi-objective game theory can improve conversation-level decisions in agentic systems that coordinate multiple specialized roles. The immediate goal is to determine whether explicit objective modeling and game-theoretic coordination should be incorporated into orchestration policies for agent conversations.
+**In one sentence:** MOGT is a *decision layer* you put right before an agent picks its
+next conversation move — it scores each available action (answer, clarify, escalate,
+defer, …) across quality, cost, latency, safety, and escalation risk, then selects one
+using a named *policy regime* and records why. Source:
+[module-formulae/formal-runtime-definition.md](module-formulae/formal-runtime-definition.md).
+
+**The question:** can making those objectives explicit — instead of relying on an implicit
+"answer if you can, escalate if risky" heuristic — produce decisions that are more
+traceable, higher quality under competing goals, and calmer under disagreement, *without*
+unacceptable overhead? The project exists to decide whether an explicit
+multi-objective / game-theoretic decision layer is worth adding to an agent orchestrator.
+
+⚠️ **Reality check, up front:** this is at the **design + dry-run** stage. The model and a
+synthetic-fixture test harness exist, but **no live experiment has run** — all four claims
+are rated *insufficient evidence* and all four experiments are *not started*. Nothing about
+MOGT is proven yet. Source: [results/MOGT-EVIDENCE-STATUS.md](results/MOGT-EVIDENCE-STATUS.md),
+[experiments/EXPERIMENTS.md](experiments/EXPERIMENTS.md). See §"Designed vs proven" below.
 
 ## Discovery Mode
 
@@ -33,6 +54,38 @@ Evidence type:
 - `observed` = seen in repository or artifacts
 - `stated` = given by operator
 - `hypothesized` = inferred but not yet validated
+
+## Designed vs Proven (completeness snapshot, 2026-06-10)
+
+The project enforces one boundary: synthetic fixtures prove the *machinery runs*, never
+that *MOGT works*. Source:
+[module-formulae/flows-policies.md](module-formulae/flows-policies.md) (EvidenceStatusBoundaryPolicy).
+
+### Weighted completeness
+
+- Structural completeness (40% weight): ~100% — required contract and governance artifacts present.
+- Empirical completeness (40% weight): **0%** — no sources-to-results evidence chain has run.
+- Publication completeness (20% weight): ~10% — paper stub + pilot contracts only.
+- Overall weighted: ~42%.
+
+### Artifact lane status
+
+| Lane | Expected outcome | Current state | Status |
+|---|---|---|---|
+| Project contract | PROJECT, claims, dependencies, registry, telemetry schema | Present | complete |
+| Governance definitions | canonical definitions, hypotheses, protocol checklist, experiment index, draft bundles | Present but greenfield and unvalidated | in progress |
+| Execution evidence | experiment specs, data files, analysis outputs | Draft bundles + synthetic-fixture harness exist; ⚠️ no live data or results | missing |
+| Foundations, source, inventory | foundations baseline, source selection, library + raw provenance | foundations present; some authorities still await raw input | in progress |
+| Claim adjudication | claim-level evidence status updates | Scaffold exists; ⚠️ all four claims insufficient | in progress |
+| Publication | paper updates and retrospective outputs | Paper stub + pilot contracts; no empirical synthesis | in progress |
+| Exports | reusable published artifacts for dependents | Scaffold only; no published outputs | missing |
+
+### What is missing right now
+
+1. Build the first benchmark conversation corpus and decision-review rubric for E1 and E2.
+2. Run a gate walkthrough and the first dry execution for the highest-priority experiments.
+3. Produce the first append-only JSONL run files and integrity reports under the bundles.
+4. Upgrade or reject the claims based on measured results rather than design-time reasoning.
 
 ## Stakeholders
 

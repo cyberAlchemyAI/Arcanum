@@ -32,6 +32,8 @@ Target artifact: MOGT research evidence model under
 - `flows-policies.md`
 - `formal-runtime-definition.md`
 - `runtime-decision-receipt.md`
+- `objective-estimator-contract.md`
+- `../experiments/schema/mogt-runtime-decision-receipt.schema.json`
 
 ## Template Selection Evidence
 
@@ -68,10 +70,18 @@ The Module Formulae template pack maps these to:
 
 ## Unresolved Gaps
 
-- `SWU-MOGT-HARNESS-002` still needs concrete scenario and policy-regime fixture formats that instantiate `RuntimeDecisionReceipt`.
-- `SWU-MOGT-HARNESS-003` still needs objective-vector and Pareto/frontier calculator implementation.
+Resolved since the 2026-06-08 refresh (reconciled 2026-06-10):
+
+- `SWU-MOGT-HARNESS-002` runtime-receipt fixtures are complete (`TASK-MOGT-HARNESS-002-RESULT.md`, `development/fixtures/mogt-runtime-decision-receipts.jsonl`).
+- `SWU-MOGT-HARNESS-003` objective-vector and Pareto/frontier calculator is complete (`TASK-MOGT-HARNESS-003-RESULT.md`, `tools/calculate-pareto-frontier.py`).
+
+Still open:
+
+- `runtime-decision-receipt.md` shape table lists `decision_state` as required while its minimal JSON example omits it; the receipt contract still needs to reconcile table vs example.
+- The objective estimator contract is now authored (`objective-estimator-contract.md`) but has no executable estimator implementation.
+- The runtime receipt JSON Schema (`../experiments/schema/mogt-runtime-decision-receipt.schema.json`) is not yet wired into `tools/validate-mogt-run-jsonl.py` as a receipt-specific validation pass.
 - Live experiment approval remains blocked until dry-run fixture validation matures.
 
 ## Next Route
 
-`task-session` or native Codex Goal for `SWU-MOGT-HARNESS-002`.
+`task-session` for `SWU-MOGT-HARNESS-006` (wire the receipt schema into a receipt-specific validation pass).

@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MOGT Runtime Decision Receipt",
+  "description": "Schema for one RuntimeDecisionReceipt emitted by a MOGT_DECIDE call. Validates receipt structure independently of MOGTRunRow capture. Source of truth: module-formulae/runtime-decision-receipt.md. A receipt is design/runtime evidence only and never updates claim evidence status (invariant RR-5).",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "timestamp",
+    "conversation_turn_id",
+    "policy_regime",
+    "feasible_actions",
+    "blocked_actions",
+    "scored_actions",
+    "selected_action",
+    "selection_reason",
+    "principal_tradeoff",
+    "policy_trace",
+    "runtime_status",
+    "overhead",
+    "protocol_deviations"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "conversation_turn_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_state": {
+      "type": "object",
+      "description": "Optional full DecisionState snapshot (context, actions, objectives, constraints). Marked required in the receipt-shape table but omitted from the contract's minimal example; kept optional here pending contract reconciliation."
+    },
+    "roles": {
+      "type": "array",
+      "description": "Active RuntimeRole perspectives when scoring or bargaining is role-aware.",
+      "items": {
+        "type": "object"
+      }
+    },
+    "policy_regime": {
+      "type": "string",
+      "enum": [
+        "heuristic",
+        "weighted_sum",
+        "pareto_guided",
+        "bargaining_guided"
+      ]
+    },
+    "regime_parameters": {
+      "type": "object",
+      "description": "Weights, tie-breakers, max cycles, or regime-specific settings."
+    },
+    "feasible_actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "blocked_actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/blocked_action"
+      }
+    },
+    "scored_actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scored_action"
+      }
+    },
+    "selected_action": {
+      "$ref": "#/$defs/selected_action"
+    },
+    "selection_reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "principal_tradeoff": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_trace": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/policy_trace_step"
+      }
+    },
+    "runtime_status": {
+      "type": "string",
+      "enum": [
+        "selected",
+        "blocked",
+        "escalated",
+        "fallback_selected"
+      ]
+    },
+    "overhead": {
+      "$ref": "#/$defs/overhead_envelope"
+    },
+    "protocol_deviations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "objective_vector": {
+      "type": "object",
+      "required": [
+        "quality",
+        "cost",
+        "latency",
+        "safety",
+        "escalation_risk"
+      ],
+      "properties": {
+        "quality": {
+          "$ref": "#/$defs/score"
+        },
+        "cost": {
+          "$ref": "#/$defs/score"
+        },
+        "latency": {
+          "$ref": "#/$defs/score"
+        },
+        "safety": {
+          "$ref": "#/$defs/score"
+        },
+        "escalation_risk": {
+          "$ref": "#/$defs/score"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/score"
+      }
+    },
+    "scored_action": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "objective_vector"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "objective_vector": {
+          "$ref": "#/$defs/objective_vector"
+        },
+        "frontier_member": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "blocked_action": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "reason"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "selected_action": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "selection_reason"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "policy_trace_step": {
+      "type": "object",
+      "required": [
+        "step",
+        "summary"
+      ],
+      "properties": {
+        "step": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "overhead_envelope": {
+      "type": "object",
+      "required": [
+        "token_cost",
+        "latency_ms",
+        "turn_count",
+        "tool_calls"
+      ],
+      "properties": {
+        "token_cost": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "latency_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "turn_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tool_calls": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "runtime_status": {
+            "enum": [
+              "selected",
+              "fallback_selected"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "scored_actions",
+          "selected_action"
+        ],
+        "properties": {
+          "scored_actions": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy_regime": {
+            "const": "weighted_sum"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "regime_parameters"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy_regime": {
+            "const": "pareto_guided"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "regime_parameters"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy_regime": {
+            "const": "bargaining_guided"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "regime_parameters"
+        ]
+      }
+    }
+  ]
+}

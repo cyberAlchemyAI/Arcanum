@@ -92,6 +92,8 @@ graph TD
 | [flows-policies.md](flows-policies.md) | Fixture validation workflow and evidence boundary policies. |
 | [formal-runtime-definition.md](formal-runtime-definition.md) | Formal and runtime definition of how MOGT is applied inside an agentic conversation. |
 | [runtime-decision-receipt.md](runtime-decision-receipt.md) | Concrete receipt emitted by one runtime MOGT decision. |
+| [objective-estimator-contract.md](objective-estimator-contract.md) | Contract for producing objective vectors for feasible actions (enforces invariant RR-2). |
+| `../experiments/schema/mogt-runtime-decision-receipt.schema.json` | JSON Schema validating runtime decision receipt structure. |
 | `../definitions/DEFINITIONS.md` | Canonical MOGT definition authority. |
 | `../experiments/schema/mogt-run.schema.json` | Run-row schema contract. |
 | `../tools/validate-mogt-run-jsonl.py` | Current executable validation operation. |
@@ -126,3 +128,4 @@ graph TD
 | --- | --- |
 | 2026-06-07 | Initial Invoke Module Formulae model for MOGT rule, workflow, and operation contracts. |
 | 2026-06-08 | Refreshed from runtime-definition refine output; added runtime decision receipt contract. |
+| 2026-06-10 | Refresh-reconciled stale gaps (SWU-002/003 completed); added runtime receipt JSON Schema and objective estimator contract. |

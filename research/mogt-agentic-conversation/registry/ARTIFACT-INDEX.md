@@ -16,6 +16,8 @@
 | Module Formulae Model           | module-formulae/\*.md                     | design model          |
 | Formal Runtime Definition       | module-formulae/formal-runtime-definition.md | design model       |
 | Runtime Decision Receipt        | module-formulae/runtime-decision-receipt.md | design model       |
+| Objective Estimator Contract    | module-formulae/objective-estimator-contract.md | design model    |
+| Runtime Receipt Schema          | experiments/schema/mogt-runtime-decision-receipt.schema.json | contract |
 | Research Graph                  | registry/RESEARCH-GRAPH.md                | canonical             |
 | Data                            | experiments/_/data/_.jsonl                | append-only           |
 | Results                         | experiments/_/results/_.md                | derived               |

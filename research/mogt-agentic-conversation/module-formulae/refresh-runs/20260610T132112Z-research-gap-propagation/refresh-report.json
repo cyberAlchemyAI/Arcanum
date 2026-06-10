@@ -1,0 +1,104 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "mutationMode": "apply-approved",
+  "created": "2026-06-10",
+  "targetRoot": "research/mogt-agentic-conversation/",
+  "sourceSignals": [
+    {
+      "id": "REFRESH-MOGT-RESEARCH-001",
+      "signal_type": "artifact_drift",
+      "claim": "INVOKE-RESULT.md lists SWU-002/003 as pending, but both are completed.",
+      "target_artifacts": ["module-formulae/INVOKE-RESULT.md"],
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "REFRESH-MOGT-RESEARCH-002",
+      "signal_type": "evidence_added",
+      "claim": "Runtime receipts need a dedicated JSON Schema; receipt structure is currently unvalidated.",
+      "target_artifacts": [
+        "experiments/schema/mogt-runtime-decision-receipt.schema.json",
+        "registry/ARTIFACT-INDEX.md",
+        "README.md",
+        "PROJECT.yaml"
+      ],
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "REFRESH-MOGT-RESEARCH-003",
+      "signal_type": "evidence_added",
+      "claim": "Invariant RR-2 references an objective estimator contract that does not exist.",
+      "target_artifacts": [
+        "module-formulae/objective-estimator-contract.md",
+        "module-formulae/module-spec.md"
+      ],
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "REFRESH-MOGT-RESEARCH-004",
+      "signal_type": "route_changed",
+      "claim": "Propagate the two open contracts into governed work as SWU-MOGT-HARNESS-006/007.",
+      "target_artifacts": ["development/WORK-PACK.md"],
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "REFRESH-MOGT-RESEARCH-005",
+      "signal_type": "artifact_drift",
+      "claim": "runtime-decision-receipt.md shape table marks decision_state required while its minimal example omits it.",
+      "target_artifacts": ["module-formulae/runtime-decision-receipt.md"],
+      "confidence": "medium",
+      "mutation_safety": "needs_review"
+    },
+    {
+      "id": "REFRESH-MOGT-RESEARCH-006",
+      "signal_type": "no_op",
+      "claim": "No fixture/live evidence was produced; claim evidence status must not change.",
+      "target_artifacts": ["claims/CLAIMS.md", "results/MOGT-EVIDENCE-STATUS.md"],
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "experiments/schema/mogt-runtime-decision-receipt.schema.json",
+    "module-formulae/objective-estimator-contract.md",
+    "module-formulae/INVOKE-RESULT.md",
+    "module-formulae/module-spec.md",
+    "registry/ARTIFACT-INDEX.md",
+    "README.md",
+    "PROJECT.yaml",
+    "development/WORK-PACK.md"
+  ],
+  "deltaSummary": [
+    {"class": "artifact_drift", "count": 2},
+    {"class": "evidence_added", "count": 2},
+    {"class": "route_changed", "count": 1},
+    {"class": "no_op", "count": 1}
+  ],
+  "proposedChanges": [],
+  "appliedChanges": [
+    {"path": "experiments/schema/mogt-runtime-decision-receipt.schema.json", "change": "new runtime receipt JSON Schema", "signals": ["REFRESH-MOGT-RESEARCH-002"]},
+    {"path": "module-formulae/objective-estimator-contract.md", "change": "new objective estimator contract (RR-2)", "signals": ["REFRESH-MOGT-RESEARCH-003"]},
+    {"path": "module-formulae/INVOKE-RESULT.md", "change": "reconciled stale gaps; added outputs; repointed next route", "signals": ["REFRESH-MOGT-RESEARCH-001"]},
+    {"path": "module-formulae/module-spec.md", "change": "added supporting contracts and change-history entry", "signals": ["REFRESH-MOGT-RESEARCH-002", "REFRESH-MOGT-RESEARCH-003"]},
+    {"path": "registry/ARTIFACT-INDEX.md", "change": "indexed receipt schema and estimator contract", "signals": ["REFRESH-MOGT-RESEARCH-002", "REFRESH-MOGT-RESEARCH-003"]},
+    {"path": "README.md", "change": "added artifacts to canonical file map", "signals": ["REFRESH-MOGT-RESEARCH-002", "REFRESH-MOGT-RESEARCH-003"]},
+    {"path": "PROJECT.yaml", "change": "surfaced module-formulae artifacts in canonical map", "signals": ["REFRESH-MOGT-RESEARCH-002", "REFRESH-MOGT-RESEARCH-003"]},
+    {"path": "development/WORK-PACK.md", "change": "added ready SWU-MOGT-HARNESS-006 and 007", "signals": ["REFRESH-MOGT-RESEARCH-004"]}
+  ],
+  "skippedChanges": [
+    {"path": "module-formulae/runtime-decision-receipt.md", "reason": "table-vs-example decision_state drift needs owner review", "signals": ["REFRESH-MOGT-RESEARCH-005"]},
+    {"path": "claims/CLAIMS.md", "reason": "evidence boundary: no empirical evidence produced", "signals": ["REFRESH-MOGT-RESEARCH-006"]},
+    {"path": "results/MOGT-EVIDENCE-STATUS.md", "reason": "evidence boundary: no empirical evidence produced", "signals": ["REFRESH-MOGT-RESEARCH-006"]}
+  ],
+  "blockers": [],
+  "nextRoute": "task-session SWU-MOGT-HARNESS-006",
+  "validation": [
+    "Receipt schema validates the contract's minimal example and rejects missing-field, bad-enum, and empty-scored-actions receipts.",
+    "Every applied change maps to a refresh signal.",
+    "No claim evidence or evidence-status upgrade applied."
+  ]
+}
