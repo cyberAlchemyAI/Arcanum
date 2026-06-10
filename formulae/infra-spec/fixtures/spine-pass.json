@@ -1,0 +1,19 @@
+{
+  "infra_spec_id": "infra-body-war",
+  "schema_version": "0.1.0",
+  "project": "body-war",
+  "status_class": "candidate",
+  "doc_status": "draft",
+  "runtime_profile": { "name": "single-vps" },
+  "environments": [ { "name": "production", "deploy_trigger": "push", "branch": "main" } ],
+  "services": [
+    { "name": "app", "owner": "backend-team",
+      "deployment": { "image": "ghcr.io/body-war/app:abc123", "internal_port": 8080, "instance_evidence": "present" },
+      "reversal": { "rollback": { "method": "image-pin-revert", "target": "previous-sha" } } }
+  ],
+  "boundaries": [ { "boundary_id": "b-secret", "kind": "secret", "contract": "no secrets in logs", "on_violation": "block" } ],
+  "state_namespaces": [ { "namespace": "generated", "owner": "kg-service", "write_policy": "append-only", "retention": "30d" } ],
+  "gates": [ { "gate_id": "production-readiness", "kind": "promotion_guardrail", "owner": "ops", "condition": "health-check passes", "on_fail": "block" } ],
+  "residue": [ { "summary": "no real deploy instance yet", "kind": "missing_receipt", "severity": "medium" } ],
+  "promotion_status": { "stage": "specified" }
+}
