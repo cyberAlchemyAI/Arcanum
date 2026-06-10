@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/candidate/infra-spec/infra-spec.schema.json",
+  "title": "Arcanum Infra Spec (CANDIDATE — operational-contract spine)",
+  "description": "CANDIDATE schema produced by refine run 2026-06-08-infra-spec-mvp-design-refine. Describes the operational contract binding a project/environment to its services, boundaries, state namespaces, gates, status, and reversal obligations. Self-contained (gate_action inlined). Reuses dispatch-spec $def SHAPES by parity. NOT authoritative; not self-promoting; not a formulae package.",
+  "type": "object",
+  "required": [
+    "infra_spec_id",
+    "schema_version",
+    "project",
+    "status_class",
+    "runtime_profile",
+    "environments",
+    "services",
+    "gates",
+    "residue",
+    "promotion_status"
+  ],
+  "not": { "required": ["status"] },
+  "$comment": "`not.required[status]` enforces status namespacing: a bare collapsed `status` field is forbidden; use doc_status / gate on_fail / promotion_status.stage separately.",
+  "properties": {
+    "infra_spec_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "type": "string", "minLength": 1 },
+    "project": { "type": "string", "minLength": 1 },
+    "status_class": { "type": "string", "const": "candidate" },
+    "doc_status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "runtime_profile": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "enum": ["dev", "single-vps", "split-vps", "ha"] }
+      }
+    },
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "purpose": { "type": "string" },
+          "url": { "type": "string" },
+          "deploy_trigger": { "type": "string", "enum": ["branch", "push", "manual"] },
+          "branch": { "type": "string" }
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "owner"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string", "minLength": 1, "$comment": "governance authority, NOT runtime actor" },
+          "deployment": {
+            "type": "object",
+            "properties": {
+              "image": { "type": "string" },
+              "registry": { "type": "string" },
+              "internal_port": { "type": "integer" },
+              "exposed": { "type": "boolean" },
+              "generated": { "type": "boolean" },
+              "instance_evidence": { "type": "string", "enum": ["present", "absent"] }
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["target", "direction"],
+              "properties": {
+                "target": { "type": "string" },
+                "direction": { "type": "string", "enum": ["inbound", "outbound", "internal"] },
+                "must_not_depend_on": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "reversal": { "$ref": "#/$defs/reversal" }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["boundary_id", "kind", "contract", "on_violation"],
+        "properties": {
+          "boundary_id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["network", "secret", "data_store", "tenant", "policy", "environment"] },
+          "from_owner": { "type": "string" },
+          "to_owner": { "type": "string" },
+          "applies_to_services": { "type": "array", "items": { "type": "string" } },
+          "contract": { "type": "string", "minLength": 1 },
+          "on_violation": { "$ref": "#/$defs/gate_action" },
+          "reversal": { "$ref": "#/$defs/reversal" }
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "properties": {
+        "validation": { "type": "string" },
+        "evidence": { "type": "string" },
+        "promotion": { "type": "string" },
+        "deploy": { "type": "string" },
+        "secrets": { "type": "string" },
+        "state": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "state_namespaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["namespace", "owner", "write_policy"],
+        "properties": {
+          "namespace": { "type": "string", "enum": ["source", "runtime", "generated", "local", "private", "evidence"] },
+          "owner": { "type": "string", "minLength": 1 },
+          "write_policy": { "type": "string", "minLength": 1 },
+          "retention": { "type": "string" }
+        }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "properties": {
+        "signal_refs": { "type": "array", "items": { "type": "string" } },
+        "scrape_targets": { "type": "array", "items": { "type": "string" } },
+        "slo_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["receipt_id", "producer", "required_fields", "on_missing"],
+        "properties": {
+          "receipt_id": { "type": "string", "minLength": 1 },
+          "producer": { "type": "string", "minLength": 1 },
+          "required_fields": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "enum": ["run_id", "artifacts", "validation_result", "status", "residue", "audit_reference"] }
+          },
+          "stores": { "type": "array", "items": { "type": "string" } },
+          "on_missing": { "$ref": "#/$defs/gate_action" }
+        }
+      }
+    },
+    "promotion_splits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "rule", "on_violation"],
+        "properties": {
+          "source": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "rule": { "type": "string", "minLength": 1 },
+          "on_violation": { "$ref": "#/$defs/gate_action" }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate_id", "kind", "owner", "condition", "on_fail"],
+        "properties": {
+          "gate_id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["validation", "promotion_guardrail", "human_approval"] },
+          "owner": { "type": "string", "minLength": 1 },
+          "condition": { "type": "string", "minLength": 1 },
+          "on_fail": { "$ref": "#/$defs/gate_action" }
+        }
+      }
+    },
+    "residue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["summary", "kind", "severity"],
+        "properties": {
+          "summary": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["failure_mode", "unowned_state", "drift", "missing_receipt"] },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "severe"] },
+          "owner": { "type": "string" }
+        }
+      }
+    },
+    "analogy_labels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "register", "label"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "register": { "type": "string", "enum": ["lean", "reflection-tower", "residue", "cyberalchemy", "categorical", "thermodynamic"] },
+          "label": { "type": "string", "const": "analogy" }
+        }
+      }
+    },
+    "promotion_status": {
+      "type": "object",
+      "required": ["stage"],
+      "properties": {
+        "stage": { "type": "string", "enum": ["specified", "implemented", "deployed", "observed", "validated", "reflected", "promoted"] },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "gate_action": { "type": "string", "enum": ["block", "flag", "defer", "ask", "reroute"] },
+    "reversal": {
+      "type": "object",
+      "properties": {
+        "rollback": { "type": "object", "properties": { "method": { "type": "string" }, "target": { "type": "string" } } },
+        "migration": { "type": "object", "properties": { "forward": { "type": "string" }, "reverse": { "type": "string" } } },
+        "backup": { "type": "object", "properties": { "schedule": { "type": "string" }, "target": { "type": "string" } } },
+        "retention": { "type": "object", "properties": { "namespace": { "type": "string" }, "policy": { "type": "string" } } }
+      }
+    }
+  }
+}
