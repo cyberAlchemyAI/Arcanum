@@ -17,6 +17,12 @@ Use this folder when you are changing the rules of the system rather than adding
 - [Validation Report Template](templates/validation-report.md) - starter validation evidence report.
 - [Observability](observability/) - telemetry, hook, runtime package, observed-run, hook-ledger, and reflection conventions.
 
+## Disciplines
+
+[Disciplines](../disciplines/) are framework-adjacent source artifacts for recurring Arcanum practices that cross capability boundaries.
+
+Use them when a practice is too broad to live only inside one sigil, spell, or development package, but should not become a registry entry. Discipline entries preserve evidence, steward boundaries, status, and next hardening moves for practices such as Craft, planning, schema governance, validation, observability, evidence, decisions, and runtime boundaries.
+
 ## Tier Ontology
 
 The framework classifies sigils by epistemic nature:

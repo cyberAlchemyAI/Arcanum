@@ -1,0 +1,75 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://arcanum.local/disciplines/discipline.schema.yml
+title: Arcanum Discipline Card
+description: Candidate schema for machine-readable Arcanum discipline cards.
+type: object
+required:
+  - discipline_id
+  - name
+  - status
+  - steward
+  - purpose
+  - boundary
+  - evidence_refs
+  - validation
+properties:
+  discipline_id:
+    type: string
+    pattern: "^[a-z][a-z0-9-]*$"
+  name:
+    type: string
+    minLength: 1
+  status:
+    type: string
+    enum:
+      - candidate
+      - active-pattern
+      - implemented
+      - canonical
+      - deprecated
+  steward:
+    type: string
+    minLength: 1
+  purpose:
+    type: string
+    minLength: 1
+  boundary:
+    type: string
+    minLength: 1
+  evidence_refs:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  validation:
+    type: object
+    required:
+      - mode
+      - command_or_review
+    properties:
+      mode:
+        type: string
+        enum:
+          - prose-review
+          - validator
+          - fixture
+          - observability
+          - mixed
+      command_or_review:
+        type: string
+        minLength: 1
+      latest_result:
+        type: string
+        enum:
+          - pass
+          - flag
+          - block
+          - not-run
+          - not-applicable
+    additionalProperties: true
+  next_hardening_move:
+    type: string
+  promotion_guardrail:
+    type: string
+additionalProperties: false

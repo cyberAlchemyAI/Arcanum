@@ -1,0 +1,248 @@
+{
+  "dispatch_id": "disciplines-formalization-20260611",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Create a new Arcanum framework part called DISCIPLINES, find scattered discipline-like practices such as Craft, planning, schema, and hidden ones, and formalize the ones beneficial for long-term growth.",
+    "objective": "Create a candidate framework-adjacent discipline layer with evidence-backed catalog, schema guidance, validation, and explicit boundaries from registry, ontology, glossary, sigil, and spell promotion authority.",
+    "target_artifact": "disciplines/",
+    "operator_sentence": "formalize DISCIPLINES so Arcanum can grow hidden cross-capability practices deliberately",
+    "arcanum_vocabulary": [
+      "disciplines",
+      "dispatch-spec",
+      "constitution-governance",
+      "context-builder",
+      "distill",
+      "task-session",
+      "promotion guardrail"
+    ]
+  },
+  "mode": "mixed",
+  "techniques": [
+    "sequence",
+    "x_ray",
+    "minimum_component_catalog",
+    "validation_loop",
+    "owner_boundary_check",
+    "concrete_path_evidence",
+    "observability_grouping"
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "The first slice is a local evidence scan plus catalog creation. Subagents may be useful for a later whole-Arcanum discipline audit, but they are not needed for this initial candidate surface.",
+    "authorization": "not_needed"
+  },
+  "steps": [
+    {
+      "step_id": "S0",
+      "name": "Hidden discipline evidence scan",
+      "capability_ref": "context-builder",
+      "mode": "repo-evidence-scan",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator request for DISCIPLINES framework part"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "disciplines/development/HIDDEN-DISCIPLINE-SCAN.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "discipline evidence baseline"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the repository cannot provide concrete local evidence for at least Craft, planning, and schema disciplines."
+      ]
+    },
+    {
+      "step_id": "S1",
+      "name": "Minimum discipline catalog",
+      "capability_ref": "distill",
+      "mode": "catalog-shaping",
+      "pattern": "distill",
+      "techniques": [
+        "minimum_component_catalog",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "S0.discipline evidence baseline"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "disciplines/DISCIPLINES.md"
+        }
+      ],
+      "stop_conditions": [
+        "Flag if a catalog entry names a practice without a steward, evidence link, status, or next hardening move."
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Discipline surface and schema guidance",
+      "capability_ref": "constitution-governance",
+      "capability_status": "candidate",
+      "mode": "framework-surface",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "owner_boundary_check",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S1.disciplines/DISCIPLINES.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "disciplines/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "disciplines/discipline.schema.yml"
+        },
+        {
+          "kind": "artifact",
+          "ref": "disciplines/templates/discipline-card.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the discipline layer claims registry, ontology, glossary, sigil, or spell promotion authority."
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Catalog validation",
+      "capability_ref": "dispatch-spec",
+      "mode": "validation",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "format_conformity_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "disciplines/DISCIPLINES.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "disciplines/scripts/validate-discipline-catalog.py"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "discipline catalog validation receipt"
+        }
+      ],
+      "evidence_artifact": "python3 disciplines/scripts/validate-discipline-catalog.py",
+      "stop_conditions": [
+        "Block if catalog rows have invalid IDs, missing local evidence links, or duplicate entries."
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Framework index handoff",
+      "capability_ref": "task-session",
+      "mode": "synchronization",
+      "pattern": "handoff",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S2.disciplines framework surface"
+        },
+        {
+          "kind": "artifact",
+          "ref": "S3.validation receipt"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "README.md and framework/README.md mention disciplines as framework-adjacent source surface"
+        }
+      ],
+      "stop_conditions": [
+        "Defer registry changes because disciplines are not sigils or spells."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-evidence-backed",
+      "kind": "quality",
+      "owner": "Arcanum framework",
+      "condition": "Every initial catalog entry must include a local evidence link.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "Arcanum framework",
+      "condition": "The discipline layer must not promote inventory, ontology, glossary, sigil, or spell knowledge; it may only route those owners to future review.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g03-validation",
+      "kind": "validation",
+      "owner": "Dispatch Spec",
+      "condition": "The dispatch and discipline catalog validators must return pass or an explicit flag with repairs.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "disciplines.evidence_scan.created",
+      "disciplines.catalog.created",
+      "disciplines.validation.checked"
+    ],
+    "signal_grouping": "disciplines-formalization"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "discipline-registry-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "disciplines",
+        "to_owner": "registry",
+        "applies_to_steps": [
+          "S1",
+          "S2",
+          "S4"
+        ],
+        "contract": "Discipline catalog entries do not register sigils or spells. Registry promotion requires the owning registry workflow.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "Arcanum framework owns the candidate discipline surface.",
+      "validation": "Catalog validator owns row-shape checks; dispatch-spec owns route validation.",
+      "promotion": "Registry, ontology, glossary, sigil, and spell owners retain promotion authority."
+    }
+  },
+  "promotion_guardrails": [
+    "Discipline evidence must not promote inventory, ontology, glossary, sigil, or spell knowledge directly.",
+    "Craft remains candidate until an explicit promotion route changes its status."
+  ]
+}

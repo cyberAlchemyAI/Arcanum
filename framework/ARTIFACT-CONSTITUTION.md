@@ -18,6 +18,7 @@ Examples:
 - `spells/**`
 - `transmutations/**`
 - `framework/**`
+- `disciplines/**`
 - `registry/**`
 - `.codex/commands/**`
 - `tools/**`

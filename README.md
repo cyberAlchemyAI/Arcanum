@@ -10,6 +10,7 @@ The center of Arcanum is the [CyberAlchemy Method](framework/CYBERALCHEMY-METHOD
 
 - Start with the [CyberAlchemy Method](framework/CYBERALCHEMY-METHOD.md) to understand the working philosophy.
 - Start with the [Framework](framework/) when authoring, reviewing, validating, or maintaining capabilities.
+- Start with [Disciplines](disciplines/) when a recurring Arcanum practice appears across capabilities and needs framework-level shape without becoming a sigil or spell.
 - Start with the [Sigil Registry](registry/SIGILS.md) when you need one reusable capability.
 - Start with the [Spell Registry](registry/SPELLS.md) when you need a composed workflow.
 - Start with [Sigil Development](arcana/sigil-development/) when creating or revising a sigil.
@@ -108,6 +109,7 @@ Arcanum capabilities are organized by how they reason and how much governance th
 ```text
 arcanum/
   framework/       method, lifecycle, templates, observability, and quality rules
+  disciplines/     cross-capability operating practices and evidence-backed discipline catalog
   registry/        indexes of reusable sigils, spells, and future packs
   formulae/        deterministic operational sigils
   transmutations/  bounded cognitive synthesis sigils
@@ -156,6 +158,12 @@ Use:
 - [task-session](arcana/task-session/) to execute a bounded task after planning is ready.
 
 `invoke` may prepare lifecycle handoff context, but it should not absorb the lifecycle authority of sigil-development, spellcraft, or task-session.
+
+## Disciplines
+
+[Disciplines](disciplines/) formalize cross-capability operating practices that appear throughout Arcanum, such as Craft, planning, schema, validation, observability, evidence, decision gating, and runtime boundaries.
+
+Use disciplines when a practice is broader than one sigil or spell but should not become a bloated framework document. Discipline entries cite evidence, name stewards, define boundaries, and identify the next hardening move. They do not register capabilities or claim promotion authority for sigils, spells, ontology, definitions, or inventory.
 
 ## Registry
 

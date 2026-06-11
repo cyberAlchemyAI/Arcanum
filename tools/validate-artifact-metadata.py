@@ -87,7 +87,7 @@ def is_generated_or_runtime(rel: str) -> bool:
 def is_candidate_governed_path(rel: str) -> bool:
     if is_generated_or_runtime(rel):
         return False
-    if rel.startswith((".codex/commands/", "arcana/", "spells/", "transmutations/", "framework/", "registry/", "tools/")):
+    if rel.startswith((".codex/commands/", "arcana/", "spells/", "transmutations/", "framework/", "disciplines/", "registry/", "tools/")):
         return Path(rel).suffix.lower() in {".md", ".yml", ".yaml", ".json", ".sh", ".py"}
     return False
 
