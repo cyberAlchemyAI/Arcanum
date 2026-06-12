@@ -1,20 +1,21 @@
 ---
 name: craft
-description: "Use when: starting or operating a local Craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, validation, and recomposition."
+description: "Use when: starting or operating a link-indexed local Craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, validation, and recomposition."
 argument-hint: "[start|state|describe|blocker|decision|gap|definition|next|validate|recompose|export] [--ledger .craft/ledger.yml]"
-tier: development-candidate
+tier: arcana
 domain: craft-method
-version: 0.1.0
-origin: exposed from development/craft after local interface and interaction validation passed
+version: 0.2.0
+origin: promoted from development/craft after local interface validation and two project-ledger examples
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
 
-# Skill: Craft
+# Sigil: Craft
 
 <status>
-This development copy is superseded by the canonical Craft sigil at
-`arcana/craft/SKILL.md`. Keep this file as historical promotion evidence and
-candidate-design material; do not use it as the active runtime contract.
+Craft is a first canonical Arcana sigil for project-local recursive ledgers. It
+is intentionally small: it governs file-backed Craft state, human views,
+linking, indexing, blocker/decision/gap visibility, and recomposition evidence.
+It does not yet provide an automated command runner or full ledger renderer.
 </status>
 
 <objective>
@@ -25,20 +26,24 @@ and recomposition.
 </objective>
 
 <logic-type>
-Historical Craft method candidate: recursive ledger governance for schema/data
-translation, residue handling, smallest coherent units, validation, and
-recomposition.
+Craft method: recursive ledger governance for schema/data translation, residue
+handling, smallest coherent units, validation, and recomposition.
 </logic-type>
 
 <source-authority>
-When running inside the Arcanum repository, use the canonical runtime contract:
+When running inside the Arcanum repository, use these source artifacts as the
+current canonical interface authority:
 
 - `arcana/craft/SKILL.md`
+- `arcana/craft/README.md`
 - `arcana/craft/templates/ledger.schema.yml`
-- `arcana/craft/examples/`
+- `arcana/craft/examples/body-war-ledger.yml`
+- `arcana/craft/examples/body-war-CRAFT.md`
+- `arcana/craft/examples/goldenquill-ledger.yml`
+- `arcana/craft/examples/goldenquill-CRAFT.md`
 
-The older `development/craft/CRAFT-*` interface and interaction artifacts are
-historical promotion evidence only.
+The older `development/craft/` package remains historical promotion evidence and
+working material, not the runtime contract for `$craft`.
 
 When this skill is copied into another project, treat this `SKILL.md` as the
 portable operating contract and create project-local Craft state under
@@ -51,14 +56,46 @@ Target projects use:
 ```text
 .craft/
   ledger.yml
+  index.json          # optional generated machine index
   artifacts/
 CRAFT.md
 ```
 
 `.craft/ledger.yml` is the source of truth. `CRAFT.md` is a human-readable view
-or summary only. Evidence, receipts, and supporting artifacts may be stored
+or summary only. `.craft/index.json`, when present, is a rebuildable machine
+index derived from the ledger; do not make it more authoritative than
+`.craft/ledger.yml`. Evidence, receipts, and supporting artifacts may be stored
 under `.craft/artifacts/`.
 </storage-contract>
+
+<linking-and-indexing-contract>
+Craft ledgers must be navigable by both humans and machines.
+
+Machine ledger requirements:
+
+- every row keeps a stable ID and enough description to be useful outside its
+  original conversation;
+- every row that names another row uses a valid ID reference or an explicit
+  `links` entry;
+- each row family may include `links`, a list of `{label, target, kind}`;
+- paths are relative to the Craft scope unless marked `[repo-root]` or absolute;
+- ledgers should include an `indexes` section with at least `by_id`,
+  `open_decisions`, `blocking_decisions`, `active_blockers`, `active_gaps`,
+  `next_moves`, and `artifacts_by_path`;
+- generated indexes may duplicate lookup data, but they must point back to row
+  IDs rather than redefining row content.
+
+Human view requirements:
+
+- `CRAFT.md` renders row IDs as anchors or Markdown links when the target is a
+  file, section, or row in the same view;
+- decisions include a question, description or impact, status, blocking state,
+  selected option when known, rationale when known, and evidence links;
+- blocker, gap, decision, recomposition, route, and artifact sections link to
+  each other instead of listing isolated IDs;
+- the view includes a compact index or "quick links" section for current
+  next moves, blocking decisions, active blockers, active gaps, and artifacts.
+</linking-and-indexing-contract>
 
 <applicability>
 Use Craft when:
@@ -74,8 +111,9 @@ Use Craft when:
 <non-use>
 Do not use Craft to:
 
-- promote Craft into a canonical sigil, spell, registry entry, or framework
-  method,
+- mutate Craft's own canonical sigil, registry entry, generated runtime
+  surfaces, or framework status outside an explicit sigil-development,
+  task-session, or maintainer-approved repository task,
 - edit command surfaces, runtime adapters, registries, sigils, spells, or
   canonical definition sources,
 - make `CRAFT.md` the source of truth,
@@ -161,7 +199,7 @@ leaving it in a separate artifact.
 `open_decision`
 
 - Inputs: `scope_id`, `question`, `options`, optional `default_option`,
-  `decision_type`, `blocking`.
+  `decision_type`, `blocking`, optional `description`, `impact`, and `links`.
 - Writes: active decision row.
 - Invariant: blocking decisions stop dependent execution until closed, waived,
   or deferred.
@@ -169,7 +207,8 @@ leaving it in a separate artifact.
 `decide`
 
 - Inputs: `decision_id`, `selected_option`, `rationale`, `evidence`.
-- Writes: closed decision and optional relation or condition updates.
+- Writes: closed decision, retained question/description/impact, evidence links,
+  and optional relation or condition updates.
 
 `add_gap`
 
@@ -209,7 +248,8 @@ leaving it in a separate artifact.
 
 - Inputs: ledger path and target Markdown path.
 - Writes: human-readable `CRAFT.md` view.
-- Invariant: export never replaces `.craft/ledger.yml` authority.
+- Invariant: export never replaces `.craft/ledger.yml` authority, and exported
+  row IDs remain navigable.
 </core-methods>
 
 <interaction-boundary>
@@ -234,11 +274,13 @@ rewrite native results.
    user asks for a correction.
 5. Record descriptions, blockers, enablers, decisions, gaps, definitions, and
    next moves as structured ledger state.
-6. Use child contexts for recursive work that has its own purpose, artifacts,
+6. Add or refresh ledger indexes after each meaningful mutation so current
+   blockers, decisions, gaps, next moves, and artifact links are easy to find.
+7. Use child contexts for recursive work that has its own purpose, artifacts,
    blockers, or recomposition target.
-7. Validate before claiming pass, closure, or recomposition.
-8. Export or update `CRAFT.md` only as a view of `.craft/ledger.yml`.
-9. Record residue and next move after each meaningful Craft operation.
+8. Validate before claiming pass, closure, or recomposition.
+9. Export or update `CRAFT.md` only as a linked view of `.craft/ledger.yml`.
+10. Record residue and next move after each meaningful Craft operation.
 </process>
 
 <live-test-recipe>
@@ -263,14 +305,17 @@ A successful Craft run must:
 
 - resolve the owning workspace before acting and treat an existing scoped ledger as authoritative,
 - keep `.craft/ledger.yml` as source of truth,
-- keep `CRAFT.md` as a view,
+- keep `CRAFT.md` as a linked human view,
+- preserve a machine-readable index or ledger `indexes` section,
 - preserve local candidate definition status,
 - prevent raw blocker direct resolution,
-- require decision rationale and evidence,
+- require decision question, description or impact, rationale, evidence, and
+  links when a decision references ledger rows or artifacts,
 - require recomposition evidence before child context closure,
 - distinguish route-shape evidence from execution evidence,
 - record residue and next move,
-- avoid mutating Arcanum canonical surfaces.
+- avoid mutating Arcanum canonical surfaces unless the user's task explicitly
+  targets Craft maintenance or promotion.
 </quality-bar>
 
 <output-contract>

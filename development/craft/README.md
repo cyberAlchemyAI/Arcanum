@@ -1,8 +1,15 @@
 # Craft Development Package
 
+> Historical development package. The first canonical Craft sigil now lives at
+> [../../arcana/craft/](../../arcana/craft/) and is exposed through `$craft`.
+> Keep this folder for promotion evidence, experiments, and future hardening
+> work; do not treat it as the runtime contract.
+
 This package is the active development space for `Craft`, a candidate Arcanum/CyberAlchemy method primitive for turning intention into stable artifacts through schema/data translation, residue handling, SCU/SWU selection, validation, reflection, and recomposition.
 
-Craft is not canonical authority yet. This package is checkpoint-first: it preserves evidence, session state, candidate decisions, and future work boundaries before any registry, runtime, sigil, spell, or framework promotion.
+Craft's canonical runtime authority has moved to `arcana/craft/`. This package
+remains checkpoint-first: it preserves evidence, session state, candidate
+decisions, and future work boundaries for the next hardening route.
 
 ## Start Here
 

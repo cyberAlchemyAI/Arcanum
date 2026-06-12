@@ -1,0 +1,488 @@
+ledger_id: craft.goldenquill.promotion_governance
+schema_ref: ../../arcanum/arcana/craft/templates/ledger.schema.yml
+schema_version: 0.2.0
+status: candidate-local
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+notes:
+  - Paths are relative to project root projects/goldenquill unless marked [repo-root].
+  - Created 2026-06-10 to record promotion-governance open questions/blockers/gaps and the impl-architecture discovery.
+
+indexes:
+  by_id:
+    CTX-GQ-PROMO-GOV: contexts[0]
+    CTX-GQ-IMPL-ARCH: contexts[1]
+    CTX-GQ-ARCH-DESIGN: contexts[2]
+    DEC-OQ4: decisions[0]
+    DEC-D2-FLIP: decisions[2]
+    DEC-D3-SHARED-GATE: decisions[3]
+    DEC-D4-VERIFY: decisions[4]
+    BLK-OQ4-VOCAB: typed_items[0]
+    BLK-B001-TESTSPEC: typed_items[1]
+    BLK-D5A-THRESHOLD: typed_items[2]
+    BLK-OQ13-EDGES: typed_items[3]
+    ART-OQ-LEDGER: artifacts[2]
+    ART-ARCH-DESIGN: artifacts[7]
+    ART-IMPL-PACK: artifacts[3]
+  open_decisions:
+    - DEC-OQ4
+    - DEC-D2-FLIP
+    - DEC-D3-SHARED-GATE
+    - DEC-D4-VERIFY
+  blocking_decisions:
+    - DEC-OQ4
+  active_blockers:
+    - BLK-OQ4-VOCAB
+    - BLK-B001-TESTSPEC
+    - BLK-D5A-THRESHOLD
+    - BLK-OQ13-EDGES
+  active_gaps:
+    - GAP-DESIGNED-NOT-BUILT
+    - GAP-PROMO-ENFORCE
+    - GAP-L0L1-FLIP
+    - GAP-REDACTION-TABLES
+    - GAP-KPI-COUNT
+    - GAP-EVENT-COUNT
+  next_moves:
+    - context_id: CTX-GQ-PROMO-GOV
+      next_move: Resolve OQ-4 decision shape (DEC-OQ4), then route L1 candidate-shape work.
+    - context_id: CTX-GQ-ARCH-DESIGN
+      next_move: Take D1-D4 proposals to the team alongside the open-questions PDF; close DEC-OQ4 first.
+  artifacts_by_path:
+    docs/features/goldenquill-promotion-governance/integration/OPEN-QUESTIONS-LEDGER.md: ART-OQ-LEDGER
+    docs/features/goldenquill-promotion-governance/integration/whole-system-architecture-design.md: ART-ARCH-DESIGN
+    docs/features/goldenquill-promotion-governance/discovery/impl-architecture/README.md: ART-IMPL-PACK
+
+contexts:
+  - context_id: CTX-GQ-PROMO-GOV
+    parent_id: root
+    title: GoldenQuill promotion-governance readiness
+    purpose: Track open questions, blockers, gaps, and decisions for the promotion-governance feature and its Victor learning loop.
+    stage: validate
+    gate: flag
+    next_move: Resolve OQ-4 decision shape (three decision surfaces vs single unified enum) — top P0 unblocker; see DEC-OQ4.
+    owned_artifacts:
+      - ART-LEDGER-YML
+      - ART-CRAFT-MD
+      - ART-OQ-LEDGER
+    notes: Root context. Feature is designed-not-built; L0 fixture-only.
+  - context_id: CTX-GQ-IMPL-ARCH
+    parent_id: CTX-GQ-PROMO-GOV
+    title: Implementation-architecture discovery (victor pattern)
+    purpose: Derive the current implementation architecture and model from spec and explain it to the team in the four-view victor discovery pattern.
+    stage: validate
+    gate: pass
+    next_move: Recomposed into root; optional follow-up — link the impl-architecture pack from the feature SPEC.md so the team finds it.
+    owned_artifacts:
+      - ART-IMPL-PACK
+      - ART-DERIVATION
+      - ART-DRIFT
+      - ART-DISPATCH
+    notes: Produced via dispatch gq-impl-arch-discovery-2026-06-10; drift-checked and count-corrected.
+  - context_id: CTX-GQ-ARCH-DESIGN
+    parent_id: CTX-GQ-PROMO-GOV
+    title: Whole-system architecture design (integration + promotion governance)
+    purpose: Consolidate the integration + promotion-governance architecture and propose designs for the open decisions (D1-D4) for team discussion.
+    stage: validate
+    gate: flag
+    next_move: Take D1-D4 proposals to the team alongside the open-questions PDF; close DEC-OQ4 first.
+    owned_artifacts:
+      - ART-ARCH-DESIGN
+      - ART-PDF-OQ
+      - ART-PDF-ARCH
+      - ART-RENDERER
+    notes: Baseline synthesizes existing six-view ARCHITECTURE.md; Part II proposes designs for OQ-4, L0->L1 flip, shared-card gate, improvement verification.
+
+artifacts:
+  - artifact_id: ART-LEDGER-YML
+    owner_context_id: CTX-GQ-PROMO-GOV
+    path: .craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured source of truth.
+  - artifact_id: ART-CRAFT-MD
+    owner_context_id: CTX-GQ-PROMO-GOV
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view, not source of truth.
+  - artifact_id: ART-OQ-LEDGER
+    owner_context_id: CTX-GQ-PROMO-GOV
+    path: docs/features/goldenquill-promotion-governance/integration/OPEN-QUESTIONS-LEDGER.md
+    artifact_type: evidence
+    status: active
+    notes: Consolidated open questions, blockers, and gaps across the feature + victor docs.
+  - artifact_id: ART-IMPL-PACK
+    owner_context_id: CTX-GQ-IMPL-ARCH
+    path: docs/features/goldenquill-promotion-governance/discovery/impl-architecture/README.md
+    artifact_type: deliverable
+    status: active
+    notes: Four-view victor-pattern explanation pack (discovery/engineer/ontology/system) + README.
+  - artifact_id: ART-DERIVATION
+    owner_context_id: CTX-GQ-IMPL-ARCH
+    path: docs/features/goldenquill-promotion-governance/discovery/impl-architecture/_derivation-substrate.md
+    artifact_type: evidence
+    status: active
+    notes: Spec-derived substrate (handle.impl-architecture-and-model).
+  - artifact_id: ART-DRIFT
+    owner_context_id: CTX-GQ-IMPL-ARCH
+    path: docs/features/goldenquill-promotion-governance/discovery/impl-architecture/drift-check-ledger.md
+    artifact_type: evidence
+    status: active
+    notes: s5 validation; flags found and corrected; verdict pass post-correction.
+  - artifact_id: ART-DISPATCH
+    owner_context_id: CTX-GQ-IMPL-ARCH
+    path: ../../ops/development/goldenquill-impl-architecture-discovery.dispatch.json
+    artifact_type: route-spec
+    status: active
+    notes: "[repo-root] Validated dispatch route (validate-dispatch.py = pass)."
+  - artifact_id: ART-ARCH-DESIGN
+    owner_context_id: CTX-GQ-ARCH-DESIGN
+    path: docs/features/goldenquill-promotion-governance/integration/whole-system-architecture-design.md
+    artifact_type: deliverable
+    status: active
+    notes: Whole-system architecture design (source of truth for the PDF view).
+  - artifact_id: ART-PDF-OQ
+    owner_context_id: CTX-GQ-ARCH-DESIGN
+    path: docs/features/goldenquill-promotion-governance/team-review/open-questions-and-blockers.pdf
+    artifact_type: shareable-pdf
+    status: active
+    notes: Team-shareable PDF of open questions + blockers (view of this ledger).
+  - artifact_id: ART-PDF-ARCH
+    owner_context_id: CTX-GQ-ARCH-DESIGN
+    path: docs/features/goldenquill-promotion-governance/team-review/whole-system-architecture-design.pdf
+    artifact_type: shareable-pdf
+    status: active
+    notes: Team-shareable PDF of the whole-system architecture design.
+  - artifact_id: ART-RENDERER
+    owner_context_id: CTX-GQ-ARCH-DESIGN
+    path: .craft/artifacts/render_pdf.py
+    artifact_type: tooling
+    status: active
+    notes: Reusable Markdown->PDF renderer (fpdf2 + DejaVu unicode). Usage - render_pdf.py in.md out.pdf "Title" "Subtitle".
+
+descriptions:
+  - description_id: DESC-GQ-PROMO-GOV-001
+    context_id: CTX-GQ-PROMO-GOV
+    description: An event-sourced governance spine where owner decision alone converts a learning candidate into approved, scope-bounded reusable knowledge. Currently designed-not-built; L0 is fixture-only and audit-only.
+    status: active
+    evidence: ART-OQ-LEDGER, ART-IMPL-PACK
+  - description_id: DESC-GQ-IMPL-ARCH-001
+    context_id: CTX-GQ-IMPL-ARCH
+    description: Derived the implementation architecture and data model READ-ONLY from spec, rendered four victor-pattern views, then drift-checked every load-bearing claim to a spec selector.
+    status: active
+    evidence: ART-DRIFT
+
+definitions:
+  - definition_id: DEF-PROMOTION-AUTHORITY-001
+    scope_id: CTX-GQ-PROMO-GOV
+    term: promotion authority (owner-decision-sole-approval)
+    statement: OwnerDecision is the only place approved_allowed_uses may be set; adapters, journal, KPIs, analytics, candidates, and the vault projection cannot self-promote.
+    status: candidate
+    evidence: SPEC.md:89; domain.md:216
+  - definition_id: DEF-L0-FIXTURE-ONLY-001
+    scope_id: CTX-GQ-PROMO-GOV
+    term: L0 fixture-only / audit-only
+    statement: At L0 only components C2/C3/C8 exist, projection mutates nothing canonical (mutation_allowed=false), and no org-vault/card/dashboard write occurs.
+    status: candidate
+    evidence: mappings.md:114; SPEC.md:596-630; W-I4
+
+gaps:
+  - gap_id: GAP-DESIGNED-NOT-BUILT
+    scope_id: CTX-GQ-PROMO-GOV
+    summary: The learning loop (outcome -> insight -> owner-approved -> card update) is designed but not built; a human edits cards by hand today.
+    severity: block
+    treatment: plan
+    owner: grant-runtime
+    status: active
+    evidence: integration/ARCHITECTURE.md (promotes nothing); victor engineer-view D7
+  - gap_id: GAP-PROMO-ENFORCE
+    scope_id: CTX-GQ-PROMO-GOV
+    summary: No centralized enforcement spec/test proving an adapter's approved_allowed_uses is rejected (promotion-authority gate unproven).
+    severity: block
+    treatment: plan
+    owner: grant-runtime
+    status: active
+    evidence: SPEC.md:169; ART-OQ-LEDGER
+  - gap_id: GAP-L0L1-FLIP
+    scope_id: CTX-GQ-PROMO-GOV
+    summary: No gate spec for flipping per-org mutation_allowed false->true at the L0->L1 transition.
+    severity: flag
+    treatment: plan
+    owner: governance
+    status: active
+    evidence: integration/runtime-design.md D-C
+  - gap_id: GAP-REDACTION-TABLES
+    scope_id: CTX-GQ-PROMO-GOV
+    summary: Per-CIC redaction/generalization rule tables (C14) are unauthored.
+    severity: flag
+    treatment: plan
+    owner: governance
+    status: active
+    evidence: integration/runtime-design.md §7
+  - gap_id: GAP-KPI-COUNT
+    scope_id: CTX-GQ-IMPL-ARCH
+    summary: Spec prose says "47 KPIs" but GrantKpiKind enum has 44 (verified) — 3-entry gap.
+    severity: flag
+    treatment: plan
+    owner: grant-runtime
+    status: active
+    evidence: ART-DRIFT (FLAG-1)
+  - gap_id: GAP-EVENT-COUNT
+    scope_id: CTX-GQ-IMPL-ARCH
+    summary: Event-count "13 vs 12" unresolved; events.md has 13 sections, GrantWorkEventKind enum has 9, "12" source unidentified.
+    severity: flag
+    treatment: plan
+    owner: grant-runtime
+    status: active
+    evidence: ART-DRIFT (RESIDUE)
+
+typed_items:
+  - item_id: BLK-OQ4-VOCAB
+    kind: blocker
+    base_type: vocabulary_blocker
+    context_type: craft.governance_lock_gate
+    primary_lane: governance
+    secondary_lanes:
+      - validator
+    source_id: CTX-GQ-PROMO-GOV
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: refined
+    default_role: governance_reviewer
+    delegation_route: none
+    closure_condition: Operator confirms three-surface model (PursuitDecision / MatchFitVerdict / OwnerDecision) vs single unified enum; canonical promotion vocabulary LOCKED before L1 candidate shape.
+    evidence: docs/features/goldenquill-promotion-governance/integration/OPEN-QUESTIONS-LEDGER.md; seam-map.md:153
+    decision_ref: DEC-OQ4
+    reason: Three operator-decision vocabularies across three layers are loosely called "operator action"; L1 candidate shape blocked until LOCK.
+  - item_id: BLK-B001-TESTSPEC
+    kind: blocker
+    base_type: validator_blocker
+    context_type: craft.test_stability_gate
+    primary_lane: validator
+    secondary_lanes:
+      - tech
+    source_id: CTX-GQ-PROMO-GOV
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: raw
+    default_role: validator
+    delegation_route: none
+    closure_condition: TEST-SPEC T1-T35 confirmed authored and stable; reconcile drift before TASK-FIX.
+    evidence: integration/WORK-PACK.md (B-001)
+    decision_ref: none
+    reason: Deterministic validator (SWU-GQDAG-007) cannot be built on moving fixtures.
+  - item_id: BLK-D5A-THRESHOLD
+    kind: blocker
+    base_type: governance_blocker
+    context_type: craft.metric_boundary_gate
+    primary_lane: governance
+    secondary_lanes:
+      - validator
+    source_id: CTX-GQ-PROMO-GOV
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: raw
+    default_role: governance_reviewer
+    delegation_route: none
+    closure_condition: A machine-checkable "general guardpost" threshold + a "no metric hill-climb" assertion encoded in PromotionAuthorityPolicy.
+    evidence: victor engineer-view D5a; OQ-3
+    decision_ref: none
+    reason: '"Shared cards stay general, never overfit" is a verdict with no enforceable boundary.'
+  - item_id: BLK-OQ13-EDGES
+    kind: blocker
+    base_type: governance_blocker
+    context_type: craft.promotion_route_gate
+    primary_lane: governance
+    secondary_lanes:
+      - validator
+    source_id: CTX-GQ-PROMO-GOV
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: raw
+    default_role: governance_reviewer
+    delegation_route: none
+    closure_condition: GQ-AMD-001/002 filed; goldenquill-edge-amendments/discovery.md authored so the 16 coined edges + gq_kind can graduate to the vault.
+    evidence: victor ontology-view OQ-13
+    decision_ref: none
+    reason: 16 coined edges + GoldenQuill-local gq_kind are honest violations of the "do not invent edges" rule; blocks vault promotion.
+  - item_id: ENA-DISPATCH-ROUTE
+    kind: enabler
+    base_type: route_enabler
+    context_type: craft.dispatch_validation
+    primary_lane: planner
+    secondary_lanes:
+      - validator
+    source_id: CTX-GQ-IMPL-ARCH
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: refined
+    default_role: planner
+    delegation_route: none
+    closure_condition: Reusable validated route for future spec-derivation explanations.
+    evidence: ART-DISPATCH
+    decision_ref: none
+    reason: Dispatch-spec validator returned pass; route is reusable.
+  - item_id: ENA-IMPL-PACK
+    kind: enabler
+    base_type: knowledge_enabler
+    context_type: craft.explanation_pack
+    primary_lane: planner
+    secondary_lanes:
+      - validator
+    source_id: CTX-GQ-IMPL-ARCH
+    target_id: CTX-GQ-PROMO-GOV
+    status: active
+    refinement_status: refined
+    default_role: planner
+    delegation_route: none
+    closure_condition: Team can onboard the implementation architecture from one pack.
+    evidence: ART-IMPL-PACK
+    decision_ref: none
+    reason: Four-view victor-pattern pack, drift-checked to spec selectors.
+
+decisions:
+  - decision_id: DEC-OQ4
+    scope_id: CTX-GQ-PROMO-GOV
+    decision_type: selection
+    question: Should GoldenQuill keep three typed decision surfaces or collapse them into one unified enum?
+    description: Blocking vocabulary decision for L1 candidate shape and promotion-authority semantics.
+    selected: PENDING — operator weighing three decision surfaces vs single unified enum.
+    rationale: Proposed resolution is three typed surfaces (PursuitDecision / MatchFitVerdict / OwnerDecision) with OwnerDecision the sole promotion vocabulary; operator answered "let me think" on the shape.
+    evidence: docs/features/goldenquill-promotion-governance/integration/OPEN-QUESTIONS-LEDGER.md
+    status: active
+    blocking: true
+    impact: Blocks L1 candidate shape and keeps BLK-OQ4-VOCAB active until the vocabulary model is locked.
+    owner: governance
+    links:
+      - label: open questions ledger
+        target: ART-OQ-LEDGER
+        kind: artifact-id
+      - label: vocabulary blocker
+        target: BLK-OQ4-VOCAB
+        kind: row-id
+  - decision_id: DEC-PACK-LOCATION
+    scope_id: CTX-GQ-IMPL-ARCH
+    decision_type: selection
+    question: Where should the implementation-architecture discovery pack live?
+    description: Closed packaging decision for the victor-pattern implementation architecture discovery.
+    selected: Impl-architecture pack lands under docs/features/goldenquill-promotion-governance/discovery/impl-architecture/.
+    rationale: Scopes the explanation to the feature, mirrors the victor four-file pattern.
+    evidence: ART-IMPL-PACK
+    status: closed
+    blocking: false
+    impact: Keeps the pack near feature docs and makes the discovery path stable for future links.
+    owner: architecture
+    links:
+      - label: implementation pack
+        target: ART-IMPL-PACK
+        kind: artifact-id
+  - decision_id: DEC-D2-FLIP
+    scope_id: CTX-GQ-ARCH-DESIGN
+    decision_type: selection
+    question: How should GoldenQuill authorize the L0 to L1 mutation_allowed flip?
+    description: Proposed team decision for per-org promotion activation.
+    selected: "PROPOSED: operator-signed per-org Ed25519 flip of mutation_allowed (false->true), journaled; shared-card mutation stays separately gated."
+    rationale: Matches existing white-glove Ed25519 discipline; keeps operator in loop; scopes per-org for Law 3.
+    evidence: ART-ARCH-DESIGN (D2)
+    status: active
+    blocking: false
+    impact: If accepted, L0 to L1 activation becomes an operator-signed per-org event rather than an implicit runtime transition.
+    owner: governance
+    links:
+      - label: architecture design D2
+        target: ART-ARCH-DESIGN
+        kind: artifact-id
+      - label: L0/L1 flip gap
+        target: GAP-L0L1-FLIP
+        kind: row-id
+  - decision_id: DEC-D3-SHARED-GATE
+    scope_id: CTX-GQ-ARCH-DESIGN
+    decision_type: selection
+    question: What gate keeps shared cards general and prevents metric hill-climbing?
+    description: Proposed structural shared-card gate for promotion authority policy hardening.
+    selected: "PROPOSED: structural 'general' rule (generalized + >=K orgs + >=2 CICs, no metric hill-climb) + operator Ed25519 card-edit review; requires consent_tier=composable_with_others."
+    rationale: D5a says shared cards are guardposts, not hill-climbed; boundary should be structural not a score.
+    evidence: ART-ARCH-DESIGN (D3); links BLK-D5A-THRESHOLD
+    status: active
+    blocking: false
+    impact: If accepted, BLK-D5A-THRESHOLD can close through a machine-checkable PromotionAuthorityPolicy boundary.
+    owner: governance
+    links:
+      - label: architecture design D3
+        target: ART-ARCH-DESIGN
+        kind: artifact-id
+      - label: threshold blocker
+        target: BLK-D5A-THRESHOLD
+        kind: row-id
+  - decision_id: DEC-D4-VERIFY
+    scope_id: CTX-GQ-ARCH-DESIGN
+    decision_type: selection
+    question: How should GoldenQuill verify an improvement without overfitting to one funder or metric?
+    description: Proposed descriptive-statistics verification rule for promotion candidates.
+    selected: "PROPOSED: diverse held-out set (>=2 CIC/CLC); reject on negative primary-KPI delta or any guardrail-KPI significant decrease; descriptive stats only (numpy/scipy)."
+    rationale: Stays within L0/L1 descriptive analytics per D-E; prevents single-funder overfit (RK-006).
+    evidence: ART-ARCH-DESIGN (D4)
+    status: active
+    blocking: false
+    impact: If accepted, promotion candidates get an evidence rule without turning evaluation into metric optimization.
+    owner: validator
+    links:
+      - label: architecture design D4
+        target: ART-ARCH-DESIGN
+        kind: artifact-id
+  - decision_id: DEC-USE-CRAFT
+    scope_id: CTX-GQ-PROMO-GOV
+    decision_type: selection
+    question: Should this promotion-governance work be tracked in a scoped Craft ledger?
+    description: Closed decision to use Craft as the recursive state surface for this feature.
+    selected: Record this work in a goldenquill-scoped Craft ledger (.craft/ledger.yml).
+    rationale: Craft is the right surface for recursive blockers/decisions/gaps/definitions state; operator asked to use it.
+    evidence: ../../arcanum/arcana/craft/SKILL.md
+    status: closed
+    blocking: false
+    impact: Establishes this `.craft/ledger.yml` as the feature-local state authority and `CRAFT.md` as its human view.
+    owner: governance
+    links:
+      - label: canonical Craft sigil
+        target: ../../arcanum/arcana/craft/SKILL.md
+        kind: path
+
+relations:
+  - relation_id: REL-CONTAINS-001
+    source_id: CTX-GQ-PROMO-GOV
+    target_id: CTX-GQ-IMPL-ARCH
+    type: contains
+    status: active
+    reason: Impl-architecture discovery is a child context of promotion-governance readiness.
+    evidence: open_child_context
+  - relation_id: REL-RECOMPOSE-001
+    source_id: CTX-GQ-IMPL-ARCH
+    target_id: CTX-GQ-PROMO-GOV
+    type: informs
+    status: resolved
+    reason: Impl-architecture pack + drift-check feed the feature readiness picture.
+    evidence: ART-DRIFT
+  - relation_id: REL-BLOCKS-OQ4
+    source_id: BLK-OQ4-VOCAB
+    target_id: CTX-GQ-PROMO-GOV
+    type: blocks
+    status: active
+    reason: OQ-4 vocabulary LOCK blocks the L1 candidate shape.
+    evidence: DEC-OQ4
+
+recomposition:
+  - child_id: CTX-GQ-IMPL-ARCH
+    parent_id: CTX-GQ-PROMO-GOV
+    summary: Implementation architecture derived from spec and explained in four victor-pattern views; drift-checked and count-corrected (KPI 44 not 49, node-kinds 16, D-E reworded).
+    evidence: ART-DRIFT
+    residue: KPI 47-vs-44 and event 13-vs-12 counts remain open spec residue; OQ-4 LOCK still pending.
+    next_parent_move: Resolve OQ-4 decision shape (DEC-OQ4), then route L1 candidate-shape work.
+    status: pass
+  - child_id: CTX-GQ-ARCH-DESIGN
+    parent_id: CTX-GQ-PROMO-GOV
+    summary: Whole-system architecture design authored (baseline + D1-D4 proposals) and rendered to two team-shareable PDFs.
+    evidence: ART-ARCH-DESIGN, ART-PDF-ARCH, ART-PDF-OQ
+    residue: D1-D4 are proposals; team must decide (DEC-OQ4 blocking, DEC-D2/D3/D4 active-non-blocking).
+    next_parent_move: Run the team discussion using the two PDFs; close DEC-OQ4 first.
+    status: pass
