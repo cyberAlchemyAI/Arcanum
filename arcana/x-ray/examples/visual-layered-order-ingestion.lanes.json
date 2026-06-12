@@ -5,6 +5,89 @@
   "target_boundary": "Order ingestion process from merchant CSV upload through validation, pricing queue handoff, error report creation, and weekly support review.",
   "renderer_level": "L0",
   "layer_interaction": ["stacked", "isolate", "compare"],
+  "reader_contract": {
+    "reader_baseline": "newcomer",
+    "target_public": "A reader who needs to understand the order ingestion process without already knowing queue, validator, or CSV workflow vocabulary.",
+    "assumed_knowledge": ["A table can contain rows of order data.", "A process can accept or reject work."],
+    "reader_reward": "The reader can explain where uploaded rows go, why validation matters, what branches after validation, and which questions remain unresolved.",
+    "opening_contract": {
+      "must_start_with": ["what enters the process", "what the checkpoint does", "what can happen next"],
+      "must_not_start_with": ["internal lane handles", "unexplained architecture jargon", "validator as an assumed-known term"],
+      "failure_message": "Open from the reader-facing movement of order rows before using compact lane or process labels."
+    }
+  },
+  "reader_terms": [
+    {
+      "term": "CSV",
+      "plain_meaning": "A spreadsheet-like file where each row carries one order record.",
+      "why_it_matters": "It is the package of order data that enters the process.",
+      "source_or_lane": "surface",
+      "authority": "source-backed",
+      "misuse_warning": "The source says CSV input exists; it does not define the exact columns."
+    },
+    {
+      "term": "validator",
+      "plain_meaning": "A checkpoint that checks whether a row is complete and consistently formatted enough to continue.",
+      "why_it_matters": "It creates the branch between accepted rows and rejected rows.",
+      "source_or_lane": "components",
+      "authority": "source-backed",
+      "misuse_warning": "The source does not say who owns or updates the validation rules."
+    },
+    {
+      "term": "pricing queue",
+      "plain_meaning": "A waiting area for accepted rows before pricing work happens.",
+      "why_it_matters": "It is the next destination only for rows that pass validation.",
+      "source_or_lane": "external_dependencies",
+      "authority": "source-backed",
+      "misuse_warning": "The source does not describe pricing behavior after the queue receives rows."
+    },
+    {
+      "term": "error report",
+      "plain_meaning": "A collected record of rows that did not pass validation.",
+      "why_it_matters": "It gives support a place to inspect recurring rejection causes.",
+      "source_or_lane": "flow",
+      "authority": "source-backed",
+      "misuse_warning": "The source does not say where reports are stored or how they are delivered."
+    }
+  ],
+  "layer_reader_outcomes": [
+    {
+      "layer": "surface",
+      "as_a_reader": "As a newcomer, I want the whole process reduced to three visible things.",
+      "should_understand": "Rows enter from a merchant, pass through validation, and end as accepted or rejected outcomes.",
+      "because_it_matters_for": "orientation before inspecting detailed branches."
+    },
+    {
+      "layer": "flow",
+      "as_a_reader": "As a newcomer, I want the arrows to explain what changes at each step.",
+      "should_understand": "Rows are uploaded, checked, normalized, then routed to pricing or an error report.",
+      "because_it_matters_for": "understanding the causal path through the process."
+    },
+    {
+      "layer": "internal_dependencies",
+      "as_a_reader": "As a working reader, I want to know which internal checks depend on each other.",
+      "should_understand": "Field rules and normalization sit inside the validator boundary and must happen before downstream routing is trustworthy.",
+      "because_it_matters_for": "seeing what would break if validation changed."
+    },
+    {
+      "layer": "external_dependencies",
+      "as_a_reader": "As a working reader, I want to separate the validator from outside actors and systems.",
+      "should_understand": "The merchant, pricing queue, and support review are outside the validator boundary but still shape the process.",
+      "because_it_matters_for": "knowing which dependencies are not controlled by the validator itself."
+    },
+    {
+      "layer": "risk_questions",
+      "as_a_reader": "As a reviewer, I want uncertainty named separately from facts.",
+      "should_understand": "Ownership, storage, and delivery-failure behavior are open questions inferred from the process shape.",
+      "because_it_matters_for": "avoiding false confidence from a clean diagram."
+    }
+  ],
+  "readability_dynamics": {
+    "max_words_per_paragraph": 120,
+    "max_consecutive_dense_blocks": 1,
+    "require_scan_anchor_every_n_blocks": 3,
+    "allowed_visual_treatments": ["micro_heading", "example_box", "question_line", "transition_line"]
+  },
   "lanes": {
     "surface": {
       "handle": "surface.summary",
@@ -53,4 +136,3 @@
     }
   }
 }
-

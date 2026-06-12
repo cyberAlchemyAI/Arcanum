@@ -114,6 +114,10 @@ For every important lane, provide an on-ramp before the detail:
 3. Explain what changes, moves, depends on it, or can fail because of it.
 4. Only then introduce local terms, handles, or technical labels.
 
+When the target has dense vocabulary, use a local reader glossary pattern: plain term, plain meaning, why it matters here, source or lane, and misuse warning. Keep this glossary explanatory; do not promote local x-ray terms into canonical project definitions.
+
+When the page has multiple visual layers, give each layer a reader outcome: what the reader should understand after inspecting that layer and why the layer matters to the target.
+
 Avoid explanations that require prior knowledge of the target's domain vocabulary. If a technical term is unavoidable, define it where the reader first needs it. Visual labels may be compact, but adjacent text must make the label understandable.
 </reader-onramp>
 
@@ -127,7 +131,7 @@ Avoid explanations that require prior knowledge of the target's domain vocabular
 7. Add reader on-ramps for important lane content: plain name, why it matters, causal role, then local or technical term.
 8. Select YAML-backed visual library components and patterns from `arcana/x-ray/library/` that fit the lane handles.
 9. Nudge the user to add a custom shape, chart, or pattern when the target has a domain-specific form that the starter library cannot represent honestly.
-10. Compose the lane handles into an HTML page model with selectable visual layers.
+10. Compose the lane handles into an HTML page model with selectable visual layers, local reader glossary entries, layer reader outcomes, and scan-friendly explanatory blocks.
 11. Use L0 static HTML/SVG by default; add Mermaid or 3D adapters only when they clarify the target and validation remains available.
 12. Validate that every visual element maps back to source evidence or an explicit inference, and that every important technical label has a nearby plain-language explanation.
 13. Report missing context, unsupported visual adapters, or target-size blockers honestly.

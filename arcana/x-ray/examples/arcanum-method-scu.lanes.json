@@ -1,0 +1,246 @@
+{
+  "xray_version": "0.2.0-seed",
+  "example_id": "arcanum-method-scu",
+  "mode": "mixed",
+  "target_boundary": "Explain how Arcanum arrives at the SCU concept through invoke, work-packs, implementation layering, distill, refine, and task-session execution boundaries.",
+  "renderer_level": "L0",
+  "layer_interaction": ["stacked", "isolate", "compare"],
+  "reader_contract": {
+    "reader_baseline": "newcomer",
+    "target_public": "A reader who has heard Arcanum terms but does not yet know why each sigil or spell exists.",
+    "assumed_knowledge": [
+      "The reader knows that Arcanum contains reusable sigils and spells.",
+      "The reader can read a simple left-to-right workflow diagram."
+    ],
+    "reader_reward": "The reader can explain why SCU exists and how the method moves from vague intent to bounded execution.",
+    "opening_contract": {
+      "must_start_with": [
+        "Start from the user's problem: vague work becomes risky when it jumps straight into execution.",
+        "Introduce SCU only after showing the two pressures that create it."
+      ],
+      "must_not_start_with": [
+        "Do not begin with a bare glossary definition of SCU.",
+        "Do not assume the reader knows invoke, work-packs, implementation layering, distill, or refine."
+      ],
+      "failure_message": "If the page starts with jargon, it fails the reader contract."
+    }
+  },
+  "reader_terms": [
+    {
+      "term": "SCU",
+      "plain_meaning": "Smallest Coherent Unit: the smallest part that still has meaning, responsibility, inputs, outputs, and a way to recompose upward.",
+      "why_it_matters": "It prevents both tiny fragments that cannot be used and giant bundles that cannot be safely executed.",
+      "source_or_lane": "framework/CYBERALCHEMY-METHOD.md; distill lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not treat SCU as the smallest possible fragment; it must remain coherent."
+    },
+    {
+      "term": "Invoke",
+      "plain_meaning": "The authoring front door that turns intent into define, design, plan, work-pack, handoff, or refresh artifacts.",
+      "why_it_matters": "It gives vague work a governed starting surface before lifecycle execution begins.",
+      "source_or_lane": "spells/invoke/README.md; flow lane",
+      "authority": "source-backed",
+      "misuse_warning": "Invoke authors artifacts and handoff context; it does not own every downstream lifecycle."
+    },
+    {
+      "term": "Work-pack",
+      "plain_meaning": "An executable planning artifact that carries objective, tasks, SWUs, validation, gates, write scope, and evidence expectations.",
+      "why_it_matters": "It is the bridge between a designed method and a bounded worker action.",
+      "source_or_lane": "spells/invoke/plan.md; internal dependencies lane",
+      "authority": "source-backed",
+      "misuse_warning": "A work-pack is not execution by itself; it makes later execution accountable."
+    },
+    {
+      "term": "SWU",
+      "plain_meaning": "Smallest Working Unit: the smallest executable implementation step with one parent task, write scope, done criteria, and verification.",
+      "why_it_matters": "It makes execution handoff assignable without reopening design discovery.",
+      "source_or_lane": "spells/invoke/plan.md; task-session lane",
+      "authority": "source-backed",
+      "misuse_warning": "An SWU is executable scope; an SCU is conceptual coherence."
+    },
+    {
+      "term": "Implementation Layering",
+      "plain_meaning": "A staged plan that starts with Layer 0, the minimum working proof, then adds layers only when they unlock a distinct decision.",
+      "why_it_matters": "It explains the proof pressure behind SCU: what is the smallest slice that teaches us the concept can work?",
+      "source_or_lane": "transmutations/implementation-layering/SKILL.md; flow lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not add a layer because it feels complete; add it when it unlocks a distinct decision."
+    },
+    {
+      "term": "Distill",
+      "plain_meaning": "A reduction loop that finds the smallest coherent concept unit and proves it can recompose into the larger system.",
+      "why_it_matters": "It explains the meaning pressure behind SCU: what is still coherent after we make it smaller?",
+      "source_or_lane": "arcana/distill/SKILL.md; flow lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not reduce below closure; the unit still needs responsibility, inputs, outputs, and recomposition."
+    },
+    {
+      "term": "Refine",
+      "plain_meaning": "A discovery and design loop for vague targets, design concerns, repository areas, or existing work-packs.",
+      "why_it_matters": "It catches ambiguity and repairs the route before premature execution.",
+      "source_or_lane": "arcana/refine/SKILL.md; lifecycle lane",
+      "authority": "source-backed",
+      "misuse_warning": "Refine produces seed, design, or plan shape; mutation still needs the next owning route."
+    },
+    {
+      "term": "Task Session",
+      "plain_meaning": "A guided execution loop for one bounded task or SWU with context, gates, validation, and evidence sync.",
+      "why_it_matters": "It shows where the method becomes action, and why one ready unit matters.",
+      "source_or_lane": "arcana/task-session/SKILL.md; lifecycle lane",
+      "authority": "source-backed",
+      "misuse_warning": "Task Session should stop before mutation when context, write scope, or validation is unsafe."
+    }
+  ],
+  "layer_reader_outcomes": [
+    {
+      "layer": "surface",
+      "as_a_reader": "As a newcomer, I want the method to start from a practical problem.",
+      "should_understand": "Vague work needs a method before execution because otherwise scope, evidence, and done criteria blur together.",
+      "because_it_matters_for": "orientation before learning Arcanum vocabulary."
+    },
+    {
+      "layer": "flow",
+      "as_a_reader": "As a newcomer, I want to see the method as a sequence.",
+      "should_understand": "Invoke authors the plan, work-packs carry execution shape, layering asks for minimum proof, distill asks for coherent unit, refine repairs ambiguity, and task-session executes one bounded unit.",
+      "because_it_matters_for": "understanding how SCU emerges instead of memorizing the term."
+    },
+    {
+      "layer": "internal_dependencies",
+      "as_a_reader": "As a working reader, I want to know why each capability hands off.",
+      "should_understand": "Ownership boundaries keep authoring, concept selection, execution planning, and mutation from collapsing into one artifact.",
+      "because_it_matters_for": "avoiding responsibility overlap."
+    },
+    {
+      "layer": "external_dependencies",
+      "as_a_reader": "As a working reader, I want to know what the method depends on outside the diagram.",
+      "should_understand": "Source evidence, approval, validation surfaces, write scope, and runtime reality are outside constraints that shape safe execution.",
+      "because_it_matters_for": "separating method explanation from runtime proof."
+    },
+    {
+      "layer": "lifecycle",
+      "as_a_reader": "As a reviewer, I want to see what happens after the candidate unit is named.",
+      "should_understand": "A candidate SCU becomes durable only when it can move through planning, execution, validation, evidence sync, and reflection.",
+      "because_it_matters_for": "preventing premature promotion."
+    },
+    {
+      "layer": "risk_questions",
+      "as_a_reader": "As a reviewer, I want uncertainty named separately from facts.",
+      "should_understand": "The unit may be too tiny, too broad, under-evidenced, or confused with an executable SWU.",
+      "because_it_matters_for": "keeping SCU useful rather than vague jargon."
+    }
+  ],
+  "readability_dynamics": {
+    "max_words_per_paragraph": 90,
+    "max_consecutive_dense_blocks": 1,
+    "require_scan_anchor_every_n_blocks": 3,
+    "allowed_visual_treatments": [
+      "left-to-right method path",
+      "two-pressure convergence panel",
+      "reader term rail",
+      "evidence/inference tags"
+    ]
+  },
+  "lanes": {
+    "surface": {
+      "handle": "surface.problem-first",
+      "evidence": [
+        "framework/CYBERALCHEMY-METHOD.md frames Arcanum as a method that turns vague intent and discovered evidence into governed artifacts.",
+        "framework/CYBERALCHEMY-METHOD.md defines Smallest Coherent Unit with meaning, responsibility, inputs, outputs, and recomposition."
+      ],
+      "inference": [
+        "A newcomer needs to see the execution risk first, then the method response, then the SCU name."
+      ]
+    },
+    "properties": {
+      "handle": "properties.method-terms",
+      "evidence": [
+        "SCU carries meaning, responsibility, inputs, outputs, and recomposition.",
+        "Layer 0 is the minimum working proof.",
+        "SWUs carry write scope, done criteria, acceptance evidence, and verification."
+      ],
+      "inference": [
+        "These properties let the x-ray teach concept coherence, proof boundary, and execution boundary as separate ideas."
+      ]
+    },
+    "components": {
+      "handle": "components.capability-map",
+      "evidence": [
+        "invoke",
+        "work-pack",
+        "implementation-layering",
+        "distill",
+        "refine",
+        "task-session"
+      ],
+      "inference": [
+        "The named capabilities are shown as a teaching sequence even though actual Arcanum routes can compose them differently."
+      ]
+    },
+    "internal_dependencies": {
+      "handle": "dependencies.internal",
+      "evidence": [
+        "spells/invoke/README.md says invoke owns authoring, sigil-development owns sigil lifecycle, spellcraft owns spell lifecycle, and task-session owns bounded execution.",
+        "spells/invoke/plan.md says work-packs map waves, tasks, and SWUs back to layer decisions before execution handoff.",
+        "arcana/task-session/SKILL.md builds context and checks gates before mutation."
+      ],
+      "inference": [
+        "The method stays understandable because ownership boundaries stop one artifact from pretending to solve every lifecycle problem."
+      ]
+    },
+    "external_dependencies": {
+      "handle": "dependencies.external",
+      "evidence": [
+        "spells/invoke/README.md requires explicit approvals, expected receipts, validation surfaces, and fallback boundaries.",
+        "arcana/task-session/SKILL.md blocks on missing evidence, unsafe context, missing write scope, or missing validation.",
+        "framework/CYBERALCHEMY-METHOD.md treats validation evidence as part of the synthesis pattern."
+      ],
+      "inference": [
+        "SCU is not a license to execute blindly; it must remain linked to evidence and gates."
+      ]
+    },
+    "flow": {
+      "handle": "flow.method-path",
+      "evidence": [
+        "spells/invoke/README.md defines invoke as intent-to-artifact authoring.",
+        "spells/invoke/plan.md makes implementation layering and work-packs mandatory plan outputs for plan/full/validate flows.",
+        "transmutations/implementation-layering/SKILL.md defines Layer 0 as the smallest end-to-end proof.",
+        "arcana/distill/SKILL.md selects the smallest coherent concept unit and proves recomposition.",
+        "arcana/refine/SKILL.md handles vague targets and existing work-packs through a discovery/design loop."
+      ],
+      "inference": [
+        "Implementation layering and distill are best taught as complementary lenses that converge into SCU."
+      ]
+    },
+    "lifecycle": {
+      "handle": "lifecycle.evidence-loop",
+      "evidence": [
+        "framework/CYBERALCHEMY-METHOD.md lists Orient, Discover, Shape, Stabilize, and Evolve as the method loop.",
+        "spells/invoke/README.md routes new sigils and spells to their lifecycle owners after invoke authoring.",
+        "arcana/task-session/SKILL.md synchronizes evidence after completion."
+      ],
+      "inference": [
+        "A candidate SCU is a navigational unit; lifecycle evidence decides whether it becomes trusted practice."
+      ]
+    },
+    "risk_questions": {
+      "handle": "risk.questions",
+      "evidence": [],
+      "inference": [
+        "Is the unit too tiny to carry behavior?",
+        "Is the unit too broad to validate safely?",
+        "Did the explanation confuse conceptual SCU with executable SWU?",
+        "Does the page teach source-backed claims separately from inference?"
+      ]
+    },
+    "visual_composition": {
+      "handle": "visual.l0-page",
+      "evidence": [
+        "L0 static HTML/SVG is sufficient for a reader-onramp method explanation.",
+        "The x-ray validator requires surface, flow, dependency, and risk toggles."
+      ],
+      "inference": [
+        "Use a left-to-right method path, a convergence panel, and a reader term rail to avoid starting with jargon."
+      ]
+    }
+  }
+}

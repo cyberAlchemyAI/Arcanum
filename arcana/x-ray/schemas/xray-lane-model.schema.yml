@@ -24,6 +24,10 @@ schema:
     - target_boundary
     - renderer_level
     - layer_interaction
+    - reader_contract
+    - reader_terms
+    - layer_reader_outcomes
+    - readability_dynamics
     - lanes
   allowed_modes:
     - object
@@ -48,6 +52,42 @@ schema:
     - handle
     - evidence
     - inference
+  allowed_reader_baselines:
+    - newcomer
+    - working-reader
+    - expert
+    - unknown
+  required_reader_contract_fields:
+    - reader_baseline
+    - target_public
+    - assumed_knowledge
+    - reader_reward
+    - opening_contract
+  required_opening_contract_fields:
+    - must_start_with
+    - must_not_start_with
+    - failure_message
+  required_reader_term_fields:
+    - term
+    - plain_meaning
+    - why_it_matters
+    - source_or_lane
+    - authority
+    - misuse_warning
+  allowed_reader_term_authority:
+    - explanatory
+    - source-backed
+    - inferred
+  required_layer_reader_outcome_fields:
+    - layer
+    - as_a_reader
+    - should_understand
+    - because_it_matters_for
+  required_readability_dynamics_fields:
+    - max_words_per_paragraph
+    - max_consecutive_dense_blocks
+    - require_scan_anchor_every_n_blocks
+    - allowed_visual_treatments
   non_empty_evidence_except:
     - risk_questions
   lane_field_types:
@@ -56,5 +96,6 @@ schema:
     inference: list
   notes:
     - This schema validates structure only.
-    - It does not validate explanatory correctness, source truth, or promotion readiness.
+    - Reader fields validate baseline presence, local explanatory terms, layer outcomes, and readability configuration.
+    - It does not validate full explanatory correctness, source truth, or promotion readiness.
     - Full result-envelope schema is deferred until multiple real x-ray outputs exist.

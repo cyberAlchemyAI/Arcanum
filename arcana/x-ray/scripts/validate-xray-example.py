@@ -87,6 +87,13 @@ def validate_lanes(data: dict[str, Any], schema: dict[str, Any]) -> list[str]:
     allowed_modes = set(require_string_list(schema, "allowed_modes"))
     allowed_renderer_levels = set(require_string_list(schema, "allowed_renderer_levels"))
     non_empty_evidence_except = set(require_string_list(schema, "non_empty_evidence_except"))
+    allowed_reader_baselines = set(require_string_list(schema, "allowed_reader_baselines"))
+    required_reader_contract_fields = require_string_list(schema, "required_reader_contract_fields")
+    required_opening_contract_fields = require_string_list(schema, "required_opening_contract_fields")
+    required_reader_term_fields = require_string_list(schema, "required_reader_term_fields")
+    allowed_reader_term_authority = set(require_string_list(schema, "allowed_reader_term_authority"))
+    required_layer_reader_outcome_fields = require_string_list(schema, "required_layer_reader_outcome_fields")
+    required_readability_dynamics_fields = require_string_list(schema, "required_readability_dynamics_fields")
 
     for field in required_top_level:
         if field not in data:
@@ -123,6 +130,115 @@ def validate_lanes(data: dict[str, Any], schema: dict[str, Any]) -> list[str]:
         errors.append(f"renderer_level must be one of: {', '.join(sorted(allowed_renderer_levels))}")
     if data.get("mode") not in allowed_modes:
         errors.append("mode is missing or unsupported")
+
+    reader_contract = data.get("reader_contract")
+    if not isinstance(reader_contract, dict):
+        errors.append("reader_contract must be an object")
+    else:
+        for field in required_reader_contract_fields:
+            if field not in reader_contract:
+                errors.append(f"reader_contract: missing {field}")
+        if reader_contract.get("reader_baseline") not in allowed_reader_baselines:
+            errors.append(
+                "reader_contract.reader_baseline must be one of: "
+                + ", ".join(sorted(allowed_reader_baselines))
+            )
+        for field in ("target_public", "reader_reward"):
+            value = reader_contract.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"reader_contract.{field} must be a non-empty string")
+        assumed = reader_contract.get("assumed_knowledge")
+        if not isinstance(assumed, list) or not all(isinstance(item, str) and item.strip() for item in assumed):
+            errors.append("reader_contract.assumed_knowledge must be a non-empty string list")
+        opening_contract = reader_contract.get("opening_contract")
+        if not isinstance(opening_contract, dict):
+            errors.append("reader_contract.opening_contract must be an object")
+        else:
+            for field in required_opening_contract_fields:
+                if field not in opening_contract:
+                    errors.append(f"reader_contract.opening_contract: missing {field}")
+            for field in ("must_start_with", "must_not_start_with"):
+                value = opening_contract.get(field)
+                if not isinstance(value, list) or not all(isinstance(item, str) and item.strip() for item in value):
+                    errors.append(f"reader_contract.opening_contract.{field} must be a non-empty string list")
+            failure = opening_contract.get("failure_message")
+            if not isinstance(failure, str) or not failure.strip():
+                errors.append("reader_contract.opening_contract.failure_message must be a non-empty string")
+
+    reader_terms = data.get("reader_terms")
+    if not isinstance(reader_terms, list) or not reader_terms:
+        errors.append("reader_terms must be a non-empty list")
+    else:
+        seen_terms: set[str] = set()
+        for index, term in enumerate(reader_terms, start=1):
+            if not isinstance(term, dict):
+                errors.append(f"reader_terms[{index}]: must be an object")
+                continue
+            for field in required_reader_term_fields:
+                if field not in term:
+                    errors.append(f"reader_terms[{index}]: missing {field}")
+            term_name = term.get("term")
+            if isinstance(term_name, str) and term_name.strip():
+                normalized = term_name.strip().lower()
+                if normalized in seen_terms:
+                    errors.append(f"reader_terms[{index}]: duplicate term `{term_name}`")
+                seen_terms.add(normalized)
+            for field in ("term", "plain_meaning", "why_it_matters", "source_or_lane", "misuse_warning"):
+                value = term.get(field)
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(f"reader_terms[{index}].{field} must be a non-empty string")
+            if term.get("authority") not in allowed_reader_term_authority:
+                errors.append(
+                    f"reader_terms[{index}].authority must be one of: "
+                    + ", ".join(sorted(allowed_reader_term_authority))
+                )
+
+    layer_reader_outcomes = data.get("layer_reader_outcomes")
+    if not isinstance(layer_reader_outcomes, list) or not layer_reader_outcomes:
+        errors.append("layer_reader_outcomes must be a non-empty list")
+    else:
+        covered_layers: set[str] = set()
+        for index, outcome in enumerate(layer_reader_outcomes, start=1):
+            if not isinstance(outcome, dict):
+                errors.append(f"layer_reader_outcomes[{index}]: must be an object")
+                continue
+            for field in required_layer_reader_outcome_fields:
+                if field not in outcome:
+                    errors.append(f"layer_reader_outcomes[{index}]: missing {field}")
+            layer = outcome.get("layer")
+            if isinstance(layer, str) and layer.strip():
+                covered_layers.add(layer.strip())
+                if layer not in required_lanes:
+                    errors.append(f"layer_reader_outcomes[{index}].layer is not a required lane: {layer}")
+            for field in ("as_a_reader", "should_understand", "because_it_matters_for"):
+                value = outcome.get(field)
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(f"layer_reader_outcomes[{index}].{field} must be a non-empty string")
+        expected_outcome_layers = {
+            "surface",
+            "flow",
+            "internal_dependencies",
+            "external_dependencies",
+            "risk_questions",
+        }
+        missing_outcome_layers = sorted(expected_outcome_layers - covered_layers)
+        if missing_outcome_layers:
+            errors.append(f"layer_reader_outcomes missing layers: {', '.join(missing_outcome_layers)}")
+
+    readability = data.get("readability_dynamics")
+    if not isinstance(readability, dict):
+        errors.append("readability_dynamics must be an object")
+    else:
+        for field in required_readability_dynamics_fields:
+            if field not in readability:
+                errors.append(f"readability_dynamics: missing {field}")
+        for field in ("max_words_per_paragraph", "max_consecutive_dense_blocks", "require_scan_anchor_every_n_blocks"):
+            value = readability.get(field)
+            if not isinstance(value, int) or value < 1:
+                errors.append(f"readability_dynamics.{field} must be a positive integer")
+        treatments = readability.get("allowed_visual_treatments")
+        if not isinstance(treatments, list) or not all(isinstance(item, str) and item.strip() for item in treatments):
+            errors.append("readability_dynamics.allowed_visual_treatments must be a non-empty string list")
     return errors
 
 
@@ -144,7 +260,14 @@ def validate_html(path: Path) -> list[str]:
         errors.append("HTML dependency layer must include internal_dependencies and external_dependencies")
 
     text = "\n".join(parser.text_chunks).lower()
-    for required_text in ("source-backed", "inference", "l0 static html/svg"):
+    for required_text in (
+        "source-backed",
+        "inference",
+        "l0 static html/svg",
+        "reader terms",
+        "reader outcomes",
+        "why it matters",
+    ):
         if required_text not in text:
             errors.append(f"HTML missing text marker: {required_text}")
 

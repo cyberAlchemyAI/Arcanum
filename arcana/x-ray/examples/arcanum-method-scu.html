@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arcanum Method X-Ray: How SCU Emerges</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2433;
+      --muted: #667085;
+      --line: #d8dee9;
+      --paper: #fbfcfe;
+      --panel: #ffffff;
+      --surface: #f2f7fb;
+      --flow: #fff5e8;
+      --deps: #f1f8f3;
+      --risk: #fff0f3;
+      --accent: #1f6f8b;
+      --accent-2: #9a5a00;
+      --accent-3: #287348;
+      --accent-4: #a23850;
+      --shadow: 0 16px 40px rgba(22, 33, 52, 0.10);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #f6f8fb 0%, #eef4f5 46%, #f7f8f4 100%);
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.65fr);
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 4.8rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      max-width: 920px;
+    }
+
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lede {
+      max-width: 740px;
+      color: #354052;
+      font-size: 1.05rem;
+    }
+
+    .contract {
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid var(--line);
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .contract strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0 22px;
+      align-items: center;
+    }
+
+    .toggles label {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .toggles input {
+      accent-color: var(--accent);
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .canvas,
+    .rail,
+    .band,
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .canvas {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .intro-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pressure {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      min-height: 120px;
+    }
+
+    .pressure:nth-child(2) {
+      background: var(--flow);
+    }
+
+    .pressure .eyebrow,
+    .card .eyebrow,
+    .rail .eyebrow,
+    .band .eyebrow {
+      display: inline-flex;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .pressure h2 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .path {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .step {
+      position: relative;
+      padding: 12px;
+      min-height: 178px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      z-index: 1;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      right: -11px;
+      top: 50%;
+      width: 12px;
+      height: 2px;
+      background: #8da2ac;
+    }
+
+    .step:last-child::after {
+      content: none;
+    }
+
+    .step h3 {
+      font-size: 0.98rem;
+      margin-bottom: 6px;
+    }
+
+    .step p {
+      color: #3f4a5c;
+      font-size: 0.9rem;
+    }
+
+    .step .num {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+      background: #173c4a;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+
+    .convergence {
+      margin: 4px 0 18px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 2px solid #275f72;
+      background: linear-gradient(135deg, #edf8fb 0%, #fff8ed 100%);
+    }
+
+    .convergence h2 {
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+      margin-bottom: 8px;
+    }
+
+    .formula {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 14px;
+    }
+
+    .formula .box {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      min-height: 88px;
+    }
+
+    .operator {
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      padding: 14px;
+      min-height: 148px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .card ul,
+    .rail ul {
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+
+    .card li,
+    .rail li {
+      margin: 5px 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 7px;
+      margin: 0 6px 6px 0;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #e9f3f7;
+      color: #245467;
+    }
+
+    .tag.warn {
+      background: #fde8ec;
+      color: #8c2639;
+    }
+
+    .tag.source {
+      background: #e7f5ec;
+      color: #22623b;
+    }
+
+    .rail {
+      padding: 16px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .rail h2 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    .term {
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .term:first-of-type {
+      border-top: 0;
+    }
+
+    .term strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .term p {
+      color: #455166;
+      font-size: 0.9rem;
+    }
+
+    .term small {
+      display: block;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .band {
+      margin-top: 18px;
+      padding: 16px;
+    }
+
+    .band h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .outcomes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .outcome {
+      min-height: 112px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .outcome strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #253246;
+    }
+
+    .sources {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .sourcebox {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 12px;
+      background: #fff;
+    }
+
+    #toggle-surface:not(:checked) ~ .stage [data-lane~="surface"],
+    #toggle-flow:not(:checked) ~ .stage [data-lane~="flow"],
+    #toggle-deps:not(:checked) ~ .stage [data-lane~="internal_dependencies"],
+    #toggle-deps:not(:checked) ~ .stage [data-lane~="external_dependencies"],
+    #toggle-risk:not(:checked) ~ .stage [data-lane~="risk_questions"] {
+      display: none;
+    }
+
+    @media (max-width: 960px) {
+      header,
+      .stage,
+      .intro-strip,
+      .sources {
+        grid-template-columns: 1fr;
+      }
+
+      .path {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .step::after {
+        content: none;
+      }
+
+      .rail {
+        position: static;
+      }
+
+      .outcomes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        width: min(100% - 20px, 1180px);
+        padding-top: 16px;
+      }
+
+      .path,
+      .layer-grid,
+      .outcomes,
+      .formula {
+        grid-template-columns: 1fr;
+      }
+
+      .operator {
+        min-height: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <input id="toggle-surface" type="checkbox" checked hidden>
+    <input id="toggle-flow" type="checkbox" checked hidden>
+    <input id="toggle-deps" type="checkbox" checked hidden>
+    <input id="toggle-risk" type="checkbox" checked hidden>
+
+    <header>
+      <div>
+        <h1>How Arcanum Arrives at SCU</h1>
+        <p class="lede">Start with the user's actual problem: vague work becomes risky when it jumps straight into execution. Arcanum answers by building a method that narrows intent into bounded, source-backed units a reader and worker can both understand.</p>
+      </div>
+      <aside class="contract">
+        <strong>Reader Contract</strong>
+        <p>Newcomer baseline. Introduce at most two new terms before an example. Teach the problem first, then show why each sigil or spell exists.</p>
+      </aside>
+    </header>
+
+    <nav class="toggles" aria-label="Layer toggles">
+      <label for="toggle-surface">Surface</label>
+      <label for="toggle-flow">Flow</label>
+      <label for="toggle-deps">Dependencies</label>
+      <label for="toggle-risk">Risks</label>
+      <span class="tag">L0 static HTML/SVG</span>
+      <span class="tag source">source-backed</span>
+      <span class="tag warn">inference</span>
+    </nav>
+
+    <section class="stage">
+      <div class="canvas">
+        <div class="intro-strip" data-lane="surface">
+          <article class="pressure">
+            <span class="eyebrow">Problem</span>
+            <h2>Execution starts too early</h2>
+            <p>Without a method, a broad idea turns into unclear files, vague tasks, missing validation, and arguments about what "done" means.</p>
+          </article>
+          <article class="pressure">
+            <span class="eyebrow">Method response</span>
+            <h2>Turn intent into bounded artifacts</h2>
+            <p>Invoke, work-packs, layering, distill, refine, and task-session each solve one step in that narrowing path.</p>
+          </article>
+        </div>
+
+        <div class="path" data-lane="flow">
+          <article class="step">
+            <span class="num">1</span>
+            <h3>Invoke</h3>
+            <p>Authors define, design, plan, work-pack, handoff, or refresh artifacts before lifecycle execution.</p>
+          </article>
+          <article class="step">
+            <span class="num">2</span>
+            <h3>Work-pack</h3>
+            <p>Turns the plan into executable tasks, SWUs, gates, validation, write scope, and evidence expectations.</p>
+          </article>
+          <article class="step">
+            <span class="num">3</span>
+            <h3>Implementation Layering</h3>
+            <p>Asks for Layer 0: the smallest end-to-end proof that teaches whether the concept can work.</p>
+          </article>
+          <article class="step">
+            <span class="num">4</span>
+            <h3>Distill</h3>
+            <p>Asks what unit still has responsibility, inputs, outputs, closure, and recomposition after reduction.</p>
+          </article>
+          <article class="step">
+            <span class="num">5</span>
+            <h3>Refine</h3>
+            <p>Repairs ambiguity, critique, and design gaps before the route pretends it is execution-ready.</p>
+          </article>
+          <article class="step">
+            <span class="num">6</span>
+            <h3>Task Session</h3>
+            <p>Executes one bounded task or SWU with context, gates, validation, and synchronized evidence.</p>
+          </article>
+        </div>
+
+        <section class="convergence" data-lane="surface flow">
+          <span class="eyebrow">Why it matters</span>
+          <h2>SCU appears where proof pressure meets meaning pressure.</h2>
+          <p>Implementation layering says, "make the first proof small enough to learn." Distill says, "make the unit coherent enough to still mean something." SCU names the overlap.</p>
+          <div class="formula" aria-label="SCU convergence formula">
+            <div class="box">
+              <strong>Layering question</strong>
+              <p>What is the smallest proof that unlocks a real decision?</p>
+            </div>
+            <div class="operator">+</div>
+            <div class="box">
+              <strong>Distill question</strong>
+              <p>What is the smallest concept that still recomposes upward?</p>
+            </div>
+            <div class="operator">=</div>
+            <div class="box">
+              <strong>SCU</strong>
+              <p>Smallest coherent unit, not smallest possible fragment.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="layer-grid">
+          <article class="card" data-lane="internal_dependencies external_dependencies">
+            <span class="eyebrow">Dependencies</span>
+            <h3>Ownership boundaries keep the method readable</h3>
+            <ul>
+              <li>Invoke owns intent-to-artifact authoring.</li>
+              <li>Work-packs carry execution contracts.</li>
+              <li>Task Session owns bounded execution.</li>
+              <li>Sigil and spell lifecycle owners handle reusable capability mutation.</li>
+            </ul>
+          </article>
+          <article class="card" data-lane="internal_dependencies external_dependencies">
+            <span class="eyebrow">Evidence boundary</span>
+            <h3>Source-backed does not mean runtime-proven</h3>
+            <p>The page explains repository contracts and method structure. Runtime adapter readiness, installed command behavior, and promotion status require separate validation.</p>
+          </article>
+          <article class="card" data-lane="risk_questions">
+            <span class="eyebrow">Risk questions</span>
+            <h3>Check the candidate unit</h3>
+            <ul>
+              <li>Is it too tiny to carry responsibility?</li>
+              <li>Is it too broad to validate safely?</li>
+              <li>Does it hide glue that belongs in another unit?</li>
+              <li>Can it recompose without smuggling future scale?</li>
+            </ul>
+          </article>
+          <article class="card" data-lane="risk_questions">
+            <span class="eyebrow">Execution gate</span>
+            <h3>SCU is not SWU by default</h3>
+            <p>An SCU is a coherent concept boundary. An SWU is an executable implementation boundary with write scope, acceptance evidence, and verification.</p>
+          </article>
+        </section>
+      </div>
+
+      <aside class="rail">
+        <span class="eyebrow">Reader terms</span>
+        <h2>Terms introduced in use, not in isolation</h2>
+        <div class="term">
+          <strong>SCU</strong>
+          <p>Smallest Coherent Unit: smallest enough to work with, coherent enough to preserve meaning.</p>
+          <small>source-backed: framework/CYBERALCHEMY-METHOD.md</small>
+        </div>
+        <div class="term">
+          <strong>Invoke</strong>
+          <p>The front door for turning intent into governed artifacts before execution.</p>
+          <small>source-backed: spells/invoke/README.md</small>
+        </div>
+        <div class="term">
+          <strong>Work-pack and SWU</strong>
+          <p>The plan becomes executable when units carry write scope, done criteria, evidence, and verification.</p>
+          <small>source-backed: spells/invoke/plan.md</small>
+        </div>
+        <div class="term">
+          <strong>Implementation Layering</strong>
+          <p>Layer 0 is the smallest proof that shows whether the target concept can work.</p>
+          <small>source-backed: transmutations/implementation-layering/SKILL.md</small>
+        </div>
+        <div class="term">
+          <strong>Distill and Refine</strong>
+          <p>Distill selects the coherent unit. Refine repairs the vague route before action.</p>
+          <small>source-backed: arcana/distill/SKILL.md and arcana/refine/SKILL.md</small>
+        </div>
+      </aside>
+    </section>
+
+    <section class="band">
+      <span class="eyebrow">Reader outcomes</span>
+      <h2>What the reader should be able to do after this page</h2>
+      <div class="outcomes">
+        <div class="outcome" data-lane="surface">
+          <strong>Surface</strong>
+          <p>Name the starting problem: vague intent needs a method before execution.</p>
+        </div>
+        <div class="outcome" data-lane="flow">
+          <strong>Flow</strong>
+          <p>Trace invoke to work-pack to layering to distill to refine to task-session.</p>
+        </div>
+        <div class="outcome" data-lane="internal_dependencies external_dependencies">
+          <strong>Dependencies</strong>
+          <p>Explain why each capability hands off at its authority boundary.</p>
+        </div>
+        <div class="outcome" data-lane="risk_questions">
+          <strong>Risks</strong>
+          <p>Ask if the candidate unit is too tiny, too broad, or under-evidenced.</p>
+        </div>
+        <div class="outcome" data-lane="flow">
+          <strong>SCU vs SWU</strong>
+          <p>Separate concept coherence from executable implementation handoff.</p>
+        </div>
+        <div class="outcome" data-lane="external_dependencies">
+          <strong>Evidence</strong>
+          <p>Tell source-backed claims from inference and from runtime validation gaps.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <span class="eyebrow">Evidence and inference</span>
+      <h2>What this x-ray can and cannot prove</h2>
+      <div class="sources">
+        <div class="sourcebox">
+          <span class="tag source">source-backed</span>
+          <p>Repository contracts define the method loop, invoke authoring, work-pack/SWU requirements, Layer 0 proof, distill closure checks, refine routing, and task-session gates.</p>
+        </div>
+        <div class="sourcebox">
+          <span class="tag warn">inference</span>
+          <p>The teaching structure treats SCU as the convergence of proof pressure and meaning pressure. That is an explanatory synthesis of the source-backed method contracts.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

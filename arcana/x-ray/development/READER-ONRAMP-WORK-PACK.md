@@ -12,6 +12,7 @@ The motivating user signal is that current explanations can feel too expert-orie
 - Branch: `codex/x-ray-reader-explanations`
 - Source package: `arcana/x-ray/`
 - Current lifecycle status: seed
+- Local research synthesis: [READER-ONRAMP-RESEARCH.md](READER-ONRAMP-RESEARCH.md)
 
 ## Reader Problem
 
@@ -45,11 +46,23 @@ For each important concept, the generated page should follow this local order:
 
 - Keep `reader-onramp` in the canonical `SKILL.md` contract.
 - Add `Reader baseline` and `Reader on-ramp` to result envelopes and examples.
-- Add optional lane-model fields for `reader_baseline` and `reader_onramp` after at least one example proves the shape.
+- Add optional lane-model fields after at least one example proves the shape:
+  - `reader_contract`,
+  - `reader_terms`,
+  - `layer_reader_outcomes`,
+  - `readability_dynamics`.
+- Use local glossary technique from DomainSpec feature templates: plain feature language first, formal/local term second, source link third.
+- Use Definitions Governance technique: pair important local concepts with plain-language intuition, operational interpretation, and boundary or misuse warning without promoting them to global definitions.
+- Use paper-story technique: each visual layer declares what the reader should understand and why that matters.
+- Use Whisper writing technique: enforce opening contracts, body/lane responsibilities, and readability dynamics with validators where possible.
+- Use notation-bridge technique for compact diagram labels, arrows, state names, formulas, or other dense symbols.
 - Add validator checks once the schema is updated:
   - page declares reader baseline,
   - technical labels used in visuals have nearby explanatory text,
   - each important lane has at least one plain-language bridge or an explicit omitted reason.
+  - each visual layer has a `reader_should_understand` outcome,
+  - dense text blocks have scan anchors or example boxes,
+  - local reader terms remain explanatory and do not claim global definition authority.
 
 ## Validation Surface
 
