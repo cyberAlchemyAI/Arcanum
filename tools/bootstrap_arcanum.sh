@@ -824,24 +824,37 @@ copy_generated_skill_support() {
   local source_dir support_dir support_file src dst
 
   source_dir="$(dirname "$source_file")"
-  for support_file in README.md TECHNIQUE-CATALOG.md dispatch.schema.yml dispatch.schema.yaml dispatch.schema.json; do
-    src="$source_dir/$support_file"
-    dst="$package_dir/$support_file"
+
+  # Copy every top-level support file the source ships, except SKILL.md (the
+  # runtime SKILL.md is generated separately just above with rewritten
+  # frontmatter). This is a denylist, not an allowlist: sigils/spells carry
+  # mode-contract files (invoke's define/design/plan/handoff/refresh/full/
+  # validate.md), loop docs (refine/REFINEMENT-LOOP.md), synthesis docs, etc.
+  # that are required at runtime and must not be silently dropped. The `*`
+  # glob skips dotfiles (.DS_Store and friends).
+  for src in "$source_dir"/*; do
     [[ -f "$src" ]] || continue
+    support_file="$(basename "$src")"
+    [[ "$support_file" == "SKILL.md" ]] && continue
+    dst="$package_dir/$support_file"
 
     ensure_clean_destination "$dst"
     run mkdir -p "$package_dir"
     copy_file "$src" "$dst"
   done
 
-  # Copy only runtime-relevant support directories. `development/` holds
+  # Copy every support directory except `development/`. `development/` holds
   # authoring/governance history (refresh packs, task sessions, evidence,
   # fixtures) that is not needed to run the skill and would bloat every
-  # generated package, so it is intentionally excluded.
-  for support_dir in templates examples assets scripts; do
-    src="$source_dir/$support_dir"
-    dst="$package_dir/$support_dir"
+  # generated package, so it is the one directory intentionally excluded.
+  # Everything else a sigil/spell ships (templates, examples, assets, scripts,
+  # schemas, library, runtime-adapters, workflow-profiles, tools, ...) is
+  # runtime-relevant and is copied.
+  for src in "$source_dir"/*/; do
     [[ -d "$src" ]] || continue
+    support_dir="$(basename "$src")"
+    [[ "$support_dir" == "development" ]] && continue
+    dst="$package_dir/$support_dir"
 
     if [[ -e "$dst" && "$force" == "true" ]]; then
       run rm -rf "$dst"
@@ -858,11 +871,6 @@ copy_generated_skill_support() {
       --exclude='*/__pycache__' \
       --exclude='*.pyc' \
       --exclude='.DS_Store' \
-      --exclude='development/runs' \
-      --exclude='development/refinement-runs' \
-      --exclude='development/task-sessions' \
-      --exclude='development/example-runs' \
-      --exclude='development/live-evidence' \
       -C "$source_dir" -cf - "$support_dir" | tar -C "$package_dir" -xf -
   done
 }
