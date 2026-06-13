@@ -122,6 +122,7 @@ and are graded on the same criterion.
 | `plan` | decide-before-build roles | decision quality | honest candidate |
 | `code` | implementer · reviewer · tester | correctness; tests pass | **FORECAST — not real** |
 | `refine` | discovery → design → plan loop (10 stages) | stage-receipt completeness | Arcanum's contribution / near-strategy |
+| `experiment` | designer · runner · adjudicator · skeptic | falsification vs a pre-registered criterion + internal validity + reproducibility | **FORECAST — not real** |
 
 `research` is the one **fully real** strategy on disk — in **domainspec**, not Arcanum:
 `domainspec/vault/constitution/research-constitution.md` names the four roles (R4–R8: explorer
@@ -393,6 +394,13 @@ Said plainly, not papered over:
   but the closing is **work not yet done** — see §12 for the concrete wiring (the writer
   already exists; what is actually missing is a Claude hook surface and an envelope producer).
 - **`loop_cap` default** — proposed 1, no usage data (§2). Mechanism settled; value open.
+- **Is `experiment` a peer `dispatch_type` or a sub-mode of `research`? (§3)** Two signals
+  pull opposite ways and neither is decided here. *Toward sub-mode:* in Arcanum the
+  `research-evidence-harness` is a sibling of `research-tower` (empirical vs synthesis), so an
+  empirical-falsification arm reads as one more research mode. *Toward peer:* its grader
+  (falsification against a pre-registered criterion) is categorically different from research's
+  (coverage), and the **runner** role collides with the `code`-reserved execution role with no
+  execution substrate to ground it. Carried as **open**, not resolved.
 
 ## 12. Implementation note — wiring the logging fusion (domainspec × Arcanum)
 
