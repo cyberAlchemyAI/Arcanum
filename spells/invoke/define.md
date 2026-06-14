@@ -12,7 +12,7 @@ Define mode produces or updates a governed specification and glossary baseline w
 
 ## Implementation Coverage
 
-- The define contract, Module Formulae baseline templates, standalone implementation-layering/work-pack templates, and dedicated candidate family scaffolds are implemented.
+- The define contract, the DomainSpec template baseline (`templates/domainspec-spec/` — SPEC + aspect docs), standalone implementation-layering/work-pack templates, and dedicated candidate family scaffolds are implemented.
 - Named template families are scaffolded as candidate templates; canonical promotion still requires validation evidence and explicit approval.
 - Implementation layering is integrated as a companion artifact policy: define may seed L0 or record a layering gap for downstream plan/full modes.
 - Registry release remains blocked until required template and profile-family validation examples pass.
@@ -55,7 +55,8 @@ Define mode produces or updates a governed specification and glossary baseline w
 ## Mode Gates
 
 - Template selection must include eligibility evidence and explicit user choice on tie cases.
-- Current prebuilt template coverage includes Module Formulae, standalone implementation-layering/work-pack companions, and dedicated candidate family scaffolds; any unsupported new family must be reported as a candidate-template gap, not treated as implemented coverage.
+- Current prebuilt template coverage includes the DomainSpec template baseline (`templates/domainspec-spec/`), standalone implementation-layering/work-pack companions, and dedicated candidate family scaffolds; any unsupported new family must be reported as a candidate-template gap, not treated as implemented coverage.
+- Discovery-existence soft gate: define searches for a discovery artifact for the target scope; if none exists it halts with a recommendation to run discovery first. `--skip-discovery` is permitted but must write a `discovery_waiver_reason` into the spec frontmatter.
 - Define mode may emit an implementation-layering seed; if skipped, it must record an explicit layering gap for downstream `plan`, `full`, and `validate` modes.
 - Glossary linking uses deterministic statuses: `linked`, `partial`, or `no-match` with rationale.
 - Candidate glossary promotion is never automatic.

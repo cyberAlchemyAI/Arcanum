@@ -1,5 +1,11 @@
 # Module Formulae Template Pack
 
+> **Deprecated (2026-06-14).** The invoke `define` baseline is now the **DomainSpec template**
+> (`../domainspec-spec/`). This pack is retained only because the invoke validation fixtures,
+> experiment-loops, and the `mogt-agentic-conversation` research project still reference it.
+> Physical removal is deferred until those are migrated — see the keystone-lift work-pack
+> (TASK-MF-REMOVE, blocked). Do not start new specs from this pack.
+
 This pack provides a neutral, module-first documentation model that preserves structured governance semantics without framework-specific wording.
 
 ## Goal
