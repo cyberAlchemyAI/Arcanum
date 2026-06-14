@@ -108,6 +108,25 @@ Avoid:
 - treating local glossary terms as global canonical definitions without review.
 </anti-patterns>
 
+<concept-registry-aggregation>
+DomainSpec extension (M2-C1). When the project uses the DomainSpec spec template, this
+sigil also aggregates per-feature Concept Registries into a project-level typed registry:
+
+1. Collect each feature SPEC's Concept Registry table (`Concept | ID | Type`, where Type is
+   a DS-D1 meta-type per `definitions/DEFINITIONS.md#ds-d1-meta-type-system`).
+2. Aggregate into a global registry keyed by ID, carrying the DS-D1 meta-type.
+3. Build concept-graph edges from each feature's typed relationships (DS-D2 verbs),
+   validated against the DS-D8 edge signature; reject edges whose endpoint meta-types
+   violate the signature.
+4. Detect duplicates (same ID, different type or feature) and drift (a concept whose
+   meta-type changed across features) — flag, never auto-merge.
+5. Emit the aggregated registry + edge list + a dup/drift report. Promotion of any new
+   global term still follows the authority rules above.
+
+Wedge method only: reads the public DomainSpec spec interface (`M2-CONTRACT`) and the
+canonical DS-D1/D2 definitions; it does not import governance-engine logic.
+</concept-registry-aggregation>
+
 <output-contract>
 Return:
 
@@ -119,6 +138,8 @@ Return:
 - Drift found: yes | no
 - Undefined critical terms: <count>
 - Conflicting consumers: <count>
+- Concept registry aggregated: <concept count | n/a>
+- Registry duplicates/drift: <count | n/a>
 - Validation: pass | fail | not run
 - Canonical source: <project-relative path>
 - Follow-ups: <ordered remediation list>
