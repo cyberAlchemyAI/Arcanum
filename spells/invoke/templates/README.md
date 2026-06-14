@@ -6,7 +6,8 @@ This directory contains invoke-owned template families and standalone companion 
 
 | Path | Role |
 | --- | --- |
-| [module-formulae/](module-formulae/) | Composable module-first baseline bundle. |
+| [domainspec-spec/](domainspec-spec/) | DomainSpec baseline bundle (define + design + plan stages). |
+| [module-formulae/](module-formulae/) | Deprecated — legacy module-first bundle (retained for fixtures/mogt; see its README). |
 | [implementation-layering.md](implementation-layering.md) | Standalone layering companion for plan, full, and validate flows. |
 | [work-pack.md](work-pack.md) | Canonical executable planning manifest and current state for plan, full, and validate flows. |
 | [generic/](generic/) | Neutral fallback family for broad lifecycle authoring requests. |

@@ -1,13 +1,13 @@
 # Module Formulae Template Pack
 
-> **Partially deprecated (2026-06-14).** The invoke `define` baseline is now the **DomainSpec
-> template** (`../domainspec-spec/`) — do not start new *specs* from this pack's `module-spec.md`.
-> **Still in active use:** `architecture-bundle.md` (design-stage six-view profile, composed by
-> `design.md`) and `execution-pack.md` (plan-stage wave planning, composed by `plan.md` /
-> `work-pack.md`) — the DomainSpec family has no equivalents yet. Full removal is blocked on:
-> (1) authoring DomainSpec design-stage + plan-stage templates, (2) regenerating the 9 invoke
-> validation fixtures, (3) the `mogt-agentic-conversation` project's own `module-formulae/` dir
-> (out of scope). See keystone-closeout TASK-MF-REMOVE-2.
+> **Deprecated (2026-06-14).** The full invoke pipeline — define, design, and plan stages — now
+> uses the **DomainSpec template family** (`../domainspec-spec/`: `SPEC.md` + aspect docs,
+> `architecture-bundle.md`, `execution-pack.md`). No active contract references this pack anymore.
+> It is retained ONLY for: (1) the 9 invoke validation fixtures that still expect Module-Formulae
+> output, and (2) the `mogt-agentic-conversation` project's own `module-formulae/` artifact dir
+> (out of scope). **Physical removal** is gated on regenerating those fixtures against the
+> DomainSpec family + a green `run-validation-fixtures.sh` — a `spellcraft` task needing the
+> validation runtime. Do not start new work from this pack.
 
 This pack provides a neutral, module-first documentation model that preserves structured governance semantics without framework-specific wording.
 

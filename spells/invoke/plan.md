@@ -88,7 +88,7 @@ Plan mode blocks when approved design references are missing, required standalon
 | --- | --- | --- |
 | standalone `implementation-layering` companion | Any `plan`, `full`, or `validate` flow is active. | global L0-L3 layer decision artifact. |
 | standalone `work-pack` companion | Any `plan` or `full` flow is active. | canonical executable plan with objective, delivery slices, tasks, SWUs, gates, validation, current state, and single-file or split output mode. |
-| `module-formulae` execution-pack | Medium/high complexity requires wave planning. | execution-pack handoff with wave and parallelization boundaries. |
+| `domainspec-spec` execution-pack | Medium/high complexity requires wave planning. | execution-pack handoff with wave and parallelization boundaries. |
 
 ## Planning Artifact Boundary Policy
 

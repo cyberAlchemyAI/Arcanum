@@ -117,7 +117,7 @@ When a target is already clearly a sigil or spell, Invoke should produce a compa
 - Repository root is known.
 - Development pack context is available under `spells/invoke/development/`.
 - Local template inventory is available, or candidate-template creation is allowed by user approval.
-- Current prebuilt template inventory is rooted at `arcanum/spells/invoke/templates/` and includes the DomainSpec template (`domainspec-spec/`, the `define` baseline), standalone companion templates, and dedicated candidate family scaffolds. The legacy `module-formulae/` design-stage (architecture-bundle) and plan-stage (execution-pack) templates remain in use until DomainSpec equivalents are authored.
+- Current prebuilt template inventory is rooted at `arcanum/spells/invoke/templates/` and includes the DomainSpec template family (`domainspec-spec/` — define baseline `SPEC.md` + aspect docs, design-stage `architecture-bundle.md`, plan-stage `execution-pack.md`), standalone companion templates, and dedicated candidate family scaffolds. The legacy `module-formulae/` family is deprecated and retained only for the invoke validation fixtures and the `mogt` research project; physical removal is gated on regenerating those (see `templates/module-formulae/README.md`).
 - Implementation layering transmutation is available at `arcanum/transmutations/implementation-layering/`.
 - Implementation-layering template is available at `arcanum/spells/invoke/templates/implementation-layering.md`.
 - Work-pack template is available at `arcanum/spells/invoke/templates/work-pack.md`.
