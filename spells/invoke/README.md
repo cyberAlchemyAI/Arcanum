@@ -35,7 +35,7 @@ Invoke does not require deprecated command files, slash commands, or command-res
 
 | Mode       | Status           | Contract File                              | Notes                                                  |
 | ---------- | ---------------- | ------------------------------------------ | ------------------------------------------------------ |
-| `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with Module Formulae baseline coverage, standalone companions, and candidate family scaffolds. |
+| `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with the DomainSpec template (`templates/domainspec-spec/`), standalone companions, and dedicated candidate family scaffolds. |
 | `design`   | implemented (L1 contract) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts; validation examples still gate promotion. |
 | `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
 | `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
@@ -117,7 +117,7 @@ When a target is already clearly a sigil or spell, Invoke should produce a compa
 - Repository root is known.
 - Development pack context is available under `spells/invoke/development/`.
 - Local template inventory is available, or candidate-template creation is allowed by user approval.
-- Current prebuilt template inventory is rooted at `arcanum/spells/invoke/templates/` and includes Module Formulae, standalone companion templates, and dedicated candidate family scaffolds.
+- Current prebuilt template inventory is rooted at `arcanum/spells/invoke/templates/` and includes the DomainSpec template (`domainspec-spec/`, the `define` baseline), standalone companion templates, and dedicated candidate family scaffolds. The legacy `module-formulae/` design-stage (architecture-bundle) and plan-stage (execution-pack) templates remain in use until DomainSpec equivalents are authored.
 - Implementation layering transmutation is available at `arcanum/transmutations/implementation-layering/`.
 - Implementation-layering template is available at `arcanum/spells/invoke/templates/implementation-layering.md`.
 - Work-pack template is available at `arcanum/spells/invoke/templates/work-pack.md`.
