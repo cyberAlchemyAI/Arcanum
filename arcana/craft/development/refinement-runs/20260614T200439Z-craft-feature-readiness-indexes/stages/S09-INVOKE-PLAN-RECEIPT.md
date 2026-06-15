@@ -18,9 +18,9 @@
 - Implementation detail: task specs complete.
 - Smallest working units: complete.
 - Template/profile selection: standalone implementation-layering and work-pack companions.
-- Validation strategy: JSON, YAML parse, grep checks, public-boundary scan, diff check, and bump-check before publication.
+- Validation strategy: JSON, YAML parse, grep checks, strict public-boundary scan, diff check, and bump-check before publication.
 - Decisions: one-SWU execution boundary; source-first/generation-last; submodule-first publishing.
-- Unresolved gaps: subagent execution not authorized by current tool policy; canonical source mutation not yet performed.
+- Unresolved gaps: protected-context reviewer flagged weak public-boundary scan coverage and existing named-example strategy risk; canonical source mutation not yet performed.
 - Next route: sigil-development or task-session on `SWU-CFR-001`.
 
 ## Receipt

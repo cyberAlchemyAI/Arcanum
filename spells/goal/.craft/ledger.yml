@@ -1,0 +1,324 @@
+ledger_id: goal.craft
+schema_ref: ../../../arcana/craft/templates/ledger.schema.yml
+schema_version: 0.2.0
+status: candidate-local
+source_of_truth: spells/goal/.craft/ledger.yml
+human_view: spells/goal/CRAFT.md
+
+indexes:
+  by_id:
+    CTX-GOAL-ROOT: contexts[0]
+    DEC-GOAL-PACKAGING-001: decisions[0]
+    DEC-GOAL-PRIVACY-SPLIT-001: decisions[1]
+    DEC-GOAL-PROFILE-HOME-001: decisions[2]
+    DEC-GOAL-CRAFT-SCOPE-001: decisions[3]
+    BLK-GOAL-SUBMODULE-001: typed_items[0]
+    GATE-GOAL-PROMOTION-001: typed_items[1]
+    ENA-ADO-DESIGN-001: typed_items[2]
+    GAP-GOAL-SCHEMA-001: gaps[0]
+    GAP-GOAL-ADO-MOVE-001: gaps[1]
+    ART-GOAL-CRAFT-LEDGER: artifacts[0]
+    ART-GOAL-CRAFT-VIEW: artifacts[1]
+    ART-GOAL-SCAFFOLD: artifacts[2]
+    ART-ADO-DESIGN-RESULT: artifacts[3]
+    ART-ADO-PLAN: artifacts[4]
+    ART-DECISION-PROFILE-PRIVATE: artifacts[5]
+    ART-DECISION-PROFILE-SCHEMA: artifacts[6]
+  open_decisions: []
+  blocking_decisions: []
+  active_blockers:
+    - BLK-GOAL-SUBMODULE-001
+  active_gaps:
+    - GAP-GOAL-SCHEMA-001
+    - GAP-GOAL-ADO-MOVE-001
+  next_moves:
+    - context_id: CTX-GOAL-ROOT
+      next_move: Author spells/goal/README.md (SWU-GOAL-README) + spells/goal/decision-profile.schema, then execute the scrubbed ADO design move into spells/goal/development/ under approval.
+  artifacts_by_path:
+    spells/goal/.craft/ledger.yml: ART-GOAL-CRAFT-LEDGER
+    spells/goal/CRAFT.md: ART-GOAL-CRAFT-VIEW
+    spells/goal/: ART-GOAL-SCAFFOLD
+    spells/goal/decision-profile.schema: ART-DECISION-PROFILE-SCHEMA
+
+contexts:
+  - context_id: CTX-GOAL-ROOT
+    parent_id: root
+    title: Goal Spell Build
+    purpose: >
+      Build the `goal` composed Arcanum spell (autonomous DAG goal-loop) from the
+      validated autonomous-dag-orchestration (ADO) Option A design, under
+      submodule discipline and the public/private boundary, until it can promote
+      out of draft.
+    stage: plan
+    gate: flag
+    next_move: Author spells/goal/README.md (SWU-GOAL-README) + decision-profile.schema, then execute the scrubbed ADO design move under approval.
+    owned_artifacts:
+      - ART-GOAL-CRAFT-LEDGER
+      - ART-GOAL-CRAFT-VIEW
+      - ART-GOAL-SCAFFOLD
+      - ART-ADO-DESIGN-RESULT
+      - ART-ADO-PLAN
+      - ART-DECISION-PROFILE-PRIVATE
+      - ART-DECISION-PROFILE-SCHEMA
+    notes: Root context created by /craft start for the goal spell; scope = spells/goal/.craft.
+
+artifacts:
+  - artifact_id: ART-GOAL-CRAFT-LEDGER
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/.craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured Craft source of truth for the goal spell build.
+  - artifact_id: ART-GOAL-CRAFT-VIEW
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view generated from the ledger, not source of truth.
+  - artifact_id: ART-GOAL-SCAFFOLD
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/
+    artifact_type: spell-package
+    status: planned
+    notes: Empty spell scaffold (development/work-pack present); README/SKILL not yet authored.
+  - artifact_id: ART-ADO-DESIGN-RESULT
+    owner_context_id: CTX-GOAL-ROOT
+    path: "[absolute] /home/vrondelli/projects/workspace-resonant/.craft/artifacts/autonomous-dag-orchestration/development/refinement-runs/2026-06-14-dag-loop-to-arcanum-sigils/RESULT.md"
+    artifact_type: design-result
+    status: pass
+    notes: Private upstream — Option A packaging design (winner) + recomposition proof. Stays in workspace-resonant.
+  - artifact_id: ART-ADO-PLAN
+    owner_context_id: CTX-GOAL-ROOT
+    path: "[absolute] /home/vrondelli/projects/workspace-resonant/.craft/artifacts/autonomous-dag-orchestration/development/refinement-runs/2026-06-14-dag-loop-to-arcanum-sigils/stages/s09-plan.md"
+    artifact_type: build-plan
+    status: pass
+    notes: Non-executed build plan; SWU-GOAL-* (README, COMPOSE, RISK, STAGE, RO-BOUNDARY, APPROVE, GAP, GUARD, D3, AUDIT, OBS).
+  - artifact_id: ART-DECISION-PROFILE-PRIVATE
+    owner_context_id: CTX-GOAL-ROOT
+    path: "[absolute] /home/vrondelli/projects/domainspec-core/.arcanum/profiles/decision-profile.yml"
+    artifact_type: runtime-profile
+    status: active
+    notes: PRIVATE filled decision-mentality profile (operator data). Loaded by the spell at runtime. NEVER copy into the public arcanum submodule.
+  - artifact_id: ART-DECISION-PROFILE-SCHEMA
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/decision-profile.schema
+    artifact_type: profile-schema
+    status: planned
+    notes: PUBLIC counterpart — shape + neutral default only, no operator data. Not yet authored.
+
+descriptions:
+  - description_id: DESC-GOAL-001
+    context_id: CTX-GOAL-ROOT
+    description: >
+      The goal spell is a router-only, fail-closed control spine (read-frontier →
+      classify-risk → select owner+technique → dispatch → audit gate → stage delta
+      → promote behind a batched approval token) plus opt-in gap-discovery and
+      proportionality modules. It delegates reusable mechanisms to owning sigils
+      and owns inline only 6 new mechanisms; its N5 mechanism reads a private
+      decision-mentality profile.
+    status: active
+    evidence: ART-ADO-DESIGN-RESULT
+
+definitions:
+  - definition_id: DEF-GOAL-SPELL-001
+    scope_id: CTX-GOAL-ROOT
+    term: goal spell
+    statement: >
+      A composed Arcanum spell at spells/goal that drives a Craft DAG autonomously
+      under a propose-then-promote control spine, mutating the ledger only through
+      staged deltas promoted behind a batched, decision-gate-recorded approval.
+    status: candidate
+    evidence: ART-ADO-DESIGN-RESULT
+  - definition_id: DEF-PUBLIC-PRIVATE-SPLIT-001
+    scope_id: CTX-GOAL-ROOT
+    term: goal public/private split
+    statement: >
+      The public arcanum spell ships only decision-profile.schema (shape, no data);
+      the filled decision-profile.yml (operator data) stays private in .arcanum/profiles
+      and is loaded at runtime. Honors submodule discipline and operator rule D12.
+    status: candidate
+    evidence: ART-DECISION-PROFILE-PRIVATE
+
+typed_items:
+  - item_id: BLK-GOAL-SUBMODULE-001
+    kind: blocker
+    base_type: governance_blocker
+    context_type: goal.public_submodule_discipline
+    primary_lane: governance
+    secondary_lanes:
+      - architecture
+      - validator
+    source_id: CTX-GOAL-ROOT
+    target_id: CTX-GOAL-ROOT
+    status: active
+    refinement_status: refined
+    default_role: governance_reviewer
+    delegation_route: task-session
+    closure_condition: >
+      All goal-spell authoring lands in public arcanum with NO private operator data
+      (decision corpus / filled profile excluded), and commits follow submodule
+      discipline (arcanum first + make bump-check) once approved.
+    evidence: ART-DECISION-PROFILE-PRIVATE
+    decision_ref: DEC-GOAL-PRIVACY-SPLIT-001
+    reason: spells/goal lives in the public arcanum submodule; private data must not leak.
+  - item_id: GATE-GOAL-PROMOTION-001
+    kind: gate
+    base_type: readiness_gate
+    context_type: goal.draft_to_promoted
+    primary_lane: validator
+    secondary_lanes:
+      - auditor
+    source_id: CTX-GOAL-ROOT
+    target_id: CTX-GOAL-ROOT
+    status: active
+    refinement_status: refined
+    default_role: validation_reviewer
+    delegation_route: experiment-harness
+    closure_condition: >
+      experiment-harness evidence shows the spine holds — fail-closed not
+      bypassable (read-only-craft boundary), gap-discovery terminates, approvals
+      emit decision-gate records — before the spell promotes out of draft.
+    evidence: ART-ADO-PLAN
+    decision_ref: none
+    reason: The two audit BLOCKs (B1 staging, B2 bypass) must be proven resolved, not asserted.
+  - item_id: ENA-ADO-DESIGN-001
+    kind: enabler
+    base_type: design_enabler
+    context_type: goal.validated_option_a_design
+    primary_lane: architecture
+    secondary_lanes:
+      - planner
+    source_id: CTX-GOAL-ROOT
+    target_id: CTX-GOAL-ROOT
+    status: active
+    refinement_status: refined
+    default_role: architecture_reviewer
+    delegation_route: invoke
+    closure_condition: Option A design + recomposition proof (16/16 components) + SWU-GOAL-* plan remain the build contract.
+    evidence: ART-ADO-DESIGN-RESULT
+    decision_ref: DEC-GOAL-PACKAGING-001
+    reason: The validated, audited design is the ready input that makes the build a bounded SWU set.
+
+decisions:
+  - decision_id: DEC-GOAL-PACKAGING-001
+    scope_id: CTX-GOAL-ROOT
+    decision_type: selection
+    question: How should the autonomous DAG goal-loop be packaged into Arcanum?
+    description: Chosen packaging shape for the goal-loop design among composed-spell vs new-atomic-sigils vs extend-existing.
+    options:
+      - option-a-one-composed-spell-at-spells-goal
+      - option-b-spell-plus-new-atomic-sigils
+      - option-c-extend-existing-sigils
+    default_option: option-a-one-composed-spell-at-spells-goal
+    selected: option-a-one-composed-spell-at-spells-goal
+    rationale: Operator selected A; single promotion-gated home, composition over duplication, spells/goal already scaffolded, owner-boundary cleanliness. Tournament A=19 (Pareto-dominant) vs B=12, C=10.
+    evidence: ART-ADO-DESIGN-RESULT
+    status: closed
+    blocking: false
+    impact: The build is a single spell package at spells/goal composing existing sigils + 6 inline new mechanisms.
+    owner: operator
+    links:
+      - label: design result
+        target: ART-ADO-DESIGN-RESULT
+        kind: artifact-id
+      - label: design enabler
+        target: ENA-ADO-DESIGN-001
+        kind: row-id
+  - decision_id: DEC-GOAL-PRIVACY-SPLIT-001
+    scope_id: CTX-GOAL-ROOT
+    decision_type: approval
+    question: How is the private decision-mentality model handled given arcanum is public?
+    description: Public/private split so the operator's decision data never enters the public submodule.
+    options:
+      - public-schema-only-private-filled-profile
+      - whole-model-into-arcanum
+    default_option: public-schema-only-private-filled-profile
+    selected: public-schema-only-private-filled-profile
+    rationale: arcanum is public; the model is private operator data and operator rule D12 forbids touching arcanum with it. Public ships schema + neutral default; filled profile stays private and loads at runtime.
+    evidence: ART-DECISION-PROFILE-PRIVATE
+    status: closed
+    blocking: false
+    impact: spells/goal ships decision-profile.schema only; BLK-GOAL-SUBMODULE-001 governs no-leak authoring.
+    owner: operator
+    links:
+      - label: private profile
+        target: ART-DECISION-PROFILE-PRIVATE
+        kind: artifact-id
+      - label: no-leak blocker
+        target: BLK-GOAL-SUBMODULE-001
+        kind: row-id
+  - decision_id: DEC-GOAL-PROFILE-HOME-001
+    scope_id: ART-DECISION-PROFILE-PRIVATE
+    decision_type: selection
+    question: Where does the filled decision-profile.yml live?
+    description: Private runtime home for the operator's filled decision profile.
+    options:
+      - domainspec-core-dot-arcanum-profiles
+      - workspace-resonant-artifact
+      - inside-arcanum-submodule
+    default_option: domainspec-core-dot-arcanum-profiles
+    selected: domainspec-core-dot-arcanum-profiles
+    rationale: Private, co-located with arcanum runtime state (.arcanum/), loadable by the spell. Not inside the public arcanum submodule.
+    evidence: ART-DECISION-PROFILE-PRIVATE
+    status: closed
+    blocking: false
+    impact: Profile at domainspec-core/.arcanum/profiles/decision-profile.yml; spell loads it at runtime.
+    owner: operator
+    links:
+      - label: private profile
+        target: ART-DECISION-PROFILE-PRIVATE
+        kind: artifact-id
+  - decision_id: DEC-GOAL-CRAFT-SCOPE-001
+    scope_id: CTX-GOAL-ROOT
+    decision_type: selection
+    question: Where does the Craft ledger for the goal-spell build live?
+    description: Craft scope location for tracking the goal spell build.
+    options:
+      - spells-goal-dot-craft
+      - spells-goal-development-dot-craft
+      - domainspec-core-root-dot-craft
+      - workspace-resonant-child-context
+    default_option: spells-goal-dot-craft
+    selected: spells-goal-dot-craft
+    rationale: Operator correction — the spell is the scope, so .craft sits at the spell root (spells/goal/.craft). Rows reference the private profile by path, not content.
+    evidence: ART-GOAL-CRAFT-LEDGER
+    status: closed
+    blocking: false
+    impact: This ledger lives at spells/goal/.craft/ledger.yml with the human view at spells/goal/CRAFT.md.
+    owner: operator
+    links:
+      - label: ledger source
+        target: ART-GOAL-CRAFT-LEDGER
+        kind: artifact-id
+
+gaps:
+  - gap_id: GAP-GOAL-SCHEMA-001
+    scope_id: CTX-GOAL-ROOT
+    summary: decision-profile.schema (public shape + neutral default) is not yet authored; the spell needs it as the public counterpart to the private profile.
+    severity: flag
+    treatment: resolve
+    owner: SWU-GOAL-D3
+    evidence: ART-DECISION-PROFILE-SCHEMA
+  - gap_id: GAP-GOAL-ADO-MOVE-001
+    scope_id: CTX-GOAL-ROOT
+    summary: The scrubbed, public-safe ADO design artifacts have not yet been moved into spells/goal/development/; private corpus stays in workspace-resonant. Move is gated (writes to public submodule).
+    severity: flag
+    treatment: defer
+    owner: operator-approval
+    evidence: ART-ADO-DESIGN-RESULT
+
+relations:
+  - relation_id: REL-GOAL-DESIGN-001
+    source_id: ART-ADO-DESIGN-RESULT
+    target_id: CTX-GOAL-ROOT
+    type: informs
+    status: active
+    reason: The ADO Option A design is the build contract for the goal spell.
+    evidence: ART-ADO-DESIGN-RESULT
+  - relation_id: REL-GOAL-PROFILE-001
+    source_id: ART-DECISION-PROFILE-PRIVATE
+    target_id: ART-DECISION-PROFILE-SCHEMA
+    type: informs
+    status: active
+    reason: The private filled profile is the runtime instance of the public schema (public/private split).
+    evidence: ART-DECISION-PROFILE-PRIVATE

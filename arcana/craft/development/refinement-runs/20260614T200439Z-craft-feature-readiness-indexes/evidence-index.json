@@ -42,6 +42,11 @@
     "work_pack": "WORK-PACK.md",
     "execution_receipt": "stages/execution-receipt.json",
     "subagent_strategy_receipt": "stages/subagent-strategy-receipt.md",
+    "subagent_receipts": [
+      "stages/subagents/memory-residue-reviewer.md",
+      "stages/subagents/protected-context-reviewer.md"
+    ],
+    "public_boundary_scan_summary": "stages/public-boundary-scan-summary.md",
     "tasks": [
       "work-pack/tasks/TASK-CFR-001.md",
       "work-pack/tasks/TASK-CFR-002.md",
@@ -141,5 +146,17 @@
   "recommended_next_routes": [
     "sigil-development --update craft --swu SWU-CFR-001",
     "task-session WORK-PACK.md --swu SWU-CFR-001 after maintainer approval"
+  ],
+  "validation_residue": [
+    {
+      "source": "protected-context-reviewer",
+      "status": "flag",
+      "summary": "Existing named examples should not be reused as readiness-index fixtures without owner approval; SWU-CFR-005 should default to a synthetic fixture."
+    },
+    {
+      "source": "strict public-boundary scan",
+      "status": "flag",
+      "summary": "Scan finds existing named examples and expected denylist self-references; publication requires classification before pass."
+    }
   ]
 }

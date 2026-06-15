@@ -1,0 +1,744 @@
+{
+  "dispatch_id": "20260615T121512Z-craft-ledger-csv-json-indexes",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Refine the use of CSVs and JSON indexes, for the ledger to have more performance for reading and editing.",
+    "objective": "Run the canonical Refine loop for Craft ledger CSV projections and JSON indexes, then produce design and plan artifacts for an approved Craft update.",
+    "target_artifact": "arcana/craft/development/refinement-runs/20260615T121512Z-craft-ledger-csv-json-indexes/RESULT.md",
+    "arcanum_vocabulary": [
+      "craft",
+      "refine",
+      "invoke",
+      "dispatch-spec",
+      "context-builder",
+      "interrogation",
+      "distill"
+    ],
+    "operator_sentence": "Refine Craft ledger CSV and JSON index surfaces for faster reading and safer editing.",
+    "preset": "standard",
+    "research_mode": "no-research"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "Select how much authority generated CSV and JSON surfaces should receive.",
+    "items": [
+      {
+        "id": "derived-json-derived-csv",
+        "label": "Derived JSON and CSV",
+        "description": "Keep YAML authoritative; generate JSON for reads and CSV projections for review/import.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      },
+      {
+        "id": "json-only",
+        "label": "JSON index only",
+        "description": "Add read performance through JSON indexes, deferring CSV editing surfaces.",
+        "capability_ref": "refine",
+        "pattern": "validation"
+      },
+      {
+        "id": "csv-first-editing",
+        "label": "CSV editing first",
+        "description": "Prioritize CSV export/import workflows, with JSON as a supporting manifest.",
+        "capability_ref": "refine",
+        "pattern": "tournament"
+      }
+    ],
+    "selected_item_id": "derived-json-derived-csv"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "x_ray",
+    "tournament",
+    "pareto_gate",
+    "recomposition_proof",
+    "toy_game",
+    "state_namespace_boundary",
+    "protected_context_flag",
+    "data_quality_completeness",
+    "data_quality_conformity",
+    "format_conformity_check",
+    "concrete_path_evidence"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine requires the canonical ten-stage sequence.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "s01-context-builder",
+        "s02-invoke-define",
+        "s03-interrogation-review",
+        "s04-research-decision",
+        "s05-distill",
+        "s06-invoke-design",
+        "s07-interrogation-design-review",
+        "s08-distill-repair",
+        "s09-invoke-plan",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Every non-first step consumes a named frame, handle, decision, ledger, or artifact from an earlier step."
+    },
+    {
+      "overlay_id": "xray_for_projection_structure",
+      "trigger": "CSV and JSON projections hide authority, freshness, reverse-link, and import semantics behind file formats.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "applies_to_steps": [
+        "s01-context-builder",
+        "s06-invoke-design",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "The design names each generated surface, its owner, source rows, freshness fields, and writeback constraints."
+    },
+    {
+      "overlay_id": "tournament_for_storage_strategy",
+      "trigger": "JSON-only, CSV-first, and derived JSON plus CSV are plausible strategies with different safety and complexity tradeoffs.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "s05-distill",
+        "s08-distill-repair",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "The route records rejected alternatives, Pareto criteria, and why the selected projection strategy recomposes into Craft's source-of-truth policy."
+    },
+    {
+      "overlay_id": "toy_game_for_import_safety",
+      "trigger": "CSV import sounds useful but can corrupt nested YAML if not tested on a small fixture first.",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "applies_to_steps": [
+        "s08-distill-repair",
+        "s09-invoke-plan"
+      ],
+      "validation_expectation": "The plan includes a tiny public-safe fixture that round-trips YAML to JSON plus CSV and back without changing row IDs or nested links."
+    },
+    {
+      "overlay_id": "protected_public_boundary",
+      "trigger": "The target surface is the public Arcanum Craft package and must not absorb private workspace examples.",
+      "techniques": [
+        "protected_context_flag",
+        "state_namespace_boundary",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "s04-research-decision",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Public fixtures are synthetic or already public, and protected/private context remains outside canonical Craft artifacts."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The user requested subagents and the design has independent safety questions.",
+    "explanation": "Use sidecar reviewers for schema/projection risk and prior-refine process lessons, while the parent agent owns the actual refine packet and canonical mutation gates.",
+    "context": [
+      "Target: arcana/craft",
+      "Write scope before approval: this refinement run folder only",
+      "Selected route: derived JSON index plus derived CSV projections"
+    ],
+    "roles": [
+      {
+        "role_id": "projection-risk-reviewer",
+        "purpose": "Review ledger schema and examples for CSV/JSON projection risks.",
+        "owns": "row identity, nested-link flattening, stale index, and import safety risks",
+        "applies_to_steps": [
+          "s01-context-builder",
+          "s05-distill",
+          "s08-distill-repair"
+        ]
+      },
+      {
+        "role_id": "process-boundary-reviewer",
+        "purpose": "Review prior Craft refine run residue for public-boundary and validation lessons.",
+        "owns": "public boundary, validation gates, and artifact shape lessons",
+        "applies_to_steps": [
+          "s04-research-decision",
+          "s09-invoke-plan",
+          "s10-final-synthesis"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Operator requested subagents for this refine pass; sidecar reviewers were limited to read-only evidence checks.",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "019ecb34-c8a4-7e41-ac21-d41c9ba58324",
+        "role_id": "projection-risk-reviewer",
+        "lane_name": "Craft projection risk review",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/subagent-findings.md",
+        "close_status": "closed",
+        "residue": "Generated-index deferred status and live row-family schema gap require follow-up design.",
+        "reroute": "Folded into RESULT.md open residue and next Invoke design route."
+      },
+      {
+        "agent_id": "019ecb34-d7a2-7571-b0d2-1e49462f5608",
+        "role_id": "process-boundary-reviewer",
+        "lane_name": "Prior refine process and public boundary review",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "stages/subagent-findings.md",
+        "close_status": "closed",
+        "residue": "Generated outputs need their own public-boundary scan before publication.",
+        "reroute": "Folded into validation gates and RUNTIME-HANDOFF.md."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s01-context-builder",
+      "name": "Build Craft projection context",
+      "capability_ref": "context-builder",
+      "mode": "target-local",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "x_ray",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/S01-CONTEXT-BUILDER.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "stages/S01-PROJECTION-XRAY.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if Craft source-of-truth policy cannot be located"
+      ]
+    },
+    {
+      "step_id": "s02-invoke-define",
+      "name": "Define CSV and JSON projection scope",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/S01-CONTEXT-BUILDER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "DEFINE.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s03-interrogation-review",
+      "name": "Review projection intent",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "DEFINE.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+        }
+      ],
+      "evidence_artifact": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+    },
+    {
+      "step_id": "s04-research-decision",
+      "name": "Decide research need and public boundary",
+      "capability_ref": "refine",
+      "mode": "research-decision",
+      "pattern": "decision",
+      "techniques": [
+        "protected_context_flag",
+        "state_namespace_boundary",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/S04-RESEARCH-DECISION.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s05-distill",
+      "name": "Compare storage strategies",
+      "capability_ref": "distill",
+      "mode": "strategy-tournament",
+      "pattern": "tournament",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "roles": [
+        "json-read-index",
+        "csv-edit-projection",
+        "yaml-authority"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/S04-RESEARCH-DECISION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/S05-DISTILL.md"
+        }
+      ],
+      "join_policy": "pareto",
+      "convergence_criteria": [
+        "Preserves YAML ledger authority",
+        "Improves common read paths",
+        "Allows safe human bulk review",
+        "Can be validated by public-safe fixtures"
+      ]
+    },
+    {
+      "step_id": "s06-invoke-design",
+      "name": "Design projection contract",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/S05-DISTILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-DESIGN.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s07-interrogation-design-review",
+      "name": "Review design risks",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-DESIGN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+        }
+      ],
+      "evidence_artifact": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+    },
+    {
+      "step_id": "s08-distill-repair",
+      "name": "Repair design through toy-game constraints",
+      "capability_ref": "distill",
+      "mode": "repair",
+      "pattern": "toy_game",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S08-DISTILL-REPAIR.md"
+        }
+      ],
+      "evidence_artifact": "fixtures/craft-ledger-projection-toy-game/"
+    },
+    {
+      "step_id": "s09-invoke-plan",
+      "name": "Plan executable Craft update",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness",
+        "data_quality_conformity",
+        "format_conformity_check",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S08-DISTILL-REPAIR.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-PLAN.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s10-final-synthesis",
+      "name": "Synthesize result and next route",
+      "capability_ref": "refine",
+      "mode": "final-synthesis",
+      "pattern": "synthesis",
+      "techniques": [
+        "recomposition_proof",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-PLAN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "convergence_criteria": [
+        "Result identifies approved next mutation scope",
+        "Result keeps generated surfaces non-authoritative",
+        "Result records validation and public-boundary residue"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "GATE-YAML-AUTHORITY",
+      "kind": "promotion_guardrail",
+      "owner": "craft",
+      "condition": "No generated CSV or JSON surface may become more authoritative than .craft/ledger.yml.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-PUBLIC-BOUNDARY",
+      "kind": "policy",
+      "owner": "arcanum",
+      "condition": "Public Craft artifacts must not absorb private workspace evidence or local absolute paths.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-IMPORT-SAFETY",
+      "kind": "validation",
+      "owner": "craft",
+      "condition": "CSV import/writeback requires a dry-run reconcile report, stable row ID preservation, nested link preservation, and stale-source detection.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-GENERATED-STALENESS",
+      "kind": "validation",
+      "owner": "craft",
+      "condition": "Generated JSON and CSV projections must record source ledger hash, schema version, generator version, and generated timestamp.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "GATE-CANONICAL-MUTATION-APPROVAL",
+      "kind": "human_approval",
+      "owner": "maintainer",
+      "condition": "Canonical Craft source files remain unchanged until the maintainer approves the selected SWU.",
+      "on_fail": "ask"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "public-craft-package",
+        "kind": "external_context",
+        "from_owner": "operator-context",
+        "to_owner": "arcanum",
+        "applies_to_steps": [
+          "s04-research-decision",
+          "s10-final-synthesis"
+        ],
+        "scope": "arcana/craft",
+        "contract": "Use public-safe synthetic fixtures or already-public Craft examples only.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "generated-projection-boundary",
+        "kind": "state_write",
+        "from_owner": "craft",
+        "to_owner": "generated-projections",
+        "applies_to_steps": [
+          "s06-invoke-design",
+          "s09-invoke-plan"
+        ],
+        "scope": ".craft/index.json and .craft/projections/*.csv",
+        "contract": "Generated projections are lookup/edit aids and must point back to ledger row IDs.",
+        "on_violation": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "ledger-source",
+        "root": ".craft/ledger.yml",
+        "owner": "craft",
+        "write_policy": "canonical YAML mutation only through Craft-aware edit path"
+      },
+      {
+        "namespace": "generated-indexes",
+        "root": ".craft/index.json and .craft/projections/",
+        "owner": "craft",
+        "write_policy": "rebuild from ledger or reconcile through dry-run import"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "dispatch-validation",
+        "producer": "dispatch-spec",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "validation"
+        ],
+        "stores": [
+          "validation output"
+        ],
+        "required_for": "route acceptance",
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "round-trip-fixture",
+        "producer": "craft-index tooling",
+        "required_fields": [
+          "artifacts",
+          "validation_result",
+          "audit_reference"
+        ],
+        "stores": [
+          "fixture output",
+          "dry-run import report"
+        ],
+        "required_for": "CSV import support",
+        "on_missing": "block"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "refine proposal artifacts",
+        "target": "canonical Craft source",
+        "rule": "This run may propose design and plan artifacts; canonical source mutation requires an approved Craft update route.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "native_stage_receipts": [
+    {
+      "step_id": "s01-context-builder",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S01-CONTEXT-BUILDER.md"
+      ]
+    },
+    {
+      "step_id": "s02-invoke-define",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S02-INVOKE-DEFINE.md",
+        "DEFINE.md"
+      ]
+    },
+    {
+      "step_id": "s03-interrogation-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+      ]
+    },
+    {
+      "step_id": "s04-research-decision",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S04-RESEARCH-DECISION.md"
+      ]
+    },
+    {
+      "step_id": "s05-distill",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S05-DISTILL.md"
+      ]
+    },
+    {
+      "step_id": "s06-invoke-design",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S06-INVOKE-DESIGN-RECEIPT.md",
+        "INVOKE-DESIGN.md"
+      ]
+    },
+    {
+      "step_id": "s07-interrogation-design-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+      ]
+    },
+    {
+      "step_id": "s08-distill-repair",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S08-DISTILL-REPAIR.md"
+      ]
+    },
+    {
+      "step_id": "s09-invoke-plan",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/S09-INVOKE-PLAN-RECEIPT.md",
+        "INVOKE-PLAN.md",
+        "WORK-PACK.md"
+      ]
+    },
+    {
+      "step_id": "s10-final-synthesis",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "stages/S10-FINAL-INTERROGATION-SYNTHESIS.md",
+        "RESULT.md"
+      ],
+      "blockers": [
+        "Live row-family schema gap remains open before implementation.",
+        "Import writeback requires toy fixture proof."
+      ],
+      "residue": "Projection design is ready for SWU-CLP-001; import and publication remain blocked."
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch_validated",
+      "stage_completed",
+      "subagent_completed",
+      "validation_completed"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "No canonical Craft source mutation before explicit owner approval.",
+    "No private workspace evidence in public Craft fixtures.",
+    "No generated CSV or JSON authority over ledger YAML.",
+    "No CSV writeback without dry-run reconcile validation.",
+    "No runtime mirror refresh before canonical source and fixture validation pass."
+  ]
+}

@@ -7,7 +7,7 @@
 - Questions asked: 0.
 - Decisions recorded: 5.
 - Artifacts updated: `RUN-MANIFEST.md`, `RUNTIME-HANDOFF.md`, `evidence-index.json`, `RESULT.md`.
-- Remaining ambiguities: subagent receipts absent by policy; source mutation still gated to SWU execution.
+- Remaining ambiguities: protected-context reviewer flagged strict scan and named-example strategy residue; source mutation still gated to SWU execution.
 - Verdict: flag.
 - Next step: execute `SWU-CFR-001` through sigil-development or maintainer-approved task-session.
 
@@ -24,11 +24,13 @@ The Refine loop now has execution data rather than only a pre-execution packet:
 - Design Review passed without blocker ambiguity.
 - Distill Repair found no needed repair.
 - Invoke Plan produced a medium-complexity split work-pack with eight SWUs.
-- Final synthesis recommends `SWU-CFR-001` as the next executable unit.
+- Subagent receipts are now appended: memory-residue review passed, protected-context review flagged validation hardening.
+- Strict public-boundary scan summary is appended at `stages/public-boundary-scan-summary.md`.
+- Final synthesis recommends `SWU-CFR-001` as the next executable unit, with `SWU-CFR-005` rerouted toward synthetic fixture-first coverage.
 
 ## Why The Final Verdict Is Flag, Not Pass
 
-- The route's recommended subagent reviewers were not spawned because the current subagent tool policy requires explicit user request for subagents or parallel agent work.
+- The protected-context reviewer returned `flag` because the planned public-boundary scans were too weak and current named examples need owner review before being reused as readiness fixtures.
 - Canonical Craft source files were not mutated in this Refine execution.
 - Generated runtime surfaces were not regenerated.
 

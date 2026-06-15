@@ -22,8 +22,8 @@ L2 Examples And Fixture Coverage
 
 ## Implementation Detail
 
-1. Prefer a small synthetic fixture if modifying existing named examples would blur their current story.
-2. If updating an existing example, only use already-public information in the current example.
+1. Default to a small synthetic fixture. Do not edit existing named examples unless the owner explicitly approves that route.
+2. If updating an existing example is explicitly approved, only use already-public information in the current example and record that owner approval in the task result.
 3. Demonstrate:
    - a current execution target;
    - one ready SWU ID;
@@ -31,7 +31,7 @@ L2 Examples And Fixture Coverage
    - an allowed execution mode;
    - one blocked mutation or publication scope.
 4. Keep all paths relative and public-safe.
-5. Do not copy private workspace names, findings, nested product paths, or local-only approval records.
+5. Do not copy private workspace names, findings, named product examples, nested product paths, people/team names, or local-only approval records.
 
 ## Edge Cases
 
@@ -43,7 +43,7 @@ L2 Examples And Fixture Coverage
 
 | SWU | Work | Acceptance |
 | --- | --- | --- |
-| `SWU-CFR-005` | Add public-safe fixture or example update. | Example parses and demonstrates readiness without private evidence. |
+| `SWU-CFR-005` | Add public-safe fixture or example update. | Synthetic fixture parses and demonstrates readiness without private evidence, or an owner-approved named-example update records its approval. |
 
 ## Verification
 
@@ -55,10 +55,10 @@ for path in Path("arcana/craft/examples").glob("*.yml"):
     yaml.safe_load(path.read_text())
     print(f"YAML OK: {path}")
 PY
-rg -n "/home/|\\.\\./|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
+rg -n "/home/|\\.\\./|projects/|implementation/|Body War|GoldenQuill|Parque|DomainSpec|Strava|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
 ```
 
 ## Done When
 
-- Public-safe fixture coverage exists.
-- The privacy scan does not reveal private workspace evidence in public Craft examples.
+- Public-safe synthetic fixture coverage exists, unless owner approval explicitly chose a named-example update.
+- The strict public-boundary scan is reviewed as a publication gate; expected hits in pre-existing examples must be classified before pass.

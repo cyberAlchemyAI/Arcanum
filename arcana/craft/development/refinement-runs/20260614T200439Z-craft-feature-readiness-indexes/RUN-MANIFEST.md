@@ -23,6 +23,8 @@
 - Work-pack: `WORK-PACK.md`
 - Work-pack tasks: `work-pack/tasks/`
 - Work-pack waves: `work-pack/waves/`
+- Subagent receipts: `stages/subagents/`
+- Public boundary scan summary: `stages/public-boundary-scan-summary.md`
 
 ## Stage Evidence
 
@@ -37,10 +39,23 @@
 | Interrogation refine-design-review | interrogation | refine-design-review | pass | `stages/S07-INTERROGATION-DESIGN-REVIEW.md` | native-stage | pass | none |
 | Distill Repair | distill | validate | pass | `stages/S08-DISTILL-REPAIR.md` | native-stage | pass | none |
 | Invoke Plan | invoke | plan | pass | `stages/S09-INVOKE-PLAN-RECEIPT.md` | native-stage | pass | none |
-| Final Interrogation and Synthesis | interrogation + refine | refine-final | flag | `stages/S10-FINAL-INTERROGATION-SYNTHESIS.md` | native-stage | flag | Subagent strategy was recommended but not spawned because explicit subagent/parallel-agent authorization is required by tool policy. |
+| Final Interrogation and Synthesis | interrogation + refine | refine-final | flag | `stages/S10-FINAL-INTERROGATION-SYNTHESIS.md` | native-stage | flag | Protected-context reviewer flagged weak public-boundary scans and named-example strategy risk. |
+
+## Subagent Receipts
+
+| Role | Agent ID | Status | Artifact | Impact |
+| --- | --- | --- | --- | --- |
+| memory-residue-reviewer | `019ec92d-3430-7ca0-8c2d-bdfffdb30cd6` | pass | `stages/subagents/memory-residue-reviewer.md` | Confirms prior context and residue are recovered without stale/private promotion. |
+| protected-context-reviewer | `019ec92d-559d-7171-a1c5-f6dec38558eb` | flag | `stages/subagents/protected-context-reviewer.md` | Requires stricter boundary scans and synthetic-fixture-first strategy before example/pass claims. |
+
+## Validation Residue
+
+- Strict public-boundary scan result: `stages/public-boundary-scan-summary.md`
+- `SWU-CFR-001` may proceed as schema-only.
+- `SWU-CFR-005` is blocked from pass unless it creates a synthetic fixture first or records explicit owner approval for named-example edits.
 
 ## Notes
 
-- The `flag` status is intentional: the ten-stage loop now has local stage receipts, but recommended subagents were not spawned.
+- The `flag` status is intentional: the ten-stage loop now has local stage receipts and delegated subagent receipts, but protected-context review found validation residue.
 - `REFINE-DISPATCH.json` validates the route shape for this materialized run.
 - Future source mutation must select one SWU and use `sigil-development` or maintainer-approved `task-session`.

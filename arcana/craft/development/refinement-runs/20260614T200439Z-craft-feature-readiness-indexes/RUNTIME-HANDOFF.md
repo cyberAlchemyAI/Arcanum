@@ -24,9 +24,9 @@ Run the canonical Refine loop for the Craft execution-readiness index update and
 ## Permission State
 
 - Runtime-backed stages: executed locally through parent-native Codex stage receipts.
-- Subagent strategy: recommended by selected overlays.
-- Authorization: full subagent spawning blocked because the available subagent tool policy requires an explicit user request for subagents, delegation, or parallel agent work.
-- Fallback: parent-local role simulation for memory-residue and protected-context review.
+- Subagent strategy: completed with one `pass` and one `flag` receipt.
+- Authorization: operator explicitly requested subagents after the first local fallback run.
+- Fallback: parent-local role simulation remains recorded as pre-subagent fallback evidence.
 
 ## Handoff Requirements
 
@@ -37,7 +37,7 @@ Run the canonical Refine loop for the Craft execution-readiness index update and
 
 ## Blocked Fields
 
-- Subagent receipts: no delegated subagents were spawned.
+- Protected-context residue: stricter denylist scan and synthetic-fixture-first example strategy are required before `SWU-CFR-005` pass or publication.
 - Canonical source mutation: not performed by this Refine execution.
 - Generated runtime surface sync: deferred until canonical source edits pass.
 
@@ -54,3 +54,6 @@ Run the canonical Refine loop for the Craft execution-readiness index update and
 - Invoke Plan receipt: `stages/S09-INVOKE-PLAN-RECEIPT.md`
 - Final synthesis: `stages/S10-FINAL-INTERROGATION-SYNTHESIS.md`
 - Machine receipt: `stages/execution-receipt.json`
+- Memory-residue reviewer: `stages/subagents/memory-residue-reviewer.md`
+- Protected-context reviewer: `stages/subagents/protected-context-reviewer.md`
+- Public-boundary scan summary: `stages/public-boundary-scan-summary.md`

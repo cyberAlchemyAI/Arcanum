@@ -58,7 +58,7 @@ Out of scope:
 | `SWU-CFR-002` | `TASK-CFR-001` | Confirm existing examples remain compatible. | local-fallback | YAML parse examples. |
 | `SWU-CFR-003` | `TASK-CFR-002` | Update `SKILL.md` linking/all-status guidance. | local-fallback | Grep contract terms. |
 | `SWU-CFR-004` | `TASK-CFR-002` | Update `README.md` package summary. | local-fallback | Grep README terms. |
-| `SWU-CFR-005` | `TASK-CFR-003` | Add public-safe readiness example or fixture. | local-fallback | YAML parse and privacy scan. |
+| `SWU-CFR-005` | `TASK-CFR-003` | Add public-safe readiness example or fixture. | local-fallback | YAML parse and strict public-boundary scan; default to synthetic fixture unless owner approves named examples. |
 | `SWU-CFR-006` | `TASK-CFR-004` | Add reviewable validation checklist. | local-fallback | Checklist commands pass. |
 | `SWU-CFR-007` | `TASK-CFR-005` | Regenerate runtime surfaces after canonical edits. | local-fallback | Generated copies include new contract. |
 | `SWU-CFR-008` | `TASK-CFR-005` | Run submodule-safe publication checks. | manual | `git diff --check`; `make bump-check` before parent publication. |
@@ -72,6 +72,6 @@ Select one SWU before execution. Do not run a whole task bundle as one mutation 
 - JSON validation for this planning packet.
 - YAML parse for `ledger.schema.yml` and touched examples.
 - Grep checks for readiness contract terms in canonical and generated surfaces.
-- Public-boundary scan for private workspace names or local-only product paths before any public commit.
+- Strict public-boundary scan for private workspace names, named product examples, local-only product paths, private submodule paths, people/team names, and repo-root traversal before any public commit.
 - `git diff --check`.
 - `make bump-check` only when publication or parent gitlink movement is requested.

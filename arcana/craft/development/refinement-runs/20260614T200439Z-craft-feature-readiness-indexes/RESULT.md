@@ -17,7 +17,7 @@ This stays inside Craft's role: Craft records ledger state and route memory. It 
 
 - Target: `arcana/craft`
 - Status: `flag`
-- Reason: the Refine loop now has local native stage receipts, but recommended subagent reviewers were not spawned and canonical Craft source files were not mutated.
+- Reason: the Refine loop now has local native stage receipts and delegated subagent receipts; protected-context review flagged validation hardening and canonical Craft source files were not mutated.
 - Research: `no-research`
 - Runtime-backed Refine loop: executed locally through parent-native Codex stage receipts.
 
@@ -37,9 +37,12 @@ This stays inside Craft's role: Craft records ledger state and route memory. It 
 ## Execution Residue
 
 - Subagent strategy receipt: `stages/subagent-strategy-receipt.md`
+- Memory-residue reviewer: pass, `stages/subagents/memory-residue-reviewer.md`
+- Protected-context reviewer: flag, `stages/subagents/protected-context-reviewer.md`
+- Public-boundary scan summary: `stages/public-boundary-scan-summary.md`
 - Machine execution receipt: `stages/execution-receipt.json`
-- Residue: recommended reviewers were not spawned because the active subagent tool policy requires an explicit user request for subagents, delegation, or parallel agent work.
-- Impact: this run has enough data for `SWU-CFR-001` execution, but it should remain `flag` until subagent receipts exist or the maintainer accepts the local fallback.
+- Residue: strict public-boundary scan and named-example strategy need hardening before `SWU-CFR-005` or publication.
+- Impact: this run has enough data for `SWU-CFR-001` execution, but it should remain `flag` until protected-context validation hardening is addressed or explicitly accepted by the maintainer.
 
 ## Proposed Contract Shape
 
@@ -94,4 +97,5 @@ Ledger rows may also carry optional readiness fields when the information belong
 
 1. `sigil-development --update craft` to approve this as a Craft lifecycle update.
 2. `task-session` on `SWU-CFR-001` after the maintainer selects a first executable unit.
-3. Regenerate generated runtime surfaces only after canonical source mutation passes validation.
+3. Route `SWU-CFR-005` to a new synthetic fixture first unless owner approval selects named-example updates.
+4. Regenerate generated runtime surfaces only after canonical source mutation passes validation.

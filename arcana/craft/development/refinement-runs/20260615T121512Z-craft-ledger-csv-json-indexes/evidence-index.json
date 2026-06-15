@@ -1,0 +1,76 @@
+{
+  "run_id": "20260615T121512Z-craft-ledger-csv-json-indexes",
+  "target": "arcana/craft",
+  "evidence": [
+    {
+      "id": "EVID-README-STORAGE",
+      "path": "arcana/craft/README.md",
+      "lines": "27-39",
+      "claim": "Craft already defines ledger.yml as source of truth and index.json as rebuildable derived data."
+    },
+    {
+      "id": "EVID-README-LINK-INDEX",
+      "path": "arcana/craft/README.md",
+      "lines": "55-61",
+      "claim": "Craft already expects stable row IDs and machine indexes for common access patterns."
+    },
+    {
+      "id": "EVID-SCHEMA-AUTHORITY",
+      "path": "arcana/craft/templates/ledger.schema.yml",
+      "lines": "17-24",
+      "claim": "The schema states YAML owns fields and validation rules, while generated indexes are not source authority."
+    },
+    {
+      "id": "EVID-SCHEMA-INDEX-CONTRACT",
+      "path": "arcana/craft/templates/ledger.schema.yml",
+      "lines": "42-53",
+      "claim": "The current index contract already names required ledger indexes and .craft/index.json."
+    },
+    {
+      "id": "EVID-SCHEMA-TYPED-ITEMS",
+      "path": "arcana/craft/templates/ledger.schema.yml",
+      "lines": "307-390",
+      "claim": "Typed items contain nested and conditional fields that CSV import must preserve carefully."
+    },
+    {
+      "id": "EVID-EXAMPLES-EMBEDDED-INDEXES",
+      "path": "arcana/craft/examples/body-war-ledger.yml; arcana/craft/examples/goldenquill-ledger.yml",
+      "lines": "body-war 8-28; goldenquill 11-51",
+      "claim": "Current examples embed positional index pointers, which can drift after row reordering and are better treated as generated compatibility data."
+    },
+    {
+      "id": "EVID-LIVE-ROW-FAMILY-GAP",
+      "path": "arcana/craft/examples/body-war-ledger.yml; arcana/craft/examples/goldenquill-ledger.yml",
+      "lines": "body-war 127-395; goldenquill 164-474",
+      "claim": "Live examples include row families beyond the initial schema contract, so projection generation must define or flag them."
+    },
+    {
+      "id": "EVID-PRIOR-REFINE-BOUNDARY",
+      "path": "arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes/RESULT.md",
+      "lines": "90-101",
+      "claim": "Prior Craft refine work kept public/private boundary and generated runtime refresh as explicit gates."
+    }
+  ],
+  "non_evidence": [
+    "Private workspace ledgers and unpublished product state were not copied into this public Craft run."
+  ],
+  "stage_artifacts": [
+    "DEFINE.md",
+    "INVOKE-DESIGN.md",
+    "GLOSSARY-CONSISTENCY.md",
+    "IMPLEMENTATION-LAYERING.md",
+    "INVOKE-PLAN.md",
+    "WORK-PACK.md",
+    "stages/S01-CONTEXT-BUILDER.md",
+    "stages/S02-INVOKE-DEFINE.md",
+    "stages/S03-INTERROGATION-REFINE-REVIEW.md",
+    "stages/S04-RESEARCH-DECISION.md",
+    "stages/S05-DISTILL.md",
+    "stages/S06-INVOKE-DESIGN-RECEIPT.md",
+    "stages/S07-INTERROGATION-DESIGN-REVIEW.md",
+    "stages/S08-DISTILL-REPAIR.md",
+    "stages/S09-INVOKE-PLAN-RECEIPT.md",
+    "stages/S10-FINAL-INTERROGATION-SYNTHESIS.md",
+    "stages/execution-receipt.json"
+  ]
+}
