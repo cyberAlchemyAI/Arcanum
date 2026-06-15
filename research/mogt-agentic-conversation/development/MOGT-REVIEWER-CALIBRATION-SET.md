@@ -259,6 +259,13 @@ adjudication before production scoring.
 - Recommended anchor alignment before production scoring: agree on how
   generously to score borderline-acceptable decisions and what overhead counts
   as "clearly acceptable" absent a numeric envelope.
+- **RESOLVED (2026-06-11):** all 3 flagged rows adjudicated to the
+  **conservative (model-consensus) anchor** via decision-gate. The `1.0` anchor
+  requires the trace to *establish* the positive judgment; "defensible but
+  trades off", "frontier member but optimality not derived", and "tolerable but
+  no numeric envelope" all land in `0.70-0.85`. The 6-model rig (MODEL_X lane)
+  confirmed this is a systematic human-vs-model bias across 5 independent models
+  plus MODEL_Y. See `decisions/CAL-ANCHOR-ALIGNMENT.md`.
 
 ## Calibration Notes (MODEL_Y lane)
 
@@ -281,6 +288,12 @@ borderline-positive decisions where the human scored more leniently.
 
 Calibration is NOT yet complete. Remaining before production scoring or live
 evidence approval:
-1. Resolve the 3 human/Model Y adjudication rows (anchor-alignment discussion).
-2. Score the Model X reviewer lane (still pending).
-3. Save final calibration sign-off, ideally via a `task-session` continuation.
+1. ~~Resolve the 3 human/Model Y adjudication rows (anchor-alignment
+   discussion).~~ **DONE 2026-06-11** — conservative anchor;
+   `decisions/CAL-ANCHOR-ALIGNMENT.md`.
+2. ~~Score the Model X reviewer lane (still pending).~~ **DONE** — 6-model x 2
+   rig scored; 5-model consensus (excl. GPT-4o outlier) recorded.
+3. Record concrete model ids/versions (MODEL_X, MODEL_Y) and human reviewer
+   identities; decide GPT-4o panel-voice role (recommended: panel-only, never
+   solo).
+4. Save final calibration sign-off, ideally via a `task-session` continuation.
