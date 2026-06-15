@@ -70,7 +70,9 @@ If the user does not provide `--output`, write or update the decision record at 
    - downstream impact.
 6. Ask the user each blocker decision:
    - prefer an ask-questions interface when available,
-   - otherwise use plain conversation with numbered options.
+   - otherwise use plain conversation with numbered options,
+   - always present a standing "Explain / more context" choice alongside the real
+     options (see <context-option>); it is never one of the decision answers.
 7. Continue until all blocker decisions are resolved or the user explicitly defers/stops.
 8. If any blocker decision remains unresolved, return `BLOCK` and do not proceed with consequential mutation.
 9. Persist the decision record with:
@@ -84,6 +86,25 @@ If the user does not provide `--output`, write or update the decision record at 
    - deferred decisions or assumptions.
 10. Return a decision-gate summary with `PASS` or `BLOCK`, resolved decisions, remaining blockers, and the decision artifact path.
 </process>
+
+<context-option>
+Every blocker decision must offer a non-committal "Explain / more context" choice in
+addition to its real options. Selecting it does not resolve the gate. When the user
+takes it — or otherwise signals they are unsure ("let me think", "not sure", a
+question instead of a choice) — expand the decision before asking again:
+
+- restate the decision and why it blocks the consequential work,
+- give the deeper rationale and the source evidence behind each option, citing files,
+  prior decisions, or notes,
+- spell out what each option concretely changes downstream, including reversibility,
+  cost, risk, and any decision it forces or forecloses,
+- surface related or dependent decisions,
+- name the recommended option and why, without choosing it.
+
+After explaining, re-present the same decision with the same real options and the
+standing "Explain / more context" choice again. Loop until the user picks a real
+option or explicitly defers or stops. The explain choice never counts as consent.
+</context-option>
 
 <authority-rule>
 When this sigil returns `BLOCK`, consequential mutation should not proceed until the blocker decisions are resolved or the user explicitly overrides the gate.
@@ -109,6 +130,7 @@ A successful execution of this sigil must:
 - identify every visible blocker-level multi-option decision,
 - separate blocker decisions from deferrable decisions and assumptions,
 - present options with meaningful trade-offs,
+- offer a non-committal explain / more-context choice on every blocker decision and expand on request before asking again,
 - avoid choosing on the user's behalf when the decision is consequential,
 - persist a reviewable decision record,
 - return a clear `PASS` or `BLOCK` result,
@@ -121,6 +143,7 @@ Avoid:
 - asking the user to decide trivial or fully reversible details,
 - bundling multiple independent decisions into one vague question,
 - presenting options without trade-offs,
+- forcing a choice when the user is unsure instead of offering deeper explanation,
 - treating silence as consent for a blocker decision,
 - proceeding with consequential mutation after a `BLOCK` result,
 - hiding assumptions inside implementation or documentation,
