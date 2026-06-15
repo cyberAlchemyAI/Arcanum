@@ -1,0 +1,148 @@
+{
+  "schema_version": "context-builder-handoff-index.v1",
+  "task": "prepare invoke handoff for converting or exposing Arcanum to VS Code Zoo Code",
+  "mode": "standard",
+  "strict_coverage": "pass",
+  "created_at": "2026-06-12T16:31:22Z",
+  "source_session_reference": "current Codex thread, user request at 2026-06-12T16:31:22Z",
+  "handoff_type": "new-lifecycle-thread",
+  "next_route": "invoke define",
+  "external_sources": [
+    {
+      "url": "https://www.zoocode.dev/",
+      "summary": "Zoo Code public site: open-source VS Code AI coding extension with modes, BYOK/model-agnostic operation, MCP, diffs, and headless operation."
+    },
+    {
+      "url": "https://docs.zoocode.dev/",
+      "summary": "Zoo Code docs: VS Code extension, coding tasks, modes, MCP, model provider setup, and workflow guidance."
+    },
+    {
+      "url": "https://docs.zoocode.dev/features/custom-modes",
+      "summary": "Custom modes can be global or project-specific, with project modes in .roomodes and fields for slug, name, description, roleDefinition, groups, whenToUse, and customInstructions."
+    },
+    {
+      "url": "https://docs.zoocode.dev/features/custom-instructions",
+      "summary": "Workspace and mode-specific rules can be supplied through .roo/rules, .roorules, .roo/rules-{modeSlug}, or .roorules-{modeSlug}."
+    },
+    {
+      "url": "https://docs.zoocode.dev/features/mcp/using-mcp-in-roo",
+      "summary": "Zoo Code can connect to MCP servers, including project-level .roo/mcp.json configuration."
+    },
+    {
+      "url": "https://github.com/Zoo-Code-Org/Zoo-Code",
+      "summary": "Open-source Zoo Code repository and local development reference."
+    }
+  ],
+  "outputs": {
+    "session_handoff": "development/session-handoffs/20260612T163122Z-vscode-zoo-code-conversion-handoff.md",
+    "context_index": "development/session-handoffs/20260612T163122Z-vscode-zoo-code-conversion-context-index.json"
+  },
+  "obligations": [
+    {
+      "id": "O-001",
+      "summary": "Preserve the user's split reason.",
+      "coverage": "covered",
+      "selected_sources": [
+        "current user prompt"
+      ]
+    },
+    {
+      "id": "O-002",
+      "summary": "Identify Arcanum's current canonical model.",
+      "coverage": "covered",
+      "selected_sources": [
+        "README.md",
+        "registry/SIGILS.md",
+        "registry/SPELLS.md"
+      ]
+    },
+    {
+      "id": "O-003",
+      "summary": "Identify existing host/runtime surfaces.",
+      "coverage": "covered",
+      "selected_sources": [
+        "framework/runtime/README.md",
+        "tools/bootstrap_arcanum.sh",
+        "arcana/sigil-runtime-installer/README.md"
+      ]
+    },
+    {
+      "id": "O-004",
+      "summary": "Avoid treating legacy Codex commands as the desired target by default.",
+      "coverage": "covered",
+      "selected_sources": [
+        "README.md",
+        "arcana/sigil-runtime-installer/README.md"
+      ]
+    },
+    {
+      "id": "O-005",
+      "summary": "Ground Zoo Code as the target runtime surface.",
+      "coverage": "covered",
+      "selected_sources": [
+        "current user prompt",
+        "https://www.zoocode.dev/",
+        "https://docs.zoocode.dev/",
+        "https://github.com/Zoo-Code-Org/Zoo-Code"
+      ]
+    },
+    {
+      "id": "O-006",
+      "summary": "Keep implementation deferred until the target surface is defined.",
+      "coverage": "covered",
+      "selected_sources": [
+        "spells/invoke/handoff.md",
+        "spells/invoke/templates/session-handoff/session-handoff.md"
+      ]
+    },
+    {
+      "id": "O-007",
+      "summary": "Identify likely generated Zoo Code artifacts.",
+      "coverage": "covered",
+      "selected_sources": [
+        "https://docs.zoocode.dev/features/custom-modes",
+        "https://docs.zoocode.dev/features/custom-instructions",
+        "https://docs.zoocode.dev/features/mcp/using-mcp-in-roo"
+      ]
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "candidate": "full current chat transcript",
+      "reason": "too broad"
+    },
+    {
+      "candidate": "existing dirty worktree details",
+      "reason": "not part of the conversion concept until implementation starts"
+    },
+    {
+      "candidate": "local parent VS Code workspace color launchers",
+      "reason": "not an Arcanum conversion target or runtime surface"
+    },
+    {
+      "candidate": "legacy .codex/commands cleanup reports",
+      "reason": "history does not resolve the target meaning"
+    }
+  ],
+  "blockers": [],
+  "gaps": [
+    {
+      "summary": "Exact generated artifact shape is not selected.",
+      "owner": "invoke define",
+      "status": "open",
+      "next_action": "Choose between .roomodes, .roo/rules-*, .roo/mcp.json, bootstrap profile extension, or a staged combination."
+    },
+    {
+      "summary": "Target host-surface owner is not selected.",
+      "owner": "invoke define",
+      "status": "open",
+      "next_action": "Define candidate owner and route."
+    },
+    {
+      "summary": "Validation surface is unknown.",
+      "owner": "invoke define then invoke design",
+      "status": "open",
+      "next_action": "Decide generated-surface proof."
+    }
+  ]
+}
