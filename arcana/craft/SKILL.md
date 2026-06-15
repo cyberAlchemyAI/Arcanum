@@ -36,7 +36,10 @@ current canonical interface authority:
 
 - `arcana/craft/SKILL.md`
 - `arcana/craft/README.md`
+- `arcana/craft/ARCHITECTURE.md`
 - `arcana/craft/templates/ledger.schema.yml`
+- `arcana/craft/templates/schemas/ledger-core.schema.yml`
+- `arcana/craft/templates/schemas/index.schema.yml`
 - `arcana/craft/examples/body-war-ledger.yml`
 - `arcana/craft/examples/body-war-CRAFT.md`
 - `arcana/craft/examples/goldenquill-ledger.yml`

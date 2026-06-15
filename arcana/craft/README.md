@@ -41,8 +41,13 @@ the ledger.
 ## Canonical Runtime Files
 
 - [SKILL.md](SKILL.md) - executable Craft operating contract.
+- [ARCHITECTURE.md](ARCHITECTURE.md) - current architecture baseline for
+  comparing proposed Craft changes.
 - [templates/ledger.schema.yml](templates/ledger.schema.yml) - first canonical
-  ledger schema.
+  ledger schema and compatibility entrypoint.
+- [templates/schemas/ledger-core.schema.yml](templates/schemas/ledger-core.schema.yml)
+  and [templates/schemas/index.schema.yml](templates/schemas/index.schema.yml)
+  - first split schema-stack layer for source ledger rows and indexes.
 - [examples/body-war-ledger.yml](examples/body-war-ledger.yml) and
   [examples/body-war-CRAFT.md](examples/body-war-CRAFT.md) - small product MVP
   readiness example.

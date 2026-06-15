@@ -1,0 +1,522 @@
+{
+  "dispatch_id": "20260615T131737Z-craft-deterministic-row-updater",
+  "parent_dispatch_id": "20260615T121512Z-craft-ledger-csv-json-indexes",
+  "intent": {
+    "raw": "[$refine] [craft] if we need to create a deterministic row updater tool",
+    "objective": "Run the canonical Refine loop to decide whether Craft needs a deterministic row updater/reconciler before CSV import writeback.",
+    "target_artifact": "arcana/craft/development/refinement-runs/20260615T131737Z-craft-deterministic-row-updater/RESULT.md",
+    "arcanum_vocabulary": [
+      "craft",
+      "refine",
+      "dispatch-spec",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill"
+    ],
+    "operator_sentence": "Refine whether Craft should add a deterministic row updater tool.",
+    "preset": "compact",
+    "research_mode": "no-research"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "Choose how row-level writeback should be governed before any Craft ledger mutation is implemented.",
+    "items": [
+      {
+        "id": "no-new-tool",
+        "label": "No New Tool",
+        "description": "Keep row update semantics as internal acceptance criteria inside the planned import-csv dry-run.",
+        "capability_ref": "refine",
+        "pattern": "validation"
+      },
+      {
+        "id": "deterministic-row-updater",
+        "label": "Dedicated Row Updater",
+        "description": "Create a narrow deterministic reconciler that produces patch plans for one row family and row ID at a time.",
+        "capability_ref": "refine",
+        "pattern": "sequential"
+      },
+      {
+        "id": "broad-import-first",
+        "label": "Broad Import First",
+        "description": "Proceed directly with import-csv --dry-run and let the importer own all row update semantics.",
+        "capability_ref": "refine",
+        "pattern": "toy_game"
+      }
+    ],
+    "selected_item_id": "deterministic-row-updater"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "one_or_more_option_set",
+    "approval_checkpoint",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "x_ray",
+    "toy_game",
+    "component_descriptor",
+    "entity_component_reference",
+    "assessment_failure_reference",
+    "protected_context_flag",
+    "state_namespace_boundary",
+    "concrete_path_evidence",
+    "data_quality_completeness",
+    "format_conformity_check"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine requires the canonical ten-stage sequence before final synthesis.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop"
+      ],
+      "applies_to_steps": [
+        "s01-context-builder",
+        "s02-invoke-define",
+        "s03-interrogation-review",
+        "s04-research-decision",
+        "s05-distill",
+        "s06-invoke-design",
+        "s07-interrogation-design-review",
+        "s08-distill-repair",
+        "s09-invoke-plan",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Every non-first step consumes a named frame, handle, decision, ledger, or artifact from an earlier step."
+    },
+    {
+      "overlay_id": "route_menu_for_tool_shape",
+      "trigger": "The target can be handled as no new tool, a narrow row updater, or a broad import-csv dry-run.",
+      "techniques": [
+        "route_menu",
+        "one_or_more_option_set",
+        "approval_checkpoint"
+      ],
+      "applies_to_steps": [
+        "s05-distill",
+        "s09-invoke-plan"
+      ],
+      "validation_expectation": "The selected route records the rejected alternatives and requires operator confirmation before runtime-backed stages."
+    },
+    {
+      "overlay_id": "xray_for_row_update_pipeline",
+      "trigger": "Row update safety depends on hidden structure: row selectors, YAML paths, source hashes, nested links, references, and read-only fields.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "applies_to_steps": [
+        "s01-context-builder",
+        "s06-invoke-design",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "The design names the row update pipeline components and their authority boundaries."
+    },
+    {
+      "overlay_id": "toy_game_for_patch_safety",
+      "trigger": "A deterministic updater must prove safe behavior on a tiny public fixture before it can mutate YAML.",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference",
+        "format_conformity_check"
+      ],
+      "applies_to_steps": [
+        "s08-distill-repair",
+        "s09-invoke-plan"
+      ],
+      "validation_expectation": "The plan includes a toy fixture that proves stale-source blocking, ID preservation, reference checks, and read-only nested-field reporting."
+    },
+    {
+      "overlay_id": "protected_public_boundary",
+      "trigger": "Craft is a public Arcanum package, while the surrounding parent repository contains parent-only project evidence.",
+      "techniques": [
+        "protected_context_flag",
+        "state_namespace_boundary",
+        "concrete_path_evidence",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": [
+        "s01-context-builder",
+        "s04-research-decision",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "The route cites concrete public paths and keeps parent-only examples out of canonical Craft fixtures."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "The refinement question is narrow and can be decided from local Craft evidence without delegated role lanes.",
+    "explanation": "Run the parent-owned compact Refine sequence first. If later stages reveal competing implementation strategies, a follow-up route may recommend subagents.",
+    "context": [
+      "Canonical target: arcana/craft",
+      "Historical evidence: development/craft",
+      "Write scope before confirmation: this refinement run folder only"
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "permission_prompt": "Subagents are not proposed for this compact strategy.",
+    "receipt_requirements": []
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "s01-context-builder",
+      "name": "Build Craft row-update evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "compact",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "x_ray",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/S01-CONTEXT-BUILDER.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "stages/S01-ROW-UPDATE-XRAY.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if canonical Craft source authority cannot be located"
+      ]
+    },
+    {
+      "step_id": "s02-invoke-define",
+      "name": "Define deterministic row updater question",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/S01-CONTEXT-BUILDER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S02-INVOKE-DEFINE.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s03-interrogation-review",
+      "name": "Critique row updater need",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "sequential",
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S02-INVOKE-DEFINE.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+        }
+      ],
+      "evidence_artifact": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+    },
+    {
+      "step_id": "s04-research-decision",
+      "name": "Record local-only research decision",
+      "capability_ref": "refine",
+      "mode": "research-decision",
+      "pattern": "decision",
+      "techniques": [
+        "protected_context_flag",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S03-INTERROGATION-REFINE-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/S04-RESEARCH-DECISION.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s05-distill",
+      "name": "Select row-writeback strategy",
+      "capability_ref": "distill",
+      "mode": "compact",
+      "pattern": "sequential",
+      "techniques": [
+        "route_menu",
+        "one_or_more_option_set",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/S04-RESEARCH-DECISION.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/S05-DISTILL.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s06-invoke-design",
+      "name": "Design row updater or import-dry-run boundary",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "handle",
+          "ref": "stages/S05-DISTILL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S06-INVOKE-DESIGN.md"
+        }
+      ]
+    },
+    {
+      "step_id": "s07-interrogation-design-review",
+      "name": "Review row update design risks",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "sequential",
+      "techniques": [
+        "validation_loop",
+        "format_conformity_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S06-INVOKE-DESIGN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+        }
+      ],
+      "evidence_artifact": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+    },
+    {
+      "step_id": "s08-distill-repair",
+      "name": "Repair through single-row toy fixture constraints",
+      "capability_ref": "distill",
+      "mode": "repair",
+      "pattern": "toy_game",
+      "techniques": [
+        "toy_game",
+        "assessment_failure_reference",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/S07-INTERROGATION-DESIGN-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S08-DISTILL-REPAIR.md"
+        }
+      ],
+      "evidence_artifact": "stages/S08-DISTILL-REPAIR.md"
+    },
+    {
+      "step_id": "s09-invoke-plan",
+      "name": "Plan the first safe row-update SWU",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "approval_checkpoint",
+        "validation_loop",
+        "format_conformity_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S08-DISTILL-REPAIR.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S09-INVOKE-PLAN.md"
+        }
+      ],
+      "evidence_artifact": "stages/S09-INVOKE-PLAN.md"
+    },
+    {
+      "step_id": "s10-final-synthesis",
+      "name": "Synthesize deterministic row updater recommendation",
+      "capability_ref": "refine",
+      "mode": "final-synthesis",
+      "pattern": "synthesis",
+      "techniques": [
+        "owner_boundary_check",
+        "state_namespace_boundary",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/S09-INVOKE-PLAN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "GATE-YAML-AUTHORITY",
+      "kind": "promotion_guardrail",
+      "owner": "craft",
+      "condition": "No row updater, CSV importer, generated index, or projection may become more authoritative than .craft/ledger.yml.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-PUBLIC-BOUNDARY",
+      "kind": "policy",
+      "owner": "arcanum",
+      "condition": "Public Craft fixtures and canonical artifacts must not absorb parent-only workspace evidence, local absolute paths, or parent-only project data.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-ROW-UPDATE-SAFETY",
+      "kind": "validation",
+      "owner": "craft",
+      "condition": "Any row update plan must block stale-source edits, row ID churn, unresolved references, unsupported row families, and unsafe nested-field mutation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-TOY-FIXTURE-FIRST",
+      "kind": "validation",
+      "owner": "craft",
+      "condition": "A toy fixture must prove patch-plan behavior before any YAML mutation path is enabled.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "GATE-RUNTIME-CONFIRMATION",
+      "kind": "human_approval",
+      "owner": "maintainer",
+      "condition": "Runtime-backed Refine stages remain paused until the operator confirms this strategy proposal.",
+      "on_fail": "ask"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "20260615T121512Z-craft-ledger-csv-json-indexes",
+    "trace_events": [
+      "dispatch_validated",
+      "strategy_previewed",
+      "stage_completed",
+      "validation_completed"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "public-parent-context-boundary",
+        "kind": "external_context",
+        "from_owner": "parent repository",
+        "to_owner": "public arcanum package",
+        "applies_to_steps": [
+          "s01-context-builder",
+          "s04-research-decision",
+          "s10-final-synthesis"
+        ],
+        "contract": "Use parent-only evidence only as operator context; do not copy parent-only examples into public Craft fixtures.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "generated-projection-authority-boundary",
+        "kind": "state_write",
+        "from_owner": "craft generated projections",
+        "to_owner": "project-local ledger source",
+        "applies_to_steps": [
+          "s06-invoke-design",
+          "s08-distill-repair",
+          "s09-invoke-plan"
+        ],
+        "contract": "Generated projections and patch plans are derived surfaces until validated YAML mutation is explicitly approved.",
+        "on_violation": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "arcana/craft",
+        "owner": "public arcanum submodule",
+        "write_policy": "Only this refinement run folder may be written before confirmation."
+      },
+      {
+        "namespace": "development/craft",
+        "owner": "historical evidence",
+        "write_policy": "Read-only evidence for this strategy proposal."
+      },
+      {
+        "namespace": ".craft/ledger.yml",
+        "owner": "project-local Craft users",
+        "write_policy": "Future updater must patch only after dry-run validation and explicit execution approval."
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This dispatch does not promote Craft behavior, schema, scripts, generated mirrors, or parent gitlinks.",
+    "Execution evidence from a later row-updater task cannot directly promote canonical Craft semantics without maintainer review."
+  ]
+}

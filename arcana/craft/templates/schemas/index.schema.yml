@@ -1,0 +1,186 @@
+schema_id: craft.index
+schema_version: 0.3.0
+status: canonical-first
+owner_context_id: CTX-LEDGER
+purpose: >
+  Define Craft embedded ledger indexes and generated `.craft/index.json`
+  lookup surfaces. Indexes are derived lookup data; they must point back to
+  source-ledger row IDs, selectors, paths, and hashes rather than redefining
+  source row content.
+
+compatibility_entrypoint: ../ledger.schema.yml
+source_of_truth_policy:
+  source_ledger: .craft/ledger.yml
+  embedded_indexes: .craft/ledger.yml#indexes
+  generated_index: .craft/index.json
+  rule: Indexes are rebuildable and never more authoritative than the source ledger.
+
+freshness_contract:
+  hash_field: ledger_sha256
+  stale_status_values:
+    - fresh
+    - stale
+    - unknown
+  stale_rule: A generated index with a mismatched ledger_sha256 is stale and cannot be used as authority.
+
+embedded_index_contract:
+  required_ledger_indexes:
+    - by_id
+    - open_decisions
+    - blocking_decisions
+    - active_blockers
+    - active_gaps
+    - next_moves
+    - artifacts_by_path
+  optional_ledger_indexes:
+    - by_family
+    - row_selectors
+    - pending_by_node
+    - reverse_links
+    - references
+    - evidence_refs
+  rule: Embedded indexes may be compact compatibility data and may omit generated metadata.
+
+generated_index_contract:
+  path: .craft/index.json
+  required_top_level:
+    - metadata
+    - by_id
+    - by_family
+    - row_selectors
+    - open_decisions
+    - blocking_decisions
+    - active_blockers
+    - active_gaps
+    - next_moves
+    - pending_by_node
+    - artifacts_by_path
+    - reverse_links
+    - references
+    - evidence_refs
+    - stale_status
+  metadata:
+    required_fields:
+      - schema_version
+      - ledger_sha256
+      - generated_at
+      - generator_version
+      - source_ledger
+    fields:
+      schema_version:
+        type: string
+      ledger_sha256:
+        type: string
+      generated_at:
+        type: string
+        format: iso-8601
+      generator_version:
+        type: string
+      source_ledger:
+        type: string
+  lookup_groups:
+    by_id:
+      type: mapping
+      key: row_id
+      value: row_selector
+      rule: Maps every known row ID to exactly one family selector.
+    by_family:
+      type: mapping
+      key: family_name
+      value: list_of_row_ids
+      rule: Groups row IDs by source-ledger family.
+    row_selectors:
+      type: mapping
+      key: row_id
+      value: selector_record
+      selector_fields:
+        - family
+        - row_id
+        - path
+        - index
+      optional_selector_fields:
+        - line
+        - column
+        - checksum
+    open_decisions:
+      type: list
+      item_type: decisions.decision_id
+    blocking_decisions:
+      type: list
+      item_type: decisions.decision_id
+    active_blockers:
+      type: list
+      item_type: typed_items.item_id
+      item_filter: kind=blocker,status=active
+    active_gaps:
+      type: list
+      item_type: gaps.gap_id
+      item_filter: status=active
+    next_moves:
+      type: list
+      item_type: next_move_record
+      required_item_fields:
+        - context_id
+        - next_move
+    pending_by_node:
+      type: list
+      item_type: pending_node_record
+      required_item_fields:
+        - context_id
+        - status
+        - blockers
+        - blocking_decisions
+        - open_decisions
+        - gaps
+        - pending_artifacts
+        - next_move
+    artifacts_by_path:
+      type: mapping
+      key: path
+      value: artifacts.artifact_id
+    reverse_links:
+      type: mapping
+      key: target
+      value: list_of_source_row_ids
+    references:
+      type: mapping
+      key: source_row_id
+      value: list_of_target_refs
+    evidence_refs:
+      type: mapping
+      key: evidence_ref
+      value: list_of_source_row_ids
+    stale_status:
+      type: enum
+      enum_ref: stale_status_values
+
+validation_rules:
+  - id: IDX-001
+    description: Embedded indexes include every required compatibility key.
+    severity: flag
+  - id: IDX-002
+    description: Generated index metadata includes schema_version, ledger_sha256, generated_at, generator_version, and source_ledger.
+    severity: block
+  - id: IDX-003
+    description: Generated index rows point to source-ledger row IDs and selectors, not copied authoritative row content.
+    severity: block
+  - id: IDX-004
+    description: Generated index stale_status is stale when ledger_sha256 mismatches the current ledger bytes.
+    severity: block
+  - id: IDX-005
+    description: active_gaps points only to known gap IDs with active status.
+    severity: block
+  - id: IDX-006
+    description: pending_by_node includes blockers, blocking decisions, open decisions, gaps, pending artifacts, and next_move for each reported context.
+    severity: flag
+
+deferrals:
+  generator_implementation:
+    status: deferred
+    reason: This schema defines the generated index contract; it does not implement an index builder.
+  projection_tables:
+    status: deferred
+    reason: CSV projections belong to projection.schema.yml in a later slice.
+  row_update_planner:
+    status: deferred
+    reason: Patch plans and dry-run update reports belong to row-update.schema.yml in a later slice.

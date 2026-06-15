@@ -1,96 +1,37 @@
-schema_id: craft.recursive_ledger
+schema_id: craft.ledger_core
 schema_version: 0.3.0
 status: canonical-first
 owner_context_id: CTX-LEDGER
 purpose: >
-  Define the compatibility entrypoint for Craft recursive ledger schemas. The
-  ledger is machine-readable authority; human views and generated indexes are
-  derived from it. Layer-specific schemas live under templates/schemas/.
+  Define Craft source-ledger metadata, row families, row identity, references,
+  links, lifecycle enums, and source-ledger validation rules. This schema owns
+  `.craft/ledger.yml` source rows only; generated indexes, human views,
+  projections, route exchange, and row-update plans have separate schemas.
 
-compatibility_versions:
-  - 0.2.0
-  - 0.3.0
-
-source_artifacts:
-  - arcana/craft/SKILL.md
-  - arcana/craft/README.md
-  - arcana/craft/ARCHITECTURE.md
-  - arcana/craft/templates/schemas/ledger-core.schema.yml
-  - arcana/craft/templates/schemas/index.schema.yml
-  - arcana/craft/examples/body-war-ledger.yml
-  - arcana/craft/examples/goldenquill-ledger.yml
-  - development/craft/CRAFT-LEDGER-SCHEMA.yml
-
-schema_stack:
-  entrypoint: arcana/craft/templates/ledger.schema.yml
-  current_layer_schemas:
-    ledger_core: arcana/craft/templates/schemas/ledger-core.schema.yml
-    index: arcana/craft/templates/schemas/index.schema.yml
-  deferred_layer_schemas:
-    interface: arcana/craft/templates/schemas/interface.schema.yml
-    route_exchange: arcana/craft/templates/schemas/route-exchange.schema.yml
-    projection: arcana/craft/templates/schemas/projection.schema.yml
-    row_update: arcana/craft/templates/schemas/row-update.schema.yml
-    validation: arcana/craft/templates/schemas/validation.schema.yml
-    artifact_manifest: arcana/craft/templates/schemas/artifact-manifest.schema.yml
-
+compatibility_entrypoint: ../ledger.schema.yml
 source_of_truth_policy:
-  schema_contract: arcana/craft/templates/ledger.schema.yml
-  source_ledger_schema: arcana/craft/templates/schemas/ledger-core.schema.yml
-  index_schema: arcana/craft/templates/schemas/index.schema.yml
+  ledger: .craft/ledger.yml
   human_view: CRAFT.md
   generated_index: .craft/index.json
-  notes:
-    - YAML owns field names, required fields, enums, and validation rules.
-    - Markdown owns only the human-readable view.
-    - Generated indexes are rebuildable lookup surfaces, not source authority.
-    - Projection, route-exchange, row-update, validation-report, and artifact-manifest schemas are deferred until later slices.
+  rule: Source ledger rows own Craft state. Human views and generated indexes are derived.
+
+row_identity_policy:
+  stable_id_required: true
+  exception_families:
+    recomposition:
+      identity: composite
+      fields:
+        - child_id
+        - parent_id
+      reason: Current examples use child and parent context IDs as the stable recomposition identity.
 
 linking_contract:
-  row_id_policy: Every row family uses stable IDs and must preserve IDs across view regeneration.
   row_link_shape:
     label: string
     target: string
     kind: row-id|artifact-id|path|section|external
   path_policy: Paths are relative to the Craft scope unless marked [repo-root] or absolute.
-  human_anchor_policy:
-    context: "#context-<lowercase-id>"
-    artifact: "#artifact-<lowercase-id>"
-    blocker: "#blocker-<lowercase-id>"
-    enabler: "#enabler-<lowercase-id>"
-    decision: "#decision-<lowercase-id>"
-    gap: "#gap-<lowercase-id>"
-  evidence_policy: Evidence may be an artifact ID, receipt ID, path, selector, or link object; prefer artifact IDs when the target is already in the ledger.
-
-index_contract:
-  required_ledger_indexes:
-    - by_id
-    - open_decisions
-    - blocking_decisions
-    - active_blockers
-    - active_gaps
-    - next_moves
-    - artifacts_by_path
-  optional_ledger_indexes:
-    - by_family
-    - row_selectors
-    - pending_by_node
-    - reverse_links
-    - references
-    - evidence_refs
-  generated_index_path: .craft/index.json
-  generated_index_status: optional-rebuildable-derived
-  generated_index_metadata:
-    - schema_version
-    - ledger_sha256
-    - generated_at
-    - generator_version
-    - source_ledger
-  stale_status_values:
-    - fresh
-    - stale
-    - unknown
-  rule: Indexes point to row IDs and paths; they must not redefine row content.
+  evidence_policy: Evidence may be an artifact ID, receipt ID, path, selector, or link object.
 
 enums:
   context_stage:
@@ -699,7 +640,7 @@ validation_rules:
     description: Every artifact references an existing owner_context_id.
     severity: block
   - id: VAL-004
-    description: Every relation source and target references an existing ID.
+    description: Every relation source and target references an existing source-ledger ID.
     severity: block
   - id: VAL-005
     description: Every typed item includes kind, base_type, primary_lane, source_id, target_id, status, and reason.
@@ -746,53 +687,3 @@ validation_rules:
   - id: VAL-019
     description: A closed child context requires recomposition evidence before parent closure claims.
     severity: block
-
-blocker_lifecycle:
-  normal:
-    - raw
-    - typed
-    - refined
-    - resolution_proposed
-    - resolved
-  waiver:
-    from:
-      - raw
-      - typed
-    to: waived
-    requires_decision_type: waiver
-  prohibited_transitions:
-    - from: raw
-      to: resolved
-    - from: typed
-      to: resolved
-
-conflict_policy:
-  - primary_lane owns the next move.
-  - secondary_lanes are required reviewers or contributors.
-  - blocker_refiner as primary_lane means the item is not ready for final resolution.
-  - auditor or validator as secondary lane requires review evidence before closure.
-  - business and tech disagreement keeps status flag or block until a decision row records the selected interpretation.
-  - MVP rows should use one base_type; mixed causes go in reason.
-
-deferrals:
-  scoring:
-    status: deferred
-    reason: Requires several valid ledger states first.
-  generated_index:
-    status: schema-defined
-    reason: index.schema.yml defines generated index shape; generator implementation remains deferred.
-  role_delegation:
-    status: deferred
-    reason: Type plus lane mappings need broader examples before automation.
-  interface_schema:
-    status: deferred
-    reason: CRAFT.md, state all, and Craft Result output need a dedicated interface schema slice.
-  route_exchange_schema:
-    status: deferred
-    reason: Handoffs, receipts, and route events need a dedicated route-exchange schema slice.
-  projection_schema:
-    status: deferred
-    reason: CSV projections need index/source schema stability before promotion.
-  row_update_schema:
-    status: deferred
-    reason: Patch plans and dry-run reports need source/index/projection contracts first.
