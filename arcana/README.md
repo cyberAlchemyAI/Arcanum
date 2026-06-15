@@ -49,6 +49,10 @@ It belongs here because it coordinates semantic authority and traceability acros
 
 It belongs here because it governs ambiguity, user choice, persistence, and pass/block authority across a task lifecycle.
 
+[discipline-governance](discipline-governance/) formalizes, routes, validates, promotes, and retires Arcanum disciplines so a recurring cross-capability practice gets a card, catalog entry, and hardening route.
+
+It belongs here because it coordinates long-lived method authority across evidence, routing, validation, and promotion without claiming sigil or spell authority.
+
 [experiment-harness](experiment-harness/) gives reusable spells and sigils a portable development test loop with fixtures, prompts, real runtime outputs, validation, and reports.
 
 It belongs here because it coordinates lifecycle evidence across artifact contracts, Codex CLI execution, output capture, and promotion gates without owning the artifact's domain meaning.

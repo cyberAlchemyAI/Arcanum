@@ -40,6 +40,7 @@ A discipline is a reusable operating practice with:
 | `implementation-readiness` | Implementation readiness discipline | active-pattern | Implementation Layering and implementation-readiness spell | [Implementation Layering](../transmutations/implementation-layering/README.md) | Keep first implementation layers small and evidence-based before hardening. |
 | `runtime-boundary` | Runtime boundary discipline | active-pattern | Runtime framework and observed invocation loop | [Runtime framework](../framework/runtime/README.md) | Keep canonical source, generated install surfaces, and local runtime state separate. |
 | `ux-evidence` | UX evidence discipline | candidate | UX Evidence Validator | [UX Evidence Validator](../arcana/ux-evidence-validator/README.md) | Use browser evidence and accessibility checks when interface work becomes durable. |
+| `gitignore` | Gitignore discipline | candidate | Constitution Governance | [Gitignore constitution](../framework/GITIGNORE-CONSTITUTION.md) | Give the gitignore constitution a validation surface (ignore-policy check) before promoting beyond candidate. |
 
 ## Status Meanings
 
