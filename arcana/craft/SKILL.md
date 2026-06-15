@@ -1,10 +1,10 @@
 ---
 name: craft
-description: "Use when: starting or operating a link-indexed local Craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, validation, and recomposition."
-argument-hint: "[start|state|describe|blocker|decision|gap|definition|next|validate|recompose|export] [--ledger .craft/ledger.yml]"
+description: "Use when: starting or operating a link-indexed local Craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, pending-by-node status, validation, and recomposition."
+argument-hint: "[start|state|status|describe|blocker|decision|gap|definition|next|validate|recompose|export] [all|--ledger .craft/ledger.yml]"
 tier: arcana
 domain: craft-method
-version: 0.2.0
+version: 0.2.1
 origin: promoted from development/craft after local interface validation and two project-ledger examples
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
@@ -165,6 +165,9 @@ leaving it in a separate artifact.
 - Returns: context stage and gate, latest description, blockers, enablers, open
   decisions, gaps, candidate definitions, children, recomposition status, and
   current `next_move`.
+- For repository-wide requests such as `return all status`, `all status`, `state all`,
+  `status of each node`, or `what is pending`, return every discovered Craft space and
+  include a `Pending by node` section. Do not collapse node state to aggregate counts.
 - Invariant: read-only.
 
 `describe`
@@ -252,6 +255,47 @@ leaving it in a separate artifact.
   row IDs remain navigable.
 </core-methods>
 
+<all-status-contract>
+When the operator asks for all status, status by node, or pending work, treat the
+request as read-only repository-wide `state`.
+
+Discovery and validation:
+
+1. Discover every `.craft/ledger.yml` in the repository before reporting.
+2. Parse each ledger as source of truth; use `CRAFT.md` only as a human view.
+3. Verify enough structure to trust the status: required `indexes` keys, `by_id`
+   pointers, and `artifacts_by_path` existence.
+4. Report structural validation separately from readiness. A structurally valid node
+   can still be `flag` or `block` because work remains pending.
+
+Pending means any of:
+
+- active gaps, active blockers, or open decisions;
+- blocking decisions, gate `block`, or artifact status `block`;
+- route, research, runtime, receipt, or handoff artifacts with `not_run`, `flag`,
+  `blocked`, `requires_user_permission`, `deferred`, or approval/confirmation wording;
+- recomposition entries with residue or non-pass status;
+- next moves that ask for approval, confirmation, external research, refinement,
+  runtime execution, or downstream route selection.
+
+For each node, show the pending work itself, not only counts:
+
+- ledger path and root context id/title;
+- readiness status: `pass`, `flag`, or `block`;
+- active blockers by ID and summary, or `none`;
+- blocking decisions by ID, question, and next needed action, or `none`;
+- other open decisions by ID and question, or `none`;
+- active gaps by ID, severity, treatment/owner if present, and summary, or `none`;
+- pending artifacts/routes by artifact ID, type, status, path, and why still pending,
+  especially runtime handoffs, research approvals, dispatches, receipts, and
+  refine/invoke handoffs;
+- recomposition residue, if present;
+- current `next_move` verbatim.
+
+Aggregate counts are useful, but they must not replace the per-node pending list. If a
+node has no pending items, explicitly write `Pending: none`.
+</all-status-contract>
+
 <interaction-boundary>
 Craft may prepare handoffs, receive receipts, apply receipt evidence, and open
 residue. The called capability owns its native artifact contract, validation,
@@ -307,6 +351,8 @@ A successful Craft run must:
 - keep `.craft/ledger.yml` as source of truth,
 - keep `CRAFT.md` as a linked human view,
 - preserve a machine-readable index or ledger `indexes` section,
+- for all-status requests, show pending work in each node with IDs and summaries rather
+  than only aggregate counts,
 - preserve local candidate definition status,
 - prevent raw blocker direct resolution,
 - require decision question, description or impact, rationale, evidence, and
@@ -330,6 +376,9 @@ Return:
 - Result: pass | flag | block
 - Contexts touched: <ids or none>
 - Evidence: <paths or notes>
+- Pending by node:
+  - <node title/path>: <blockers, blocking decisions, open decisions, gaps,
+    pending artifacts/routes, recomposition residue, next_move>
 - Residue: <remaining gaps/blockers/decisions or none>
 - Next move: <next action>
 - Boundary check: <what was not mutated>

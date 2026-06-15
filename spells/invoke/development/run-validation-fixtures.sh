@@ -663,7 +663,7 @@ run_fixture \
 	'Phase status: pass' \
 	"$DEFINE_CONTRACT" \
 	'Mode contract: arcanum/spells/invoke/define.md' \
-	'Module Formulae' \
+	'DomainSpec template' \
 	'INV-DEFINE-PASS-001'
 
 run_fixture \
@@ -703,7 +703,7 @@ run_fixture \
 	'Phase status: pass' \
 	"$DESIGN_CONTRACT" \
 	'Mode contract: arcanum/spells/invoke/design.md' \
-	'Module Formulae architecture profile' \
+	'DomainSpec architecture profile' \
 	'INV-DESIGN-PASS-001'
 
 run_fixture \

@@ -15,7 +15,7 @@ Design mode is non-mutating: it does not silently edit upstream spec, glossary, 
 ## Implementation Coverage
 
 - The L1 design contract is implemented as a mode-level governance contract.
-- The authoritative six-view design baseline is the Module Formulae architecture profile and [templates/module-formulae/architecture-bundle.md](templates/module-formulae/architecture-bundle.md).
+- The authoritative six-view design baseline is the DomainSpec architecture profile and [templates/domainspec-spec/architecture-bundle.md](templates/domainspec-spec/architecture-bundle.md).
 - Dedicated candidate family scaffolds for `architecture`, `research`, `ux-plan`, `spell`, and `sigil` are available as design companions.
 - Runtime execution, registry release, and canonical template promotion remain gated by validation evidence and explicit approval.
 
@@ -81,7 +81,7 @@ Optional companion inputs:
 
 | Selection | Use When | Required Output |
 | --- | --- | --- |
-| Module Formulae architecture profile | Normal design from approved define outputs. | architecture bundle with the six required views. |
+| DomainSpec architecture profile | Normal design from approved define outputs. | architecture bundle with the six required views. |
 | `architecture` family | Design needs source contracts, dependency/interface rules, decision log, risks, and design transport notes. | architecture plan artifact. |
 | `research` family | Evidence is absent, contradictory, or insufficient for an architecture decision. | research brief with claim status and unresolved gaps. |
 | `ux-plan` family | User workflow, surfaces, states, content, accessibility, or interaction risk materially affect architecture. | UX plan and handoff boundaries. |

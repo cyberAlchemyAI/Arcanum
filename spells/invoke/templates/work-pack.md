@@ -14,7 +14,7 @@ Canonical executable plan and execution manifest for invoke planning outputs.
 
 This artifact is the planning entrypoint and source of truth for executable planning. It contains the objective, delivery slices, tasks, SWUs, validation strategy, blockers, gates, current state, and links to waves/task files when split.
 It can stay single-file for low complexity or link split waves, task files, and execution-pack artifacts for medium/high complexity.
-This template is standalone at invoke scope and is composed by Module Formulae implementation and full profiles.
+This template is standalone at invoke scope and is composed by the DomainSpec implementation and full profiles.
 
 ## Control Fields
 
@@ -111,7 +111,7 @@ Single-file mode:
 
 Split mode:
 
-- module-formulae/execution-pack.md
+- domainspec-spec/execution-pack.md
 - work-pack/shared/context.md
 - work-pack/shared/cross-task-gaps.md
 - work-pack/shared/cross-task-decisions.md
@@ -133,7 +133,7 @@ Split mode:
 
 ## Handoff To Execution Pack
 
-Use [module-formulae/execution-pack.md](module-formulae/execution-pack.md) for wave-by-wave execution details.
+Use [domainspec-spec/execution-pack.md](domainspec-spec/execution-pack.md) for wave-by-wave execution details.
 
 - Low complexity: execution details may remain in this file with `executionPackRef = n/a`.
 - Medium/high complexity: generate or update execution-pack and set `executionPackRef`.

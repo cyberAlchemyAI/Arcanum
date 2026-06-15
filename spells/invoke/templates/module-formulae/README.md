@@ -1,5 +1,14 @@
 # Module Formulae Template Pack
 
+> **Deprecated (2026-06-14).** The full invoke pipeline — define, design, and plan stages — now
+> uses the **DomainSpec template family** (`../domainspec-spec/`: `SPEC.md` + aspect docs,
+> `architecture-bundle.md`, `execution-pack.md`). No active contract references this pack anymore.
+> It is retained ONLY for: (1) the 9 invoke validation fixtures that still expect Module-Formulae
+> output, and (2) the `mogt-agentic-conversation` project's own `module-formulae/` artifact dir
+> (out of scope). **Physical removal** is gated on regenerating those fixtures against the
+> DomainSpec family + a green `run-validation-fixtures.sh` — a `spellcraft` task needing the
+> validation runtime. Do not start new work from this pack.
+
 This pack provides a neutral, module-first documentation model that preserves structured governance semantics without framework-specific wording.
 
 ## Goal
