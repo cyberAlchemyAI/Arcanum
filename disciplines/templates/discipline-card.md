@@ -15,6 +15,12 @@ Steward: <owner or likely owner>
 
 - `<path>` - <why this source proves the discipline already exists or is needed>
 
+## Validation
+
+- Mode: prose-review
+- Check: <catalog validator, card review, fixture, observability signal, or deterministic command>
+- Latest result: not-run
+
 ## Quality Bar
 
 A useful discipline entry must:

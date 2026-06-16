@@ -1,0 +1,114 @@
+{
+  "run_id": "20260616T144535Z-integration-spec-refine",
+  "dispatch_id": "refine-20260616T144535Z-integration-spec",
+  "status": "pass-with-residue",
+  "target": "arcanum/arcana/integration-spec",
+  "preset": "full",
+  "research_mode": "bounded-research",
+  "validation": {
+    "dispatch_spec": {
+      "status": "pass",
+      "command": "python3 arcanum/formulae/dispatch-spec/scripts/validate-dispatch.py arcanum/arcana/integration-spec/development/refinement-runs/20260616T144535Z-integration-spec-refine/REFINE-DISPATCH.json"
+    },
+    "json_syntax": {
+      "status": "pass",
+      "files": [
+        "REFINE-DISPATCH.json",
+        "evidence-index.json",
+        "stages/01-context-builder/context-index.json"
+      ]
+    },
+    "public_boundary_scan": {
+      "status": "pass"
+    }
+  },
+  "artifacts": [
+    {"path": "RUN-MANIFEST.md", "owner": "refine", "kind": "manifest", "status": "pass"},
+    {"path": "REFINE-SEED-PROPOSAL.md", "owner": "refine", "kind": "seed", "status": "pass"},
+    {"path": "REFINE-DISPATCH.json", "owner": "refine/dispatch-spec", "kind": "dispatch", "status": "pass"},
+    {"path": "RUNTIME-HANDOFF.md", "owner": "refine", "kind": "handoff", "status": "pass"},
+    {"path": "RESULT.md", "owner": "refine", "kind": "final-synthesis", "status": "pass-with-residue"},
+    {"path": "stages/01-context-builder/context-pack.md", "owner": "context-builder", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/01-context-builder/context-index.json", "owner": "context-builder", "kind": "stage-index", "status": "pass"},
+    {"path": "stages/02-invoke-define.md", "owner": "invoke", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/03-refine-review.md", "owner": "interrogation", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/04-bounded-research.md", "owner": "refine", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/05-distill.md", "owner": "distill", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/06-invoke-design.md", "owner": "invoke", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/07-refine-design-review.md", "owner": "interrogation", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/08-distill-repair.md", "owner": "distill", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/09-invoke-plan.md", "owner": "invoke", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/10-final-interrogation.md", "owner": "interrogation", "kind": "stage-artifact", "status": "pass"},
+    {"path": "stages/subagent-receipts/CLOSEOUT.md", "owner": "refine", "kind": "subagent-closeout", "status": "pass"},
+    {"path": "stages/subagent-receipts/lane-z-integration-spec-advocate.md", "owner": "subagent:lane-z-integration-spec-advocate", "kind": "subagent-receipt", "status": "pass-with-residue"},
+    {"path": "stages/subagent-receipts/lane-a-alternatives-challenger.md", "owner": "subagent:lane-a-alternatives-challenger", "kind": "subagent-receipt", "status": "pass"},
+    {"path": "stages/subagent-receipts/taxonomy-standards-mapper.md", "owner": "subagent:taxonomy-standards-mapper", "kind": "subagent-receipt", "status": "pass"}
+  ],
+  "local_sources": [
+    {"path": "arcanum/definitions/TAXONOMY.md", "role": "DomainSpec taxonomy reuse evidence"},
+    {"path": "arcanum/definitions/DEFINITIONS.md", "role": "Canonical DomainSpec and Arcanum definition boundary"},
+    {"path": "arcanum/definitions/RELATIONSHIPS.md", "role": "DomainSpec edge vocabulary reuse evidence"},
+    {"path": "arcanum/spells/invoke/templates/domainspec-spec/", "role": "Existing DomainSpec template family"},
+    {"path": "arcanum/formulae/dispatch-spec/development/TANDEM-INTEGRATION-OPTIONS.md", "role": "Prior integration-adapter development evidence"},
+    {"source": "operator-supplied Two-Lane Discipline", "role": "Required two-lane research discipline"}
+  ],
+  "external_sources": [
+    {"url": "https://www.openapis.org/", "role": "HTTP API contract standard comparison"},
+    {"url": "https://www.asyncapi.com/docs/concepts/asyncapi-document", "role": "Event-driven API contract standard comparison"},
+    {"url": "https://cloudevents.io/", "role": "Event envelope interoperability comparison"},
+    {"url": "https://alistair.cockburn.us/hexagonal-architecture", "role": "Ports and adapters application boundary comparison"},
+    {"url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside", "role": "Cache handling pattern comparison"},
+    {"url": "https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-stores-getting-started", "role": "Data store selection comparison"},
+    {"url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/perf_data_use_purpose_built_data_store.html", "role": "Purpose-built data store comparison"},
+    {"url": "https://cloud.google.com/application-integration", "role": "Integration platform scope comparison"}
+  ],
+  "stage_receipts": [
+    {"step_id": "s1-context", "capability_ref": "context-builder", "status": "pass", "artifact": "stages/01-context-builder/context-pack.md"},
+    {"step_id": "s2-define", "capability_ref": "invoke", "status": "pass", "artifact": "stages/02-invoke-define.md"},
+    {"step_id": "s3-define-review", "capability_ref": "interrogation", "status": "pass", "artifact": "stages/03-refine-review.md"},
+    {"step_id": "s4-research-decision", "capability_ref": "refine", "status": "pass", "artifact": "stages/04-bounded-research.md"},
+    {"step_id": "s5-distill", "capability_ref": "distill", "status": "pass", "artifact": "stages/05-distill.md"},
+    {"step_id": "s6-design", "capability_ref": "invoke", "status": "pass", "artifact": "stages/06-invoke-design.md"},
+    {"step_id": "s7-design-review", "capability_ref": "interrogation", "status": "pass", "artifact": "stages/07-refine-design-review.md"},
+    {"step_id": "s8-repair", "capability_ref": "distill", "status": "pass", "artifact": "stages/08-distill-repair.md"},
+    {"step_id": "s9-plan", "capability_ref": "invoke", "status": "pass", "artifact": "stages/09-invoke-plan.md"},
+    {"step_id": "s10-final", "capability_ref": "interrogation", "status": "pass", "artifact": "stages/10-final-interrogation.md"}
+  ],
+  "subagent_lifecycle": {
+    "status": "pass",
+    "authorization": "approved",
+    "join_policy": "parent_synthesis",
+    "agents": [
+      {
+        "agent_id": "019ed0ed-949b-7b63-a637-21fb4c7ef231",
+        "role_id": "lane-z-integration-spec-advocate",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/lane-z-integration-spec-advocate.md"
+      },
+      {
+        "agent_id": "019ed0ed-95bb-7172-9ccb-a8e437f20ca6",
+        "role_id": "lane-a-alternatives-challenger",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/lane-a-alternatives-challenger.md"
+      },
+      {
+        "agent_id": "019ed0ed-96d5-7a63-96fe-0e97119322ae",
+        "role_id": "taxonomy-standards-mapper",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/taxonomy-standards-mapper.md"
+      }
+    ]
+  },
+  "final_decision": {
+    "status": "pass-with-residue",
+    "selected_unit": "Integration Boundary Discipline",
+    "future_package_candidate": "integration-spec",
+    "next_route": "discipline-governance or bounded task-session for L0 discipline card"
+  }
+}

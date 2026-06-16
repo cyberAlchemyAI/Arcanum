@@ -20,9 +20,15 @@ Enforcement of the rules routes through [constitution-governance](../../arcana/c
 
 ## Evidence
 
-- `../../framework/GITIGNORE-CONSTITUTION.md` - the enforceable constitution that hardens this practice into reviewable rules.
-- `../../framework/runtime/README.md` - the runtime-boundary discipline already separates canonical source, generated install surfaces, and local runtime state, which is the same separation `.gitignore` must protect.
-- `../DISCIPLINES.md` - the `runtime-boundary` and `artifact-constitution` rows show that "keep generated and local state out of the tracked tree" is a recurring, cross-capability concern.
+- [Gitignore Constitution](../../framework/GITIGNORE-CONSTITUTION.md) - the enforceable constitution that hardens this practice into reviewable rules.
+- [Runtime framework](../../framework/runtime/README.md) - the runtime-boundary discipline already separates canonical source, generated install surfaces, and local runtime state, which is the same separation `.gitignore` must protect.
+- [Discipline Catalog](../DISCIPLINES.md) - the `runtime-boundary` and `artifact-constitution` rows show that "keep generated and local state out of the tracked tree" is a recurring, cross-capability concern.
+
+## Validation
+
+- Mode: prose-review
+- Check: `python3 disciplines/scripts/validate-discipline-catalog.py` for catalog row shape, plus card evidence link review.
+- Latest result: pass
 
 ## Quality Bar
 
@@ -37,4 +43,3 @@ A useful gitignore discipline entry must:
 ## Promotion Guardrail
 
 Discipline evidence can recommend a route, but it cannot directly promote registry, ontology, glossary, sigil, or spell knowledge. Advancing this discipline beyond `candidate` requires the constitution's rules to gain a validation surface and a named mutation boundary.
-</content>
