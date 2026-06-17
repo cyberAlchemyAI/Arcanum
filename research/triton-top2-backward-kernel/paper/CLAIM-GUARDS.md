@@ -11,7 +11,7 @@ Status: `complete`
 | CL-003 | CAP2 fixed-load Triton backward matched the manual/reference contract on the recorded RunPod validation tasks. | EV-TRITON-003, EV-RUN-001, EV-RUN-002, EV-RUN-003 |
 | CL-004 | The measured smoke benchmark medians were sub-millisecond on the recorded RTX PRO 4000 Blackwell environment. | EV-TRITON-004, EV-DATA-001, EV-DATA-002 |
 | CL-005 | Lean is used here to validate a narrow algebra and boundary slice, plus Mathlib-backed real-valued adjoint identities for the router linear map, not to prove CUDA/Triton memory behavior. | EV-FORMAL-001, EV-FORMAL-002, EV-TRITON-006 |
-| CL-006 | MARS provides the traceability discipline for this paper package. | EV-MARS-001, EV-MARS-002, EV-MARS-004, EV-MARS-005 |
+| CL-006 | The Triton paper package records a local manifest and reference ledger for public traceability. | EV-PAPER-002, EV-PAPER-003 |
 | CL-007 | The fixed-mask Lean theorem slice proves fixed-mask dW and dX-router adjoint identities only after mask/upstream routing weights are treated as fixed data. | EV-FORMAL-003, EV-FORMAL-001 |
 | CL-008 | Lean now proves finite softmax definitions, coordinate-line support lemmas, denominator positivity, and the finite softmax coordinate derivative along a coordinate perturbation line. | EV-FORMAL-006, EV-FORMAL-010 |
 | CL-009 | Lean now encodes CAP2-v0 row-level definitions and proves a first fixed-load adjusted-logit coordinate perturbation slice. | EV-FORMAL-008, EV-FORMAL-009 |

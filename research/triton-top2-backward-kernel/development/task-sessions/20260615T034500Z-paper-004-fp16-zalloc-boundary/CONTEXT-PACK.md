@@ -6,9 +6,9 @@ Primary work-pack: `research/triton-top2-backward-kernel/development/invoke-runs
 
 Evidence read:
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/DATA-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/paper.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/DATA-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/paper.md`
 
 Decision:
 

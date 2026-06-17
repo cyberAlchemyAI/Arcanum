@@ -44,7 +44,7 @@ Local artifacts already establish the novelty guard:
 - `research/triton-top2-backward-kernel/CAP2-CANDIDATE-SPEC.md` says CAP2-v0 is `promoted-candidate-no-novelty-claim`, may be equivalent to or a minor variant of soft-rank/NeuralSort-style relaxations plus capacity-adjusted logits, and does not guarantee exact 2-sparsity.
 - `research/triton-top2-backward-kernel/CAP2-PRIOR-ART-COMPARISON.md` compares CAP2-v0 against fixed-mask Top2, normalized selected pair, sparsemax, normalized ReLU, convex sparse top-k direct mask, and convex sparse top-k normalized masked-softmax. It concludes CAP2 survives as a candidate but should not be promoted as novel.
 - `research/triton-top2-backward-kernel/FINAL-PRIOR-ART-NOVELTY-REPORT.md` explicitly records the rigorous non-claim: no hard-Top2 differentiability, no CAP2 novelty, no exact 2-sparsity, no dynamic-load gradients, and no production performance claim.
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md` includes `NC-002`: this package does not claim CAP2 is novel.
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md` includes `NC-002`: this package does not claim CAP2 is novel.
 - `research/triton-top2-backward-kernel/RELAXATION-CANDIDATES.md` already maps the relevant prior-art families and positions CAP2 near soft-rank, sparse differentiable top-k, sparsemax/entmax, SOFT top-k, Gumbel top-k, and ReLU routing.
 
 ## Bounded Source Check
@@ -125,8 +125,8 @@ Primary local evidence paths:
 - `research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-JVP-FEASIBILITY.md`
 - `research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-JVP-BLOCKED.md`
 - `research/triton-top2-backward-kernel/development/decision-gates/20260612T-w3-003-cap2-decision/DECISION.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
 
 External source URLs checked:
 

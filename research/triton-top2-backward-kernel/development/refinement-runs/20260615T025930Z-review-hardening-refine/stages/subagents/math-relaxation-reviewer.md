@@ -37,13 +37,13 @@ paper, proof files, or work-pack.
 - `research/triton-top2-backward-kernel/CAP2-CANDIDATE-SPEC.md`
 - `research/triton-top2-backward-kernel/CAP2-REFERENCE.md`
 - `research/triton-top2-backward-kernel/CAP2-W6-PARITY-REPORT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-REVIEW.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/FORMAL-VALIDATION-REPORT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/SoftmaxCoordinate.lean`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2Definition.lean`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2FixedLoadScalar.lean`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/FixedLoadCAP2.lean`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-REVIEW.md`
+- `research/triton-top2-backward-kernel/paper/formal/FORMAL-VALIDATION-REPORT.md`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/SoftmaxCoordinate.lean`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2Definition.lean`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2FixedLoadScalar.lean`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/FixedLoadCAP2.lean`
 
 ## Findings
 

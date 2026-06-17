@@ -8,7 +8,7 @@ Status: `pass-with-boundaries`
 | --- | --- | --- |
 | Abstract | pass | Exact-backward wording is scoped to fixed-mask/relaxed paths. |
 | Problem/background | pass | Hard Top2 is described as non-differentiable. |
-| MARS method | pass | Uses manifest and ledger paths. |
+| Evidence method | pass | Uses manifest and ledger paths. |
 | Prior art | pass | Candidate-only posture retained. |
 | CAP2 relaxation | pass | Fixed-load assumption is explicit. |
 | Formal boundary | pass | Mathlib-backed router adjoint identities, fixed-mask adjoint identities, finite softmax coordinate derivative, CAP2 definitions, and a first CAP2 fixed-load adjusted-logit slice are proved; full Jacobian/CAP2 calculus remains scoped and Lean is not overclaimed as Triton/CAP2 implementation proof. |

@@ -10,9 +10,9 @@ Status: `pass`
 ## Controlling Evidence
 
 - `development/invoke-runs/20260615T032000Z-paper-hardening-workpack/WORK-PACK.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/FORMAL-VALIDATION-REPORT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/formal/FORMAL-VALIDATION-REPORT.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
 
 ## Constraint
 
@@ -21,5 +21,5 @@ hard Top2 differentiability, or full CAP2 calculus claims.
 
 ## Write Scope
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
 - this task-session folder

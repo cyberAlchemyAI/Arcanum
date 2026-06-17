@@ -11,7 +11,7 @@ Primary target:
 
 Related presentation target:
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/`
+- `research/triton-top2-backward-kernel/paper/`
 
 ## Operator Intent
 
@@ -42,7 +42,7 @@ Evidence anchors:
 - `TRITON-BENCHMARK-REPORT.md`: smoke benchmark and CAP2 zero-allocation limits.
 - `open-residue.md`: original semantic residue and decisions.
 - `glossary.md`: beginner-facing and pending contract terminology.
-- `research/projects/mars/papers/triton-top2-backward-kernel/`: paper package.
+- `research/triton-top2-backward-kernel/paper/`: paper package.
 
 ## Write Scope
 

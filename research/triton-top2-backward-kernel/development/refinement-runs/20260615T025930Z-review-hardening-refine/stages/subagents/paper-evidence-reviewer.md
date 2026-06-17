@@ -14,23 +14,23 @@
 ## Artifacts
 
 - Receipt artifact: `research/triton-top2-backward-kernel/development/refinement-runs/20260615T025930Z-review-hardening-refine/stages/subagents/paper-evidence-reviewer.md`
-- Inspected paper package: `research/projects/mars/papers/triton-top2-backward-kernel/`
+- Inspected paper package: `research/triton-top2-backward-kernel/paper/`
 - Inspected tower reports: `research/triton-top2-backward-kernel/`
 
 ## Evidence Paths
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/paper.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-REVIEW.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-TEST-SPEC.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/DATA-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/MATH-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/REFERENCE-LEDGER.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/FORMAL-VALIDATION-REPORT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/SoftmaxCoordinate.lean`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2Definition.lean`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2FixedLoadScalar.lean`
+- `research/triton-top2-backward-kernel/paper/paper.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-REVIEW.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-TEST-SPEC.md`
+- `research/triton-top2-backward-kernel/paper/DATA-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/MATH-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/REFERENCE-LEDGER.md`
+- `research/triton-top2-backward-kernel/paper/formal/FORMAL-VALIDATION-REPORT.md`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/SoftmaxCoordinate.lean`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2Definition.lean`
+- `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2FixedLoadScalar.lean`
 - `research/triton-top2-backward-kernel/WORK-PACK.md`
 - `research/triton-top2-backward-kernel/CAP2-W6-PARITY-REPORT.md`
 - `research/triton-top2-backward-kernel/TRITON-BENCHMARK-REPORT.md`
@@ -83,7 +83,7 @@
    - Recommended correction: add "What this appendix proves / does not prove" boxes to both appendices, with direct manifest IDs.
 
 8. The repository state is still uncommitted/untracked for both the tower and paper package.
-   - `git status --short research/projects/mars/papers/triton-top2-backward-kernel research/triton-top2-backward-kernel` reports both roots as untracked.
+   - `git status --short research/triton-top2-backward-kernel/paper research/triton-top2-backward-kernel` reports both roots as untracked.
    - Recommended correction: before external sharing, run an artifact inventory task that records which files are intended evidence, generated/cache noise, or local-only runtime residue.
 
 ## Blockers

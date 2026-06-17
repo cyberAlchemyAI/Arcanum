@@ -15,7 +15,7 @@ definitions, and proof-roadmap decisions.
 - `CAP2-REFERENCE.md`
 - `CAP2-W6-PARITY-REPORT.md`
 - `FORMAL-MATH-SPEC.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/FORMAL-VALIDATION-REPORT.md`
+- `research/triton-top2-backward-kernel/paper/formal/FORMAL-VALIDATION-REPORT.md`
 
 ## Task Board
 

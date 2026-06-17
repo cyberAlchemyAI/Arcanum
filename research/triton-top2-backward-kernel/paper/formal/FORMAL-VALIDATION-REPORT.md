@@ -78,6 +78,6 @@ full softmax Jacobian theorem, or the full calculus of CAP2.
 ## Validation Command
 
 ```bash
-cd <repo>/research/projects/mars/papers/triton-top2-backward-kernel/formal
+cd <repo>/research/triton-top2-backward-kernel/paper/formal
 lake build
 ```

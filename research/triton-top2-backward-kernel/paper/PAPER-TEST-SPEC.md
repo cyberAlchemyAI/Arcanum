@@ -26,12 +26,12 @@ Status: `complete`
 | Focused Triton tests | inside CUDA runner after upload/bootstrap | `/usr/local/bin/python -m pytest tests/test_router_triton.py -q` | Focused Triton tests pass. | Supports Triton parity for implemented kernels. |
 | Benchmark generation | inside CUDA runner | `/usr/local/bin/python scripts/benchmark_triton_paths.py --json-out development/task-sessions/<run>/artifacts/benchmark.json --markdown-out development/task-sessions/<run>/artifacts/BENCHMARK.md` | Benchmark JSON and Markdown are produced. | Supports smoke timing only unless sweep is expanded. |
 | Benchmark JSON syntax | local or CUDA runner | `cd <repo> && jq empty research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/artifacts/benchmark.json` | `jq` exits successfully. | Checks data file parseability, not benchmark correctness. |
-| Formal build | Lean/Lake environment | `cd <repo>/research/projects/mars/papers/triton-top2-backward-kernel/formal && lake build` | Lean package builds. | Supports theorem-specific real-valued formal claims only. |
+| Formal build | Lean/Lake environment | `cd <repo>/research/triton-top2-backward-kernel/paper/formal && lake build` | Lean package builds. | Supports theorem-specific real-valued formal claims only. |
 
 ## Minimal Required Commands
 
 ```bash
-cd <repo>/research/projects/mars/papers/triton-top2-backward-kernel/formal
+cd <repo>/research/triton-top2-backward-kernel/paper/formal
 lake build
 ```
 

@@ -23,8 +23,8 @@ recommended_next_tasks: `see Recommended Next Tasks section`
 - Dispatch route inspected: `research/triton-top2-backward-kernel/development/refinement-runs/20260615T025930Z-review-hardening-refine/REFINE-DISPATCH.json`
 - Current worktree evidence command: `git status --short --branch`
 - Challenge evidence root: `research/triton-top2-backward-kernel/`
-- Paper package root: `research/projects/mars/papers/triton-top2-backward-kernel/`
-- MARS planning/evidence root: `research/projects/mars/development/`
+- Paper package root: `research/triton-top2-backward-kernel/paper/`
+- Paper planning/evidence root: `research/triton-top2-backward-kernel/development/`
 
 ## Evidence Paths
 
@@ -85,26 +85,26 @@ Runner bundles that are evidence-supporting but should not be included blindly i
 
 - `research/triton-top2-backward-kernel/development/runner-bundles/`
 
-MARS paper package:
+Paper package:
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/paper.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/DATA-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/MATH-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PRESENTATION-PACKAGE.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/REFERENCE-LEDGER.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-REVIEW.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/`
+- `research/triton-top2-backward-kernel/paper/paper.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/DATA-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/MATH-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/PRESENTATION-PACKAGE.md`
+- `research/triton-top2-backward-kernel/paper/REFERENCE-LEDGER.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-REVIEW.md`
+- `research/triton-top2-backward-kernel/paper/formal/`
 
-MARS planning receipts:
+Paper planning receipts:
 
-- `research/projects/mars/development/invoke-runs/20260614T075231Z-triton-paper-package-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T083000Z-triton-appendix-proof-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T102500Z-lean-softmax-cap2-proof-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T142000Z-softmax-coordinate-derivative-proof-plan/`
-- `research/projects/mars/development/task-sessions/20260614T081500Z-triton-paper-package-all-tasks/RESULT.md`
-- `research/projects/mars/development/task-sessions/20260614T153000Z-task-scd-paper-sync/RESULT.md`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T075231Z-triton-paper-package-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T083000Z-triton-appendix-proof-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T102500Z-lean-softmax-cap2-proof-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T142000Z-softmax-coordinate-derivative-proof-plan/`
+- `research/triton-top2-backward-kernel/development/task-sessions/20260614T081500Z-triton-paper-package-all-tasks/RESULT.md`
+- `research/triton-top2-backward-kernel/development/task-sessions/20260614T153000Z-task-scd-paper-sync/RESULT.md`
 
 ## Dirty Worktree Boundary
 
@@ -113,11 +113,11 @@ The parent worktree is dirty and contains unrelated or generated surfaces. Do no
 Challenge-related include candidates:
 
 - `research/triton-top2-backward-kernel/`
-- `research/projects/mars/papers/triton-top2-backward-kernel/`
-- `research/projects/mars/development/invoke-runs/*triton*`
-- `research/projects/mars/development/task-sessions/*triton*`
-- `research/projects/mars/development/task-sessions/*softmax*`
-- `research/projects/mars/development/refinement-runs/*triton*`
+- `research/triton-top2-backward-kernel/paper/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/*triton*`
+- `research/triton-top2-backward-kernel/development/task-sessions/*triton*`
+- `research/triton-top2-backward-kernel/development/task-sessions/*softmax*`
+- `research/triton-top2-backward-kernel/development/refinement-runs/*triton*`
 
 Generated skill/runtime surfaces to exclude from this challenge package unless a separate Arcanum-install commit is intended:
 
@@ -137,7 +137,7 @@ Unrelated dirty project state to exclude from this challenge package:
 - `projects/domainspec-v2/`
 - `projects/industrial-bid-brasil/`
 - `research/projects/domainspec/papers/domainspec-paper.md`
-- `research/projects/mars/runbooks/E11-TECHNIQUE-SPECIALIZATION-PLAN.md`
+- Superseded external runbook references are outside this public package.
 - `vscode-workspaces/domainspec-core.code-workspace`
 - `implementation/domainspec`
 - `arcanum`
@@ -150,18 +150,18 @@ Unrelated dirty project state to exclude from this challenge package:
 
 1. Create an explicit inclusion manifest for the challenge package with three groups: source/code, validation evidence, and paper/formal appendix.
 2. Create an exclusion manifest that names generated skill/runtime surfaces, unrelated project edits, caches, local environments, and runner bundle tarballs.
-3. Normalize evidence references in `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`; verify each EV path exists, especially `development/task-sessions/*` entries and any `implementation/mars/*` references that may now live under `research/projects/mars/definitions/`.
+3. Normalize evidence references in `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`; verify each EV path exists, especially `development/task-sessions/*` entries and any superseded governance references.
 4. Add a reproducibility appendix section that distinguishes commands from local CPU checks, RunPod CUDA checks, and Lean `lake build`.
 5. Decide whether `development/runner-bundles/*.tar.gz` are archival private evidence or excluded build artifacts; do not publish them by default.
 6. Remove cache and local environment paths from any proposed commit or export: `.pytest_cache/`, `.venv/`, `__pycache__/`, and generated build products under the Lean package if present.
-7. Stage with pathspecs, not broad adds. Example shape: stage `research/triton-top2-backward-kernel` and `research/projects/mars/papers/triton-top2-backward-kernel` only after the inclusion/exclusion manifest is reviewed.
-8. Run a final artifact audit command before commit/share: `git status --short -- research/triton-top2-backward-kernel research/projects/mars/papers/triton-top2-backward-kernel research/projects/mars/development`.
+7. Stage with pathspecs, not broad adds. Example shape: stage `research/triton-top2-backward-kernel` and `research/triton-top2-backward-kernel/paper` only after the inclusion/exclusion manifest is reviewed.
+8. Run a final artifact audit command before commit/share: `git status --short -- research/triton-top2-backward-kernel research/triton-top2-backward-kernel/paper research/triton-top2-backward-kernel/development`.
 
 ## Blockers
 
-- The entire challenge tower and MARS paper package are currently untracked at the parent level, so there is no tracked baseline for clean diffs.
+- The entire challenge tower and Paper package are currently untracked at the parent level, so there is no tracked baseline for clean diffs.
 - The parent worktree has many unrelated modifications and untracked generated surfaces; sharing or committing from the parent without pathspec discipline risks mixing unrelated work.
-- Some paper evidence paths should be revalidated before publication. Example: `EVIDENCE-MANIFEST.md` references MARS governance paths such as `research/projects/mars/definitions/MARS-PIPELINE.md`, while the inspected local MARS definitions live under `research/projects/mars/definitions/`.
+- Some paper evidence paths should be revalidated before publication. The public package now carries traceability through `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md` and `research/triton-top2-backward-kernel/paper/REFERENCE-LEDGER.md`.
 - Runner tarballs may contain generated bundles or environment-specific material; they should be archived privately or excluded unless explicitly needed for reproducibility.
 
 ## Residue
@@ -178,7 +178,7 @@ Unrelated dirty project state to exclude from this challenge package:
 
 ## Recommended Next Tasks
 
-1. Add `PACKAGE-INVENTORY.md` under `research/projects/mars/papers/triton-top2-backward-kernel/` with include/exclude tables and publication tiers.
+1. Add `PACKAGE-INVENTORY.md` under `research/triton-top2-backward-kernel/paper/` with include/exclude tables and publication tiers.
 2. Add `ARTIFACT-AUDIT.md` under `research/triton-top2-backward-kernel/` with exact source, test, receipt, raw-data, and generated-artifact categories.
 3. Reconcile `EVIDENCE-MANIFEST.md` paths against the actual filesystem and mark missing or moved governance references.
 4. Add a share/export script or runbook that copies only approved paths into a clean package directory.

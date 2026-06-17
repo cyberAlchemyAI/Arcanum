@@ -16,7 +16,7 @@
 ## Files Updated
 
 - `research/triton-top2-backward-kernel/ARTIFACT-AUDIT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PACKAGE-INVENTORY.md`
+- `research/triton-top2-backward-kernel/paper/PACKAGE-INVENTORY.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T031500Z-artifact-inventory/CONTEXT-PACK.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T031500Z-artifact-inventory/RESULT.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T031500Z-artifact-inventory/evidence-index.json`
@@ -30,7 +30,7 @@
 
 ## Follow-Up
 
-1. Reconcile MARS evidence manifest paths before publication.
+1. Reconcile paper evidence manifest paths before publication.
 2. Decide whether runner bundles and notebook outputs belong in a reviewer
    package.
 3. Use pathspec staging only after the package inventory is reviewed.

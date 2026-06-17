@@ -1,18 +1,15 @@
 # Evidence Manifest - Triton Top2 Backward Kernel Paper Package
 
 Status: `complete`
-Package: `research/projects/mars/papers/triton-top2-backward-kernel/`
+Package: `research/triton-top2-backward-kernel/paper/`
 
 ## Evidence Classes
 
 | ID | Class | Source | Role | Support Level |
 | --- | --- | --- | --- | --- |
-| EV-MARS-001 | MARS governance | `research/projects/mars/definitions/MARS-PIPELINE.md` | Governs the evidence-to-paper lifecycle. | framework authority |
-| EV-MARS-002 | MARS governance | `research/projects/mars/definitions/PAPER-DERIVATION-RULES.md` | Defines paper derivation and claim discipline. | framework authority |
-| EV-MARS-003 | MARS governance | `research/projects/mars/README.md` | Project-local MARS context. | framework authority |
-| EV-MARS-004 | MARS registry | `research/projects/mars/registry/ARTIFACT-INDEX.md` | Registry orientation for research artifacts. | framework authority |
-| EV-MARS-005 | MARS registry | `research/projects/mars/registry/TRACEABILITY-MATRIX.md` | Traceability model. | framework authority |
-| EV-PAPER-001 | Paper appendix | `research/projects/mars/papers/triton-top2-backward-kernel/MATH-APPENDIX.md` | Reader-facing derivation bridge from routing notation to the Lean-backed router-adjoint identities. | explanatory paper evidence |
+| EV-PAPER-001 | Paper appendix | `research/triton-top2-backward-kernel/paper/MATH-APPENDIX.md` | Reader-facing derivation bridge from routing notation to the Lean-backed router-adjoint identities. | explanatory paper evidence |
+| EV-PAPER-002 | Paper manifest | `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md` | Triton-local evidence IDs, claim support rules, and public traceability boundary. | package governance evidence |
+| EV-PAPER-003 | Reference ledger | `research/triton-top2-backward-kernel/paper/REFERENCE-LEDGER.md` | Source-use boundaries for paper prose, prior art, implementation, benchmark, and formal material. | package governance evidence |
 | EV-TRITON-001 | Triton tower | `research/triton-top2-backward-kernel/WORK-PACK.md` | Case-study work breakdown and completion context. | source evidence |
 | EV-TRITON-002 | Prior-art boundary | `research/triton-top2-backward-kernel/FINAL-PRIOR-ART-NOVELTY-REPORT.md` | Novelty/non-novelty boundary. | source evidence |
 | EV-TRITON-003 | Parity report | `research/triton-top2-backward-kernel/CAP2-W6-PARITY-REPORT.md` | CAP2 fixed-load backward validation summary. | validated claim evidence |
@@ -31,16 +28,16 @@ Package: `research/projects/mars/papers/triton-top2-backward-kernel/`
 | EV-RUN-005 | Run receipt | `research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/RESULT.md` | Benchmark task result. | validation receipt |
 | EV-DATA-001 | Raw data | `research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/artifacts/benchmark.json` | Raw benchmark measurements. | raw data |
 | EV-DATA-002 | Data report | `research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/artifacts/BENCHMARK.md` | Benchmark artifact summary. | raw data summary |
-| EV-FORMAL-001 | Formal package | `research/projects/mars/papers/triton-top2-backward-kernel/formal/` | Repo-local Lean boundary slice. | mechanized boundary evidence |
-| EV-FORMAL-002 | Mathlib hardening | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/RealBackwardIdentities.lean` | Real-valued finite-sum adjoint identities for router logits. | mechanized theorem evidence |
-| EV-FORMAL-003 | Fixed-mask proof | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/FixedMaskBackward.lean` | Fixed-mask dW and dX-router adjoint identities over the existing real-valued router model. | mechanized theorem evidence |
-| EV-FORMAL-004 | Softmax feasibility | `research/projects/mars/papers/triton-top2-backward-kernel/formal/SOFTMAX-PROOF-FEASIBILITY.md` | Scoped blocker and next theorem shape for finite softmax derivative formalization. | feasibility evidence |
-| EV-FORMAL-005 | CAP2 feasibility | `research/projects/mars/papers/triton-top2-backward-kernel/formal/CAP2-PROOF-FEASIBILITY.md` | Scoped blocker and next theorem shape for CAP2 fixed-load derivative formalization. | feasibility evidence |
-| EV-FORMAL-006 | Softmax foundation proof | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/SoftmaxCoordinate.lean` | Finite softmax definitions, coordinate-line support lemmas, and denominator positivity. | mechanized theorem evidence |
-| EV-FORMAL-007 | Softmax coordinate blocker | `research/projects/mars/papers/triton-top2-backward-kernel/formal/SOFTMAX-COORDINATE-BLOCKER.md` | Exact remaining Mathlib calculus chain for the coordinate derivative theorem. | blocker evidence |
-| EV-FORMAL-008 | CAP2 definition proof | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2Definition.lean` | Canonical CAP2-v0 row-level definitions and fixed-load boundary lemmas. | mechanized definition evidence |
-| EV-FORMAL-009 | CAP2 fixed-load scalar proof | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/CAP2FixedLoadScalar.lean` | First fixed-load adjusted-logit coordinate perturbation theorem slice. | mechanized theorem evidence |
-| EV-FORMAL-010 | Softmax coordinate derivative proof | `research/projects/mars/papers/triton-top2-backward-kernel/formal/TritonTop2/SoftmaxCoordinate.lean` | Full finite softmax coordinate derivative along a coordinate perturbation line. | mechanized theorem evidence |
+| EV-FORMAL-001 | Formal package | `research/triton-top2-backward-kernel/paper/formal/` | Repo-local Lean boundary slice. | mechanized boundary evidence |
+| EV-FORMAL-002 | Mathlib hardening | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/RealBackwardIdentities.lean` | Real-valued finite-sum adjoint identities for router logits. | mechanized theorem evidence |
+| EV-FORMAL-003 | Fixed-mask proof | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/FixedMaskBackward.lean` | Fixed-mask dW and dX-router adjoint identities over the existing real-valued router model. | mechanized theorem evidence |
+| EV-FORMAL-004 | Softmax feasibility | `research/triton-top2-backward-kernel/paper/formal/SOFTMAX-PROOF-FEASIBILITY.md` | Scoped blocker and next theorem shape for finite softmax derivative formalization. | feasibility evidence |
+| EV-FORMAL-005 | CAP2 feasibility | `research/triton-top2-backward-kernel/paper/formal/CAP2-PROOF-FEASIBILITY.md` | Scoped blocker and next theorem shape for CAP2 fixed-load derivative formalization. | feasibility evidence |
+| EV-FORMAL-006 | Softmax foundation proof | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/SoftmaxCoordinate.lean` | Finite softmax definitions, coordinate-line support lemmas, and denominator positivity. | mechanized theorem evidence |
+| EV-FORMAL-007 | Softmax coordinate blocker | `research/triton-top2-backward-kernel/paper/formal/SOFTMAX-COORDINATE-BLOCKER.md` | Exact remaining Mathlib calculus chain for the coordinate derivative theorem. | blocker evidence |
+| EV-FORMAL-008 | CAP2 definition proof | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2Definition.lean` | Canonical CAP2-v0 row-level definitions and fixed-load boundary lemmas. | mechanized definition evidence |
+| EV-FORMAL-009 | CAP2 fixed-load scalar proof | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/CAP2FixedLoadScalar.lean` | First fixed-load adjusted-logit coordinate perturbation theorem slice. | mechanized theorem evidence |
+| EV-FORMAL-010 | Softmax coordinate derivative proof | `research/triton-top2-backward-kernel/paper/formal/TritonTop2/SoftmaxCoordinate.lean` | Full finite softmax coordinate derivative along a coordinate perturbation line. | mechanized theorem evidence |
 
 ## Claim Support Rules
 
@@ -51,7 +48,7 @@ Package: `research/projects/mars/papers/triton-top2-backward-kernel/`
 | C3 | Any statement about exact backward must specify the smooth fixed-load CAP2 relaxation or fixed-mask path, not hard Top2 selection. |
 | C4 | Any performance statement must identify the recorded RunPod environment and smoke benchmark scope. |
 | C5 | Lean validation may be cited for formal boundary/algebra checks and Mathlib-backed real-valued router adjoint identities only, not Triton implementation correctness. |
-| C6 | EV-PAPER-001 may explain notation and proof boundaries, but it is not independent proof of a new mathematical or implementation claim. |
+| C6 | EV-PAPER-001 through EV-PAPER-003 may explain notation, source use, and proof boundaries, but they are not independent proof of a new mathematical or implementation claim. |
 | C7 | EV-FORMAL-004 and EV-FORMAL-005 may be cited as scoped feasibility/deferred-proof evidence only, not as completed calculus proofs. |
 | C8 | EV-FORMAL-006 and EV-FORMAL-010 may be cited for finite softmax foundation and coordinate derivative evidence; they do not prove hard Top2 differentiability or a packaged full softmax Jacobian theorem. |
 | C9 | EV-FORMAL-008 and EV-FORMAL-009 may be cited for CAP2 definition and first CAP2 fixed-load scalar theorem only; they do not prove full CAP2 calculus. |

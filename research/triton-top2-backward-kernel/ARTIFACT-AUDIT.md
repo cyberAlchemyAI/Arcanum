@@ -102,15 +102,12 @@ Do not stage with broad `git add .`. The parent worktree also contains:
 - submodule changes under `arcanum` and `implementation/domainspec`;
 - other research or operations files outside this challenge package.
 
-## Evidence Manifest Warnings
+## Evidence Manifest Boundary
 
-The MARS paper evidence manifest currently references:
-
-- `research/projects/mars/definitions/MARS-PIPELINE.md`
-- `research/projects/mars/definitions/PAPER-DERIVATION-RULES.md`
-
-Those paths should be verified or reconciled before publication because the
-visible MARS project definitions live under `research/projects/mars/definitions/`.
+The public package keeps the paper evidence under
+`research/triton-top2-backward-kernel/paper/`. Standalone project definitions
+are not part of this public artifact set, so paper traceability is carried by
+the local manifest and reference ledger.
 
 ## Safe Staging Shape
 
@@ -119,8 +116,8 @@ Use pathspecs, not broad adds:
 ```sh
 git status --short -- \
   research/triton-top2-backward-kernel \
-  research/projects/mars/papers/triton-top2-backward-kernel \
-  research/projects/mars/development
+  research/triton-top2-backward-kernel/paper \
+  research/triton-top2-backward-kernel/development
 ```
 
 Only after reviewing this audit, stage approved paths explicitly.

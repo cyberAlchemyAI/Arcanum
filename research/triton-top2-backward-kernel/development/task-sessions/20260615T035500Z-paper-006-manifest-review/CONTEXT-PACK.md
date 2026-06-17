@@ -6,8 +6,8 @@ Primary work-pack: `research/triton-top2-backward-kernel/development/invoke-runs
 
 Evidence read:
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-REVIEW.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-REVIEW.md`
 
 Decision:
 

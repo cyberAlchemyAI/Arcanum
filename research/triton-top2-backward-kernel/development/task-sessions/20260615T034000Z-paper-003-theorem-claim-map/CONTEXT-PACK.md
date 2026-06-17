@@ -6,8 +6,8 @@ Primary work-pack: `research/triton-top2-backward-kernel/development/invoke-runs
 
 Evidence read:
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/MATH-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/formal/FORMAL-VALIDATION-REPORT.md`
+- `research/triton-top2-backward-kernel/paper/MATH-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/formal/FORMAL-VALIDATION-REPORT.md`
 
 Decision:
 

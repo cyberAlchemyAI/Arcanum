@@ -16,13 +16,13 @@ and the tower/paper roots are untracked.
 - `development/refinement-runs/20260615T025930Z-review-hardening-refine/RESULT.md`
 - `development/refinement-runs/20260615T025930Z-review-hardening-refine/stages/subagents/artifact-inventory-reviewer.md`
 - `research/triton-top2-backward-kernel/WORK-PACK.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
 - `git status --short`
 
 ## Write Scope
 
 - `research/triton-top2-backward-kernel/ARTIFACT-AUDIT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PACKAGE-INVENTORY.md`
+- `research/triton-top2-backward-kernel/paper/PACKAGE-INVENTORY.md`
 - this task-session folder
 
 ## Constraints

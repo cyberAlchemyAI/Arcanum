@@ -12,9 +12,9 @@ reviewed.
 
 | Root | Role | Include By Default |
 | --- | --- | --- |
-| `research/projects/mars/papers/triton-top2-backward-kernel/` | Paper, appendices, formal package, claim guards | yes |
+| `research/triton-top2-backward-kernel/paper/` | Paper, appendices, formal package, claim guards | yes |
 | `research/triton-top2-backward-kernel/` | Research tower, implementation, tests, run evidence | yes, filtered |
-| `research/projects/mars/development/` | Planning and task-session receipts for paper/formal work | selected receipts only |
+| `research/triton-top2-backward-kernel/development/` | Planning and task-session receipts for paper/formal work | selected receipts only |
 
 ## Include - Paper Package
 
@@ -40,14 +40,14 @@ Include the tower files listed in:
 The tower provides executable references, Triton kernels, tests, benchmark
 scripts, RunPod receipts, and challenge-specific research reports.
 
-## Include - Selected MARS Development Evidence
+## Include - Selected Development Evidence
 
 Include only receipts that support this paper package:
 
-- `research/projects/mars/development/invoke-runs/20260614T075231Z-triton-paper-package-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T083000Z-triton-appendix-proof-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T102500Z-lean-softmax-cap2-proof-plan/`
-- `research/projects/mars/development/invoke-runs/20260614T142000Z-softmax-coordinate-derivative-proof-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T075231Z-triton-paper-package-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T083000Z-triton-appendix-proof-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T102500Z-lean-softmax-cap2-proof-plan/`
+- `research/triton-top2-backward-kernel/development/invoke-runs/20260614T142000Z-softmax-coordinate-derivative-proof-plan/`
 - paper/formal task-session receipts that mention `triton`, `softmax`, or
   `cap2` in their run folder names.
 
@@ -79,7 +79,7 @@ Include only receipts that support this paper package:
 
 ```sh
 git status --short -- \
-  research/projects/mars/papers/triton-top2-backward-kernel \
+  research/triton-top2-backward-kernel/paper \
   research/triton-top2-backward-kernel
 ```
 

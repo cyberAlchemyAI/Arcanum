@@ -15,7 +15,7 @@ Triton, benchmark, and formal-boundary evidence.
 | --- | --- | --- | --- |
 | Abstract | Summarize challenge, approach, and bounded result. | CL-001, CL-002, CL-004 | No novelty/performance overclaim. |
 | Problem and Non-Differentiability Background | Explain why hard routing is not differentiable. | REF-002, REF-004 | NC-001. |
-| Research Method and MARS Evidence Harness | Explain how evidence is governed. | EV-MARS-001..005 | No internal/private leakage beyond paths. |
+| Research Method and Evidence Harness | Explain how evidence is governed. | EV-PAPER-002, EV-PAPER-003 | No internal/private leakage beyond paths. |
 | Baselines and Prior Art Positioning | Position fixed-mask and relaxation routes. | EV-TRITON-002, REF-010 | NC-002. |
 | CAP2-v0 Relaxation and Exact Fixed-Load Backward | State selected relaxation contract. | EV-TRITON-003, REF-006, REF-007 | NC-001, NC-003, NC-004. |
 | Formal Boundary Validation | Report Lean and Mathlib scope. | EV-FORMAL-001, EV-FORMAL-002 | NC-006. |

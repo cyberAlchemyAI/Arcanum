@@ -16,6 +16,6 @@ Status: `pass`
 
 ## Write Scope
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-TEST-SPEC.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/paper.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-TEST-SPEC.md`
+- `research/triton-top2-backward-kernel/paper/paper.md`
 - this task-session folder

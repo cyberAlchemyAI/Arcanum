@@ -87,9 +87,9 @@ Keep CAP2 as candidate-only if:
 - `research/triton-top2-backward-kernel/TRITON-BENCHMARK-REPORT.md`
 - `research/triton-top2-backward-kernel/reference/router_reference.py`
 - `research/triton-top2-backward-kernel/tests/test_router_reference.py`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-REVIEW.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-REVIEW.md`
 
 ## Blockers
 

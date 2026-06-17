@@ -1,7 +1,7 @@
 # Work Pack - Triton Paper Hardening
 
 Status: `ready-for-task-session`
-Owner: `research/projects/mars/papers/triton-top2-backward-kernel`
+Owner: `research/triton-top2-backward-kernel/paper`
 
 ## Objective
 
@@ -12,9 +12,9 @@ reproduce core checks, and see exactly what is not claimed.
 
 - `research/triton-top2-backward-kernel/development/refinement-runs/20260615T025930Z-review-hardening-refine/stages/subagents/paper-evidence-reviewer.md`
 - `research/triton-top2-backward-kernel/FINAL-PRIOR-ART-NOVELTY-REPORT.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-TEST-SPEC.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-TEST-SPEC.md`
 
 ## Task Board
 

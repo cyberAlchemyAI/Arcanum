@@ -19,8 +19,8 @@
 - `research/triton-top2-backward-kernel/tests/test_router_triton.py`
 - `research/triton-top2-backward-kernel/reference/router_triton.py`
 - `research/triton-top2-backward-kernel/scripts/benchmark_triton_paths.py`
-- `research/projects/mars/papers/triton-top2-backward-kernel/DATA-APPENDIX.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
+- `research/triton-top2-backward-kernel/paper/DATA-APPENDIX.md`
+- `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
 
 ## Evidence Paths
 
@@ -37,9 +37,9 @@
 - Benchmark markdown artifact:
   `research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/artifacts/BENCHMARK.md`
 - Paper data appendix:
-  `research/projects/mars/papers/triton-top2-backward-kernel/DATA-APPENDIX.md`
+  `research/triton-top2-backward-kernel/paper/DATA-APPENDIX.md`
 - Paper evidence manifest:
-  `research/projects/mars/papers/triton-top2-backward-kernel/EVIDENCE-MANIFEST.md`
+  `research/triton-top2-backward-kernel/paper/EVIDENCE-MANIFEST.md`
 
 ## Systems Findings
 

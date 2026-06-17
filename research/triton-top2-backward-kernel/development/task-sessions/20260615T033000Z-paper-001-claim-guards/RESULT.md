@@ -15,7 +15,7 @@
 
 ## Files Updated
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/CLAIM-GUARDS.md`
+- `research/triton-top2-backward-kernel/paper/CLAIM-GUARDS.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033000Z-paper-001-claim-guards/CONTEXT-PACK.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033000Z-paper-001-claim-guards/RESULT.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033000Z-paper-001-claim-guards/evidence-index.json`

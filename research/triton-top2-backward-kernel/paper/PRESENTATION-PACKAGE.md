@@ -14,7 +14,7 @@ exact backward for a smooth fixed-load relaxation when mixed routing is needed.
 | --- | --- | --- |
 | 1 | The Challenge | Top2 routing is attractive, but hard selection blocks ordinary gradients. |
 | 2 | The Boundary | Exact backward is scoped to fixed-mask or smooth fixed-load relaxation paths. |
-| 3 | The Method | MARS keeps claims tied to source evidence, tests, and non-claims. |
+| 3 | The Method | The evidence harness keeps claims tied to source evidence, tests, and non-claims. |
 | 4 | CAP2-v0 | CAP2 is a candidate continuous relaxation, not claimed novel here. |
 | 5 | Implementation | PyTorch reference plus Triton kernels for the selected backward contracts. |
 | 6 | Validation | RunPod parity and benchmark receipts support the bounded implementation claim. |

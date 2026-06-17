@@ -36,19 +36,19 @@ claimed only for that chosen relaxation graph.
 
 Evidence: EV-TRITON-005, EV-TRITON-006, EV-FORMAL-001. Guard: NC-001.
 
-## Research Method and MARS Evidence Harness
+## Research Method and Evidence Harness
 
-The package uses MARS as a research-to-paper harness. The evidence manifest
+The package uses a research-to-paper evidence harness. The evidence manifest
 classifies source materials, implementation surfaces, validation receipts, raw
 data, and formal artifacts. The reference ledger records how each source may be
 used in the paper and which guard applies.
 
 This matters because the project contains several different kinds of truth:
 mathematical intent, executable implementation, empirical validation, benchmark
-data, and publication prose. The MARS layer prevents those from being blended
-into stronger claims than the evidence supports.
+data, and publication prose. The paper harness prevents those from being
+blended into stronger claims than the evidence supports.
 
-Evidence: EV-MARS-001 through EV-MARS-005.
+Evidence: EV-PAPER-002, EV-PAPER-003.
 
 ## Baselines and Prior Art Positioning
 
@@ -221,12 +221,12 @@ table below names what each layer supports and what it does not support.
 | Focused Triton tests | Inside CUDA runner after upload/bootstrap | `/usr/local/bin/python -m pytest tests/test_router_triton.py -q` | Supports Triton parity for implemented kernels. |
 | Benchmark generation | Inside CUDA runner | `/usr/local/bin/python scripts/benchmark_triton_paths.py --json-out development/task-sessions/<run>/artifacts/benchmark.json --markdown-out development/task-sessions/<run>/artifacts/BENCHMARK.md` | Supports smoke timing only unless the benchmark sweep is expanded. |
 | Benchmark JSON syntax | Local or CUDA runner | `cd <repo> && jq empty research/triton-top2-backward-kernel/development/task-sessions/20260614T074500Z-w7-003-benchmark/artifacts/benchmark.json` | Checks data file parseability, not benchmark correctness. |
-| Formal build | Lean/Lake environment | `cd <repo>/research/projects/mars/papers/triton-top2-backward-kernel/formal && lake build` | Supports theorem-specific real-valued formal claims only. |
+| Formal build | Lean/Lake environment | `cd <repo>/research/triton-top2-backward-kernel/paper/formal && lake build` | Supports theorem-specific real-valued formal claims only. |
 
 Minimal formal validation:
 
 ```bash
-cd <repo>/research/projects/mars/papers/triton-top2-backward-kernel/formal
+cd <repo>/research/triton-top2-backward-kernel/paper/formal
 lake build
 ```
 

@@ -5,7 +5,7 @@ Status: `pass`
 ## Evidence Surfaces
 
 - Tower implementation/evidence: `research/triton-top2-backward-kernel/`
-- Paper package: `research/projects/mars/papers/triton-top2-backward-kernel/`
+- Paper package: `research/triton-top2-backward-kernel/paper/`
 - Refine run: `research/triton-top2-backward-kernel/development/refinement-runs/20260615T025930Z-review-hardening-refine/`
 - Subagent receipts: `stages/subagents/`
 

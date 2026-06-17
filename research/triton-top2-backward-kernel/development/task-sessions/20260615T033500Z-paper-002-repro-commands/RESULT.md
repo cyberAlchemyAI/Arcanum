@@ -15,8 +15,8 @@
 
 ## Files Updated
 
-- `research/projects/mars/papers/triton-top2-backward-kernel/PAPER-TEST-SPEC.md`
-- `research/projects/mars/papers/triton-top2-backward-kernel/paper.md`
+- `research/triton-top2-backward-kernel/paper/PAPER-TEST-SPEC.md`
+- `research/triton-top2-backward-kernel/paper/paper.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033500Z-paper-002-repro-commands/CONTEXT-PACK.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033500Z-paper-002-repro-commands/RESULT.md`
 - `research/triton-top2-backward-kernel/development/task-sessions/20260615T033500Z-paper-002-repro-commands/evidence-index.json`
