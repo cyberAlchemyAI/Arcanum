@@ -1,0 +1,366 @@
+{
+  "dispatch_id": "triton-top2-backward-kernel-research-20260612",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "$research-tower create a tower in arcanum to research this problem and everything that is the context of it, i dont know any fo it then $dispatch-spec a full research of the context",
+    "objective": "Create a research tower and full dispatch route for understanding and specifying a zero-allocation Triton backward kernel for a relaxed top-2 MoE/router objective.",
+    "target_artifact": "research/triton-top2-backward-kernel/LEARNING-PACK.md",
+    "arcanum_vocabulary": [
+      "research-tower",
+      "dispatch-spec",
+      "claim-ledger",
+      "definitions",
+      "residue",
+      "frame_handoff",
+      "validation_loop",
+      "promotion_guardrail"
+    ],
+    "operator_sentence": "Recover the kernel, autograd, and MoE context; govern the math definitions; split ambiguities from source-backed claims; derive the candidate backward surface; then hand off a validation-ready research pack."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "residue_ledger",
+    "x_ray",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "concrete_path_evidence"
+  ],
+  "steps": [
+    {
+      "step_id": "recover-context",
+      "name": "Recover source context for Triton, PyTorch, MoE routing, and load balancing",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "The bare research-tower command is not registered in this checkout; the tower is built as local research artifacts."
+      },
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-triton-top2-backward-request"
+        },
+        {
+          "kind": "external_context",
+          "ref": "Triton docs, PyTorch docs, GShard, Switch Transformer, Sparsely-Gated MoE"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/L0-corpus.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "triton-top2-context-recovered"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Flag if a source claim cannot be tied to a public URL or local artifact."
+      ]
+    },
+    {
+      "step_id": "govern-definitions",
+      "name": "Govern tensor shapes, load terms, relaxation choices, and zero-allocation meaning",
+      "capability_ref": "definitions-governance",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "Candidate/local governance role used for this research tower; not a canonical dispatch-spec capability."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/L0-corpus.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/definitions.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/open-residue.md"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Every load-bearing symbol in the prompt has either a definition or an open-residue entry."
+      ]
+    },
+    {
+      "step_id": "claim-ledger",
+      "name": "Separate source-backed facts from local implementation readings",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "Candidate/local research role used for this tower; not a canonical dispatch-spec capability."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/L0-corpus.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/definitions.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "triton-top2-backward-claim-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/claim-ledger.md"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Any exactness claim without a specified differentiable graph is demoted to residue."
+      ]
+    },
+    {
+      "step_id": "derive-backward",
+      "name": "Derive the candidate backward surface for the fixed-mask relaxation",
+      "capability_ref": "math-context-builder",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "Candidate/local math role used for derivation; not a canonical dispatch-spec capability."
+      },
+      "pattern": "xray",
+      "parallel": false,
+      "techniques": [
+        "x_ray",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "triton-top2-backward-claim-ledger"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/definitions.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/derivation.md"
+        },
+        {
+          "kind": "frame",
+          "ref": "triton-top2-backward-derivation-frame"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The derivation names where hard top-2 and hard load counts stop being differentiable."
+      ]
+    },
+    {
+      "step_id": "implementation-research",
+      "name": "Translate the derivation into Triton and PyTorch implementation constraints",
+      "capability_ref": "implementation-research",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "Candidate/local implementation research role used for this tower; not a canonical dispatch-spec capability."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "validation_loop",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "triton-top2-backward-derivation-frame"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/implementation-notes.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "triton-top2-implementation-research-complete"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/RELAXATION-CANDIDATES.md"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Implementation notes distinguish zero-allocation kernel internals from wrapper allocations."
+      ]
+    },
+    {
+      "step_id": "synthesize-learning-pack",
+      "name": "Synthesize the research tower into an implementation-ready learning pack",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "source": "local research tower pattern",
+        "note": "Candidate/local research synthesis role used for this tower; not a canonical dispatch-spec capability."
+      },
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/claim-ledger.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/derivation.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/implementation-notes.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/RELAXATION-CANDIDATES.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/LEARNING-PACK.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "triton-top2-learning-pack-synthesized"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "The pack states what can be implemented now and what remains blocked."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "source-evidence",
+      "kind": "quality",
+      "owner": "research-tower",
+      "condition": "All claims about Triton, PyTorch, and MoE load balancing are either source-backed or explicitly labeled local-inference/operator-reading/open-residue.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "exactness-boundary",
+      "kind": "validation",
+      "owner": "math-context-builder",
+      "condition": "The route must not claim exact gradients through hard Top2 unless a differentiable relaxation or fixed-mask graph is specified.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "private-parent-boundary",
+      "kind": "policy",
+      "owner": "domainspec-core",
+      "condition": "Generated research artifacts stay under the private parent research tree and do not modify public arcanum capability packages.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "no-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "arcanum",
+      "condition": "Research findings remain local artifacts pending separate owner review; they do not promote Arcanum definitions, formulas, sigils, or skills.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "triton-top2-context-recovered",
+      "triton-top2-implementation-research-complete",
+      "triton-top2-learning-pack-synthesized",
+      "triton-top2-relaxation-candidates-added"
+    ],
+    "signal_grouping": "triton-top2-backward-research"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "public-private-artifact-boundary",
+        "kind": "state_write",
+        "from_owner": "research-tower",
+        "to_owner": "domainspec-core",
+        "applies_to_steps": [
+          "recover-context",
+          "govern-definitions",
+          "claim-ledger",
+          "derive-backward",
+          "implementation-research",
+          "synthesize-learning-pack"
+        ],
+        "contract": "Research artifacts are written only to research/triton-top2-backward-kernel in the private parent tree.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "research-tower",
+      "execution": "operator-approved future task-session",
+      "validation": "dispatch-spec validator plus future numerical tests",
+      "evidence": "research tower artifacts",
+      "promotion": "owning capability review only"
+    },
+    "receipts": [
+      {
+        "receipt_id": "dispatch-validation",
+        "producer": "dispatch-spec",
+        "required_fields": [
+          "dispatch_id",
+          "artifacts",
+          "validation_result",
+          "validation"
+        ],
+        "on_missing": "flag"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research tower findings",
+        "target": "Arcanum capability knowledge",
+        "rule": "requires separate owner review and explicit promotion task",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Do not treat this tower as an implementation contract until open residue is resolved.",
+    "Do not modify public arcanum capability files for this research-only request.",
+    "Do not promote local inference into canonical Arcanum definitions."
+  ]
+}

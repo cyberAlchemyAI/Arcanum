@@ -1,0 +1,24 @@
+{
+  "task_session_id": "20260612T-w2-003-convex-topk-blocked",
+  "task": "TASK-W2-003",
+  "status": "blocked-report",
+  "context_pack": "CONTEXT-PACK.md",
+  "result": "RESULT.md",
+  "updated_artifacts": [
+    "../../../CONVEX-SPARSE-TOPK-BLOCKED.md",
+    "../../../WORK-PACK.md",
+    "../../../README.md",
+    "../../../TOWER.md"
+  ],
+  "blocker": {
+    "kind": "missing-source-backed-operator",
+    "summary": "Convex sparse top-k requires exact forward operator, k=2 specialization, projection/threshold algorithm, backward/Jacobian, and tie policy before implementation."
+  },
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests -q",
+      "expected_current_result": "31 passed, 1 skipped"
+    }
+  ],
+  "next_task": "TASK-W2-003A"
+}

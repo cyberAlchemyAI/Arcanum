@@ -1,0 +1,112 @@
+{
+  "run_id": "20260612T114953Z-tdd-testability-full-refine",
+  "target": "research/triton-top2-backward-kernel/",
+  "preset": "full",
+  "research_mode": "research-if-gap-appears",
+  "overall_status": "flag",
+  "correction": {
+    "status": "applied",
+    "note": "Original run used stale tools/arcanum command-route checks as blockers. Current Refine contract uses dispatch-spec plus native skill receipts; missing legacy command routes are not active success gates when native skills are available.",
+    "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/CORRECTION.md"
+  },
+  "artifacts": {
+    "seed_proposal": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/REFINE-SEED-PROPOSAL.md",
+    "refine_dispatch": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/REFINE-DISPATCH.json",
+    "correction": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/CORRECTION.md",
+    "runtime_handoff": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RUNTIME-HANDOFF.md",
+    "run_manifest": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RUN-MANIFEST.md",
+    "result": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RESULT.md"
+  },
+  "stage_evidence": [
+    {
+      "stage": "Context Builder evidence baseline",
+      "command": "context-builder",
+      "status": "pass",
+      "verdict": "dry-run",
+      "command_file": ".agents/skills/context-builder/SKILL.md",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/01-context-builder.md"
+    },
+    {
+      "stage": "Invoke Define",
+      "command": "invoke",
+      "status": "not_run",
+      "blocked_reason": "original stale legacy command-route check preserved; native invoke receipt not collected",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/02-invoke-define.blocked.md"
+    },
+    {
+      "stage": "Interrogation refine-review",
+      "command": "interrogation",
+      "status": "not_run",
+      "blocked_reason": "original stale legacy command-route check preserved; native interrogation receipt not collected",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/03-interrogation-refine-review.blocked.md"
+    },
+    {
+      "stage": "Research decision",
+      "command": "refine",
+      "status": "pass",
+      "verdict": "no external research run; semantic gap requires operator decision",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/04-research-decision.md"
+    },
+    {
+      "stage": "Distill",
+      "command": "distill",
+      "status": "pass",
+      "verdict": "dry-run",
+      "command_file": ".agents/skills/distill/SKILL.md",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/05-distill.md"
+    },
+    {
+      "stage": "Invoke Redefine / Design",
+      "command": "invoke",
+      "status": "not_run",
+      "blocked_reason": "original stale legacy command-route check preserved; native invoke receipt not collected",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/06-invoke-design.blocked.md"
+    },
+    {
+      "stage": "Interrogation refine-design-review",
+      "command": "interrogation",
+      "status": "not_run",
+      "blocked_reason": "original stale legacy command-route check preserved; native interrogation receipt not collected",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/07-interrogation-design-review.blocked.md"
+    },
+    {
+      "stage": "Distill Repair",
+      "command": "distill",
+      "status": "pass",
+      "verdict": "dry-run",
+      "command_file": ".agents/skills/distill/SKILL.md",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/08-distill-repair.md"
+    },
+    {
+      "stage": "Invoke Plan",
+      "command": "invoke",
+      "status": "not_run",
+      "blocked_reason": "original stale legacy command-route check preserved; native invoke receipt not collected",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/09-invoke-plan.blocked.md"
+    },
+    {
+      "stage": "Final Interrogation and Synthesis",
+      "command": "interrogation",
+      "status": "flag",
+      "blocked_reason": "interrogation route blocked; Refine synthesis produced RESULT.md",
+      "artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/10-final-interrogation-and-synthesis.blocked.md"
+    }
+  ],
+  "validation": [
+    {
+      "name": "corrected refine dispatch validation",
+      "status": "pass",
+      "command": "python3 arcanum/formulae/dispatch-spec/scripts/validate-dispatch.py research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/REFINE-DISPATCH.json"
+    },
+    {
+      "name": "dispatch-spec validation",
+      "status": "pass",
+      "command": "python3 arcanum/formulae/dispatch-spec/scripts/validate-dispatch.py research/triton-top2-backward-kernel/top2-backward-research.dispatch.json"
+    }
+  ],
+  "recommended_next_routes": [
+    "operator-decision: choose differentiable bridge and top-2 combine semantics",
+    "task-session: create PyTorch reference and unit tests",
+    "task-session: add Triton parity tests after reference passes"
+  ]
+}

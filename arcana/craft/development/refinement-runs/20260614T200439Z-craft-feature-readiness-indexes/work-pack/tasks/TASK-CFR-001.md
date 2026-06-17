@@ -49,7 +49,7 @@ L0 Schema Contract
 | SWU | Work | Acceptance |
 | --- | --- | --- |
 | `SWU-CFR-001` | Add optional readiness index contract. | Schema names every readiness handle and marks the family optional. |
-| `SWU-CFR-002` | Confirm existing examples remain compatible. | Body War and GoldenQuill examples parse without requiring readiness fields. |
+| `SWU-CFR-002` | Confirm existing examples remain compatible. | Product Launch and Platform Governance examples parse without requiring readiness fields. |
 
 ## Verification
 
@@ -59,8 +59,8 @@ from pathlib import Path
 import yaml
 for path in [
     Path("arcana/craft/templates/ledger.schema.yml"),
-    Path("arcana/craft/examples/body-war-ledger.yml"),
-    Path("arcana/craft/examples/goldenquill-ledger.yml"),
+    Path("arcana/craft/examples/product-launch-ledger.yml"),
+    Path("arcana/craft/examples/platform-governance-ledger.yml"),
 ]:
     yaml.safe_load(path.read_text())
     print(f"YAML OK: {path}")

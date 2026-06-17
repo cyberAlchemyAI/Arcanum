@@ -16,8 +16,8 @@ surfaces.
 | Embedded indexes | `ledger.schema.yml`, examples | Consistent but shallow: key list exists, object shape missing. |
 | Projection | refine/index proposal, row-update design | Candidate: not canonical yet. |
 | Row update planner | row-update architecture | Candidate: dry-run planner only, no apply mode. |
-| Route handoff | interaction draft, Body War example | Candidate but evidence-backed. |
-| Receipt | interaction draft, Body War example | Candidate but evidence-backed. |
+| Route handoff | interaction draft, Product Launch example | Candidate but evidence-backed. |
+| Receipt | interaction draft, Product Launch example | Candidate but evidence-backed. |
 | Route event | interaction draft only | Candidate-local until example coverage exists. |
 | Recomposition | `SKILL.md`, examples | Canonical behavior, missing formal row schema. |
 | Definition | `SKILL.md`, examples | Local-candidate only; canonical-definition promotion remains outside Craft. |

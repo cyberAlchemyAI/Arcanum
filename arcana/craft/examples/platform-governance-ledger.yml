@@ -1,0 +1,357 @@
+ledger_id: craft.example.platform_governance
+schema_ref: ../templates/ledger.schema.yml
+schema_version: 0.3.0
+status: candidate-local
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+notes:
+  - Public-safe fixture; names and paths are synthetic.
+  - Demonstrates a larger governance ledger with multiple child contexts, open decisions, blockers, gaps, and recomposition residue.
+
+indexes:
+  by_id:
+    CTX-PLATFORM-GOV-ROOT: contexts[0]
+    CTX-PLATFORM-GOV-POLICY: contexts[1]
+    CTX-PLATFORM-GOV-ADOPTION: contexts[2]
+    DESC-PLATFORM-GOV-001: descriptions[0]
+    DESC-POLICY-001: descriptions[1]
+    DEF-APPROVAL-AUTHORITY-001: definitions[0]
+    DEF-ADOPTION-GATE-001: definitions[1]
+    DEC-AUTHORITY-MODEL-001: decisions[0]
+    DEC-ROLLOUT-GATE-001: decisions[1]
+    DEC-RETENTION-POLICY-001: decisions[2]
+    BLK-AUTHORITY-VOCAB-001: typed_items[0]
+    BLK-RETENTION-POLICY-001: typed_items[1]
+    ENA-POLICY-MAP-001: typed_items[2]
+    GAP-ADOPTION-PLAYBOOK-001: gaps[0]
+    GAP-AUDIT-SAMPLING-001: gaps[1]
+    ART-PLATFORM-LEDGER: artifacts[0]
+    ART-PLATFORM-VIEW: artifacts[1]
+    ART-OPEN-QUESTIONS: artifacts[2]
+    ART-POLICY-MAP: artifacts[3]
+    ART-ADOPTION-PLAYBOOK: artifacts[4]
+    ART-AUDIT-SAMPLING-NOTE: artifacts[5]
+  open_decisions:
+    - DEC-AUTHORITY-MODEL-001
+    - DEC-ROLLOUT-GATE-001
+    - DEC-RETENTION-POLICY-001
+  blocking_decisions:
+    - DEC-AUTHORITY-MODEL-001
+  active_blockers:
+    - BLK-AUTHORITY-VOCAB-001
+    - BLK-RETENTION-POLICY-001
+  active_gaps:
+    - GAP-ADOPTION-PLAYBOOK-001
+    - GAP-AUDIT-SAMPLING-001
+  next_moves:
+    - context_id: CTX-PLATFORM-GOV-ROOT
+      next_move: Resolve DEC-AUTHORITY-MODEL-001 before executing policy mutation work.
+    - context_id: CTX-PLATFORM-GOV-POLICY
+      next_move: Finish retention policy review and recompose residue into the root context.
+    - context_id: CTX-PLATFORM-GOV-ADOPTION
+      next_move: Draft the adoption playbook after the rollout gate decision closes.
+  artifacts_by_path:
+    .craft/ledger.yml: ART-PLATFORM-LEDGER
+    CRAFT.md: ART-PLATFORM-VIEW
+    docs/open-questions.md: ART-OPEN-QUESTIONS
+    docs/policy-map.md: ART-POLICY-MAP
+    docs/adoption-playbook.md: ART-ADOPTION-PLAYBOOK
+    docs/audit-sampling-note.md: ART-AUDIT-SAMPLING-NOTE
+
+contexts:
+  - context_id: CTX-PLATFORM-GOV-ROOT
+    parent_id: root
+    title: Platform governance readiness
+    purpose: Keep policy, rollout, retention, and adoption questions visible before platform mutation work begins.
+    stage: validate
+    gate: flag
+    next_move: Resolve DEC-AUTHORITY-MODEL-001 before executing policy mutation work.
+    owned_artifacts:
+      - ART-PLATFORM-LEDGER
+      - ART-PLATFORM-VIEW
+      - ART-OPEN-QUESTIONS
+    links:
+      - label: Blocking decision
+        target: DEC-AUTHORITY-MODEL-001
+        kind: row-id
+  - context_id: CTX-PLATFORM-GOV-POLICY
+    parent_id: CTX-PLATFORM-GOV-ROOT
+    title: Policy authority model
+    purpose: Define who may approve policy changes and which evidence is required before mutation.
+    stage: validate
+    gate: flag
+    next_move: Finish retention policy review and recompose residue into the root context.
+    owned_artifacts:
+      - ART-POLICY-MAP
+      - ART-AUDIT-SAMPLING-NOTE
+    links:
+      - label: Authority blocker
+        target: BLK-AUTHORITY-VOCAB-001
+        kind: row-id
+  - context_id: CTX-PLATFORM-GOV-ADOPTION
+    parent_id: CTX-PLATFORM-GOV-ROOT
+    title: Adoption rollout
+    purpose: Prepare the human adoption path after governance decisions are settled.
+    stage: plan
+    gate: flag
+    next_move: Draft the adoption playbook after the rollout gate decision closes.
+    owned_artifacts:
+      - ART-ADOPTION-PLAYBOOK
+    links:
+      - label: Rollout gate
+        target: DEC-ROLLOUT-GATE-001
+        kind: row-id
+
+artifacts:
+  - artifact_id: ART-PLATFORM-LEDGER
+    owner_context_id: CTX-PLATFORM-GOV-ROOT
+    path: .craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured Craft source of truth for the governance example.
+  - artifact_id: ART-PLATFORM-VIEW
+    owner_context_id: CTX-PLATFORM-GOV-ROOT
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view generated from the ledger.
+  - artifact_id: ART-OPEN-QUESTIONS
+    owner_context_id: CTX-PLATFORM-GOV-ROOT
+    path: docs/open-questions.md
+    artifact_type: evidence
+    status: active
+    notes: Consolidated open decisions and blockers.
+  - artifact_id: ART-POLICY-MAP
+    owner_context_id: CTX-PLATFORM-GOV-POLICY
+    path: docs/policy-map.md
+    artifact_type: policy-map
+    status: active
+    notes: Draft map of approval authority and mutation gates.
+  - artifact_id: ART-ADOPTION-PLAYBOOK
+    owner_context_id: CTX-PLATFORM-GOV-ADOPTION
+    path: docs/adoption-playbook.md
+    artifact_type: work-plan
+    status: planned
+    notes: Not started until rollout gate closes.
+  - artifact_id: ART-AUDIT-SAMPLING-NOTE
+    owner_context_id: CTX-PLATFORM-GOV-POLICY
+    path: docs/audit-sampling-note.md
+    artifact_type: validation-note
+    status: flag
+    notes: Sampling rule is proposed, not yet approved.
+
+descriptions:
+  - description_id: DESC-PLATFORM-GOV-001
+    context_id: CTX-PLATFORM-GOV-ROOT
+    description: The governance work is designed enough to review but still blocked by an authority vocabulary decision.
+    status: active
+    evidence: ART-OPEN-QUESTIONS
+  - description_id: DESC-POLICY-001
+    context_id: CTX-PLATFORM-GOV-POLICY
+    description: Policy mutation must wait until approval authority and retention rules are explicit.
+    status: active
+    evidence: ART-POLICY-MAP
+
+definitions:
+  - definition_id: DEF-APPROVAL-AUTHORITY-001
+    scope_id: CTX-PLATFORM-GOV-POLICY
+    term: approval authority
+    statement: The owner, reviewer, or governance body allowed to convert a proposed policy change into approved platform behavior.
+    status: candidate
+    evidence: ART-POLICY-MAP
+  - definition_id: DEF-ADOPTION-GATE-001
+    scope_id: CTX-PLATFORM-GOV-ADOPTION
+    term: adoption gate
+    statement: The explicit decision that says a human rollout path is ready for use beyond the test group.
+    status: candidate
+    evidence: ART-ADOPTION-PLAYBOOK
+
+typed_items:
+  - item_id: BLK-AUTHORITY-VOCAB-001
+    kind: blocker
+    base_type: authority_blocker
+    context_type: governance.approval_authority
+    primary_lane: governance
+    secondary_lanes:
+      - auditor
+    source_id: CTX-PLATFORM-GOV-POLICY
+    target_id: CTX-PLATFORM-GOV-ROOT
+    status: active
+    refinement_status: refined
+    default_role: governance_reviewer
+    allowed_roles:
+      - governance_reviewer
+      - policy_owner
+      - auditor
+    delegation_route: decision-gate
+    requires_human: true
+    role_confidence: active-local
+    owner_ref: DEC-AUTHORITY-MODEL-001
+    role_notes: Governance reviewer prepares the decision; authority closes only through the linked decision.
+    closure_condition: DEC-AUTHORITY-MODEL-001 closes with selected approval vocabulary and evidence link.
+    evidence: ART-POLICY-MAP
+    decision_ref: DEC-AUTHORITY-MODEL-001
+    reason: Platform mutation cannot start until approval authority is unambiguous.
+    links:
+      - label: Blocking decision
+        target: DEC-AUTHORITY-MODEL-001
+        kind: row-id
+  - item_id: BLK-RETENTION-POLICY-001
+    kind: blocker
+    base_type: governance_blocker
+    context_type: governance.retention_policy
+    primary_lane: governance
+    secondary_lanes:
+      - operations
+    source_id: CTX-PLATFORM-GOV-POLICY
+    target_id: CTX-PLATFORM-GOV-ROOT
+    status: active
+    refinement_status: typed
+    default_role: policy_reviewer
+    allowed_roles:
+      - policy_reviewer
+      - governance_reviewer
+      - auditor
+    delegation_route: decision-gate
+    requires_human: true
+    role_confidence: candidate
+    owner_ref: DEC-RETENTION-POLICY-001
+    role_notes: Retention policy can be proposed by policy review, but closure needs governance or audit rationale.
+    closure_condition: DEC-RETENTION-POLICY-001 closes or is explicitly deferred with audit rationale.
+    evidence: ART-OPEN-QUESTIONS
+    decision_ref: DEC-RETENTION-POLICY-001
+    reason: Retention expectations affect what evidence may be stored in governance artifacts.
+  - item_id: ENA-POLICY-MAP-001
+    kind: enabler
+    base_type: knowledge_enabler
+    context_type: governance.policy_map
+    primary_lane: auditor
+    source_id: ART-POLICY-MAP
+    target_id: CTX-PLATFORM-GOV-POLICY
+    status: pass
+    default_role: auditor
+    allowed_roles:
+      - auditor
+      - governance_reviewer
+    delegation_route: human review
+    requires_human: false
+    role_confidence: candidate
+    owner_ref: ART-POLICY-MAP
+    role_notes: The policy map gives audit enough structure to route authority questions.
+    evidence: ART-POLICY-MAP
+    reason: The policy map makes open authority questions visible enough to route.
+
+decisions:
+  - decision_id: DEC-AUTHORITY-MODEL-001
+    scope_id: CTX-PLATFORM-GOV-POLICY
+    decision_type: blocker
+    question: Which approval authority vocabulary should govern platform policy mutation?
+    description: Blocking decision for the governance root. It must close before mutation work starts.
+    options:
+      - owner-only
+      - reviewer-plus-owner
+      - committee-quorum
+    default_option: reviewer-plus-owner
+    selected: pending
+    rationale: Pending; selected option must preserve traceability and make policy mutation auditable.
+    evidence: ART-POLICY-MAP
+    status: active
+    blocking: true
+    impact: Keeps BLK-AUTHORITY-VOCAB-001 active and blocks platform mutation tasks.
+    owner: governance
+    links:
+      - label: Authority blocker
+        target: BLK-AUTHORITY-VOCAB-001
+        kind: row-id
+  - decision_id: DEC-ROLLOUT-GATE-001
+    scope_id: CTX-PLATFORM-GOV-ADOPTION
+    decision_type: approval
+    question: What gate allows the adoption playbook to move from draft to pilot use?
+    description: Non-blocking adoption decision that should close before the playbook is used by a broader team.
+    options:
+      - maintainer-signoff
+      - validator-signoff
+      - paired-maintainer-validator-signoff
+    default_option: paired-maintainer-validator-signoff
+    selected: pending
+    rationale: Pending; the gate should balance speed with reviewability.
+    evidence: ART-ADOPTION-PLAYBOOK
+    status: active
+    blocking: false
+    impact: Adoption work can draft, but pilot use waits for closure.
+    owner: operations
+  - decision_id: DEC-RETENTION-POLICY-001
+    scope_id: CTX-PLATFORM-GOV-POLICY
+    decision_type: deferral
+    question: Which retention rule applies to governance evidence?
+    description: Policy decision needed before receipts or review notes can become durable evidence.
+    options:
+      - short-lived-review-notes
+      - durable-redacted-receipts
+      - defer-until-audit-sampling-approved
+    default_option: durable-redacted-receipts
+    selected: pending
+    rationale: Pending; the selected policy should preserve audit value without retaining unnecessary detail.
+    evidence: ART-AUDIT-SAMPLING-NOTE
+    status: active
+    blocking: false
+    impact: Keeps BLK-RETENTION-POLICY-001 active until retention expectations are explicit.
+    owner: governance
+
+gaps:
+  - gap_id: GAP-ADOPTION-PLAYBOOK-001
+    scope_id: CTX-PLATFORM-GOV-ADOPTION
+    summary: Adoption playbook is planned but not drafted.
+    severity: flag
+    treatment: plan
+    owner: operations
+    status: active
+    evidence: ART-ADOPTION-PLAYBOOK
+    links:
+      - label: Rollout decision
+        target: DEC-ROLLOUT-GATE-001
+        kind: row-id
+  - gap_id: GAP-AUDIT-SAMPLING-001
+    scope_id: CTX-PLATFORM-GOV-POLICY
+    summary: Audit sampling rule is proposed but not yet validated against a representative review set.
+    severity: flag
+    treatment: plan
+    owner: auditor
+    status: active
+    evidence: ART-AUDIT-SAMPLING-NOTE
+
+relations:
+  - relation_id: REL-POLICY-CONTEXT-BLOCKS-ROOT
+    source_id: BLK-AUTHORITY-VOCAB-001
+    target_id: CTX-PLATFORM-GOV-ROOT
+    type: blocks
+    status: active
+    reason: Root governance work cannot execute mutation until authority vocabulary closes.
+    evidence: ART-POLICY-MAP
+  - relation_id: REL-POLICY-MAP-ENABLES-DECISIONS
+    source_id: ART-POLICY-MAP
+    target_id: DEC-AUTHORITY-MODEL-001
+    type: informs
+    status: active
+    reason: The policy map is the evidence base for the authority decision.
+    evidence: ART-POLICY-MAP
+  - relation_id: REL-ADOPTION-DEPENDS-ON-ROLLOUT-GATE
+    source_id: CTX-PLATFORM-GOV-ADOPTION
+    target_id: DEC-ROLLOUT-GATE-001
+    type: depends_on
+    status: active
+    reason: Adoption playbook pilot use depends on the rollout gate.
+    evidence: ART-ADOPTION-PLAYBOOK
+
+recomposition:
+  - child_id: CTX-PLATFORM-GOV-POLICY
+    parent_id: CTX-PLATFORM-GOV-ROOT
+    summary: Policy authority work has enough map evidence to route decisions but not enough closure to unlock mutation.
+    evidence: ART-POLICY-MAP
+    residue: DEC-AUTHORITY-MODEL-001 remains blocking; retention policy remains open.
+    next_parent_move: Resolve DEC-AUTHORITY-MODEL-001 before executing policy mutation work.
+    status: flag
+    links:
+      - label: Blocking decision
+        target: DEC-AUTHORITY-MODEL-001
+        kind: row-id

@@ -1,0 +1,37 @@
+{
+  "task_session_id": "20260612T140949Z-w1-001-pytorch-v0-parity",
+  "task": "TASK-W1-001",
+  "swu": "SWU-W1-001",
+  "status": "pass",
+  "context_pack": "CONTEXT-PACK.md",
+  "result": "RESULT.md",
+  "source_artifacts": [
+    "../../../WORK-PACK.md",
+    "../../../reference/router_reference.py",
+    "../../../tests/test_router_reference.py",
+    "../../../TOOLING-PLAN.md"
+  ],
+  "updated_artifacts": [
+    "../../../reference/router_torch.py",
+    "../../../tests/test_router_torch.py",
+    "../../../WORK-PACK.md",
+    "../../../README.md",
+    "../../../TOWER.md"
+  ],
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests -q",
+      "result": "17 passed, 1 skipped"
+    },
+    {
+      "command": "python3 -m unittest discover -s research/triton-top2-backward-kernel/tests -v",
+      "result": "OK (skipped=7)"
+    }
+  ],
+  "decisions": [
+    "Keep the standard-library oracle and add a separate PyTorch autograd mirror.",
+    "Treat the saved Top2 mask as fixed input data with no mask gradient.",
+    "Skip PyTorch tests under non-torch runners instead of making system Python require torch."
+  ],
+  "next_task": "TASK-W1-002"
+}

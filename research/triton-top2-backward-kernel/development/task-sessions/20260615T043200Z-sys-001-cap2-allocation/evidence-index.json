@@ -1,0 +1,23 @@
+{
+  "task_session": "20260615T043200Z-sys-001-cap2-allocation",
+  "swu": "SWU-SYS-001",
+  "status": "blocked-after-local-validation",
+  "artifacts": [
+    {
+      "path": "research/triton-top2-backward-kernel/tests/test_router_triton.py",
+      "role": "added CAP2 measured CUDA allocation test"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/runner-bundles/triton-top2-iteration-20260615T043156Z.tar.gz",
+      "role": "RunPod iteration bundle built before SSH connection failure"
+    }
+  ],
+  "validation": [
+    ".venv/bin/python -m pytest tests/test_router_triton.py -q -> 2 passed, 14 skipped in 3.60s",
+    "<cuda-runner-iteration-command> -> ssh connection refused"
+  ],
+  "blocker": {
+    "type": "external-runner-unavailable",
+    "detail": "RunPod SSH endpoint refused connection, so focused CUDA/Triton validation could not be completed."
+  }
+}

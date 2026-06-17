@@ -45,7 +45,7 @@ L2/L3 Validation
 ```bash
 python3 -m json.tool arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes/evidence-index.json
 python3 -m json.tool arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes/dispatch-seed.json
-rg -n "/home/|\\.\\./|projects/|implementation/|Body War|GoldenQuill|Parque|DomainSpec|Strava|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
+rg -n "/home/|\\.\\./|projects/|implementation/|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
 git diff --check -- arcana/craft
 ```
 

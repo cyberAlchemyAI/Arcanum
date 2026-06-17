@@ -16,6 +16,8 @@
 | --- | --- | --- |
 | [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md) | Source definition and research synthesis | source-baseline |
 | [CRAFT-INITIAL-DEFINITION.html](CRAFT-INITIAL-DEFINITION.html) | Rendered companion artifact | source-baseline |
+| [CRAFT-TUTORIAL.md](CRAFT-TUTORIAL.md) | First-reader tutorial using Guide sequencing and plain-language composition | active |
+| [CRAFT-TUTORIAL.html](CRAFT-TUTORIAL.html) | Visual tutorial companion for readers new to Craft | active |
 | [DURABLE-SESSION-CONTEXT.md](DURABLE-SESSION-CONTEXT.md) | Durable session boundary and resume context | active |
 | [README.md](README.md) | Package entrypoint | active |
 | [SESSION-LEDGER.md](SESSION-LEDGER.md) | Artifact, decision, gap, and next-route ledger | active |

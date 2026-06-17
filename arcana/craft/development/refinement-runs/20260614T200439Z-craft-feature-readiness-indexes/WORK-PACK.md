@@ -63,7 +63,7 @@ Implement an additive Craft readiness-index contract so ledgers that already poi
 2. Parse YAML schema and examples after each schema/example SWU.
 3. Run targeted grep checks for readiness fields.
 4. Run a public-boundary scan before any public submodule commit.
-   - Minimum denylist: `/home/`, `../`, `projects/`, `implementation/`, `Body War`, `GoldenQuill`, `Parque`, `DomainSpec`, `Strava`, person/team names, and any local product path.
+   - Minimum denylist: `/home/`, `../`, `projects/`, `implementation/`, private product names, private source names, person/team names, and any local product path.
 5. Run `git diff --check`.
 6. Run `make bump-check` before parent gitlink movement.
 

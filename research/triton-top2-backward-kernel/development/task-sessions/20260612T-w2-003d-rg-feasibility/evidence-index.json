@@ -1,0 +1,34 @@
+{
+  "task_session_id": "20260612T-w2-003d-rg-feasibility",
+  "task": "TASK-W2-003D-RG",
+  "status": "pass",
+  "context_pack": "CONTEXT-PACK.md",
+  "decision_gate": "../../../decision-gates/20260612T-w2-003d-research-gate/DECISION.md",
+  "result": "RESULT.md",
+  "feasibility_report": "../../../CONVEX-SPARSE-TOPK-JVP-FEASIBILITY.md",
+  "source_urls": [
+    "https://proceedings.mlr.press/v202/sander23a.html",
+    "https://raw.githubusercontent.com/google-research/google-research/master/sparse_soft_topk/README.md",
+    "https://raw.githubusercontent.com/google-research/google-research/master/sparse_soft_topk/_src/topk.py",
+    "https://raw.githubusercontent.com/google-research/google-research/master/sparse_soft_topk/_src/isotonic_pav.py",
+    "https://raw.githubusercontent.com/google-research/google-research/master/sparse_soft_topk/tests/topk_test.py"
+  ],
+  "updated_artifacts": [
+    "../../../CONVEX-SPARSE-TOPK-JVP-FEASIBILITY.md",
+    "../../../CONVEX-SPARSE-TOPK-JVP-BLOCKED.md",
+    "../../../WORK-PACK.md",
+    "../../../README.md",
+    "../../../TOWER.md"
+  ],
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && jq empty development/task-sessions/20260612T-w2-003d-rg-feasibility/evidence-index.json",
+      "result": "pass"
+    },
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests -q",
+      "result": "37 passed, 1 skipped"
+    }
+  ],
+  "next_decision": "implement TASK-W2-003D now or defer to TASK-W3-001"
+}

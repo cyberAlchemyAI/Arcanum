@@ -1,0 +1,36 @@
+{
+  "task_session_id": "20260612T-w2-003b-router-composition",
+  "task": "TASK-W2-003B",
+  "status": "pass",
+  "context_pack": "CONTEXT-PACK.md",
+  "decision_gate": "DECISION-GATE.md",
+  "result": "RESULT.md",
+  "decision": {
+    "source": "user",
+    "selected_options": [
+      "A = M_relaxed",
+      "A = normalize(M_relaxed * softmax(Z))"
+    ],
+    "not_selected": [
+      "A = M_relaxed * softmax(Z)"
+    ]
+  },
+  "updated_artifacts": [
+    "../../../reference/router_reference.py",
+    "../../../tests/test_router_reference.py",
+    "../../../CONVEX-SPARSE-TOPK-EXTRACTION.md",
+    "../../../CONVEX-SPARSE-TOPK-FIXTURES.md",
+    "../../../WORK-PACK.md"
+  ],
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests/test_router_reference.py -q",
+      "result": "22 passed"
+    },
+    {
+      "command": "python3 -m unittest discover -s research/triton-top2-backward-kernel/tests -v",
+      "result": "OK (skipped=14)"
+    }
+  ],
+  "next_task": "TASK-W2-003C"
+}

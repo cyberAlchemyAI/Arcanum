@@ -1,0 +1,32 @@
+{
+  "task_session_id": "20260612T-w2-003d-pav-jvp-parity",
+  "task": "TASK-W2-003D",
+  "status": "pass",
+  "context_pack": "CONTEXT-PACK.md",
+  "decision_gate": "../../../decision-gates/20260612T-w2-003d-implement-now/DECISION.md",
+  "result": "RESULT.md",
+  "parity_report": "../../../CONVEX-SPARSE-TOPK-JVP-PARITY.md",
+  "updated_artifacts": [
+    "../../../reference/router_torch.py",
+    "../../../tests/test_router_torch.py",
+    "../../../CONVEX-SPARSE-TOPK-JVP-PARITY.md",
+    "../../../WORK-PACK.md",
+    "../../../README.md",
+    "../../../TOWER.md"
+  ],
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests/test_router_torch.py -q",
+      "result": "17 passed"
+    },
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests -q",
+      "result": "41 passed, 1 skipped"
+    },
+    {
+      "command": "python3 -m unittest discover -s research/triton-top2-backward-kernel/tests -v",
+      "result": "OK (skipped=18)"
+    }
+  ],
+  "next_task": "TASK-W3-001"
+}

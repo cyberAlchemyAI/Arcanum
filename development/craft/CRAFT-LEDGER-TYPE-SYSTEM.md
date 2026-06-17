@@ -174,7 +174,9 @@ Candidate role fields:
 | `allowed_roles` | Future local roles that may handle this type/lane pair. |
 | `delegation_route` | Future route such as `decision-gate`, `invoke`, `task-session`, or human review. |
 | `requires_human` | Whether this type cannot be auto-resolved. |
-| `confidence` | How reliable the mapping is. |
+| `role_confidence` | How mature the mapping is: `candidate`, `active-local`, `promoted-by-owner`, or `deprecated`. |
+| `owner_ref` | Optional local owner, team, policy, or row reference that backs the mapping. |
+| `role_notes` | Short explanation of why the role mapping is appropriate. |
 
 Initial lane-to-role sketch:
 
@@ -228,6 +230,99 @@ Default route:
 blocker_refinement_gate -> blocker_refiner -> /refine
 ```
 
+## Blocker Row Anatomy
+
+A blocker row should answer six questions before anyone tries to close it.
+
+| Question | Field(s) | Why It Matters |
+| --- | --- | --- |
+| What kind of blocker is this? | `kind`, `base_type`, `context_type` | Prevents every blocker from becoming a vague "something is wrong" note. |
+| Where does it apply? | `source_id`, `target_id` | Shows what raised the blocker and what cannot safely move. |
+| Who owns the next responsibility? | `primary_lane`, `secondary_lanes` | Separates technical, product, governance, validation, and audit concerns. |
+| What local handler is suggested? | `default_role`, `allowed_roles`, `delegation_route` | Gives the next agent or human a starting route without pretending delegation already happened. |
+| What would prove it closed? | `closure_condition`, `evidence`, `decision_ref` | Makes closure testable instead of mood-based. |
+| What state is it in? | `status`, `refinement_status` | Prevents raw blockers from being resolved without refinement or waiver. |
+
+Recommended blocker minimum:
+
+```yaml
+item_id: BLK-EXAMPLE-001
+kind: blocker
+base_type: validation_blocker
+context_type: example.acceptance_evidence
+primary_lane: validator
+secondary_lanes:
+  - product
+source_id: CTX-EXAMPLE-ROOT
+target_id: CTX-EXAMPLE-ROOT
+status: active
+refinement_status: refined
+default_role: evidence_reviewer
+allowed_roles:
+  - evidence_reviewer
+  - validator
+delegation_route: task-session
+requires_human: false
+role_confidence: candidate
+closure_condition: A receipt proves the acceptance check passed against the agreed fixture.
+evidence: ART-ACCEPTANCE-PLAN
+decision_ref: none
+reason: The context cannot pass until acceptance evidence exists.
+```
+
+## Role Schema Anatomy
+
+The role schema is deliberately two-step:
+
+```text
+lane -> local role -> route or human owner
+```
+
+The lane is stable project vocabulary. The role is local project vocabulary.
+This matters because two repositories may both use the `validator` lane while
+using different local roles, teams, or commands to do validation.
+
+| Concept | Example | Rule |
+| --- | --- | --- |
+| Lane | `validator` | Names the responsibility type. |
+| Role | `evidence_reviewer` | Names the local handler. |
+| Route | `task-session` | Suggests the workflow that may perform the work. |
+| Owner reference | `DEC-AUTHORITY-MODEL-001` or `policy/owners.md` | Backs the assignment with authority. |
+
+Role fields are advisory until one of these backs them:
+
+- an owner policy,
+- a decision row,
+- a route contract,
+- a receipt from the role or route,
+- an explicit human statement recorded as evidence.
+
+## Typed Item Resolution Matrix
+
+| Kind | Normal Positive State | What Closes It | Human Required? |
+| --- | --- | --- | --- |
+| Blocker | `resolved` | Closure condition plus evidence, receipt, linked decision, or waiver. | Sometimes; always when `requires_human: true`. |
+| Gate | `pass` | Gate condition plus validation evidence. | Depends on gate type. |
+| Enabler | `pass` | Evidence that the enabler exists and unlocks the target. | Usually no. |
+| Gap | `resolved`, `waived`, or `superseded` | Treatment completed, explicitly waived, or replaced by a newer gap. | Often when treatment is `waive` or `defer`. |
+| Decision | `closed` | Selected option, rationale, impact, and evidence. | Yes. |
+
+Dispatch validation is not enough to close a blocker. It proves that a route is
+well shaped, not that the work was executed or that the closure condition was
+satisfied.
+
+## Lane Conflict Rules
+
+Mixed-lane blockers should not hide responsibility conflict. Use these rules:
+
+1. `primary_lane` owns the next move.
+2. `secondary_lanes` identify contributors or reviewers.
+3. If `business` and `tech` disagree, keep the blocker active until a decision row records the selected interpretation.
+4. If `validator` or `auditor` is a secondary lane, closure needs independent review evidence.
+5. If `blocker_refiner` is the primary lane, the item is not ready for final resolution.
+6. If no lane clearly owns the item, use `authority_blocker` or `decision_blocker` and route to `decision-gate`.
+7. If one item has multiple unrelated causes, split it into separate blockers instead of overloading `base_type`.
+
 ## Candidate Type Record
 
 ```yaml
@@ -246,7 +341,7 @@ allowed_roles:
   - artifact_owner
 delegation_route: task-session
 requires_human: false
-confidence: candidate
+role_confidence: candidate
 ```
 
 Context-specific example:
@@ -269,7 +364,7 @@ allowed_roles:
   - governance_reviewer
 delegation_route: invoke design
 requires_human: false
-confidence: candidate
+role_confidence: candidate
 ```
 
 Lane-specific gate example:
@@ -292,7 +387,7 @@ allowed_roles:
   - validator
 delegation_route: human review
 requires_human: true
-confidence: candidate
+role_confidence: candidate
 ```
 
 ## Ledger Item Fields
@@ -313,7 +408,12 @@ Minimum fields:
 | `target_id` | Target context, artifact, decision, or condition. |
 | `status` | active, proposed, resolved, rejected, pass, flag, or block. |
 | `default_role` | Future role inferred from type plus lane. |
+| `allowed_roles` | Local roles allowed to handle the item. |
 | `delegation_route` | Future suggested route. |
+| `requires_human` | Whether the item needs human or governance authority before closure. |
+| `role_confidence` | Maturity of the role mapping. |
+| `owner_ref` | Optional owner, policy, or row reference that backs the role mapping. |
+| `role_notes` | Explanation of the role mapping. |
 | `refinement_status` | raw, typed, refined, resolution_proposed, resolved, or waived. |
 | `closure_condition` | Evidence or condition required before the blocker can be resolved. |
 | `evidence` | File, section, decision, validation, or user statement. |
@@ -334,6 +434,9 @@ Minimum fields:
 11. A blocker cannot be marked `resolved` unless `refinement_status` is `refined`, `resolution_proposed`, or `waived`.
 12. A `waived` blocker refinement requires an explicit human decision record.
 13. The default next route for raw or typed-but-unrefined blockers is `/refine`.
+14. A row with `requires_human: true` cannot close from route-shape evidence alone.
+15. Role fields are advisory unless backed by `owner_ref`, `decision_ref`, local policy, or route evidence.
+16. When lanes conflict, the next move must name the coordination or decision route.
 
 ## Open Gaps
 

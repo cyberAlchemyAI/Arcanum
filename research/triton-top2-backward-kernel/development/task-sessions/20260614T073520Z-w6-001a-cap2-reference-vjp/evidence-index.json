@@ -1,0 +1,33 @@
+{
+  "task": "TASK-W6-001A",
+  "result": "pass-local",
+  "session": "20260614T073520Z-w6-001a-cap2-reference-vjp",
+  "context_pack": "CONTEXT-PACK.md",
+  "result_report": "RESULT.md",
+  "updated_files": [
+    "reference/router_torch.py",
+    "tests/test_router_torch.py",
+    "development/invoke-runs/20260614T072729Z-w6-cap2-exact-backward-spec/WORK-PACK-W6-CAP2.md"
+  ],
+  "validation": [
+    {
+      "command": ".venv/bin/python -m py_compile reference/router_torch.py tests/test_router_torch.py",
+      "result": "pass"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/test_router_torch.py -q",
+      "result": "pass",
+      "summary": "24 passed in 5.10s"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests -q",
+      "result": "pass",
+      "summary": "54 passed, 11 skipped in 3.34s"
+    }
+  ],
+  "next_ready_task": "TASK-W6-001B",
+  "notes": [
+    "Exact backward is exact for the smooth CAP2-v0 graph with fixed load, not for hard Top2.",
+    "Triton CAP2 implementation remains out of scope for TASK-W6-001A."
+  ]
+}

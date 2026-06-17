@@ -16,7 +16,7 @@ Refine new Craft updates from the readiness reflection evidence, then Invoke des
 - Current Craft canonical contract: `arcana/craft/SKILL.md`
 - Current Craft package entrypoint: `arcana/craft/README.md`
 - Current ledger schema: `arcana/craft/templates/ledger.schema.yml`
-- Current examples: `arcana/craft/examples/body-war-ledger.yml`, `arcana/craft/examples/goldenquill-ledger.yml`
+- Current examples: `arcana/craft/examples/product-launch-ledger.yml`, `arcana/craft/examples/platform-governance-ledger.yml`
 - Reflection source: parent-repository feature-readiness reflection, sanitized here as public-safe workflow evidence.
 - Evidence pattern: plans and ledgers can say "next move" while the executable boundary depends on a work-pack, ready SWU, approval scope, execution mode, product worktree, and blocked mutation scope.
 

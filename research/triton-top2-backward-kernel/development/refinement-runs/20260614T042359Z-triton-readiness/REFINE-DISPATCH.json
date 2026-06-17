@@ -1,0 +1,422 @@
+{
+  "dispatch_id": "refine-20260614T042359Z-triton-readiness",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Refine all steps to make Triton ready and validate whether current evidence proves readiness.",
+    "objective": "Produce a compact, non-executed readiness plan and proof contract for TASK-W0-008 without falsely claiming Triton readiness.",
+    "target_artifact": "research/triton-top2-backward-kernel/WORK-PACK.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "dispatch-spec",
+      "task-session",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill"
+    ],
+    "operator_sentence": "get all steps to and validate if we have enough to prove that triton is able ready"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "The readiness question is local-evidence-bound: either a real NVIDIA CUDA probe passes, or the gate remains blocked.",
+    "items": [
+      {
+        "id": "compact-local-readiness-refine",
+        "label": "Compact readiness refine",
+        "description": "Use local tower evidence to produce the proof contract and next route.",
+        "capability_ref": "refine",
+        "pattern": "sequence"
+      },
+      {
+        "id": "full-readiness-refine",
+        "label": "Full readiness refine",
+        "description": "Run the complete ten-stage refine loop before attempting any GPU runner.",
+        "capability_ref": "refine",
+        "pattern": "sequence"
+      }
+    ],
+    "selected_item_id": "compact-local-readiness-refine"
+  },
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "data_quality_completeness"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "The target is an existing work-pack gate that needs an ordered refinement route.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6",
+        "s7",
+        "s8",
+        "s9",
+        "s10"
+      ],
+      "validation_expectation": "Every stage consumes the prior frame or artifact and preserves owner boundaries."
+    },
+    {
+      "overlay_id": "readiness_validation_loop",
+      "trigger": "Triton readiness is a binary validation gate before W5 implementation.",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s5",
+        "s8",
+        "s10"
+      ],
+      "validation_expectation": "The final synthesis must classify the evidence as pass only if a real CUDA runner probe passes."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "No independent sibling role is needed before external CUDA output exists.",
+    "explanation": "The readiness proof is determined by one probe contract, so subagents would add ceremony without new evidence.",
+    "context": [
+      "WORK-PACK.md",
+      "FREE-CUDA-RUNNER-KIT.md",
+      "scripts/cuda_runner_probe.py",
+      "RUNNER-READINESS-BLOCKED.md"
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "receipt_requirements": [
+      "artifact path or blocked reason",
+      "validation command",
+      "readiness verdict"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "lean",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "FREE-CUDA-RUNNER-KIT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "scripts/cuda_runner_probe.py"
+        },
+        {
+          "kind": "artifact",
+          "ref": "development/task-sessions/20260614T000000Z-w0-008-cuda-runner-readiness/RUNNER-READINESS-BLOCKED.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if runner proof contract cannot be derived from local artifacts"
+      ]
+    },
+    {
+      "step_id": "s2",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if the readiness target is ambiguous"
+      ]
+    },
+    {
+      "step_id": "s3",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-refine-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/03-refine-review.md",
+      "stop_conditions": [
+        "block if the probe contract would allow a false positive"
+      ]
+    },
+    {
+      "step_id": "s4",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "sequential",
+      "techniques": [
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-refine-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if external pricing or provider facts become necessary"
+      ]
+    },
+    {
+      "step_id": "s5",
+      "name": "Distill readiness proof unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if readiness cannot be reduced to a concrete probe result"
+      ]
+    },
+    {
+      "step_id": "s6",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if the design tries to start W5 before TASK-W0-008 passes"
+      ]
+    },
+    {
+      "step_id": "s7",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-design-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/07-design-review.md",
+      "stop_conditions": [
+        "block if the plan lacks evidence capture instructions"
+      ]
+    },
+    {
+      "step_id": "s8",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-design-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "evidence_artifact": "stages/08-distill-repair.md",
+      "stop_conditions": [
+        "block if the route cannot distinguish readiness instructions from readiness proof"
+      ]
+    },
+    {
+      "step_id": "s9",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if the plan omits Kaggle/Colab/paid fallback ordering"
+      ]
+    },
+    {
+      "step_id": "s10",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "block if final synthesis claims Triton readiness without passing probe evidence"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "Runtime-backed stages need native capability handles and receipts after operator confirmation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g2",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "TASK-W0-008 passes only if scripts/cuda_runner_probe.py succeeds on a real NVIDIA CUDA runner.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g3",
+      "kind": "promotion_guardrail",
+      "owner": "dispatch-spec",
+      "condition": "This refine route may plan readiness validation but must not mark W5 runnable without TASK-W0-008 evidence.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch_validated",
+      "strategy_proposed",
+      "runner_probe_recorded",
+      "readiness_verdict_recorded"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Do not mark TASK-W0-008 complete from CPU-only local evidence.",
+    "Do not start W5 Triton implementation until TASK-W0-008 passes.",
+    "Do not claim zero-allocation, FP16, or performance readiness from runner readiness alone."
+  ]
+}

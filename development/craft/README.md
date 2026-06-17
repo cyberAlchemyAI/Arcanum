@@ -15,7 +15,9 @@ decisions, and future work boundaries for the next hardening route.
 
 1. [DURABLE-SESSION-CONTEXT.md](DURABLE-SESSION-CONTEXT.md)
 2. [SESSION-LEDGER.md](SESSION-LEDGER.md)
-3. [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md)
+3. [CRAFT-TUTORIAL.md](CRAFT-TUTORIAL.md) or
+   [CRAFT-TUTORIAL.html](CRAFT-TUTORIAL.html)
+4. [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md)
 
 ## Current Verdict
 
@@ -30,8 +32,11 @@ Craft recursive ledger: a YAML-backed local ledger for nested development
 contexts, their artifacts, lifecycle states, blockers, enablers, and
 cross-context relations.
 Blockers, gates, and enablers now have candidate condition types and
-operational lanes such as tech, business, QA, validator, and auditor,
-so the ledger can later map type + lane -> role for delegation.
+operational lanes such as tech, business, QA, validator, and auditor. The
+current schema also reserves advisory role fields such as `default_role`,
+`allowed_roles`, `delegation_route`, `requires_human`, and `role_confidence`.
+Lanes name responsibility; roles name local handlers and need owner, decision,
+policy, route, or receipt evidence before they become authority.
 ```
 
 Current MVP artifacts:
@@ -133,6 +138,8 @@ Boundary: existing stage receipts are historical evidence; current execution use
 | [SESSION-LEDGER.md](SESSION-LEDGER.md) | Artifact, decision, gap, and candidate task ledger. | active |
 | [CRAFT-INITIAL-DEFINITION.md](CRAFT-INITIAL-DEFINITION.md) | Initial Craft definition, research synthesis, vocabulary, lifecycle, residue model, and formal model. | source-baseline |
 | [CRAFT-INITIAL-DEFINITION.html](CRAFT-INITIAL-DEFINITION.html) | Rendered companion for the initial definition. | source-baseline |
+| [CRAFT-TUTORIAL.md](CRAFT-TUTORIAL.md) | First-reader tutorial using the Guide explanation pattern and Whisper-style plain-language progression. | active |
+| [CRAFT-TUTORIAL.html](CRAFT-TUTORIAL.html) | Visual tutorial companion for readers who do not yet know what Craft is for. | active |
 | [CRAFT-RECURSIVE-LEDGER-DEFINE.md](CRAFT-RECURSIVE-LEDGER-DEFINE.md) | Define baseline for the first operational Craft MVP. | active |
 | [CRAFT-RECURSIVE-LEDGER-GLOSSARY.md](CRAFT-RECURSIVE-LEDGER-GLOSSARY.md) | Candidate glossary for recursive ledger terms. | active |
 | [CRAFT-LEDGER-TYPE-SYSTEM.md](CRAFT-LEDGER-TYPE-SYSTEM.md) | Candidate condition type and operational lane system for blockers, gates, enablers, and future role mapping. | active |

@@ -1,0 +1,582 @@
+{
+  "dispatch_id": "convex-sparse-topk-extraction-20260612",
+  "parent_dispatch_id": "triton-top2-backward-kernel-research-20260612",
+  "intent": {
+    "raw": "[$dispatch-spec] run a full research so we can do this extraction the right way",
+    "objective": "Create a governed, source-backed research and extraction route for implementing the convex sparse differentiable top-k baseline without hallucinating the operator or backward rule.",
+    "target_artifact": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "task-session",
+      "research-evidence",
+      "validation_loop",
+      "residue_ledger",
+      "promotion_guardrail"
+    ],
+    "operator_sentence": "Recover the convex sparse top-k paper and official implementation, extract the exact mask operator contract for k=2, separate exact PAV from approximate Dykstra, define fixture tests and nonsmooth-boundary policy, then hand off TASK-W2-003A for implementation."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "x_ray",
+    "tournament",
+    "toy_game",
+    "validation_loop",
+    "residue_ledger",
+    "frame_handoff",
+    "handle_handoff",
+    "owner_boundary_check",
+    "observability_grouping",
+    "concrete_path_evidence",
+    "protected_context_flag",
+    "evidence_receipt_link",
+    "execution_receipt_handoff",
+    "state_namespace_boundary"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "source_first_math_extraction",
+      "trigger": "The task is blocked because implementing convex sparse top-k without exact operator and backward details would risk hallucinating prior art.",
+      "techniques": [
+        "x_ray",
+        "validation_loop",
+        "residue_ledger",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "recover-primary-sources",
+        "extract-operator-contract",
+        "extract-backward-contract",
+        "synthesize-extraction-pack"
+      ],
+      "validation_expectation": "Every implementable formula, algorithm, and test claim must cite the paper, official implementation, or existing tower artifact."
+    },
+    {
+      "overlay_id": "exact_vs_gpu_friendly_route_split",
+      "trigger": "The official implementation exposes exact PAV and approximate Dykstra paths with different suitability for CPU baseline and Triton design.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "applies_to_steps": [
+        "compare-implementation-paths",
+        "handoff-task-session"
+      ],
+      "validation_expectation": "The route must select PAV for CPU reference extraction unless a source-backed gate justifies using Dykstra as an approximation."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "trigger": "No delegated subagents are required for the dispatch artifact; source research has enough primary evidence for a local task-session handoff.",
+    "explanation": "The dispatch defines the route and evidence contract. Execution can continue locally through task-session.",
+    "context": [
+      "Primary paper and official implementation are public.",
+      "The next task is bounded to extracting one baseline operator."
+    ],
+    "roles": [],
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "receipt_requirements": []
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "recover-primary-sources",
+      "name": "Recover primary paper and official implementation sources",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "status": "local-extension",
+        "source": "repo-local Arcanum research tower skill",
+        "note": "Used as the owner of source-first research artifacts in this private tower."
+      },
+      "mode": "bounded-source-recovery",
+      "pattern": "route",
+      "parallel": false,
+      "techniques": [
+        "protected_context_flag",
+        "concrete_path_evidence",
+        "evidence_receipt_link"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-request-convex-topk-extraction"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-BLOCKED.md"
+        },
+        {
+          "kind": "external_context",
+          "ref": "PMLR paper page, arXiv PDF, google-research/sparse_soft_topk official implementation"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "convex-topk-primary-sources-recovered"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Block if no official implementation or primary paper source can be cited."
+      ]
+    },
+    {
+      "step_id": "extract-operator-contract",
+      "name": "Extract the k=2 sparse soft top-k mask forward contract",
+      "capability_ref": "research-evidence-harness",
+      "capability_metadata": {
+        "status": "local-extension",
+        "source": "repo-local research evidence harness skill",
+        "note": "Used to convert source records into implementation-ready fixtures and claim checks."
+      },
+      "mode": "operator-contract",
+      "pattern": "xray",
+      "parallel": false,
+      "techniques": [
+        "x_ray",
+        "frame_handoff",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md"
+        },
+        {
+          "kind": "external_context",
+          "ref": "sparse_soft_topk/_src/topk.py"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "convex-topk-forward-contract-frame"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-EXTRACTION.md"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Names exact function target, inputs, outputs, parameters k/l/p, sort/permutation behavior, and selected PAV path."
+      ],
+      "stop_conditions": [
+        "Block if the route cannot distinguish mask operator from magnitude operator."
+      ]
+    },
+    {
+      "step_id": "compare-implementation-paths",
+      "name": "Compare exact PAV and approximate Dykstra implementation paths",
+      "capability_ref": "distill",
+      "mode": "tournament",
+      "pattern": "tournament",
+      "parallel": false,
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof"
+      ],
+      "roles": [
+        "exact-cpu-baseline",
+        "gpu-friendly-approximation"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "convex-topk-forward-contract-frame"
+        },
+        {
+          "kind": "external_context",
+          "ref": "sparse_soft_topk README and topk.py PAV/Dykstra functions"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "convex-topk-extraction-path-decision"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "convex-topk-pav-vs-dykstra-compared"
+        }
+      ],
+      "join_policy": "ranked",
+      "convergence_criteria": [
+        "Select PAV for first CPU reference extraction unless evidence shows Dykstra must be used for the local baseline.",
+        "Record Dykstra as a later Triton feasibility candidate, not as the exact CPU baseline."
+      ],
+      "stop_conditions": [
+        "Flag if exactness and GPU-friendliness are conflated."
+      ]
+    },
+    {
+      "step_id": "extract-backward-contract",
+      "name": "Extract backward/Jacobian obligations and boundary policy",
+      "capability_ref": "math-context-builder",
+      "capability_metadata": {
+        "status": "candidate",
+        "source": "dispatch-local math extraction role",
+        "note": "Role is limited to extracting paper-backed Jacobian/backward obligations."
+      },
+      "mode": "jacobian-contract",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "convex-topk-extraction-path-decision"
+        },
+        {
+          "kind": "external_context",
+          "ref": "Sander et al. Proposition 7 and sparse_soft_topk autodiff behavior"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "convex-topk-backward-obligations"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-EXTRACTION.md"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Record whether the first implementation relies on PyTorch/JAX autograd, an explicit Jacobian-vector product, or a documented blocked gap.",
+        "Document tie/support-boundary behavior before tests are written."
+      ],
+      "stop_conditions": [
+        "Block if backward support is needed for the next task but neither source-backed JVP nor autograd adapter is allowed."
+      ]
+    },
+    {
+      "step_id": "design-fixture-validation",
+      "name": "Design small fixture tests for k=2 extraction",
+      "capability_ref": "research-evidence-harness",
+      "capability_metadata": {
+        "status": "local-extension",
+        "source": "repo-local research evidence harness skill",
+        "note": "Used to define validator-safe fixture plans before implementation."
+      },
+      "mode": "fixture-plan",
+      "pattern": "toy_game",
+      "parallel": false,
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "convex-topk-forward-contract-frame"
+        },
+        {
+          "kind": "ledger",
+          "ref": "convex-topk-backward-obligations"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-FIXTURES.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "convex-topk-fixture-plan-ready"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-FIXTURES.md",
+      "convergence_criteria": [
+        "Fixtures check support size, exact zeros, hard-topk limit behavior, and boundary/tie policy."
+      ]
+    },
+    {
+      "step_id": "synthesize-extraction-pack",
+      "name": "Synthesize implementation-ready extraction pack",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "status": "local-extension",
+        "source": "repo-local Arcanum research tower skill",
+        "note": "Used to synthesize source-backed research into tower-local extraction artifacts."
+      },
+      "mode": "synthesis",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "convex-topk-forward-contract-frame"
+        },
+        {
+          "kind": "decision",
+          "ref": "convex-topk-extraction-path-decision"
+        },
+        {
+          "kind": "ledger",
+          "ref": "convex-topk-backward-obligations"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-FIXTURES.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-EXTRACTION.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "convex-topk-extraction-pack-ready"
+        }
+      ],
+      "join_policy": "none",
+      "convergence_criteria": [
+        "Pack contains enough detail for a task-session to implement or explicitly block with no hidden math assumptions."
+      ]
+    },
+    {
+      "step_id": "handoff-task-session",
+      "name": "Hand off TASK-W2-003A to task-session",
+      "capability_ref": "task-session",
+      "mode": "handoff",
+      "pattern": "handoff",
+      "parallel": false,
+      "techniques": [
+        "handle_handoff",
+        "execution_receipt_handoff",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-EXTRACTION.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "handoff",
+          "ref": "TASK-W2-003A task-session handoff"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "convex-topk-task-session-handoff-ready"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Task-session must not mark TASK-W2-003A pass without source-backed operator, tests, and explicit boundary policy."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "primary-source-gate",
+      "kind": "quality",
+      "owner": "dispatch-spec",
+      "condition": "Paper and official implementation links must be cited before extraction.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "operator-identity-gate",
+      "kind": "validation",
+      "owner": "research-evidence-harness",
+      "condition": "The selected operator must be the sparse soft top-k mask with k=2, not magnitude top-k and not hard Top2.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "exactness-boundary-gate",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "PAV exact CPU reference and Dykstra approximate GPU-friendly path must remain distinct.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "novelty-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "WORK-PACK.md",
+      "condition": "No CAP2 novelty claim may be made from this extraction; convex sparse top-k is prior art.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "triton-promotion-guardrail",
+      "kind": "promotion_guardrail",
+      "owner": "WORK-PACK.md",
+      "condition": "A CPU/JAX/PyTorch extraction does not count as a zero-allocation Triton implementation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "fixture-validation-gate",
+      "kind": "validation",
+      "owner": "research-evidence-harness",
+      "condition": "Fixture plan must include support size, zero entries, hard-topk-limit behavior, and boundary/tie policy.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "triton-top2-backward-kernel-research-20260612",
+    "trace_events": [
+      "convex-topk-primary-sources-recovered",
+      "convex-topk-pav-vs-dykstra-compared",
+      "convex-topk-fixture-plan-ready",
+      "convex-topk-extraction-pack-ready",
+      "convex-topk-task-session-handoff-ready"
+    ],
+    "signal_grouping": "research/triton-top2-backward-kernel/development/dispatch-runs/20260612T-convex-topk-extraction-research"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "external-source-boundary",
+        "kind": "external_context",
+        "from_owner": "public sources",
+        "to_owner": "research/triton-top2-backward-kernel",
+        "applies_to_steps": [
+          "recover-primary-sources",
+          "extract-operator-contract",
+          "extract-backward-contract"
+        ],
+        "contract": "External paper/code evidence is summarized and linked; it is not promoted as Arcanum canonical knowledge.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "implementation-handoff-boundary",
+        "kind": "capability_handoff",
+        "from_owner": "dispatch-spec",
+        "to_owner": "task-session",
+        "applies_to_steps": [
+          "handoff-task-session"
+        ],
+        "contract": "Dispatch validates route shape and evidence requirements; task-session owns later implementation and validation.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "state-write-boundary",
+        "kind": "state_write",
+        "from_owner": "task-session",
+        "to_owner": "research/triton-top2-backward-kernel",
+        "applies_to_steps": [
+          "synthesize-extraction-pack",
+          "handoff-task-session"
+        ],
+        "contract": "Writes stay inside the private research tower and do not touch public arcanum submodule content.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "WORK-PACK.md",
+      "execution": "task-session",
+      "validation": "research-evidence-harness",
+      "evidence": "research/triton-top2-backward-kernel/development/dispatch-runs/20260612T-convex-topk-extraction-research",
+      "memory": "none",
+      "promotion": "none"
+    },
+    "receipts": [
+      {
+        "receipt_id": "convex-topk-extraction-receipt",
+        "producer": "task-session",
+        "required_fields": [
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "blockers"
+        ],
+        "stores": [
+          "research/triton-top2-backward-kernel/development/task-sessions/"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "research/triton-top2-backward-kernel",
+        "owner": "private parent repository",
+        "write_policy": "Task evidence and extraction artifacts may be written here."
+      },
+      {
+        "namespace": "arcanum",
+        "owner": "public submodule",
+        "write_policy": "No writes for this route."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md",
+        "target": "Arcanum inventory/ontology/glossary",
+        "rule": "No automatic promotion from this dispatch.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Do not claim novelty for sparse soft top-k; it is prior art.",
+    "Do not claim hard Top2 differentiability.",
+    "Do not claim zero-allocation Triton readiness from CPU/JAX/PyTorch extraction.",
+    "Do not write private challenge artifacts into the public arcanum submodule."
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "convex-sparse-topk-extraction-20260612",
+      "step_id": "recover-primary-sources",
+      "capability_ref": "research-tower",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md"
+      ],
+      "validation": [
+        "Primary paper, PMLR page, arXiv PDF, official Google Research implementation, and official tests identified."
+      ],
+      "observer_status": "not_run"
+    },
+    {
+      "dispatch_id": "convex-sparse-topk-extraction-20260612",
+      "step_id": "handoff-task-session",
+      "capability_ref": "task-session",
+      "receipt_kind": "handoff",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/CONVEX-SPARSE-TOPK-RESEARCH-PACK.md",
+        "research/triton-top2-backward-kernel/WORK-PACK.md"
+      ],
+      "validation": [
+        "Ready for TASK-W2-003A task-session after dispatch validation."
+      ],
+      "observer_status": "not_run"
+    }
+  ]
+}

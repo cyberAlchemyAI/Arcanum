@@ -1,0 +1,57 @@
+{
+  "task": "TASK-W5-001",
+  "status": "pending-runpod-validation",
+  "artifacts": [
+    {
+      "path": "research/triton-top2-backward-kernel/reference/router_triton.py",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/tests/test_router_triton.py",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T-w5-001-triton-dw/CONTEXT-PACK.md",
+      "status": "pass"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T-w5-001-triton-dw/RESULT.md",
+      "status": "pending-runpod-validation"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/runner-bundles/triton-top2-w5-kernel-20260614T-w5-001.tar.gz",
+      "status": "created"
+    }
+  ],
+  "local_validation": [
+    {
+      "command": ".venv/bin/python -m py_compile reference/router_triton.py tests/test_router_triton.py",
+      "status": "pass"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests -q",
+      "status": "pass",
+      "output": "49 passed, 4 skipped in 3.10s"
+    },
+    {
+      "command": "jq empty development/task-sessions/20260614T-w5-001-triton-dw/evidence-index.json",
+      "status": "pass"
+    },
+    {
+      "command": "markdown fence check for development/task-sessions/20260614T-w5-001-triton-dw/*.md",
+      "status": "pass",
+      "output": "markdown fences ok"
+    }
+  ],
+  "required_external_validation": [
+    "python -m pytest tests/test_router_triton.py -q",
+    "python -m pytest tests -q"
+  ],
+  "non_claims": [
+    "fused full backward",
+    "hard Top2 differentiability",
+    "zero allocation",
+    "final FP16 tolerance",
+    "performance"
+  ]
+}

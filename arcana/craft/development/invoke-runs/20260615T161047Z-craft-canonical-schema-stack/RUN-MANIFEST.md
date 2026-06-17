@@ -18,10 +18,10 @@
 - `arcana/craft/SKILL.md`
 - `arcana/craft/README.md`
 - `arcana/craft/templates/ledger.schema.yml`
-- `arcana/craft/examples/body-war-ledger.yml`
-- `arcana/craft/examples/body-war-CRAFT.md`
-- `arcana/craft/examples/goldenquill-ledger.yml`
-- `arcana/craft/examples/goldenquill-CRAFT.md`
+- `arcana/craft/examples/product-launch-ledger.yml`
+- `arcana/craft/examples/product-launch-CRAFT.md`
+- `arcana/craft/examples/platform-governance-ledger.yml`
+- `arcana/craft/examples/platform-governance-CRAFT.md`
 - `arcana/craft/development/refinement-runs/20260615T121512Z-craft-ledger-csv-json-indexes/RESULT.md`
 - `arcana/craft/development/invoke-runs/20260615T123257Z-craft-index-improvements/INVOKE-DESIGN-ARCHITECTURE.md`
 - `arcana/craft/development/invoke-runs/20260615T152120Z-craft-row-update-planner-architecture/INVOKE-DESIGN-ARCHITECTURE.md`

@@ -10,8 +10,8 @@ before index, projection, interface, or row-update tooling becomes safe.
 | Surface | Status | Notes |
 | --- | --- | --- |
 | `templates/ledger.schema.yml` | canonical-first | Owns source ledger policy, links, indexes key list, enums, five row families, validation rules, blocker lifecycle, conflict policy, and deferrals. |
-| `examples/body-war-ledger.yml` | canonical example | Exercises descriptions, definitions, gaps, route handoffs, receipts, relations, and recomposition beyond the current schema. |
-| `examples/goldenquill-ledger.yml` | canonical example | Exercises descriptions, definitions, gaps, relations, and recomposition beyond the current schema. |
+| `examples/product-launch-ledger.yml` | canonical example | Exercises descriptions, definitions, gaps, route handoffs, receipts, relations, and recomposition beyond the current schema. |
+| `examples/platform-governance-ledger.yml` | canonical example | Exercises descriptions, definitions, gaps, relations, and recomposition beyond the current schema. |
 | `examples/*-CRAFT.md` | canonical examples | Exercise anchors, quick links, sections, gaps, definitions, route evidence, recomposition, and artifact links. |
 | `ARCHITECTURE.md` | canonical baseline | Explicitly marks no planner, no projections, no shipped index builder, and schema/example tension. |
 
@@ -157,7 +157,7 @@ Implement only the P0 schema slice first:
 1. Create `templates/schemas/ledger-core.schema.yml`.
 2. Create `templates/schemas/index.schema.yml`.
 3. Keep `templates/ledger.schema.yml` as compatibility entrypoint.
-4. Add example validation notes for current Body War and GoldenQuill ledgers.
+4. Add example validation notes for current Product Launch and Platform Governance ledgers.
 5. Defer interface, route-exchange, projection, row-update, validation-report,
    and artifact-manifest schemas until the core/index split validates.
 

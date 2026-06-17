@@ -11,8 +11,8 @@ L2 Examples And Fixture Coverage
 ## Source Contracts
 
 - [../../GLOSSARY-CONSISTENCY.md](../../GLOSSARY-CONSISTENCY.md)
-- [../../../../../examples/body-war-ledger.yml](../../../../../examples/body-war-ledger.yml)
-- [../../../../../examples/goldenquill-ledger.yml](../../../../../examples/goldenquill-ledger.yml)
+- [../../../../../examples/product-launch-ledger.yml](../../../../../examples/product-launch-ledger.yml)
+- [../../../../../examples/platform-governance-ledger.yml](../../../../../examples/platform-governance-ledger.yml)
 
 ## Inputs
 
@@ -55,7 +55,7 @@ for path in Path("arcana/craft/examples").glob("*.yml"):
     yaml.safe_load(path.read_text())
     print(f"YAML OK: {path}")
 PY
-rg -n "/home/|\\.\\./|projects/|implementation/|Body War|GoldenQuill|Parque|DomainSpec|Strava|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
+rg -n "/home/|\\.\\./|projects/|implementation/|private workspace|local-only approval|nested product path" arcana/craft/examples arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes || true
 ```
 
 ## Done When

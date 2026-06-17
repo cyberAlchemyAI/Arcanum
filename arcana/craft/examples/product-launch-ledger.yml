@@ -1,0 +1,294 @@
+ledger_id: craft.example.product_launch
+schema_ref: ../templates/ledger.schema.yml
+schema_version: 0.3.0
+status: candidate-local
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+notes:
+  - Public-safe fixture; names and paths are synthetic.
+  - Demonstrates a compact product-readiness ledger with one child context, route handoffs, receipts, and recomposition.
+
+indexes:
+  by_id:
+    CTX-PRODUCT-LAUNCH-ROOT: contexts[0]
+    CTX-PRODUCT-LAUNCH-API-REVIEW: contexts[1]
+    DESC-PRODUCT-LAUNCH-001: descriptions[0]
+    DESC-API-REVIEW-001: descriptions[1]
+    DEF-READINESS-SLICE-001: definitions[0]
+    DEF-CONTRACT-BOUNDARY-001: definitions[1]
+    DEC-API-BOUNDARY-001: decisions[0]
+    BLK-PILOT-EVIDENCE-001: typed_items[0]
+    ENA-API-CONTRACT-001: typed_items[1]
+    GAP-SEED-DATA-001: gaps[0]
+    ART-PRODUCT-LEDGER: artifacts[0]
+    ART-PRODUCT-VIEW: artifacts[1]
+    ART-API-REVIEW-HANDOFF: artifacts[2]
+    ART-API-REVIEW-RECEIPT: artifacts[3]
+    ART-API-BOUNDARY-DECISION: artifacts[4]
+    ART-PILOT-EVIDENCE-PLAN: artifacts[5]
+  open_decisions: []
+  blocking_decisions: []
+  active_blockers:
+    - BLK-PILOT-EVIDENCE-001
+  active_gaps:
+    - GAP-SEED-DATA-001
+  next_moves:
+    - context_id: CTX-PRODUCT-LAUNCH-ROOT
+      next_move: Run the first pilot-evidence task and attach the receipt to BLK-PILOT-EVIDENCE-001.
+    - context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+      next_move: Recompose API review evidence into CTX-PRODUCT-LAUNCH-ROOT.
+  artifacts_by_path:
+    .craft/ledger.yml: ART-PRODUCT-LEDGER
+    CRAFT.md: ART-PRODUCT-VIEW
+    handoffs/api-contract-review.md: ART-API-REVIEW-HANDOFF
+    receipts/api-contract-review.json: ART-API-REVIEW-RECEIPT
+    docs/decisions/api-boundary.md: ART-API-BOUNDARY-DECISION
+    docs/pilot-evidence-plan.md: ART-PILOT-EVIDENCE-PLAN
+
+contexts:
+  - context_id: CTX-PRODUCT-LAUNCH-ROOT
+    parent_id: root
+    title: Product launch readiness
+    purpose: Track the smallest launch-ready slice, its blockers, decisions, evidence, and next move.
+    stage: plan
+    gate: flag
+    next_move: Run the first pilot-evidence task and attach the receipt to BLK-PILOT-EVIDENCE-001.
+    owned_artifacts:
+      - ART-PRODUCT-LEDGER
+      - ART-PRODUCT-VIEW
+      - ART-PILOT-EVIDENCE-PLAN
+      - ART-API-BOUNDARY-DECISION
+    links:
+      - label: Active blocker
+        target: BLK-PILOT-EVIDENCE-001
+        kind: row-id
+      - label: Seed-data gap
+        target: GAP-SEED-DATA-001
+        kind: row-id
+    notes: Root context created by Craft start for a synthetic launch example.
+  - context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    parent_id: CTX-PRODUCT-LAUNCH-ROOT
+    title: API contract review
+    purpose: Review the product API boundary before the launch work-pack moves from plan to execute.
+    stage: closed
+    gate: pass
+    next_move: Recompose API review evidence into CTX-PRODUCT-LAUNCH-ROOT.
+    owned_artifacts:
+      - ART-API-REVIEW-HANDOFF
+      - ART-API-REVIEW-RECEIPT
+      - ART-API-BOUNDARY-DECISION
+    links:
+      - label: Boundary decision
+        target: DEC-API-BOUNDARY-001
+        kind: row-id
+    notes: Child context closed only after receipt and decision evidence were recorded.
+
+artifacts:
+  - artifact_id: ART-PRODUCT-LEDGER
+    owner_context_id: CTX-PRODUCT-LAUNCH-ROOT
+    path: .craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured Craft source of truth for this example.
+  - artifact_id: ART-PRODUCT-VIEW
+    owner_context_id: CTX-PRODUCT-LAUNCH-ROOT
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view generated from the ledger.
+  - artifact_id: ART-API-REVIEW-HANDOFF
+    owner_context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    path: handoffs/api-contract-review.md
+    artifact_type: route-handoff
+    status: pass
+    notes: Bounded handoff asking for API contract review only.
+  - artifact_id: ART-API-REVIEW-RECEIPT
+    owner_context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    path: receipts/api-contract-review.json
+    artifact_type: execution-receipt
+    status: pass
+    notes: Receipt proving the contract review executed.
+  - artifact_id: ART-API-BOUNDARY-DECISION
+    owner_context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    path: docs/decisions/api-boundary.md
+    artifact_type: decision-record
+    status: pass
+    notes: Decision record selecting the narrow API contract boundary.
+  - artifact_id: ART-PILOT-EVIDENCE-PLAN
+    owner_context_id: CTX-PRODUCT-LAUNCH-ROOT
+    path: docs/pilot-evidence-plan.md
+    artifact_type: work-plan
+    status: active
+    notes: Plan for collecting launch evidence before the root context can pass.
+
+descriptions:
+  - description_id: DESC-PRODUCT-LAUNCH-001
+    context_id: CTX-PRODUCT-LAUNCH-ROOT
+    description: The launch slice is narrow enough to plan, but it still needs pilot evidence before execution can claim readiness.
+    status: active
+    evidence: ART-PILOT-EVIDENCE-PLAN
+  - description_id: DESC-API-REVIEW-001
+    context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    description: The API review child context exists to decide the handoff boundary without expanding the root launch scope.
+    status: active
+    evidence: ART-API-REVIEW-HANDOFF
+
+definitions:
+  - definition_id: DEF-READINESS-SLICE-001
+    scope_id: CTX-PRODUCT-LAUNCH-ROOT
+    term: launch readiness slice
+    statement: A bounded unit of work whose blockers, decisions, evidence, and next move can be reviewed without opening the whole product plan.
+    status: candidate
+    evidence: ART-PRODUCT-LEDGER
+  - definition_id: DEF-CONTRACT-BOUNDARY-001
+    scope_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    term: API contract boundary
+    statement: The explicit interface where the launch slice depends on another implementation surface.
+    status: candidate
+    evidence: ART-API-BOUNDARY-DECISION
+
+typed_items:
+  - item_id: BLK-PILOT-EVIDENCE-001
+    kind: blocker
+    base_type: evidence_blocker
+    context_type: launch.pilot_evidence
+    primary_lane: validator
+    secondary_lanes:
+      - product
+    source_id: CTX-PRODUCT-LAUNCH-ROOT
+    target_id: CTX-PRODUCT-LAUNCH-ROOT
+    status: active
+    refinement_status: refined
+    default_role: evidence_reviewer
+    allowed_roles:
+      - evidence_reviewer
+      - validator
+      - product_owner
+    delegation_route: task-session
+    requires_human: false
+    role_confidence: candidate
+    owner_ref: validator
+    role_notes: Validator owns the evidence check; product reviews whether the evidence satisfies launch meaning.
+    closure_condition: A pilot run produces a receipt that satisfies the launch evidence checklist without expanding scope.
+    evidence: ART-PILOT-EVIDENCE-PLAN
+    decision_ref: none
+    reason: Launch readiness cannot pass until at least one pilot evidence receipt exists.
+    links:
+      - label: Evidence plan
+        target: ART-PILOT-EVIDENCE-PLAN
+        kind: artifact-id
+  - item_id: ENA-API-CONTRACT-001
+    kind: enabler
+    base_type: design_enabler
+    context_type: launch.api_contract
+    primary_lane: architecture
+    source_id: DEC-API-BOUNDARY-001
+    target_id: CTX-PRODUCT-LAUNCH-ROOT
+    status: pass
+    default_role: architect
+    allowed_roles:
+      - architect
+      - product_owner
+    delegation_route: invoke
+    requires_human: false
+    role_confidence: candidate
+    owner_ref: DEC-API-BOUNDARY-001
+    role_notes: The closed architecture decision backs this enabler.
+    evidence: ART-API-BOUNDARY-DECISION
+    reason: The selected API boundary lets launch planning proceed while pilot evidence remains pending.
+    links:
+      - label: Decision
+        target: DEC-API-BOUNDARY-001
+        kind: row-id
+
+decisions:
+  - decision_id: DEC-API-BOUNDARY-001
+    scope_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    decision_type: selection
+    question: Which API boundary should the launch slice use?
+    description: Closed architecture decision that keeps the launch slice narrow and reviewable.
+    options:
+      - narrow-contract-adapter
+      - shared-platform-package
+      - direct-source-copy
+    default_option: narrow-contract-adapter
+    selected: narrow-contract-adapter
+    rationale: It gives the launch slice a stable integration point without copying ownership or widening implementation scope.
+    evidence: ART-API-BOUNDARY-DECISION
+    status: closed
+    blocking: false
+    impact: Launch planning can continue; shared packaging remains future hardening.
+    owner: architecture
+    links:
+      - label: Enabler created by decision
+        target: ENA-API-CONTRACT-001
+        kind: row-id
+
+gaps:
+  - gap_id: GAP-SEED-DATA-001
+    scope_id: CTX-PRODUCT-LAUNCH-ROOT
+    summary: Seed data exists only as a fixture and has not been checked against a live pilot run.
+    severity: flag
+    treatment: plan
+    owner: validator
+    status: active
+    evidence: ART-PILOT-EVIDENCE-PLAN
+    links:
+      - label: Active blocker
+        target: BLK-PILOT-EVIDENCE-001
+        kind: row-id
+
+route_handoffs:
+  - handoff_id: HANDOFF-API-REVIEW-001
+    context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    route: architecture-pattern-inventory
+    objective: Review the API contract boundary for the launch slice.
+    status: pass
+    evidence:
+      - ART-API-REVIEW-HANDOFF
+
+receipts:
+  - receipt_id: RECEIPT-API-REVIEW-001
+    context_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    route: architecture-pattern-inventory
+    status: pass
+    evidence:
+      - ART-API-REVIEW-RECEIPT
+      - ART-API-BOUNDARY-DECISION
+    validation_result: API boundary decision recorded and linked to the launch root context.
+
+relations:
+  - relation_id: REL-API-REVIEW-CONTAINS-DECISION
+    source_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    target_id: DEC-API-BOUNDARY-001
+    type: contains
+    status: resolved
+    reason: The API review child context owns the boundary decision.
+    evidence: ART-API-BOUNDARY-DECISION
+  - relation_id: REL-API-DECISION-ENABLES-LAUNCH
+    source_id: DEC-API-BOUNDARY-001
+    target_id: CTX-PRODUCT-LAUNCH-ROOT
+    type: enables
+    status: resolved
+    reason: The boundary decision removes architecture ambiguity from launch planning.
+    evidence: ART-API-BOUNDARY-DECISION
+  - relation_id: REL-PILOT-BLOCKER-BLOCKS-ROOT
+    source_id: BLK-PILOT-EVIDENCE-001
+    target_id: CTX-PRODUCT-LAUNCH-ROOT
+    type: blocks
+    status: active
+    reason: The launch root cannot pass until pilot evidence exists.
+    evidence: ART-PILOT-EVIDENCE-PLAN
+
+recomposition:
+  - child_id: CTX-PRODUCT-LAUNCH-API-REVIEW
+    parent_id: CTX-PRODUCT-LAUNCH-ROOT
+    summary: API review recomposed into the product launch root with a selected narrow contract boundary.
+    evidence: ART-API-BOUNDARY-DECISION, ART-API-REVIEW-RECEIPT
+    residue: Pilot evidence and seed-data validation remain active at the root.
+    next_parent_move: Run the first pilot-evidence task and attach the receipt to BLK-PILOT-EVIDENCE-001.
+    status: pass
+    links:
+      - label: Remaining blocker
+        target: BLK-PILOT-EVIDENCE-001
+        kind: row-id

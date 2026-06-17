@@ -1,0 +1,556 @@
+{
+  "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+  "parent_dispatch_id": "triton-top2-backward-kernel-research-20260612",
+  "intent": {
+    "raw": "refine whether the Triton top-2 backward kernel problem is testable and how to do TDD for it",
+    "objective": "Validate and structure a full Refine route for testability and TDD of the Triton top-2 backward kernel research tower using the current native skill receipt model.",
+    "target_artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RESULT.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "dispatch-spec",
+      "native skill receipt",
+      "context-builder",
+      "invoke",
+      "interrogation",
+      "distill",
+      "validation_loop",
+      "residue_ledger"
+    ],
+    "operator_sentence": "Refine the research tower until it has a testable TDD strategy, preserving semantic blockers before implementation."
+  },
+  "mode": "research",
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "residue_ledger",
+    "x_ray"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Ordinary full Refine loop with stage handoffs and validation evidence.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog",
+        "conditional_component",
+        "data_quality_completeness"
+      ],
+      "applies_to_steps": [
+        "context-builder",
+        "invoke-define",
+        "interrogation-refine-review",
+        "research-decision",
+        "distill",
+        "invoke-design",
+        "interrogation-design-review",
+        "distill-repair",
+        "invoke-plan",
+        "final-synthesis"
+      ],
+      "validation_expectation": "Every selected stage has either a native receipt artifact or an explicit blocked reason."
+    },
+    {
+      "overlay_id": "xray_for_hidden_structure",
+      "trigger": "The target contains hidden mathematical and runtime structure: differentiable bridge, Top2 relaxation, PyTorch reference, Triton parity, and allocation boundaries.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "residue_ledger"
+      ],
+      "applies_to_steps": [
+        "distill",
+        "invoke-design",
+        "invoke-plan",
+        "final-synthesis"
+      ],
+      "validation_expectation": "The result separates semantic contract tests, gradient reference tests, Triton parity tests, allocation checks, and performance gates."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "No delegated subagents were required for this correction; stage receipts are represented as native-surface artifact expectations.",
+    "authorization": "not_needed",
+    "parallelism": "none",
+    "join_policy": "none",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "residue"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "context-builder",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "minimum_component_catalog"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/LEARNING-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/01-context-builder.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "invoke-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "capability_metadata": {
+        "source": "native Codex skill surface",
+        "note": "Available as <local-codex-skill> not required to resolve through tools/arcanum."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-define-native-receipt-expected"
+        }
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "Flag if no native stage receipt is produced."
+      ]
+    },
+    {
+      "step_id": "interrogation-refine-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "capability_metadata": {
+        "source": "native Codex skill surface",
+        "note": "Available as <local-codex-skill> not required to resolve through tools/arcanum."
+      },
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-define-native-receipt-expected"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "interrogation-refine-review-receipt-expected"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/03-interrogation-refine-review.blocked.md"
+    },
+    {
+      "step_id": "research-decision",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "pattern": "decision",
+      "parallel": false,
+      "techniques": [
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/open-residue.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/04-research-decision.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "distill",
+      "name": "Distill smallest coherent testable unit",
+      "capability_ref": "distill",
+      "pattern": "distill",
+      "parallel": false,
+      "techniques": [
+        "residue_ledger",
+        "x_ray"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/implementation-notes.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/05-distill.md"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "invoke-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "capability_metadata": {
+        "source": "native Codex skill surface",
+        "note": "Expected native receipt; legacy command route is not a success gate."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/05-distill.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-design-native-receipt-expected"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "interrogation-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "capability_metadata": {
+        "source": "native Codex skill surface",
+        "note": "Expected native receipt; legacy command route is not a success gate."
+      },
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-design-native-receipt-expected"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "interrogation-design-review-receipt-expected"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/07-interrogation-design-review.blocked.md"
+    },
+    {
+      "step_id": "distill-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "interrogation-design-review-receipt-expected"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/08-distill-repair.md"
+        }
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/08-distill-repair.md"
+    },
+    {
+      "step_id": "invoke-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "capability_metadata": {
+        "source": "native Codex skill surface",
+        "note": "Expected native receipt; legacy command route is not a success gate."
+      },
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": [
+        "sequence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/08-distill-repair.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-plan-native-receipt-expected"
+        }
+      ],
+      "join_policy": "none"
+    },
+    {
+      "step_id": "final-synthesis",
+      "name": "Final Interrogation and Refine-owned synthesis",
+      "capability_ref": "refine",
+      "pattern": "synthesis",
+      "parallel": false,
+      "techniques": [
+        "frame_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "invoke-plan-native-receipt-expected"
+        },
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RESULT.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RESULT.md"
+        },
+        {
+          "kind": "trace_event",
+          "ref": "refine-triton-top2-tdd-synthesis-corrected"
+        }
+      ],
+      "join_policy": "none"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "context-builder",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/01-context-builder.md"
+      ],
+      "validation": [
+        "legacy dry-run receipt only"
+      ],
+      "residue": "Replace with true native receipt in a rerun."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "invoke-define",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/02-invoke-define.blocked.md"
+      ],
+      "validation": [
+        "Original run used stale legacy command-surface check; native invoke receipt was not collected."
+      ],
+      "residue": "Rerun through native skill surface to collect a true invoke define receipt."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "interrogation-refine-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/03-interrogation-refine-review.blocked.md"
+      ],
+      "validation": [
+        "Original run used stale legacy command-surface check; native interrogation receipt was not collected."
+      ],
+      "residue": "Rerun through native skill surface to collect a true refine-review receipt."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "research-decision",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/04-research-decision.md"
+      ],
+      "validation": [
+        "Research-if-gap-appears decision recorded; no external pass required for the TDD question."
+      ],
+      "residue": "Semantic decisions remain operator-owned before implementation."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "distill",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/05-distill.md"
+      ],
+      "validation": [
+        "legacy dry-run receipt only"
+      ],
+      "residue": "Replace with true native receipt in a rerun."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "invoke-design",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/06-invoke-design.blocked.md"
+      ],
+      "validation": [
+        "Original run used stale legacy command-surface check; native invoke design receipt was not collected."
+      ],
+      "residue": "Rerun through native skill surface to collect a true invoke design receipt."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "interrogation-design-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/07-interrogation-design-review.blocked.md"
+      ],
+      "validation": [
+        "Original run used stale legacy command-surface check; native design-review receipt was not collected."
+      ],
+      "residue": "Rerun through native skill surface to collect a true refine-design-review receipt."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "distill-repair",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/08-distill-repair.md"
+      ],
+      "validation": [
+        "legacy dry-run receipt only"
+      ],
+      "residue": "Replace with true native receipt in a rerun."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "invoke-plan",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "not_run",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/stages/09-invoke-plan.blocked.md"
+      ],
+      "validation": [
+        "Original run used stale legacy command-surface check; native invoke plan receipt was not collected."
+      ],
+      "residue": "Rerun through native skill surface to collect a true invoke plan receipt."
+    },
+    {
+      "dispatch_id": "refine-triton-top2-tdd-testability-20260612T114953Z",
+      "step_id": "final-synthesis",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "research/triton-top2-backward-kernel/development/refinement-runs/20260612T114953Z-tdd-testability-full-refine/RESULT.md"
+      ],
+      "validation": [
+        "Refine-owned synthesis artifact exists",
+        "TDD ladder separates semantic, reference, parity, allocation, and performance gates"
+      ],
+      "residue": "Full native receipts for invoke/interrogation were not collected in the original run."
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "dispatch-route-validates",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json validates before any future native rerun.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "native-receipt-model",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "Missing legacy command routes do not block stages when native capabilities are available; true stage completion still requires native receipts or explicit blocked reasons.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "semantic-before-triton",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "TDD starts with the differentiable bridge contract before Triton implementation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "no-public-arcanum-mutation",
+      "kind": "policy",
+      "owner": "domainspec-core",
+      "condition": "Research/refine artifacts stay in the private parent research tree unless a separate Arcanum package task is approved.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "triton-top2-backward-kernel-research-20260612",
+    "trace_events": [
+      "refine-triton-top2-route-corrected",
+      "refine-triton-top2-tdd-synthesis-corrected"
+    ],
+    "signal_grouping": "triton-top2-backward-refine"
+  },
+  "promotion_guardrails": [
+    "Do not treat legacy command resolution failure as a current native skill blocker.",
+    "Do not promote this research tower into public Arcanum package content without a separate owner-reviewed task.",
+    "Do not implement Triton until the differentiable bridge contract is selected and reference tests pass."
+  ]
+}

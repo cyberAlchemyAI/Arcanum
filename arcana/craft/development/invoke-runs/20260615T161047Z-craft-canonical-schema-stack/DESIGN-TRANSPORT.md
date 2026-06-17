@@ -35,8 +35,8 @@
 - `arcana/craft/SKILL.md`
 - `arcana/craft/README.md`
 - `arcana/craft/templates/ledger.schema.yml`
-- `arcana/craft/examples/body-war-ledger.yml`
-- `arcana/craft/examples/goldenquill-ledger.yml`
+- `arcana/craft/examples/product-launch-ledger.yml`
+- `arcana/craft/examples/platform-governance-ledger.yml`
 - `development/craft/CRAFT-INTERFACE-LEDGER-SCHEMA.yml`
 - `development/craft/CRAFT-INTERACTION-LEDGER-SCHEMA.yml`
 

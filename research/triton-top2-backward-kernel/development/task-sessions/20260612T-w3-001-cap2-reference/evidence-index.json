@@ -1,0 +1,35 @@
+{
+  "task_session_id": "20260612T-w3-001-cap2-reference",
+  "task": "TASK-W3-001",
+  "status": "pass",
+  "context_pack": "CONTEXT-PACK.md",
+  "decision_gate": null,
+  "result": "RESULT.md",
+  "reference_report": "../../../CAP2-REFERENCE.md",
+  "updated_artifacts": [
+    "../../../reference/router_reference.py",
+    "../../../reference/router_torch.py",
+    "../../../tests/test_router_reference.py",
+    "../../../tests/test_router_torch.py",
+    "../../../CAP2-REFERENCE.md",
+    "../../../CAP2-CANDIDATE-SPEC.md",
+    "../../../WORK-PACK.md",
+    "../../../README.md",
+    "../../../TOWER.md"
+  ],
+  "validation": [
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests/test_router_reference.py tests/test_router_torch.py -q",
+      "result": "46 passed"
+    },
+    {
+      "command": "cd research/triton-top2-backward-kernel && .venv/bin/python -m pytest tests -q",
+      "result": "48 passed, 1 skipped"
+    },
+    {
+      "command": "python3 -m unittest discover -s research/triton-top2-backward-kernel/tests -v",
+      "result": "OK (skipped=22)"
+    }
+  ],
+  "next_task": "TASK-W3-002"
+}

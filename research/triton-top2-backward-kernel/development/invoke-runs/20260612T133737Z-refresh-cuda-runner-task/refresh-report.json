@@ -1,0 +1,74 @@
+{
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "mutationMode": "apply-approved",
+  "sourceSignals": [
+    {
+      "id": "sig-w0-006-blocked",
+      "source_path": "research/triton-top2-backward-kernel/development/task-sessions/20260612T1322Z-w0-006-gpu-triton-gate/RESULT.md",
+      "signal_type": "blocker_opened",
+      "target_artifacts": [
+        "research/triton-top2-backward-kernel/WORK-PACK.md",
+        "research/triton-top2-backward-kernel/TOOLING-PLAN.md"
+      ],
+      "claim": "Local GPU/Triton runner is unavailable.",
+      "evidence": "CPU-only PyTorch, no Triton, no nvidia-smi, no nvcc.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "sig-docker-runc-only",
+      "source_path": "local command: docker info --format '{{json .Runtimes}}'",
+      "signal_type": "evidence_added",
+      "target_artifacts": [
+        "research/triton-top2-backward-kernel/CUDA-RUNNER-PLAN.md"
+      ],
+      "claim": "Docker exists locally, but NVIDIA runtime is not visible.",
+      "evidence": "Docker runtime list contains runc runtimes only; nvidia-container-runtime and nvidia-ctk are absent.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    },
+    {
+      "id": "sig-user-cuda-runner-task",
+      "source_path": "user request",
+      "signal_type": "route_changed",
+      "target_artifacts": [
+        "research/triton-top2-backward-kernel/WORK-PACK.md"
+      ],
+      "claim": "Add an executable task to make a CUDA runner available.",
+      "evidence": "User requested invoke refresh for this purpose.",
+      "confidence": "high",
+      "mutation_safety": "safe"
+    }
+  ],
+  "targetArtifacts": [
+    "research/triton-top2-backward-kernel/WORK-PACK.md",
+    "research/triton-top2-backward-kernel/TOOLING-PLAN.md",
+    "research/triton-top2-backward-kernel/CUDA-RUNNER-PLAN.md",
+    "research/triton-top2-backward-kernel/README.md",
+    "research/triton-top2-backward-kernel/TOWER.md"
+  ],
+  "deltaSummary": [
+    "Added CUDA runner acquisition and validation tasks.",
+    "Separated local GPU blocker from external runner acquisition path.",
+    "Rerouted W5 dependency through validated CUDA runner readiness."
+  ],
+  "proposedChanges": [],
+  "appliedChanges": [
+    "Added CUDA-RUNNER-PLAN.md",
+    "Updated WORK-PACK.md",
+    "Updated TOOLING-PLAN.md",
+    "Updated README.md",
+    "Updated TOWER.md"
+  ],
+  "skippedChanges": [],
+  "blockers": [
+    "Actual CUDA runner provisioning may require user access, budget, or hardware approval during TASK-W0-007."
+  ],
+  "nextRoute": "task-session TASK-W0-007",
+  "validation": [
+    "jq empty refresh-report.json",
+    "jq empty evidence-index.json",
+    ".venv/bin/python -m pytest tests -q"
+  ]
+}

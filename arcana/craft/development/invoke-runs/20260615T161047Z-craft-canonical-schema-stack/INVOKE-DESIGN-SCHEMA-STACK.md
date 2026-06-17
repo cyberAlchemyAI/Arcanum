@@ -27,8 +27,8 @@ submodule state.
 - `arcana/craft/SKILL.md`
 - `arcana/craft/README.md`
 - `arcana/craft/templates/ledger.schema.yml`
-- `arcana/craft/examples/body-war-ledger.yml`
-- `arcana/craft/examples/goldenquill-ledger.yml`
+- `arcana/craft/examples/product-launch-ledger.yml`
+- `arcana/craft/examples/platform-governance-ledger.yml`
 - `arcana/craft/development/refinement-runs/20260615T121512Z-craft-ledger-csv-json-indexes/RESULT.md`
 - `arcana/craft/development/invoke-runs/20260615T123257Z-craft-index-improvements/INVOKE-DESIGN-ARCHITECTURE.md`
 - `arcana/craft/development/invoke-runs/20260615T152120Z-craft-row-update-planner-architecture/INVOKE-DESIGN-ARCHITECTURE.md`
@@ -163,8 +163,8 @@ reports only after the source row contract passes.
 | `CRAFT.md` | prose/examples | interface schema for anchors, sections, quick links, derived status | P1 |
 | `state all` / pending-by-node | `SKILL.md` contract | interface schema for per-node status payload | P1 |
 | `Craft Result` output | `SKILL.md` contract | interface schema for result envelope | P1 |
-| `route_handoffs` | Body War example and interaction draft | route-exchange schema | P1 |
-| `receipts` | Body War example and interaction draft | route-exchange schema | P1 |
+| `route_handoffs` | Product Launch example and interaction draft | route-exchange schema | P1 |
+| `receipts` | Product Launch example and interaction draft | route-exchange schema | P1 |
 | `route_events` | interaction draft only | route-exchange schema, candidate until example exists | P2 |
 | `.craft/artifacts/` | storage contract only | artifact manifest schema | P2 |
 | `.craft/projections/*.csv` | proposal only | projection schema with table headers and edit policy | P2 |

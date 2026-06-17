@@ -21,7 +21,7 @@ name the stack.
 | --- | --- | --- |
 | O1 | Keep `.craft/ledger.yml` authoritative. | `SKILL.md` storage contract; `ARCHITECTURE.md` source authority. |
 | O2 | Preserve `ledger.schema.yml` as the compatibility entrypoint. | `INVOKE-DESIGN-SCHEMA-STACK.md` high-level structure view. |
-| O3 | Promote example-backed rows: `descriptions`, `definitions`, `gaps`, `recomposition`. | Body War and GoldenQuill ledgers; schema-stack inventory. |
+| O3 | Promote example-backed rows: `descriptions`, `definitions`, `gaps`, `recomposition`. | Product Launch and Platform Governance ledgers; schema-stack inventory. |
 | O4 | Add generated/embedded index schema coverage without making indexes authoritative. | `SKILL.md` linking/indexing contract; index proposal result. |
 | O5 | Do not implement projection, CSV import, row-update apply mode, scripts, or generated mirror refresh. | `IMPLEMENTATION-LAYERING-SEED.md` first executable slice. |
 | O6 | Update root documentation/source authority to name the stack. | SWU write scope. |
@@ -34,8 +34,8 @@ name the stack.
 | `arcana/craft/SKILL.md` | source authority, storage contract, linking/indexing, core methods, quality bar | Controls runtime behavior and non-goals. |
 | `arcana/craft/ARCHITECTURE.md` | source authority, low-level components, current contract tensions, comparison checklist | Current architecture baseline. |
 | `arcana/craft/templates/ledger.schema.yml` | full file | Current compatibility schema entrypoint. |
-| `arcana/craft/examples/body-war-ledger.yml` | top-level families, route handoffs, receipts, recomposition | Example-backed source rows and deferred route exchange rows. |
-| `arcana/craft/examples/goldenquill-ledger.yml` | top-level families, definitions, gaps, recomposition | Example-backed source rows. |
+| `arcana/craft/examples/product-launch-ledger.yml` | top-level families, route handoffs, receipts, recomposition | Example-backed source rows and deferred route exchange rows. |
+| `arcana/craft/examples/platform-governance-ledger.yml` | top-level families, definitions, gaps, recomposition | Example-backed source rows. |
 | `arcana/craft/development/invoke-runs/20260615T161047Z-craft-canonical-schema-stack/INVOKE-DESIGN-SCHEMA-STACK.md` | high-level structure, component table, handoff | Defines schema stack and first slice. |
 | `arcana/craft/development/invoke-runs/20260615T161047Z-craft-canonical-schema-stack/SCHEMA-CANDIDATE-INVENTORY.md` | P0/P1/P2 inventory | Controls priority and deferrals. |
 | `development/craft/CRAFT-INTERFACE-LEDGER-SCHEMA.yml` | descriptions, definitions, gaps draft | Historical draft used as evidence, not copied blindly. |

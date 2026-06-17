@@ -1,0 +1,77 @@
+{
+  "task": "TASK-W5-001",
+  "swu": "SWU-W5-001",
+  "status": "pass-runpod",
+  "source_refresh": "research/triton-top2-backward-kernel/development/invoke-runs/20260614T070302Z-refresh-w5-triton-dw-bug/REFRESH-REPORT.md",
+  "artifacts": [
+    {
+      "path": "research/triton-top2-backward-kernel/reference/router_triton.py",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/tests/test_router_triton.py",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/scripts/free_cuda_runner_bootstrap.sh",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/<cuda-runner-iteration-command>",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T070808Z-w5-001-triton-dw-bugfix/CONTEXT-PACK.md",
+      "status": "pass"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T070808Z-w5-001-triton-dw-bugfix/RESULT.md",
+      "status": "pass-runpod"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/runner-bundles/triton-top2-w5-kernel-bugfix-20260614T070808Z.tar.gz",
+      "status": "created-final-evidence-archive",
+      "sha256": "91b73067da35b29c85b0c104a866510d458d5af2e8d09cb08626df83179f78c0"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/runner-bundles/triton-top2-iteration-20260614T071552Z.tar.gz",
+      "status": "validated-runpod",
+      "sha256": "9462ef537e0784fee85ffd49e5268bd50a9028e53ac06fd8378c42c5f3f31e13"
+    }
+  ],
+  "local_validation": [
+    {
+      "command": ".venv/bin/python -m py_compile reference/router_triton.py tests/test_router_triton.py",
+      "status": "pass"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/test_router_triton.py -q",
+      "status": "pass",
+      "output": "2 passed, 3 skipped in 1.96s"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests -q",
+      "status": "pass",
+      "output": "51 passed, 4 skipped in 2.67s"
+    }
+  ],
+  "required_external_validation": [
+    "<cuda-runner-iteration-command>",
+    "/usr/local/bin/python -m pytest tests/test_router_triton.py -q",
+    "/usr/local/bin/python -m pytest tests -q"
+  ],
+  "external_validation": [
+    {
+      "command": "<cuda-runner-iteration-command>",
+      "status": "pass",
+      "output": "CUDA/Triton probe: 55 passed in 4.31s; tests/test_router_triton.py: 5 passed in 2.92s; full suite: 55 passed in 3.73s; PASS: remote CUDA/Triton iteration completed."
+    }
+  ],
+  "non_claims": [
+    "fused full backward",
+    "hard Top2 differentiability",
+    "zero allocation",
+    "final FP16 tolerance",
+    "performance"
+  ]
+}

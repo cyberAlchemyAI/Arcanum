@@ -17,8 +17,8 @@ source_artifacts:
   - arcana/craft/ARCHITECTURE.md
   - arcana/craft/templates/schemas/ledger-core.schema.yml
   - arcana/craft/templates/schemas/index.schema.yml
-  - arcana/craft/examples/body-war-ledger.yml
-  - arcana/craft/examples/goldenquill-ledger.yml
+  - arcana/craft/examples/product-launch-ledger.yml
+  - arcana/craft/examples/platform-governance-ledger.yml
   - development/craft/CRAFT-LEDGER-SCHEMA.yml
 
 schema_stack:
@@ -202,6 +202,11 @@ enums:
   description_status:
     - active
     - superseded
+  role_mapping_confidence:
+    - candidate
+    - active-local
+    - promoted-by-owner
+    - deprecated
 
 base_condition_types:
   blocker:
@@ -244,6 +249,125 @@ base_condition_types:
     - resource_enabler
     - sequence_enabler
     - recomposition_enabler
+
+blocker_schema:
+  row_family: typed_items
+  kind: blocker
+  purpose: >
+    Keep unsafe or impossible motion visible until the blocker is typed,
+    owned by a responsibility lane, and closed by evidence or an explicit
+    waiver decision.
+  lifecycle:
+    ordered_states:
+      - raw
+      - typed
+      - refined
+      - resolution_proposed
+      - resolved
+    terminal_states:
+      - resolved
+      - waived
+      - rejected
+    prohibited_transitions:
+      - from: raw
+        to: resolved
+      - from: typed
+        to: resolved
+    waiver_transition:
+      from:
+        - raw
+        - typed
+        - refined
+      to: waived
+      requires_decision_type: waiver
+  refinement_minimum_fields:
+    - item_id
+    - kind
+    - base_type
+    - primary_lane
+    - source_id
+    - target_id
+    - status
+    - refinement_status
+    - closure_condition
+    - evidence
+    - reason
+  refinement_policy:
+    raw: The blocker is observed but not yet typed or owned.
+    typed: The blocker has base_type and primary_lane but may still lack closure evidence.
+    refined: The blocker has enough lane, role, evidence, and closure detail to route.
+    resolution_proposed: A lane or role claims the closure condition has been satisfied.
+    resolved: Evidence, receipt, or linked decision proves the closure condition.
+    waived: A human or governance decision explicitly accepts the unresolved residue.
+  closure_evidence_policy:
+    required_for_resolved: true
+    accepted_shapes:
+      - artifact ID
+      - receipt ID
+      - decision_ref
+      - path
+      - selector
+      - link object
+    route_shape_warning: Dispatch validation proves route shape only; it is not execution proof.
+  role_boundary:
+    blocker_refiner: Clarifies raw or typed blockers before closure can be claimed.
+    responsible_lane: Resolves the blocker or proposes a resolution.
+    validator_or_auditor: Confirms closure evidence when independent review is required.
+    governance: Waives blockers or resolves authority questions through decisions.
+
+role_schema:
+  purpose: >
+    Separate responsibility classification from assignment. Lanes say what kind
+    of responsibility is needed; roles say who or what may take that
+    responsibility in this repository.
+  lane_semantics: Operational lanes are responsibility types, not people, agents, or tools.
+  role_semantics: Roles are local handlers and may be human, team, agent, or route names.
+  assignment_policy: Role fields are advisory until backed by a decision, owner policy, or local route contract.
+  typed_item_role_fields:
+    primary_lane: Main responsibility lane for the item.
+    secondary_lanes: Supporting, review, or contributor lanes.
+    default_role: Suggested local role for the type/lane pair.
+    allowed_roles: Local roles allowed to handle the item.
+    delegation_route: Suggested route such as decision-gate, refine, invoke, task-session, or human review.
+    requires_human: True when the item cannot close from automation evidence alone.
+    role_confidence: Maturity of the role mapping.
+    owner_ref: Optional local owner, team, policy, or row reference.
+    role_notes: Freeform notes explaining why this role mapping is appropriate.
+  lane_resolution_hints:
+    decision_blocker:
+      likely_lanes:
+        - business
+        - governance
+      route: decision-gate
+    definition_blocker:
+      likely_lanes:
+        - business
+        - product
+      route: refine
+    design_blocker:
+      likely_lanes:
+        - architecture
+        - tech
+      route: invoke
+    validation_blocker:
+      likely_lanes:
+        - qa
+        - validator
+      route: task-session
+    authority_blocker:
+      likely_lanes:
+        - governance
+        - auditor
+      route: decision-gate
+    resource_blocker:
+      likely_lanes:
+        - operations
+      route: human review
+    recomposition_blocker:
+      likely_lanes:
+        - integrator
+        - tech
+      route: refine
 
 row_families:
   contexts:
@@ -515,7 +639,12 @@ row_families:
       - secondary_lanes
       - refinement_status
       - default_role
+      - allowed_roles
       - delegation_route
+      - requires_human
+      - role_confidence
+      - owner_ref
+      - role_notes
       - closure_condition
       - evidence
       - decision_ref
@@ -568,7 +697,19 @@ row_families:
         enum_ref: refinement_status
       default_role:
         type: string
+      allowed_roles:
+        type: list
+        item_type: string
       delegation_route:
+        type: string
+      requires_human:
+        type: boolean
+      role_confidence:
+        type: enum
+        enum_ref: role_mapping_confidence
+      owner_ref:
+        type: string
+      role_notes:
         type: string
       closure_condition:
         type: string
@@ -746,6 +887,21 @@ validation_rules:
   - id: VAL-019
     description: A closed child context requires recomposition evidence before parent closure claims.
     severity: block
+  - id: VAL-020
+    description: A blocker cannot move from raw or typed directly to resolved; it must be refined, resolution_proposed, or waived first.
+    severity: block
+  - id: VAL-021
+    description: A blocker marked waived requires a linked waiver decision or explicit governance evidence.
+    severity: block
+  - id: VAL-022
+    description: A typed item with requires_human true cannot close from route-shape evidence alone.
+    severity: block
+  - id: VAL-023
+    description: Role fields are advisory unless backed by owner_ref, decision_ref, local policy, or route evidence.
+    severity: flag
+  - id: VAL-024
+    description: When primary and secondary lanes imply different owners, the next move names the coordination or decision route instead of silently choosing one lane.
+    severity: flag
 
 blocker_lifecycle:
   normal:
@@ -772,6 +928,7 @@ conflict_policy:
   - blocker_refiner as primary_lane means the item is not ready for final resolution.
   - auditor or validator as secondary lane requires review evidence before closure.
   - business and tech disagreement keeps status flag or block until a decision row records the selected interpretation.
+  - Role fields suggest local handlers but do not assign authority without owner, policy, route, or decision evidence.
   - MVP rows should use one base_type; mixed causes go in reason.
 
 deferrals:

@@ -1,0 +1,34 @@
+{
+  "task": "TASK-W6-001C",
+  "result": "pass-runpod",
+  "session": "20260614T074112Z-w6-001c-cap2-dw-reduction",
+  "context_pack": "CONTEXT-PACK.md",
+  "result_report": "RESULT.md",
+  "updated_files": [
+    "reference/router_triton.py",
+    "tests/test_router_triton.py",
+    "development/invoke-runs/20260614T072729Z-w6-cap2-exact-backward-spec/WORK-PACK-W6-CAP2.md"
+  ],
+  "validation": [
+    {
+      "command": ".venv/bin/python -m py_compile reference/router_triton.py tests/test_router_triton.py",
+      "result": "pass"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/test_router_triton.py -q",
+      "result": "pass-local-skipped-cuda",
+      "summary": "2 passed, 13 skipped"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests -q",
+      "result": "pass-local-skipped-cuda",
+      "summary": "54 passed, 14 skipped"
+    },
+    {
+      "command": "<cuda-runner-iteration-command>",
+      "result": "pass-runpod",
+      "summary": "focused 15 passed; full 68 passed"
+    }
+  ],
+  "next_ready_task": "TASK-W6-001D"
+}

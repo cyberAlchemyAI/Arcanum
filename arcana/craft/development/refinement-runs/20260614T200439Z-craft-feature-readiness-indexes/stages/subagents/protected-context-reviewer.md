@@ -18,7 +18,7 @@
 
 - The run states the public/private rule clearly: private evidence is to be abstracted, no external research was used, and public Craft fixtures must not receive private workspace details.
 - The product/workspace boundary is mostly clear enough for future SWU execution: Craft records readiness; it does not execute SWUs, mutate product worktrees, or publish parent gitlinks.
-- The examples are the weak spot. Current tracked public examples still contain concrete project/product names and nested or private-adjacent paths such as Body War, GoldenQuill, Parque Taquaral, DomainSpec, Strava, `projects/body-war`, and `implementation/domainspec`.
+- Historical examples were the weak spot. Current canonical examples should remain synthetic and avoid concrete project/product names, private source names, local paths, and nested private-adjacent paths.
 - The proposed public-boundary scan is not strict enough. `TASK-CFR-003` only scanned for `/home`, `../`, and a few literal phrases, while `TASK-CFR-004` named a public-boundary scan but did not include one in its verification block.
 - Final run verdict `flag` is appropriate. It should not be upgraded to `pass` while validation can still miss public-boundary leaks.
 
@@ -31,7 +31,7 @@
 ## Blockers
 
 - Block `SWU-CFR-005` pass unless it defaults to a synthetic fixture or gets explicit owner approval to touch existing named examples.
-- Do not treat current Body War or GoldenQuill examples as automatically public-safe evidence for this new readiness fixture.
+- Do not treat named private examples as automatically public-safe evidence for a new readiness fixture.
 - Before publication, add a stricter denylist scan for project names, private submodule paths, local product paths, people/team names, and repo-root traversal.
 
 ## Residue

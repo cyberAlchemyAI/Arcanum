@@ -48,12 +48,16 @@ the ledger.
 - [templates/schemas/ledger-core.schema.yml](templates/schemas/ledger-core.schema.yml)
   and [templates/schemas/index.schema.yml](templates/schemas/index.schema.yml)
   - first split schema-stack layer for source ledger rows and indexes.
-- [examples/body-war-ledger.yml](examples/body-war-ledger.yml) and
-  [examples/body-war-CRAFT.md](examples/body-war-CRAFT.md) - small product MVP
-  readiness example.
-- [examples/goldenquill-ledger.yml](examples/goldenquill-ledger.yml) and
-  [examples/goldenquill-CRAFT.md](examples/goldenquill-CRAFT.md) - larger
-  governance and architecture-readiness example.
+- [examples/product-launch-ledger.yml](examples/product-launch-ledger.yml) and
+  [examples/product-launch-CRAFT.md](examples/product-launch-CRAFT.md) - compact
+  product readiness example.
+- [examples/platform-governance-ledger.yml](examples/platform-governance-ledger.yml)
+  and [examples/platform-governance-CRAFT.md](examples/platform-governance-CRAFT.md)
+  - larger governance and adoption-readiness example.
+
+The examples are synthetic public fixtures. They demonstrate Craft row shape,
+linking, indexes, blocker refinement, lane-to-role hints, and recomposition
+without copying private project state.
 
 Historical promotion evidence remains in [development/craft/](../../development/craft/).
 
@@ -64,6 +68,14 @@ human views should render current decisions, blockers, gaps, recomposition, and
 artifacts as links. Machine ledgers should include indexes for common access
 patterns such as open decisions, active blockers, active gaps, next moves, and
 artifacts by path.
+
+## Blocker And Role Rule
+
+Craft blockers are typed before closure. A blocker records its base condition
+type, responsibility lane, optional local role fields, closure condition, and
+evidence. Lanes name the kind of responsibility needed; roles name local
+handlers. Role fields are advisory until backed by an owner policy, decision,
+route contract, receipt, or explicit human evidence.
 
 ## Tier Fit
 

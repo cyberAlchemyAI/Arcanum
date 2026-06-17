@@ -1,0 +1,57 @@
+{
+  "task": "TASK-W7-002",
+  "status": "pass-runpod",
+  "artifacts": [
+    {
+      "path": "research/triton-top2-backward-kernel/tests/test_router_triton.py",
+      "status": "updated"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T072412Z-w7-002-fp16-tolerance/CONTEXT-PACK.md",
+      "status": "pass"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/task-sessions/20260614T072412Z-w7-002-fp16-tolerance/RESULT.md",
+      "status": "pass-runpod"
+    },
+    {
+      "path": "research/triton-top2-backward-kernel/development/runner-bundles/triton-top2-iteration-20260614T072330Z.tar.gz",
+      "status": "validated-runpod",
+      "sha256": "0874060b4cb038a42357fcaeb0a1954a9bf4da8bd12dba66354fde2cb8b91a52"
+    }
+  ],
+  "local_validation": [
+    {
+      "command": ".venv/bin/python -m py_compile reference/router_triton.py tests/test_router_triton.py",
+      "status": "pass"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/test_router_triton.py -q",
+      "status": "pass",
+      "output": "2 passed, 10 skipped in 2.50s"
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests -q",
+      "status": "pass",
+      "output": "51 passed, 11 skipped in 3.26s"
+    }
+  ],
+  "external_validation": [
+    {
+      "command": "<cuda-runner-iteration-command>",
+      "status": "pass",
+      "output": "CUDA/Triton probe: 62 passed in 3.95s; tests/test_router_triton.py: 12 passed in 3.07s; full suite: 62 passed in 3.76s; PASS: remote CUDA/Triton iteration completed."
+    }
+  ],
+  "tolerance": {
+    "rtol": 0.002,
+    "atol": 0.002,
+    "output_dtype": "torch.float32"
+  },
+  "non_claims": [
+    "fused full backward",
+    "hard Top2 differentiability",
+    "selected relaxation kernel",
+    "performance"
+  ]
+}

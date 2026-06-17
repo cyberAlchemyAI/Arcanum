@@ -3,7 +3,7 @@
 ## Scan
 
 ```bash
-rg -n "/home/|\\.\\./|projects/|implementation/|Body War|GoldenQuill|Parque|DomainSpec|Strava|private workspace|local-only approval|nested product path" \
+rg -n "/home/|\\.\\./|projects/|implementation/|private workspace|local-only approval|nested product path" \
   arcanum/arcana/craft/examples \
   arcanum/arcana/craft/development/refinement-runs/20260614T200439Z-craft-feature-readiness-indexes
 ```
@@ -18,7 +18,7 @@ rg -n "/home/|\\.\\./|projects/|implementation/|Body War|GoldenQuill|Parque|Doma
 
 | Hit Class | Examples | Classification | Required Follow-Up |
 | --- | --- | --- | --- |
-| Existing named public examples | `Body War`, `GoldenQuill`, `Parque`, `DomainSpec`, `Strava`, `projects/body-war`, `implementation/domainspec` under `arcana/craft/examples/` | Existing public examples, not new readiness fixture evidence. | Do not reuse as readiness-index fixture without owner review. |
+| Historical named examples | The earlier public examples used concrete project names and local-style paths. | Replaced by synthetic public fixtures. | Keep future examples synthetic unless owner approval explicitly permits otherwise. |
 | Planned denylist text | denylist command strings in `WORK-PACK.md`, `TASK-CFR-003.md`, and `TASK-CFR-004.md` | Expected self-reference to the validation gate. | Keep as validation text. |
 | Protected-context prose | phrases such as `private workspace` in the run packet | Expected boundary language. | Keep as guardrail text. |
 

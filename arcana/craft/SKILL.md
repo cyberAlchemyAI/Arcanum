@@ -40,10 +40,10 @@ current canonical interface authority:
 - `arcana/craft/templates/ledger.schema.yml`
 - `arcana/craft/templates/schemas/ledger-core.schema.yml`
 - `arcana/craft/templates/schemas/index.schema.yml`
-- `arcana/craft/examples/body-war-ledger.yml`
-- `arcana/craft/examples/body-war-CRAFT.md`
-- `arcana/craft/examples/goldenquill-ledger.yml`
-- `arcana/craft/examples/goldenquill-CRAFT.md`
+- `arcana/craft/examples/product-launch-ledger.yml`
+- `arcana/craft/examples/product-launch-CRAFT.md`
+- `arcana/craft/examples/platform-governance-ledger.yml`
+- `arcana/craft/examples/platform-governance-CRAFT.md`
 
 The older `development/craft/` package remains historical promotion evidence and
 working material, not the runtime contract for `$craft`.
@@ -181,16 +181,26 @@ leaving it in a separate artifact.
 `add_blocker`
 
 - Inputs: `context_id`, `summary`, `blocker_type`, `lane`, `evidence`,
-  `closure_condition`.
+  `closure_condition`, optional `secondary_lanes`, `default_role`,
+  `allowed_roles`, `delegation_route`, `requires_human`, `role_confidence`,
+  `owner_ref`, and `role_notes`.
 - Writes: blocker typed item and optional relation.
 - Invariant: raw blockers cannot be resolved directly.
+- Invariant: lane names the responsibility type; role fields suggest local
+  handlers but do not assign authority without owner, decision, policy, route,
+  or receipt evidence.
 
 `refine_blocker`
 
-- Inputs: `blocker_id`, `blocker_type`, `lane`, `closure_condition`, `owner`.
+- Inputs: `blocker_id`, `blocker_type`, `lane`, `closure_condition`, `owner`,
+  optional `secondary_lanes`, `default_role`, `allowed_roles`,
+  `delegation_route`, `requires_human`, `role_confidence`, `owner_ref`, and
+  `role_notes`.
 - Writes: typed item update with `refinement_status: refined`.
 - Invariant: refinement supplies closure criteria, not closure evidence by
   itself.
+- Invariant: if `requires_human` is true, closure needs decision, policy, or
+  human evidence; route-shape validation alone is not enough.
 
 `add_enabler`
 

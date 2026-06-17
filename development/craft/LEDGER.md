@@ -37,6 +37,8 @@ Schema authority lives in [CRAFT-LEDGER-SCHEMA.yml](CRAFT-LEDGER-SCHEMA.yml). Th
 | --- | --- | --- | --- | --- | --- |
 | ART-SESSION-LEDGER | CTX-CRAFT | `development/craft/SESSION-LEDGER.md` | session-ledger | active | Durable artifact, decision, gap, and next-route ledger. |
 | ART-INITIAL-DEFINITION | CTX-CRAFT | `development/craft/CRAFT-INITIAL-DEFINITION.md` | source-baseline | active | Initial Craft definition and research synthesis. |
+| ART-CRAFT-TUTORIAL | CTX-CRAFT | `development/craft/CRAFT-TUTORIAL.md` | tutorial | active | First-reader tutorial using Guide sequencing and plain-language composition. |
+| ART-CRAFT-TUTORIAL-HTML | CTX-CRAFT | `development/craft/CRAFT-TUTORIAL.html` | tutorial-html | active | Visual tutorial companion for readers new to Craft. |
 | ART-RECURSIVE-LEDGER-DEFINE | CTX-LEDGER | `development/craft/CRAFT-RECURSIVE-LEDGER-DEFINE.md` | define-baseline | active | Broader feature definition for recursive ledger. |
 | ART-RECURSIVE-LEDGER-GLOSSARY | CTX-LEDGER | `development/craft/CRAFT-RECURSIVE-LEDGER-GLOSSARY.md` | glossary | active | Candidate recursive-ledger vocabulary. |
 | ART-TYPE-SYSTEM | CTX-TYPES | `development/craft/CRAFT-LEDGER-TYPE-SYSTEM.md` | type-system | active | Condition types, lanes, role hints, and blocker refinement rule. |

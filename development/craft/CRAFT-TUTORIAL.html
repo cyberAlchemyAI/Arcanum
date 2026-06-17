@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craft Tutorial</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f8f7f3;
+      --ink: #20242a;
+      --muted: #626b76;
+      --line: #d4d0c7;
+      --panel: #ffffff;
+      --soft-green: #edf7f1;
+      --soft-blue: #edf3fb;
+      --soft-amber: #fff4dc;
+      --soft-red: #faece7;
+      --green: #24724d;
+      --blue: #315f9e;
+      --amber: #92640f;
+      --red: #ad4a31;
+      --shadow: 0 12px 30px rgba(32, 36, 42, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      padding: .1rem .3rem;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: rgba(255, 255, 255, .8);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .92em;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(220px, 285px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .side-title {
+      margin: 0 0 12px;
+      font-size: 24px;
+      line-height: 1.08;
+    }
+
+    .side-note {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 4px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    nav a {
+      padding: 7px 8px;
+      border-radius: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      background: #ece8df;
+      color: var(--ink);
+      outline: none;
+    }
+
+    main {
+      min-width: 0;
+      padding: 42px min(5vw, 72px) 76px;
+    }
+
+    .hero {
+      min-height: clamp(440px, 74vh, 680px);
+      display: grid;
+      align-content: center;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 46px;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      font-size: clamp(42px, 6vw, 82px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 880px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 23px);
+    }
+
+    .hero-strip,
+    .principles,
+    .mistakes,
+    .starter {
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 980px;
+    }
+
+    .tile,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .tile {
+      min-height: 118px;
+      padding: 16px;
+    }
+
+    .tile strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 21px;
+      line-height: 1.1;
+    }
+
+    .tile span,
+    .panel p,
+    .panel li {
+      color: var(--muted);
+    }
+
+    section {
+      max-width: 1120px;
+      margin: 0 auto 58px;
+      padding-top: 14px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lead {
+      max-width: 850px;
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .flow {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .principles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel.green { background: var(--soft-green); }
+    .panel.blue { background: var(--soft-blue); }
+    .panel.amber { background: var(--soft-amber); }
+    .panel.red { background: var(--soft-red); }
+
+    .files {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, .6fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #20242a;
+      color: #f8f7f3;
+      box-shadow: var(--shadow);
+    }
+
+    pre code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-size: 14px;
+    }
+
+    .protocol {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(118px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .step {
+      min-height: 138px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .example {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .row-list {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .row-list li {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .68);
+      color: var(--muted);
+    }
+
+    .row-list strong {
+      color: var(--ink);
+    }
+
+    .mistakes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .starter {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 3px 8px;
+      margin-bottom: 10px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .check {
+      padding: 22px;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: var(--soft-green);
+      box-shadow: var(--shadow);
+    }
+
+    .check ol {
+      margin: 12px 0 0;
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1040px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+      }
+
+      nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero-strip,
+      .principles,
+      .files,
+      .example,
+      .mistakes,
+      .starter {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: 28px 16px 56px;
+      }
+
+      nav {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 28px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <p class="kicker">Craft tutorial</p>
+      <h2 class="side-title">Start here</h2>
+      <p class="side-note">A first-reader guide to what Craft is, why it exists, and how to read one ledger without knowing the rest of Arcanum.</p>
+      <nav aria-label="Tutorial sections">
+        <a href="#problem">Problem</a>
+        <a href="#model">Mental Model</a>
+        <a href="#files">Files</a>
+        <a href="#protocol">Protocol</a>
+        <a href="#example">Example</a>
+        <a href="#blockers">Blockers</a>
+        <a href="#mistakes">Mistakes</a>
+        <a href="#first-run">First Run</a>
+        <a href="#check">Teach-Back</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <p class="kicker">Durable state for agentic work</p>
+        <h1>Craft keeps project state from disappearing between sessions.</h1>
+        <p class="hero-copy">When a project spans multiple AI conversations, the fragile part is not only code. It is memory: decisions, blockers, evidence, gaps, and what should happen next. Craft stores that state in files the project can carry with it.</p>
+        <div class="hero-strip" aria-label="Craft essentials">
+          <div class="tile"><strong>ledger.yml</strong><span>The machine-readable source of truth for Craft state.</span></div>
+          <div class="tile"><strong>CRAFT.md</strong><span>The human-readable view derived from the ledger.</span></div>
+          <div class="tile"><strong>recomposition</strong><span>The proof that child work changed the parent context.</span></div>
+        </div>
+      </header>
+
+      <section id="problem">
+        <h2>The Problem</h2>
+        <p class="lead">AI-assisted projects lose state easily. A chat gets compacted. A task spans more than one session. A decision is made in a review note but never appears in the next plan. A blocker gets called resolved because everyone wants to keep moving.</p>
+        <div class="flow" aria-label="State loss and Craft recovery diagram">
+          <svg viewBox="0 0 960 260" role="img" aria-labelledby="flow-title flow-desc">
+            <title id="flow-title">Craft protects work state across sessions</title>
+            <desc id="flow-desc">A conversation can lose detail, while Craft keeps decisions, blockers, evidence, and next moves in project files.</desc>
+            <rect x="34" y="44" width="190" height="72" rx="8" fill="#fff4dc" stroke="#92640f"></rect>
+            <text x="58" y="76" fill="#20242a" font-size="18" font-weight="800">Long task</text>
+            <text x="58" y="101" fill="#626b76" font-size="13">many decisions</text>
+            <path d="M224 80 H332" stroke="#626b76" stroke-width="2" marker-end="url(#arrow)"></path>
+            <rect x="332" y="44" width="198" height="72" rx="8" fill="#faece7" stroke="#ad4a31"></rect>
+            <text x="356" y="76" fill="#20242a" font-size="18" font-weight="800">Session boundary</text>
+            <text x="356" y="101" fill="#626b76" font-size="13">context gets thin</text>
+            <path d="M530 80 H638" stroke="#626b76" stroke-width="2" marker-end="url(#arrow)"></path>
+            <rect x="638" y="44" width="244" height="72" rx="8" fill="#edf7f1" stroke="#24724d"></rect>
+            <text x="662" y="76" fill="#20242a" font-size="18" font-weight="800">Craft ledger</text>
+            <text x="662" y="101" fill="#626b76" font-size="13">state survives in files</text>
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#626b76"></path>
+              </marker>
+            </defs>
+            <rect x="96" y="166" width="768" height="50" rx="8" fill="#ffffff" stroke="#d4d0c7"></rect>
+            <text x="124" y="197" fill="#20242a" font-size="16" font-weight="800">Craft records contexts, artifacts, blockers, decisions, gaps, evidence, next moves, and recomposition.</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="model">
+        <h2>The Mental Model</h2>
+        <p class="lead">Think of Craft as a map of unfinished work. Each row answers one simple question about where work lives, what exists, what is blocked, what was decided, what is missing, and what happens next.</p>
+        <div class="principles">
+          <div class="panel green"><span class="tag">context</span><h3>Where the work lives</h3><p>A context can be the whole project or a child task with its own evidence and blockers.</p></div>
+          <div class="panel blue"><span class="tag">artifact</span><h3>What exists</h3><p>An artifact points to a file, handoff, receipt, validation, source, or human view.</p></div>
+          <div class="panel amber"><span class="tag">blocker</span><h3>Why motion stops</h3><p>A blocker stays visible until evidence or an explicit waiver closes it.</p></div>
+          <div class="panel"><span class="tag">decision</span><h3>What authority chose</h3><p>A decision records the question, selection, rationale, impact, and evidence.</p></div>
+          <div class="panel red"><span class="tag">gap</span><h3>What remains weak</h3><p>A gap preserves missing, deferred, or fragile work without pretending it is a blocker.</p></div>
+          <div class="panel green"><span class="tag">recomposition</span><h3>How child work returns</h3><p>A child context is not done until the parent records what changed upstream.</p></div>
+        </div>
+      </section>
+
+      <section id="files">
+        <h2>The Files</h2>
+        <p class="lead"><code>ledger.yml</code> owns state. <code>CRAFT.md</code> helps people read it. If they disagree, the ledger wins.</p>
+        <div class="files">
+          <pre><code>.craft/
+  ledger.yml        # source of truth
+  index.json        # optional rebuildable lookup surface
+  artifacts/        # receipts, handoffs, evidence, exports
+CRAFT.md            # human-readable view derived from the ledger</code></pre>
+          <div class="panel blue">
+            <h3>Guide Lens</h3>
+            <p>Use the Guide package pattern when teaching or reading Craft: frame the target, inspect the existing context, explain in order, check understanding, then record what should be remembered.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="protocol">
+        <h2>The Protocol</h2>
+        <p class="lead">Use Craft when the project state itself needs memory. Do not use it for every tiny edit.</p>
+        <div class="protocol">
+          <div class="step"><b>1. Resolve</b><span>Find the right Craft space before touching a ledger.</span></div>
+          <div class="step"><b>2. Read</b><span>Use <code>ledger.yml</code> as source of truth.</span></div>
+          <div class="step"><b>3. Record</b><span>Add rows for real changes, not vague impressions.</span></div>
+          <div class="step"><b>4. Block</b><span>Keep blockers visible until evidence closes them.</span></div>
+          <div class="step"><b>5. Decide</b><span>Record question, selection, rationale, impact, evidence.</span></div>
+          <div class="step"><b>6. Recompose</b><span>Return child context results to the parent.</span></div>
+          <div class="step"><b>7. Export</b><span>Refresh <code>CRAFT.md</code> as a view.</span></div>
+        </div>
+      </section>
+
+      <section id="example">
+        <h2>A Small Example</h2>
+        <p class="lead">A product launch has an API boundary question and missing pilot evidence. The API review can pass while the product launch root stays flagged. That is the point.</p>
+        <div class="example">
+          <div class="panel green">
+            <h3>What Craft Records</h3>
+            <ul class="row-list">
+              <li><strong>CTX-PRODUCT-LAUNCH-ROOT</strong> - the launch readiness context.</li>
+              <li><strong>CTX-PRODUCT-LAUNCH-API-REVIEW</strong> - a child review context.</li>
+              <li><strong>DEC-API-BOUNDARY-001</strong> - the selected API boundary.</li>
+              <li><strong>BLK-PILOT-EVIDENCE-001</strong> - the active readiness blocker.</li>
+              <li><strong>GAP-SEED-DATA-001</strong> - fixture data still needs a pilot check.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Public Fixtures</h3>
+            <ul class="row-list">
+              <li><code>arcana/craft/examples/product-launch-ledger.yml</code></li>
+              <li><code>arcana/craft/examples/product-launch-CRAFT.md</code></li>
+              <li><code>arcana/craft/examples/platform-governance-ledger.yml</code></li>
+              <li><code>arcana/craft/examples/platform-governance-CRAFT.md</code></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="blockers">
+        <h2>Blockers, Lanes, and Roles</h2>
+        <p class="lead">A good blocker says why motion stopped, who owns the next responsibility, what local role may handle it, and what evidence would prove it closed.</p>
+        <div class="files">
+          <pre><code>item_id: BLK-PILOT-EVIDENCE-001
+kind: blocker
+base_type: evidence_blocker
+primary_lane: validator
+secondary_lanes:
+  - product
+status: active
+refinement_status: refined
+default_role: evidence_reviewer
+allowed_roles:
+  - evidence_reviewer
+  - validator
+delegation_route: task-session
+requires_human: false
+role_confidence: candidate
+closure_condition: A pilot run produces a receipt.
+evidence: ART-PILOT-EVIDENCE-PLAN
+decision_ref: none</code></pre>
+          <div class="panel amber">
+            <h3>How to Read It</h3>
+            <p><strong>Type</strong> explains the cause. <strong>Lane</strong> names the responsibility. <strong>Role</strong> names the local handler. <strong>Route</strong> suggests a workflow. <strong>Closure</strong> says what proof is required.</p>
+          </div>
+        </div>
+        <div class="principles">
+          <div class="panel blue"><span class="tag">lane</span><h3>Responsibility type</h3><p><code>validator</code> says validation responsibility owns the next move.</p></div>
+          <div class="panel green"><span class="tag">role</span><h3>Local handler</h3><p><code>evidence_reviewer</code> is a project-local role, not global Craft vocabulary.</p></div>
+          <div class="panel"><span class="tag">route</span><h3>Suggested workflow</h3><p><code>task-session</code> may produce evidence, but route shape is not execution proof.</p></div>
+          <div class="panel red"><span class="tag">closure</span><h3>Evidence required</h3><p>A raw blocker cannot close directly. It must be refined, resolved with evidence, or explicitly waived.</p></div>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <h2>Common Mistakes</h2>
+        <p class="lead">Craft is small, but it is picky about authority and evidence.</p>
+        <div class="mistakes">
+          <div class="panel red"><h3>Closing a raw blocker directly</h3><p>Refine it first. Attach evidence or a waiver decision.</p></div>
+          <div class="panel amber"><h3>Treating dispatch as execution proof</h3><p>Dispatch validation proves route shape, not that the work happened.</p></div>
+          <div class="panel red"><h3>Updating only CRAFT.md</h3><p>The human view can drift. Update <code>ledger.yml</code> first.</p></div>
+          <div class="panel amber"><h3>Leaving child work unrecomposed</h3><p>The parent never learns what changed unless recomposition is recorded.</p></div>
+        </div>
+      </section>
+
+      <section id="first-run">
+        <h2>The First Run</h2>
+        <p class="lead">Start with one root, one blocker, one child context, one decision, one gap, and one recomposition. If that feels too heavy, Craft is probably too heavy for the task.</p>
+        <div class="starter">
+          <div class="step"><b>Root</b><span>Create the project context.</span></div>
+          <div class="step"><b>Blocker</b><span>Add the thing that stops safe motion.</span></div>
+          <div class="step"><b>Child</b><span>Open a context to refine it.</span></div>
+          <div class="step"><b>Decision</b><span>Close or defer a real choice.</span></div>
+          <div class="step"><b>Return</b><span>Recompose into the parent.</span></div>
+        </div>
+      </section>
+
+      <section id="check">
+        <h2>Teach-Back Check</h2>
+        <div class="check">
+          <p>Before operating a Craft ledger, answer these in your own words.</p>
+          <ol>
+            <li>What is the source of truth: <code>ledger.yml</code> or <code>CRAFT.md</code>?</li>
+            <li>What must happen before a raw blocker can close?</li>
+            <li>Why can a child context pass while the parent stays flagged?</li>
+            <li>What evidence proves the next move is allowed?</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
