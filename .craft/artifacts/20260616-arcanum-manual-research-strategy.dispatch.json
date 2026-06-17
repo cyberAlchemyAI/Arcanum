@@ -1,0 +1,389 @@
+{
+  "dispatch_id": "arcanum-manual-research-strategy-20260616",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Start a Craft space inside Arcanum for a manual, then create a dispatch-spec research strategy that gathers all knowledge of Arcanum as input to /whisper, so we can author a manual that distills the knowledge, explains usage, and patterns the framework. The end goal is that a reader understands what Arcanum is, what its processes are, and how each kind of user can leverage it. Use /x-ray and development/user-guide/ as the base and the final product home.",
+    "objective": "Author and validate a governed research-and-authoring route that turns the full Arcanum knowledge surface into a single leverage-oriented manual via x-ray exploration, source-backed inventory, distillation, whisper composition, and source validation.",
+    "target_artifact": "development/user-guide/ARCANUM-MANUAL.md",
+    "operator_sentence": "X-ray the whole of Arcanum, inventory it source-backed, distill it for each kind of user, whisper it into a manual modeled on development/user-guide/, then validate every claim against its source.",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "craft",
+      "x-ray",
+      "inventory",
+      "distill",
+      "whisper",
+      "necronomicon",
+      "user-guide",
+      "CyberAlchemy Method",
+      "sigil",
+      "spell",
+      "discipline"
+    ]
+  },
+  "mode": "mixed",
+  "route_menu": {
+    "context_hint": "Arcanum already ships a User/Translate/Guide development user-guide; this route reuses that surface as the explanatory pattern base and the final home for a broader leverage-oriented manual.",
+    "selected_item_id": "xray-research-distill-whisper-manual",
+    "items": [
+      {
+        "id": "xray-research-distill-whisper-manual",
+        "label": "X-ray, research, distill, whisper a manual",
+        "description": "Explore the full Arcanum surface with x-ray, inventory it source-backed, distill it per audience, author it through whisper, and validate every claim against its source.",
+        "capability_ref": "whisper",
+        "pattern": "synthesis"
+      },
+      {
+        "id": "whisper-only",
+        "label": "Whisper a manual directly",
+        "description": "Rejected: authoring without a source-backed inventory and distillation would produce an unverifiable manual that drifts from the framework.",
+        "capability_ref": "whisper",
+        "pattern": "synthesis"
+      },
+      {
+        "id": "readme-expand",
+        "label": "Expand the existing README",
+        "description": "Rejected: the goal is a leverage-oriented, audience-aware manual, not an enlarged top-level README.",
+        "capability_ref": "context-builder",
+        "pattern": "sequential"
+      }
+    ]
+  },
+  "techniques": [
+    "sequence",
+    "x_ray",
+    "frame_handoff",
+    "handle_handoff",
+    "evidence_summary_handoff",
+    "residue_ledger",
+    "validation_loop",
+    "concrete_path_evidence",
+    "recomposition_proof",
+    "approval_checkpoint",
+    "artifact_contract_bridge",
+    "observability_grouping"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "xray-the-whole-framework",
+      "trigger": "The manual must cover the entire Arcanum surface, not one capability.",
+      "techniques": [
+        "x_ray",
+        "concrete_path_evidence",
+        "frame_handoff"
+      ],
+      "applies_to_steps": [
+        "s01-xray-arcanum-surface"
+      ],
+      "validation_expectation": "X-ray output is a navigable layered map of framework, method, disciplines, sigils, spells, and observability with concrete source paths for each node."
+    },
+    {
+      "overlay_id": "source-backed-knowledge-corpus",
+      "trigger": "Manual claims must be source-backed, not invented; the corpus must separate canonical from candidate knowledge.",
+      "techniques": [
+        "handle_handoff",
+        "evidence_summary_handoff",
+        "residue_ledger"
+      ],
+      "applies_to_steps": [
+        "s02-inventory-knowledge-corpus",
+        "s05-validate-manual-against-source"
+      ],
+      "validation_expectation": "Every knowledge unit carries a source path and a canonical/candidate status, and unverifiable claims are recorded as residue rather than asserted."
+    },
+    {
+      "overlay_id": "distill-per-audience",
+      "trigger": "The brief requires explaining how each kind of user can leverage Arcanum.",
+      "techniques": [
+        "sequence",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "s03-distill-per-audience",
+        "s04-whisper-the-manual"
+      ],
+      "validation_expectation": "Distilled concept units are grouped by reader leverage (what Arcanum is, its processes, and how each user role uses it) and recompose into one coherent manual."
+    },
+    {
+      "overlay_id": "whisper-authoring-contract",
+      "trigger": "Final text is authored by whisper and must follow the development/user-guide pattern.",
+      "techniques": [
+        "recomposition_proof",
+        "validation_loop",
+        "approval_checkpoint"
+      ],
+      "applies_to_steps": [
+        "s04-whisper-the-manual",
+        "s05-validate-manual-against-source"
+      ],
+      "validation_expectation": "The manual reads as governed prose modeled on development/user-guide/, and passes source validation before it is treated as done."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "The route spans the entire Arcanum surface (framework, method, disciplines, dozens of sigils, spells, observability) and multiple reader audiences, which is wider than one context can x-ray and distill well in a single pass.",
+    "explanation": "After operator approval, fan out read-only explorer lanes by Arcanum layer so the surface is covered in parallel, then a single parent context synthesizes the distilled units and whisper authors the manual. Subagents only gather and distill; they never promote canonical surfaces and never author the final manual independently.",
+    "context": [
+      "Arcanum has a framework/, disciplines/, ~30 sigils under arcana/, ~14 spells under spells/, and an observability model.",
+      "development/user-guide/ already demonstrates the target explanatory pattern (User/Translate/Guide).",
+      "The brief asks for per-audience leverage, which maps naturally to one explorer/distiller lane per layer plus one synthesizer."
+    ],
+    "roles": [
+      {
+        "role_id": "framework-method-explorer",
+        "purpose": "X-ray and inventory the framework, CyberAlchemy Method, and disciplines.",
+        "owns": "Framework/method/discipline knowledge units only.",
+        "applies_to_steps": ["s01-xray-arcanum-surface", "s02-inventory-knowledge-corpus"]
+      },
+      {
+        "role_id": "sigil-spell-explorer",
+        "purpose": "Inventory the sigil and spell registries and per-capability use/non-use boundaries.",
+        "owns": "Capability-surface knowledge units only.",
+        "applies_to_steps": ["s01-xray-arcanum-surface", "s02-inventory-knowledge-corpus"]
+      },
+      {
+        "role_id": "audience-distiller",
+        "purpose": "Distill the corpus into per-audience leverage concept units.",
+        "owns": "Distilled concept units and residue only.",
+        "applies_to_steps": ["s03-distill-per-audience"]
+      },
+      {
+        "role_id": "source-validator",
+        "purpose": "Verify each manual claim resolves to an Arcanum source path or is recorded as residue.",
+        "owns": "Validation findings only.",
+        "applies_to_steps": ["s05-validate-manual-against-source"]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "This research route can fan out read-only explorer/distiller/validator subagents across Arcanum layers, joined by a single synthesizing parent before whisper authors the manual. Approve subagent execution?",
+    "receipt_requirements": [
+      "Each explorer returns knowledge units with source paths and canonical/candidate status.",
+      "The distiller returns concept units grouped by reader leverage plus residue.",
+      "The validator returns per-claim source resolution with a pass/flag/block verdict.",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "s01-xray-arcanum-surface",
+      "name": "X-ray the Arcanum framework and capability surface",
+      "capability_ref": "x-ray",
+      "capability_status": "candidate",
+      "capability_metadata": { "source": "arcana/x-ray/SKILL.md", "projection": "Read-only layered exploration of Arcanum; explanatory evidence only." },
+      "pattern": "xray",
+      "techniques": ["x_ray", "concrete_path_evidence", "frame_handoff"],
+      "inputs": [
+        { "kind": "intent", "ref": "arcanum-manual-research-strategy-20260616" },
+        { "kind": "external_context", "ref": "README.md" },
+        { "kind": "external_context", "ref": "framework/CYBERALCHEMY-METHOD.md" },
+        { "kind": "external_context", "ref": "registry/SIGILS.md" },
+        { "kind": "external_context", "ref": "registry/SPELLS.md" },
+        { "kind": "external_context", "ref": "development/user-guide/" }
+      ],
+      "outputs": [
+        { "kind": "handle", "ref": "arcanum-capability-surface-map" },
+        { "kind": "artifact", "ref": "development/user-guide/arcanum-surface-xray.html" }
+      ],
+      "stop_conditions": [
+        "Stop if the x-ray map asserts a node that has no concrete Arcanum source path.",
+        "Stop if the map flattens framework, sigils, and spells into one undifferentiated list."
+      ]
+    },
+    {
+      "step_id": "s02-inventory-knowledge-corpus",
+      "name": "Inventory the Arcanum knowledge corpus, source-backed",
+      "capability_ref": "inventory",
+      "capability_status": "candidate",
+      "capability_metadata": { "source": "arcana/inventory/SKILL.md", "projection": "Compiled source-backed knowledge index; not canonical promotion." },
+      "pattern": "sequential",
+      "techniques": ["handle_handoff", "evidence_summary_handoff", "concrete_path_evidence", "residue_ledger"],
+      "inputs": [
+        { "kind": "handle", "ref": "arcanum-capability-surface-map" },
+        { "kind": "external_context", "ref": "registry/SIGILS.md" }
+      ],
+      "outputs": [
+        { "kind": "ledger", "ref": "arcanum-knowledge-inventory" },
+        { "kind": "handle", "ref": "arcanum-source-backed-knowledge-units" }
+      ],
+      "stop_conditions": [
+        "Stop if a knowledge unit has no source path.",
+        "Stop if candidate knowledge is recorded as canonical."
+      ]
+    },
+    {
+      "step_id": "s03-distill-per-audience",
+      "name": "Distill the corpus into per-audience leverage concept units",
+      "capability_ref": "distill",
+      "pattern": "distill",
+      "techniques": ["sequence", "artifact_contract_bridge", "residue_ledger"],
+      "inputs": [
+        { "kind": "ledger", "ref": "arcanum-knowledge-inventory" },
+        { "kind": "handle", "ref": "arcanum-source-backed-knowledge-units" }
+      ],
+      "outputs": [
+        { "kind": "handle", "ref": "arcanum-distilled-concept-units" },
+        { "kind": "artifact", "ref": ".craft/artifacts/arcanum-manual-distill-notes.md" }
+      ],
+      "stop_conditions": [
+        "Stop if a distilled unit cannot recompose into the larger framework it came from.",
+        "Stop if no leverage grouping (what / process / per-user use) is produced."
+      ]
+    },
+    {
+      "step_id": "s04-whisper-the-manual",
+      "name": "Whisper-author the Arcanum manual",
+      "capability_ref": "whisper",
+      "capability_status": "candidate",
+      "capability_metadata": { "source": "spells/whisper/SKILL.md", "projection": "Whisper composition lifecycle authors the manual text; it does not promote canonical surfaces." },
+      "pattern": "synthesis",
+      "techniques": ["recomposition_proof", "artifact_contract_bridge", "approval_checkpoint"],
+      "inputs": [
+        { "kind": "handle", "ref": "arcanum-distilled-concept-units" },
+        { "kind": "external_context", "ref": "development/user-guide/README.md" }
+      ],
+      "outputs": [
+        { "kind": "artifact", "ref": "development/user-guide/ARCANUM-MANUAL.md" }
+      ],
+      "stop_conditions": [
+        "Stop if the draft asserts capabilities or processes not present in the distilled, source-backed units.",
+        "Stop if the manual departs from the development/user-guide explanatory pattern without reason."
+      ]
+    },
+    {
+      "step_id": "s05-validate-manual-against-source",
+      "name": "Validate the manual against Arcanum sources",
+      "capability_ref": "necronomicon",
+      "capability_status": "candidate",
+      "capability_metadata": { "source": "spells/necronomicon/SKILL.md", "projection": "Answers what is source-backed vs candidate; validation evidence only." },
+      "pattern": "validation",
+      "techniques": ["validation_loop", "evidence_summary_handoff", "concrete_path_evidence"],
+      "inputs": [
+        { "kind": "artifact", "ref": "development/user-guide/ARCANUM-MANUAL.md" },
+        { "kind": "ledger", "ref": "arcanum-knowledge-inventory" }
+      ],
+      "outputs": [
+        { "kind": "ledger", "ref": "arcanum-manual-validation-evidence" },
+        { "kind": "trace_event", "ref": "arcanum-manual-validated" }
+      ],
+      "evidence_artifact": "development/user-guide/ARCANUM-MANUAL.validation.md",
+      "stop_conditions": [
+        "Stop and flag if any manual claim cannot be resolved to a source path.",
+        "Stop if validation evidence is treated as promotion of any sigil, spell, or definition."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G01-source-backed-claims",
+      "kind": "quality",
+      "owner": "inventory",
+      "condition": "Every knowledge unit and manual claim resolves to a concrete Arcanum source path; unverifiable claims become residue, not assertions.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "G02-audience-coverage",
+      "kind": "quality",
+      "owner": "distill",
+      "condition": "The manual explains what Arcanum is, what its processes are, and how each kind of user can leverage it, with no audience silently dropped.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "G03-whisper-authoring-contract",
+      "kind": "quality",
+      "owner": "whisper",
+      "condition": "The final manual is authored through the whisper composition lifecycle and follows the development/user-guide explanatory pattern.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "G04-source-validation",
+      "kind": "validation",
+      "owner": "necronomicon",
+      "condition": "The manual must pass source validation (every claim source-resolved or flagged) before it is treated as done.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G05-subagent-approval",
+      "kind": "human_approval",
+      "owner": "craft",
+      "condition": "Recommended explorer/distiller/validator subagents run only after the operator approves the subagent strategy.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "G06-doc-only-no-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "dispatch-spec",
+      "condition": "This route only authors a manual and supporting notes under development/user-guide/ and .craft/; it must not promote, mutate, or claim authority over any sigil, spell, definition, registry, or other canonical Arcanum surface.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "signal_grouping": "arcanum-manual-research-strategy",
+    "trace_events": [
+      "dispatch-authored",
+      "arcanum-surface-xrayed",
+      "knowledge-corpus-inventoried",
+      "concept-units-distilled",
+      "manual-whispered",
+      "arcanum-manual-validated"
+    ]
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B01-explanatory-evidence-not-promotion",
+        "kind": "evidence_return",
+        "from_owner": "x-ray/inventory/distill",
+        "to_owner": "craft",
+        "applies_to_steps": ["s01-xray-arcanum-surface", "s02-inventory-knowledge-corpus", "s03-distill-per-audience"],
+        "contract": "X-ray, inventory, and distill return explanatory, source-pathed evidence only; returning evidence never modifies or grants authority over any canonical sigil, spell, definition, or registry.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B02-manual-artifact-import-boundary",
+        "kind": "artifact_import",
+        "from_owner": "distill",
+        "to_owner": "whisper",
+        "applies_to_steps": ["s03-distill-per-audience", "s04-whisper-the-manual"],
+        "contract": "Whisper imports distilled, source-backed concept units to author development/user-guide/ARCANUM-MANUAL.md; it asserts nothing beyond the imported units.",
+        "on_violation": "flag"
+      },
+      {
+        "boundary_id": "B03-validation-evidence-return",
+        "kind": "evidence_return",
+        "from_owner": "necronomicon",
+        "to_owner": "craft",
+        "applies_to_steps": ["s05-validate-manual-against-source"],
+        "contract": "Validation returns per-claim source resolution as evidence; the verdict proves source-backing and never grants the manual or its sources canonical authority.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This dispatch authors documentation only; it never modifies or claims authority over sigils, spells, definitions, registries, or other canonical Arcanum surfaces.",
+    "x-ray, inventory, and distill outputs are explanatory evidence, not canonical knowledge promotion.",
+    "Validation evidence proves the manual is source-backed; it does not grant the manual authority over the sources it explains."
+  ]
+}

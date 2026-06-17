@@ -1,0 +1,195 @@
+ledger_id: arcanum-manual.craft
+schema_ref: ../arcana/craft/templates/ledger.schema.yml
+schema_version: 0.3.0
+status: candidate-local
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+
+indexes:
+  by_id:
+    CTX-ARCANUM-MANUAL-ROOT: contexts[0]
+    DESC-ARCANUM-MANUAL-001: descriptions[0]
+    DEF-ARCANUM-MANUAL-001: definitions[0]
+    GAP-AUDIENCE-TAXONOMY-001: gaps[0]
+    ART-ARCANUM-MANUAL-LEDGER: artifacts[0]
+    ART-ARCANUM-MANUAL-VIEW: artifacts[1]
+    ART-MANUAL-RESEARCH-DISPATCH: artifacts[2]
+    ART-USER-GUIDE-BASE: artifacts[3]
+    ART-ARCANUM-MANUAL: artifacts[4]
+    ART-MANUAL-DISTILL-NOTES: artifacts[5]
+    ART-MANUAL-XRAY-HTML: artifacts[6]
+    ART-MANUAL-VALIDATION: artifacts[7]
+  open_decisions: []
+  blocking_decisions: []
+  active_blockers: []
+  active_gaps: []
+  next_moves:
+    - context_id: CTX-ARCANUM-MANUAL-ROOT
+      next_move: >
+        Operator review of development/user-guide/ARCANUM-MANUAL.md; optionally render a PDF/HTML
+        companion like the existing user-guide, and commit the manual inside the arcanum submodule
+        before bumping the parent gitlink.
+  trace_events:
+    - dispatch-authored
+    - subagent-strategy-approved
+    - arcanum-surface-xrayed
+    - knowledge-corpus-inventoried
+    - concept-units-distilled
+    - manual-whispered
+    - arcanum-manual-validated
+  artifacts_by_path:
+    .craft/ledger.yml: ART-ARCANUM-MANUAL-LEDGER
+    CRAFT.md: ART-ARCANUM-MANUAL-VIEW
+    .craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json: ART-MANUAL-RESEARCH-DISPATCH
+    development/user-guide/: ART-USER-GUIDE-BASE
+    development/user-guide/ARCANUM-MANUAL.md: ART-ARCANUM-MANUAL
+    .craft/artifacts/arcanum-manual-distill-notes.md: ART-MANUAL-DISTILL-NOTES
+    development/user-guide/arcanum-surface-xray.html: ART-MANUAL-XRAY-HTML
+    development/user-guide/ARCANUM-MANUAL.validation.md: ART-MANUAL-VALIDATION
+
+contexts:
+  - context_id: CTX-ARCANUM-MANUAL-ROOT
+    parent_id: root
+    title: Arcanum Manual — Research Strategy and Authoring
+    purpose: >
+      Build a leverage-oriented Arcanum manual that explains what Arcanum is, what its processes
+      are, and how each kind of user can use it, by researching the full Arcanum knowledge surface
+      and authoring through whisper. development/user-guide/ is the explanatory pattern base and
+      the final home for the manual.
+    stage: validate
+    gate: pass
+    next_move: >
+      Operator review of development/user-guide/ARCANUM-MANUAL.md; optionally render an HTML/PDF
+      companion and commit inside the arcanum submodule before bumping the parent gitlink.
+    owned_artifacts:
+      - ART-ARCANUM-MANUAL-LEDGER
+      - ART-ARCANUM-MANUAL-VIEW
+      - ART-MANUAL-RESEARCH-DISPATCH
+      - ART-USER-GUIDE-BASE
+      - ART-ARCANUM-MANUAL
+      - ART-MANUAL-DISTILL-NOTES
+      - ART-MANUAL-XRAY-HTML
+      - ART-MANUAL-VALIDATION
+    links:
+      - label: Research-strategy dispatch
+        target: ART-MANUAL-RESEARCH-DISPATCH
+        kind: artifact-id
+      - label: User-guide pattern base
+        target: ART-USER-GUIDE-BASE
+        kind: artifact-id
+    notes: Root context created by /craft start for the Arcanum manual.
+
+artifacts:
+  - artifact_id: ART-ARCANUM-MANUAL-LEDGER
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: .craft/ledger.yml
+    artifact_type: ledger-source
+    status: active
+    notes: Structured Craft source of truth for the Arcanum manual project.
+  - artifact_id: ART-ARCANUM-MANUAL-VIEW
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable view generated from the ledger, not source of truth.
+  - artifact_id: ART-MANUAL-RESEARCH-DISPATCH
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: .craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json
+    artifact_type: dispatch-route
+    status: pass
+    notes: >
+      Validated research-and-authoring route (x-ray -> inventory -> distill -> whisper -> validate).
+      Route-shape evidence only; recommends subagents pending operator approval.
+    links:
+      - label: Validated by dispatch-spec
+        target: ART-USER-GUIDE-BASE
+        kind: external
+  - artifact_id: ART-USER-GUIDE-BASE
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: development/user-guide/
+    artifact_type: pattern-base
+    status: active
+    notes: Existing User/Translate/Guide user-guide; the explanatory pattern base and final home.
+  - artifact_id: ART-ARCANUM-MANUAL
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: development/user-guide/ARCANUM-MANUAL.md
+    artifact_type: manual
+    status: pass
+    notes: >
+      Final manual; authored by the route (x-ray -> inventory -> distill -> whisper) and validated
+      against source. Explains what Arcanum is, its processes, and per-audience leverage.
+    links:
+      - label: Validation evidence
+        target: ART-MANUAL-VALIDATION
+        kind: artifact-id
+      - label: Distill notes / corpus
+        target: ART-MANUAL-DISTILL-NOTES
+        kind: artifact-id
+  - artifact_id: ART-MANUAL-DISTILL-NOTES
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: .craft/artifacts/arcanum-manual-distill-notes.md
+    artifact_type: distill-notes
+    status: active
+    notes: Source-backed knowledge inventory + per-audience distilled concept units (steps s02/s03).
+  - artifact_id: ART-MANUAL-XRAY-HTML
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: development/user-guide/arcanum-surface-xray.html
+    artifact_type: xray-surface
+    status: active
+    notes: Layered HTML x-ray of the Arcanum surface (step s01); every node carries a source path.
+  - artifact_id: ART-MANUAL-VALIDATION
+    owner_context_id: CTX-ARCANUM-MANUAL-ROOT
+    path: development/user-guide/ARCANUM-MANUAL.validation.md
+    artifact_type: validation-evidence
+    status: pass
+    notes: Claim-to-source map for the manual (step s05); verdict pass. Evidence only, no promotion.
+
+descriptions:
+  - description_id: DESC-ARCANUM-MANUAL-001
+    context_id: CTX-ARCANUM-MANUAL-ROOT
+    description: >
+      The manual project turns the whole of Arcanum (framework, CyberAlchemy Method, disciplines,
+      sigils, spells, observability) into a single reader-facing manual. The strategy is encoded as
+      a validated dispatch route: x-ray maps the surface, inventory makes the corpus source-backed,
+      distill groups it by reader leverage, whisper authors the prose modeled on the existing
+      user-guide, and a validation pass confirms every claim resolves to an Arcanum source. Craft
+      governs state and residue; dispatch-spec governs route shape; it does not execute the route.
+    status: active
+    evidence: .craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json
+
+definitions:
+  - definition_id: DEF-ARCANUM-MANUAL-001
+    scope_id: CTX-ARCANUM-MANUAL-ROOT
+    term: Arcanum manual
+    statement: >
+      A leverage-oriented explanatory artifact that lets a reader understand what Arcanum is, what
+      its processes are, and how each kind of user can use it, with every claim backed by an
+      Arcanum source path. It is documentation, not a canonical surface, and does not hold authority
+      over the sigils, spells, or definitions it explains.
+    status: candidate
+    evidence: README.md, framework/CYBERALCHEMY-METHOD.md, development/user-guide/README.md
+
+gaps:
+  - gap_id: GAP-AUDIENCE-TAXONOMY-001
+    scope_id: CTX-ARCANUM-MANUAL-ROOT
+    summary: >
+      "How each user can leverage it" needs an explicit reader/persona taxonomy (e.g. capability
+      author, capability consumer, reviewer/validator, repository maintainer, researcher) before the
+      manual can guarantee per-audience coverage. The taxonomy is not yet enumerated.
+    severity: flag
+    treatment: plan
+    owner: distill (step s03-distill-per-audience)
+    status: resolved
+    evidence: >
+      Resolved by the distill step: a 7-persona taxonomy (newcomer, consumer/invoker, capability
+      author, maintainer/installer, reviewer, researcher, cross-functional) was grounded in
+      README Start-Here, FRIEND-INSTALL-TUTORIAL.md, the user-guide thesis, and registry use-when
+      conditions. Inferred personas are labelled as such. See ART-MANUAL-DISTILL-NOTES and the
+      manual's Part 3.
+    links:
+      - label: Resolved in distill notes
+        target: ART-MANUAL-DISTILL-NOTES
+        kind: artifact-id
+      - label: Rendered in manual Part 3
+        target: ART-ARCANUM-MANUAL
+        kind: artifact-id

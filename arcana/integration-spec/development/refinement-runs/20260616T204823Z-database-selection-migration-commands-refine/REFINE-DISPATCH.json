@@ -1,0 +1,813 @@
+{
+  "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "/refine now do the same for database selection, migration commands",
+    "objective": "Run the canonical Refine loop to model database selection and migration commands as Integration Boundary Discipline examples, preserving DomainSpec taxonomy authority and migration-runtime safety boundaries.",
+    "target_artifact": "arcanum/arcana/integration-spec/development/refinement-runs/20260616T204823Z-database-selection-migration-commands-refine/RESULT.md",
+    "operator_sentence": "/refine full database selection migration commands",
+    "arcanum_vocabulary": [
+      "refine",
+      "integration-spec",
+      "Integration Boundary Discipline",
+      "DomainSpec",
+      "Data Resource",
+      "Migration Command Surface",
+      "Integration Decision Record",
+      "Integration Evidence"
+    ]
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "Database selection and migration commands can be modeled as resource decisions, command-surface safety contracts, or future DomainSpec authoring aspects.",
+    "items": [
+      {
+        "id": "data-resource-decision-record",
+        "label": "Data Resource Decision Record",
+        "description": "Model database selection as workload/access/consistency/lifecycle/governance/evidence decisions.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      },
+      {
+        "id": "migration-command-contract",
+        "label": "Migration Command Contract",
+        "description": "Model migration commands as environment-scoped command surfaces with status, validate, apply, rollback/repair, drift, and evidence obligations.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      },
+      {
+        "id": "domainspec-integrations-aspect",
+        "label": "DomainSpec integrations.md Aspect",
+        "description": "Produce a candidate authoring aspect only after L0 fields are stable.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      },
+      {
+        "id": "validator-fixtures",
+        "label": "Formula Validator Fixtures",
+        "description": "Prepare pass/flag/block fixture candidates for future validator design.",
+        "capability_ref": "dispatch-spec",
+        "pattern": "validation"
+      }
+    ],
+    "selected_item_id": "data-resource-decision-record"
+  },
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "route_menu",
+    "approval_checkpoint",
+    "x_ray",
+    "component_descriptor",
+    "entity_component_reference",
+    "protected_context_flag",
+    "system_agnostic_standard",
+    "local_nuance_coordination",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "authority_split_gate",
+    "state_namespace_boundary"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine requires the canonical ten-stage sequence with frame and handle handoffs.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog"
+      ],
+      "applies_to_steps": [
+        "s1-context",
+        "s2-define",
+        "s3-define-review",
+        "s4-research-decision",
+        "s5-distill",
+        "s6-design",
+        "s7-design-review",
+        "s8-repair",
+        "s9-plan",
+        "s10-final"
+      ],
+      "validation_expectation": "Every stage records a native receipt or blocked reason; non-first stages consume a prior frame, decision, handle, artifact, or external context."
+    },
+    {
+      "overlay_id": "xray_for_data_resource_and_command_surface",
+      "trigger": "The hidden structure is the boundary between host application semantics, selected data resources, migration artifacts, and command execution state.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "authority_split_gate",
+        "state_namespace_boundary"
+      ],
+      "applies_to_steps": [
+        "s1-context",
+        "s2-define",
+        "s6-design",
+        "s9-plan"
+      ],
+      "validation_expectation": "The run must distinguish host-owned DomainSpec concepts from IntegrationSpec-local data-resource and migration-command concepts."
+    },
+    {
+      "overlay_id": "protected_context_for_migration_runtime",
+      "trigger": "Database connections, credentials, migration histories, schema snapshots, production locks, and destructive commands are runtime-sensitive.",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard",
+        "local_nuance_coordination",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "s4-research-decision",
+        "s6-design",
+        "s8-repair",
+        "s9-plan",
+        "s10-final"
+      ],
+      "validation_expectation": "The model must not treat live database state, secrets, schema-history rows, or command logs as canonical DomainSpec truth."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "Database selection and migration commands have competing surfaces: store-family selection, migration command safety, and DomainSpec taxonomy boundary.",
+    "explanation": "A role fanout separates resource-selection evidence, migration-command safety, and canon-boundary critique.",
+    "context": [
+      "Prior IntegrationSpec review",
+      "Prior OpenClaw integration modeling pattern",
+      "Official database selection and migration-tool docs",
+      "DomainSpec taxonomy and relationship definitions"
+    ],
+    "roles": [
+      {
+        "role_id": "data-resource-selection-mapper",
+        "purpose": "Map database/data-store selection fields, resource family options, source-of-truth rules, cache/search/analytics/vector distinctions, and evidence obligations.",
+        "owns": "Data-resource decision model",
+        "applies_to_steps": [
+          "s1-context",
+          "s2-define",
+          "s6-design"
+        ]
+      },
+      {
+        "role_id": "migration-command-governor",
+        "purpose": "Map migration command classes, environment policies, drift/lock/rollback/repair safety, and migration evidence obligations.",
+        "owns": "Migration command surface model",
+        "applies_to_steps": [
+          "s3-define-review",
+          "s6-design",
+          "s8-repair"
+        ]
+      },
+      {
+        "role_id": "domainspec-data-boundary-guardian",
+        "purpose": "Prevent data-resource and migration-tool vocabulary from becoming DomainSpec canon by accident.",
+        "owns": "DomainSpec reuse and noncanonical local vocabulary boundary",
+        "applies_to_steps": [
+          "s3-define-review",
+          "s7-design-review",
+          "s10-final"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Operator requested the same full refine and subagent pattern as the prior OpenClaw run.",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "reroute",
+      "handoff_note",
+      "sources_considered",
+      "findings",
+      "boundary_warnings",
+      "recommended_model",
+      "residue"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "019ed231-6bb8-7fa3-96a5-d09212d74bee",
+        "role_id": "data-resource-selection-mapper",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/data-resource-selection-mapper.md",
+        "residue": "Exact local vocabulary names need L0 stabilization.",
+        "reroute": "Build L0 Integration Boundary Discipline."
+      },
+      {
+        "agent_id": "019ed231-90c7-78d2-80d1-0441c8163af5",
+        "role_id": "migration-command-governor",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/migration-command-governor.md",
+        "residue": "Tool-specific migration profiles remain future work.",
+        "reroute": "Use task-session or discipline-governance after the generic profile is accepted."
+      },
+      {
+        "agent_id": "019ed231-b2de-7383-913a-97bf523c9faa",
+        "role_id": "domainspec-data-boundary-guardian",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/domainspec-data-boundary-guardian.md",
+        "residue": "Local names and fixtures remain L0 decisions.",
+        "reroute": "Use definitions-governance only after repeated stability."
+      }
+    ]
+  },
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s1-context",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/01-context-builder/context-pack.md",
+        "stages/01-context-builder/data-resource-command-surface-xray.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "No live database or migration runtime was inspected.",
+      "handoff_note": "Context separates host application semantics from data-resource and migration-command machinery."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s2-define",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/02-invoke-define.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Definition remains IntegrationSpec-local.",
+      "handoff_note": "Defines data-resource decision and migration-command surfaces without DomainSpec canon mutation."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s3-define-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/03-refine-review.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Names remain local until L0 stabilization.",
+      "handoff_note": "Review preserves DomainSpec and IntegrationSpec authority split."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s4-research-decision",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/04-bounded-research.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "External docs support fields and command classes but do not override local taxonomy.",
+      "handoff_note": "Bounded research used official data-store and migration-tool sources."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s5-distill",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/05-distill.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Tool-specific migration profiles deferred.",
+      "handoff_note": "Selected resource decision plus migration command profile as smallest coherent unit."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s6-design",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/06-invoke-design.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Local relations are not canonical DS-D2.",
+      "handoff_note": "Design records required data-resource and migration-command profile fields."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s7-design-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/07-refine-design-review.md"
+      ],
+      "validation": ["pass-with-residue"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Validator must avoid claiming runtime truth or architecture correctness.",
+      "handoff_note": "Design review passed with validator-scope residue."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s8-repair",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/08-distill-repair.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "L0 field names and fixture names remain next-work decisions.",
+      "handoff_note": "Repair incorporated subagent boundary and command-safety corrections."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s9-plan",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/09-invoke-plan.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Implementation remains deferred to task-session.",
+      "handoff_note": "Plan recommends L0 Integration Boundary Discipline before integrations.md or validator work."
+    },
+    {
+      "dispatch_id": "refine-20260616T204823Z-database-selection-migration-commands",
+      "step_id": "s10-final",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/10-final-interrogation.md",
+        "RESULT.md"
+      ],
+      "validation": ["pass-with-residue"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "No live database command execution; no canonical DomainSpec mutation.",
+      "handoff_note": "Final synthesis answers how to model database selection and migration commands."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "s1-context",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "x_ray"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-intent"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder/context-pack.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "stages/01-context-builder/data-resource-command-surface-xray.md"
+        }
+      ],
+      "evidence_artifact": "stages/01-context-builder/context-pack.md",
+      "stop_conditions": [
+        "block if data resources and migration command state cannot be separated from host-owned application semantics"
+      ]
+    },
+    {
+      "step_id": "s2-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "minimum_component_catalog",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "s1-context"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "evidence_artifact": "stages/02-invoke-define.md",
+      "stop_conditions": [
+        "block if the define stage treats database engines or migration tools as DomainSpec canon"
+      ]
+    },
+    {
+      "step_id": "s3-define-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "owner_boundary_check",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s2-define"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/03-refine-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/03-refine-review.md",
+      "stop_conditions": [
+        "block if taxonomy reuse and IntegrationSpec-local vocabulary cannot be distinguished"
+      ]
+    },
+    {
+      "step_id": "s4-research-decision",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "bounded-research",
+      "pattern": "decision",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "s3-define-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/04-bounded-research.md"
+        }
+      ],
+      "evidence_artifact": "stages/04-bounded-research.md",
+      "stop_conditions": [
+        "block if external vendor docs override local DomainSpec authority"
+      ]
+    },
+    {
+      "step_id": "s5-distill",
+      "name": "Distill coherent unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "scu_swu_reduction",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s4-research-decision"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "evidence_artifact": "stages/05-distill.md",
+      "stop_conditions": [
+        "block if the coherent unit grows beyond resource decision and migration command modeling"
+      ]
+    },
+    {
+      "step_id": "s6-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "x_ray",
+        "state_namespace_boundary",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s5-distill"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "evidence_artifact": "stages/06-invoke-design.md",
+      "stop_conditions": [
+        "block if the design omits source of truth, access patterns, migration history, environment policy, or failure evidence"
+      ]
+    },
+    {
+      "step_id": "s7-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s6-design"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/07-refine-design-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/07-refine-design-review.md",
+      "stop_conditions": [
+        "block if the design cannot prevent migration command output from becoming spec truth"
+      ]
+    },
+    {
+      "step_id": "s8-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": [
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "s7-design-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "evidence_artifact": "stages/08-distill-repair.md",
+      "stop_conditions": [
+        "block if repair cannot name residual ambiguity and next-route owner"
+      ]
+    },
+    {
+      "step_id": "s9-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "approval_checkpoint"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s8-repair"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "evidence_artifact": "stages/09-invoke-plan.md",
+      "stop_conditions": [
+        "block if the plan attempts live migration execution instead of non-executed IntegrationSpec next routes"
+      ]
+    },
+    {
+      "step_id": "s10-final",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": [
+        "residue_ledger",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s9-plan"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "block if final synthesis does not answer how to model database selection and migration commands"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "operator-approved-continuation",
+      "kind": "human_approval",
+      "owner": "user",
+      "condition": "Operator requested the same full refine/subagent pattern as the prior run; future live database mutation routes still require explicit approval.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "domain-taxonomy-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "definitions-governance",
+      "condition": "Database/resource/migration vocabulary must remain IntegrationSpec-local unless definitions-governance promotes it.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "migration-runtime-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "Live database state, credentials, migration locks, and schema history must not be treated as workspace source or public Arcanum canon.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "environment-policy-recorded",
+      "kind": "quality",
+      "owner": "invoke",
+      "condition": "The migration command model must separate development, test, staging, and production command permissions.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "evidence-contract",
+      "kind": "validation",
+      "owner": "interrogation",
+      "condition": "The final model must include selection rationale, migration status/validate/diff evidence, and failure fixtures without claiming runtime truth.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "refine.strategy_approved",
+      "refine.database_selection_scope_selected",
+      "refine.migration_command_scope_selected",
+      "refine.subagents_spawned"
+    ],
+    "signal_grouping": "refine-20260616T204823Z-database-selection-migration-commands"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "domain-vs-data-resource-vocabulary",
+        "kind": "capability_handoff",
+        "from_owner": "DomainSpec",
+        "to_owner": "Integration Boundary Discipline",
+        "applies_to_steps": [
+          "s2-define",
+          "s6-design",
+          "s9-plan"
+        ],
+        "contract": "DomainSpec owns application semantics; Integration Boundary Discipline owns data-resource, source-of-truth, migration-command, drift, and evidence vocabulary.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "database-runtime-state",
+        "kind": "state_write",
+        "from_owner": "database runtime",
+        "to_owner": "host application",
+        "applies_to_steps": [
+          "s6-design",
+          "s9-plan"
+        ],
+        "contract": "Database runtime state, schema-history rows, locks, snapshots, and command outputs are external resource state; the spec records stable evidence summaries and does not vendor-copy secrets or runtime state.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine",
+      "execution": "conceptual refinement only; no live database commands",
+      "validation": "dispatch-spec and later stage owners",
+      "evidence": "stage artifacts and future migration command receipts",
+      "promotion": "deferred to later decision-gate, definitions-governance, or sigil-development"
+    },
+    "receipts": [
+      {
+        "receipt_id": "migration-command-evidence",
+        "producer": "future database migration task-session",
+        "required_fields": [
+          "status",
+          "validation",
+          "residue"
+        ],
+        "stores": [
+          "stages/09-invoke-plan.md",
+          "future task-session artifact"
+        ],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "database runtime state",
+        "owner": "database or data platform",
+        "write_policy": "Do not write during refine; model as external runtime resource state."
+      },
+      {
+        "namespace": "migration artifacts",
+        "owner": "consumer repository",
+        "write_policy": "Implementation only in later task-session."
+      },
+      {
+        "namespace": "host application source",
+        "owner": "consumer repository",
+        "write_policy": "Implementation only in later task-session."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "database selection and migration command modeling example",
+        "target": "DomainSpec canon",
+        "rule": "Example-local resource and command labels do not promote to DS-D1/DS-D2 without definitions-governance.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No canonical DomainSpec taxonomy mutation in this refine run.",
+    "No live database credentials, URLs, schema dumps, or migration logs in public artifacts.",
+    "No live migration command execution during refine.",
+    "Migration command output remains task evidence, not Arcanum canon."
+  ]
+}

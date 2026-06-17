@@ -1,0 +1,809 @@
+{
+  "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Refine full: if we want to use OpenClaw SDK to do some integration in any system, how would we model this?",
+    "objective": "Run the canonical Refine loop to model OpenClaw SDK/CLI/gateway integration as an Integration Boundary Discipline example, preserving DomainSpec taxonomy authority and OpenClaw runtime trust boundaries.",
+    "target_artifact": "arcanum/arcana/integration-spec/development/refinement-runs/20260616T203246Z-openclaw-sdk-integration-refine/RESULT.md",
+    "operator_sentence": "/refine full openclaw sdk integration modeling",
+    "arcanum_vocabulary": [
+      "refine",
+      "integration-spec",
+      "Integration Boundary Discipline",
+      "DomainSpec",
+      "OpenClaw",
+      "Integration Port",
+      "Integration Adapter",
+      "Integration Resource",
+      "Integration Decision",
+      "Integration Evidence"
+    ]
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "OpenClaw may be integrated through several surfaces. The run should decide the modeling boundary before any implementation.",
+    "items": [
+      {
+        "id": "cli-connector",
+        "label": "CLI Connector Boundary",
+        "description": "Model OpenClaw integration as a host-owned port backed by a subprocess connector around `openclaw ... --json` commands.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      },
+      {
+        "id": "gateway-client",
+        "label": "Gateway Client Boundary",
+        "description": "Model OpenClaw integration as a gateway-backed resource with auth, trust-boundary, health, and runtime-state decisions.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      },
+      {
+        "id": "sdk-plugin",
+        "label": "SDK / Plugin Boundary",
+        "description": "Model a first-class SDK/plugin integration surface if OpenClaw SDK artifacts prove this is preferable to CLI or gateway wrapping.",
+        "capability_ref": "invoke",
+        "pattern": "research"
+      },
+      {
+        "id": "domainspec-aspect-example",
+        "label": "DomainSpec Aspect Example",
+        "description": "Do not model a generic IntegrationSpec package yet; produce an `integrations.md` candidate example for OpenClaw.",
+        "capability_ref": "invoke",
+        "pattern": "sequence"
+      }
+    ],
+    "selected_item_id": "cli-connector"
+  },
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "route_menu",
+    "approval_checkpoint",
+    "x_ray",
+    "component_descriptor",
+    "entity_component_reference",
+    "protected_context_flag",
+    "system_agnostic_standard",
+    "local_nuance_coordination",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "authority_split_gate",
+    "state_namespace_boundary"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "Refine requires the canonical ten-stage sequence with frame and handle handoffs.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping",
+        "minimum_component_catalog"
+      ],
+      "applies_to_steps": [
+        "s1-context",
+        "s2-define",
+        "s3-define-review",
+        "s4-research-decision",
+        "s5-distill",
+        "s6-design",
+        "s7-design-review",
+        "s8-repair",
+        "s9-plan",
+        "s10-final"
+      ],
+      "validation_expectation": "Every stage records a native receipt or blocked reason; non-first stages consume a prior frame, decision, handle, artifact, or external context."
+    },
+    {
+      "overlay_id": "xray_for_openclaw_surface",
+      "trigger": "The main uncertainty is the hidden interface boundary between host application, OpenClaw CLI/gateway/runtime state, and provider-backed inference.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "authority_split_gate",
+        "state_namespace_boundary"
+      ],
+      "applies_to_steps": [
+        "s1-context",
+        "s2-define",
+        "s6-design",
+        "s9-plan"
+      ],
+      "validation_expectation": "The run must distinguish host-owned DomainSpec concepts from IntegrationSpec-local OpenClaw connector/resource/runtime concepts."
+    },
+    {
+      "overlay_id": "protected_context_for_runtime_boundary",
+      "trigger": "OpenClaw has operator credentials, gateway state, config files, channels, and host trust assumptions.",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard",
+        "local_nuance_coordination",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "applies_to_steps": [
+        "s4-research-decision",
+        "s6-design",
+        "s8-repair",
+        "s9-plan",
+        "s10-final"
+      ],
+      "validation_expectation": "The model must not treat OpenClaw runtime state, credentials, or receipts as DomainSpec canon or product source files."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "OpenClaw integration modeling has competing surfaces: CLI connector, gateway client, SDK/plugin, and DomainSpec aspect example.",
+    "explanation": "A small role fanout would reduce anchoring by separating runtime-surface mapping, DomainSpec authority, and IntegrationSpec operability.",
+    "context": [
+      "Prior IntegrationSpec review",
+      "Operator-supplied local OpenClaw bridge examples",
+      "OpenClaw public docs for infer/gateway/security/configuration",
+      "DomainSpec taxonomy and relationship definitions"
+    ],
+    "roles": [
+      {
+        "role_id": "openclaw-runtime-mapper",
+        "purpose": "Map OpenClaw CLI/gateway/SDK surfaces, trust boundaries, session policy, and evidence obligations.",
+        "owns": "OpenClaw-specific resource and connector model",
+        "applies_to_steps": [
+          "s1-context",
+          "s2-define",
+          "s6-design"
+        ]
+      },
+      {
+        "role_id": "domainspec-boundary-guardian",
+        "purpose": "Prevent OpenClaw connector/resource vocabulary from silently becoming DomainSpec canonical taxonomy.",
+        "owns": "DomainSpec reuse and noncanonical local vocabulary boundary",
+        "applies_to_steps": [
+          "s3-define-review",
+          "s7-design-review",
+          "s8-repair"
+        ]
+      },
+      {
+        "role_id": "integration-operability-planner",
+        "purpose": "Turn the OpenClaw model into concrete L0 fields, validator fixtures, and host-system examples.",
+        "owns": "Plan and evidence model",
+        "applies_to_steps": [
+          "s5-distill",
+          "s9-plan",
+          "s10-final"
+        ]
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Operator already requested spawning subagents in this thread; run the approved OpenClaw modeling fanout before parent synthesis.",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "reroute",
+      "handoff_note",
+      "sources_considered",
+      "findings",
+      "boundary_warnings",
+      "recommended_model",
+      "residue"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "019ed227-abd5-7933-ae8e-3738144f82da",
+        "role_id": "openclaw-runtime-mapper",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/openclaw-runtime-mapper.md",
+        "residue": "Future SDK/client claims need fresh official release evidence.",
+        "reroute": "Use task-session for live OpenClaw runtime proof."
+      },
+      {
+        "agent_id": "019ed227-c7d4-7f33-bafd-c5f61792b93d",
+        "role_id": "domainspec-boundary-guardian",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/domainspec-boundary-guardian.md",
+        "residue": "Promotion remains possible only through definitions-governance after local vocabulary stabilizes.",
+        "reroute": "Use definitions-governance only after L0 examples stabilize."
+      },
+      {
+        "agent_id": "019ed227-f97e-7501-84de-cd650c43e44c",
+        "role_id": "integration-operability-planner",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "close_status": "closed",
+        "receipt_artifact": "stages/subagent-receipts/integration-operability-planner.md",
+        "residue": "No concrete L0 artifact or validator fixtures exist yet in this run folder.",
+        "reroute": "Build a filled L0 example plus fixture list next."
+      }
+    ]
+  },
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s1-context",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/01-context-builder/context-pack.md",
+        "stages/01-context-builder/openclaw-surface-xray.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "No live OpenClaw runtime was executed.",
+      "handoff_note": "Context separates host semantics from OpenClaw runtime boundary."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s2-define",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/02-invoke-define.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Definition remains L0-local.",
+      "handoff_note": "Defines host-owned OpenClaw integration boundary."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s3-define-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/03-refine-review.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "AgentRuntimeResource naming remains unresolved.",
+      "handoff_note": "Review preserves DomainSpec and IntegrationSpec authority split."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s4-research-decision",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/04-bounded-research.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Runtime proof deferred.",
+      "handoff_note": "Bounded research used official OpenClaw docs."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s5-distill",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/05-distill.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "No package promotion in this run.",
+      "handoff_note": "Selected L0 OpenClaw example as smallest coherent unit."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s6-design",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/06-invoke-design.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Local relations are not canonical DS-D2.",
+      "handoff_note": "Design records required OpenClaw decision fields."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s7-design-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/07-refine-design-review.md"
+      ],
+      "validation": ["pass-with-residue"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Use connector wording in examples to avoid Adapter confusion.",
+      "handoff_note": "Design review passed with naming residue."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s8-repair",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/08-distill-repair.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Gateway/RPC default should be confirmed in next L0 artifact.",
+      "handoff_note": "Repair incorporated subagent corrections."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s9-plan",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/09-invoke-plan.md"
+      ],
+      "validation": ["pass"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "Implementation remains deferred to task-session.",
+      "handoff_note": "Plan recommends L0 discipline artifact before aspect or validator."
+    },
+    {
+      "dispatch_id": "refine-20260616T203246Z-openclaw-sdk-integration",
+      "step_id": "s10-final",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/10-final-interrogation.md",
+        "RESULT.md"
+      ],
+      "validation": ["pass-with-residue"],
+      "observer_status": "pending-closeout",
+      "blockers": [],
+      "residue": "No live OpenClaw runtime proof.",
+      "handoff_note": "Final synthesis answers the modeling question and names next routes."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "s1-context",
+      "name": "Context Builder evidence baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "x_ray"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "operator-intent"
+        },
+        {
+          "kind": "artifact",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-builder/context-pack.md"
+        },
+        {
+          "kind": "handle",
+          "ref": "stages/01-context-builder/openclaw-surface-xray.md"
+        }
+      ],
+      "evidence_artifact": "stages/01-context-builder/context-pack.md",
+      "stop_conditions": [
+        "block if OpenClaw cannot be separated from host-owned application semantics"
+      ]
+    },
+    {
+      "step_id": "s2-define",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": [
+        "minimum_component_catalog",
+        "component_descriptor"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "s1-context"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-invoke-define.md"
+        }
+      ],
+      "evidence_artifact": "stages/02-invoke-define.md",
+      "stop_conditions": [
+        "block if the define stage treats OpenClaw runtime state as DomainSpec canon"
+      ]
+    },
+    {
+      "step_id": "s3-define-review",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "owner_boundary_check",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s2-define"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/03-refine-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/03-refine-review.md",
+      "stop_conditions": [
+        "block if taxonomy reuse and IntegrationSpec-local vocabulary cannot be distinguished"
+      ]
+    },
+    {
+      "step_id": "s4-research-decision",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "bounded-research",
+      "pattern": "decision",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "s3-define-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/04-bounded-research.md"
+        }
+      ],
+      "evidence_artifact": "stages/04-bounded-research.md",
+      "stop_conditions": [
+        "block if external research would override local repository authority"
+      ]
+    },
+    {
+      "step_id": "s5-distill",
+      "name": "Distill coherent unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "scu_swu_reduction",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s4-research-decision"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "evidence_artifact": "stages/05-distill.md",
+      "stop_conditions": [
+        "block if the coherent unit grows beyond integration boundary modeling"
+      ]
+    },
+    {
+      "step_id": "s6-design",
+      "name": "Invoke Redefine / Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": [
+        "x_ray",
+        "state_namespace_boundary",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s5-distill"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-invoke-design.md"
+        }
+      ],
+      "evidence_artifact": "stages/06-invoke-design.md",
+      "stop_conditions": [
+        "block if the design omits trust boundary, session policy, runtime zone, or evidence contract"
+      ]
+    },
+    {
+      "step_id": "s7-design-review",
+      "name": "Interrogation refine-design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s6-design"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/07-refine-design-review.md"
+        }
+      ],
+      "evidence_artifact": "stages/07-refine-design-review.md",
+      "stop_conditions": [
+        "block if the design cannot prevent connector/resource vocabulary from becoming accidental DomainSpec canon"
+      ]
+    },
+    {
+      "step_id": "s8-repair",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "validation",
+      "techniques": [
+        "residue_ledger",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "s7-design-review"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "evidence_artifact": "stages/08-distill-repair.md",
+      "stop_conditions": [
+        "block if repair cannot name residual ambiguity and next-route owner"
+      ]
+    },
+    {
+      "step_id": "s9-plan",
+      "name": "Invoke Plan",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": [
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "approval_checkpoint"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s8-repair"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-invoke-plan.md"
+        }
+      ],
+      "evidence_artifact": "stages/09-invoke-plan.md",
+      "stop_conditions": [
+        "block if the plan attempts implementation instead of a non-executed IntegrationSpec next route"
+      ]
+    },
+    {
+      "step_id": "s10-final",
+      "name": "Final Interrogation and Refine synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": [
+        "residue_ledger",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "s9-plan"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "block if final synthesis does not answer how to model OpenClaw integration in any host system"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "user-confirmation",
+      "kind": "human_approval",
+      "owner": "user",
+      "condition": "Operator confirmation was provided in-thread for subagent spawning and full refine execution; future mutation routes still require their own approval.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "domain-taxonomy-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "definitions-governance",
+      "condition": "OpenClaw connector/resource/session/evidence vocabulary must remain IntegrationSpec-local unless definitions-governance promotes it.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "openclaw-runtime-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "OpenClaw runtime state and config under `~/.openclaw` must not be treated as workspace source or public Arcanum canon.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "trust-boundary-recorded",
+      "kind": "quality",
+      "owner": "invoke",
+      "condition": "The Integration Decision Record must state whether the host system is single-operator, company-team, mixed-trust, or external-user facing.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "evidence-contract",
+      "kind": "validation",
+      "owner": "interrogation",
+      "condition": "The final model must include status/smoke/error fixtures and distinguish evidence anchors from runtime truth.",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "refine.strategy_proposed",
+      "refine.awaiting_confirmation",
+      "refine.openclaw_modeling_scope_selected"
+    ],
+    "signal_grouping": "refine-20260616T203246Z-openclaw-sdk-integration"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "domain-vs-integration-vocabulary",
+        "kind": "capability_handoff",
+        "from_owner": "DomainSpec",
+        "to_owner": "Integration Boundary Discipline",
+        "applies_to_steps": [
+          "s2-define",
+          "s6-design",
+          "s9-plan"
+        ],
+        "contract": "DomainSpec owns application semantics; Integration Boundary Discipline owns OpenClaw connector/resource/session/runtime-decision vocabulary.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "openclaw-runtime-state",
+        "kind": "state_write",
+        "from_owner": "OpenClaw runtime",
+        "to_owner": "host application",
+        "applies_to_steps": [
+          "s6-design",
+          "s9-plan"
+        ],
+        "contract": "OpenClaw runtime state is external resource state; host application records stable evidence summaries and does not vendor-copy runtime config into public canon.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine",
+      "execution": "not executed in proposal step",
+      "validation": "dispatch-spec and later stage owners",
+      "evidence": "stage artifacts and OpenClaw smoke/status receipts",
+      "promotion": "deferred to later decision-gate or sigil-development"
+    },
+    "receipts": [
+      {
+        "receipt_id": "openclaw-status-smoke",
+        "producer": "future OpenClaw connector task",
+        "required_fields": [
+          "status",
+          "validation",
+          "residue"
+        ],
+        "stores": [
+          "stages/09-invoke-plan.md",
+          "future task-session artifact"
+        ],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "~/.openclaw",
+        "owner": "OpenClaw runtime",
+        "write_policy": "Do not write during refine; model as external runtime resource state."
+      },
+      {
+        "namespace": "host application source",
+        "owner": "consumer repository",
+        "write_policy": "Implementation only in later task-session."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "OpenClaw modeling example",
+        "target": "DomainSpec canon",
+        "rule": "Example-local connector/resource labels do not promote to DS-D1/DS-D2 without definitions-governance.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No canonical DomainSpec taxonomy mutation in this refine run.",
+    "No OpenClaw runtime credentials or config values in public artifacts.",
+    "No implementation execution before user confirmation.",
+    "OpenClaw SDK/CLI/Gateway evidence remains source evidence, not Arcanum canon."
+  ]
+}
