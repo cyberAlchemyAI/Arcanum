@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CyberAlchemy explained: DomainSpec, Saturn, Arcanum, and the agentic system — what each layer is, and what has been built.">
+  <title>CyberAlchemy — The System</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; justify-content: space-between; align-items: center; gap: 18px;
+      padding: 14px clamp(18px, 4vw, 52px);
+      background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84);
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero {
+      position: relative; display: grid; align-items: end; overflow: hidden;
+      padding: 132px clamp(18px, 5vw, 70px) 54px; border-bottom: 1px solid var(--line); background: #fbf8ef;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 940px; font-size: clamp(44px, 7vw, 92px); line-height: .9; }
+    h2 { max-width: 860px; font-size: clamp(28px, 4vw, 50px); line-height: 1.0; }
+    h3 { font-size: 20px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .lead { max-width: 760px; margin-top: 22px; color: #383838; font-size: clamp(18px, 2.3vw, 23px); }
+    section { padding: clamp(44px, 7vw, 84px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 1080px; margin: 0 auto; }
+    .section-head { margin-bottom: 28px; }
+    .section-head p { max-width: 800px; margin-top: 14px; }
+    .prose p { max-width: 800px; margin-top: 16px; color: #383838; font-size: 17px; }
+    .prose p + p { margin-top: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .panel { padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
+    .panel p { margin-top: 10px; }
+    .panel .tag { display: inline-flex; margin-bottom: 14px; padding: 5px 8px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; }
+    .pillars .tag.ds { background: #e7eef9; color: var(--blue); }
+    .pillars .tag.sa { background: #e6f3ee; color: var(--green); }
+    .pillars .tag.ar { background: #fbe7e0; color: var(--orange); }
+    .built li { margin: 0 0 14px; color: #383838; line-height: 1.6; }
+    .built b { color: var(--ink); }
+    .code {
+      overflow: auto; padding: 18px; border-radius: 8px; background: #171717; color: #fff8eb;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.6; white-space: pre;
+    }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    @media (max-width: 920px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) {
+      .topbar { position: static; align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+      .hero { padding-top: 40px; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="#pillars">Pillars</a>
+      <a href="#layers">Layers</a>
+      <a href="#built">What is built</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="https://github.com/cyberAlchemyAI/Arcanum">Arcanum</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">The system</p>
+        <h1>An operating system for humans and agents.</h1>
+        <p class="lead">Give the same specification to an LLM agent twice and you get two different test suites, two implementations, two ideas of "done." The agent is fast. It is not reproducible. CyberAlchemy is the response: turn intent into governed, evidenced, reusable tools, where the same artifact is legible to a person and executable by a machine.</p>
+      </div>
+    </section>
+
+    <section id="pillars" class="pillars">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Three pillars</p>
+          <h2>Different layers, different jobs. Keeping them distinct is the point.</h2>
+          <p>DomainSpec says what is meaningful in a domain. Arcanum says how the work is done. Saturn closes the loop with evidence. CyberAlchemy is the whole.</p>
+        </div>
+        <div class="grid-3">
+          <article class="panel">
+            <span class="tag ds">DomainSpec</span>
+            <h3>The structured-intent layer</h3>
+            <p>Meaning made explicit. A closed vocabulary of 25 meta-types and 29 typed relationships, each edge with a fixed signature. From a typed model you derive the tests, metrics, and contracts by rule, not by guess: <code>T = f(C, R, Δ)</code>. Same model in, same obligations out.</p>
+          </article>
+          <article class="panel">
+            <span class="tag ar">Arcanum</span>
+            <h3>The execution layer</h3>
+            <p>How the work gets done. Reusable agent capabilities (sigils), composed routes (spells), and a development loop from a wild idea to a validated slice. Every serious output leaves receipts. This is the part you can open and read today.</p>
+          </article>
+          <article class="panel">
+            <span class="tag sa">Saturn</span>
+            <h3>The convergence loop</h3>
+            <p>A spec is a baseline; reality drifts from it. Saturn is the intended convergence loop: observe what was built, compare it to the DomainSpec baseline, detect the drift, correct, verify, and feed the result back into governance. It is the target frame — today only the execution layer (Arcanum) is shipped publicly; Saturn names where this is going.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="layers">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">How they compose</p>
+          <h2>Intent enters, evidence returns, governance tunes.</h2>
+        </div>
+        <pre class="code">        intent  ───▶  DomainSpec   (what is meaningful: typed concepts + relationships)
+                          │  derives
+                          ▼
+                       Arcanum     (how the work is done: sigils, spells, the loop)
+                          │  produces
+                          ▼
+                        Saturn     (evidence: observe → compare → drift → correct → verify)
+                          │  feeds back to governance
+                          └──────────────▶  tunes DomainSpec + Arcanum
+
+   CyberAlchemy = the whole loop, for humans and agents.</pre>
+        <p class="note">Status, honestly: today the execution layer (Arcanum) is the part that is public and shipped, and DomainSpec's deterministic engine is built and validated (see "What is built"). Saturn — the full convergence loop — and DomainSpec-as-a-published-layer are the intended frame, not yet a shipped public surface. This page names the target so the development is legible while it is still being built.</p>
+        <div class="section-head" style="margin-top:40px">
+          <p class="eyebrow">The agentic system</p>
+          <h2>Coordination is explicit, and governance has a cost.</h2>
+          <p>Humans and agents operate through these layers together. Multi-agent work goes through a dispatch system with a hard rule: agents meant to disagree are paired so they actually do, and nothing runs until a human confirms the plan. Adding rules to agents can <em>lower</em> compliance — an effect the work formalizes as governance attenuation — so the answer is structure (separate the agent that observes from the agent that acts; detect drift deterministically), not more rules.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="built">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">What is built</p>
+          <h2>Scoped to what exists and was validated.</h2>
+          <p>Where something is planned, it says so. The development happens in the open so the claims stay tied to evidence.</p>
+        </div>
+        <ul class="built" style="max-width:860px;padding-left:18px">
+          <li><b>A deterministic test-derivation engine is built.</b> It implements <code>T = f(C, R, Δ)</code> in code: it parses canonical feature docs into a typed graph, derives obligations by pure rules, gives each a content-addressed id, and emits a byte-stable test spec. Same docs in, byte-identical output. 95 tests pass; 0 type errors.</li>
+          <li><b>It refuses rather than fabricates.</b> When a spec expression is not formal enough to derive a real test, the engine emits a counted, visible gap — it does not invent a plausible test. That refusal is a measurement: the gap count is a spec-formalization metric. On the pilot feature it reads 96%.</li>
+          <li><b>Fault-detection was measured.</b> Mutation testing on the pilot: after authoring one closed-form rule the spec had left implicit, the derived suite's score moved 38.75% → 54.37%, and the hardest module doubled (17.2% → 36.56%). The regenerated suite passed 13/13 against the real, unmutated code — the gap was unwritten spec, not divergent code.</li>
+          <li><b>The engine derives its own feature.</b> Run on its own DomainSpec docs, it produces its own test spec. The self-application is a fixpoint, not a slogan.</li>
+          <li><b>A conformance validator is specified.</b> A pre-registered experiment defines a check that the types and edges in a generated spec are valid against the taxonomy and the relationship signatures. Defined and frozen; not yet built.</li>
+          <li><b>Multi-agent dispatch is in use.</b> The dispatch ledger records real runs, each human-gated, dominated by research and review work.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Roadmap</p>
+          <h2>Planned, not done.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">engine</span>
+            <h3>Widen and harden</h3>
+            <p>Widen the grammar to more document classes; add a value-asserting oracle for the hardest arithmetic; take mutation testing from one pilot to a corpus.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">pipeline</span>
+            <h3>Replace the stochastic stage</h3>
+            <p>Build the conformance validator; run the deterministic engine as the live test-spec stage in place of the LLM for the backend-domain slice. UI and scaffolding stay generative by design.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">theory</span>
+            <h3>Governance attenuation</h3>
+            <p>The larger experiments on why governance fidelity decreases as layers accumulate, and on self-governance, remain open.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">surface</span>
+            <h3>Make the loop visible</h3>
+            <p>Bring Saturn's convergence loop and DomainSpec onto the public surface, not just the inner author loop.</p>
+          </article>
+        </div>
+        <p class="note">The shape is the argument: absorb the complexity into the structure so the people working inside it do not have to carry it.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>CyberAlchemy</h3>
+      <p>DomainSpec (what is meaningful) · Arcanum (how the work is done) · Saturn (evidence closes the loop). Built in the open from the Arcanum framework.</p>
+    </div>
+  </footer>
+</body>
+</html>
