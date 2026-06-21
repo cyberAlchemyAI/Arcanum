@@ -41,7 +41,7 @@ A discipline is a reusable operating practice with:
 | `runtime-boundary` | Runtime boundary discipline | active-pattern | Runtime framework and observed invocation loop | [Runtime framework](../framework/runtime/README.md) | Keep canonical source, generated install surfaces, and local runtime state separate. |
 | `ux-evidence` | UX evidence discipline | candidate | UX Evidence Validator | [UX Evidence Validator](../arcana/ux-evidence-validator/README.md) | Use browser evidence and accessibility checks when interface work becomes durable. |
 | `gitignore` | Gitignore discipline | candidate | Constitution Governance | [Gitignore constitution](../framework/GITIGNORE-CONSTITUTION.md) | Give the gitignore constitution a validation surface (ignore-policy check) before promoting beyond candidate. |
-| `receipt-id-legend` | Receipt id legend discipline | candidate | Constitution Governance | [Receipt id legend constitution](../framework/RECEIPT-ID-LEGEND-CONSTITUTION.md) | Give the receipt-id-legend constitution a validation surface (receipt-legend check) before promoting beyond candidate. |
+| `receipt-id-legend` | Receipt id legend discipline | candidate | Constitution Governance | [Receipt id legend constitution](../framework/RECEIPT-ID-LEGEND-CONSTITUTION.md) | Validator `tools/validate-receipt-legend.py` now enforces gloss-on-cite (2026-06-21); extend to define-on-mint + bulk-legend, then canonical. |
 
 ## Status Meanings
 

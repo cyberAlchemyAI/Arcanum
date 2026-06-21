@@ -1,6 +1,6 @@
 # Experiment Harness Report - Discipline Governance
 
-Status: promoted v0.2.0 (3/3 regimes + telemetry + reflection complete 2026-06-21)
+Status: v0.2.1 promotion-ready — threshold met (5 meaningful executions, 6/6 modes, usage-threshold reflection 2026-06-21)
 Date: 2026-06-21
 Sigil: `arcana/discipline-governance` (v0.1.0, candidate)
 Profile: sigil-development

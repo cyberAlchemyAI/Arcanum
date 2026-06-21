@@ -1,4 +1,10 @@
 ---
+surface_kind: generated-native-runtime-package
+runtime: claude
+canonical_source: arcana/discipline-governance/SKILL.md
+alias_of: null
+generated_by: tools/bootstrap_arcanum.sh --profile
+mutation_policy: regenerate-from-canonical-source
 name: discipline-governance
 description: "Use when: formalizing, routing, validating, promoting, or retiring an Arcanum discipline so a recurring cross-capability practice gets a card, catalog entry, and a hardening route without claiming sigil or spell authority."
 argument-hint: "<scan|formalize|route|validate|promote|deprecate> <practice-or-discipline-id> [--status <status>] [--evidence <path>] [--dry-run]"
@@ -6,7 +12,7 @@ tier: arcana
 domain: discipline-governance
 version: 0.2.1
 origin: created from the disciplines layer (catalog, card template, schema, catalog validator) which had no owning lifecycle sigil; promoted to 0.2.0 on 2026-06-21 after the 3-regime experiment harness (low=gitignore, medium=receipt-id-legend, complex=scan+curation), telemetry emission, and a reflection pass; 0.2.1 applied the two reflection-named iterations (public/private candidate tagging in scan/route; active-pattern cross-sigil evidence rule in validate)
-allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
+allowed-tools: Read, Write, Glob, Grep, Bash, AskUserQuestion, Agent
 ---
 
 # Sigil: Discipline Governance

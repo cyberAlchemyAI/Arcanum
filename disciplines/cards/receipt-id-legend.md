@@ -36,9 +36,9 @@ Enforcement of the receipt-form rule routes through [constitution-governance](..
 
 ## Validation
 
-- Mode: prose-review
-- Check: `python3 disciplines/scripts/validate-discipline-catalog.py` for catalog row shape, plus receipt review that every cited tracked id carries an inline one-line gloss.
-- Latest result: pass
+- Mode: mixed
+- Check: `python3 disciplines/scripts/validate-discipline-catalog.py` (catalog row shape) + `python3 tools/validate-receipt-legend.py <receipt.md>` — a deterministic check that every cited tracked id carries an inline gloss or in-file definition (`gloss-on-cite` rule; `--self-test` covers pass/fail fixtures).
+- Latest result: pass (validator self-test green 2026-06-21)
 
 ## Quality Bar
 

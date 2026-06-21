@@ -28,7 +28,7 @@ Does not apply to:
 
 | Rule ID | Rule | Validation Mode | Validator | Status |
 | --- | --- | --- | --- | --- |
-| `receipt-id.gloss-on-cite` | Every tracked id cited in a receipt carries an inline one-line gloss (`ID - meaning`), not a bare token. | review | none yet | candidate |
+| `receipt-id.gloss-on-cite` | Every tracked id cited in a receipt carries an inline one-line gloss (`ID - meaning`), not a bare token. | deterministic | `tools/validate-receipt-legend.py` | active |
 | `receipt-id.define-on-mint` | When an artifact first names/creates a tracked id, it defines that id in place (summary + meaning), so downstream receipts have a source to restate. | review | none yet | candidate |
 | `receipt-id.no-orphan-cite` | A receipt must not cite an id that is defined nowhere reachable; an undefined id is a block-level defect, not a stylistic one. | review | none yet | candidate |
 | `receipt-id.bulk-legend` | A receipt that lists ids in bulk (all-status, pending-by-node, residue ledger) glosses each listed id, or links to the one place each is defined. | review | none yet | candidate |
@@ -51,10 +51,10 @@ Not preferred:
 
 ## Validation
 
-No deterministic validator exists yet. Until one does, receipts are reviewed against these rules.
+The `gloss-on-cite` rule now has a deterministic validator: `tools/validate-receipt-legend.py <file.md>` scans a receipt for tracked-id tokens and flags any cited id lacking an inline gloss or an in-file definition (`--self-test` covers a glossed-pass and bare-fail fixture). The remaining rules (`define-on-mint`, `no-orphan-cite`, `bulk-legend`, `scheme-not-owned`) stay `review` until the validator extends to cross-file definition resolution.
 
-Next hardening move: add a receipt-legend check under `tools/` that scans a returned receipt for tracked-id token patterns and flags any cited id lacking an inline gloss or a resolvable definition, then raise the affected rules from `review` to `deterministic`.
+Next hardening move: extend the validator to (a) resolve `define-on-mint` across the artifact set and (b) enforce `bulk-legend` on all-status blocks; then raise those rules to `deterministic`.
 
 ## Promotion Boundary
 
-This constitution is `candidate`. Promote it to canonical only after the receipt-legend validator exists and the [receipt-id-legend discipline](../disciplines/cards/receipt-id-legend.md) names its validation surface and mutation boundary.
+This constitution is `candidate`. Promote it to canonical only after the validator covers `define-on-mint` + `bulk-legend` (not just `gloss-on-cite`) and the [receipt-id-legend discipline](../disciplines/cards/receipt-id-legend.md) names its validation surface and mutation boundary.
