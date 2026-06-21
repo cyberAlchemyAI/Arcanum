@@ -1,7 +1,8 @@
 # Residuality Discipline
 
-Status: active-pattern
+Status: candidate
 Steward: Residuality Spec
+Curation note (2026-06-21): downgraded active-pattern -> candidate; cross-capability recurrence is unproven (evidence cites only the owning sigil). Prove independent recurrence or keep candidate-grade.
 
 ## Purpose
 

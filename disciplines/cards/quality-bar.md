@@ -19,9 +19,10 @@ This discipline names the cross-capability quality practice. It does not define 
 
 ## Validation
 
-- Mode: prose-review
-- Check: quality-bar review against observable evidence and `python3 disciplines/scripts/validate-discipline-catalog.py`.
+- Mode: mixed
+- Check: quality-bar review against observable evidence + `python3 disciplines/scripts/validate-discipline-catalog.py`. Canonical status rests on the [Quality Bar constitution](../../framework/QUALITY-BAR.md), not a deterministic card-validator (curation 2026-06-21).
 - Latest result: pass
+- Next hardening: add a deterministic card-quality validator (every discipline card exposes observable success/failure), then canonical status becomes validator-backed.
 
 ## Quality Bar
 

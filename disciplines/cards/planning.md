@@ -31,6 +31,7 @@ A useful planning discipline entry must:
 - cite concrete lifecycle artifacts,
 - require plans to name scope, gates, and validation,
 - prevent route-shape evidence from being mistaken for executed work,
+- before mutation, select the smallest responsible implementation layer with named prerequisites, validation surface, and stop conditions (absorbed from the former implementation-readiness discipline, merged 2026-06-21),
 - name the next hardening move for plan artifact criteria.
 
 ## Promotion Guardrail

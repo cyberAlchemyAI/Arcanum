@@ -1,7 +1,8 @@
 # Ontology Discipline
 
-Status: active-pattern
+Status: candidate
 Steward: Ontology Vault
+Curation note (2026-06-21): downgraded active-pattern -> candidate; cross-capability recurrence is unproven (evidence cites only the owning sigil). Prove independent recurrence or keep candidate-grade.
 
 ## Purpose
 

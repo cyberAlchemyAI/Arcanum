@@ -1,11 +1,12 @@
 # Implementation Readiness Discipline
 
-Status: active-pattern
+Status: deprecated
 Steward: Implementation Layering and implementation-readiness spell
+Superseded by: `planning` (merged 2026-06-21 — the planning chain absorbs the smallest-responsible-layer readiness rule)
 
 ## Purpose
 
-Govern readiness to implement by selecting the smallest responsible layer, naming prerequisites, validation, boundaries, and stop conditions before mutation.
+DEPRECATED — merged into the [planning discipline](planning.md). Govern readiness to implement by selecting the smallest responsible layer, naming prerequisites, validation, boundaries, and stop conditions before mutation. This rule now lives as a planning sub-rule; this card is retained for provenance only.
 
 ## Boundary
 

@@ -4,8 +4,8 @@ description: "Use when: formalizing, routing, validating, promoting, or retiring
 argument-hint: "<scan|formalize|route|validate|promote|deprecate> <practice-or-discipline-id> [--status <status>] [--evidence <path>] [--dry-run]"
 tier: arcana
 domain: discipline-governance
-version: 0.1.0
-origin: created from the disciplines layer (catalog, card template, schema, catalog validator) which had no owning lifecycle sigil
+version: 0.2.0
+origin: created from the disciplines layer (catalog, card template, schema, catalog validator) which had no owning lifecycle sigil; promoted to 0.2.0 on 2026-06-21 after the 3-regime experiment harness (low=gitignore, medium=receipt-id-legend, complex=scan+curation), telemetry emission, and a reflection pass
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
 
