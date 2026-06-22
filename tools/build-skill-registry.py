@@ -163,7 +163,7 @@ NAV = [
 
 
 def nav_html(active: str) -> str:
-    out = ['    <nav aria-label="Primary navigation">']
+    out = ['    <nav id="primary-nav" aria-label="Primary navigation">']
     for href, label in NAV:
         cls = ' class="active" aria-current="page"' if href == active else ""
         out.append(f'      <a href="{href}"{cls}>{label}</a>')
@@ -254,6 +254,15 @@ def render(skills: list[dict], skipped: list[str]) -> str:
     nav a {{ min-height:34px; padding:7px 10px; border-radius:6px; color:var(--muted); text-decoration:none; font-size:13px; font-weight:760; }}
     nav a:hover {{ background:#f2eee3; color:var(--ink); }}
     nav a.active {{ color:var(--ink); background:#f2eee3; box-shadow:inset 0 -2px 0 var(--red); }}
+    .nav-toggle {{ display:none; align-items:center; justify-content:center; width:42px; height:36px; padding:0; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--ink); font-size:17px; line-height:1; cursor:pointer; }}
+    .nav-toggle:hover {{ background:#f2eee3; }}
+    @media (max-width:940px) {{
+      .topbar {{ flex-direction:row; flex-wrap:wrap; align-items:center; }}
+      .nav-toggle {{ display:inline-flex; }}
+      .topbar nav {{ display:none; width:100%; margin-top:8px; flex-direction:column; gap:2px; }}
+      .topbar nav.open {{ display:flex; }}
+      .topbar nav a {{ padding:11px 10px; font-size:15px; }}
+    }}
     .subnav {{ position:fixed; top:61px; left:0; right:0; z-index:15; display:flex; flex-wrap:wrap; gap:4px 16px; align-items:center; padding:8px clamp(18px,5vw,70px); background:rgba(253,250,243,.93); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); }}
     .subnav .on {{ color:var(--muted); font-size:11px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; margin-right:2px; }}
     .subnav a {{ color:var(--muted); text-decoration:none; font-size:13px; font-weight:740; display:inline-flex; align-items:center; gap:5px; }}
@@ -303,6 +312,7 @@ def render(skills: list[dict], skipped: list[str]) -> str:
       <img src="assets/cyberalchemy-mark.svg" alt="">
       <span>CyberAlchemy</span>
     </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
 {nav_html("registry.html")}
   </header>
   <div class="subnav"><span class="on">Tiers</span> {subnav_links}</div>
@@ -326,6 +336,7 @@ def render(skills: list[dict], skipped: list[str]) -> str:
     </section>
 
 {chr(10).join(sections)}
+    <p class="empty" id="empty" style="display:none; padding:40px clamp(18px,5vw,70px);">No skills match your filter.</p>
   </main>
 
   <footer class="footer">
@@ -337,8 +348,22 @@ def render(skills: list[dict], skipped: list[str]) -> str:
   </footer>
 
   <script>
+    (function () {{
+      var b = document.querySelector('.nav-toggle');
+      var n = document.querySelector('.topbar nav');
+      if (b && n) {{
+        b.addEventListener('click', function () {{
+          var open = n.classList.toggle('open');
+          b.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }});
+        n.addEventListener('click', function (e) {{
+          if (e.target.tagName === 'A') {{ n.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }}
+        }});
+      }}
+    }})();
     const q = document.getElementById('q');
     const count = document.getElementById('count');
+    const empty = document.getElementById('empty');
     const cards = Array.from(document.querySelectorAll('.card'));
     const sections = Array.from(document.querySelectorAll('main section[id]'));
     function apply() {{
@@ -353,7 +378,8 @@ def render(skills: list[dict], skipped: list[str]) -> str:
         const any = s.querySelectorAll('.card:not([style*="none"])').length;
         s.style.display = any ? '' : 'none';
       }});
-      count.textContent = shown + ' shown';
+      empty.style.display = shown ? 'none' : '';
+      count.textContent = shown + (shown === 1 ? ' shown' : ' shown');
     }}
     q.addEventListener('input', apply);
   </script>

@@ -67,7 +67,17 @@
     section { scroll-margin-top: 112px; }
     @media (max-width: 680px) { .subnav { position: static; } }
 
-  </style>
+  
+    .nav-toggle { display:none; align-items:center; justify-content:center; width:42px; height:36px; padding:0; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--ink); font-size:17px; line-height:1; cursor:pointer; }
+    .nav-toggle:hover { background:#f2eee3; }
+    @media (max-width:940px) {
+      .topbar { flex-direction:row; flex-wrap:wrap; align-items:center; }
+      .nav-toggle { display:inline-flex; }
+      .topbar nav { display:none; width:100%; margin-top:8px; flex-direction:column; gap:2px; }
+      .topbar nav.open { display:flex; }
+      .topbar nav a { padding:11px 10px; font-size:15px; }
+    }
+</style>
 </head>
 <body id="top">
   <header class="topbar">
@@ -75,7 +85,8 @@
       <img src="assets/cyberalchemy-mark.svg" alt="">
       <span>CyberAlchemy</span>
     </a>
-    <nav aria-label="Primary navigation">
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+    <nav id="primary-nav" aria-label="Primary navigation">
       <a href="index.html">Home</a>
       <a href="system.html">The System</a>
       <a href="saturn.html">Saturn</a>
@@ -292,5 +303,19 @@ CRAFT.md            # a human-readable VIEW of the ledger (never the source of t
 <p style="margin-top:14px;font-size:12px;color:#8f897e">© 2026 Vladimir Rondelli and Victor Boscaro. All rights reserved.</p>
 </div>
   </footer>
+  <script>
+    (function () {
+      var b = document.querySelector('.nav-toggle');
+      var n = document.querySelector('.topbar nav');
+      if (!b || !n) return;
+      b.addEventListener('click', function () {
+        var open = n.classList.toggle('open');
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      n.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') { n.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }
+      });
+    })();
+  </script>
 </body>
 </html>
