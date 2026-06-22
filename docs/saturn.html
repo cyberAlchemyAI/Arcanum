@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Saturn — a convergence loop that treats domain intent as a reference baseline, measures reality against it, and acts on drift. Free audits; the language and Lean validations are the moat.">
+  <title>Saturn — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero { position: relative; display: grid; align-items: end; overflow: hidden; padding: 132px clamp(18px, 5vw, 70px) 54px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { position: relative; z-index: 2; max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 940px; font-size: clamp(44px, 7vw, 92px); line-height: .9; }
+    h2 { max-width: 860px; font-size: clamp(28px, 4vw, 50px); line-height: 1.0; }
+    h3 { font-size: 19px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .lead { max-width: 760px; margin-top: 22px; color: #383838; font-size: clamp(18px, 2.3vw, 23px); }
+    section { padding: clamp(44px, 7vw, 84px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 1080px; margin: 0 auto; }
+    .section-head { margin-bottom: 28px; }
+    .section-head p { max-width: 800px; margin-top: 14px; }
+    .loop { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; overflow-x: auto; }
+    .step { min-height: 120px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .step b { display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 10px; border-radius: 50%; background: var(--blue); color: white; font-size: 12px; }
+    .step:nth-child(2) b { background: var(--violet); }
+    .step:nth-child(3) b { background: var(--orange); }
+    .step:nth-child(4) b { background: var(--green); }
+    .step:nth-child(5) b { background: var(--teal); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .panel { padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
+    .panel p { margin-top: 8px; }
+    .panel .layer { display: inline-flex; margin-bottom: 12px; padding: 5px 9px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; letter-spacing: .4px; }
+    .panel .nodes { margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .offer .panel.free { border-color: var(--green); }
+    .offer .panel.moat { border-color: var(--red); }
+    .offer .tag { display: inline-flex; margin-bottom: 12px; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 850; }
+    .offer .free .tag { background: #e6f3ee; color: var(--green); }
+    .offer .moat .tag { background: #fbe7e0; color: var(--red); }
+    .offer ul { margin: 10px 0 0; padding-left: 18px; }
+    .offer li { color: #383838; line-height: 1.6; margin-bottom: 6px; }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    @media (max-width: 920px) { .grid-2, .offer .grid-2, .loop { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="paper.html">Paper</a>
+      <a href="#loop">Loop</a>
+      <a href="#layers">Architecture</a>
+      <a href="#offer">Free &amp; moat</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Saturn</p>
+        <h1>A system that defends its own architecture.</h1>
+        <p class="lead">Saturn treats domain intent as a reference baseline. It measures reality against that baseline, and it does not only report drift — it acts on it, turning governance into executable behavior. Most teams keep systems aligned by heroics. Saturn makes the alignment a loop.</p>
+      </div>
+    </section>
+
+    <section id="loop">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The architecture of convergence</p>
+          <h2>Intent flows down. Truth flows up.</h2>
+          <p>Saturn runs as a lifecycle. Intent descends into execution; evidence rises to inform governance. The same loop closes on itself.</p>
+        </div>
+        <div class="loop" aria-label="Saturn convergence loop">
+          <article class="step"><b>1</b><h3>Observe</h3><p>Read telemetry from what was actually built and run.</p></article>
+          <article class="step"><b>2</b><h3>Evaluate</h3><p>Compare it against the domain contracts — the intent baseline.</p></article>
+          <article class="step"><b>3</b><h3>Decide</h3><p>Determine the corrective state when reality has drifted.</p></article>
+          <article class="step"><b>4</b><h3>Route</h3><p>Execute the correction through the agentic substrate.</p></article>
+          <article class="step"><b>5</b><h3>Verify</h3><p>Confirm closure, then feed the result back into governance.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="layers">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Four layers, one meta-loop</p>
+          <h2>Saturn traverses every layer.</h2>
+          <p>It reads telemetry from the perception layers, evaluates it against the intent layers, and triggers responses through the execution and regulation layers.</p>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <span class="layer">1 · Regulation &amp; Interface</span>
+            <h3>Where humans set direction</h3>
+            <p>The human harness (priorities, dashboards) and governance (constants, quality gates).</p>
+          </article>
+          <article class="panel">
+            <span class="layer">2 · Modeling &amp; Intent</span>
+            <h3>Where meaning is fixed</h3>
+            <p>Foundation (domain structures, ontologies) and formalization (feature contracts). This is the DomainSpec layer.</p>
+          </article>
+          <article class="panel">
+            <span class="layer">3 · Operation &amp; Execution</span>
+            <h3>Where the work runs</h3>
+            <p>The agentic substrate (workflows, skills) and infrastructure (runtime, CI loops).</p>
+          </article>
+          <article class="panel">
+            <span class="layer">4 · Verification &amp; Perception</span>
+            <h3>Where truth is measured</h3>
+            <p>Quality (deterministic tests) and observability (drift telemetry). This is where the audits live.</p>
+          </article>
+        </div>
+        <p class="note">Status, honestly: Saturn is the convergence frame. Today the execution layer (Arcanum) is shipped publicly and DomainSpec's deterministic engine is built; the full closed loop is the intended target, not yet a shipped public surface.</p>
+      </div>
+    </section>
+
+    <section id="offer" class="offer">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Free &amp; moat</p>
+          <h2>The audits are free. The language and the proofs are the product.</h2>
+          <p>Saturn's verification layer produces audits we offer openly. The deeper machinery — the formal language that makes derivation deterministic, and the Lean validations that make it provable — is the part we sell.</p>
+        </div>
+        <div class="grid-2">
+          <article class="panel free">
+            <span class="tag">Free</span>
+            <h3>The audits</h3>
+            <ul>
+              <li><b>Layering audit</b> — does the system respect its own layer boundaries (domain depends on nothing; each layer only on the one below)?</li>
+              <li><b>Tag audit</b> — does the code still trace to the spec it claims, with no orphaned or drifted tags?</li>
+              <li><b>Alignment audit</b> — does what was built still match the domain intent, and where has it diverged?</li>
+              <li><b>LLM test generator</b> — the free, open reference path from spec to tests.</li>
+            </ul>
+          </article>
+          <article class="panel moat">
+            <span class="tag">The moat</span>
+            <h3>Language &amp; Lean validations</h3>
+            <p>The DomainSpec language and its deterministic derivation, and the Lean formal validations that prove the obligations hold. We demonstrate the results — determinism (same docs in, byte-identical out), measured fault detection, machine-checked proofs — but the mechanism is the product, not published.</p>
+            <p class="note">Open by design: the framework and calculus (the meta-types, the typed relationships, the derivation calculus) stay public. The optimized engine and the proofs are what you buy.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>Saturn</h3>
+      <p>Observe → evaluate → decide → route → verify. Free audits (layering, tag, alignment); the language and Lean validations are the product. Part of CyberAlchemy — <a href="system.html">see the whole system</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

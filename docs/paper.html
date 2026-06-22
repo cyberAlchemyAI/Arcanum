@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DomainSpec: a layered meta-architecture for deterministic software derivation and governance attenuation in multi-agent systems.">
+  <title>DomainSpec — The Paper</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero { position: relative; padding: 132px clamp(18px, 5vw, 70px) 48px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 940px; font-size: clamp(34px, 5vw, 64px); line-height: .98; }
+    h2 { max-width: 860px; font-size: clamp(26px, 3.6vw, 44px); line-height: 1.02; }
+    h3 { font-size: 19px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .authors { margin-top: 20px; color: #383838; font-weight: 760; font-size: 17px; }
+    .lead { max-width: 800px; margin-top: 18px; color: #383838; font-size: 17px; }
+    section { padding: clamp(40px, 6vw, 76px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 940px; margin: 0 auto; }
+    .section-head { margin-bottom: 24px; }
+    .abstract { max-width: 860px; color: #2c2c2c; font-size: 17px; line-height: 1.7; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .panel { padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
+    .panel p { margin-top: 8px; }
+    .panel .tag { display: inline-flex; margin-bottom: 12px; padding: 5px 9px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; }
+    .layers li { margin: 0 0 8px; color: #383838; line-height: 1.6; }
+    .built li { margin: 0 0 12px; color: #383838; line-height: 1.6; }
+    .built b { color: var(--ink); }
+    .kw { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .kw span { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; color: var(--muted); font-weight: 700; }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    @media (max-width: 920px) { .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="#abstract">Abstract</a>
+      <a href="#contributions">Contributions</a>
+      <a href="#results">Results</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">The paper</p>
+        <h1>DomainSpec: deterministic software derivation and governance attenuation in multi-agent systems.</h1>
+        <p class="authors">Vladimir Rondelli · Victor Boscaro</p>
+        <p class="lead">A layered meta-architecture that turns domain knowledge into verified software through deterministic derivation rules and self-regulating governance.</p>
+      </div>
+    </section>
+
+    <section id="abstract">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">Abstract</p></div>
+        <p class="abstract">LLM agents can now generate code, tests, and infrastructure from natural-language specifications. Without formal structure, their outputs stay stochastic — non-reproducible, non-auditable, ungovernable at scale. DomainSpec is a layered meta-architecture (L0–L7) that bridges domain knowledge to verified software through deterministic derivation rules and self-regulating governance. Four contributions: a dual-track meta-model spanning business semantics and operational enforcement; a typed ontology of 25 meta-types and 29 typed relationships that enables deterministic derivation per feature (<code>T = f(C, R, Δ)</code>) and across feature composition; a governance-attenuation theory explaining why adding governance layers to multi-agent systems decreases per-layer fidelity, bounded by channel capacity; and a meta-circular self-governance mechanism where the framework's axioms and tuning loop govern — and prune — themselves. We validate on a production system of 7 features across 3 pillars, deriving 445 test obligations and 146 observability metrics from 89 domain concepts.</p>
+      </div>
+    </section>
+
+    <section id="problems">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The problem</p>
+          <h2>Three things stay unsolved when agents write the software.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">1</span><h3>The stochastic gap</h3>
+            <p>Same specification, different tests and implementations on each run. There is no deterministic function from specification to verification obligations.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">2</span><h3>The governance paradox</h3>
+            <p>As you add rules and review layers to constrain agents, per-rule compliance <em>decreases</em>. More governance produces less governance.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">3</span><h3>The meta-circular problem</h3>
+            <p>Who governs the governance? Frameworks that constrain agents must themselves be constrained — an infinite regress most approaches resolve by fiat.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contributions">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Contributions</p>
+          <h2>Derivation and governance are structural consequences of the layering, not bolt-ons.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">C1 · Meta-architecture</span>
+            <h3>Dual-track, seven layers</h3>
+            <p>A business × operational model where each layer governs the one below and is governed by the one above, with derivation chains traceable from epistemic axioms to enforcement gates.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">C2 · Derivation calculus</span>
+            <h3><code>T = f(C, R, Δ)</code></h3>
+            <p>A per-feature function plus a composition extension that map concepts, typed relationships, and rules to deterministic test obligations — and 16 symmetric rules that derive production metrics from the same documents.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">C3 · Governance attenuation</span>
+            <h3>Why fidelity decays with layers</h3>
+            <p>A formal model of why governance fidelity drops as layers accumulate, and how structural interventions invert the trend without removing layers.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">C4 · Meta-circular governance</span>
+            <h3>A bounded strange loop</h3>
+            <p>The framework governs itself: an axiom governs governance, a constitution rule prunes the constitution, and meta-health metrics observe the observer — resolving the regress by structure, not authority.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="layers">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The seven layers</p>
+          <h2>From ontology to orchestration.</h2>
+        </div>
+        <ul class="layers" style="max-width:820px;padding-left:18px">
+          <li><b>L0–L1 — Ontology.</b> A closed vocabulary of 25 meta-types and 29 typed relationships, including cross-feature composition edges.</li>
+          <li><b>L2 — Derived software.</b> Tests, code, and metrics produced by deterministic rules over the L1 concepts.</li>
+          <li><b>L3–L4 — Governance.</b> A formal constitution grounded in epistemic axioms, each rule traceable to the harm its absence causes.</li>
+          <li><b>L5 — Navigation.</b> Structured discovery of concepts across the knowledge graph.</li>
+          <li><b>L6 — Compliance.</b> Alignment audits, blocking gates, deterministic signal detection.</li>
+          <li><b>L7 — Orchestration.</b> Specialized agents and skills coordinated through a staged pipeline.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Demonstrated results</p>
+          <h2>The calculus is open. The engine that realizes it is the product.</h2>
+          <p>A deterministic reference engine that realizes C2 has been built and validated. We report measured behavior; the derivation algorithm and the Lean validations are not disclosed here.</p>
+        </div>
+        <ul class="built" style="max-width:840px;padding-left:18px">
+          <li><b>Determinism by construction.</b> The same specification documents produce byte-identical test obligations across runs and machines — the property C2 predicts, without a stochastic generator.</li>
+          <li><b>Validated.</b> The engine's suite passes (95 tests, 0 type errors); output is byte-stable; honesty and containment controls pass.</li>
+          <li><b>Refuses rather than fabricates.</b> Where a spec is not formal enough to derive a checkable test, it emits a counted, visible gap — a spec-formalization metric, 96% on the pilot.</li>
+          <li><b>Fault detection.</b> Mutation testing on the pilot: after formalizing one implicit rule, the derived suite's score rose 38.75% → 54.37% (hardest module doubled); the regenerated suite passed 13/13 against real, unmutated code. Single-feature pilot, not a corpus result.</li>
+          <li><b>Self-application.</b> Run on its own specification, the engine derives its own obligations — a fixpoint.</li>
+        </ul>
+        <div class="grid-2" style="margin-top:18px">
+          <article class="panel"><span class="tag">Free</span><h3>Audits + LLM generator</h3><p>Layering audit, tag audit, alignment audit, and the LLM test generator — the free, open paths. <a href="saturn.html">See Saturn →</a></p></article>
+          <article class="panel"><span class="tag">Product</span><h3>Language + Lean validations</h3><p>The DomainSpec language's deterministic derivation and the Lean formal validations. Results demonstrated; mechanism withheld.</p></article>
+        </div>
+        <div class="section-head" style="margin-top:36px"><p class="eyebrow">Keywords</p></div>
+        <div class="kw">
+          <span>domain-driven design</span><span>meta-modeling</span><span>deterministic test derivation</span><span>LLM agents</span><span>governance attenuation</span><span>multi-agent systems</span><span>specification-first development</span>
+        </div>
+        <p class="note">The framework, ontology, and derivation calculus (C1–C4) are open. The optimized engine and the formal proofs are the product.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>DomainSpec</h3>
+      <p>Vladimir Rondelli · Victor Boscaro. The paper of CyberAlchemy — <a href="system.html">the system</a> · <a href="saturn.html">Saturn</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
