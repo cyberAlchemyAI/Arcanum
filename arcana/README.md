@@ -57,6 +57,10 @@ It belongs here because it coordinates long-lived method authority across eviden
 
 It belongs here because it coordinates lifecycle evidence across artifact contracts, Codex CLI execution, output capture, and promotion gates without owning the artifact's domain meaning.
 
+[github-project-issue-loop](github-project-issue-loop/) claims one GitHub Project issue, refines it into repository evidence, routes the right Arcanum lifecycle depth, executes one bounded task, validates containment, opens a linked PR, and syncs board state.
+
+It belongs here because it coordinates external project state, repository context, lifecycle sigils, implementation, validation, publication, telemetry, and reflection gates.
+
 [inventory](inventory/) installs and maintains a repository-local compiled knowledge layer with immutable raw sources, generated markdown entries, indexes, tags, logs, lookup, and linting.
 
 It belongs here because it coordinates local schema design, ingestion, cross-page maintenance, health checks, and integration with other sigils over time.
