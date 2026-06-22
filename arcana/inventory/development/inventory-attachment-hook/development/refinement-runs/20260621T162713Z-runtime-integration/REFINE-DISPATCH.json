@@ -1,0 +1,626 @@
+{
+  "dispatch_id": "refine-iah-runtime-integration-20260621T162713Z",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "/refine we should model and design how this integrates with claude code, codex, and generic runtimes",
+    "objective": "Run the canonical Refine loop to produce a runtime integration model and design for Inventory Attachment Hook across Codex, Claude Code, and generic runtimes, using chat-invoked managed skill execution as the first proof surface.",
+    "target_artifact": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-MODEL.md",
+    "operator_sentence": "/refine runtime integration model and design",
+    "arcanum_vocabulary": [
+      "refine",
+      "dispatch-spec",
+      "inventory-attachment-hook",
+      "observed-invocation-loop",
+      "codex",
+      "claude-code",
+      "generic-runtime",
+      "runtime-adapter",
+      "generated-native-runtime-package",
+      "chat-skill-invocation"
+    ]
+  },
+  "mode": "mixed",
+  "route_menu": {
+    "context_hint": "The target has three host runtime lanes with shared Arcanum contracts and runtime-specific surfaces. The proof surface is skill invocation through chat, not editor UI.",
+    "items": [
+      {
+        "id": "three-lane-runtime-model",
+        "label": "Three-Lane Runtime Model",
+        "description": "Model Codex, Claude Code, and generic runtimes as lane adapters over one shared attachment contract for chat-invoked skills and spells.",
+        "capability_ref": "refine",
+        "pattern": "mixed"
+      },
+      {
+        "id": "codex-first",
+        "label": "Codex First",
+        "description": "Design Codex chat-invoked skill hooks first and defer Claude/generic runtimes to later parity work.",
+        "capability_ref": "refine",
+        "pattern": "sequence"
+      },
+      {
+        "id": "generic-first",
+        "label": "Generic First",
+        "description": "Design only the runtime-neutral adapter contract before specializing to Codex and Claude.",
+        "capability_ref": "refine",
+        "pattern": "sequence"
+      }
+    ],
+    "selected_item_id": "three-lane-runtime-model"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "x_ray",
+    "tournament",
+    "pareto_gate",
+    "owner_boundary_check",
+    "observability_grouping",
+    "state_namespace_boundary",
+    "execution_receipt_handoff",
+    "capability_projection_pack",
+    "route_projection_boundary",
+    "artifact_contract_bridge",
+    "concrete_path_evidence"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "The design needs the canonical Refine loop with explicit stage receipts and handoffs.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6",
+        "s7",
+        "s8",
+        "s9",
+        "s10"
+      ],
+      "validation_expectation": "Each stage consumes prior evidence and records an artifact or blocked reason."
+    },
+    {
+      "overlay_id": "xray_for_runtime_structure",
+      "trigger": "The runtime integration has hidden structure across hooks, generated packages, deterministic wrappers, subagents, and closeout receipts.",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference",
+        "state_namespace_boundary"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s5",
+        "s6"
+      ],
+      "validation_expectation": "The model/design must name shared runtime contract components and host-specific surfaces."
+    },
+    {
+      "overlay_id": "tournament_for_runtime_lanes",
+      "trigger": "Codex, Claude Code, and generic runtimes have different hook/subagent/wrapper affordances that must be compared without losing the shared contract.",
+      "techniques": [
+        "tournament",
+        "pareto_gate",
+        "recomposition_proof",
+        "route_projection_boundary"
+      ],
+      "applies_to_steps": [
+        "s5",
+        "s6",
+        "s7"
+      ],
+      "validation_expectation": "Runtime lanes must be compared by enforcement strength, portability, generated-surface impact, and fallback behavior."
+    },
+    {
+      "overlay_id": "protected_runtime_context",
+      "trigger": "Runtime integration touches host-specific hooks, private repo surfaces, generated mirrors, chat-invoked skill execution, and observability closeout.",
+      "techniques": [
+        "protected_context_flag",
+        "system_agnostic_standard",
+        "local_nuance_coordination",
+        "capability_projection_pack"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s4",
+        "s6",
+        "s9"
+      ],
+      "validation_expectation": "Host-specific details must be projected as local adapters without redefining the shared Arcanum contract."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "recommended",
+    "trigger": "Three runtime lanes need independent pressure before parent synthesis.",
+    "explanation": "Use separate lane reviewers for Codex, Claude Code, and generic runtimes so host-specific affordances do not collapse into a Codex-only design. Keep chat-invoked skill execution as the shared proof case.",
+    "context": [
+      "Chat invocation of managed skills and spells through the active agent surface",
+      "Codex repo skill and hook surfaces",
+      "Claude Code skill and subagent surfaces",
+      "generic deterministic wrapper and tools/arcanum adapter boundary",
+      "Observed Invocation Loop hook-first contract",
+      "Inventory Attachment Hook architecture/spec"
+    ],
+    "roles": [
+      {
+        "role_id": "codex-runtime-lane",
+        "purpose": "Model Codex repo skills, chat-invoked skill lifecycle, .codex hooks, Stop-hook closeout, and generated metadata requirements.",
+        "owns": "Codex lane requirements and validation evidence",
+        "applies_to_steps": ["s6", "s7"]
+      },
+      {
+        "role_id": "claude-code-runtime-lane",
+        "purpose": "Model Claude Code skills, chat/native skill lifecycle, Claude agents, tool-name translation, and handoff receipt constraints.",
+        "owns": "Claude Code lane requirements and validation evidence",
+        "applies_to_steps": ["s6", "s7"]
+      },
+      {
+        "role_id": "generic-runtime-lane",
+        "purpose": "Model runtime-neutral wrapper/adapter obligations for chat-hosted executors without native hooks.",
+        "owns": "generic runtime contract, fallback behavior, and conformance tests",
+        "applies_to_steps": ["s6", "s7"]
+      },
+      {
+        "role_id": "runtime-boundary-reviewer",
+        "purpose": "Guard canonical/generated boundaries, private/public boundaries, and observability recursion safety.",
+        "owns": "cross-runtime boundary review and residue",
+        "applies_to_steps": ["s7", "s10"]
+      }
+    ],
+    "parallelism": "tournament",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Confirm to run the runtime integration refinement with Codex, Claude Code, generic runtime, and boundary review lanes using chat skill invocation as the proof surface?",
+    "receipt_requirements": [
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "handoff_note",
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "reroute"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "flag",
+    "agents": [
+      {
+        "agent_id": "019eeb39-fdc8-7611-a6d4-a7f960667eb3",
+        "role_id": "codex-runtime-lane",
+        "lane_name": "Codex chat skill runtime",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "status": "flag",
+        "receipt_artifact": "stages/07-runtime-lane-review/REVIEW.md",
+        "close_status": "closed",
+        "residue": "Direct $skill-name observation bridge still needs implementation proof.",
+        "reroute": "task-session SWU-IAH-RUNTIME-001"
+      },
+      {
+        "agent_id": "019eeb39-fe7e-7731-99ac-b98a76669075",
+        "role_id": "claude-code-runtime-lane",
+        "lane_name": "Claude Code native skill runtime",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "status": "flag",
+        "receipt_artifact": "stages/07-runtime-lane-review/REVIEW.md",
+        "close_status": "closed",
+        "residue": "Claude lane needs native receipt or wrapper evidence.",
+        "reroute": "task-session SWU-IAH-RUNTIME-003"
+      },
+      {
+        "agent_id": "019eeb3a-01a4-74d1-99cd-fbf0534afa9f",
+        "role_id": "generic-runtime-lane",
+        "lane_name": "Generic runtime fallback",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "status": "flag",
+        "receipt_artifact": "stages/07-runtime-lane-review/REVIEW.md",
+        "close_status": "closed",
+        "residue": "Generic runtime needs no-native-hook fallback receipt fixture.",
+        "reroute": "task-session SWU-IAH-RUNTIME-002"
+      },
+      {
+        "agent_id": "019eeb3a-0647-7ac3-be3f-7766d04b81dd",
+        "role_id": "runtime-boundary-reviewer",
+        "lane_name": "Runtime boundary review",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "status": "flag",
+        "receipt_artifact": "stages/07-runtime-lane-review/REVIEW.md",
+        "close_status": "closed",
+        "residue": "Boundary proof remains pre-implementation until fixtures exist.",
+        "reroute": "task-session SWU-IAH-RUNTIME-001"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Context Builder Evidence Baseline",
+      "capability_ref": "context-builder",
+      "mode": "standard --strict --emit both --handoff runtime",
+      "pattern": "sequential",
+      "techniques": ["sequence", "frame_handoff", "handle_handoff", "concrete_path_evidence", "x_ray"],
+      "inputs": [
+        {"kind": "intent", "ref": "intent.raw"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/ARCHITECTURE.md"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/SPEC.md"}
+      ],
+      "outputs": [
+        {"kind": "frame", "ref": "runtime-context-frame"},
+        {"kind": "handle", "ref": "stages/01-context-builder/"}
+      ],
+      "stop_conditions": [
+        "block if hook architecture/spec or runtime source surfaces cannot be read",
+        "flag any runtime surface that exists in one host but not another",
+        "flag any lane that cannot describe a chat-invoked skill execution path"
+      ]
+    },
+    {
+      "step_id": "s2",
+      "name": "Invoke Define Runtime Integration",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "techniques": ["frame_handoff", "minimum_component_catalog", "owner_boundary_check"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-context-frame"},
+        {"kind": "artifact", "ref": "REFINE-SEED-PROPOSAL.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/02-invoke-define/DEFINE.md"},
+        {"kind": "frame", "ref": "runtime-define-frame"}
+      ],
+      "stop_conditions": [
+        "block if the definition makes Codex the universal runtime contract",
+        "flag missing Claude Code or generic runtime obligations"
+      ]
+    },
+    {
+      "step_id": "s3",
+      "name": "Interrogation Refine Review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "zig_zag", "residue_ledger"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-define-frame"},
+        {"kind": "artifact", "ref": "stages/02-invoke-define/DEFINE.md"}
+      ],
+      "outputs": [
+        {"kind": "ledger", "ref": "runtime-define-review-ledger"},
+        {"kind": "decision", "ref": "runtime-define-review-verdict"}
+      ],
+      "evidence_artifact": "stages/03-refine-review/REVIEW.md",
+      "stop_conditions": [
+        "block if runtime boundaries are unsafe",
+        "flag unresolved adapter vocabulary"
+      ]
+    },
+    {
+      "step_id": "s4",
+      "name": "Research Decision",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "techniques": ["approval_semantics_map", "protected_context_flag", "system_agnostic_standard"],
+      "inputs": [
+        {"kind": "ledger", "ref": "runtime-define-review-ledger"},
+        {"kind": "decision", "ref": "runtime-define-review-verdict"}
+      ],
+      "outputs": [
+        {"kind": "decision", "ref": "research-decision"},
+        {"kind": "ledger", "ref": "runtime-research-gap-ledger"}
+      ],
+      "stop_conditions": [
+        "ask before external research if live product behavior is needed",
+        "continue local-first if repository evidence is enough"
+      ]
+    },
+    {
+      "step_id": "s5",
+      "name": "Distill Runtime Contract",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": ["scu_swu_reduction", "x_ray", "component_descriptor", "recomposition_proof", "tournament"],
+      "roles": ["codex-runtime-lane", "claude-code-runtime-lane", "generic-runtime-lane"],
+      "convergence_criteria": [
+        "one shared runtime contract remains host-neutral",
+        "Codex, Claude Code, and generic lanes keep only host-specific duties",
+        "chat-invoked skill execution recomposes through all runtime lanes",
+        "recomposition into Inventory Attachment Hook remains clear"
+      ],
+      "inputs": [
+        {"kind": "decision", "ref": "research-decision"},
+        {"kind": "ledger", "ref": "runtime-define-review-ledger"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/05-distill/DISTILL.md"},
+        {"kind": "frame", "ref": "runtime-contract-frame"}
+      ],
+      "stop_conditions": [
+        "block if the shared contract cannot recompose into all three runtime lanes",
+        "flag runtime-specific obligations that need separate implementation SWUs"
+      ]
+    },
+    {
+      "step_id": "s6",
+      "name": "Invoke Design Runtime Integration",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "sequential",
+      "techniques": ["x_ray", "component_descriptor", "entity_component_reference", "state_namespace_boundary", "capability_projection_pack", "route_projection_boundary"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-contract-frame"},
+        {"kind": "artifact", "ref": "stages/05-distill/DISTILL.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-MODEL.md"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-DESIGN.md"},
+        {"kind": "frame", "ref": "runtime-design-frame"}
+      ],
+      "stop_conditions": [
+        "block if the design lacks a shared contract and three host lanes for chat-invoked skills",
+        "flag if validation is only prose and has no fixture or dry-run target"
+      ]
+    },
+    {
+      "step_id": "s7",
+      "name": "Runtime Lane Review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "tournament",
+      "parallel": true,
+      "join_policy": "parent_synthesis",
+      "roles": ["codex-runtime-lane", "claude-code-runtime-lane", "generic-runtime-lane", "runtime-boundary-reviewer"],
+      "convergence_criteria": [
+        "runtime lanes agree on the shared contract",
+        "each lane demonstrates the chat skill invocation path",
+        "each lane names host-specific enforcement and fallback",
+        "boundary reviewer finds no canonical/generated or telemetry recursion violation"
+      ],
+      "techniques": ["tournament", "pareto_gate", "dialectic", "validation_loop", "residue_ledger"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-design-frame"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-MODEL.md"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-DESIGN.md"}
+      ],
+      "outputs": [
+        {"kind": "ledger", "ref": "runtime-lane-review-ledger"},
+        {"kind": "decision", "ref": "runtime-lane-review-verdict"}
+      ],
+      "evidence_artifact": "stages/07-runtime-lane-review/REVIEW.md",
+      "stop_conditions": [
+        "block if any lane needs a different shared contract",
+        "flag host-specific residue with an owner and route"
+      ]
+    },
+    {
+      "step_id": "s8",
+      "name": "Distill Repair",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "techniques": ["validation_loop", "residue_ledger", "recomposition_proof", "data_quality_deduplication"],
+      "inputs": [
+        {"kind": "ledger", "ref": "runtime-lane-review-ledger"},
+        {"kind": "decision", "ref": "runtime-lane-review-verdict"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/08-distill-repair/REPAIR.md"},
+        {"kind": "frame", "ref": "runtime-repair-frame"}
+      ],
+      "stop_conditions": [
+        "block if repaired model cannot serve all three runtime lanes",
+        "flag deferred runtime-host implementation work"
+      ]
+    },
+    {
+      "step_id": "s9",
+      "name": "Invoke Plan Refresh",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "techniques": ["frame_handoff", "validation_loop", "artifact_contract_bridge", "execution_receipt_handoff"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-repair-frame"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-MODEL.md"},
+        {"kind": "artifact", "ref": "arcanum/arcana/inventory/development/inventory-attachment-hook/RUNTIME-INTEGRATION-DESIGN.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/09-invoke-plan/PLAN-REFRESH.md"},
+        {"kind": "frame", "ref": "runtime-plan-frame"}
+      ],
+      "stop_conditions": [
+        "block if plan refresh bypasses existing SWU order",
+        "flag runtime-specific work that should be split into separate SWUs"
+      ]
+    },
+    {
+      "step_id": "s10",
+      "name": "Final Interrogation And Synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "techniques": ["validation_loop", "observability_grouping", "residue_ledger", "owner_boundary_check"],
+      "inputs": [
+        {"kind": "frame", "ref": "runtime-plan-frame"},
+        {"kind": "ledger", "ref": "runtime-lane-review-ledger"},
+        {"kind": "artifact", "ref": "stages/09-invoke-plan/PLAN-REFRESH.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "RESULT.md"},
+        {"kind": "decision", "ref": "final-refine-verdict"}
+      ],
+      "evidence_artifact": "stages/10-final/FINAL-REVIEW.md",
+      "stop_conditions": [
+        "block if final synthesis lacks runtime lane receipts",
+        "flag if next route is not bounded"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-dispatch-validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "REFINE-DISPATCH.json must validate before runtime-backed stages execute.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-operator-confirmation",
+      "kind": "human_approval",
+      "owner": "refine",
+      "condition": "Operator must approve runtime-backed stages and lane review subagents before execution.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g03-runtime-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "Runtime integration design must not make generated packages, host hooks, or telemetry rows into canonical authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g04-three-lane-coverage",
+      "kind": "quality",
+      "owner": "invoke",
+      "condition": "Model and design must cover Codex, Claude Code, and generic runtime lanes plus one shared host-neutral contract.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g05-public-private-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "Runtime examples and generated-surface notes must not leak private parent-repo material into public Arcanum artifacts.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "refine.strategy_proposed",
+      "dispatch.validated",
+      "operator.confirmation.required",
+      "runtime_lane.review_required",
+      "stage.started",
+      "stage.completed",
+      "stage.blocked",
+      "refine.synthesis_ready"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b01-canonical-to-generated",
+        "kind": "state_write",
+        "from_owner": "canonical arcanum source",
+        "to_owner": "generated runtime packages",
+        "applies_to_steps": ["s6", "s9"],
+        "contract": "Runtime integration may describe generated outputs, but generated packages are refreshed from canonical sources and are not authority roots.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b02-host-runtime-projection",
+        "kind": "capability_handoff",
+        "from_owner": "Arcanum runtime contract",
+        "to_owner": "Codex, Claude Code, and generic runtime lanes",
+        "applies_to_steps": ["s5", "s6", "s7"],
+        "contract": "Each host lane projects the same attachment contract into chat-invoked skills, host-specific hooks, wrappers, or agents without redefining the contract.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b03-observability-closeout",
+        "kind": "evidence_return",
+        "from_owner": "host runtime hook, wrapper, or chat invocation adapter",
+        "to_owner": "observability and Inventory Attachment Hook",
+        "applies_to_steps": ["s6", "s7", "s10"],
+        "contract": "Host runtime evidence returns primary result, telemetry status, attachment status, and residue without triggering recursive observation.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "refine for this design packet",
+      "execution": "host runtime lane after later implementation",
+      "validation": "dispatch-spec plus future runtime fixtures",
+      "evidence": "refine run folder",
+      "memory": "Inventory candidate evidence only when later implemented",
+      "promotion": "owning governance capability through a separate route"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r01-runtime-lane-review",
+        "producer": "approved runtime lane reviewers",
+        "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation_result", "blockers", "residue"],
+        "stores": ["stages/07-runtime-lane-review/REVIEW.md"],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": ".agents/skills/",
+        "owner": "repo Codex generated runtime surface for chat skill invocation",
+        "write_policy": "regenerate from canonical source; do not hand-edit"
+      },
+      {
+        "namespace": ".claude/skills/ and .claude/agents/",
+        "owner": "Claude Code generated runtime surface",
+        "write_policy": "regenerate from canonical source; preserve Claude tool-name translations and agent boundaries"
+      },
+      {
+        "namespace": ".codex/hooks.json and .codex/hooks/",
+        "owner": "Codex hook integration",
+        "write_policy": "install through bootstrap or runtime installer; do not treat hook telemetry as primary result"
+      },
+      {
+        "namespace": "tools/arcanum and .arcanum/runtime/",
+        "owner": "generic deterministic adapter boundary",
+        "write_policy": "deterministic resolver, validator, handoff, and runtime fallback evidence only; legacy adapter compatibility is not required for this route"
+      },
+      {
+        "namespace": ".arcanum/observability/",
+        "owner": "observability package",
+        "write_policy": "telemetry, hook operation, dedupe, failure, and closeout evidence"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "runtime integration design evidence",
+        "target": "canonical runtime implementation",
+        "rule": "Design may recommend canonical edits, but implementation requires a later owner route.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Runtime integration design is not runtime implementation.",
+    "Generated packages, hooks, and telemetry rows are not canonical authority.",
+    "Codex-specific hooks must not become the generic runtime contract.",
+    "VS Code, Cursor, editor panel, and command-palette behavior are deferred host-interface projections."
+  ]
+}
