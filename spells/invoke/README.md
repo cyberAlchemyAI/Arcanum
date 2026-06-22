@@ -50,6 +50,7 @@ Invoke does not require deprecated command files, slash commands, or command-res
 | `structured-interview-kits` | Clarify missing context one question at a time and capture approvals. | mode-dependent |
 | `inventory`                 | Resolve local templates and record template usage evidence.           | mode-dependent |
 | `context-builder`           | Build bounded context for invoke inputs and artifact linking.         | mode-dependent |
+| `dispatch-spec`             | Select and validate the Dispatch Spec technique trace that shapes each invoke route. | technique trace or dispatch validation |
 
 ## Core Optional Sigils
 
@@ -60,6 +61,7 @@ Invoke does not require deprecated command files, slash commands, or command-res
 | `sigil-development`              | Approved invoke output targets sigil authoring or sigil revision.    | Invoke prepares handoff context only; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 | `architecture-pattern-inventory` | Design-stage work needs reusable pattern evidence or alternatives.    | Optional design-mode evidence source; does not override design gates.              |
 | `task-session`                   | Plan output is ready for bounded execution.                          | Invoke emits handoff context; Task Session owns execution.                         |
+| `distill`                        | A broad output needs smallest coherent unit validation, scope reduction, or gap discovery. | Required as automatic validate pass for `plan`, `full`, and `validate`; triggered for other modes when scope is broad or overbuilt. |
 
 ## Lifecycle Authority Chain
 
@@ -112,6 +114,35 @@ When a target is already clearly a sigil or spell, Invoke should produce a compa
 | --- | --- | --- |
 | `implementation-layering` | Keeps plan/full/validate outputs bounded by explicit layer decisions and promotion evidence. | Optional seed in `define` and `design`; required companion artifact in `plan`, `full`, and `validate`. |
 
+## Dispatch Technique Discipline
+
+Every invoke mode must record a Dispatch Spec technique trace before it returns a pass or flag result. The trace selects only techniques from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md` or explicitly names a local-extension source, then connects each selected technique to a mode phase, output artifact, gate, evidence expectation, or unresolved gap.
+
+Minimum trace fields:
+
+- selected technique ids,
+- activation trigger,
+- affected phase or artifact,
+- validation expectation,
+- skipped technique reasons when an obvious technique was considered and rejected,
+- whether a full dispatch JSON was needed and, if so, the validation result.
+
+Common invoke techniques include `sequence`, `frame_handoff`, `handle_handoff`, `residue_ledger`, `owner_boundary_check`, `artifact_contract_bridge`, `validation_loop`, `concrete_path_evidence`, and `observability_grouping`. Plan, full, and validate modes additionally consider `scu_swu_reduction`, `recomposition_proof`, `execution_receipt_handoff`, and `authority_split_gate`.
+
+Do not list techniques as decoration. A technique citation that does not affect a phase, output, gate, evidence check, or gap route is a flag. When the invoke route crosses multiple capabilities, delegates work, defines subagent strategy, creates a reusable route artifact, or carries protected/private context, create a dispatch document and validate it with `formulae/dispatch-spec/scripts/validate-dispatch.py`.
+
+## Distill Validation
+
+Plan, full, and validate must run automatic Distill validation against the draft implementation plan, layering artifact, work-pack, and handoff route before reporting mutation-capable readiness. Distill validation checks whether the selected unit is small enough to execute, large enough to preserve meaning, recomposes into the approved design, exposes hidden gaps, and avoids overbuilt or vague task structure.
+
+Distill verdict handling:
+
+- `pass`: the output may route to its next owner if all other gates pass.
+- `flag`: the output may route only when the gap ledger names each Distill gap, owner, and repair path.
+- `block`: the output must not route to mutation-capable execution until the smallest coherent unit, SWU boundary, recomposition proof, or acceptance-critical gap is repaired.
+
+Define, design, handoff, and refresh should run Distill when the requested output is broad, ambiguous, overbuilt, or likely to hide lifecycle gaps, but they may record a skipped reason when the output is already narrow and locally bounded.
+
 ## Prerequisites
 
 - Repository root is known.
@@ -146,8 +177,10 @@ When a target is already clearly a sigil or spell, Invoke should produce a compa
 ## Mode Router
 
 1. Resolve requested mode and load the corresponding mode contract.
-2. Execute the mode contract phases and collect mode outputs.
-3. Apply global gates, observability, and handoff policy from this root contract.
+2. Select a Dispatch Spec technique trace for the mode route and determine whether a full dispatch document is required.
+3. Execute the mode contract phases and collect mode outputs.
+4. Run automatic Distill validation when required by mode or triggered by broad/ambiguous output shape.
+5. Apply global gates, observability, and handoff policy from this root contract.
 
 ## Target Artifact Provenance
 
@@ -181,6 +214,8 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - implementation layering artifact path and layer decision snapshot
 - per-layer planning slice coverage when complexity is medium or high
 - work-pack artifact path and output mode (single-file or split)
+- Dispatch Spec technique trace and dispatch validation result when a full dispatch document is required
+- Distill validation verdict, gap summary, and recomposition proof status when run
 - unresolved gaps and blocker decisions
 - Necronomicon transport report
 - recommended next route (`task-session`, `full`, `spellcraft`, `sigil-development`, or deferred follow-up)
@@ -189,9 +224,11 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 
 - One-question interview cadence when context is missing in interactive mode.
 - Template or recipe selection must show eligibility evidence and explicit user choice on ties.
+- Every mode must include a Dispatch Spec technique trace; missing trace blocks pass-ready output, and unused technique citations flag.
 - `plan`, `full`, and `validate` must include an implementation-layering artifact; `define` and `design` may emit a seed or explicit gap.
 - `plan`, `full`, and `validate` must include a work-pack artifact mapped from implementation-plan tasks and layer decisions.
 - `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
+- `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
 - Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
 - Medium/high complexity plans must include implementation-detail specs for execution tasks, and algorithmic or domain-logic tasks must document inputs, outputs, ordered rules or pseudocode, edge cases, failure modes, and validation evidence.
 - Medium/high complexity work-packs must include Smallest Working Units: a shared SWU manifest, task-local SWU lists, one parent task per SWU, write scope, acceptance evidence, and verification command or reviewable check.
@@ -235,6 +272,8 @@ When `.arcanum/observability/` exists, record:
 - target artifact name, type, owner, and lifecycle cycle,
 - gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
+- selected Dispatch Spec techniques and dispatch validation status,
+- Distill validation verdict and gap count,
 - design view coverage and glossary consistency status,
 - plan complexity and output mode,
 - implementation layer coverage and per-layer planning slice status,
@@ -258,6 +297,8 @@ Return:
 - Outputs: <mode output paths>
 - Design views: <coverage summary | n/a>
 - Glossary consistency: <pass | flag | block | n/a>
+- Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
+- Distill validation: <pass | flag | block | skipped with reason | n/a>
 - Implementation layering: <artifact path | seed emitted | gap recorded>
 - Work-pack: <artifact path | single-file | split>
 - Complexity: <low | medium | high | n/a>

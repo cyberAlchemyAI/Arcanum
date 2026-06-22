@@ -12,6 +12,8 @@
 - Design views: n/a
 - Glossary consistency: n/a
 - Template/profile selection: none finalized
+- Dispatch techniques: `data_quality_completeness`, `owner_boundary_check`
+- Distill validation: not applicable; blocked before design material exists
 - Implementation layering: gap recorded
 - Work-pack: n/a
 - Decisions: normal design cannot proceed without approved define outputs or explicit discovery-mode approval

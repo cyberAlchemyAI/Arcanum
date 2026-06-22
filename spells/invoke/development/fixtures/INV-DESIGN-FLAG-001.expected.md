@@ -12,6 +12,8 @@
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
 - Template/profile selection: Module Formulae architecture profile plus research companion
+- Dispatch techniques: `dialectic`, `residue_ledger`, `owner_boundary_check`
+- Distill validation: flag; correction policy is a split-pressure gap before plan readiness
 - Implementation layering: seed emitted
 - Work-pack: n/a
 - Decisions: isolate correction policy behind an explicit decision point; carry claim status into architecture decisions

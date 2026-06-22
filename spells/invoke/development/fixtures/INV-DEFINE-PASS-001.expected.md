@@ -10,6 +10,8 @@
 - Mode contract: arcanum/spells/invoke/define.md
 - Outputs: artifacts/mars-rover-maintenance/SPEC.md, artifacts/mars-rover-maintenance/GLOSSARY.md, .arcanum/necronomicon/sessions/demo/invoke-transports/define.md
 - Template selection: Module Formulae discovery profile
+- Dispatch techniques: `sequence`, `owner_boundary_check`, `artifact_contract_bridge`
+- Distill validation: not required; request is one coherent module definition
 - Decisions: define the module boundary around daily inspection notes, component status, operator decisions, and unresolved repair questions
 - Glossary updates: rover maintenance log, inspection note, component status, operator decision, repair question
 - Glossary linking: exact or alias matches link; unsupported terms become candidates with no-match rationale

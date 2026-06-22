@@ -10,6 +10,8 @@
 - Mode contract: arcanum/spells/invoke/define.md
 - Outputs: artifacts/dust-risk-scoring/SPEC.draft.md, artifacts/dust-risk-scoring/GLOSSARY.draft.md, artifacts/dust-risk-scoring/gap-ledger.md
 - Template selection: candidate-template recommendation recorded; no canonical promotion
+- Dispatch techniques: `route_menu`, `residue_ledger`, `owner_boundary_check`
+- Distill validation: flag; scoring workflow may split into inspection, weather, and timeline definition units
 - Decisions: proceed only with safe partial define output and record unsupported template-family gap
 - Glossary updates: dust risk score, inspection note, weather observation, mission timeline constraint
 - Glossary linking: no-match terms include rationale and promotion gate

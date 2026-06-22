@@ -45,6 +45,7 @@ Discovery-mode design is allowed only when the user explicitly approves a limite
 | --- | --- | --- |
 | `architecture-pattern-inventory` | Existing patterns, reusable architectures, or design alternatives need lookup. | Supplies evidence; does not override design gates. |
 | `decision-gate` | A blocker-level design decision cannot be resolved from available evidence. | Route only consequential unresolved choices. |
+| `distill` | A draft design needs unit-size validation, split pressure analysis, or gap discovery before plan handoff. | Run a design-unit check and record `pass`, `flag`, or `block` unless design blocks before material exists. |
 | `spellcraft` | Approved design output targets spell authoring or spell revision. | Invoke emits handoff context; Spellcraft owns spell lifecycle mutation, validation, install/adaptation, observation, and reflection. |
 | `sigil-development` | Approved design output targets sigil authoring or sigil revision. | Invoke emits handoff context; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 
@@ -123,6 +124,9 @@ The six required design views are:
 - Candidate templates, glossary terms, registry entries, and Necronomicon concepts are never promoted automatically.
 - Design-stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
 - Spell and sigil lifecycle work routes to `spellcraft` or `sigil-development`; design only prepares handoff context.
+- Design mode must record a Dispatch Spec technique trace that names the techniques used to justify profile/template selection, companion evidence, owner boundaries, and next route.
+- Design mode must run a design-unit Distill check unless it blocks before design material exists; the result must identify the coherent unit, split pressure, and any gaps that affect plan readiness.
+- A `flag` or `block` Distill result routes to `define`, design follow-up, or deferred follow-up; it must not silently advance to `plan`.
 
 ## Handoff Artifacts
 
@@ -134,6 +138,8 @@ The six required design views are:
 - dependency/interface map,
 - design decision log,
 - risk and unresolved gap ledger entries,
+- Dispatch Spec technique trace,
+- Distill validation status and rationale,
 - optional research brief path,
 - optional UX plan path,
 - implementation-layering seed path or explicit layering gap,
@@ -174,6 +180,8 @@ Return:
 - Outputs: <architecture bundle path>, <architecture plan path | n/a>, <glossary consistency report path>, <transport report path>
 - Design views: context | high-level structure | low-level components | workflow process | decision flow | dependency interface
 - Template/profile selection: <selected profile and companion templates>
+- Dispatch techniques: <technique ids and rationale>
+- Distill validation: pass | flag | block | not applicable; <rationale>
 - Implementation layering: <seed path | gap recorded | n/a>
 - Work-pack: n/a
 - Decisions: <summary>

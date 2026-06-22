@@ -11,6 +11,8 @@
 - Outputs: artifacts/mars-habitat-supply/IMPLEMENTATION-PLAN.md, artifacts/mars-habitat-supply/IMPLEMENTATION-LAYERING.md, artifacts/mars-habitat-supply/work-pack/README.md, artifacts/mars-habitat-supply/EXECUTION-PACK.md, .arcanum/necronomicon/sessions/demo/invoke-transports/plan.md
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
+- Dispatch techniques: sequence, scu_swu_reduction, recomposition_proof, validation_loop, owner_boundary_check, handle_handoff, residue_ledger, execution_receipt_handoff; validation status pass; full dispatch n/a
+- Distill validation: pass; recomposition proof pass; gap count 0
 - Implementation layering: artifacts/mars-habitat-supply/IMPLEMENTATION-LAYERING.md with global L0-L3 decision boundaries
 - Work-pack: artifacts/mars-habitat-supply/work-pack/README.md, split
 - Complexity: medium
@@ -59,6 +61,26 @@
 | SWU-MHS-008 | TASK-L2-validation | Map validation checks to delivery slices. | validation checklist and fixture report | validation coverage evidence | `run validation coverage check` |
 | SWU-MHS-009 | TASK-L3-packaging | Group execution tasks by layer and dependency. | execution-pack wave manifest | wave dependency evidence | `run execution-pack review` |
 | SWU-MHS-010 | TASK-L3-release | Prepare task-session handoff route. | work-pack handoff and plan transport | handoff readiness evidence | `run handoff readiness review` |
+
+## Dispatch Technique Trace
+
+| Technique ID | Applied To | Validation Expectation | Status |
+| --- | --- | --- | --- |
+| sequence | approved design refs -> plan artifacts -> task-session handoff | every artifact consumes explicit prior handles | pass |
+| scu_swu_reduction | layer-mapped waves and SWU manifest | each SWU is smaller than its parent task and still executable | pass |
+| recomposition_proof | SWU manifest -> approved design | SWUs recompose into the habitat supply workflow | pass |
+| validation_loop | delivery slices and SWUs | each slice and SWU has evidence | pass |
+| owner_boundary_check | Invoke plan -> task-session | Invoke does not claim execution authority | pass |
+
+## Distill Validation
+
+| Check | Result | Evidence Or Gap |
+| --- | --- | --- |
+| Smallest coherent unit or SWU boundary | pass | SWU-MHS-001 through SWU-MHS-010 each map to one parent task. |
+| Recomposition proof | pass | L0-L3 slices recompose into the approved supply workflow. |
+| Hidden acceptance-critical gaps | pass | none blocking |
+| Deferred complexity | pass | release packaging remains L3 and execution remains deferred |
+| Navigation to first executable unit | pass | start at SWU-MHS-001 after Task Session selection |
 
 ### Task-Local SWU Lists
 

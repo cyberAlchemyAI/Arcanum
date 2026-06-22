@@ -11,6 +11,8 @@
 - Outputs: artifacts/mars-sample-catalog/IMPLEMENTATION-PLAN.md, artifacts/mars-sample-catalog/IMPLEMENTATION-LAYERING.md, artifacts/mars-sample-catalog/WORK-PACK.md, .arcanum/necronomicon/sessions/demo/invoke-transports/plan.md
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
+- Dispatch techniques: sequence, scu_swu_reduction, recomposition_proof, validation_loop, owner_boundary_check, handle_handoff, residue_ledger, execution_receipt_handoff; validation status pass; full dispatch n/a
+- Distill validation: pass; recomposition proof pass; gap count 0
 - Implementation layering: artifacts/mars-sample-catalog/IMPLEMENTATION-LAYERING.md with global L0-L3 decision boundaries
 - Work-pack: artifacts/mars-sample-catalog/WORK-PACK.md, single-file
 - Complexity: low
@@ -20,4 +22,3 @@
 - Decisions: keep plan non-mutating; create compact layer mapping in the single-file work-pack
 - Unresolved gaps: none blocking
 - Next route: task-session
-

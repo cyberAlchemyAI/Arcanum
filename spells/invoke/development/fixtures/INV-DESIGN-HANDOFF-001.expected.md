@@ -12,6 +12,8 @@
 - Design views: handoff context only
 - Glossary consistency: pass
 - Template/profile selection: sigil family
+- Dispatch techniques: `delegation_boundary`, `owner_boundary_check`, `frame_handoff`
+- Distill validation: pass; handoff context is one coherent sigil design unit
 - Implementation layering: gap recorded
 - Work-pack: n/a
 - Decisions: prepare sigil-development handoff; do not take sigil lifecycle ownership inside invoke

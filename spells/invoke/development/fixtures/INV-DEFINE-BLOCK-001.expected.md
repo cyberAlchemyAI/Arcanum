@@ -10,6 +10,8 @@
 - Mode contract: arcanum/spells/invoke/define.md
 - Outputs: n/a
 - Template selection: none finalized
+- Dispatch techniques: `data_quality_completeness`, `owner_boundary_check`
+- Distill validation: not applicable; blocked before a definition target exists
 - Decisions: block until the user provides a core goal or approves a one-question clarification answer
 - Glossary updates: n/a
 - Glossary linking: n/a

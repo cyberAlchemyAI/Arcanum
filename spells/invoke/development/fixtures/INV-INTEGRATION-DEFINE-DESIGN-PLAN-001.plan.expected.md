@@ -11,6 +11,8 @@
 - Outputs: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-plan.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-layering.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.work-pack.md, INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.plan-transport.md
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
+- Dispatch techniques: sequence, scu_swu_reduction, recomposition_proof, validation_loop, owner_boundary_check, handle_handoff, residue_ledger, execution_receipt_handoff; validation status pass; full dispatch n/a
+- Distill validation: pass; recomposition proof pass; gap count 0
 - Implementation layering: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.implementation-layering.md with global L0-L3 decision boundaries
 - Work-pack: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.work-pack.md, single-file
 - Complexity: low
@@ -20,4 +22,3 @@
 - Decisions: consume approved design outputs; preserve define glossary terms; keep execution deferred
 - Unresolved gaps: component status severity remains a non-blocking execution detail
 - Next route: task-session
-

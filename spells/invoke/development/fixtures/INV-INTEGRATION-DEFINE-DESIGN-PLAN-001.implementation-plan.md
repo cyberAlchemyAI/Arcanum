@@ -64,6 +64,26 @@ Low complexity keeps implementation detail inline. These details are still expli
 - Required manifest entries: tasks, layer mapping, blockers, validation checks.
 - Deferred entries: execution-pack because complexity is low.
 
+## Dispatch Technique Trace
+
+| Technique ID | Applied To | Validation Expectation | Status |
+| --- | --- | --- | --- |
+| sequence | approved design refs -> plan artifacts -> work-pack | source handles feed each downstream artifact | pass |
+| scu_swu_reduction | T-001 through T-003 | each low-complexity task is already the smallest executable planning unit | pass |
+| recomposition_proof | tasks -> approved architecture | planned record, review, and repair visibility recompose into the design | pass |
+| validation_loop | delivery slices | every slice has fixture or contract evidence | pass |
+| owner_boundary_check | Invoke -> task-session | execution remains deferred | pass |
+
+## Distill Validation
+
+| Check | Result | Evidence Or Gap |
+| --- | --- | --- |
+| Smallest coherent unit or SWU boundary | pass | T-001, T-002, and T-003 each own one bounded executable concern. |
+| Recomposition proof | pass | tasks preserve daily inspection note, component status, operator decision, and repair-question visibility. |
+| Hidden acceptance-critical gaps | pass | component status severity is non-blocking and carried as execution detail. |
+| Deferred complexity | pass | L2 governance and L3 release packaging remain explicitly deferred. |
+| Navigation to first executable unit | pass | start with T-001 after Task Session selection. |
+
 ## Gate Result
 
 - Status: pass

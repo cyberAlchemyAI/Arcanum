@@ -22,6 +22,8 @@ Plan mode also owns the execution contract for those SWUs. If later execution us
 
 Plan mode should make future Task Session runs context-builder-ready. It should include source anchors, validation surfaces, write scope, and handoff notes, but it must not pre-generate task context packs. Context packs and runtime handoff packs are generated at execution time as session evidence.
 
+Plan mode also performs automatic Distill validation before mutation-capable handoff. The validation checks whether the draft implementation plan, layering artifact, work-pack, and handoff route identify the smallest coherent executable unit, preserve recomposition into the approved design, expose hidden gaps, and avoid overbuilt or vague task/SWU structure.
+
 ## Implementation Coverage
 
 - The L2 plan contract is implemented as a mode-level governance contract.
@@ -55,6 +57,8 @@ Plan mode blocks when approved design references are missing, required standalon
 | `context-builder` | Build bounded planning context from approved design outputs, source design refs, constraints, and existing companion artifacts. | lean or standard |
 | `structured-interview-kits` | Clarify missing planning inputs one question at a time and capture approvals. | gap-check or equivalent one-question interview mode |
 | `inventory` | Resolve work-pack, implementation-layering, and execution-pack templates and record selection evidence. | lookup, ingest, validate |
+| `dispatch-spec` | Select the planning technique trace and validate a dispatch document when the route crosses capabilities, delegation, subagents, or protected boundaries. | technique trace or dispatch validation |
+| `distill` | Validate the draft plan against smallest coherent unit, SWU, recomposition, hidden-gap, and deferred-complexity expectations. | validate |
 
 ## Optional Sigils
 
@@ -80,6 +84,8 @@ Plan mode blocks when approved design references are missing, required standalon
 - implementation detail requirements for algorithmic or domain-logic tasks,
 - SWU requirements for medium/high work-packs,
 - target artifact type (`spell`, `sigil`, or neutral),
+- Dispatch Spec technique trace requirements,
+- Distill validation target and gap ownership rules,
 - optional execution-pack requirement.
 
 ## Template And Profile Selection
@@ -89,6 +95,50 @@ Plan mode blocks when approved design references are missing, required standalon
 | standalone `implementation-layering` companion | Any `plan`, `full`, or `validate` flow is active. | global L0-L3 layer decision artifact. |
 | standalone `work-pack` companion | Any `plan` or `full` flow is active. | canonical executable plan with objective, delivery slices, tasks, SWUs, gates, validation, current state, and single-file or split output mode. |
 | `domainspec-spec` execution-pack | Medium/high complexity requires wave planning. | execution-pack handoff with wave and parallelization boundaries. |
+
+## Dispatch Technique Trace Policy
+
+Every plan output must include a Dispatch Spec technique trace. The trace is not a decorative list; each selected technique must map to a planning phase, output artifact, gate, evidence check, or unresolved gap.
+
+Default plan trace:
+
+- `sequence`: approved design refs feed plan artifacts and handoff.
+- `scu_swu_reduction`: the plan selects the smallest coherent unit or SWU boundary before execution routing.
+- `recomposition_proof`: the selected unit or SWU must recompose into the approved design and delivery boundary.
+- `validation_loop`: every delivery slice and SWU has validation evidence.
+- `owner_boundary_check`: Invoke authors the plan, while Task Session, Spellcraft, or Sigil Development owns downstream lifecycle work.
+- `handle_handoff`: handoffs use artifact paths and handles instead of copying source context into another owner.
+- `residue_ledger`: unresolved blockers and non-blocking gaps remain visible.
+- `execution_receipt_handoff`: mutation-capable next routes state expected receipts before execution begins.
+
+Create and validate a full dispatch document when the plan route has parallel subagent strategy, multiple lifecycle owners, protected context, external evidence, reusable route intent, or cross-capability delegation beyond a straightforward Task Session handoff. Missing technique trace blocks plan pass; unused technique citations flag.
+
+## Automatic Distill Validation
+
+Before returning a pass or flag plan, run Distill in validate mode over:
+
+- the implementation objective,
+- approved design refs and delivery boundary,
+- implementation-layering artifact,
+- implementation plan artifact,
+- work-pack and SWU manifest,
+- execution-pack or handoff route when present,
+- unresolved blocker/gap ledger.
+
+Distill validation must inspect:
+
+- smallest coherent unit or SWU boundary,
+- recomposition proof into the approved design,
+- hidden acceptance-critical gaps,
+- overbuilt abstractions or premature future scale,
+- vague task descriptions and weak implementation-detail specs,
+- missing navigation from plan to first executable unit.
+
+Verdict handling:
+
+- `pass`: plan may route to the next owner if all other gates pass.
+- `flag`: plan may route only with named Distill gaps, owners, and repair paths in the gap ledger.
+- `block`: plan cannot route to mutation-capable work until the SCU/SWU boundary, recomposition proof, acceptance-critical gap, or navigation failure is repaired.
 
 ## Planning Artifact Boundary Policy
 
@@ -212,14 +262,17 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 | 1 | `context-builder` | approved design outputs, source design refs, constraints, companion state | bounded planning context | mandatory planning inputs are identified | block on missing approved design refs or contradictory delivery boundary |
 | 2 | `structured-interview-kits` | bounded planning context | approved planning intent and missing-input decisions | one-question cadence and explicit approvals captured | block on unresolved blocker ambiguity |
 | 3 | `inventory` | approved planning intent and local template inventory | work-pack, layering, and execution-pack selection record | eligibility evidence is explicit and tie cases request user choice | flag when candidate template is usable but not promoted |
-| 4 | `invoke plan` | approved planning intent and template record | work-pack, global layering artifact, blocker ledger, validation strategy, plan transport report | required companions, complexity policy, and layer mapping are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
-| 5 | optional `decision-gate` | unresolved planning blocker | decision record and next route | blocker resolved or explicitly deferred | keep blocker in gap ledger with recommended next action |
-| 6 | optional handoff (`task-session`, `spellcraft`, `sigil-development`, or `full`) | approved plan outputs | execution or lifecycle-authoring handoff context | target route is explicit and accepted | defer handoff if target authority is unavailable |
+| 4 | `dispatch-spec` | approved planning intent and route shape | technique trace or dispatch validation result | selected techniques affect phases, gates, evidence, or gaps | block on missing trace; flag on unused technique citations |
+| 5 | `invoke plan` | approved planning intent, template record, and technique trace | work-pack, global layering artifact, blocker ledger, validation strategy, plan transport report | required companions, complexity policy, and layer mapping are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
+| 6 | `distill` | draft implementation plan, layering artifact, work-pack, SWU manifest, handoff route, gap ledger | Distill validation verdict, recomposition proof status, and gap recommendations | selected unit closes and recomposes, hidden gaps are owned, navigation is clear | block on failed SCU/SWU closure, recomposition, acceptance-critical gap, or navigation failure |
+| 7 | optional `decision-gate` | unresolved planning blocker | decision record and next route | blocker resolved or explicitly deferred | keep blocker in gap ledger with recommended next action |
+| 8 | optional handoff (`task-session`, `spellcraft`, `sigil-development`, or `full`) | approved plan outputs | execution or lifecycle-authoring handoff context | target route is explicit and accepted | defer handoff if target authority is unavailable |
 
 ## Mode Gates
 
 - Plan blocks without approved design outputs and source design refs.
 - Template/profile selection must include eligibility evidence and explicit user choice on tie cases.
+- Dispatch Spec technique trace is required; any cited technique must affect a phase, output artifact, gate, evidence check, or unresolved gap.
 - Implementation-layering and work-pack companions are required.
 - Work-pack output mode must follow the complexity policy.
 - Low complexity plans must include compact layer mapping in the single-file work-pack.
@@ -229,6 +282,8 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - Algorithmic or domain-logic tasks must include algorithm steps or pseudocode, inputs, outputs, edge cases, failure modes, and validation evidence.
 - Medium/high complexity plans must include execution-pack handoff or a recorded blocker.
 - Validation strategy is required for every delivery slice.
+- Automatic Distill validation is required before mutation-capable handoff; pass, flag, or block verdict must be recorded.
+- A Distill flag must add named gaps, owners, and repair paths; a Distill block prevents `task-session`, runtime-goal, or other mutation-capable next routes.
 - SWUs must each include one parent task, write scope, acceptance evidence, and verification command or reviewable check.
 - SWUs must each include dependencies, done criteria, execution-owner recommendation, and subagent/local fallback handoff context.
 - SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
@@ -246,8 +301,10 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 
 - planning context summary,
 - source design refs,
+- Dispatch Spec technique trace and dispatch validation path when a full dispatch document is required,
 - global implementation-layering artifact path,
 - work-pack artifact path and output mode,
+- Distill validation verdict, recomposition proof status, and gap summary,
 - execution-pack handoff path or blocker,
 - compact layer mapping or layer-mapped waves,
 - implementation-detail specs for medium/high execution tasks,
@@ -268,6 +325,8 @@ When `.arcanum/observability/` exists, record:
 - sigils invoked,
 - selected templates,
 - complexity and output mode,
+- selected Dispatch Spec techniques and full dispatch validation status,
+- Distill validation verdict and gap count,
 - layer coverage status,
 - layer-mapped wave status for medium/high complexity,
 - implementation-detail coverage status,
@@ -296,6 +355,8 @@ Return:
 - Outputs: <implementation-layering path>, <work-pack path>, <plan transport report path>
 - Design views: <coverage summary | n/a>
 - Glossary consistency: <pass | flag | block | n/a>
+- Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
+- Distill validation: <pass | flag | block, recomposition status, gap count>
 - Implementation layering: <artifact path and layer coverage summary>
 - Work-pack: <artifact path and single-file | split>
 - Complexity: low | medium | high

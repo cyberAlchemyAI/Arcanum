@@ -12,6 +12,8 @@
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
 - Template/profile selection: Module Formulae architecture profile
+- Dispatch techniques: `sequence`, `owner_boundary_check`, `artifact_contract_bridge`
+- Distill validation: pass; architecture remains one coherent design unit for plan mode
 - Implementation layering: seed emitted
 - Work-pack: n/a
 - Decisions: proceed with module-first architecture; preserve sample provenance, curation state, and search boundaries as source contracts

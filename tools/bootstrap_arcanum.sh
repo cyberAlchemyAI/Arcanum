@@ -1547,6 +1547,39 @@ EOF
   write_command_file "$command" "Experiment Harness: $mode" "experiment-harness" "sigil" "arcana" "$body"
 }
 
+write_invoke_example_runner_command() {
+  local command="$1"
+  local selection="$2"
+  local shape="$3"
+  local body
+  body="$(cat <<EOF
+## Objective
+
+Select and run an Invoke template validation prompt through the Invoke Example Runner compatibility surface.
+
+## Command Shape
+
+\`\`\`text
+/$shape
+\`\`\`
+
+## Process
+
+1. Resolve the requested example with \`arcanum/spells/invoke/development/select-template-example-prompt.sh $selection\`.
+2. Run \`arcanum/spells/invoke/development/run-template-example-with-codex.sh $selection\` only when validating the explicit legacy Codex CLI path.
+3. Otherwise, route through \`arcanum-sigil-invoke-example-runner $selection\` and preserve the same selected prompt, output path, validation result, Dispatch trace status, Distill validation status, Task Session handoff readiness, and block or flag status.
+4. Return selected prompt, output path, command used, validation result, Dispatch trace status, Distill validation status, Task Session handoff readiness, observability result, and next action.
+
+## Guardrails
+
+- Keep this adapter focused on Invoke template example validation.
+- Do not treat legacy CLI execution as required for native Invoke authoring readiness.
+- Do not mark bounded implementation complete when Invoke only emitted a Task Session handoff.
+EOF
+)"
+  write_command_file "$command" "Invoke Example Runner: $command" "invoke-example-runner" "sigil" "arcana" "$body"
+}
+
 write_spell_command() {
   local command="$1"
   local spell="$2"
@@ -1638,6 +1671,10 @@ write_codex_commands() {
       write_experiment_harness_mode_command "experiment-validate" "validate" ""
       write_experiment_harness_mode_command "experiment-observe" "observe" "[report-path]"
       write_experiment_harness_mode_command "experiment-loop" "loop" "<regime-id>"
+    fi
+    if [[ "$sigil" == "invoke-example-runner" ]]; then
+      write_invoke_example_runner_command "invoke-example-next" "next" "invoke-example-next"
+      write_invoke_example_runner_command "invoke-example-run" "<selection>" "invoke-example-run <selection>"
     fi
     if alias_command="$(sigil_alias_command "$sigil")"; then
       write_sigil_command "$alias_command" "$sigil" "$tier"

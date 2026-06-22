@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 INVOKE_DIR="$ROOT_DIR/arcanum/spells/invoke"
+INVOKE_CONTRACT="$INVOKE_DIR/README.md"
 DEFINE_CONTRACT="$INVOKE_DIR/define.md"
 DESIGN_CONTRACT="$INVOKE_DIR/design.md"
 PLAN_CONTRACT="$INVOKE_DIR/plan.md"
@@ -11,6 +12,8 @@ REFRESH_CONTRACT="$INVOKE_DIR/refresh.md"
 FIXTURE_DIR="$INVOKE_DIR/development/fixtures"
 TEMPLATE_TASKS="$INVOKE_DIR/development/TEMPLATE-VALIDATION-TASKS.md"
 EXPERIMENT_REGIMES="$INVOKE_DIR/development/EXPERIMENT-REGIMES.md"
+INVOKE_EXAMPLE_RUNNER_SKILL="$ROOT_DIR/arcanum/arcana/invoke-example-runner/SKILL.md"
+INVOKE_EXAMPLE_RUNNER_README="$ROOT_DIR/arcanum/arcana/invoke-example-runner/README.md"
 EXAMPLE_PROMPTS_DIR="$INVOKE_DIR/development/example-prompts"
 EXAMPLE_OUTPUTS_DIR="$INVOKE_DIR/development/example-outputs"
 PROMPT_SELECTOR="$INVOKE_DIR/development/select-template-example-prompt.sh"
@@ -121,6 +124,7 @@ write_report() {
 		printf -- '- Anti-Pattern hits: `%s`\n' "${#anti_pattern_hits[@]}"
 		printf -- '- Runner: `arcanum/spells/invoke/development/run-validation-fixtures.sh`\n'
 		printf -- '- Fixture directory: `arcanum/spells/invoke/development/fixtures/`\n'
+		printf -- '- Invoke contract: `arcanum/spells/invoke/README.md`\n'
 		printf -- '- Define contract: `arcanum/spells/invoke/define.md`\n'
 		printf -- '- Design contract: `arcanum/spells/invoke/design.md`\n\n'
 		printf -- '- Plan contract: `arcanum/spells/invoke/plan.md`\n\n'
@@ -229,7 +233,6 @@ run_prompt_selector_checks() {
 	require_file "$ROOT_DIR/.codex/commands/arcanum-sigil-invoke-example-runner.md"
 	require_file "$ROOT_DIR/.codex/commands/invoke-example-next.md"
 	require_file "$ROOT_DIR/.codex/commands/invoke-example-run.md"
-	require_file "$ROOT_DIR/.arcanum/runtimes/codex/commands/arcanum-sigil-invoke-example-runner.md"
 
 	local exact
 	local pair
@@ -257,9 +260,15 @@ run_prompt_selector_checks() {
 	fi
 
 	require_pattern "$ROOT_DIR/.codex/commands/arcanum-sigil-invoke-example-runner.md" 'arcanum-sigil-invoke-example-runner' 'codex invoke example runner bridge'
+	require_pattern "$ROOT_DIR/.codex/commands/arcanum-sigil-invoke-example-runner.md" 'select-template-example-prompt.sh' 'codex invoke example runner selector'
 	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-next.md" 'run-template-example-with-codex.sh next' 'codex invoke example next command'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-next.md" 'Dispatch trace status' 'codex invoke example next preserves dispatch trace status'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-next.md" 'Distill validation status' 'codex invoke example next preserves distill validation status'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-next.md" 'Task Session handoff readiness' 'codex invoke example next preserves task-session handoff readiness'
 	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-run.md" 'run-template-example-with-codex.sh <selection>' 'codex invoke example run command'
-	require_pattern "$ROOT_DIR/.arcanum/runtimes/codex/commands/arcanum-sigil-invoke-example-runner.md" 'select-template-example-prompt.sh' 'codex invoke example runner adapter'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-run.md" 'Dispatch trace status' 'codex invoke example run preserves dispatch trace status'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-run.md" 'Distill validation status' 'codex invoke example run preserves distill validation status'
+	require_pattern "$ROOT_DIR/.codex/commands/invoke-example-run.md" 'Task Session handoff readiness' 'codex invoke example run preserves task-session handoff readiness'
 	require_pattern "$CODEX_EXAMPLE_RUNNER" 'experiment-harness/scripts/run-with-codex.sh' 'invoke legacy codex example runner delegates to experiment harness'
 	require_pattern "$EXPERIMENT_CODEX_RUNNER" 'legacy Codex CLI adapter|codex.*exec' 'codex example runner is explicit legacy adapter'
 	require_pattern "$EXPERIMENT_CODEX_RUNNER" '--output-last-message' 'legacy codex example runner captures last message'
@@ -344,6 +353,10 @@ run_fixture() {
 	require_pattern "$expected" "$mode_contract_output" "$label expected mode contract"
 	require_pattern "$expected" 'Next route:' "$label expected next route"
 	require_pattern "$mode_contract_path" "$contract_pattern" "$label contract gate"
+	if [[ "$label" == INV-DEFINE-* || "$label" == INV-DESIGN-* || "$label" == INV-PLAN-* ]]; then
+		require_pattern "$expected" 'Dispatch techniques:' "$label expected dispatch technique trace"
+		require_pattern "$expected" 'Distill validation:' "$label expected distill validation"
+	fi
 
 	if [[ "$failures" -eq 0 ]]; then
 		passed_fixtures+=("$label")
@@ -399,6 +412,8 @@ run_integration_fixture() {
 	require_pattern "$define_expected" "$spec_name" "$label define output spec"
 	require_pattern "$define_expected" "$glossary_name" "$label define output glossary"
 	require_pattern "$define_expected" "$transport_name" "$label define output transport"
+	require_pattern "$define_expected" 'Dispatch techniques:' "$label define dispatch techniques"
+	require_pattern "$define_expected" 'Distill validation:' "$label define distill validation"
 	require_pattern "$define_expected" 'Next route: design' "$label define next route"
 
 	require_pattern "$design_expected" 'Mode: design' "$label design mode"
@@ -408,6 +423,8 @@ run_integration_fixture() {
 	require_pattern "$design_expected" "$design_transport_name" "$label design output transport"
 	require_pattern "$design_expected" 'Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface' "$label design six views"
 	require_pattern "$design_expected" 'Glossary consistency: pass' "$label design glossary consistency"
+	require_pattern "$design_expected" 'Dispatch techniques:' "$label design dispatch techniques"
+	require_pattern "$design_expected" 'Distill validation:' "$label design distill validation"
 	require_pattern "$design_expected" 'Next route: plan' "$label design next route"
 
 	require_pattern "$spec" 'Mars rover maintenance log' "$label spec term maintenance log"
@@ -499,6 +516,8 @@ run_plan_split_fixture() {
 	require_pattern "$expected" 'Phase status: pass' "$label expected output status"
 	require_pattern "$expected" 'User request:' "$label expected user request"
 	require_pattern "$expected" 'Mode contract: arcanum/spells/invoke/plan.md' "$label expected mode contract"
+	require_pattern "$expected" 'Dispatch techniques:' "$label expected dispatch technique trace"
+	require_pattern "$expected" 'Distill validation:' "$label expected distill validation"
 	require_pattern "$expected" 'Work-pack: .*split' "$label expected split work-pack"
 	require_pattern "$expected" 'Complexity: medium|Complexity: high' "$label expected complexity"
 	require_pattern "$expected" 'Per-layer planning: L0, L1, L2, L3' "$label expected per-layer planning"
@@ -508,6 +527,8 @@ run_plan_split_fixture() {
 	require_pattern "$expected" '## Per-Layer Planning Slices' "$label per-layer slice heading"
 	require_pattern "$expected" '## Implementation Detail Specs' "$label implementation detail specs heading"
 	require_pattern "$expected" '## Smallest Working Units' "$label SWU heading"
+	require_pattern "$expected" '## Dispatch Technique Trace' "$label dispatch technique trace heading"
+	require_pattern "$expected" '## Distill Validation' "$label distill validation heading"
 	require_pattern "$expected" '\| L0 \|' "$label L0 slice"
 	require_pattern "$expected" '\| L1 \|' "$label L1 slice"
 	require_pattern "$expected" '\| L2 \|' "$label L2 slice"
@@ -524,6 +545,8 @@ run_plan_split_fixture() {
 	require_pattern "$PLAN_CONTRACT" 'Medium and high complexity plans must include explicit waves that map to layers' "$label contract layer-mapped wave gate"
 	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' "$label contract implementation detail gate"
 	require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include SWU decomposition for non-exempt execution tasks' "$label contract SWU gate"
+	require_pattern "$PLAN_CONTRACT" 'Automatic Distill validation is required before mutation-capable handoff' "$label contract distill validation gate"
+	require_pattern "$PLAN_CONTRACT" 'Dispatch Spec technique trace is required' "$label contract dispatch technique gate"
 	require_pattern "$PLAN_CONTRACT" 'Each SWU maps to exactly one parent task' "$label contract SWU parent gate"
 	require_pattern "$PLAN_CONTRACT" 'Algorithmic or domain-logic tasks must include algorithm steps or pseudocode' "$label contract algorithm detail gate"
 	require_pattern "$PLAN_CONTRACT" 'Layer promotion must cite evidence from the previous layer' "$label contract promotion evidence"
@@ -576,8 +599,12 @@ run_plan_integration_fixture() {
 	require_pattern "$fixture" "$plan_transport_name" "$label fixture plan transport reference"
 
 	require_pattern "$define_expected" 'Mode: define' "$label define mode"
+	require_pattern "$define_expected" 'Dispatch techniques:' "$label define dispatch techniques"
+	require_pattern "$define_expected" 'Distill validation:' "$label define distill validation"
 	require_pattern "$define_expected" 'Next route: design' "$label define next route"
 	require_pattern "$design_expected" 'Mode: design' "$label design mode"
+	require_pattern "$design_expected" 'Dispatch techniques:' "$label design dispatch techniques"
+	require_pattern "$design_expected" 'Distill validation:' "$label design distill validation"
 	require_pattern "$design_expected" 'Next route: plan' "$label design next route"
 
 	require_pattern "$plan_expected" 'Mode: plan' "$label plan mode"
@@ -587,6 +614,8 @@ run_plan_integration_fixture() {
 	require_pattern "$plan_expected" "$work_pack_name" "$label plan output work-pack"
 	require_pattern "$plan_expected" "$plan_transport_name" "$label plan output transport"
 	require_pattern "$plan_expected" 'Implementation layering: .*global L0-L3 decision boundaries' "$label plan global layering"
+	require_pattern "$plan_expected" 'Dispatch techniques:' "$label plan dispatch technique trace"
+	require_pattern "$plan_expected" 'Distill validation:' "$label plan distill validation"
 	require_pattern "$plan_expected" 'Per-layer planning: compact' "$label plan compact layer mapping"
 	require_pattern "$plan_expected" 'Validation strategy:' "$label plan validation strategy"
 	require_pattern "$plan_expected" 'preserve define glossary terms' "$label plan authority boundary"
@@ -597,6 +626,8 @@ run_plan_integration_fixture() {
 	require_pattern "$implementation_plan" 'daily inspection note' "$label implementation plan glossary term"
 	require_pattern "$implementation_plan" '## Validation Strategy' "$label implementation plan validation"
 	require_pattern "$implementation_plan" '## Implementation Detail Specs' "$label implementation detail specs"
+	require_pattern "$implementation_plan" '## Dispatch Technique Trace' "$label implementation plan dispatch trace"
+	require_pattern "$implementation_plan" '## Distill Validation' "$label implementation plan distill validation"
 	require_pattern "$implementation_plan" 'Implementation Notes' "$label implementation detail notes column"
 	require_pattern "$layering" '\| L0 \(POC\) \|' "$label layering L0"
 	require_pattern "$layering" '\| L1 \|' "$label layering L1"
@@ -604,7 +635,11 @@ run_plan_integration_fixture() {
 	require_pattern "$layering" '\| L3 \|' "$label layering L3"
 	require_pattern "$work_pack" 'Compact Layer Mapping' "$label work-pack compact mapping"
 	require_pattern "$work_pack" 'outputMode \| single-file' "$label work-pack single-file"
+	require_pattern "$work_pack" 'distillValidationStatus \| pass' "$label work-pack distill pass"
+	require_pattern "$work_pack" 'Dispatch Technique Trace' "$label work-pack dispatch trace"
 	require_pattern "$plan_transport" 'Plan Context Transported' "$label plan transport context"
+	require_pattern "$plan_transport" 'Dispatch techniques:' "$label plan transport dispatch techniques"
+	require_pattern "$plan_transport" 'Distill validation:' "$label plan transport distill validation"
 	require_pattern "$plan_transport" 'No source code or upstream design mutation occurred' "$label plan non-mutating"
 	require_pattern "$PLAN_CONTRACT" 'Plan mode must not execute tasks' "$label contract no execution"
 
@@ -619,6 +654,7 @@ run_plan_integration_fixture() {
 	fi
 }
 
+require_file "$INVOKE_CONTRACT"
 require_file "$DEFINE_CONTRACT"
 require_file "$DESIGN_CONTRACT"
 require_file "$PLAN_CONTRACT"
@@ -626,21 +662,37 @@ require_file "$HANDOFF_CONTRACT"
 require_file "$REFRESH_CONTRACT"
 require_file "$TEMPLATE_TASKS"
 require_file "$EXPERIMENT_REGIMES"
+require_file "$INVOKE_EXAMPLE_RUNNER_SKILL"
+require_file "$INVOKE_EXAMPLE_RUNNER_README"
+require_pattern "$INVOKE_CONTRACT" 'Every invoke mode must record a Dispatch Spec technique trace' 'invoke dispatch technique discipline'
+require_pattern "$INVOKE_CONTRACT" 'Plan, full, and validate must run automatic Distill validation' 'invoke distill validation discipline'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'active native `invoke` skill package' 'invoke example runner native invoke default'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Dispatch Spec technique trace' 'invoke example runner dispatch trace validation'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Distill validation status' 'invoke example runner distill validation output'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Task Session handoff readiness' 'invoke example runner task-session handoff output'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_README" 'Legacy command files remain compatibility adapters only' 'invoke example runner legacy adapter boundary'
+require_pattern "$INVOKE_EXAMPLE_RUNNER_README" 'Validation Expectations' 'invoke example runner validation expectations'
 require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 contract, candidate template-family scaffold coverage\)' 'define contract status'
 require_pattern "$DEFINE_CONTRACT" 'block on missing core goal or contradictory scope' 'define missing-goal block'
 require_pattern "$DEFINE_CONTRACT" 'flag when no eligible template exists and candidate creation is unapproved' 'define candidate-template flag'
 require_pattern "$DEFINE_CONTRACT" 'Candidate glossary promotion is never automatic' 'define glossary promotion gate'
 require_pattern "$DEFINE_CONTRACT" 'Define-stage transport appends stage reports' 'define transport coverage'
+require_pattern "$DEFINE_CONTRACT" 'Define mode must record a Dispatch Spec technique trace' 'define dispatch technique trace'
+require_pattern "$DEFINE_CONTRACT" 'Define mode runs a Distill sanity check' 'define distill sanity check'
 require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract, validation examples pending\)' 'design contract status'
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
 require_pattern "$DESIGN_CONTRACT" 'Design-stage transport' 'design transport coverage'
+require_pattern "$DESIGN_CONTRACT" 'Design mode must record a Dispatch Spec technique trace' 'design dispatch technique trace'
+require_pattern "$DESIGN_CONTRACT" 'Design mode must run a design-unit Distill check' 'design distill unit check'
 require_pattern "$PLAN_CONTRACT" 'Status: implemented \(L2 contract, work-pack hierarchy evidence pending\)' 'plan contract status'
 require_pattern "$PLAN_CONTRACT" 'Plan blocks without approved design outputs and source design refs' 'plan missing design block'
 require_pattern "$PLAN_CONTRACT" 'Low complexity plans must include compact layer mapping' 'plan low compact mapping'
 require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include explicit waves that map to L0-L3 layer decisions' 'plan medium high layer-mapped wave gate'
 require_pattern "$PLAN_CONTRACT" 'Medium/high complexity plans must include implementation-detail specs for execution tasks' 'plan medium high implementation detail gate'
 require_pattern "$PLAN_CONTRACT" 'Task descriptions that only say to implement a bundle' 'plan vague task gate'
+require_pattern "$PLAN_CONTRACT" 'Automatic Distill validation is required before mutation-capable handoff' 'plan distill validation gate'
+require_pattern "$PLAN_CONTRACT" 'Dispatch Spec technique trace is required' 'plan dispatch technique gate'
 require_pattern "$PLAN_CONTRACT" 'Plan-stage transport appends stage reports' 'plan transport coverage'
 require_pattern "$HANDOFF_CONTRACT" 'Status: implemented \(L2 companion contract, validation examples pending\)' 'handoff contract status'
 require_pattern "$HANDOFF_CONTRACT" 'Prompt and source session reference are mandatory' 'handoff prompt session gate'

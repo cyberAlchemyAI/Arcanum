@@ -12,6 +12,8 @@
 - Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
 - Glossary consistency: pass
 - Template/profile selection: Module Formulae architecture profile
+- Dispatch techniques: `sequence`, `artifact_contract_bridge`, `owner_boundary_check`
+- Distill validation: pass; maintenance log architecture remains one coherent design unit for plan mode
 - Implementation layering: seed emitted
 - Work-pack: n/a
 - Decisions: preserve define glossary terms; model status extensibility without adding implementation tasks

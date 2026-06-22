@@ -30,6 +30,7 @@ Define mode produces or updates a governed specification and glossary baseline w
 | Sigil               | Use When                                                                    | Notes                                                                  |
 | ------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `decision-gate`     | A blocker-level define decision cannot be resolved from available evidence. | Route only consequential unresolved choices.                           |
+| `distill`           | The definition target is broad, ambiguous, or likely to split into multiple spec/glossary units. | Run a definition-scope sanity check and record `pass`, `flag`, `block`, or `not required`; do not create plan-ready work. |
 | `spellcraft`        | Approved define output targets spell authoring or spell revision.           | Invoke emits handoff pack; Spellcraft owns spell lifecycle mutation, validation, install/adaptation, observation, and reflection. |
 | `sigil-development` | Approved define output targets sigil authoring or sigil revision.           | Invoke emits handoff pack; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
 
@@ -62,6 +63,9 @@ Define mode produces or updates a governed specification and glossary baseline w
 - Candidate glossary promotion is never automatic.
 - No silent upstream mutation; direct upstream edits require explicit approval.
 - Define-stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
+- Define mode must record a Dispatch Spec technique trace that names the techniques used to justify template selection, glossary routing, owner boundaries, and next route.
+- Define mode runs a Distill sanity check when the target is broad, ambiguous, or split-prone; otherwise it records `not required` with rationale.
+- A `flag` or `block` Distill result routes to clarification, definition split, or deferred follow-up; it must not be treated as plan readiness.
 
 ## Handoff Artifacts
 
@@ -70,9 +74,11 @@ Define mode produces or updates a governed specification and glossary baseline w
 - glossary artifact path
 - implementation layering artifact path or explicit layering gap
 - template selection evidence
+- Dispatch Spec technique trace
+- Distill validation status and rationale
 - unresolved gaps and blocker decisions
 - Necronomicon transport report
-- recommended next route (`spellcraft`, `sigil-development`, or deferred follow-up)
+- recommended next route (`design`, `spellcraft`, `sigil-development`, or deferred follow-up)
 
 ## Mode Output Contract
 
@@ -89,7 +95,9 @@ Return:
 - Mode contract: spells/invoke/define.md
 - Outputs: <spec path>, <glossary path>, <layering seed path or gap>, <transport report path>
 - Template selection: <selected template or candidate recommendation>
+- Dispatch techniques: <technique ids and rationale>
+- Distill validation: not required | pass | flag | block; <rationale>
 - Decisions: <summary>
 - Unresolved gaps: <summary>
-- Next route: spellcraft | sigil-development | deferred
+- Next route: design | spellcraft | sigil-development | deferred
 ```

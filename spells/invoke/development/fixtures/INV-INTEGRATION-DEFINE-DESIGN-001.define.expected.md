@@ -10,6 +10,8 @@
 - Mode contract: arcanum/spells/invoke/define.md
 - Outputs: INV-INTEGRATION-DEFINE-DESIGN-001.spec.md, INV-INTEGRATION-DEFINE-DESIGN-001.glossary.md, INV-INTEGRATION-DEFINE-DESIGN-001.define-transport.md
 - Template selection: Module Formulae discovery profile
+- Dispatch techniques: `sequence`, `artifact_contract_bridge`, `owner_boundary_check`
+- Distill validation: pass; maintenance log remains one coherent definition unit
 - Decisions: define the module boundary around evidence capture, status tracking, operator decisions, and unresolved repair questions
 - Glossary updates: Mars rover maintenance log, daily inspection note, component status, operator decision, unresolved repair question
 - Glossary linking: no-match and partial terms retain promotion gates and rationale
