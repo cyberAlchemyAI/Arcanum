@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The CyberAlchemy Method — the working method behind Arcanum: turn vague intent and discovered evidence into governed artifacts, so an agent's reasoning becomes reusable, inspectable, and improvable.">
+  <title>The Method — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero { position: relative; display: grid; align-items: end; overflow: hidden; padding: 132px clamp(18px, 5vw, 70px) 54px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { position: relative; z-index: 2; max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 940px; font-size: clamp(42px, 7vw, 88px); line-height: .9; }
+    h2 { max-width: 860px; font-size: clamp(27px, 3.8vw, 48px); line-height: 1.02; }
+    h3 { font-size: 19px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .lead { max-width: 780px; margin-top: 22px; color: #383838; font-size: clamp(18px, 2.3vw, 23px); }
+    section { padding: clamp(44px, 7vw, 84px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 1040px; margin: 0 auto; }
+    .section-head { margin-bottom: 26px; }
+    .section-head p { max-width: 820px; margin-top: 14px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .panel { padding: 19px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
+    .panel p { margin-top: 8px; font-size: 15px; }
+    .panel .tag { display: inline-flex; margin-bottom: 11px; padding: 4px 9px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; }
+    .loop { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 10px; overflow-x: auto; }
+    .step { min-height: 150px; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .step b { display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 11px; border-radius: 50%; background: var(--red); color: #fff; font-size: 12px; }
+    .step:nth-child(2) b { background: var(--orange); }
+    .step:nth-child(3) b { background: var(--blue); }
+    .step:nth-child(4) b { background: var(--violet); }
+    .step:nth-child(5) b { background: var(--green); }
+    .step .n { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .code { overflow: auto; padding: 18px; border-radius: 8px; background: #171717; color: #fff8eb; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.7; white-space: pre; }
+    .anchors li, .roles li { margin: 0 0 10px; color: #383838; line-height: 1.6; max-width: 860px; }
+    .anchors b, .roles b { color: var(--ink); }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    @media (max-width: 920px) { .grid-2, .grid-3, .loop { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="craft.html">Craft</a>
+      <a href="paper.html">Paper</a>
+      <a href="blog.html">Blog</a>
+      <a href="#loop">Loop</a>
+      <a href="#principles">Principles</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">The CyberAlchemy Method</p>
+        <h1>Make the reasoning reusable, not just clever.</h1>
+        <p class="lead">The method behind Arcanum treats agent work as more than prompt execution. A useful capability is grown — through intent, research, discovery, tension, evidence, and reflection — into a governed artifact. The goal is not an agent that sounds smart for a moment. It is reasoning that is reusable, inspectable, and improvable.</p>
+      </div>
+    </section>
+
+    <section id="anchors">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">At a glance</p>
+          <h2>Five things stay visible the whole way through.</h2>
+          <p>CyberAlchemy is for work where the answer should become a reusable artifact, not just a momentary response. These five anchors keep the middle of the work honest.</p>
+        </div>
+        <div class="grid-3">
+          <article class="panel"><span class="tag">objective</span><h3>What are we solving?</h3><p>The problem the work exists to address.</p></article>
+          <article class="panel"><span class="tag">output artifact</span><h3>What should exist when this is done?</h3><p>The concrete thing left behind — a spec, design, plan, decision record.</p></article>
+          <article class="panel"><span class="tag">discovery</span><h3>What must we learn first?</h3><p>What has to be found before the artifact can responsibly close.</p></article>
+          <article class="panel"><span class="tag">tension</span><h3>What could make it brittle?</h3><p>Where it might be oversized, misleading, premature, or unsafe.</p></article>
+          <article class="panel"><span class="tag">route</span><h3>Who owns the next step?</h3><p>The lifecycle authority that takes it from here.</p></article>
+          <article class="panel" style="background:#fbf8ef"><span class="tag">guiding stars</span><h3>Not chains</h3><p>Objective and artifact orient the work. When discovery proves a different output would solve the objective better, you rename them — and continue.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="loop">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The loop</p>
+          <h2>Orient, discover, shape, stabilize, evolve.</h2>
+          <p>The loop is recursive: later discovery, tension, or validation can send the work back to an earlier step. Closure is contextual, not final.</p>
+        </div>
+        <div class="loop" aria-label="CyberAlchemy method loop">
+          <article class="step"><b>1</b><span class="n">steps 1–3</span><h3>Orient</h3><p>Name the seed, bound the context, and state the current target result.</p></article>
+          <article class="step"><b>2</b><span class="n">step 4</span><h3>Discover</h3><p>Find the evidence, gaps, unknowns, and alternative frames that matter.</p></article>
+          <article class="step"><b>3</b><span class="n">steps 5–8</span><h3>Shape</h3><p>Choose the route, draft the artifact, test it with tension, revise toward closure.</p></article>
+          <article class="step"><b>4</b><span class="n">steps 9–12</span><h3>Stabilize</h3><p>Make it navigable, preserve openness, record the trace, route ownership.</p></article>
+          <article class="step"><b>5</b><span class="n">step 13</span><h3>Evolve</h3><p>Reflect after use, so repeated work improves the method itself.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="synthesis">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The synthesis pattern</p>
+          <h2>Scattered intent becomes a structure that survives handoff.</h2>
+          <p>Synthesis is not summarization. It is a transformation: from a vague start into an object a future human or agent can pick up and continue.</p>
+        </div>
+        <pre class="code">seed intent
+  → bounded context
+  → objective and output artifact
+  → research and discovery
+  → local vocabulary
+  → candidate structure
+  → tension and critique
+  → revised artifact
+  → validation evidence
+  → lifecycle route</pre>
+        <p class="note">It succeeds when a stranger can see what was asked, what was produced, why this shape was chosen, what was rejected, what is still open, and what happens next.</p>
+      </div>
+    </section>
+
+    <section id="roles">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Who does what</p>
+          <h2>Agents are role-bearing collaborators, not passive executors.</h2>
+        </div>
+        <ul class="roles" style="padding-left:18px">
+          <li><b>Human</b> — provides intent, taste, constraints, approval, and the blocker decisions.</li>
+          <li><b>Primary agent</b> — owns the run, integrates the evidence, edits the artifacts, keeps the final account.</li>
+          <li><b>Researcher</b> — finds source evidence, outside patterns, missing context, alternative frames.</li>
+          <li><b>Proposer</b> — builds candidate structures, options, reductions, plans.</li>
+          <li><b>Balancer</b> — challenges scope, closure, hidden complexity, brittle minimalism, unsupported assumptions.</li>
+          <li><b>Observer</b> — records telemetry and notices when reflection is due.</li>
+          <li><b>Lifecycle authority</b> — owns promotion, validation, implementation, or maintenance for the target.</li>
+        </ul>
+        <p class="note">The human gate stays: agents prepare options and trade-offs, but blocker decisions, scope approval, and contract changes need human validation.</p>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Governing principles</p>
+          <h2>The values the method runs on.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="panel"><span class="tag">intent before machinery</span><h3>Don't build before the intent is clear</h3><p>No system before the intent is clear enough to carry through a lifecycle artifact.</p></article>
+          <article class="panel"><span class="tag">discovery feeds synthesis</span><h3>Don't just rearrange the context in front of you</h3><p>Research, inspect, compare, and interview until the synthesis can stand on its own.</p></article>
+          <article class="panel"><span class="tag">artifact over vibes</span><h3>Leave something reviewable</h3><p>A good run leaves a spec, design, glossary, decision record, or validation result — not just a clever reply.</p></article>
+          <article class="panel"><span class="tag">ergonomics is governance</span><h3>Clarity is structural</h3><p>Work easy to understand, navigate, and resume is how the system avoids misuse, duplicated reasoning, and stalled handoffs.</p></article>
+          <article class="panel"><span class="tag">smallest coherent unit</span><h3>Small, but still meaningful</h3><p>Find the smallest unit that still has responsibility, inputs, outputs, and a way to recompose upward.</p></article>
+          <article class="panel"><span class="tag">tension is productive</span><h3>Critique is not failure</h3><p>Tension reveals where the structure needs sharpening, routing, or a human decision.</p></article>
+          <article class="panel"><span class="tag">traceability is memory</span><h3>Remember why</h3><p>Decisions without a trace become future ambiguity. The trace is part of the work, not residue.</p></article>
+          <article class="panel"><span class="tag">open-ended, not overbuilt</span><h3>Avoid both extremes</h3><p>No premature complexity, and no brittle minimalism. Preserve the smallest useful extension boundary.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="baseline">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">In one breath</p>
+          <h2>The method, stated plainly.</h2>
+        </div>
+        <pre class="code">governed synthesis through artifacts,
+guided by objective and output,
+fed by research and discovery,
+shaped by tension,
+made navigable for humans and agents,
+bounded by lifecycle ownership,
+made durable through trace and observation.</pre>
+        <p class="note">This is the method underneath <a href="craft.html">Craft</a>, the audits, and the deterministic engine. Building with it? <a href="https://www.linkedin.com/in/vladimir-rondelli/">Work with me → LinkedIn</a>. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>The CyberAlchemy Method</h3>
+      <p>Governed synthesis through artifacts — reusable, inspectable, improvable agent work. Part of CyberAlchemy.</p>
+      <p style="margin-top:12px"><a href="https://www.linkedin.com/in/vladimir-rondelli/" style="color:#fdfaf3;font-weight:820;text-decoration:underline">Work with me → LinkedIn</a></p>
+      <p style="margin-top:14px;font-size:12px;color:#8f897e">© 2026 Vladimir Rondelli and Victor Boscaro. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
