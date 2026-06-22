@@ -2,7 +2,7 @@
 
 Definitions Governance is an Arcana sigil for keeping critical terminology authoritative, interpretable, indexed, and traceable across a repository.
 
-It maintains one canonical definition source, keeps lookup artifacts synchronized, separates normative wording from explanatory intuition, and audits downstream drift where terms are reused.
+It maintains one canonical definition source, keeps lookup artifacts synchronized, separates normative wording from explanatory intuition and domain context, and audits downstream drift where terms are reused.
 
 Definitions Governance is the maintainer process, not the place where a
 project's definitions live. When the sigil is installed or copied into another
@@ -13,12 +13,15 @@ before reading or writing terms.
 
 Projects drift when critical terms are redefined in papers, plans, specs, implementation notes, or presentations. A term may look familiar while its meaning silently changes across artifacts.
 
+They also drift when a definition is formally correct but has no ordinary-language bridge, or when the bridge is generic enough that it no longer fits the project where the term is being used.
+
 Definitions Governance prevents that by treating definitions as a governed authority layer with traceable downstream consumers.
 
 ## Use When
 
 - a gate-critical or high-impact term is added or revised,
 - formulas, notation, or formal constructs need stable interpretation,
+- critical definitions need scientific/formal, plain-language, and domain-context voices,
 - downstream documents reference canonical terms,
 - narrative summaries risk redefining normative semantics,
 - definition drift needs to be audited.
@@ -66,6 +69,23 @@ Do not store project definitions in:
 Those locations may contain the Definitions Governance process. They are not the
 consuming project's terminology authority unless the repository explicitly says
 so.
+
+## Definition Voices
+
+Every canonical definition should include at least three colocated voices:
+
+- Scientific/formal: the normative meaning, formal expression when relevant,
+  symbol or notation meanings, and boundary conditions.
+- Plain language: a non-normative ordinary-language explanation that makes the
+  term understandable without changing its meaning.
+- Domain context: a non-normative explanation of how the term appears in the
+  current project, workspace, or active artifact set.
+
+The domain-context voice is resolved from the consuming repository. In this
+Arcanum repository, definitions may connect to reader-facing context under
+`development/user-guide/` when that helps explain how a term appears in practice.
+In another repository, the domain-context voice should use that repository's own
+workspace context instead of treating Arcanum examples as authority.
 
 In this Arcanum repository, the project-level authority source is
 [definitions/DEFINITIONS.md](../../definitions/DEFINITIONS.md), with lookup in

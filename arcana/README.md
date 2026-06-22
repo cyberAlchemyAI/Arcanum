@@ -25,7 +25,7 @@ They are used when a single bounded transformation is not enough. Arcana coordin
 - a local deterministic check would answer the question,
 - a single artifact synthesis is enough,
 - the user wants immediate implementation of a well-scoped change,
-- the workflow lacks a human gate for consequ/home/vrondelli/projects/domainspec-core/arcanum/spells/invokeential interpretation.
+- the workflow lacks a human gate for consequential interpretation.
 
 ## Example Sigil
 
@@ -41,7 +41,7 @@ It belongs here because it coordinates long-lived rule authority across artifact
 
 It belongs here because it coordinates durable project state across human-readable views, machine indexes, nested contexts, evidence links, blocker refinement, decisions, and recomposition.
 
-[definitions-governance](definitions-governance/) maintains canonical definitions, lookup indexes, explanatory intuition, and downstream drift checks.
+[definitions-governance](definitions-governance/) maintains canonical definitions, lookup indexes, three-voice interpretation, and downstream drift checks.
 
 It belongs here because it coordinates semantic authority and traceability across many artifacts over time.
 
