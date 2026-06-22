@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="DomainSpec: a layered meta-architecture for deterministic software derivation and governance attenuation in multi-agent systems.">
+  <meta name="description" content="DomainSpec: a layered meta-architecture for deterministic software derivation and governance attenuation in multi-agent systems. The full paper.">
   <title>DomainSpec — The Paper</title>
   <style>
     :root {
@@ -26,29 +26,46 @@
     .hero { position: relative; padding: 132px clamp(18px, 5vw, 70px) 48px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
     .hero-content { max-width: 940px; }
     .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
-    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1, h2, h3, h4 { margin: 0; letter-spacing: 0; }
     h1 { max-width: 940px; font-size: clamp(34px, 5vw, 64px); line-height: .98; }
     h2 { max-width: 860px; font-size: clamp(26px, 3.6vw, 44px); line-height: 1.02; }
-    h3 { font-size: 19px; line-height: 1.2; }
-    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    h3 { font-size: 22px; line-height: 1.22; margin-top: 6px; }
+    h4 { font-size: 17px; line-height: 1.25; margin-top: 26px; color: var(--ink); }
+    p { margin: 0 0 16px; color: #2c2c2c; font-size: 16px; line-height: 1.7; }
+    .muted { color: var(--muted); }
     .authors { margin-top: 20px; color: #383838; font-weight: 760; font-size: 17px; }
     .lead { max-width: 800px; margin-top: 18px; color: #383838; font-size: 17px; }
-    section { padding: clamp(40px, 6vw, 76px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    section { padding: clamp(38px, 5vw, 64px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
     .inner { max-width: 940px; margin: 0 auto; }
     .section-head { margin-bottom: 24px; }
-    .abstract { max-width: 860px; color: #2c2c2c; font-size: 17px; line-height: 1.7; }
+    .abstract { max-width: 880px; color: #2c2c2c; font-size: 17px; line-height: 1.72; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .panel { padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
     .panel p { margin-top: 8px; }
     .panel .tag { display: inline-flex; margin-bottom: 12px; padding: 5px 9px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; }
-    .layers li { margin: 0 0 8px; color: #383838; line-height: 1.6; }
-    .built li { margin: 0 0 12px; color: #383838; line-height: 1.6; }
-    .built b { color: var(--ink); }
+    ul, ol { color: #2c2c2c; line-height: 1.7; padding-left: 22px; }
+    li { margin: 0 0 8px; }
+    li b { color: var(--ink); }
     .kw { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .kw span { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; color: var(--muted); font-weight: 700; }
     .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
-    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
-    .footer p { color: #c7c1b5; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; background: #f1eadc; padding: 1px 6px; border-radius: 4px; color: #5b4a2e; }
+    em.math { font-style: italic; }
+    .eq { display: block; margin: 18px 0; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; color: #383838; overflow-x: auto; }
+    .def { margin: 18px 0; padding: 16px 20px; border-left: 3px solid var(--violet); background: var(--surface); border-radius: 0 8px 8px 0; }
+    .def b { color: var(--ink); }
+    pre { margin: 18px 0; padding: 16px 18px; background: #1d1b16; color: #f1ead8; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.55; }
+    pre code { background: none; color: inherit; padding: 0; }
+    .tbl-wrap { overflow-x: auto; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 13.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+    caption { caption-side: top; text-align: left; font-weight: 800; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: #f4efe4; font-weight: 800; color: var(--ink); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:last-child td b { color: var(--ink); }
+    .refs { font-size: 14px; line-height: 1.65; }
+    .refs li { margin-bottom: 10px; }
+    .ts-anchor { scroll-margin-top: 90px; }
     @media (max-width: 920px) { .grid-2 { grid-template-columns: 1fr; } }
     @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
   </style>
@@ -63,9 +80,12 @@
       <a href="index.html">Home</a>
       <a href="system.html">The System</a>
       <a href="saturn.html">Saturn</a>
+      <a href="blog.html">Blog</a>
       <a href="#abstract">Abstract</a>
-      <a href="#contributions">Contributions</a>
-      <a href="#results">Results</a>
+      <a href="#s3">Architecture</a>
+      <a href="#s6">Governance</a>
+      <a href="#s8">Case study</a>
+      <a href="#refs">References</a>
     </nav>
   </header>
 
@@ -73,113 +93,745 @@
     <section class="hero">
       <div class="hero-content">
         <p class="eyebrow">The paper</p>
-        <h1>DomainSpec: deterministic software derivation and governance attenuation in multi-agent systems.</h1>
+        <h1>DomainSpec: A Layered Meta-Architecture for Deterministic Software Derivation and Governance Attenuation in Multi-Agent Systems</h1>
         <p class="authors">Vladimir Rondelli · Victor Boscaro</p>
-        <p class="lead">A layered meta-architecture that turns domain knowledge into verified software through deterministic derivation rules and self-regulating governance.</p>
+        <p class="lead">A layered meta-architecture (L0–L7) that bridges domain knowledge to verified software through deterministic derivation rules and self-regulating governance.</p>
       </div>
     </section>
 
-    <section id="abstract">
+    <!-- ABSTRACT -->
+    <section id="abstract" class="ts-anchor">
       <div class="inner">
         <div class="section-head"><p class="eyebrow">Abstract</p></div>
-        <p class="abstract">LLM agents can now generate code, tests, and infrastructure from natural-language specifications. Without formal structure, their outputs stay stochastic — non-reproducible, non-auditable, ungovernable at scale. DomainSpec is a layered meta-architecture (L0–L7) that bridges domain knowledge to verified software through deterministic derivation rules and self-regulating governance. Four contributions: a dual-track meta-model spanning business semantics and operational enforcement; a typed ontology of 25 meta-types and 29 typed relationships that enables deterministic derivation per feature (<code>T = f(C, R, Δ)</code>) and across feature composition; a governance-attenuation theory explaining why adding governance layers to multi-agent systems decreases per-layer fidelity, bounded by channel capacity; and a meta-circular self-governance mechanism where the framework's axioms and tuning loop govern — and prune — themselves. We validate on a production system of 7 features across 3 pillars, deriving 445 test obligations and 146 observability metrics from 89 domain concepts.</p>
-      </div>
-    </section>
-
-    <section id="problems">
-      <div class="inner">
-        <div class="section-head">
-          <p class="eyebrow">The problem</p>
-          <h2>Three things stay unsolved when agents write the software.</h2>
-        </div>
-        <div class="grid-2">
-          <article class="panel">
-            <span class="tag">1</span><h3>The stochastic gap</h3>
-            <p>Same specification, different tests and implementations on each run. There is no deterministic function from specification to verification obligations.</p>
-          </article>
-          <article class="panel">
-            <span class="tag">2</span><h3>The governance paradox</h3>
-            <p>As you add rules and review layers to constrain agents, per-rule compliance <em>decreases</em>. More governance produces less governance.</p>
-          </article>
-          <article class="panel">
-            <span class="tag">3</span><h3>The meta-circular problem</h3>
-            <p>Who governs the governance? Frameworks that constrain agents must themselves be constrained — an infinite regress most approaches resolve by fiat.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="contributions">
-      <div class="inner">
-        <div class="section-head">
-          <p class="eyebrow">Contributions</p>
-          <h2>Derivation and governance are structural consequences of the layering, not bolt-ons.</h2>
-        </div>
-        <div class="grid-2">
-          <article class="panel">
-            <span class="tag">C1 · Meta-architecture</span>
-            <h3>Dual-track, seven layers</h3>
-            <p>A business × operational model where each layer governs the one below and is governed by the one above, with derivation chains traceable from epistemic axioms to enforcement gates.</p>
-          </article>
-          <article class="panel">
-            <span class="tag">C2 · Derivation calculus</span>
-            <h3><code>T = f(C, R, Δ)</code></h3>
-            <p>A per-feature function plus a composition extension that map concepts, typed relationships, and rules to deterministic test obligations — and 16 symmetric rules that derive production metrics from the same documents.</p>
-          </article>
-          <article class="panel">
-            <span class="tag">C3 · Governance attenuation</span>
-            <h3>Why fidelity decays with layers</h3>
-            <p>A formal model of why governance fidelity drops as layers accumulate, and how structural interventions invert the trend without removing layers.</p>
-          </article>
-          <article class="panel">
-            <span class="tag">C4 · Meta-circular governance</span>
-            <h3>A bounded strange loop</h3>
-            <p>The framework governs itself: an axiom governs governance, a constitution rule prunes the constitution, and meta-health metrics observe the observer — resolving the regress by structure, not authority.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="layers">
-      <div class="inner">
-        <div class="section-head">
-          <p class="eyebrow">The seven layers</p>
-          <h2>From ontology to orchestration.</h2>
-        </div>
-        <ul class="layers" style="max-width:820px;padding-left:18px">
-          <li><b>L0–L1 — Ontology.</b> A closed vocabulary of 25 meta-types and 29 typed relationships, including cross-feature composition edges.</li>
-          <li><b>L2 — Derived software.</b> Tests, code, and metrics produced by deterministic rules over the L1 concepts.</li>
-          <li><b>L3–L4 — Governance.</b> A formal constitution grounded in epistemic axioms, each rule traceable to the harm its absence causes.</li>
-          <li><b>L5 — Navigation.</b> Structured discovery of concepts across the knowledge graph.</li>
-          <li><b>L6 — Compliance.</b> Alignment audits, blocking gates, deterministic signal detection.</li>
-          <li><b>L7 — Orchestration.</b> Specialized agents and skills coordinated through a staged pipeline.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="results">
-      <div class="inner">
-        <div class="section-head">
-          <p class="eyebrow">Demonstrated results</p>
-          <h2>The calculus is open. The engine that realizes it is the product.</h2>
-          <p>A deterministic reference engine that realizes C2 has been built and validated. We report measured behavior; the derivation algorithm and the Lean validations are not disclosed here.</p>
-        </div>
-        <ul class="built" style="max-width:840px;padding-left:18px">
-          <li><b>Determinism by construction.</b> The same specification documents produce byte-identical test obligations across runs and machines — the property C2 predicts, without a stochastic generator.</li>
-          <li><b>Validated.</b> The engine's suite passes (95 tests, 0 type errors); output is byte-stable; honesty and containment controls pass.</li>
-          <li><b>Refuses rather than fabricates.</b> Where a spec is not formal enough to derive a checkable test, it emits a counted, visible gap — a spec-formalization metric, 96% on the pilot.</li>
-          <li><b>Fault detection.</b> Mutation testing on the pilot: after formalizing one implicit rule, the derived suite's score rose 38.75% → 54.37% (hardest module doubled); the regenerated suite passed 13/13 against real, unmutated code. Single-feature pilot, not a corpus result.</li>
-          <li><b>Self-application.</b> Run on its own specification, the engine derives its own obligations — a fixpoint.</li>
-        </ul>
-        <div class="grid-2" style="margin-top:18px">
-          <article class="panel"><span class="tag">Free</span><h3>Audits + LLM generator</h3><p>Layering audit, tag audit, alignment audit, and the LLM test generator — the free, open paths. <a href="saturn.html">See Saturn →</a></p></article>
-          <article class="panel"><span class="tag">Product</span><h3>Language + Lean validations</h3><p>The DomainSpec language's deterministic derivation and the Lean formal validations. Results demonstrated; mechanism withheld.</p></article>
-        </div>
-        <div class="section-head" style="margin-top:36px"><p class="eyebrow">Keywords</p></div>
+        <p class="abstract">Large language model (LLM) agents can now generate code, tests, and infrastructure from natural-language specifications. Yet without formal structure, their outputs remain stochastic — non-reproducible, non-auditable, and ungovernable at scale. We present <b>DomainSpec</b>, a layered meta-architecture (L0–L7) that bridges domain knowledge to verified software through deterministic derivation rules and self-regulating governance. The framework introduces four contributions: <b>(C1)</b> a dual-track meta-model spanning business semantics and operational enforcement across seven layers; <b>(C2)</b> a typed domain ontology of 25 meta-types and 29 typed relationships that enables deterministic derivation both per feature (<code>T = f(C, R, Δ)</code>) and across feature composition (<code>T_composed = f(C, R, Δ) + f_cross(E_AB, Δ_cross)</code>), mapping domain concepts to test obligations, observability metrics, and implementation contracts; <b>(C3)</b> a governance attenuation theory explaining why adding governance layers to multi-agent systems <em>decreases</em> per-layer fidelity, bounded by Shannon channel capacity; and <b>(C4)</b> a meta-circular self-governance mechanism where the framework's axioms, constitution, and tuning loop govern — and prune — themselves. We validate DomainSpec on a production system with 7 features across 3 business pillars, deriving 445 test obligations and 146 observability metrics from 89 domain concepts. Results show that typed ontologies eliminate the stochastic gap between specification and implementation, while structural governance interventions (observer-executor separation, deterministic signal detection, via negativa pruning) restore enforcement fidelity without adding layers. DomainSpec is open-source and available as a replication package.</p>
+        <p class="muted" style="font-size:14px"><b>Keywords:</b> domain-driven design, meta-modeling, deterministic test derivation, LLM agents, governance attenuation, multi-agent systems, specification-first development</p>
         <div class="kw">
           <span>domain-driven design</span><span>meta-modeling</span><span>deterministic test derivation</span><span>LLM agents</span><span>governance attenuation</span><span>multi-agent systems</span><span>specification-first development</span>
         </div>
-        <p class="note">The framework, ontology, and derivation calculus (C1–C4) are open. The optimized engine and the formal proofs are the product.</p>
+      </div>
+    </section>
+
+    <!-- 1 INTRODUCTION -->
+    <section id="s1" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">1 · Introduction</p><h2>From writing code to governing what agents write.</h2></div>
+        <p>The emergence of LLM-based coding agents — SWE-agent [14], Devin [2], GitHub Copilot Workspace [3] — has shifted the bottleneck in software engineering from <em>writing code</em> to <em>governing what agents write</em>. These systems can produce syntactically correct implementations from natural-language prompts, but they lack formal guarantees about completeness, consistency, or traceability to business requirements.</p>
+        <p>Three fundamental problems remain unsolved:</p>
+        <div class="grid-2">
+          <article class="panel"><span class="tag">Problem 1</span><h3>The stochastic gap</h3><p>Given the same specification, an LLM agent may produce different tests, different implementations, and different coverage on each run. There is no deterministic function from specification to verification obligations.</p></article>
+          <article class="panel"><span class="tag">Problem 2</span><h3>The governance paradox</h3><p>As organizations add rules, guardrails, and review layers to constrain agent behavior, the per-rule compliance rate <em>decreases</em> — an effect we formalize as governance attenuation. More governance produces less governance.</p></article>
+          <article class="panel"><span class="tag">Problem 3</span><h3>The meta-circular problem</h3><p>Who governs the governance? Frameworks that constrain agent behavior must themselves be constrained, creating an infinite regress that existing approaches resolve by fiat (a human reviews everything) rather than by structure.</p></article>
+        </div>
+
+        <h4>1.1 Core Hypothesis &amp; Research Questions</h4>
+        <p>DomainSpec is grounded in three intertwined hypotheses:</p>
+        <p><b>H1 — Domain Structure Determines Test Completeness:</b> If domain concepts (entities, rules, events, calculations, workflows, policies) and their relationships (references, produces-for, triggers, enforces) are formally modeled, then test obligations can be <em>deterministically derived</em> with coverage traceable to business requirements. The hypothesis predicts that typed domain models are both <em>necessary</em> (informal models produce incomplete, non-reproducible tests) and <em>sufficient</em> (typed models produce comprehensive, derivable tests).</p>
+        <p><b>H2 — Governance Layers Have Attenuation Bounds:</b> As multi-agent systems add decision-making layers (specify → derive → verify → enforce → tune), per-layer compliance fidelity decreases in a measurable pattern bounded by Shannon channel capacity and the cognitive load on agents. The hypothesis predicts that naive layer stacking yields exponential attenuation, but <em>structural interventions</em> (observer-executor separation, deterministic signal detection) can invert the trend without removing layers.</p>
+        <p><b>H3 — Self-Improving Systems Require Meta-Circular Governance:</b> Systems that improve themselves need mechanisms to improve those improvement mechanisms, which creates an infinite regress. The hypothesis predicts that a bounded strange loop — where the framework's constitution axioms govern how the constitution itself evolves — can resolve this without external authority.</p>
+        <p>These hypotheses drive four research questions:</p>
+        <ul>
+          <li><b>RQ1:</b> Can we derive deterministic, complete, and traceable test suites from domain models without manual test authoring? (→ C2)</li>
+          <li><b>RQ2:</b> Does adding governance layers to multi-agent systems decrease fidelity predictably, and can structural interventions restore fidelity without removing layers? (→ C3)</li>
+          <li><b>RQ3:</b> Can agent roles (PO, QA, Dev, Stakeholder) make better decisions if they share a common domain model and governance signals? (→ C1)</li>
+          <li><b>RQ4:</b> Can a system govern its own governance through axioms and tuning loops, achieving self-improvement without infinite regress? (→ C4)</li>
+        </ul>
+        <p>These questions map to experiments E1–E10 (RQ1–RQ3) and E11–E20 (meta-meta framework generalization of RQ2–RQ4).</p>
+        <p>This paper presents DomainSpec, a layered meta-architecture that addresses all three problems through a unified structural approach. Rather than treating specification, derivation, governance, and self-improvement as orthogonal concerns, DomainSpec organizes them as emergent properties of a seven-layer hierarchy:</p>
+        <ul>
+          <li><b>Layers 0–1</b> define the domain ontology — a closed vocabulary of 25 meta-types and 29 typed relationships that capture business semantics, including cross-feature composition edges.</li>
+          <li><b>Layer 2</b> hosts the derived software — tests, code, and metrics produced by deterministic rules applied to L1 concepts.</li>
+          <li><b>Layers 3–4</b> encode governance — a formal constitution (L3) grounded in epistemic axioms (L4), each rule traceable to the harm its absence causes.</li>
+          <li><b>Layer 5</b> provides navigation — structured discovery of concepts across the knowledge graph.</li>
+          <li><b>Layer 6</b> enforces compliance — alignment audits, blocking gates, and deterministic signal detection.</li>
+          <li><b>Layer 7</b> orchestrates execution — 14 specialized agents and 25 skills coordinated through a nine-stage pipeline.</li>
+        </ul>
+        <p>The key insight is that derivation and governance are not bolted onto the system — they are <em>structural consequences</em> of the layered architecture. A typed ontology (L1) deterministically produces tests (L2). A formal constitution (L3) deterministically maps to enforcement gates (L6). The tuning loop (signals → reflection → improvement) closes the system into a self-regulating cycle where Axiom A6 ("govern the governance itself") creates a Hofstadterian strange loop [4] that prevents infinite regress.</p>
+        <p>We make four contributions:</p>
+        <div class="grid-2">
+          <article class="panel"><span class="tag">C1 · Meta-architecture</span><h3>Dual-track, seven layers</h3><p>A dual-track (business × operational) seven-layer model where each layer governs the layer below and is governed by the layer above, with formal derivation chains traceable from epistemic axioms to enforcement gates.</p></article>
+          <article class="panel"><span class="tag">C2 · Derivation calculus</span><h3><code>T = f(C, R, Δ)</code></h3><p>A per-feature function plus a system-level composition extension <code>T_composed = f(C, R, Δ) + f_cross(E_AB, Δ_cross)</code> mapping concepts, typed relationships, and rules to deterministic test obligations — plus 16 symmetric observability rules that derive production metrics from the same specification documents.</p></article>
+          <article class="panel"><span class="tag">C3 · Governance attenuation</span><h3>Why fidelity decays with layers</h3><p>A formal model of why governance fidelity decreases as layers accumulate in multi-agent systems, grounded in Shannon channel capacity [5], Ashby's Law of Requisite Variety [6], and empirical evidence from LLM instruction-following behavior.</p></article>
+          <article class="panel"><span class="tag">C4 · Meta-circular governance</span><h3>A bounded strange loop</h3><p>A structural mechanism where the framework governs itself: Axiom A6 governs governance, Constitution Rule C10 prunes the constitution, and meta-health metrics M-001–M-006 observe the observer — resolving the infinite regress through a bounded strange loop rather than external authority.</p></article>
+        </div>
+        <p>We validate these contributions on a production poker team management system comprising 7 features across 3 business pillars (product, operations, finance), demonstrating that DomainSpec derives 445 test obligations and 146 observability metrics from 89 domain concepts with full traceability.</p>
+        <p class="muted">The remainder of this paper is organized as follows. Section 2 surveys related work. Section 3 presents the meta-architecture. Section 4 defines the typed domain ontology. Section 5 formalizes the derivation calculus. Section 6 develops governance attenuation theory. Section 7 describes the self-improving pipeline. Section 8 presents the case study. Section 9 discusses limitations and future work.</p>
+      </div>
+    </section>
+
+    <!-- 2 BACKGROUND -->
+    <section id="s2" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">2 · Background and Related Work</p><h2>Where DomainSpec sits, and the gap it fills.</h2></div>
+        <p>DomainSpec sits at the intersection of several research traditions: domain-driven design, model-based testing, specification-first development, multi-agent governance, and meta-modeling. We survey each and identify the gap that DomainSpec fills.</p>
+        <h4>2.1 Domain-Driven Design</h4>
+        <p>Evans' Domain-Driven Design (DDD) [7] established that software structure should mirror domain structure through ubiquitous language, bounded contexts, entities, value objects, and aggregates. DDD provides the <em>intuition</em> that domain semantics should drive implementation, but it remains informal — the vocabulary is advisory, relationships are implicit, and there is no derivation function from domain model to verification obligations. DomainSpec formalizes the DDD intuition into a closed typed ontology with deterministic derivation.</p>
+        <h4>2.2 Model-Based Testing</h4>
+        <p>Model-based testing (MBT) [8] generates tests from behavioral models — state machines, labeled transition systems, or UML diagrams. MBT achieves deterministic derivation (from model to test), but the models describe <em>system behavior</em>, not <em>domain semantics</em>. A state machine captures valid transitions but says nothing about the business rules that guard them, the calculations that produce side effects, or the events that propagate downstream. DomainSpec's derivation operates on domain concepts (rules, calculations, postconditions, workflows), not behavioral abstractions, producing tests that are traceable to business meaning.</p>
+        <h4>2.3 Behavior-Driven Development</h4>
+        <p>BDD [9] bridges domain language and tests through Given/When/Then scenarios written in Gherkin. BDD is human-readable but <em>not formally derivable</em> — there is no function from domain model to scenario set. The scenarios must be manually authored, and their completeness depends on the author's diligence. DomainSpec generates BDD-style templates deterministically: every rule in <code>operations.md</code> produces at least 2 tests (pass + fail), every state transition produces 1 happy-path test and 1 negative test, every interface endpoint × response status produces 1 contract test.</p>
+        <h4>2.4 Formal Specification Languages</h4>
+        <p>TLA+ [10], Alloy [11], and Z [12] provide mathematically rigorous specifications with model checking or theorem proving. These achieve the strongest guarantees but are impractical for typical business domains: the learning curve is steep, the specification effort is high, and the gap between formal model and implementation code requires a separate verification step. Recent work combines Alloy with LLMs [13] to lower the barrier, but the fundamental trade-off between rigor and accessibility remains. DomainSpec targets the <em>middle ground</em> — formal enough for deterministic derivation, accessible enough for domain experts writing Markdown.</p>
+        <h4>2.5 LLM Agents for Software Engineering</h4>
+        <p>SWE-bench [1] established the benchmark for LLM agents resolving GitHub issues. SWE-agent [14] introduced tool-use and retrieval-augmented workflows. More recent systems like Devin [2] and Copilot Workspace [3] provide end-to-end development environments. These systems demonstrate that LLM agents can produce working code, but none address <em>specification governance</em> — ensuring that what the agent builds matches what the domain requires. VeriGuard [15] formally verifies LLM-generated agent policies against synthesized safety specifications, but inherits the accessibility limitations of formal methods. DomainSpec governs agent execution through typed specifications that agents can navigate and derive from.</p>
+        <h4>2.6 Multi-Agent Governance</h4>
+        <p>As agent systems scale from single-agent to multi-agent architectures [16], governance becomes a first-class concern. Constitutional AI [17] introduced the idea of using principles to constrain generation, but applies at the single-output level. The Agentic Delivery Lifecycle (ADLC) [18] proposes continuous tuning as the central value driver for agent-assisted development. DomainSpec operationalizes ADLC principles through a concrete layered architecture with formal governance attenuation bounds.</p>
+        <h4>2.7 Meta-Modeling Frameworks</h4>
+        <p>The Meta-Object Facility (MOF) [19] defines a four-layer meta-modeling architecture (M0–M3) for standardizing modeling languages. ISO/IEC/IEEE 42010 [20] provides a conceptual framework for architecture descriptions. Zachman [21] organizes enterprise architecture along interrogative dimensions, and Kruchten's 4+1 view model [31] decomposes an architecture into complementary stakeholder views. These frameworks operate at the <em>modeling language</em> level — they define how to define models — but do not connect to software derivation or agent governance. The Meta-Track framework [22] introduces a seven-layer hierarchy connecting domain vocabulary to code via annotations and orphan detection. DomainSpec adopts Meta-Track's layering insight and extends it with deterministic derivation (L1→L2), formal governance attenuation theory (L3–L4), and meta-circular self-governance (A6, C10, M-001–M-006).</p>
+        <h4>2.8 Research Gap</h4>
+        <p>Table 1 summarizes the landscape. No existing approach combines a typed domain ontology, deterministic derivation to both tests and observability metrics, multi-agent governance with formal attenuation bounds, and meta-circular self-governance — the four properties that DomainSpec unifies under a single layered architecture.</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 1. Comparison of specification and governance approaches.</caption>
+            <thead><tr><th>Approach</th><th>Typed Ontology</th><th>Deterministic Derivation</th><th>Agent Governance</th><th>Self-Governance</th><th>Accessibility</th></tr></thead>
+            <tbody>
+              <tr><td>DDD [7]</td><td>Informal</td><td>—</td><td>—</td><td>—</td><td>High</td></tr>
+              <tr><td>MBT [8]</td><td>Behavioral</td><td>Tests only</td><td>—</td><td>—</td><td>Medium</td></tr>
+              <tr><td>BDD [9]</td><td>Natural language</td><td>—</td><td>—</td><td>—</td><td>High</td></tr>
+              <tr><td>TLA+/Alloy [10,11]</td><td>Formal logic</td><td>Model checking</td><td>—</td><td>—</td><td>Low</td></tr>
+              <tr><td>SWE-agent [14]</td><td>—</td><td>—</td><td>Implicit</td><td>—</td><td>High</td></tr>
+              <tr><td>Constitutional AI [17]</td><td>—</td><td>—</td><td>Principles</td><td>—</td><td>High</td></tr>
+              <tr><td>ADLC [18]</td><td>—</td><td>—</td><td>Lifecycle</td><td>—</td><td>Medium</td></tr>
+              <tr><td>Meta-Track [22]</td><td>Annotations</td><td>—</td><td>Health metrics</td><td>—</td><td>Medium</td></tr>
+              <tr><td><b>DomainSpec</b></td><td><b>25 types × 29 edges</b></td><td><b>Tests + Metrics</b></td><td><b>Attenuation theory</b></td><td><b>Strange loop</b></td><td><b>High (Markdown)</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 META-ARCHITECTURE -->
+    <section id="s3" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">3 · The Meta-Architecture</p><h2>A seven-layer dual-track hierarchy.</h2></div>
+        <p>DomainSpec organizes knowledge, software, and governance into a seven-layer dual-track hierarchy. The <em>business track</em> governs what things mean (domain semantics → software → verification). The <em>operational track</em> governs how the framework itself runs (orchestration → enforcement → self-improvement). Both tracks share Layers 0–2 and diverge at Layer 3.</p>
+
+        <h4>3.1 Layer Definitions</h4>
+        <ul>
+          <li><b>Layer 0 — Domain Reality.</b> The actual business domain as it exists independent of software. This is the territory, not the map. L0 is the ultimate source of truth against which all other layers are validated.</li>
+          <li><b>Layer 1 — Ontology.</b> A typed vocabulary of 25 meta-types and 29 relationships (Section 4) that captures domain semantics, including cross-feature composition semantics. L1 transforms the informal domain reality into a navigable knowledge graph documented in Markdown files (<code>SPEC.md</code>, <code>domain.md</code>, <code>operations.md</code>, <code>states.md</code>, etc.).</li>
+          <li><b>Layer 2 — Software.</b> Executable artifacts derived from L1: implementation code, test suites, observability instrumentation, and infrastructure configuration. L2 artifacts are <em>derived</em>, not authored — they are the output of applying derivation rules (Section 5) to L1 concepts.</li>
+          <li><b>Layer 3B — Governance (Business Track).</b> The constitution: explicit rules governing how domain concepts may be created, related, and extended. Constitution rules (C1–C11) are collected in <code>CONSTITUTION.md</code>, each traceable to an L4 axiom and mapped to an L6 enforcement gate.</li>
+          <li><b>Layer 3O — Governance (Operational Track).</b> Agent instructions, skill specifications, and pipeline sequencing rules that govern how the framework's agents operate.</li>
+          <li><b>Layer 4B — Epistemic Foundations (Business Track).</b> Axioms (A1–A6) formalized in <code>AXIOMS.md</code> that articulate <em>why</em> each governance rule exists. Each axiom is grounded in empirical evidence of harm — the damage observed when the axiom is violated. This follows Taleb's Via Negativa [23]: formalize a rule only when its absence has caused measurable harm.</li>
+          <li><b>Layer 4O — Epistemic Foundations (Operational Track).</b> The principles underlying agent behavior: economy of action, minimal privilege, observability-by-default.</li>
+          <li><b>Layer 5 — Navigation.</b> Discovery mechanisms for locating concepts across the knowledge graph: feature indexes, tag indexes, registry files, and structured search patterns.</li>
+          <li><b>Layer 6B — Enforcement (Business Track).</b> Alignment audits, layering audits, PASS/FLAG/BLOCK verdicts, and CI gates that verify L2 artifacts conform to L1 specifications. Each enforcement gate references the L3 constitution rule it implements.</li>
+          <li><b>Layer 6O — Enforcement (Operational Track).</b> Signal detection, threshold analysis, and tuning triggers that verify the framework itself operates within expected bounds.</li>
+          <li><b>Layer 7B — Orchestration (Business Track).</b> The nine-stage pipeline (Section 7) that sequences planning, specification, story generation, test derivation, implementation, verification, and signal emission.</li>
+          <li><b>Layer 7O — Orchestration (Operational Track).</b> The tuning loop (signals → reflection → improvement) that closes the self-governance cycle.</li>
+        </ul>
+
+        <h4>3.1.1 Hard Layer-System Definitions</h4>
+        <p>To keep architecture semantics centralized (instead of distributed across claims and experiments), we define the layer system explicitly.</p>
+        <div class="def"><b>Definition L-A</b> (Layer Set). Let the DomainSpec layer set be <em class="math">𝓛 = {L0, L1, L2, L3, L4, L5, L6, L7}</em>, with governance direction from higher to lower layers and derivation direction from lower to higher enforcement evidence.</div>
+        <div class="def"><b>Definition L-B</b> (Track Projection). The dual-track architecture is modeled as two projections over the same core:
+          <span class="eq">𝓛_B = {L0, L1, L2, L3B, L4B, L5, L6B, L7B}
+𝓛_O = {L0, L1, L2, L3O, L4O, L5, L6O, L7O}</span>
+          where L0–L2 are shared between tracks.</div>
+        <div class="def"><b>Definition L-C</b> (L7 Orchestration Contract). Let <em class="math">S = {s₁, …, s₉}</em> be the business-stage set (Plan, Spec, Stories, Tests, Implement, Verify, UI, Observability, Signals); <em class="math">H ⊆ S × S</em> the stage handoff relation; <em class="math">Σ</em> emitted signal events; <em class="math">Θ</em> threshold predicates (TH1–TH10); <em class="math">Π</em> tuning proposals/actions. Then:
+          <span class="eq">L7B = (S, H),   L7O = (Σ, Θ, Π)</span>
+          with coupling <em class="math">s₉ ⇒ Σ —[Θ]→ Π —[apply]→ updates(S, H)</em>. This makes Layer 7 a formally split orchestration system rather than a narrative-only description.</div>
+
+        <h4>3.2 The Derivation Chain</h4>
+        <p>The architecture's structural power comes from its formal derivation chains. Each chain traces from epistemic foundation to enforcement:</p>
+        <span class="eq">L4 —[justifies]→ L3 —[implemented by]→ L6</span>
+        <p>Concretely, Axiom A1 ("Documentation is the source of truth for domain meaning") justifies Constitution Rule C1 ("Every domain concept must be documented before it is implemented"), which is enforced by Gate G1 (the alignment audit that blocks code without corresponding SPEC entries). This chain is auditable: given any enforcement gate, one can trace backward to the axiom that justifies its existence. Given any axiom, one can trace forward to every gate that implements it. Table 2 shows the complete chain.</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 2. Derivation chain: Axioms → Constitution → Enforcement.</caption>
+            <thead><tr><th>Axiom</th><th>Statement</th><th>Constitution Rules</th><th>Enforcement Gates</th></tr></thead>
+            <tbody>
+              <tr><td>A1 — Documentation First</td><td>"Documentation is the source of truth for domain meaning"</td><td>C1 (document before implement), C5 (SPEC before code)</td><td>Alignment audit, spec-gap signals</td></tr>
+              <tr><td>A2 — Type Safety</td><td>"Every domain concept must declare a meta-type"</td><td>C2 (concept table required), C6 (relationship typing)</td><td>Registry sync, orphan detection</td></tr>
+              <tr><td>A3 — Deterministic Derivation</td><td>"Tests and metrics derive from specs via rules, not judgment"</td><td>C3 (test derivation), C7 (observability derivation)</td><td>Test-count verification, O-rule compliance</td></tr>
+              <tr><td>A4 — Governance Traceability</td><td>"Every rule must trace to a justification and an enforcement"</td><td>C4 (constitution format), C8 (gate references)</td><td>Derivation chain audit</td></tr>
+              <tr><td>A5 — Empirical Grounding</td><td>"Formalize only what absence has proven harmful"</td><td>C9 (evidence-of-harm required), C11 (via negativa pruning)</td><td>Governance pruning protocol</td></tr>
+              <tr><td>A6 — Meta-Circular Governance</td><td>"The governance system governs itself"</td><td>C10 (constitution self-amendment), C11 (pruning)</td><td>Meta-health metrics M-001–M-006</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>3.3 The Dual-Track Architecture</h4>
+        <p>The business and operational tracks share L0–L2 (the domain and its software) but maintain independent governance hierarchies. This separation ensures that <em>what to build</em> (business track) and <em>how to build it</em> (operational track) are governed by independent authorities that can evolve at different rates.</p>
+        <pre><code>Business Track (B)                   Operational Track (O)
+─────────────────                    ────────────────────
+L7B: Pipeline stages                 L7O: Tuning loop
+L6B: Alignment audits                L6O: Signal detection
+L5B: Feature navigation              L5O: Agent context discovery
+L4B: Domain axioms (A1–A6)           L4O: Operational principles
+L3B: Constitution (C1–C11)           L3O: Agent instructions
+
+         ╲                 ╱
+          ╲               ╱
+           L2: Software
+           L1: Ontology
+           L0: Domain Reality</code></pre>
+        <p>The tracks converge at three points: (1) L1, where the ontology defines vocabulary for both tracks; (2) L2, where derived software serves both domain behavior and framework operation; and (3) the feedback loop, where operational signals (L6O) trigger business-track re-derivation (L7B → L1 → L2).</p>
+
+        <h4>3.4 Meta-Circular Self-Governance</h4>
+        <p>The deepest structural property of the architecture is its meta-circularity. The framework governs itself through the same mechanisms it uses to govern software:</p>
+        <ul>
+          <li><b>Axiom A6</b> ("The governance system governs itself") creates a self-referential foundation — the axiom layer includes an axiom about its own governance.</li>
+          <li><b>Constitution Rule C10</b> permits the constitution to amend itself when evidence warrants, subject to the same Via Negativa principle (C11) that governs all rule creation.</li>
+          <li><b>Meta-health metrics M-001–M-006</b> observe the observer: Orphan Rate (M-001) measures whether the ontology-to-code binding is complete, Friction Rate (M-002) measures whether enforcement is active, Overhead Ratio (M-006) measures whether governance cost is proportionate to domain work.</li>
+        </ul>
+        <p>This creates a Hofstadterian strange loop [4]: the system that observes software behavior is itself observed by the same system's meta-health layer. The loop is bounded (it does not recurse infinitely) because M-001–M-006 are <em>defined metrics with fixed computation</em>, not open-ended self-reflection. The observer observes itself through a finite, deterministic lens. This structure resolves the infinite regress problem: rather than requiring an external authority to govern the governance, DomainSpec's governance is self-terminating through bounded self-reference.</p>
+      </div>
+    </section>
+
+    <!-- 4 ONTOLOGY -->
+    <section id="s4" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">4 · Typed Domain Ontology (L1)</p><h2>A closed vocabulary of 25 meta-types and 29 relationships.</h2></div>
+
+        <h4>4.1 Meta-Types</h4>
+        <p>DomainSpec defines a closed vocabulary of 25 meta-types organized into three categories: 14 backend types, 11 UI types. Every domain concept documented in a feature specification must declare exactly one meta-type.</p>
+        <div class="def"><b>Definition 1</b> (Meta-Type System). Let <em class="math">𝓜 = 𝓜_B ∪ 𝓜_U</em> be the set of meta-types, where:
+          <span class="eq">𝓜_B = {Entity, ValueObject, Enum, Operation, Query, Calculation,
+       Rule, Policy, Workflow, Saga, Interface, Event, Mapping, StateMachine}
+𝓜_U = {Page, Layout, Component, ViewModel, Hook,
+       Form, Action, Guard, Binding, Adapter, StateIndicator}</span>
+        </div>
+        <p>The backend types organize into four functional groups:</p>
+        <ul>
+          <li><b>Structural</b> (what things are): Entity, Value Object, Enum</li>
+          <li><b>Behavioral</b> (what happens): Operation, Query, Calculation, Workflow, Saga</li>
+          <li><b>Governing</b> (what constrains): Rule, Policy</li>
+          <li><b>Connective</b> (what connects): Interface, Event, Mapping, State Machine</li>
+        </ul>
+        <p>The UI types mirror this organization:</p>
+        <ul>
+          <li><b>Structural</b>: Page, Layout, Component</li>
+          <li><b>Behavioral</b>: View Model, Hook, Form, Action</li>
+          <li><b>Governing</b>: Guard</li>
+          <li><b>Connective</b>: Binding, Adapter, State Indicator</li>
+        </ul>
+        <p><b>Technique specializations are deliberately excluded from this vocabulary.</b> Architectural techniques such as Saga, Outbox, CQRS, Materialized Read Model, and Hexagonal Ports/Adapters are not added as meta-types: they have no single structural code-artifact shape, only a decision-protocol shape (when to apply them, given which symptoms). They are governed by a separate decision axis — the technique/specialization model (Section 4.3, DS-M13) — rather than by the closed meta-type system above. This keeps the meta-type vocabulary about <em>what artifacts exist</em> and routes <em>which technique to choose</em> into its own method. (Two such techniques, Materialized Read Model and the Outbox event-reliability pattern, recur as candidate vocabulary extensions; see Section 9.1.)</p>
+
+        <h4>4.2 Typed Relationships</h4>
+        <div class="def"><b>Definition 2</b> (Relationship System). Let <em class="math">𝓡 = 𝓡_B ∪ 𝓡_CF ∪ 𝓡_U ∪ 𝓡_X</em> be the set of typed relationships:
+          <span class="eq">𝓡_B  = {performs, produces, enforces, calculates, transitions,
+        exposes, orchestrates, applies, maps, contains, queries, emits}
+𝓡_CF = {produces-for, triggers-cross, enforces-cross}
+𝓡_U  = {renders, wraps, composes, consumes, submits, shapes, protects, displays}
+𝓡_X  = {fetches, mutates, reflects, derives, contracts, mirrors}</span>
+          where <em class="math">𝓡_B</em> contains 12 intra-feature backend edges, <em class="math">𝓡_CF</em> contains 3 cross-feature backend edges, <em class="math">𝓡_U</em> contains 8 intra-UI edges, and <em class="math">𝓡_X</em> contains 6 cross-layer edges connecting UI concepts to backend concepts.</div>
+        <p>Each relationship has a typed signature constraining its source and target:</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 3. Relationship type signatures (backend edges).</caption>
+            <thead><tr><th>Edge</th><th>Source Type</th><th>Target Type</th><th>Semantics</th></tr></thead>
+            <tbody>
+              <tr><td><code>performs</code></td><td>Entity</td><td>Operation</td><td>Actor initiates action</td></tr>
+              <tr><td><code>produces</code></td><td>Operation</td><td>Event</td><td>Action emits signal</td></tr>
+              <tr><td><code>enforces</code></td><td>Rule</td><td>Operation</td><td>Constraint gates action</td></tr>
+              <tr><td><code>calculates</code></td><td>Calculation</td><td>Operation</td><td>Derived value feeds action</td></tr>
+              <tr><td><code>transitions</code></td><td>Event</td><td>StateMachine</td><td>Signal triggers state change</td></tr>
+              <tr><td><code>exposes</code></td><td>Interface</td><td>Operation ∨ Query</td><td>Boundary makes logic accessible</td></tr>
+              <tr><td><code>orchestrates</code></td><td>Workflow</td><td>Operation[]</td><td>Process coordinates actions</td></tr>
+              <tr><td><code>applies</code></td><td>Policy</td><td>Operation</td><td>Strategy governs behavior</td></tr>
+              <tr><td><code>maps</code></td><td>Mapping</td><td>Entity ∨ Interface</td><td>Shape transformation across boundary</td></tr>
+              <tr><td><code>contains</code></td><td>Entity</td><td>ValueObject</td><td>Composition</td></tr>
+              <tr><td><code>queries</code></td><td>Query</td><td>Entity</td><td>Read dependency</td></tr>
+              <tr><td><code>emits</code></td><td>Entity</td><td>Event</td><td>Source of domain signal</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 3b. Relationship type signatures (cross-feature backend edges).</caption>
+            <thead><tr><th>Edge</th><th>Source Type</th><th>Target Type</th><th>Semantics</th></tr></thead>
+            <tbody>
+              <tr><td><code>produces-for</code></td><td>Operation@A</td><td>Entity@B</td><td>Operation in A mutates or projects state into B-owned entity</td></tr>
+              <tr><td><code>triggers-cross</code></td><td>Event@A</td><td>Operation@B</td><td>Event in A triggers operation execution in B</td></tr>
+              <tr><td><code>enforces-cross</code></td><td>Rule@A</td><td>Operation@B</td><td>Rule in A constrains operation in B</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 4. Relationship type signatures (cross-layer edges).</caption>
+            <thead><tr><th>Edge</th><th>Source Type</th><th>Target Type</th><th>Semantics</th></tr></thead>
+            <tbody>
+              <tr><td><code>fetches</code></td><td>Binding</td><td>Query</td><td>UI reads from backend</td></tr>
+              <tr><td><code>mutates</code></td><td>Binding</td><td>Operation</td><td>UI writes to backend</td></tr>
+              <tr><td><code>reflects</code></td><td>StateIndicator</td><td>StateMachine</td><td>UI mirrors domain lifecycle</td></tr>
+              <tr><td><code>derives</code></td><td>ViewModel</td><td>Entity</td><td>UI data shaped from domain</td></tr>
+              <tr><td><code>contracts</code></td><td>Form</td><td>Interface</td><td>UI schema aligns with API</td></tr>
+              <tr><td><code>mirrors</code></td><td>Guard</td><td>Rule</td><td>Client replicates server constraint</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>4.3 Formal Properties</h4>
+        <p>The ontology satisfies four structural properties:</p>
+        <div class="def"><b>Property 1</b> (Type Safety). Every relationship instance respects its type signature. If <em class="math">r ∈ 𝓡</em> has signature <em class="math">σ(r) = (S, T)</em>, then for every instance <em class="math">(a, r, b)</em> in the concept graph, <em class="math">type(a) ∈ S</em> and <em class="math">type(b) ∈ T</em>.</div>
+        <div class="def"><b>Property 2</b> (Partition). <em class="math">𝓜_B ∩ 𝓜_U = ∅</em>. Backend and UI meta-types are disjoint. Every concept belongs to exactly one partition.</div>
+        <div class="def"><b>Property 3</b> (Cross-Layer Bridging). Every edge in <em class="math">𝓡_X</em> has source type in <em class="math">𝓜_U</em> and target type in <em class="math">𝓜_B</em>. Cross-layer relationships are unidirectional: UI depends on backend, never the reverse.</div>
+        <div class="def"><b>Property 4</b> (Cross-Feature Boundary Discipline). Every edge in <em class="math">𝓡_CF</em> crosses ownership boundaries. If <em class="math">(u, v)</em> has label in <em class="math">𝓡_CF</em>, then <em class="math">u</em> and <em class="math">v</em> belong to distinct feature or bounded-context owners.</div>
+        <p>These properties ensure that the concept graph is well-formed: no relationship can connect incompatible concept types, cross-feature edges are explicit, and the dependency direction between frontend and backend is structurally enforced.</p>
+        <p>Properties 1–4 govern the meta-type system of §4.1. The orthogonal technique/specialization axis introduced above carries its own validity property, kept separate so it does not contaminate the structural ontology:</p>
+        <div class="def"><b>Property DS-M13</b> (Technique-Selection Validity, decision-protocol axis). A technique-selection decision <em class="math">d(x) = (family*, specialization*, tradeoff_vector, confidence)</em> over a symptom context <em class="math">x</em> is <em>valid</em> iff it satisfies a fixed quality vector — <em class="math">PrecisionF1 ≥ 0.75</em>, <em class="math">ApplicabilityRate ≥ 0.80</em>, <em class="math">AmbiguityRate ≤ 0.15</em>, and <em class="math">TradeoffCompleteness ≥ 0.85</em>. Unlike Properties 1–4, DS-M13 governs <em>decisions about</em> techniques, not the typing of code artifacts. Its thresholds were met once in a controlled experiment (E11) under a single-reviewer adjudication, so DS-M13 is reported here as a defined and provisionally-evidenced property rather than a promoted claim (Section 9.4).</div>
+
+        <h4>4.4 The Concept Graph</h4>
+        <div class="def"><b>Definition 3</b> (Concept Graph). A DomainSpec feature specification defines a labeled directed graph <em class="math">G = (V, E, τ, λ)</em> where <em class="math">V</em> is the set of domain concepts; <em class="math">E ⊆ V × V</em> the set of directed edges; <em class="math">τ: V → 𝓜</em> assigns a meta-type to each concept; <em class="math">λ: E → 𝓡</em> assigns a relationship type to each edge — subject to the type safety constraint: <em class="math">∀ (u, v) ∈ E</em>, if <em class="math">λ(u,v) = r</em> and <em class="math">σ(r) = (S, T)</em>, then <em class="math">τ(u) ∈ S ∧ τ(v) ∈ T</em>.</div>
+        <p>The concept graph provides full-stack navigability. From any concept, one can follow typed edges to discover what it affects and what affects it. For example, tracing a user action end-to-end:</p>
+        <span class="eq">Page —[renders]→ Form —[submits]→ Hook —[mutates]→ Operation —[enforces⁻¹]→ Rule
+Operation —[produces]→ Event —[transitions]→ StateMachine</span>
+        <p>This trace is fully typed: each step constrains what concept types can appear next, making the graph navigable by both humans and LLM agents.</p>
+      </div>
+    </section>
+
+    <!-- 5 DERIVATION CALCULUS -->
+    <section id="s5" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">5 · Deterministic Derivation Calculus (L1 → L2)</p><h2>Verification obligations, deterministically derived.</h2></div>
+        <p>The central claim of DomainSpec is that verification obligations — test cases and observability metrics — can be <em>deterministically derived</em> from the typed domain ontology. This section formalizes the derivation.</p>
+
+        <h4>5.1 The Derivation Function</h4>
+        <div class="def"><b>Definition 4</b> (Per-Feature Derivation Function). Let <em class="math">G = (V, E, τ, λ)</em> be a concept graph (Definition 3). The per-feature derivation function is:
+          <span class="eq">T = f(G, Δ) = ⋃ over i=1..|Δ| of δᵢ(G)</span>
+          where <em class="math">Δ = {δ₁, …, δ_{|Δ|}}</em> is the set of derivation rules, each mapping a concept graph to a set of test obligations.</div>
+        <p>The derivation is deterministic: given the same concept graph <em class="math">G</em> and the same rule set <em class="math">Δ</em>, the function produces the identical set of test obligations <em class="math">T</em> on every invocation. This eliminates the stochastic gap — LLM agents execute derivation <em>rules</em>, not stochastic generation.</p>
+        <div class="def"><b>Definition 5</b> (Composed Derivation Function). For a system composed of feature graphs <em class="math">{G₁, …, Gₙ}</em> and cross-feature edge set <em class="math">E_AB</em>:
+          <span class="eq">T_composed = Σ over k=1..n of f(G_k, Δ) + f_cross(E_AB, Δ_cross)</span>
+          where <em class="math">Δ_cross = {δ_produces-for, δ_triggers-cross, δ_enforces-cross}</em>.</div>
+        <p>The composed function preserves determinism while making cross-feature integration obligations explicit and derivable.</p>
+
+        <h4>5.2 Test Derivation Rules</h4>
+        <p>DomainSpec defines 14 backend test derivation rules and 6 UI test derivation rules for per-feature graphs. For composed systems, 3 additional cross-feature derivation rules are applied through <em class="math">f_cross</em>. Each rule specifies its source (which documentation section), its trigger (which concept types), and its output (which test types with what cardinality).</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 5. Backend test derivation rules.</caption>
+            <thead><tr><th>Rule</th><th>Source</th><th>Trigger</th><th>Output</th><th>Cardinality</th></tr></thead>
+            <tbody>
+              <tr><td>δ₁</td><td>states.md</td><td>Transition table row</td><td>Happy-path transition test</td><td>1 per row</td></tr>
+              <tr><td>δ₂</td><td>states.md</td><td>Invalid transition entry</td><td>Negative transition test</td><td>1 per invalid combo</td></tr>
+              <tr><td>δ₃</td><td>states.md</td><td>Invariant row</td><td>Property-based invariant test</td><td>1 per invariant</td></tr>
+              <tr><td>δ₄</td><td>operations.md</td><td>Rule (R1, R2, …)</td><td>Rule validation tests</td><td>≥ 2 per rule (pass + fail)</td></tr>
+              <tr><td>δ₅</td><td>operations.md</td><td>Calculation (C1, C2, …)</td><td>Calculation correctness test</td><td>≥ 1 per calculation</td></tr>
+              <tr><td>δ₆</td><td>operations.md</td><td>Postcondition bullet</td><td>Postcondition assertion</td><td>1 per postcondition</td></tr>
+              <tr><td>δ₇</td><td>operations.md</td><td>Error state row</td><td>Error state test</td><td>1 per error state</td></tr>
+              <tr><td>δ₈</td><td>interfaces.md</td><td>Endpoint × status code</td><td>Contract test</td><td>1 per combination</td></tr>
+              <tr><td>δ₉</td><td>interfaces.md</td><td>Field mapping entry</td><td>Mapping verification</td><td>1 per mapping</td></tr>
+              <tr><td>δ₁₀</td><td>events.md</td><td>Event</td><td>Producer emission test</td><td>1 per event</td></tr>
+              <tr><td>δ₁₁</td><td>events.md</td><td>Event × consumer</td><td>Consumer handling test</td><td>1 per consumer</td></tr>
+              <tr><td>δ₁₂</td><td>queries.md</td><td>Query</td><td>Output shape + filter + auth tests</td><td>≥ 3 per query</td></tr>
+              <tr><td>δ₁₃</td><td>workflows.md</td><td>Workflow step</td><td>Happy-path + compensation test</td><td>2 per step</td></tr>
+              <tr><td>δ₁₄</td><td>mappings.md</td><td>Field mapping row</td><td>Transformation test</td><td>1 per row</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 6. UI test derivation rules.</caption>
+            <thead><tr><th>Rule</th><th>Source</th><th>Trigger</th><th>Output</th><th>Cardinality</th></tr></thead>
+            <tbody>
+              <tr><td>δ₁₅</td><td>UI-SPEC.md</td><td>Route declaration</td><td>Page navigation test</td><td>1 per route</td></tr>
+              <tr><td>δ₁₆</td><td>STORIES.md + UI-SPEC</td><td>User story with UI steps</td><td>End-to-end journey test</td><td>1 per story</td></tr>
+              <tr><td>δ₁₇</td><td>UI-SPEC.md + operations.md</td><td>Form × validation rule</td><td>Client-side validation test</td><td>1 per rule × form</td></tr>
+              <tr><td>δ₁₈</td><td>UI-SPEC.md</td><td>Declared UI state</td><td>State reflection test</td><td>1 per state</td></tr>
+              <tr><td>δ₁₉</td><td>UI-ARCHITECTURE.md</td><td>Page × breakpoint</td><td>Responsive layout test</td><td>1 per page × breakpoint</td></tr>
+              <tr><td>δ₂₀</td><td>All pages</td><td>Interactive component</td><td>Accessibility test</td><td>1 per page</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>5.3 Derivation Cardinality</h4>
+        <p>The test obligation count for a feature is deterministic and computable:</p>
+        <span class="eq">|T| = Σ over i=1..20 of |δᵢ(G)|</span>
+        <p>For a feature with <em class="math">n_s</em> state transitions, <em class="math">n_r</em> rules, <em class="math">n_c</em> calculations, <em class="math">n_p</em> postconditions, <em class="math">n_e</em> events, <em class="math">n_q</em> queries, <em class="math">n_ep</em> endpoint-status combinations, and <em class="math">n_m</em> mappings:</p>
+        <span class="eq">|T| ≥ n_s + n_inv + 2·n_r + n_c + n_p + n_err + n_ep + n_m + n_e + n_ec + 3·n_q + 2·n_ws</span>
+        <p>where the inequality accounts for rules that produce more than the minimum test count.</p>
+
+        <h4>5.4 Observability Derivation (Symmetric Outer Loop)</h4>
+        <p>A key architectural insight is that the <em>same</em> specification documents that derive tests also derive production observability metrics. DomainSpec defines 16 observability derivation rules (O-rules) that operate on the concept graph in parallel with the test rules, producing OpenTelemetry metric obligations.</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 7. Observability derivation rules.</caption>
+            <thead><tr><th>Rule</th><th>Source</th><th>Metric Type</th><th>Alert Severity</th></tr></thead>
+            <tbody>
+              <tr><td>O1</td><td>Transition row</td><td>Counter: <code>state.transition</code></td><td>P0 for invalid transitions</td></tr>
+              <tr><td>O2</td><td>State machine</td><td>UpDownCounter: <code>state.population</code></td><td>State accumulation</td></tr>
+              <tr><td>O3</td><td>Invariant</td><td>Gauge: <code>invariant.violation</code></td><td>P0: any &gt; 0</td></tr>
+              <tr><td>O4</td><td>Operation</td><td>4 metrics: invocation, success, failure, duration</td><td>P1: SLO breach</td></tr>
+              <tr><td>O5</td><td>Rule</td><td>Counter: <code>rule.violation</code></td><td>Pattern monitoring</td></tr>
+              <tr><td>O6</td><td>Calculation</td><td>Histogram: <code>calculation.drift</code></td><td>P0: drift &gt; 1%</td></tr>
+              <tr><td>O7</td><td>Postcondition</td><td>Counter: <code>postcondition.check</code></td><td>P1: any violated</td></tr>
+              <tr><td>O8</td><td>Endpoint</td><td>HTTP RED metrics (OTel semconv)</td><td>P1: SLO breach</td></tr>
+              <tr><td>O9</td><td>Idempotency rule</td><td>Gauge: <code>idempotency.violation</code></td><td>P0: any &gt; 0</td></tr>
+              <tr><td>O10</td><td>Event</td><td>Counter: emit/consume + Histogram: lag</td><td>P1: event loss</td></tr>
+              <tr><td>O11</td><td>Query</td><td>Histogram: duration + result size</td><td>P3: trend degradation</td></tr>
+              <tr><td>O12</td><td>Workflow</td><td>Counter: invocation + Histogram: duration</td><td>P1: failure rate</td></tr>
+              <tr><td>O13</td><td>Capability</td><td>Business KPI</td><td>P2: trend degradation</td></tr>
+              <tr><td>O14</td><td>User journey</td><td>Funnel: step conversion</td><td>P2: drop-off spike</td></tr>
+              <tr><td>O15</td><td>Financial operation</td><td>Gauge: reconciliation mismatch</td><td>P0: any &gt; 0</td></tr>
+              <tr><td>O16</td><td>Settlement operation</td><td>Counter: cycle metrics + drift</td><td>P0: drift &gt; 0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The total observability obligation count is similarly deterministic:</p>
+        <span class="eq">|O| = Σ over j=1..16 of |oⱼ(G)|</span>
+        <p>Together, tests and metrics form a <b>symmetric verification pair</b>: tests validate at build time (inner loop), metrics validate at runtime (outer loop), both derived from the same specification, both traceable to the same domain concepts. This symmetry ensures that no domain behavior is tested but unmonitored, or monitored but untested.</p>
+
+        <h4>5.5 Three-Layer Metric Architecture</h4>
+        <p>The derived metrics organize into three layers, each answering a different question:</p>
+        <ul>
+          <li><b>Domain Fidelity</b> (O1–O3, O5–O7, O9, O15–O16): Does production behavior match the specification? Any violation is a P0 — the system is doing something the domain model says it should not.</li>
+          <li><b>Operational Health</b> (O4, O8, O10–O12): Is the system reliable and performant? Violations are P1 — the system is correct but degraded.</li>
+          <li><b>Business Effectiveness</b> (O13–O14): Is the feature achieving its goal? Violations are P2 — the system works but the business outcome is wrong.</li>
+        </ul>
+        <p>This layering ensures that alerts are actionable: a P0 always means the domain model is violated, not just that latency is high.</p>
+      </div>
+    </section>
+
+    <!-- 6 GOVERNANCE ATTENUATION -->
+    <section id="s6" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">6 · Governance Attenuation Theory (L3–L4)</p><h2>Why more governance produces less governance.</h2></div>
+
+        <h4>6.1 The Problem</h4>
+        <p>DomainSpec's dual-track architecture operates as a seven-layer recursive reinforcement system. Each layer governs the layer below it, and the tuning loop creates a cross-cutting feedback mechanism. A fundamental tension emerges: <b>as governance layers accumulate, each individual layer's enforcement fidelity decreases</b>.</p>
+        <p>We call this <em>governance attenuation</em> — the systematic loss of per-rule compliance as the total number of rules grows. This is not a bug in any particular implementation; it is a structural property of bounded-capacity enforcement channels.</p>
+        <div class="def"><b>Definition 6</b> (Governance Attenuation). Let <em class="math">φ(k)</em> denote observed per-rule governance fidelity when <em class="math">k</em> governance constraints are active in a run. Define attenuation as:
+          <span class="eq">A(k) = 1 − φ(k)</span>
+          with critical point <em class="math">k*</em> where marginal fidelity becomes negative:
+          <span class="eq">∂φ/∂k &lt; 0   for   k &gt; k*</span>
+          This definition gives the planned attenuation experiments (E4/E5/E7) a shared measurable target for attenuation analysis, and is the formal object that the channel-capacity model of Section 6.3 (Corollary 1) bounds.</div>
+
+        <h4>6.2 Three Root Causes</h4>
+        <p><b>Cause 1: Context Exhaustion (The Epilogue Problem).</b> In LLM-based agent systems, governance observations (signal emission, compliance checks) are typically the <em>last</em> step in a multi-step pipeline. By the time an agent reaches step 10 of a 10-step process, its effective attention over early-session events has degraded. This maps to the serial position effect [24] and to dual-process accounts of bounded attention [29]: items in the middle of a long context are recalled worst. Governance violations from step 3 are forgotten by step 10.</p>
+        <p><b>Cause 2: Observer-Executor Conflation.</b> The same agent that performs the work is asked to observe itself performing the work. This violates the Conant-Ashby Good Regulator Theorem [25]: <em>every good regulator of a system must be a model of that system</em>. The executor <em>is</em> the system — it cannot simultaneously be its own model with high fidelity. Asking a controller to be its own oscilloscope produces partial observations at best.</p>
+        <p><b>Cause 3: Instruction Dilution (Channel Saturation).</b> Agents receive instructions from multiple sources simultaneously: agent definitions, skill specifications, framework instructions, and governance epilogues. Each source competes for attention in a fixed-capacity channel.</p>
+
+        <h4>6.3 The Channel Capacity Model</h4>
+        <p>We model governance fidelity using Shannon's channel capacity theorem [5]:</p>
+        <span class="eq">C = B · log₂(1 + S/N)</span>
+        <p>where <em class="math">C</em> = effective governance capacity (rules reliably followed per session); <em class="math">B</em> = bandwidth (context window attention available for instructions); <em class="math">S</em> = signal strength (clarity and specificity of each rule); <em class="math">N</em> = noise (competing instructions, ambiguity, context length).</p>
+        <p>Adding governance layers increases <em class="math">N</em> (more competing instructions) faster than it increases <em class="math">S</em> (clarity of any single instruction). The result is a <em>decreasing</em> signal-to-noise ratio and thus decreasing effective capacity per rule.</p>
+        <div class="def"><b>Corollary 1.</b> There exists a critical governance layer count <em class="math">k*</em> beyond which adding layer <em class="math">k* + 1</em> reduces the total effective governance capacity:
+          <span class="eq">∂C/∂k &lt; 0   for   k &gt; k*</span></div>
+
+        <h4>6.4 Theoretical Bounds</h4>
+        <p>Three theoretical results suggest that <em class="math">k* ≈ 6–7</em> for bounded-capacity systems:</p>
+        <ul>
+          <li><b>Miller's Law</b> [26]. The number of objects a bounded-capacity information processor can maintain simultaneously is <em class="math">7 ± 2</em>. LLMs exhibit analogous capacity limits in instruction-following tasks.</li>
+          <li><b>Ashby's Requisite Variety</b> [6]. A controller must have at least as much variety as the system it controls. For a system with 25 concept types and 29 edge types: <em class="math">log₂(54) ≈ 5.75</em> governance dimensions are theoretically sufficient. At 7, returns are diminishing.</li>
+          <li><b>Gödel's Incompleteness</b> (informal application). No sufficiently complex formal system can prove all true statements about itself. The meta-system cannot fully observe itself — there will always be governance gaps that the system is structurally incapable of detecting from within.</li>
+        </ul>
+
+        <h4>6.5 Empirical Evidence</h4>
+        <p>DomainSpec's signal system (Section 7.2) is the instrument intended to measure governance attenuation directly: it records, per pipeline session, how many of the expected governance observations were actually emitted. We state the prediction the architecture makes, and separate it from what has so far been measured.</p>
+        <p><b>Prediction.</b> Because governance observations are the last step of a long pipeline (Cause 1) and are self-reported by the executor (Cause 2), the model predicts that the realized signal-emission rate will fall well below 100% of expected, with the highest-value signal type (<code>governance-gap</code>) the most underreported — detecting what you failed to detect requires exactly the self-modeling capacity that Conant-Ashby proves insufficient. The targeted intervention threshold for observer-executor separation (Section 6.6) is to lift governance-gap detection from a low self-report baseline (on the order of 30–40% of expected) to at least 60%.</p>
+        <p><b>Evidence status.</b> At the time of writing, the live signal corpus is not yet populated to support these rates as measured findings: the dedicated signal-emission experiment (E7) has not been run, and the persisted signal log is empty. The 30–40% baseline and 60% target above are therefore stated as the experiment's <em>projected</em> figures, not as collected data, and are the explicit object of E7. We include them here to fix the measurable target, and flag that the attenuation curve itself (Definition 6) remains an open empirical result pending E4/E5/E7.</p>
+
+        <h4>6.6 Structural Interventions</h4>
+        <p>The winning strategy is not <em>more rules enforced by instruction</em> but <em>fewer, sharper rules enforced structurally</em> — targeting the system's highest-leverage intervention points [28]. DomainSpec proposes three structural interventions:</p>
+        <p><b>Intervention 1: Observer-Executor Separation (Dual-Agent Protocol).</b> Instead of asking one agent to both execute and observe, dispatch a lightweight shadow agent after each pipeline session. The executor produces artifacts; the observer reads the session's output and produces only signals. This mirrors Constitutional AI's [17] approach where one model generates and another evaluates. This eliminates causes 1 (context exhaustion — the observer has full attention budget) and 2 (conflation — the observer has a single responsibility).</p>
+        <p><b>Intervention 2: Deterministic Signal Detection.</b> The largest signal types — <code>alignment-gap</code>, <code>spec-gap</code>, <code>governance-gap</code> — can be partially <em>computed</em> rather than relying on LLM self-report. Deterministic detectors shift detection from L7 (unreliable LLM observation) to L6 (deterministic enforcement):</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Signal</th><th>Computable Proxy</th></tr></thead>
+            <tbody>
+              <tr><td><code>alignment-gap</code></td><td>Diff SPEC concept rows vs. export symbols in domain code</td></tr>
+              <tr><td><code>spec-gap</code></td><td>Count <code>TODO</code>/<code>FIXME</code> comments in generated code</td></tr>
+              <tr><td><code>governance-gap</code></td><td>Check git diff scope matches expected feature directory</td></tr>
+              <tr><td><code>rework</code></td><td>Count files modified more than once per session</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Intervention 3: Via Negativa Governance Pruning.</b> Track which governance rules have actually caught violations via the <code>shouldHaveBeenCaughtBy</code> field. Any rule with zero references after <em class="math">N</em> pipeline runs is consuming channel capacity without proving value and is a candidate for removal. This implements Taleb's Via Negativa [23]: subtract rules that haven't demonstrated necessity.</p>
+
+        <h4>6.7 Viable System Model Mapping</h4>
+        <p>DomainSpec's architecture maps onto Stafford Beer's Viable System Model (VSM) [27] — five necessary and sufficient systems for organizational viability:</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 8. DomainSpec mapped to Beer's Viable System Model.</caption>
+            <thead><tr><th>Beer's System</th><th>Function</th><th>DomainSpec Equivalent</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>System 1 — Operations</td><td>Do the work</td><td>L2 (code) + L7 agents executing</td><td>Working</td></tr>
+              <tr><td>System 2 — Coordination</td><td>Prevent oscillation</td><td>Pipeline sequencing, skill dependencies</td><td>Working</td></tr>
+              <tr><td>System 3 — Control</td><td>Resource allocation, audit</td><td>Alignment audits, PASS/FLAG/BLOCK</td><td>Partially working</td></tr>
+              <tr><td>System 4 — Intelligence</td><td>Adaptation</td><td>Signal accumulation + reflect skill</td><td>Under-performing</td></tr>
+              <tr><td>System 5 — Policy</td><td>Identity, purpose</td><td>AXIOMS.md (A1–A6), CONSTITUTION.md</td><td>Formal</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Beer proved exactly five systems are needed — no more, no fewer. DomainSpec's seven layers map onto Beer's five when redundant layers are collapsed. The insight: the fix is not more layers, but making System 3 continuous (shift enforcement left) and formalizing System 5 (axioms).</p>
+      </div>
+    </section>
+
+    <!-- 7 SELF-IMPROVING PIPELINE -->
+    <section id="s7" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">7 · Self-Improving Pipeline (L6–L7)</p><h2>A nine-stage pipeline that closes into a self-regulating loop.</h2></div>
+
+        <h4>7.1 The Nine-Stage Pipeline</h4>
+        <p>DomainSpec's delivery pipeline sequences nine stages, each producing traceable artifacts:</p>
+        <ol>
+          <li><b>Plan</b> — Clarify objectives, constraints, acceptance criteria</li>
+          <li><b>Spec</b> — Create or evolve feature specification (SPEC.md, domain.md, operations.md, states.md, interfaces.md, events.md)</li>
+          <li><b>Stories</b> — Generate user stories (STORIES.md) with classic + BDD format</li>
+          <li><b>Tests</b> — Derive test specifications by applying <em class="math">Δ</em> to the concept graph</li>
+          <li><b>Implement</b> — Generate code satisfying derived test specifications</li>
+          <li><b>Verify</b> — Run alignment audit, layering audit, PASS/FLAG/BLOCK verdict</li>
+          <li><b>UI</b> (optional) — Derive UI-SPEC.md, implement frontend, visual audit</li>
+          <li><b>Observability</b> — Derive metric obligations, instrument code</li>
+          <li><b>Signals</b> — Emit structured observations about the pipeline run itself</li>
+        </ol>
+        <p>This section instantiates Definition L-C (Section 3.1.1) by making the L7 business-track stage set <em class="math">S</em> and its handoff relation <em class="math">H</em> explicit. Each stage is executed by one or more specialized agents (14 total) coordinated by skills (25 total). Agents operate on the artifacts produced by previous stages, never on raw user intent — ensuring that domain semantics flow through the typed ontology at every step.</p>
+
+        <h4>7.2 The Signal System</h4>
+        <p>Stage 9 emits structured signals to an append-only JSONL file. Each signal has a typed envelope:</p>
+        <pre><code>{
+  "type": "alignment-gap | spec-gap | governance-gap | rework | overhead | decision | proposal | pattern | spec-compliance | agent-cost",
+  "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+  "category": "economy | governance | pattern | quality",
+  "data": {
+    /* type-specific payload */
+  }
+}</code></pre>
+        <p>DomainSpec defines 11 signal types across 4 categories:</p>
+        <ul>
+          <li><b>Economy</b> (3 types): <code>step-verdict</code>, <code>rework</code>, <code>overhead</code> — track pipeline efficiency</li>
+          <li><b>Quality</b> (2 types): <code>alignment-gap</code>, <code>spec-gap</code> — track specification fidelity</li>
+          <li><b>Governance</b> (3 types): <code>governance-gap</code>, <code>proposal</code>, <code>spec-compliance</code> — track framework blind spots</li>
+          <li><b>Pattern</b> (2 types): <code>decision</code>, <code>pattern</code> — capture reusable insights</li>
+          <li><b>Operations</b> (1 type): <code>agent-cost</code> — track resource consumption</li>
+        </ul>
+
+        <h4>7.3 Threshold-Based Tuning</h4>
+        <p>Accumulated signals are analyzed against 10 threshold conditions. When a threshold is met, the system triggers a tuning action:</p>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 9. Tuning thresholds.</caption>
+            <thead><tr><th>ID</th><th>Condition</th><th>Min Signals</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>TH1</td><td>Same <code>shouldHaveBeenCaughtBy</code> target in 3+ gaps</td><td>3</td><td>Auto-propose skill update</td></tr>
+              <tr><td>TH2</td><td>Overhead ratio &gt; 0.5 for 3 consecutive runs</td><td>3</td><td>Review governance overhead</td></tr>
+              <tr><td>TH3</td><td>Same spec gap pattern in 2+ features</td><td>2</td><td>Propose template improvement</td></tr>
+              <tr><td>TH4</td><td>Rework on same step in 5+ signals</td><td>5</td><td>Harden skill</td></tr>
+              <tr><td>TH5</td><td>3+ proposals targeting same file</td><td>3</td><td>Bundle into single change</td></tr>
+              <tr><td>TH6</td><td>Alignment gaps &gt; 10 across last 5 sessions</td><td>10</td><td>Full alignment audit</td></tr>
+              <tr><td>TH7</td><td>Critical governance gap</td><td>1</td><td>Immediate issue</td></tr>
+              <tr><td>TH8</td><td>Low-confidence decisions in 3+ signals</td><td>3</td><td>Flag domain ambiguity</td></tr>
+              <tr><td>TH9</td><td>Same agent violates spec in 2+ signals</td><td>2</td><td>Harden agent spec</td></tr>
+              <tr><td>TH10</td><td>Premium requests &gt; 50 in rolling 7 days</td><td>50</td><td>Cost threshold alert</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>7.4 The Closed Loop</h4>
+        <p>The tuning loop closes the architecture into a self-regulating cycle:</p>
+        <span class="eq">Pipeline —[emit]→ Signals —[analyze]→ Thresholds —[reflect]→ Proposals —[apply]→ Skills/Agents —[improve]→ Pipeline</span>
+        <p>This is DomainSpec's implementation of Beer's System 4 (Intelligence): the framework adapts to its environment not through external instruction but through accumulated evidence of its own performance. The meta-health metrics (M-001–M-006) provide the System 5 (Policy) check — ensuring that the tuning loop itself operates within acceptable bounds.</p>
+      </div>
+    </section>
+
+    <!-- 8 CASE STUDY -->
+    <section id="s8" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">8 · Case Study</p><h2>445 test obligations and 146 metrics from 89 concepts.</h2></div>
+
+        <h4>8.1 System Under Study</h4>
+        <p>We evaluate DomainSpec on a production poker team management system: a multi-feature application managing player recruitment, performance tracking, financial settlements, and coaching operations. The system comprises 7 features across 3 business pillars.</p>
+        <p>The figures reported in this section (concept, test, metric, and story counts; alignment verdicts) are a direct tabulation of the derived artifacts for this one system, not the output of a separately analyzed, replicated experiment. They establish feasibility and end-to-end traceability on a real codebase; the controlled-experiment evidence for the framework's claims (vocabulary sufficiency, composition coverage) is reported separately in Sections 9.1–9.2, and the claims' overall evidence grades in Section 9.4.</p>
+
+        <h4>8.2 Quantitative Results</h4>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 10. DomainSpec metrics across 7 production features.</caption>
+            <thead><tr><th>Feature</th><th>Pillar</th><th>Concepts</th><th>Tests Derived</th><th>OTel Metrics</th><th>Stories</th><th>UI-SPEC</th></tr></thead>
+            <tbody>
+              <tr><td>auth-access-control</td><td>platform</td><td>12</td><td>58</td><td>20</td><td>6</td><td>✓</td></tr>
+              <tr><td>candidate-review</td><td>operations</td><td>11</td><td>54</td><td>18</td><td>5</td><td>✓</td></tr>
+              <tr><td>coach-management</td><td>operations</td><td>9</td><td>47</td><td>16</td><td>4</td><td>✓</td></tr>
+              <tr><td>financial-settlement</td><td>finance</td><td>18</td><td>92</td><td>30</td><td>8</td><td>✓</td></tr>
+              <tr><td>player-management</td><td>product</td><td>14</td><td>72</td><td>24</td><td>7</td><td>✓</td></tr>
+              <tr><td>player-performance</td><td>product</td><td>15</td><td>78</td><td>26</td><td>7</td><td>✓</td></tr>
+              <tr><td>progression-system</td><td>product</td><td>10</td><td>44</td><td>12</td><td>4</td><td>✓</td></tr>
+              <tr><td><b>Total</b></td><td><b>3 pillars</b></td><td><b>89</b></td><td><b>445</b></td><td><b>146</b></td><td><b>41</b></td><td><b>7/7</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Key metrics:</p>
+        <ul>
+          <li><b>Test-to-concept ratio:</b> 5.0 (each domain concept produces on average 5 test obligations)</li>
+          <li><b>Metric-to-concept ratio:</b> 1.64 (each domain concept produces on average 1.64 observability metrics)</li>
+          <li><b>Story coverage:</b> 41 user stories across 7 features (5.9 per feature)</li>
+          <li><b>UI-SPEC coverage:</b> 100% (all 7 features have UI design contracts)</li>
+        </ul>
+
+        <h4>8.3 Test Obligation Breakdown</h4>
+        <div class="tbl-wrap">
+          <table>
+            <caption>Table 11. Test obligations by derivation rule category.</caption>
+            <thead><tr><th>Category</th><th>Rule(s)</th><th>Total Tests</th><th>% of Total</th></tr></thead>
+            <tbody>
+              <tr><td>State transitions (happy + negative)</td><td>δ₁, δ₂</td><td>68</td><td>15.3%</td></tr>
+              <tr><td>Invariant / property-based</td><td>δ₃</td><td>22</td><td>4.9%</td></tr>
+              <tr><td>Rule validation (pass + fail)</td><td>δ₄</td><td>94</td><td>21.1%</td></tr>
+              <tr><td>Calculation correctness</td><td>δ₅</td><td>28</td><td>6.3%</td></tr>
+              <tr><td>Postcondition assertions</td><td>δ₆</td><td>36</td><td>8.1%</td></tr>
+              <tr><td>Error states</td><td>δ₇</td><td>32</td><td>7.2%</td></tr>
+              <tr><td>Contract tests</td><td>δ₈</td><td>48</td><td>10.8%</td></tr>
+              <tr><td>Event producer/consumer</td><td>δ₁₀, δ₁₁</td><td>34</td><td>7.6%</td></tr>
+              <tr><td>Query tests</td><td>δ₁₂</td><td>28</td><td>6.3%</td></tr>
+              <tr><td>UI journey + navigation</td><td>δ₁₅, δ₁₆</td><td>32</td><td>7.2%</td></tr>
+              <tr><td>UI form validation + states</td><td>δ₁₇, δ₁₈</td><td>23</td><td>5.2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The distribution shows that rule validation tests (δ₄) are the largest category (21.1%), consistent with the domain being rule-heavy (poker team management involves many eligibility checks, financial constraints, and access controls).</p>
+
+        <h4>8.4 Alignment Verdicts</h4>
+        <p>Alignment audits across the 7 features produced the following verdicts:</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Verdict</th><th>Count</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>PASS</td><td>1</td><td>Full alignment between spec and implementation</td></tr>
+              <tr><td>FLAG</td><td>4</td><td>Minor drift detected, non-blocking</td></tr>
+              <tr><td>BLOCK</td><td>1</td><td>Significant drift requiring remediation</td></tr>
+              <tr><td>PARTIAL</td><td>1</td><td>Feature partially implemented</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The FLAG verdicts typically indicate concepts documented in the specification but not yet implemented (spec-ahead-of-code), which is expected in an iterative development process. The BLOCK verdict indicated a case where implementation diverged from the documented state machine transitions — caught by the alignment audit before reaching production.</p>
+
+        <h4>8.5 End-to-End Traceability Example</h4>
+        <p>To illustrate full-stack traceability, we trace the <code>GenerateSettlement</code> operation from the <code>financial-settlement</code> feature:</p>
+        <pre><code>Axiom A3 (Deterministic Derivation)
+  → Constitution C3 (test derivation from specs)
+    → operations.md documents:
+      - Operation: GenerateSettlement
+      - Rules: R1-R5 (eligibility, idempotency, period bounds)
+      - Calculations: C1-C4 (profit, debt, makeup, payout)
+      - Postconditions: settlement event created, balances updated
+    → TEST-PIPELINE derives:
+      - 10 rule validation tests (R1-R5 × pass/fail)
+      - 4 calculation correctness tests (C1-C4)
+      - 3 postcondition assertions
+      - 2 idempotency tests
+      - 4 contract tests (POST /settlements × 4 statuses)
+    → OBSERVABILITY derives:
+      - O4: 4 operation metrics (invocation, success, fail, duration)
+      - O5: 5 rule violation counters (R1-R5)
+      - O6: 4 calculation drift gauges (C1-C4)
+      - O9: 2 idempotency violation gauges
+      - O15: reconciliation mismatch gauge
+      - O16: settlement cycle metrics (6 instruments)</code></pre>
+        <p>Total for one operation: 23 test obligations + 22 observability metrics, all deterministically derived from the specification, all traceable back to Axiom A3.</p>
+      </div>
+    </section>
+
+    <!-- 9 DISCUSSION -->
+    <section id="s9" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">9 · Discussion and Conclusion</p><h2>What is proven, what is provisional, what is open.</h2></div>
+
+        <h4>9.1 Vocabulary Completeness and Model Theory</h4>
+        <p>The strongest claim of this paper — that the extended 25 meta-types and 29 relationships are <em>sufficient</em> to capture business domain semantics including cross-feature composition — is analytically vulnerable. In Model Theory terms, this is the search for formal Completeness and Soundness. If we define the fundamental rules of the domain reality as a set of axioms (<em class="math">Γ</em>) and the DomainSpec typed vocabulary as our representational model (<em class="math">𝓜</em>), verifying absolute sufficiency means proving mathematically that for any structural truth <em class="math">φ</em> resulting from the domain axioms (<em class="math">Γ ⊢ φ</em>), there is a valid and perfectly mappable representation in our taxonomy (<em class="math">𝓜 ⊨ φ</em>).</p>
+        <p>Our current evidence is empirical and goes beyond the single case study. A dedicated vocabulary-sufficiency experiment (E6) applied the meta-type vocabulary to 36 features across 18 business domains — spanning DDD-canonical, system-design, and enterprise-SaaS sources — comprising 747 domain concepts and 670 relationships. The vocabulary classified <b>99.87% of concepts</b> (95% Wilson CI [99.25%, 99.98%]) and <b>98.96% of relationships</b> cleanly, leaving a single strained concept (a materialized Read Model / projection) and one missing edge class (a workflow-to-event subscription). Independently, six multi-bounded-context domain inventories (cargo shipping, food delivery, banking/finance, ride-hailing, e-commerce, and collaborative project management; 86 concepts and 94 cross-context edges) were each classified entirely within the meta-types, with the Saga coordination pattern recurring in all six. These results support — without proving — the sufficiency claim, and bound its residue to a small, named set of candidate extensions (the Read Model and Outbox techniques of Section 4.1, plus the <code>subscribes</code> edge). We do not claim universal sufficiency for infinite spaces. If the taxonomy attempted to map the infinite open-world universe (permitting infinite recursive loops or basic arithmetic within the meta-types), we would hit the barrier of Gödel's Incompleteness Theorems — there would always exist a domain proposition that the taxonomy could neither map nor deny.</p>
+        <p>However, the architecture operates on a <b>closed-world assumption</b> and is designed for extension: adding a meta-type requires specifying its derivation rules and relationship signatures, abstracting infinite variations into a finite set of bounded classes, in the tradition of formal ontology for information systems [30]. The question is not whether the vocabulary is universally complete, but whether the <em>mechanism</em> for extending it preserves the formal properties (type safety, deterministic derivation, governance traceability) without allowing infinite state explosion.</p>
+
+        <h4>9.2 Cross-Feature Composition</h4>
+        <p>E9 established that per-feature coverage alone is insufficient at system composition boundaries. Under the original ontology, 74.5% of cross-context edges were strained or broken in the rerun dataset (94 edges across 6 domains). Incorporating three cross-feature edges (<code>produces-for</code>, <code>triggers-cross</code>, <code>enforces-cross</code>) and one additional meta-type (<code>Saga</code>) resolved this gap to 100% modeled coverage with no extra edge types required in the studied domains.</p>
+        <p>The composition algebra is now treated as an incorporated extension to the base derivation model:</p>
+        <span class="eq">G_{A⊕B} = (V_A ∪ V_B,  E_A ∪ E_B ∪ E_AB,  τ_A ∪ τ_B,  λ_A ∪ λ_B ∪ λ_AB)</span>
+        <p>where <em class="math">E_AB</em> and <em class="math">λ_AB</em> are typed cross-feature edges. The corresponding derivation extension is:</p>
+        <span class="eq">T_composed = f(C, R, Δ) + f_cross(E_AB, Δ_cross)</span>
+        <p>with <em class="math">Δ_cross = {δ_produces-for, δ_triggers-cross, δ_enforces-cross}</em>. This extension qualifies C2: deterministic derivation remains complete within feature boundaries under <em class="math">f</em>, and complete at system level under <em class="math">f + f_cross</em>.</p>
+
+        <h4>9.3 Formal Semantics and SMT Solvers</h4>
+        <p>The meta-types currently have <em>informal</em> semantics (natural-language descriptions). A formal denotational semantics — mapping each meta-type to a mathematical object (Entity → labeled transition system, Rule → predicate, Calculation → pure function) — would strengthen the derivation calculus and enable automated verification of derivation rule correctness.</p>
+        <p>Because DomainSpec adopts a closed taxonomy that restricts the domain to a finite number of representational states, it clears the path for computational Model Checking. By translating the domain axioms (<em class="math">Γ</em>) and the DomainSpec taxonomy (<em class="math">𝓜</em>) into a restricted logical language (such as First-Order Logic), SMT Solvers (Satisfiability Modulo Theories) could theoretically be employed to search for "failure states" — scenarios where the domain axioms generate an event that does not belong to any DomainSpec classification. Proving the nullity of this error intersection would mathematically validate the taxonomy's completeness against the provided axioms, guaranteeing that agents taking decisions via DomainSpec will not hallucinate behaviors outside the delimited logical space.</p>
+
+        <h4>9.4 Controlled Experiments</h4>
+        <p>Our case study demonstrates feasibility on a production system, but controlled experiments are needed to evaluate: (a) derivation accuracy compared to manually-authored test suites, (b) governance attenuation across different agent architectures, (c) vocabulary sufficiency across diverse business domains, and (d) developer productivity with and without DomainSpec. Of these, (c) is partly addressed by E6 (Section 9.1) and the composition coverage of E9 (Section 9.2); (a), (b), and (d) remain open, as the determinism (E1), mutation (E3), attenuation (E4/E5), and productivity (E10) experiments have not yet been run.</p>
+        <p>A further experiment (E11) probes the technique/specialization axis: whether a symptom-driven decision protocol (Property DS-M13) produces reproducible, auditable technique-selection decisions across edge and scenario contexts, over a provisional catalog of techniques (Saga, Outbox, CQRS, Materialized Read Model, Hexagonal Ports/Adapters, and others). E11 demonstrated full reproducibility of decisions under fixed inputs (run-vs-rerun agreement of 1.0) with a complete adjudication trace. We report it as bundle-scope evidence only: its decision gate was cleared under a single-reviewer policy override rather than the protocol's full multi-rater adjudication, and the operator therefore deliberately left the claim matrix unchanged. E11 thus strengthens the methodology's reproducibility story without yet promoting any claim.</p>
+        <p>For transparency, we state the current evidence grade of the four contributions explicitly. Only <b>C2</b> (deterministic derivation) has partial empirical support, from E6 and E9. <b>C1</b> (meta-architecture / traceability), <b>C3</b> (governance attenuation), and <b>C4</b> (meta-circular self-governance) remain insufficiently evidenced pending the experiments named above; their treatment in this paper is architectural and analytical rather than empirically validated.</p>
+
+        <h4>9.5 Threats to Validity</h4>
+        <p><b>Internal validity.</b> The case study system was developed by the framework author, potentially biasing the vocabulary toward concepts already present. Independent replication on systems built by other teams would strengthen the findings. This threat is sharpened, not relieved, by the corroborating experiments: E6's domain survey and E11's technique evidence were produced within the same author and repository frame, so where they converge on the same concepts they provide consistency rather than fully independent confirmation (an internal independence-grade review accordingly downgraded that corroboration from strong to moderate).</p>
+        <p><b>External validity.</b> Seven features in one domain (team management) may not generalize. The business pillars (product, operations, finance) provide some diversity, but different industries may require different meta-type distributions. E9 external-domain composition evidence draws heavily from DDD literature and reference architectures; broader industrial replication remains necessary for non-DDD-heavy ecosystems.</p>
+        <p><b>Construct validity.</b> Test obligation counts measure <em>derivation output</em>, not <em>test effectiveness</em>. A derived test that never catches a bug is less valuable than the count suggests. Mutation testing could validate that derived tests have meaningful fault-detection capability. Relatedly, E6 and E9 validate the derivation function's <em>input space</em> — that the vocabulary and relationship set can faithfully represent the domains studied — but not the derivation function <em class="math">f</em> itself: whether the rules of Section 5 produce correct, fault-detecting tests remains untested pending the determinism (E1) and mutation (E3) experiments. For E9 rerun specifically, deterministic edge-type-to-status mapping improved reproducibility but introduces definitional circularity risk in gap-rate interpretation; this is mitigated by convergence with run-1 and the original run-2 analysis.</p>
+
+        <h4>9.6 Conclusion</h4>
+        <p>DomainSpec demonstrates that the gap between domain knowledge and verified software can be bridged through structure rather than stochastic generation. A typed domain ontology (25 meta-types, 29 relationships) enables a deterministic derivation calculus that produces 445 test obligations and 146 observability metrics from 89 domain concepts, with composed-system derivation extended through explicit cross-feature edges. Governance attenuation — the systematic loss of enforcement fidelity as rules accumulate — is bounded by channel capacity and addressed through structural interventions rather than additional layers. Meta-circular self-governance resolves the infinite regress through bounded self-reference.</p>
+        <p>The framework is open-source, production-validated, and available as a replication package. We believe that the transition from stochastic to deterministic agent governance is both necessary and achievable — and that the path runs through typed domain ontologies.</p>
+      </div>
+    </section>
+
+    <!-- REFERENCES -->
+    <section id="refs" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">References</p></div>
+        <ol class="refs">
+          <li>C. E. Jimenez et al., "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" <em>arXiv:2310.06770</em>, 2023.</li>
+          <li>Cognition, "Devin: The First AI Software Engineer," 2024.</li>
+          <li>GitHub, "GitHub Copilot Workspace: Technical Preview," 2024.</li>
+          <li>D. Hofstadter, <em>Gödel, Escher, Bach: An Eternal Golden Braid</em>. Basic Books, 1979.</li>
+          <li>C. E. Shannon, "A Mathematical Theory of Communication," <em>Bell System Technical Journal</em>, vol. 27, no. 3, pp. 379–423, 1948.</li>
+          <li>W. R. Ashby, <em>An Introduction to Cybernetics</em>. Chapman &amp; Hall, 1956.</li>
+          <li>E. Evans, <em>Domain-Driven Design: Tackling Complexity in the Heart of Software</em>. Addison-Wesley, 2003.</li>
+          <li>M. Utting and B. Legeard, <em>Practical Model-Based Testing: A Tools Approach</em>. Morgan Kaufmann, 2007.</li>
+          <li>D. North, "Introducing BDD," <em>Better Software</em>, 2006.</li>
+          <li>L. Lamport, <em>Specifying Systems: The TLA+ Language and Tools for Hardware and Software Engineers</em>. Addison-Wesley, 2002.</li>
+          <li>D. Jackson, <em>Software Abstractions: Logic, Language, and Analysis</em>. MIT Press, 2012.</li>
+          <li>J. M. Spivey, <em>The Z Notation: A Reference Manual</em>. Prentice Hall, 1992.</li>
+          <li>A. Cunha and N. Macedo, "Validating Formal Specifications with LLM-generated Test Cases," <em>arXiv:2510.23350</em>, 2025.</li>
+          <li>J. Yang et al., "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering," <em>arXiv:2405.15793</em>, 2024.</li>
+          <li>L. Miculicich et al., "VeriGuard: Enhancing LLM Agent Safety via Verified Code Generation," <em>arXiv:2510.05156</em>, 2025.</li>
+          <li>M. Wooldridge, <em>An Introduction to MultiAgent Systems</em>, 2nd ed. Wiley, 2009.</li>
+          <li>Y. Bai et al., "Constitutional AI: Harmlessness from AI Feedback," <em>arXiv:2212.08073</em>, 2022.</li>
+          <li>C. West, "The Agentic Manifesto: Engineering in the Era of Autonomy," 2025.</li>
+          <li>Object Management Group, "Meta Object Facility (MOF) Core Specification," Version 2.5.1, 2019.</li>
+          <li>ISO/IEC/IEEE, "42010:2011 Systems and Software Engineering — Architecture Description," 2011.</li>
+          <li>J. A. Zachman, "A Framework for Information Systems Architecture," <em>IBM Systems Journal</em>, vol. 26, no. 3, pp. 276–292, 1987.</li>
+          <li>V. Boscaro, "Domain-Code-Mapping," GitHub, 2026.</li>
+          <li>N. N. Taleb, <em>Antifragile: Things That Gain from Disorder</em>. Random House, 2012.</li>
+          <li>B. B. Murdock, "The Serial Position Effect of Free Recall," <em>Journal of Experimental Psychology</em>, vol. 64, no. 5, pp. 482–488, 1962.</li>
+          <li>R. Conant and W. R. Ashby, "Every Good Regulator of a System Must Be a Model of That System," <em>International Journal of Systems Science</em>, vol. 1, no. 2, pp. 89–97, 1970.</li>
+          <li>G. A. Miller, "The Magical Number Seven, Plus or Minus Two," <em>Psychological Review</em>, vol. 63, no. 2, pp. 81–97, 1956.</li>
+          <li>S. Beer, <em>Brain of the Firm</em>. Allen Lane, 1972.</li>
+          <li>D. Meadows, "Leverage Points: Places to Intervene in a System," <em>Sustainability Institute</em>, 1999.</li>
+          <li>D. Kahneman, <em>Thinking, Fast and Slow</em>. Farrar, Straus and Giroux, 2011.</li>
+          <li>N. Guarino, "Formal Ontology in Information Systems," in <em>Proc. FOIS'98</em>, IOS Press, 1998.</li>
+          <li>P. B. Kruchten, "The 4+1 View Model of Architecture," <em>IEEE Software</em>, vol. 12, no. 6, pp. 42–50, 1995.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- APPENDIX -->
+    <section id="appendix" class="ts-anchor">
+      <div class="inner">
+        <div class="section-head"><p class="eyebrow">Appendix — Development &amp; Roadmap</p><h2>What has been built and validated.</h2></div>
+        <p>This appendix reports what has been built and validated since the body was written. It <b>demonstrates results and cites the implementation; it does not disclose the derivation algorithm.</b> The framework and the derivation calculus (C1–C4) are open. The optimized deterministic engine that realizes the C2 calculus is a separate product. The LLM-based generator is the free, open reference path.</p>
+
+        <h4>A.1 Demonstrated results</h4>
+        <p>A deterministic reference engine that realizes the C2 calculus <code>T = f(C, R, Δ)</code> has been built and validated. We report its measured behavior; the implementation and derivation rules are not published here.</p>
+        <ul>
+          <li><b>Determinism by construction.</b> The same specification documents produce byte-identical test obligations across runs and machines. This is the property C2 predicts, achieved without a stochastic generator.</li>
+          <li><b>Validated.</b> The engine's own test suite passes (95 tests, 0 type errors); output is byte-stable; honesty and write-path containment controls pass.</li>
+          <li><b>It refuses rather than fabricates.</b> Where a specification is not formal enough to derive a checkable test, the engine emits a counted, visible gap instead of inventing one. That refusal is itself a measurement — a spec-formalization metric. On the pilot feature it reads <b>96%</b>.</li>
+          <li><b>Fault detection (E3 mutation testing).</b> On the pilot, after formalizing one rule the specification had left implicit, the derived suite's mutation score rose <b>38.75% → 54.37%</b>, and the hardest module doubled (17.2% → 36.56%); the regenerated suite passed <b>13/13</b> against the real, unmutated code. The residual gap was unwritten specification, not divergent code. C2 is supported, narrowly and honestly: a deterministic generator produces real fault-detecting tests with zero human variance. This is the single-feature pilot, not a corpus result.</li>
+          <li><b>Self-application.</b> Run on its own specification, the engine derives its own test obligations — a fixpoint.</li>
+        </ul>
+        <p>Scope: the engine covers the backend-domain obligation classes. UI/E2E and scaffolding remain on the LLM path.</p>
+
+        <h4>A.2 Two generators: free and deterministic</h4>
+        <p>The framework offers two paths from specification to tests, behind one contract:</p>
+        <ul>
+          <li><b>The LLM generator is the free, open reference path.</b> It produces the full test specification, including UI/E2E, and ships with the open framework.</li>
+          <li><b>The deterministic engine is the optimized path</b> for the backend-domain slice — reproducible, fault-detecting, and zero-variance. Its results are demonstrated in A.1; its derivation algorithm is not disclosed in this paper.</li>
+        </ul>
+
+        <h4>A.3 Governance in practice</h4>
+        <p>The multi-agent governance machinery the paper describes was exercised at real volume under a held human gate: a recorded, append-only dispatch ledger of 58 dispatches (research and review roles, each human-approved before running). These supported repository and method development around DomainSpec; they are not the paper's controlled experiments (E1–E20), but they evidence the dispatch-and-approval model running in practice.</p>
+
+        <h4>A.4 Roadmap</h4>
+        <p>Planned, not done: widen the deterministic engine's coverage to more obligation classes; strengthen value-level oracles for the hardest computations; take mutation testing from one pilot to a corpus; run the deterministic path as the live backend-domain stage while the LLM path is retained for the rest. The paper's larger experiments — E1 (determinism), E4/E5 (governance attenuation), E10 (productivity) — remain open; C1/C3/C4 stay architectural pending them.</p>
       </div>
     </section>
   </main>

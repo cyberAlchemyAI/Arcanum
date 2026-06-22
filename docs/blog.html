@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CyberAlchemy blog — working notes and drafts on deterministic derivation, governance, and the system being built.">
+  <title>Blog — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero { padding: 132px clamp(18px, 5vw, 70px) 40px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: clamp(40px, 6vw, 76px); line-height: .92; }
+    h2 { font-size: clamp(24px, 3.2vw, 38px); line-height: 1.05; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .lead { max-width: 720px; margin-top: 20px; color: #383838; font-size: clamp(17px, 2.2vw, 21px); }
+    section { padding: clamp(40px, 6vw, 72px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 760px; margin: 0 auto; }
+    .post { padding-bottom: 8px; }
+    .post .meta { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .badge { padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 850; }
+    .badge.draft { background: #fbeede; color: #9a6a18; }
+    .post .date { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .post .body { margin-top: 18px; }
+    .post .body p { color: #2c2c2c; font-size: 17px; line-height: 1.7; margin-top: 16px; max-width: 700px; }
+    .post .body p:first-child { margin-top: 0; }
+    .post .body code { background: #f1ece1; padding: 1px 5px; border-radius: 4px; font-size: 14px; }
+    .post + .post { margin-top: 44px; padding-top: 40px; border-top: 1px solid var(--line); }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="paper.html">Paper</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Blog</p>
+        <h1>Working notes.</h1>
+        <p class="lead">Drafts and thinking-in-progress on deterministic derivation, governance, and the system we are building. Marked as drafts because they are — we write to think, then sharpen.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="inner">
+        <article class="post" id="a-tool-that-refuses">
+          <div class="meta">
+            <span class="badge draft">Draft v0.1</span>
+            <span class="date">2026-06-22</span>
+          </div>
+          <h2>A tool that refuses is a measurement.</h2>
+          <div class="body">
+            <p>Give our engine a specification it cannot turn into a checkable test, and it does nothing clever. It emits a gap. It marks the obligation as not-formal-enough and moves on. It does not write a plausible-looking test to fill the hole.</p>
+            <p>An LLM does the opposite. Handed the same under-specified obligation, it fabricates a test that looks right. The hole is still there. It is just hidden now, behind green checkmarks.</p>
+            <p>That difference turns out to be a measurement. If a sound generator only derives a test when the spec is formal enough, then the count of what it refused is a number: how formal the spec actually is. On our pilot feature it reads <code>96%</code> — the fraction of the obligation graph that was complete enough to derive against.</p>
+            <p>So a deterministic generator that will not guess is, by construction, a spec-completeness analyzer. The honesty and the metric are the same property seen twice. You do not add a linter on top; the refusal <em>is</em> the linter.</p>
+            <p>This is the part that is hard to fake and easy to verify. We can show you the number and the gaps it counts. We are not showing the derivation that produces them — that is the part we sell. But the gap count needs no trust: re-run it, get the same number.</p>
+            <p>Honest scope: this is one feature, measured once. The general claim — that refusal-as-measurement holds across domains — is open, and the kind of thing we will keep testing before we promote it.</p>
+          </div>
+          <p class="note">Draft — thinking on paper, will be sharpened. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>CyberAlchemy — Blog</h3>
+      <p>Drafts and working notes. <a href="index.html">Home</a> · <a href="system.html">The System</a> · <a href="paper.html">Paper</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
