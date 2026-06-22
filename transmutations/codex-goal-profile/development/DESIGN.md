@@ -4,9 +4,9 @@ Status: initial transmutation design.
 
 ## Design Intent
 
-Create a small transmutation that turns one selected Arcanum task or SWU into a native Codex Goal.
+Create a small transmutation that turns one selected Arcanum task, SWU, or explicit one-shot stream into a compact native Codex Goal.
 
-The retired Arcanum `goal` spell tried to own orchestration, checkpoints, resume, status, and closeout. That is redundant with native Codex Goals. The useful remaining capability is profile generation.
+The retired Arcanum `goal` spell tried to own orchestration, checkpoints, resume, status, and closeout. That is redundant with native Codex Goals. The useful remaining capability is profile generation: a compact `/goal` line plus sidecar context when the execution frame is too dense for the native goal budget.
 
 ## Source Runtime
 
@@ -18,17 +18,21 @@ Official reference: <https://developers.openai.com/cookbook/examples/codex/using
 
 Input:
 
-- one work-pack task or SWU,
+- one work-pack task, SWU, or explicit one-shot stream,
 - source links,
 - dependencies,
 - write scope,
 - done criteria,
 - validation surface,
-- blockers.
+- blockers,
+- optional decision profile,
+- optional one-shot capability policy,
+- native goal character budget.
 
 Output:
 
 - one native Codex `/goal` command,
+- optional sidecar profile/handoff artifact,
 - readiness verdict,
 - audit notes.
 
@@ -42,6 +46,9 @@ Output:
 | Source links | Allowed context |
 | Dependencies and blockers | Stop condition |
 | Handoff note | Iteration policy |
+| Decision profile policy | Constraints, approval gates, stop conditions |
+| One-shot stream | Ordered iteration policy and capability lanes |
+| Goal budget | Compact goal or sidecar requirement |
 
 ## Non-Goals
 
@@ -50,6 +57,8 @@ Output:
 - Do not execute work.
 - Do not create a second dashboard beside `WORK-PACK.md`.
 - Do not generate a runnable Goal when dependencies or validation are missing.
+- Do not copy private decision-profile contents into public reusable artifacts.
+- Do not authorize subagents or sigils as ambient authority; they must be bounded lanes with receipts.
 
 ## Next Route
 

@@ -17,6 +17,9 @@
 | Strict coverage | block |
 | Fallback exploration | block |
 | Blockers | acceptance evidence and handoff pack missing |
+| Goal budget | block because no runnable goal should be emitted |
+| Decision profile | none |
+| One-shot mode | no |
 
 ## Output Profile
 
@@ -25,7 +28,7 @@ No runnable native Codex Goal should be generated.
 ## Blocked Result
 
 - Readiness: block
-- Reason: done criteria are vague, dependencies are unknown, write scope is broad, no verification surface is available, no strict handoff pack/index exists, and fallback exploration cannot be bounded to named gaps.
+- Reason: done criteria are vague, dependencies are unknown, write scope is broad, no verification surface is available, no strict handoff pack/index exists, fallback exploration cannot be bounded to named gaps, and there is no sidecar-backed compact goal path.
 - Unblock action: define exact outcome, bounded write scope, dependency state, validation command or reviewable evidence, and a Context Builder handoff pack with strict coverage.
 
 ## Verdict

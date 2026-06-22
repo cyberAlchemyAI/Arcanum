@@ -17,13 +17,17 @@
 | Strict coverage | pass |
 | Fallback exploration | none |
 | Blockers | none |
+| Goal budget | 4000 characters, pass |
+| Decision profile | none |
+| One-shot mode | no |
+| Sidecar profile | none |
 
 ## Output Profile
 
 ```text
-/goal Complete SWU-DOCS-003-001 by producing feature docs that explain the lifecycle, commands, and examples, verified by `npm run docs:check`, while preserving the current public command names and README navigation. Use the handoff pack at `.arcanum/runs/run-123/context-pack.md` and structured index at `.arcanum/runs/run-123/context-pack.json` as selected source context, plus only `docs/feature.md` and `README.md` write scope. Broaden repository exploration only for named gaps from the pack: none. If you use extra sources, report the named gap, source path, and whether it changed the result. Between iterations, record what changed, run or explain the docs check, and choose the smallest next documentation fix. If dependencies are contradicted, docs validation cannot run, the handoff pack is contradicted, or the command behavior is unclear, stop with the attempted changes, evidence gathered, blocker, and next input needed.
+/goal Complete SWU-DOCS-003-001 by producing feature docs, verified by `npm run docs:check`. Use `.arcanum/runs/run-123/context-pack.md` and `.arcanum/runs/run-123/context-pack.json` as the execution frame. Write only `docs/feature.md` and `README.md`. Broaden only for named gaps: none. Iterate by running or explaining the docs check after each change. Stop if dependencies, validation, or command behavior contradict the pack, reporting attempted changes, evidence, blocker, and next input.
 ```
 
 ## Verdict
 
-Pass. The profile names outcome, verification, constraints, boundaries, handoff pack, strict coverage, fallback limits, extra-source reporting, iteration policy, and blocked stop condition.
+Pass. The profile names outcome, verification, constraints, boundaries, handoff pack, strict coverage, goal budget, fallback limits, extra-source reporting, iteration policy, and blocked stop condition.

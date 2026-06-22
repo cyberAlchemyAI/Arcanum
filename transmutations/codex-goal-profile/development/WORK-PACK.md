@@ -1,10 +1,10 @@
 # Codex Goal Profile Work Pack
 
-Status: ready for implementation.
+Status: updated for compact one-shot profiles.
 
 ## Purpose
 
-Build the transmutation that converts one Arcanum work-pack task or SWU into a native Codex `/goal` profile.
+Build the transmutation that converts one Arcanum work-pack task, SWU, or explicit one-shot stream into a compact native Codex `/goal` profile.
 
 ## Control Fields
 
@@ -24,6 +24,7 @@ Build the transmutation that converts one Arcanum work-pack task or SWU into a n
 | [CGP-002](WORK-PACK.md#cgp-002-author-skill-contract) | L1 | [SKILL](../SKILL.md) | complete | Skill contract names inputs, process, quality bar, anti-patterns, and output contract. |
 | [CGP-003](WORK-PACK.md#cgp-003-create-examples) | L1 | [Template](../templates/codex-goal-profile.md), [Examples](../examples/passing.md) | complete | Examples include pass and blocked cases. |
 | [CGP-004](WORK-PACK.md#cgp-004-validate-against-goal-swu) | L2 | [Validation](VALIDATION.md), [Invoke Boundary](../../../spells/invoke/development/PLAN-ARTIFACT-BOUNDARIES.md) | complete | One SWU becomes a paste-ready native Codex Goal or blocks honestly. |
+| [CGP-005](WORK-PACK.md#cgp-005-add-compact-one-shot-policy) | L2 | [SKILL](../SKILL.md), [Template](../templates/codex-goal-profile.md), local decision-profile request | complete | Profiles can stay under a 4000-character budget, use private decision profiles safely, and authorize one-shot capability lanes with receipt gates. |
 
 ## SWU Manifest
 
@@ -33,6 +34,7 @@ Build the transmutation that converts one Arcanum work-pack task or SWU into a n
 | SWU-CGP-002-001 | [CGP-002](WORK-PACK.md#cgp-002-author-skill-contract) | [SKILL](../SKILL.md) | CGP-001 | `transmutations/codex-goal-profile/SKILL.md` | Skill contract can generate or block a native Goal profile. | Review skill. | local-fallback |
 | SWU-CGP-003-001 | [CGP-003](WORK-PACK.md#cgp-003-create-examples) | [Template](../templates/codex-goal-profile.md) | CGP-002 | `transmutations/codex-goal-profile/examples/` | Passing and blocked examples exist. | Review examples. | local-fallback |
 | SWU-CGP-004-001 | [CGP-004](WORK-PACK.md#cgp-004-validate-against-goal-swu) | [Invoke Boundary](../../../spells/invoke/development/PLAN-ARTIFACT-BOUNDARIES.md) | CGP-003 | `transmutations/codex-goal-profile/development/VALIDATION.md` | Validation records that an SWU can become a native Codex Goal profile or block. | Review validation. | local-fallback |
+| SWU-CGP-005-001 | [CGP-005](WORK-PACK.md#cgp-005-add-compact-one-shot-policy) | [SKILL](../SKILL.md), [Design](DESIGN.md) | CGP-004 | `transmutations/codex-goal-profile/` | Skill, docs, template, examples, and validation support compact goal budget, private decision profiles, and one-shot capability policy. | Review generated profile contract and markdown. | local-fallback |
 
 ## CGP-001 Define Profile Contract
 
@@ -50,6 +52,10 @@ Create one passing profile and one blocked profile.
 
 Use an Arcanum SWU-style row as test input and confirm the produced `/goal` is auditable.
 
+## CGP-005 Add Compact One-Shot Policy
+
+Support practical native Codex limits by making the `/goal` line compact, moving dense context into sidecar/handoff artifacts, consuming private decision profiles as runtime policy, and allowing explicitly selected one-shot streams to use bounded Arcanum capability lanes.
+
 ## Blockers
 
 | Blocker | Status | Rule |
@@ -59,4 +65,4 @@ Use an Arcanum SWU-style row as test input and confirm the produced `/goal` is a
 
 ## Next Action
 
-Use the transmutation on the next ready SWU that benefits from native Codex continuation.
+Use the transmutation on the next ready SWU or explicit one-shot stream that benefits from native Codex continuation.
