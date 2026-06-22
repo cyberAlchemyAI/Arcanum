@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Arcanum skill registry — download any sigil, spell, formula, or transmutation on its own. Generated from each skill's manifest.">
+  <title>Skill registry — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink:#151515; --muted:#626262; --paper:#fdfaf3; --surface:#fffdf8;
+      --line:#e3ded2; --red:#e60023; --orange:#e85d18; --teal:#088f8a;
+      --green:#2f8b57; --blue:#2e6bb8; --violet:#5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); }
+    a { color: inherit; }
+    .topbar { position:fixed; top:0; left:0; right:0; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:18px; padding:14px clamp(18px,4vw,52px); background:rgba(253,250,243,.88); border-bottom:1px solid rgba(227,222,210,.84); backdrop-filter:blur(14px); }
+    .brand { display:inline-flex; align-items:center; gap:11px; min-width:180px; font-weight:850; text-decoration:none; }
+    .brand img { width:34px; height:34px; object-fit:contain; }
+    nav { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:6px; }
+    nav a { min-height:34px; padding:7px 10px; border-radius:6px; color:var(--muted); text-decoration:none; font-size:13px; font-weight:760; }
+    nav a:hover { background:#f2eee3; color:var(--ink); }
+    nav a.active { color:var(--ink); background:#f2eee3; box-shadow:inset 0 -2px 0 var(--red); }
+    .subnav { position:fixed; top:61px; left:0; right:0; z-index:15; display:flex; flex-wrap:wrap; gap:4px 16px; align-items:center; padding:8px clamp(18px,5vw,70px); background:rgba(253,250,243,.93); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); }
+    .subnav .on { color:var(--muted); font-size:11px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; margin-right:2px; }
+    .subnav a { color:var(--muted); text-decoration:none; font-size:13px; font-weight:740; display:inline-flex; align-items:center; gap:5px; }
+    .subnav a:hover { color:var(--ink); }
+    .subnav .ct { font-size:11px; color:#fff; background:var(--muted); border-radius:999px; padding:0 6px; line-height:16px; }
+    section { padding:clamp(40px,6vw,70px) clamp(18px,5vw,70px); border-bottom:1px solid var(--line); scroll-margin-top:120px; }
+    .inner { max-width:1180px; margin:0 auto; }
+    .hero { padding:128px clamp(18px,5vw,70px) 40px; border-bottom:1px solid var(--line); background:#fbf8ef; }
+    .hero .inner { max-width:1180px; }
+    .eyebrow { display:inline-flex; gap:8px; margin:0 0 16px; color:var(--red); font-size:13px; font-weight:850; text-transform:uppercase; }
+    h1,h2,h3 { margin:0; letter-spacing:0; }
+    h1 { font-size:clamp(40px,6vw,76px); line-height:.95; max-width:900px; }
+    h2 { font-size:clamp(24px,3.2vw,40px); line-height:1.05; }
+    p { margin:0; color:var(--muted); font-size:16px; line-height:1.62; }
+    .lead { max-width:760px; margin-top:20px; color:#2c2c2c; font-size:clamp(18px,2.2vw,22px); line-height:1.55; }
+    .tools { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:24px; }
+    #q { flex:1; min-width:240px; max-width:460px; padding:12px 15px; border:1px solid var(--line); border-radius:8px; background:var(--surface); font:inherit; font-size:15px; color:var(--ink); }
+    .count { font-size:14px; color:var(--muted); font-weight:700; }
+    .section-head { margin-bottom:22px; }
+    .section-head p { max-width:720px; margin-top:10px; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
+    .card { display:flex; flex-direction:column; padding:18px; border:1px solid var(--line); border-radius:10px; background:var(--surface); box-shadow:0 8px 22px rgba(22,22,22,.05); }
+    .card-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+    .cname { font-size:16px; font-weight:800; color:var(--ink); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .ver { font-size:12px; color:var(--muted); font-weight:750; white-space:nowrap; }
+    .cdesc { margin-top:9px; font-size:14px; color:#383838; line-height:1.5; flex:1; }
+    .meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+    .mini { font-size:11px; font-weight:750; color:#6f5a3c; background:#f1eadc; border-radius:999px; padding:3px 8px; }
+    .cactions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
+    .dl { display:inline-flex; align-items:center; min-height:38px; padding:8px 14px; border-radius:7px; background:var(--ink); color:#fff; text-decoration:none; font-weight:800; font-size:14px; }
+    .dl:hover { background:#000; }
+    .src { font-size:13px; font-weight:740; color:var(--blue); text-decoration:none; }
+    .src:hover { text-decoration:underline; }
+    .note { margin-top:18px; font-size:13px; color:var(--muted); }
+    .note code, .install code { background:#f1eadc; border-radius:4px; padding:1px 5px; font-size:12px; }
+    .install { margin-top:18px; padding:16px 18px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+    .install code.block { display:block; margin-top:8px; padding:12px 14px; background:#151515; color:#fdfaf3; border-radius:7px; font-size:12.5px; overflow-x:auto; white-space:pre; }
+    .empty { color:var(--muted); font-size:14px; padding:14px 0; }
+    .footer { padding:28px clamp(18px,5vw,70px); background:#151515; color:#fdfaf3; }
+    .footer p { color:#c7c1b5; }
+    @media (max-width:680px) { .topbar { position:static; align-items:flex-start; flex-direction:column; } nav { justify-content:flex-start; } .subnav { position:static; } .hero { padding-top:40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="craft.html">Craft</a>
+      <a href="method.html">Method</a>
+      <a href="registry.html" class="active" aria-current="page">Skills</a>
+      <a href="paper.html">Paper</a>
+      <a href="blog.html">Blog</a>
+      <a href="who-we-are.html">About</a>
+    </nav>
+  </header>
+  <div class="subnav"><span class="on">Tiers</span> <a href="#arcana">Arcana <span class="ct">35</span></a> <a href="#spells">Spells <span class="ct">14</span></a> <a href="#formulae">Formulae <span class="ct">3</span></a> <a href="#transmutations">Transmutations <span class="ct">4</span></a></div>
+
+  <main>
+    <section class="hero">
+      <div class="inner">
+        <p class="eyebrow">Skill registry</p>
+        <h1>Download any Arcanum skill on its own.</h1>
+        <p class="lead">56 skills across four tiers. Each download is the skill's runtime surface — manifest, templates, scripts, tools — with the <code>development/</code> experiment package stripped out. Drop one into <code>.claude/skills/</code> or <code>.agents/skills/</code> and it is discoverable.</p>
+        <div class="tools">
+          <input id="q" type="search" placeholder="Filter skills by name, purpose, or domain…" aria-label="Filter skills">
+          <span class="count" id="count">56 shown</span>
+        </div>
+        <div class="install">
+          Prefer to wire every skill into your agent at once? One command installs the whole library into Claude Code and Codex:
+          <code class="block">curl -fsSL https://raw.githubusercontent.com/cyberAlchemyAI/Arcanum/main/tools/install_arcanum.sh | bash -s -- --target . --profiles claude,repo-codex --sigils all --spells all</code>
+        </div>
+        <p class="note">Not yet released (development-only, no runtime contract): <code>arcana/integration-spec</code>.</p>
+      </div>
+    </section>
+
+    <section id="arcana">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Arcana · 35</p>
+          <h2>Arcana</h2>
+          <p>Sigils — single governed capabilities.</p>
+        </div>
+        <div class="cards">
+        <article class="card" data-search="architecture-pattern-inventory architecture-pattern-inventory use when: mapping a repository architecture and generating or refreshing a reusable architecture pattern inventory package with selective context, concept cards, dependency rules, testing alignment, and observability alignment. architecture-inventory">
+          <div class="card-head">
+            <code class="cname">architecture-pattern-inventory</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: mapping a repository architecture and generating or refreshing a reusable architecture pattern inventory package with selective context, concept cards, dependency rules, testing alignment, and observability alignment.</p>
+          <div class="meta"><span class="mini">architecture-inventory</span><span class="mini">15 files · 13 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/architecture-pattern-inventory.zip" download>⬇ architecture-pattern-inventory.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/architecture-pattern-inventory">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="audit-alignment audit-alignment audit implementation fidelity against a domainspec spec and produce a classified alignment report. ">
+          <div class="card-head">
+            <code class="cname">audit-alignment</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Audit implementation fidelity against a DomainSpec spec and produce a classified alignment report.</p>
+          <div class="meta"><span class="mini">1 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/audit-alignment.zip" download>⬇ audit-alignment.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/audit-alignment">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="code-tag-audit code-tag-audit deterministic code&lt;-&gt;spec traceability — extract source tags, validate against a schema, and detect drift vs the spec. ">
+          <div class="card-head">
+            <code class="cname">code-tag-audit</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Deterministic code&lt;-&gt;spec traceability — extract source tags, validate against a schema, and detect drift vs the spec.</p>
+          <div class="meta"><span class="mini">13 files · 22 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/code-tag-audit.zip" download>⬇ code-tag-audit.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/code-tag-audit">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="constitution-governance constitution-governance use when: creating, splitting, selecting, composing, validating, or promoting modular constitutions that enforce artifact structure/form without overloading task context. constitution-governance">
+          <div class="card-head">
+            <code class="cname">constitution-governance</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: creating, splitting, selecting, composing, validating, or promoting modular constitutions that enforce artifact structure/form without overloading task context.</p>
+          <div class="meta"><span class="mini">constitution-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">5 files · 7 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/constitution-governance.zip" download>⬇ constitution-governance.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/constitution-governance">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="craft craft use when: starting or operating a link-indexed local craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, pending-by-node status, validation, and recomposition. craft-method">
+          <div class="card-head">
+            <code class="cname">craft</code>
+            <span class="ver">0.2.1</span>
+          </div>
+          <p class="cdesc">Use when: starting or operating a link-indexed local Craft project ledger for recursive development contexts, blockers, enablers, decisions, gaps, definitions, next moves, pending-by-node status, validation, and recomposition.</p>
+          <div class="meta"><span class="mini">craft-method</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">10 files · 34 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/craft.zip" download>⬇ craft.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/craft">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="decision-gate decision-gate use when: resolving blocker-level multi-option decisions before planning, implementation, document mutation, or other consequential changes continue. decision-governance">
+          <div class="card-head">
+            <code class="cname">decision-gate</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: resolving blocker-level multi-option decisions before planning, implementation, document mutation, or other consequential changes continue.</p>
+          <div class="meta"><span class="mini">decision-governance</span><span class="mini">2 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/decision-gate.zip" download>⬇ decision-gate.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/decision-gate">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="definitions-governance definitions-governance use when: maintaining canonical definitions, synchronized indexes, explanatory intuition, and downstream drift checks for critical terms. semantic-governance">
+          <div class="card-head">
+            <code class="cname">definitions-governance</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: maintaining canonical definitions, synchronized indexes, explanatory intuition, and downstream drift checks for critical terms.</p>
+          <div class="meta"><span class="mini">semantic-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">2 files · 5 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/definitions-governance.zip" download>⬇ definitions-governance.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/definitions-governance">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="discipline-governance discipline-governance use when: formalizing, routing, validating, promoting, or retiring an arcanum discipline so a recurring cross-capability practice gets a card, catalog entry, and a hardening route without claiming sigil or spell authority. discipline-governance">
+          <div class="card-head">
+            <code class="cname">discipline-governance</code>
+            <span class="ver">0.2.1</span>
+          </div>
+          <p class="cdesc">Use when: formalizing, routing, validating, promoting, or retiring an Arcanum discipline so a recurring cross-capability practice gets a card, catalog entry, and a hardening route without claiming sigil or spell authority.</p>
+          <div class="meta"><span class="mini">discipline-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">2 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/discipline-governance.zip" download>⬇ discipline-governance.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/discipline-governance">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="distill distill use when: reducing a broad model, architecture, design, implementation plan, or workflow into the smallest coherent concept unit that still fits the user&#x27;s target context and can recompose into the larger system. planning-optimization">
+          <div class="card-head">
+            <code class="cname">distill</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: reducing a broad model, architecture, design, implementation plan, or workflow into the smallest coherent concept unit that still fits the user&#x27;s target context and can recompose into the larger system.</p>
+          <div class="meta"><span class="mini">planning-optimization</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">3 files · 10 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/distill.zip" download>⬇ distill.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/distill">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="experiment-harness experiment-harness use when initializing, running, looping, validating, reporting, or observing repeatable profile-aware development experiments for arcanum spells and sigils through native skill/subagent execution or explicit legacy runtime adapters. spell-sigil-validation">
+          <div class="card-head">
+            <code class="cname">experiment-harness</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when initializing, running, looping, validating, reporting, or observing repeatable profile-aware development experiments for Arcanum spells and sigils through native skill/subagent execution or explicit legacy runtime adapters.</p>
+          <div class="meta"><span class="mini">spell-sigil-validation</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">24 files · 35 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/experiment-harness.zip" download>⬇ experiment-harness.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/experiment-harness">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="github-project-issue-loop github-project-issue-loop use when: claiming one github project issue, refining its context, invoking define/design/plan as needed, executing through task session, and opening a linked pr with verification evidence. github-delivery-governance">
+          <div class="card-head">
+            <code class="cname">github-project-issue-loop</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: claiming one GitHub Project issue, refining its context, invoking define/design/plan as needed, executing through Task Session, and opening a linked PR with verification evidence.</p>
+          <div class="meta"><span class="mini">github-delivery-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">5 files · 9 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/github-project-issue-loop.zip" download>⬇ github-project-issue-loop.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/github-project-issue-loop">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="inventory inventory use when: installing or maintaining a repository-local compiled knowledge inventory that lets agents ingest once, index, tag, query, lint, and reuse context across sigils. knowledge-inventory">
+          <div class="card-head">
+            <code class="cname">inventory</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: installing or maintaining a repository-local compiled knowledge inventory that lets agents ingest once, index, tag, query, lint, and reuse context across sigils.</p>
+          <div class="meta"><span class="mini">knowledge-inventory</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">19 files · 25 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/inventory.zip" download>⬇ inventory.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/inventory">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="invoke-example-runner invoke-example-runner use when selecting and running invoke template validation prompts in codex, including picking a task by id, template, complexity, or the next unrun prompt and saving the invoke result output. invoke-validation">
+          <div class="card-head">
+            <code class="cname">invoke-example-runner</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when selecting and running invoke template validation prompts in Codex, including picking a task by ID, template, complexity, or the next unrun prompt and saving the Invoke Result output.</p>
+          <div class="meta"><span class="mini">invoke-validation</span><span class="mini">2 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/invoke-example-runner.zip" download>⬇ invoke-example-runner.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/invoke-example-runner">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="observability-derivation observability-derivation derive a typed metric-obligation inventory from a domainspec spec&#x27;s aspect docs (the doc-&gt;metrics rule method). ">
+          <div class="card-head">
+            <code class="cname">observability-derivation</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Derive a typed metric-obligation inventory from a DomainSpec spec&#x27;s aspect docs (the doc-&gt;metrics rule method).</p>
+          <div class="meta"><span class="mini">1 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/observability-derivation.zip" download>⬇ observability-derivation.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/observability-derivation">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="ontology-vault ontology-vault use when: mapping, distilling, validating, or evolving a governed knowledge vault with roles, confidence, premises, sessions, edge rules, branch-aware ontology, and ontology conventions. ontology-governance">
+          <div class="card-head">
+            <code class="cname">ontology-vault</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: mapping, distilling, validating, or evolving a governed knowledge vault with roles, confidence, premises, sessions, edge rules, branch-aware ontology, and ontology conventions.</p>
+          <div class="meta"><span class="mini">ontology-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">15 files · 14 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/ontology-vault.zip" download>⬇ ontology-vault.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/ontology-vault">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="refine refine use when: turning a vague refinement target, design concern, folder, idea, repository area, or existing work-pack into a refined seed, design, or non-executed plan through the arcanum refinement loop. refinement-governance">
+          <div class="card-head">
+            <code class="cname">refine</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when: turning a vague refinement target, design concern, folder, idea, repository area, or existing work-pack into a refined seed, design, or non-executed plan through the Arcanum refinement loop.</p>
+          <div class="meta"><span class="mini">refinement-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">15 files · 31 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/refine.zip" download>⬇ refine.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/refine">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="research-evidence-harness research-evidence-harness use when: converting research protocols into validated run schemas, jsonl fixture checks, objective/metric calculations, result summaries, and claim-adjudication readiness without running or overclaiming live experiments. research-governance">
+          <div class="card-head">
+            <code class="cname">research-evidence-harness</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: converting research protocols into validated run schemas, JSONL fixture checks, objective/metric calculations, result summaries, and claim-adjudication readiness without running or overclaiming live experiments.</p>
+          <div class="meta"><span class="mini">research-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">3 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/research-evidence-harness.zip" download>⬇ research-evidence-harness.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/research-evidence-harness">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="research-tower research-tower use when: turning a paper, source corpus, or research question into a governed local research tower with source-first claims, notation bridge, glossary, definitions, distills, related-work map, bridge decisions, residue, and a final learning pack. research-governance">
+          <div class="card-head">
+            <code class="cname">research-tower</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: turning a paper, source corpus, or research question into a governed local research tower with source-first claims, notation bridge, glossary, definitions, distills, related-work map, bridge decisions, residue, and a final learning pack.</p>
+          <div class="meta"><span class="mini">research-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">10 files · 10 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/research-tower.zip" download>⬇ research-tower.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/research-tower">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="residuality-spec residuality-spec use when: defining or hardening a specification through stressor analysis, desired residue, degradation behavior, attractor discovery, and resilience decisions. resilience-specification">
+          <div class="card-head">
+            <code class="cname">residuality-spec</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: defining or hardening a specification through stressor analysis, desired residue, degradation behavior, attractor discovery, and resilience decisions.</p>
+          <div class="meta"><span class="mini">resilience-specification</span><span class="mini">7 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/residuality-spec.zip" download>⬇ residuality-spec.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/residuality-spec">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="robot-talks robot-talks run a multi-agent parallel investigation to identify cross-layer tensions multi-agent-governance">
+          <div class="card-head">
+            <code class="cname">robot-talks</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Run a multi-agent parallel investigation to identify cross-layer tensions</p>
+          <div class="meta"><span class="mini">multi-agent-governance</span><span class="mini">2 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/robot-talks.zip" download>⬇ robot-talks.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/robot-talks">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="scope-interview scope-interview use when: interviewing a greenfield idea, brownfield repository, or mixed project scope into a structured discovery baseline. scope-discovery">
+          <div class="card-head">
+            <code class="cname">scope-interview</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: interviewing a greenfield idea, brownfield repository, or mixed project scope into a structured discovery baseline.</p>
+          <div class="meta"><span class="mini">scope-discovery</span><span class="mini">2 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/scope-interview.zip" download>⬇ scope-interview.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/scope-interview">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="sigil-development sigil-development use when: creating, revising, observing, reflecting on, or iterating a sigil through the governed sigil lifecycle. includes subagent-based observability and telemetry generation. sigil-governance">
+          <div class="card-head">
+            <code class="cname">sigil-development</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: creating, revising, observing, reflecting on, or iterating a sigil through the governed sigil lifecycle. Includes subagent-based observability and telemetry generation.</p>
+          <div class="meta"><span class="mini">sigil-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">4 files · 9 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/sigil-development.zip" download>⬇ sigil-development.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/sigil-development">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="sigil-runtime-installer sigil-runtime-installer use when installing explicit legacy arcanum codex command adapters. sigil-runtime-installation">
+          <div class="card-head">
+            <code class="cname">sigil-runtime-installer</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when installing explicit legacy Arcanum Codex command adapters.</p>
+          <div class="meta"><span class="mini">sigil-runtime-installation</span><span class="mini">6 files · 7 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/sigil-runtime-installer.zip" download>⬇ sigil-runtime-installer.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/sigil-runtime-installer">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="signal-observer signal-observer use when: deriving post-run behavior signals from a sigil invocation envelope and appending reusable observability telemetry. observability">
+          <div class="card-head">
+            <code class="cname">signal-observer</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: deriving post-run behavior signals from a sigil invocation envelope and appending reusable observability telemetry.</p>
+          <div class="meta"><span class="mini">observability</span><span class="mini">2 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/signal-observer.zip" download>⬇ signal-observer.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/signal-observer">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="skill-decomposer skill-decomposer use when: extracting one reusable sigil capability from a larger or tangled skill, prompt, workflow, command set, or mixed document. sigil-authoring">
+          <div class="card-head">
+            <code class="cname">skill-decomposer</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: extracting one reusable sigil capability from a larger or tangled skill, prompt, workflow, command set, or mixed document.</p>
+          <div class="meta"><span class="mini">sigil-authoring</span><span class="mini">8 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/skill-decomposer.zip" download>⬇ skill-decomposer.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/skill-decomposer">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="skill-transcriptor skill-transcriptor use when: converting a complete, coherent skill, prompt, command, or workflow into an arcanum-compliant sigil package. sigil-authoring">
+          <div class="card-head">
+            <code class="cname">skill-transcriptor</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: converting a complete, coherent skill, prompt, command, or workflow into an Arcanum-compliant sigil package.</p>
+          <div class="meta"><span class="mini">sigil-authoring</span><span class="mini">7 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/skill-transcriptor.zip" download>⬇ skill-transcriptor.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/skill-transcriptor">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="spellcraft spellcraft use when: designing, installing, validating, observing, or revising a spell that composes multiple sigils into a localized workflow. spell-composition">
+          <div class="card-head">
+            <code class="cname">spellcraft</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: designing, installing, validating, observing, or revising a spell that composes multiple sigils into a localized workflow.</p>
+          <div class="meta"><span class="mini">spell-composition</span><span class="mini">2 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/spellcraft.zip" download>⬇ spellcraft.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/spellcraft">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="structured-interview-kits structured-interview-kits use when: running one-question-at-a-time interviews with pluggable modes, evidence-backed prompts, and artifact updates after each answer. structured-interviewing">
+          <div class="card-head">
+            <code class="cname">structured-interview-kits</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: running one-question-at-a-time interviews with pluggable modes, evidence-backed prompts, and artifact updates after each answer.</p>
+          <div class="meta"><span class="mini">structured-interviewing</span><span class="mini">2 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/structured-interview-kits.zip" download>⬇ structured-interview-kits.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/structured-interview-kits">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="sync-user-stories sync-user-stories generate story-driven stories from domainspec aspect docs with mandatory slice coverage and a concept-coverage matrix. ">
+          <div class="card-head">
+            <code class="cname">sync-user-stories</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Generate story-driven STORIES from DomainSpec aspect docs with mandatory slice coverage and a concept-coverage matrix.</p>
+          <div class="meta"><span class="mini">1 files · 1 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/sync-user-stories.zip" download>⬇ sync-user-stories.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/sync-user-stories">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="task-session task-session use when: executing one bounded work-pack task or swu end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime handoff delegation. guided-execution">
+          <div class="card-head">
+            <code class="cname">task-session</code>
+            <span class="ver">0.3.1</span>
+          </div>
+          <p class="cdesc">Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime handoff delegation.</p>
+          <div class="meta"><span class="mini">guided-execution</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">5 files · 14 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/task-session.zip" download>⬇ task-session.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/task-session">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="test-derivation test-derivation deterministically derive a test-obligation spec from a domainspec feature&#x27;s aspect docs (no llm in the derivation path). ">
+          <div class="card-head">
+            <code class="cname">test-derivation</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Deterministically derive a test-obligation spec from a DomainSpec feature&#x27;s aspect docs (no LLM in the derivation path).</p>
+          <div class="meta"><span class="mini">3 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/test-derivation.zip" download>⬇ test-derivation.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/test-derivation">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="ux-evidence-validator ux-evidence-validator use when: translating ux research, accessibility standards, market practice, and playwright browser evidence into validator-safe checks, fixture plans, or evidence reports for finished frontend interfaces. frontend-ux-evidence">
+          <div class="card-head">
+            <code class="cname">ux-evidence-validator</code>
+            <span class="ver">0.1.0-seed</span>
+          </div>
+          <p class="cdesc">Use when: translating UX research, accessibility standards, market practice, and Playwright browser evidence into validator-safe checks, fixture plans, or evidence reports for finished frontend interfaces.</p>
+          <div class="meta"><span class="mini">frontend-ux-evidence</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">3 files · 7 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/ux-evidence-validator.zip" download>⬇ ux-evidence-validator.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/ux-evidence-validator">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="verification-weaver verification-weaver use when routing a verification target to status-qualified owner lanes and joining native evidence receipts into a verification-weave parent receipt without promoting owner outputs. verification-evidence-routing">
+          <div class="card-head">
+            <code class="cname">verification-weaver</code>
+            <span class="ver">0.1.0-candidate</span>
+          </div>
+          <p class="cdesc">Use when routing a verification target to status-qualified owner lanes and joining native evidence receipts into a VERIFICATION-WEAVE parent receipt without promoting owner outputs.</p>
+          <div class="meta"><span class="mini">verification-evidence-routing</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">2 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/verification-weaver.zip" download>⬇ verification-weaver.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/verification-weaver">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="workflow-reflect workflow-reflect use when: analyzing accumulated sigil observability signals to produce evidence-backed workflow improvement proposals. reflective-maintenance">
+          <div class="card-head">
+            <code class="cname">workflow-reflect</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: analyzing accumulated sigil observability signals to produce evidence-backed workflow improvement proposals.</p>
+          <div class="meta"><span class="mini">reflective-maintenance</span><span class="mini">2 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/workflow-reflect.zip" download>⬇ workflow-reflect.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/workflow-reflect">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="x-ray x-ray use when: turning user-supplied context about an object, artifact, architecture, codebase, process, or system into a visual layered html explanation page with properties, components, flows, dependencies, and evidence boundaries. context-explanation">
+          <div class="card-head">
+            <code class="cname">x-ray</code>
+            <span class="ver">0.2.0-seed</span>
+          </div>
+          <p class="cdesc">Use when: turning user-supplied context about an object, artifact, architecture, codebase, process, or system into a visual layered HTML explanation page with properties, components, flows, dependencies, and evidence boundaries.</p>
+          <div class="meta"><span class="mini">context-explanation</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">21 files · 41 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/arcana/x-ray.zip" download>⬇ x-ray.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/arcana/x-ray">Source ↗</a>
+          </div>
+        </article>
+        </div>
+      </div>
+    </section>
+    <section id="spells">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Spells · 14</p>
+          <h2>Spells</h2>
+          <p>Composed multi-sigil workflows.</p>
+        </div>
+        <div class="cards">
+        <article class="card" data-search="arcanum-bootstrap arcanum-bootstrap arcanum bootstrap installs arcanum into a consuming repository. it creates generated native runtime skill packages for selected host runtimes, `.arcanum/observability/`, and optional `.arcanum/necronomicon/` harness state. codex slash commands under `.codex/commands/` are lega… ">
+          <div class="card-head">
+            <code class="cname">arcanum-bootstrap</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Arcanum Bootstrap installs Arcanum into a consuming repository. It creates generated native runtime skill packages for selected host runtimes, `.arcanum/observability/`, and optional `.arcanum/necronomicon/` harness state. Codex slash commands under `.codex/commands/` are lega…</p>
+          <div class="meta"><span class="mini">1 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/arcanum-bootstrap.zip" download>⬇ arcanum-bootstrap.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/arcanum-bootstrap">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="discovery-to-inventory discovery-to-inventory discovery to inventory composes `scope-interview`, `feature-glossary`, and `inventory` so early discovery becomes persistent reusable knowledge. ">
+          <div class="card-head">
+            <code class="cname">discovery-to-inventory</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Discovery To Inventory composes `scope-interview`, `feature-glossary`, and `inventory` so early discovery becomes persistent reusable knowledge.</p>
+          <div class="meta"><span class="mini">1 files · 959 B</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/discovery-to-inventory.zip" download>⬇ discovery-to-inventory.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/discovery-to-inventory">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="goal goal `goal` drives a craft-backed work graph through an autonomous, fail-closed control loop. it reads the current frontier, classifies each node by risk, routes work to the owning capability, gates closure with audit evidence, stages ledger deltas, and promotes only behind an expl… ">
+          <div class="card-head">
+            <code class="cname">goal</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">`goal` drives a Craft-backed work graph through an autonomous, fail-closed control loop. It reads the current frontier, classifies each node by risk, routes work to the owning capability, gates closure with audit evidence, stages ledger deltas, and promotes only behind an expl…</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">40 files · 36 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/goal.zip" download>⬇ goal.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/goal">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="guide-architecture guide-architecture guide a user through a software architecture target by composing context selection, structure inspection, optional translation, explanation sequencing, active-understanding validation, and user-ledger update proposals. ">
+          <div class="card-head">
+            <code class="cname">guide-architecture</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Guide a user through a software architecture target by composing context selection, structure inspection, optional translation, explanation sequencing, active-understanding validation, and User-ledger update proposals.</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">1 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/guide-architecture.zip" download>⬇ guide-architecture.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/guide-architecture">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="implementation-readiness implementation-readiness implementation readiness composes `implementation-layering`, `decision-gate`, and `task-session` so a rough implementation goal becomes staged, decided, and ready for one bounded execution loop. ">
+          <div class="card-head">
+            <code class="cname">implementation-readiness</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Implementation Readiness composes `implementation-layering`, `decision-gate`, and `task-session` so a rough implementation goal becomes staged, decided, and ready for one bounded execution loop.</p>
+          <div class="meta"><span class="mini">1 files · 1 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/implementation-readiness.zip" download>⬇ implementation-readiness.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/implementation-readiness">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="invoke invoke use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution. lifecycle-authoring">
+          <div class="card-head">
+            <code class="cname">invoke</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution.</p>
+          <div class="meta"><span class="mini">lifecycle-authoring</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">71 files · 87 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/invoke.zip" download>⬇ invoke.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/invoke">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="necronomicon necronomicon necronomicon is the repository-local knowledge harness for arcanum. its mvp is an inventory and ontology substrate loop: answer what the repository already knows, what is source-backed, what is only a candidate, what conflicts, and which owner should handle the next step. ">
+          <div class="card-head">
+            <code class="cname">necronomicon</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Necronomicon is the repository-local knowledge harness for Arcanum. Its MVP is an Inventory And Ontology Substrate Loop: answer what the repository already knows, what is source-backed, what is only a candidate, what conflicts, and which owner should handle the next step.</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">1 files · 13 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/necronomicon.zip" download>⬇ necronomicon.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/necronomicon">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="observed-invocation-loop observed-invocation-loop observed invocation loop wraps arcanum-managed skill, sigil, and spell invocations with a guaranteed post-run observability handoff. it turns each managed invocation into a safe invocation envelope, appends exactly one telemetry signal, updates reflection counters, and routes… ">
+          <div class="card-head">
+            <code class="cname">observed-invocation-loop</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Observed Invocation Loop wraps Arcanum-managed skill, sigil, and spell invocations with a guaranteed post-run observability handoff. It turns each managed invocation into a safe invocation envelope, appends exactly one telemetry signal, updates reflection counters, and routes…</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">1 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/observed-invocation-loop.zip" download>⬇ observed-invocation-loop.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/observed-invocation-loop">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="ontology-harness ontology-harness ontology harness composes `inventory`, `ontology-vault`, and `context-builder` so a repository can turn vault-like knowledge material into a reusable ontology governance layer. ">
+          <div class="card-head">
+            <code class="cname">ontology-harness</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Ontology Harness composes `inventory`, `ontology-vault`, and `context-builder` so a repository can turn vault-like knowledge material into a reusable ontology governance layer.</p>
+          <div class="meta"><span class="mini">1 files · 3 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/ontology-harness.zip" download>⬇ ontology-harness.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/ontology-harness">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="publication-research-pipeline publication-research-pipeline publication research pipeline composes arcanum research capabilities into a governed path from research question to publishable paper package. it keeps source understanding, evidence execution, claim adjudication, paper rewriting, and export packaging in separate owner lanes. ">
+          <div class="card-head">
+            <code class="cname">publication-research-pipeline</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Publication Research Pipeline composes Arcanum research capabilities into a governed path from research question to publishable paper package. It keeps source understanding, evidence execution, claim adjudication, paper rewriting, and export packaging in separate owner lanes.</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">1 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/publication-research-pipeline.zip" download>⬇ publication-research-pipeline.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/publication-research-pipeline">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="reading-learning-package reading-learning-package `reading-learning-package` composes a personalized learning package from a completed `research-tower` result and source artifacts. it preserves tower evidence as source authority, uses a whisper-compatible text intent substrate for composition, and emits traceable reading arti… ">
+          <div class="card-head">
+            <code class="cname">reading-learning-package</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">`reading-learning-package` composes a personalized learning package from a completed `research-tower` result and source artifacts. It preserves tower evidence as source authority, uses a Whisper-compatible text intent substrate for composition, and emits traceable reading arti…</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">44 files · 40 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/reading-learning-package.zip" download>⬇ reading-learning-package.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/reading-learning-package">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="repository-harness repository-harness repository harness composes `inventory`, `architecture-pattern-inventory`, and `context-builder` so a repository gains a reusable knowledge substrate, architecture package, and focused task-context retrieval path. ">
+          <div class="card-head">
+            <code class="cname">repository-harness</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Repository Harness composes `inventory`, `architecture-pattern-inventory`, and `context-builder` so a repository gains a reusable knowledge substrate, architecture package, and focused task-context retrieval path.</p>
+          <div class="meta"><span class="mini">1 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/repository-harness.zip" download>⬇ repository-harness.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/repository-harness">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="sigil-maintenance-loop sigil-maintenance-loop sigil maintenance loop composes `signal-observer`, `workflow-reflect`, and `sigil-development` so reusable sigils improve from usage evidence. ">
+          <div class="card-head">
+            <code class="cname">sigil-maintenance-loop</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Sigil Maintenance Loop composes `signal-observer`, `workflow-reflect`, and `sigil-development` so reusable sigils improve from usage evidence.</p>
+          <div class="meta"><span class="mini">1 files · 960 B</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/sigil-maintenance-loop.zip" download>⬇ sigil-maintenance-loop.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/sigil-maintenance-loop">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="whisper whisper whisper turns author intent into meaningful text through a governed composition lifecycle. it extracts a small text intent substrate, selects a balanced combination of narrative primitives and techniques, proposes a construction plan, drafts the text, validates the result, and… ">
+          <div class="card-head">
+            <code class="cname">whisper</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">Whisper turns author intent into meaningful text through a governed composition lifecycle. It extracts a small text intent substrate, selects a balanced combination of narrative primitives and techniques, proposes a construction plan, drafts the text, validates the result, and…</p>
+          <div class="meta"><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">6 files · 18 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/spells/whisper.zip" download>⬇ whisper.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/spells/whisper">Source ↗</a>
+          </div>
+        </article>
+        </div>
+      </div>
+    </section>
+    <section id="formulae">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Formulae · 3</p>
+          <h2>Formulae</h2>
+          <p>Foundational techniques sigils build on.</p>
+        </div>
+        <div class="cards">
+        <article class="card" data-search="anti-bias-vector-composition anti-bias-vector-composition the design principle behind principle 5 (pairwise tension) of the subagents-strategy constitution. use when designing the angle set for an n≥2 subject group (role investigate or evaluate) so the agents&#x27; micro-vectors are structurally opposed and their correlated bias cancels u… ">
+          <div class="card-head">
+            <code class="cname">anti-bias-vector-composition</code>
+            <span class="ver">—</span>
+          </div>
+          <p class="cdesc">The design principle behind Principle 5 (pairwise tension) of the subagents-strategy constitution. Use when designing the angle set for an n≥2 subject group (role investigate or evaluate) so the agents&#x27; micro-vectors are structurally opposed and their correlated bias cancels u…</p>
+          <div class="meta"><span class="mini">5 files · 17 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/formulae/anti-bias-vector-composition.zip" download>⬇ anti-bias-vector-composition.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/formulae/anti-bias-vector-composition">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="dispatch-spec dispatch-spec use when: validating or designing an arcanum dispatch route that chains sigils, spells, owner capabilities, handoffs, gates, observability, techniques, and optional boundary/evidence contracts. dispatch-governance">
+          <div class="card-head">
+            <code class="cname">dispatch-spec</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when: validating or designing an Arcanum dispatch route that chains sigils, spells, owner capabilities, handoffs, gates, observability, techniques, and optional boundary/evidence contracts.</p>
+          <div class="meta"><span class="mini">dispatch-governance</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">9 files · 41 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/formulae/dispatch-spec.zip" download>⬇ dispatch-spec.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/formulae/dispatch-spec">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="observability-setup observability-setup use when: installing or verifying the standard sigil observability package in a repository so sigils can append post-run json telemetry and reflection state. observability">
+          <div class="card-head">
+            <code class="cname">observability-setup</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: installing or verifying the standard sigil observability package in a repository so sigils can append post-run JSON telemetry and reflection state.</p>
+          <div class="meta"><span class="mini">observability</span><span class="mini">5 files · 4 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/formulae/observability-setup.zip" download>⬇ observability-setup.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/formulae/observability-setup">Source ↗</a>
+          </div>
+        </article>
+        </div>
+      </div>
+    </section>
+    <section id="transmutations">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Transmutations · 4</p>
+          <h2>Transmutations</h2>
+          <p>Cross-cutting transforms.</p>
+        </div>
+        <div class="cards">
+        <article class="card" data-search="codex-goal-profile codex-goal-profile use when converting an arcanum work-pack task, swu, or explicitly selected one-shot stream into a compact native codex /goal command with sidecar context, profile policy, verification surface, constraints, boundaries, iteration policy, and blocked stop condition. codex-goal-authoring">
+          <div class="card-head">
+            <code class="cname">codex-goal-profile</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when converting an Arcanum work-pack task, SWU, or explicitly selected one-shot stream into a compact native Codex /goal command with sidecar context, profile policy, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.</p>
+          <div class="meta"><span class="mini">codex-goal-authoring</span><span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span><span class="mini">5 files · 9 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/transmutations/codex-goal-profile.zip" download>⬇ codex-goal-profile.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/transmutations/codex-goal-profile">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="context-builder context-builder use when: building a compact, task-ready context pack from selector-level evidence and obligation-linked excerpts. context-synthesis">
+          <div class="card-head">
+            <code class="cname">context-builder</code>
+            <span class="ver">0.2.0</span>
+          </div>
+          <p class="cdesc">Use when: building a compact, task-ready context pack from selector-level evidence and obligation-linked excerpts.</p>
+          <div class="meta"><span class="mini">context-synthesis</span><span class="mini">6 files · 8 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/transmutations/context-builder.zip" download>⬇ context-builder.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/transmutations/context-builder">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="feature-glossary feature-glossary use when: creating or updating a concise glossary for a feature, workflow, product area, or bounded project scope from source evidence. vocabulary-synthesis">
+          <div class="card-head">
+            <code class="cname">feature-glossary</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: creating or updating a concise glossary for a feature, workflow, product area, or bounded project scope from source evidence.</p>
+          <div class="meta"><span class="mini">vocabulary-synthesis</span><span class="mini">2 files · 2 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/transmutations/feature-glossary.zip" download>⬇ feature-glossary.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/transmutations/feature-glossary">Source ↗</a>
+          </div>
+        </article>
+        <article class="card" data-search="implementation-layering implementation-layering use when: creating or evolving a project-agnostic implementation layering model for a feature, capability, product workflow, research workflow, infrastructure change, or system improvement. builds layers from minimum working unit proof to progressive hardening using value/cost… implementation-planning">
+          <div class="card-head">
+            <code class="cname">implementation-layering</code>
+            <span class="ver">0.1.0</span>
+          </div>
+          <p class="cdesc">Use when: creating or evolving a project-agnostic implementation layering model for a feature, capability, product workflow, research workflow, infrastructure change, or system improvement. Builds layers from minimum working unit proof to progressive hardening using value/cost…</p>
+          <div class="meta"><span class="mini">implementation-planning</span><span class="mini">3 files · 6 KB</span></div>
+          <div class="cactions">
+            <a class="dl" href="downloads/transmutations/implementation-layering.zip" download>⬇ implementation-layering.zip</a>
+            <a class="src" href="https://github.com/cyberAlchemyAI/Arcanum/tree/main/transmutations/implementation-layering">Source ↗</a>
+          </div>
+        </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>CyberAlchemy</h3>
+      <p>Generated from each skill's manifest by <code>tools/build-skill-registry.py</code>. Re-run on change — never hand-edited.</p>
+      <p style="margin-top:12px"><a href="https://www.linkedin.com/in/vladimir-rondelli/" style="color:#fdfaf3;font-weight:820;text-decoration:underline">Work with me → LinkedIn</a></p>
+    </div>
+  </footer>
+
+  <script>
+    const q = document.getElementById('q');
+    const count = document.getElementById('count');
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const sections = Array.from(document.querySelectorAll('main section[id]'));
+    function apply() {
+      const t = q.value.trim().toLowerCase();
+      let shown = 0;
+      cards.forEach(c => {
+        const hit = !t || c.dataset.search.includes(t);
+        c.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      sections.forEach(s => {
+        const any = s.querySelectorAll('.card:not([style*="none"])').length;
+        s.style.display = any ? '' : 'none';
+      });
+      count.textContent = shown + ' shown';
+    }
+    q.addEventListener('input', apply);
+  </script>
+</body>
+</html>
