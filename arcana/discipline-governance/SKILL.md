@@ -4,8 +4,8 @@ description: "Use when: formalizing, routing, validating, promoting, or retiring
 argument-hint: "<scan|formalize|route|validate|promote|deprecate> <practice-or-discipline-id> [--status <status>] [--evidence <path>] [--dry-run]"
 tier: arcana
 domain: discipline-governance
-version: 0.2.1
-origin: created from the disciplines layer (catalog, card template, schema, catalog validator) which had no owning lifecycle sigil; promoted to 0.2.0 on 2026-06-21 after the 3-regime experiment harness (low=gitignore, medium=receipt-id-legend, complex=scan+curation), telemetry emission, and a reflection pass; 0.2.1 applied the two reflection-named iterations (public/private candidate tagging in scan/route; active-pattern cross-sigil evidence rule in validate)
+version: 0.2.2
+origin: created from the disciplines layer (catalog, card template, schema, catalog validator) which had no owning lifecycle sigil; promoted to 0.2.0 on 2026-06-21 after the 3-regime experiment harness (low=gitignore, medium=receipt-id-legend, complex=scan+curation), telemetry emission, and a reflection pass; 0.2.1 applied the two reflection-named iterations (public/private candidate tagging in scan/route; active-pattern cross-sigil evidence rule in validate); 0.2.2 adds local-first routing for consuming-repository evidence before public Arcanum promotion
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
 
@@ -55,6 +55,7 @@ Expected inputs, if available:
 - a candidate practice name or an existing `discipline_id`,
 - evidence paths where the practice already appears,
 - the current catalog `disciplines/DISCIPLINES.md`,
+- any consuming-repository local discipline catalog or governance guidelines,
 - the card template `disciplines/templates/discipline-card.md`,
 - the schema `disciplines/discipline.schema.yml`,
 - prior scan output under `disciplines/development/`,
@@ -74,7 +75,14 @@ A discipline may recommend a route, but it must never directly promote registry,
 </chain-boundary>
 
 <default-output>
-Prefer target-local outputs:
+Prefer target-local outputs. When the evidence comes from a consuming
+repository, check that repository for a local discipline catalog or governance
+surface before writing to the public Arcanum catalog. If no local catalog exists
+and the practice is repository-specific, create or recommend the local discipline
+first; promote a generalized Arcanum discipline only after the local rule is
+clear and reusable beyond that repository.
+
+Default output paths:
 
 1. `disciplines/cards/<discipline-id>.md` for a discipline card,
 2. a single row in `disciplines/DISCIPLINES.md` for the catalog entry,
@@ -87,8 +95,8 @@ Do not author constitutions, validators, or sigils inline; name the route and ha
 <process>
 1. Resolve the target: a candidate practice (for `scan`/`formalize`) or an existing `discipline_id` (for `route`/`validate`/`promote`/`deprecate`).
 2. Classify the mode. If no mode is given, infer the smallest mode that satisfies the request and state the inference.
-3. Gather evidence. A discipline needs at least one concrete repository reference. Confirm the maintenance signal: the practice appears across multiple capabilities, already has scattered rules, or has caused drift, rework, or confusion. Tag the candidate `public-safe` or `private-parent` and name its target catalog (v0.2.1).
-4. For `formalize`, write a card from `disciplines/templates/discipline-card.md` with: status, steward, purpose, boundary, evidence refs, quality bar, and promotion guardrail. Add one catalog row to the target catalog (public `disciplines/DISCIPLINES.md`, or the private umbrella catalog for a `private-parent` discipline) matching the required columns. Default status is `candidate`.
+3. Gather evidence. A discipline needs at least one concrete repository reference. Confirm the maintenance signal: the practice appears across multiple capabilities, already has scattered rules, or has caused drift, rework, or confusion. Tag the candidate `public-safe` or `private-parent` and name its target catalog (v0.2.1). Apply local-first routing before public promotion: if the evidence is from a consuming repository, inspect or create that repository's local discipline surface first, then generalize to Arcanum only when the practice is product-neutral and reusable beyond that repository.
+4. For `formalize`, write a card from `disciplines/templates/discipline-card.md` with: status, steward, purpose, boundary, evidence refs, quality bar, and promotion guardrail. Add one catalog row to the target catalog (local repository catalog, public `disciplines/DISCIPLINES.md`, or the private umbrella catalog for a `private-parent` discipline) matching the required columns. Default status is `candidate`.
 5. For `route`, choose the smallest sufficient hardening move and name its owner:
    - catalog-only when the card is enough,
    - template when the practice needs a reusable shape,
@@ -147,6 +155,7 @@ A successful execution must:
 
 - produce or update an evidence-backed discipline card and a schema-valid catalog row,
 - cite at least one concrete repository reference for the practice,
+- prove the target catalog decision, including local-first handling for consuming-repository evidence,
 - name the steward and the next hardening move,
 - choose the smallest sufficient route and hand off enforcement to the owning lifecycle,
 - keep discipline guidance separate from capability-local authority,
@@ -160,6 +169,7 @@ Avoid:
 
 - cataloging a one-off task as a durable discipline,
 - formalizing a practice with no concrete evidence,
+- promoting a repository-specific discipline directly to public Arcanum before checking or creating the consuming repository's local discipline surface,
 - letting a discipline promote a sigil, spell, registry, ontology, or glossary entry,
 - authoring a constitution, validator, or sigil inline instead of naming the route,
 - claiming a `validator` mode with no validator behind it,
@@ -172,6 +182,7 @@ For meaningful executions, emit or prepare telemetry with:
 
 - mode,
 - target discipline id,
+- target catalog and local-first decision,
 - card created or updated,
 - catalog row added or changed,
 - route chosen and owner,
