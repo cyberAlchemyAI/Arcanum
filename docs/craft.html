@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Craft — a recursive, file-backed project ledger that keeps the state of building something explicit: contexts, blockers, decisions, gaps, and recomposition.">
+  <title>Craft — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    .hero { position: relative; display: grid; align-items: end; overflow: hidden; padding: 132px clamp(18px, 5vw, 70px) 54px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { position: relative; z-index: 2; max-width: 940px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 940px; font-size: clamp(42px, 7vw, 88px); line-height: .9; }
+    h2 { max-width: 860px; font-size: clamp(27px, 3.8vw, 48px); line-height: 1.02; }
+    h3 { font-size: 19px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
+    .lead { max-width: 760px; margin-top: 22px; color: #383838; font-size: clamp(18px, 2.3vw, 23px); }
+    section { padding: clamp(44px, 7vw, 84px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 1020px; margin: 0 auto; }
+    .narrow { max-width: 800px; }
+    .section-head { margin-bottom: 26px; }
+    .section-head p { max-width: 800px; margin-top: 14px; }
+    .prose p { max-width: 800px; color: #383838; font-size: 17px; margin-top: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .panel { padding: 19px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 9px 24px rgba(22, 22, 22, .05); }
+    .panel p { margin-top: 8px; font-size: 15px; }
+    .panel .tag { display: inline-flex; margin-bottom: 11px; padding: 4px 9px; border-radius: 999px; background: #f1eadc; color: #6f5a3c; font-size: 12px; font-weight: 850; }
+    .panel.green { border-color: var(--green); } .panel.green .tag { background: #e6f3ee; color: var(--green); }
+    .panel.amber { border-color: #c98a23; } .panel.amber .tag { background: #fbeede; color: #9a6a18; }
+    .code { overflow: auto; padding: 18px; border-radius: 8px; background: #171717; color: #fff8eb; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.6; white-space: pre; }
+    .steps { counter-reset: s; display: grid; gap: 10px; max-width: 820px; }
+    .steps li { list-style: none; position: relative; padding: 14px 16px 14px 52px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: #383838; line-height: 1.55; }
+    .steps li::before { counter-increment: s; content: counter(s); position: absolute; left: 14px; top: 14px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--violet); color: #fff; font-size: 12px; font-weight: 800; }
+    .steps b { color: var(--ink); }
+    .inv li { margin: 0 0 10px; color: #383838; line-height: 1.6; max-width: 820px; }
+    .inv b { color: var(--ink); }
+    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+    code.inl { background: #f1ece1; padding: 1px 5px; border-radius: 4px; font-size: 14px; }
+    @media (max-width: 920px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+  </style>
+</head>
+<body id="top">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="paper.html">Paper</a>
+      <a href="blog.html">Blog</a>
+      <a href="#method">Method</a>
+      <a href="#recursion">Recursion</a>
+      <a href="#example">Example</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Craft</p>
+        <h1>Keep the state of building something explicit.</h1>
+        <p class="lead">Most of the real state of a project lives in chat threads and people's heads: the blocker you are circling, the decision you half-made, the gap you keep meaning to close. It evaporates between sessions. Craft is a small, file-backed ledger that holds that state on disk — contexts, blockers, decisions, gaps, and how the pieces recompose — so a person or an agent can pick the work back up exactly where it was.</p>
+      </div>
+    </section>
+
+    <section id="what">
+      <div class="inner prose narrow">
+        <div class="section-head">
+          <p class="eyebrow">What it is</p>
+          <h2>A recursive project ledger, in two files.</h2>
+        </div>
+        <p>Craft is a method, not a program. An agent operates it by reading and writing plain files — there is no daemon, no CLI, no runtime. That is deliberate: the value is the discipline and the durable record, not automation.</p>
+        <p>Every Craft space is two files plus a folder:</p>
+        <pre class="code">.craft/
+  ledger.yml        # the source of truth — typed rows for every piece of state
+  index.json        # optional machine index (regenerated by hand from the ledger)
+  artifacts/        # receipts, handoffs, evidence
+CRAFT.md            # a human-readable VIEW of the ledger (never the source of truth)</pre>
+        <p>The ledger holds typed rows: <b>contexts</b> (a unit of work), <b>blockers</b>, <b>enablers</b>, <b>open decisions</b>, <b>gaps</b>, <b>definitions</b>, <b>next moves</b>, <b>child contexts</b>, and <b>recomposition</b> records. Everything carries a stable id and links to what it touches, so the record stays navigable long after the conversation that produced it is gone.</p>
+        <p>The ledger also keeps quick-lookup indexes — active blockers, open and blocking decisions, active gaps, current next moves — that point back to row ids rather than restating them. Ask for the state of a project and you get the pending work itself, listed per node, not collapsed into counts.</p>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">The method</p>
+          <h2>A small set of moves over the ledger.</h2>
+          <p>Each move reads or writes one kind of row. The invariants below are what make the record trustworthy rather than just notes.</p>
+        </div>
+        <div class="grid-3">
+          <article class="panel"><span class="tag">start</span><h3>start_project · state</h3><p>Begin a ledger for a scope, or read the current state of a context (read-only) — blockers, decisions, gaps, next move.</p></article>
+          <article class="panel"><span class="tag">capture</span><h3>describe · add_blocker · add_enabler</h3><p>Record what is happening, what is in the way, and what unblocks it — each typed and evidenced.</p></article>
+          <article class="panel"><span class="tag">refine</span><h3>refine_blocker</h3><p>A raw blocker cannot be resolved directly. It must first be refined into a closure condition — what would actually clear it.</p></article>
+          <article class="panel"><span class="tag">decide</span><h3>open_decision · decide</h3><p>Open a decision with options; close it with the selected option, rationale, and evidence. Blocking decisions stop dependent work until closed.</p></article>
+          <article class="panel"><span class="tag">track</span><h3>add_gap · add_definition · next</h3><p>Track what is not yet covered, define local terms, and set the one current next move.</p></article>
+          <article class="panel"><span class="tag">recurse</span><h3>open_child_context · recompose</h3><p>Open a child context for nested work; close it only by recomposing it back into its parent with evidence of fit.</p></article>
+          <article class="panel"><span class="tag">verify</span><h3>validate</h3><p>Return pass / flag / block for a ledger or context, with the residue that remains.</p></article>
+          <article class="panel"><span class="tag">view</span><h3>export_ledger</h3><p>Render <code class="inl">CRAFT.md</code> as a linked human view of the ledger. The view never becomes the source of truth.</p></article>
+          <article class="panel"><span class="tag">link</span><h3>link</h3><p>Record a typed relation between rows so the graph stays navigable — decisions to the gaps they close, blockers to the artifacts that clear them.</p></article>
+        </div>
+        <div class="section-head" style="margin-top:40px">
+          <p class="eyebrow">Typed, not freeform</p>
+          <h2>A blocker has a shape, not a mood.</h2>
+          <p>Every blocker carries a <b>type</b> and a <b>lane</b>, so it routes to whoever can clear it instead of sitting as a worried note. Types name the kind of obstacle — <code class="inl">decision</code>, <code class="inl">dependency</code>, <code class="inl">evidence</code>, <code class="inl">design</code>, <code class="inl">validation</code>, <code class="inl">authority</code>. Lanes name the responsibility — <code class="inl">tech</code>, <code class="inl">qa</code>, <code class="inl">validator</code>, <code class="inl">governance</code>, <code class="inl">business</code>. The intent is a chain: <b>type + lane → role → the capability or human who owns it</b>. Decisions and gaps are typed the same way, so the ledger is a graph you can route, not a list you re-read.</p>
+        </div>
+        <div class="section-head" style="margin-top:40px">
+          <p class="eyebrow">Invariants</p>
+          <h2>The rules that keep the record honest.</h2>
+        </div>
+        <ul class="inv" style="padding-left:18px">
+          <li><b>Raw blockers cannot be resolved directly.</b> A blocker must be refined into a closure condition before it can close — or be explicitly waived by a human or governance decision. Either way, "done" always names what made it done.</li>
+          <li><b>A child context closes only by recomposition.</b> Nested work cannot quietly disappear; it must prove it fits back into its parent.</li>
+          <li><b>The view is never the source of truth.</b> <code class="inl">CRAFT.md</code> is generated from <code class="inl">ledger.yml</code>; edits go to the ledger.</li>
+          <li><b>Route-shape evidence is not execution evidence.</b> A plan that is well-formed is not the same as work that ran. Craft keeps the two distinct.</li>
+          <li><b>Local definitions stay local.</b> Craft records a term for a project; it does not promote it to a canonical, system-wide definition. It respects single ownership by abstaining.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="recursion">
+      <div class="inner prose narrow">
+        <div class="section-head">
+          <p class="eyebrow">Recursion &amp; recomposition</p>
+          <h2>The same shape at every altitude.</h2>
+        </div>
+        <p>A context can open a child context: a nested unit with its own blockers, decisions, and gaps. The child runs the same moves as its parent — the method applies to itself at a smaller scale.</p>
+        <p>A child does not close by being abandoned. It closes by <b>recomposition</b>: a record carrying a <b>fit summary</b> (how the child's result fits the parent), the parent's <b>next move</b>, and the evidence for both. This is what separates a child's progress from the parent's readiness — a child can pass while the parent stays flagged, and the ledger shows exactly why.</p>
+        <pre class="code">root context  (gate: flag)
+  ├── blocker  →  refined  →  closure condition
+  ├── child context  "resolve the API contract"   (gate: pass)
+  │       ├── open_decision → decide (narrow adapter)
+  │       └── recompose → fits parent; parent next move set
+  └── gap  "seed data"  (still open → root stays flag)</pre>
+        <p>This is also why the residue stays visible: what is not yet resolved — the open gap, the unrefined blocker, the blocking decision — remains in the ledger until it is closed, waived, deferred, or routed to whoever owns it. Nothing is "done" by being forgotten.</p>
+      </div>
+    </section>
+
+    <section id="example">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Worked example</p>
+          <h2>From a wild start to a recomposed, validated ledger.</h2>
+          <p>A small end-to-end run, the way Craft actually records it.</p>
+        </div>
+        <ol class="steps">
+          <li><b>start_project</b> — begin the ledger; record the purpose and the first next move.</li>
+          <li><b>add_blocker</b> — "we can't ship without an evidence trail" — typed, with a lane and evidence.</li>
+          <li><b>open_child_context</b> — spin off "design the API contract" as its own nested context.</li>
+          <li><b>open_decision → decide</b> — inside the child, choose a narrow-contract adapter, with rationale and evidence.</li>
+          <li><b>refine_blocker</b> — turn the raw blocker into a closure condition: "evidence trail exists when each step writes a receipt."</li>
+          <li><b>add_gap</b> — note "seed data missing" with a severity and an owner-route.</li>
+          <li><b>next</b> — set the parent's current move.</li>
+          <li><b>recompose</b> — the child fits back into the parent; the child passes, the root stays <em>flag</em> because the gap is still open.</li>
+          <li><b>validate</b> — pass / flag / block, with the residue listed.</li>
+          <li><b>export_ledger</b> — the agent writes <code class="inl">CRAFT.md</code> as the human view, with quick links to blockers, decisions, gaps, and next moves.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="fit">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Where it fits</p>
+          <h2>One concrete place the system keeps its residue.</h2>
+          <p>CyberAlchemy treats "what isn't resolved yet" as something to track, not hide. Craft is a small, file-backed instance of that discipline — not the system's enforcement engine.</p>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">residue</span>
+            <h3>Residue you can point at</h3>
+            <p>Open gaps, unrefined blockers, and blocking decisions are the project's residue — what the work hasn't closed yet. Craft makes them typed, linked rows you can return to, instead of notes that scroll away.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">recursion</span>
+            <h3>Self-application</h3>
+            <p>The same moves apply to a project and to a child of that project. The method runs on itself at a smaller altitude — the recursion is real, not a metaphor.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">boundary</span>
+            <h3>It coordinates; it does not execute</h3>
+            <p>Craft records where work stands and routes it to the capability that owns it. It receives that capability's verdict — it never overwrites it. A plan being well-shaped is kept distinct from work having run.</p>
+          </article>
+          <article class="panel">
+            <span class="tag">restraint</span>
+            <h3>Local stays local</h3>
+            <p>Craft holds a project's own definitions and decisions. It does not elevate them to canonical, system-wide truth. The restraint is the feature: one ledger never silently becomes everyone's source of truth.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="status">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Honest status</p>
+          <h2>What is built, and what is not.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="panel green">
+            <span class="tag">Built &amp; in use</span>
+            <h3>The method and the record</h3>
+            <p>The operating contract, a versioned ledger schema, worked examples, and the moves above — operated by an agent over plain files. It is in active use: more than 20 live <code class="inl">.craft/ledger.yml</code> ledgers track actual projects across the system today. Promotion to a canonical, finished tool is still deferred.</p>
+          </article>
+          <article class="panel amber">
+            <span class="tag">Not yet</span>
+            <h3>Automation</h3>
+            <p>There is no automated command runner, no full ledger renderer, no runtime. Those are deliberately deferred — Craft is a discipline an agent follows, and is held as a candidate, not yet promoted to a finished tool. We would rather ship the honest method than a half-built runtime.</p>
+          </article>
+        </div>
+        <p class="note">Part of CyberAlchemy — <a href="system.html">see the whole system</a> · <a href="saturn.html">Saturn</a> · <a href="paper.html">the paper</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>Craft</h3>
+      <p>A recursive, file-backed project ledger: contexts, blockers, decisions, gaps, recomposition. The state of building something, kept explicit. Part of CyberAlchemy.</p>
+    </div>
+  </footer>
+</body>
+</html>
