@@ -1,0 +1,25 @@
+swu_id: SWU-GOAL-005
+result: pass
+capability_ref: task-session
+receipt_kind: native-stage
+receipt_artifact: arcanum/spells/goal/development/task-session-runs/20260621T031727Z-workpack-one-shot-w2/W2-RESULT.md
+files_touched:
+  - arcanum/spells/goal/runtime/goal_loop.py
+  - arcanum/spells/goal/validation/fixtures/delegation_staging.json
+  - arcanum/spells/goal/validation/fixtures/audit_veto.json
+  - arcanum/spells/goal/validation/run-fixtures.py
+  - arcanum/spells/goal/validation/results/delegation_staging.dispatch.json
+  - arcanum/spells/goal/validation/results/delegation_staging.execution-receipt.json
+  - arcanum/spells/goal/validation/results/audit_veto.dispatch.json
+  - arcanum/spells/goal/validation/results/audit_veto.execution-receipt.json
+validation:
+  - "python3 -m py_compile runtime/goal_loop.py validation/run-fixtures.py: pass"
+  - "python3 validation/run-fixtures.py: pass"
+  - "validate-dispatch.py delegation_staging.dispatch.json --json: pass"
+  - "validate-dispatch.py audit_veto.dispatch.json --json: pass"
+  - "execution receipt schema validation: pass"
+blockers: []
+residue:
+  - "Owner internals remain outside goal runtime; route evidence only validates handoff shape."
+reroute: task-session
+handoff_note: "Proceed to SWU-GOAL-006 audit and staged-delta behavior."

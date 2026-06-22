@@ -1,0 +1,44 @@
+{
+  "trace_id": "GOAL-INVOKE-DESIGN-DISPATCH-TRACE-001",
+  "target": "arcanum/spells/goal",
+  "invoke_mode": "design",
+  "status": "pass",
+  "full_dispatch_required": false,
+  "full_dispatch_skipped_reason": "The run produces design-stage artifacts only. It does not execute runtime SWUs, spawn subagents, or request protected mutation.",
+  "techniques": [
+    {
+      "id": "artifact_contract_bridge",
+      "activation_trigger": "The source contract needs implementation-facing architecture, rules, schemas, and contracts.",
+      "affected_phase_or_artifact": "ARCHITECTURE.md, RULES.md, SCHEMAS.md, CONTRACTS.md.",
+      "validation_expectation": "Each design artifact maps back to the README source contract and define-stage SPEC.md."
+    },
+    {
+      "id": "owner_boundary_check",
+      "activation_trigger": "The spell composes existing capabilities and must not redefine owner internals.",
+      "affected_phase_or_artifact": "Architecture dependency view and contract matrix.",
+      "validation_expectation": "Delegated owners are named with boundaries and failure policy."
+    },
+    {
+      "id": "validation_loop",
+      "activation_trigger": "The request includes schemas and contracts.",
+      "affected_phase_or_artifact": "SCHEMAS.md and schemas/*.schema.json.",
+      "validation_expectation": "All JSON schema files parse and design checks pass."
+    },
+    {
+      "id": "residue_ledger",
+      "activation_trigger": "Runtime implementation and promotion remain out of scope.",
+      "affected_phase_or_artifact": "ARCHITECTURE.md design gaps and INVOKE-RESULT.md.",
+      "validation_expectation": "Follow-up work is named with owner and next route."
+    }
+  ],
+  "skipped_obvious_techniques": [
+    {
+      "id": "execution_receipt_handoff",
+      "reason": "No runtime node or SWU was executed."
+    },
+    {
+      "id": "research_external",
+      "reason": "Local source contract and define-stage artifacts are sufficient for design."
+    }
+  ]
+}

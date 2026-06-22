@@ -1,0 +1,81 @@
+{
+  "trace_id": "GOAL-INVOKE-PLAN-DISPATCH-TRACE-001",
+  "target": "arcanum/spells/goal",
+  "invoke_mode": "plan",
+  "status": "pass",
+  "full_dispatch_required": true,
+  "full_dispatch_path": "PLAN-DISPATCH.json",
+  "full_dispatch_validation": "pass",
+  "techniques": [
+    {
+      "id": "sequence",
+      "activation_trigger": "Define and design outputs feed implementation layering, work-pack, execution pack, then lifecycle handoff.",
+      "affected_phase_or_artifact": "IMPLEMENTATION-LAYERING.md, WORK-PACK.md, EXECUTION-PACK.md, PLAN-TRANSPORT.md.",
+      "validation_expectation": "Every non-first route step consumes a prior artifact or handoff."
+    },
+    {
+      "id": "scu_swu_reduction",
+      "activation_trigger": "Plan mode must select the smallest executable unit before mutation-capable routing.",
+      "affected_phase_or_artifact": "WORK-PACK.md SWU manifest and DISTILL-VALIDATION.md.",
+      "validation_expectation": "SWU-GOAL-001 is selected as the first unit; runtime SWUs are dependency-gated."
+    },
+    {
+      "id": "recomposition_proof",
+      "activation_trigger": "The selected W0 unit must still fit the full goal spell lifecycle.",
+      "affected_phase_or_artifact": "DISTILL-VALIDATION.md and layer table.",
+      "validation_expectation": "W0 through W3 recompose into the approved goal spell control spine."
+    },
+    {
+      "id": "validation_loop",
+      "activation_trigger": "Each delivery slice needs explicit evidence before handoff.",
+      "affected_phase_or_artifact": "WORK-PACK.md, task files, PLAN-DISPATCH.json.",
+      "validation_expectation": "Every slice and SWU names a validation surface."
+    },
+    {
+      "id": "owner_boundary_check",
+      "activation_trigger": "Invoke, Spellcraft, Task Session, Experiment Harness, Craft, Decision Gate, and runtime installer have distinct authority.",
+      "affected_phase_or_artifact": "PLAN-DISPATCH.json boundary evidence and WORK-PACK.md gates.",
+      "validation_expectation": "Plan does not claim runtime, promotion, ledger, or generated-surface authority."
+    },
+    {
+      "id": "handle_handoff",
+      "activation_trigger": "Future execution should consume artifact paths instead of copied source context.",
+      "affected_phase_or_artifact": "PLAN-TRANSPORT.md and task source anchors.",
+      "validation_expectation": "Handoff records concrete paths and leaves context pack generation to execution time."
+    },
+    {
+      "id": "residue_ledger",
+      "activation_trigger": "Schema home, Craft sync, runtime source, and evidence gaps remain unresolved.",
+      "affected_phase_or_artifact": "WORK-PACK.md blockers and work-pack/shared/cross-task-gaps.md.",
+      "validation_expectation": "Each gap has owner, repair route, and blocking scope."
+    },
+    {
+      "id": "execution_receipt_handoff",
+      "activation_trigger": "Future delegated SWUs must return structured receipts.",
+      "affected_phase_or_artifact": "PLAN-DISPATCH.json receipt expectations and task expected result shapes.",
+      "validation_expectation": "Receipt fields are declared before mutation-capable execution begins."
+    },
+    {
+      "id": "authority_split_gate",
+      "activation_trigger": "The route crosses lifecycle, execution, evidence, state, and generated-surface owners.",
+      "affected_phase_or_artifact": "PLAN-DISPATCH.json gates and boundary evidence.",
+      "validation_expectation": "Unresolved authority ownership blocks or asks before execution."
+    },
+    {
+      "id": "approval_semantics_map",
+      "activation_trigger": "The goal spell applies staged batches only after explicit approval.",
+      "affected_phase_or_artifact": "PLAN-DISPATCH.json approval gate and TASK-GOAL-APPROVAL-PROMOTION.md.",
+      "validation_expectation": "The plan distinguishes lifecycle validation from execution authorization and batch approval."
+    }
+  ],
+  "skipped_obvious_techniques": [
+    {
+      "id": "subagent_lifecycle",
+      "reason": "No subagent execution is authorized by this plan run; SWUs define future owner recommendations only."
+    },
+    {
+      "id": "tournament",
+      "reason": "The package shape is already selected as one composed spell."
+    }
+  ]
+}

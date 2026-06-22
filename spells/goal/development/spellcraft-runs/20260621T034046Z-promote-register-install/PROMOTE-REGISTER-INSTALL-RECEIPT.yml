@@ -1,0 +1,38 @@
+receipt_id: SPELLCRAFT-GOAL-PROMOTE-REGISTER-INSTALL-20260621T034046Z
+mode: install
+spell: goal
+canonical_id: goal
+scope: library
+approval: operator_instruction_promote_register_install
+status: pass
+promotion:
+  spell_status: registered reusable spell
+  registry_entry: arcanum/registry/SPELLS.md
+  schema_home: arcanum/spells/goal/schemas/
+install:
+  profile: repo-codex
+  generated_surface: .agents/skills/goal/
+  source: arcanum/spells/goal/README.md
+  copied_packages:
+    - .agents/skills/goal/
+  skipped_packages:
+    - disposable-target orchestrate package
+validation:
+  py_compile: pass
+  canonical_fixtures: pass
+  installed_fixtures: pass
+  dispatch_delegation_staging: pass
+  dispatch_audit_veto: pass
+  public_boundary_scan: pass
+  diff_check: pass
+boundaries:
+  public_arcanum: generic spell, generic schemas, neutral defaults, fixtures, validation evidence, registry entry
+  consuming_repo: generated runtime package and private filled profile instance
+  not_approved:
+    - publication
+    - commit
+    - push
+    - pull request
+    - parent gitlink movement
+    - legacy codex command adapters
+next_action: use .agents/skills/goal as the repo Codex skill, or separately approve publication/submodule push flow

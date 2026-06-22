@@ -1,0 +1,23 @@
+swu_id: SWU-GOAL-004
+result: pass
+capability_ref: task-session
+receipt_kind: native-stage
+receipt_artifact: arcanum/spells/goal/development/task-session-runs/20260621T031241Z-workpack-one-shot-w1/W1-RESULT.md
+files_touched:
+  - arcanum/spells/goal/runtime/goal_loop.py
+  - arcanum/spells/goal/validation/fixtures/protected_frontier.json
+  - arcanum/spells/goal/validation/run-fixtures.py
+  - arcanum/spells/goal/validation/results/protected_frontier.frontier-snapshot.json
+  - arcanum/spells/goal/validation/results/protected_frontier.goal-loop-result.json
+  - arcanum/spells/goal/validation/results/fixture-report.md
+validation:
+  - "python3 -m py_compile runtime/goal_loop.py validation/run-fixtures.py: pass"
+  - "python3 validation/run-fixtures.py: pass"
+  - "protected_frontier result STOP with stop_reason t3-node: pass"
+  - "protected_frontier goal-loop result schema: pass"
+  - "hidden public-boundary scan over arcanum/spells/goal: pass"
+blockers: []
+residue:
+  - "Dispatch, receipt join, audit, and staged-delta behavior remain deferred to W2."
+reroute: task-session
+handoff_note: "W1 read-only runtime skeleton is ready for W2 delegation/staging work."

@@ -1,0 +1,19 @@
+swu_id: SWU-GOAL-001
+result: block
+capability_ref: spellcraft
+receipt_kind: native-stage
+receipt_artifact: arcanum/spells/goal/development/spellcraft-runs/20260621T024138Z-workpack-one-shot-w0/SPELLCRAFT-VALIDATION.md
+files_touched:
+  - arcanum/spells/goal/development/spellcraft-runs/20260621T024138Z-workpack-one-shot-w0/SPELLCRAFT-VALIDATION.md
+validation:
+  - "python3 -m json.tool arcanum/spells/goal/decision-profile.schema: pass"
+  - "python3 -m json.tool goal design schemas: pass"
+  - "python3 arcanum/formulae/dispatch-spec/scripts/validate-dispatch.py PLAN-DISPATCH.json --json: pass"
+  - "tools/check_markdown_links.sh over goal markdown: pass"
+  - "public-boundary scan with --hidden: block"
+blockers:
+  - "Public goal Craft view and ledger contain private provenance/profile path literals."
+residue:
+  - "W1 runtime SWUs remain blocked until public-boundary repair is approved and applied or explicitly deferred with a safe alternative."
+reroute: decision-gate
+handoff_note: "Use STAGED-SOURCE-SYNC-PROPOSAL.md and DECISION-GATE-GOAL-PUBLIC-BOUNDARY.md to resolve the W0 blocker."

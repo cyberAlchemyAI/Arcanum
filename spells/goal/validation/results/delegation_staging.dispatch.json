@@ -1,0 +1,133 @@
+{
+  "boundary_evidence": {
+    "authority": {
+      "evidence": "task-session",
+      "execution": "task-session",
+      "lifecycle": "goal",
+      "promotion": "craft-after-approval",
+      "validation": "dispatch-spec"
+    },
+    "boundaries": [
+      {
+        "applies_to_steps": [
+          "execute-node"
+        ],
+        "boundary_id": "goal-w2-owner-boundary",
+        "contract": "Goal routes eligible work and receives terminal receipt evidence without redefining owner internals.",
+        "from_owner": "goal",
+        "kind": "capability_handoff",
+        "on_violation": "block",
+        "to_owner": "task-session"
+      }
+    ],
+    "receipts": [
+      {
+        "on_missing": "block",
+        "producer": "task-session",
+        "receipt_id": "goal-w2-terminal-receipt",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "validation",
+          "residue"
+        ],
+        "stores": [
+          "goal-w2-route-delegation-staging.execution-receipt.json"
+        ]
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "craft-source",
+        "owner": "arcana/craft",
+        "write_policy": "Goal may stage deltas, but active apply requires approval."
+      }
+    ]
+  },
+  "dispatch_id": "goal-w2-route-delegation-staging",
+  "gates": [
+    {
+      "condition": "Delegated lane returns terminal receipt before audit.",
+      "gate_id": "goal-w2-terminal-receipt",
+      "kind": "validation",
+      "on_fail": "block",
+      "owner": "goal"
+    }
+  ],
+  "intent": {
+    "arcanum_vocabulary": [
+      "goal",
+      "dispatch route",
+      "execution receipt"
+    ],
+    "objective": "Route NODE-DELEGATE-001 through task-session with terminal receipt evidence.",
+    "raw": "Execute a read-only owner handoff and return terminal evidence.",
+    "target_artifact": "NODE-DELEGATE-001"
+  },
+  "mode": "sequence",
+  "native_stage_receipts": [
+    {
+      "artifacts": [
+        "goal-w2-route-delegation-staging.execution-receipt.json",
+        "goal-w2-route-delegation-staging.result.md"
+      ],
+      "blockers": [],
+      "capability_ref": "task-session",
+      "dispatch_id": "goal-w2-route-delegation-staging",
+      "handoff_note": "route evidence fixture",
+      "observer_status": "not_run",
+      "receipt_kind": "native-stage",
+      "residue": "",
+      "status": "pass",
+      "step_id": "execute-node",
+      "validation": [
+        "terminal receipt shape checked"
+      ]
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "signal_grouping": "dispatch_id",
+    "trace_events": [
+      "dispatch_validated",
+      "terminal_receipt_recorded"
+    ]
+  },
+  "steps": [
+    {
+      "capability_ref": "task-session",
+      "evidence_artifact": "goal-w2-route-delegation-staging.execution-receipt.json",
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "name": "Execute eligible goal node",
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "goal-w2-route-delegation-staging.execution-receipt.json"
+        }
+      ],
+      "pattern": "handoff",
+      "step_id": "execute-node",
+      "stop_conditions": [
+        "block if receipt is not terminal"
+      ],
+      "techniques": [
+        "delegation_boundary",
+        "execution_receipt_handoff",
+        "validation_loop"
+      ]
+    }
+  ],
+  "techniques": [
+    "sequence",
+    "delegation_boundary",
+    "execution_receipt_handoff",
+    "validation_loop"
+  ]
+}

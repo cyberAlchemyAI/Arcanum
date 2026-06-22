@@ -1,0 +1,341 @@
+{
+  "dispatch_id": "goal-plan-20260620T212656Z",
+  "intent": {
+    "raw": "/invoke plan",
+    "objective": "Plan the goal spell lifecycle handoff and future SWU execution without performing runtime implementation or protected mutation.",
+    "target_artifact": "arcanum/spells/goal",
+    "arcanum_vocabulary": [
+      "invoke",
+      "spellcraft",
+      "task-session",
+      "experiment-harness",
+      "staged delta",
+      "approval token"
+    ]
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "handle_handoff",
+    "residue_ledger",
+    "execution_receipt_handoff",
+    "delegation_boundary",
+    "authority_split_gate",
+    "artifact_contract_bridge",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "approval_semantics_map"
+  ],
+  "steps": [
+    {
+      "step_id": "s1-plan-artifacts",
+      "name": "Shape plan artifacts",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "artifact_contract_bridge",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "IMPLEMENTATION-LAYERING.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "EXECUTION-PACK.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if plan lacks implementation layering, work-pack, Distill validation, or concrete source paths"
+      ]
+    },
+    {
+      "step_id": "s2-spellcraft-validation",
+      "name": "Validate spell lifecycle packet",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "recomposition_proof",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "PLAN-TRANSPORT.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "spellcraft validation report"
+        }
+      ],
+      "evidence_artifact": "spellcraft validation report",
+      "stop_conditions": [
+        "block runtime SWUs until Spellcraft accepts or repairs the packet"
+      ]
+    },
+    {
+      "step_id": "s3-selected-swu-execution",
+      "name": "Execute selected SWU after lifecycle validation",
+      "capability_ref": "task-session",
+      "pattern": "handoff",
+      "techniques": [
+        "scu_swu_reduction",
+        "execution_receipt_handoff",
+        "delegation_boundary",
+        "handle_handoff",
+        "authority_split_gate"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "work-pack/tasks/TASK-GOAL-SPELLCRAFT-VALIDATE.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "task-session RESULT.md"
+        }
+      ],
+      "evidence_artifact": "task-session RESULT.md",
+      "stop_conditions": [
+        "ask for one selected SWU if a task contains multiple SWUs",
+        "block if a future SWU lacks write scope, done criteria, validation, or receipt expectations"
+      ]
+    },
+    {
+      "step_id": "s4-reusable-evidence",
+      "name": "Build reusable behavior evidence after runtime behavior exists",
+      "capability_ref": "experiment-harness",
+      "capability_status": "candidate",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "approval_semantics_map"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "runtime behavior evidence"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "experiment-harness report"
+        }
+      ],
+      "evidence_artifact": "experiment-harness report",
+      "stop_conditions": [
+        "block registry readiness when reusable behavior evidence is absent",
+        "block if approval semantics do not reject ambient authority"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1-authority-split",
+      "kind": "policy",
+      "owner": "dispatch-spec",
+      "condition": "Authority split gate keeps Invoke on plan authoring, Spellcraft on lifecycle validation, Task Session on selected SWU execution, and Experiment Harness on reusable behavior evidence.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g2-validation-loop",
+      "kind": "validation",
+      "owner": "invoke",
+      "condition": "Each delivery slice has a validation surface before handoff.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g3-approval-semantics",
+      "kind": "human_approval",
+      "owner": "decision-gate",
+      "condition": "Protected apply requires a batch-specific approval token and durable decision record.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g4-public-private-boundary",
+      "kind": "policy",
+      "owner": "spellcraft",
+      "condition": "Public artifacts include only neutral schema/profile shape and no filled runtime profile data.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g5-generated-surface-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "runtime-installer",
+      "condition": "Generated native runtime surfaces are produced by installer paths and are not hand-authored by this plan.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1-invoke-to-spellcraft",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "spellcraft",
+        "applies_to_steps": [
+          "s2-spellcraft-validation"
+        ],
+        "contract": "Spellcraft consumes plan artifacts and returns lifecycle validation evidence before runtime SWUs begin.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b2-spellcraft-to-task-session",
+        "kind": "capability_handoff",
+        "from_owner": "spellcraft",
+        "to_owner": "task-session",
+        "applies_to_steps": [
+          "s3-selected-swu-execution"
+        ],
+        "contract": "Task Session executes exactly one selected SWU with write scope, validation, and receipt requirements.",
+        "on_violation": "ask"
+      },
+      {
+        "boundary_id": "b3-runtime-to-experiment",
+        "kind": "evidence_return",
+        "from_owner": "task-session",
+        "to_owner": "experiment-harness",
+        "applies_to_steps": [
+          "s4-reusable-evidence"
+        ],
+        "contract": "Runtime evidence may feed reusable behavior scenarios but does not itself establish registry readiness.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "spellcraft",
+      "execution": "task-session",
+      "validation": "spellcraft and experiment-harness",
+      "evidence": "task-session receipts and experiment-harness reports",
+      "memory": "invoke plan transport only; no memory or ontology promotion",
+      "promotion": "spellcraft owner review after experiment evidence"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r1-spellcraft-validation",
+        "producer": "spellcraft",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "arcanum/spells/goal/development/spellcraft-runs/"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r2-task-session-swu",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "status",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "RESULT.md",
+          ".arcanum/observability/"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r3-experiment-report",
+        "producer": "experiment-harness",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "arcanum/spells/goal/development/experiment-runs/"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "public-spell-source",
+        "owner": "arcanum/spells/goal",
+        "write_policy": "Writes must stay public-safe and avoid filled decision-profile data."
+      },
+      {
+        "namespace": "craft-source",
+        "owner": "arcana/craft",
+        "write_policy": "Active ledger mutation requires staged proposal and approval path."
+      },
+      {
+        "namespace": "generated-runtime-surfaces",
+        "owner": "runtime installer",
+        "write_policy": "Generated host packages are installer outputs, not hand-authored plan edits."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "execution evidence",
+        "target": "spell registry readiness",
+        "rule": "requires Spellcraft owner review and Experiment Harness evidence before any registry status change",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "plan_artifacts_created",
+      "dispatch_validated",
+      "spellcraft_handoff_ready",
+      "selected_swu_recorded",
+      "residue_ledger_recorded"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Execution evidence is not reusable behavior proof.",
+    "Reusable behavior evidence does not change registry status without owner review.",
+    "Generated runtime surfaces must come from installer paths."
+  ]
+}

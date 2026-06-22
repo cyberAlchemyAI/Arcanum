@@ -1,7 +1,7 @@
 ledger_id: goal.craft
 schema_ref: ../../../arcana/craft/templates/ledger.schema.yml
 schema_version: 0.2.0
-status: candidate-local
+status: registered
 source_of_truth: spells/goal/.craft/ledger.yml
 human_view: spells/goal/CRAFT.md
 
@@ -12,6 +12,7 @@ indexes:
     DEC-GOAL-PRIVACY-SPLIT-001: decisions[1]
     DEC-GOAL-PROFILE-HOME-001: decisions[2]
     DEC-GOAL-CRAFT-SCOPE-001: decisions[3]
+    DEC-GOAL-PROMOTE-REGISTER-001: decisions[4]
     BLK-GOAL-SUBMODULE-001: typed_items[0]
     GATE-GOAL-PROMOTION-001: typed_items[1]
     ENA-ADO-DESIGN-001: typed_items[2]
@@ -24,34 +25,35 @@ indexes:
     ART-ADO-PLAN: artifacts[4]
     ART-DECISION-PROFILE-PRIVATE: artifacts[5]
     ART-DECISION-PROFILE-SCHEMA: artifacts[6]
+    ART-GOAL-ARTIFACT-SCHEMAS: artifacts[7]
+    ART-GOAL-PROMOTION-RECEIPT: artifacts[8]
   open_decisions: []
   blocking_decisions: []
   active_blockers:
     - BLK-GOAL-SUBMODULE-001
   active_gaps:
-    - GAP-GOAL-SCHEMA-001
     - GAP-GOAL-ADO-MOVE-001
   next_moves:
     - context_id: CTX-GOAL-ROOT
-      next_move: Author spells/goal/README.md (SWU-GOAL-README) + spells/goal/decision-profile.schema, then execute the scrubbed ADO design move into spells/goal/development/ under approval.
+      next_move: Use the installer-owned generated runtime surface in the consuming repository; keep publication and parent gitlink movement separately approved.
   artifacts_by_path:
     spells/goal/.craft/ledger.yml: ART-GOAL-CRAFT-LEDGER
     spells/goal/CRAFT.md: ART-GOAL-CRAFT-VIEW
     spells/goal/: ART-GOAL-SCAFFOLD
     spells/goal/decision-profile.schema: ART-DECISION-PROFILE-SCHEMA
+    spells/goal/schemas/: ART-GOAL-ARTIFACT-SCHEMAS
 
 contexts:
   - context_id: CTX-GOAL-ROOT
     parent_id: root
     title: Goal Spell Build
     purpose: >
-      Build the `goal` composed Arcanum spell (autonomous DAG goal-loop) from the
-      validated autonomous-dag-orchestration (ADO) Option A design, under
-      submodule discipline and the public/private boundary, until it can promote
-      out of draft.
-    stage: plan
-    gate: flag
-    next_move: Author spells/goal/README.md (SWU-GOAL-README) + decision-profile.schema, then execute the scrubbed ADO design move under approval.
+      Build the `goal` composed Arcanum spell from the validated upstream design
+      contract, under submodule discipline and the public/private boundary, until
+      it can remain registered and installable.
+    stage: registered
+    gate: pass
+    next_move: Use the installer-owned generated runtime surface in the consuming repository; keep publication and parent gitlink movement separately approved.
     owned_artifacts:
       - ART-GOAL-CRAFT-LEDGER
       - ART-GOAL-CRAFT-VIEW
@@ -60,6 +62,8 @@ contexts:
       - ART-ADO-PLAN
       - ART-DECISION-PROFILE-PRIVATE
       - ART-DECISION-PROFILE-SCHEMA
+      - ART-GOAL-ARTIFACT-SCHEMAS
+      - ART-GOAL-PROMOTION-RECEIPT
     notes: Root context created by /craft start for the goal spell; scope = spells/goal/.craft.
 
 artifacts:
@@ -79,32 +83,44 @@ artifacts:
     owner_context_id: CTX-GOAL-ROOT
     path: spells/goal/
     artifact_type: spell-package
-    status: planned
-    notes: Empty spell scaffold (development/work-pack present); README/SKILL not yet authored.
+    status: active
+    notes: Spell package has README, public decision-profile schema, runtime implementation, validation fixtures, experiment evidence, registry entry, and install evidence.
   - artifact_id: ART-ADO-DESIGN-RESULT
     owner_context_id: CTX-GOAL-ROOT
-    path: "[absolute] /home/vrondelli/projects/workspace-resonant/.craft/artifacts/autonomous-dag-orchestration/development/refinement-runs/2026-06-14-dag-loop-to-arcanum-sigils/RESULT.md"
+    path: private-upstream-design-result
     artifact_type: design-result
     status: pass
-    notes: Private upstream — Option A packaging design (winner) + recomposition proof. Stays in workspace-resonant.
+    notes: Private upstream design evidence; the public ledger stores only this opaque handle.
   - artifact_id: ART-ADO-PLAN
     owner_context_id: CTX-GOAL-ROOT
-    path: "[absolute] /home/vrondelli/projects/workspace-resonant/.craft/artifacts/autonomous-dag-orchestration/development/refinement-runs/2026-06-14-dag-loop-to-arcanum-sigils/stages/s09-plan.md"
+    path: private-upstream-plan
     artifact_type: build-plan
     status: pass
-    notes: Non-executed build plan; SWU-GOAL-* (README, COMPOSE, RISK, STAGE, RO-BOUNDARY, APPROVE, GAP, GUARD, D3, AUDIT, OBS).
+    notes: Private upstream plan evidence represented here by opaque handle and public-safe SWU intent only.
   - artifact_id: ART-DECISION-PROFILE-PRIVATE
     owner_context_id: CTX-GOAL-ROOT
-    path: "[absolute] /home/vrondelli/projects/domainspec-core/.arcanum/profiles/decision-profile.yml"
+    path: private-consuming-root-profile-instance
     artifact_type: runtime-profile
     status: active
-    notes: PRIVATE filled decision-mentality profile (operator data). Loaded by the spell at runtime. NEVER copy into the public arcanum submodule.
+    notes: Private filled schema instance supplied by the consuming root repository at runtime. Public arcanum ships generic contracts, schemas, neutral defaults, and no filled profile content.
   - artifact_id: ART-DECISION-PROFILE-SCHEMA
     owner_context_id: CTX-GOAL-ROOT
     path: spells/goal/decision-profile.schema
     artifact_type: profile-schema
-    status: planned
-    notes: PUBLIC counterpart — shape + neutral default only, no operator data. Not yet authored.
+    status: active
+    notes: Public counterpart; shape and neutral defaults only, with no filled profile data.
+  - artifact_id: ART-GOAL-ARTIFACT-SCHEMAS
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/schemas/
+    artifact_type: artifact-schema-set
+    status: active
+    notes: Public generic JSON schemas for frontier snapshots, execution receipts, staged deltas, approval tokens, goal-loop results, and telemetry signals.
+  - artifact_id: ART-GOAL-PROMOTION-RECEIPT
+    owner_context_id: CTX-GOAL-ROOT
+    path: spells/goal/development/spellcraft-runs/20260621T034046Z-promote-register-install/PROMOTE-REGISTER-INSTALL-RESULT.md
+    artifact_type: promotion-install-receipt
+    status: pass
+    notes: Public-safe receipt for owner-approved promotion, registry entry, and consuming-repository generated runtime install.
 
 descriptions:
   - description_id: DESC-GOAL-001
@@ -133,9 +149,9 @@ definitions:
     scope_id: CTX-GOAL-ROOT
     term: goal public/private split
     statement: >
-      The public arcanum spell ships only decision-profile.schema (shape, no data);
-      the filled decision-profile.yml (operator data) stays private in .arcanum/profiles
-      and is loaded at runtime. Honors submodule discipline and operator rule D12.
+      The public arcanum spell ships only generic contracts, public schemas, and
+      neutral defaults. The filled profile instance stays private in the consuming
+      root repository and is supplied at runtime.
     status: candidate
     evidence: ART-DECISION-PROFILE-PRIVATE
 
@@ -150,14 +166,16 @@ typed_items:
       - validator
     source_id: CTX-GOAL-ROOT
     target_id: CTX-GOAL-ROOT
-    status: active
+    status: closed
     refinement_status: refined
     default_role: governance_reviewer
     delegation_route: task-session
     closure_condition: >
       All goal-spell authoring lands in public arcanum with NO private operator data
-      (decision corpus / filled profile excluded), and commits follow submodule
-      discipline (arcanum first + make bump-check) once approved.
+      (decision corpus / filled profile excluded). Public arcanum keeps only generic
+      contracts, schemas, neutral defaults, opaque handles, and public-safe evidence.
+      Commits follow submodule discipline (arcanum first + make bump-check) only
+      when publication is separately requested.
     evidence: ART-DECISION-PROFILE-PRIVATE
     decision_ref: DEC-GOAL-PRIVACY-SPLIT-001
     reason: spells/goal lives in the public arcanum submodule; private data must not leak.
@@ -175,12 +193,12 @@ typed_items:
     default_role: validation_reviewer
     delegation_route: experiment-harness
     closure_condition: >
-      experiment-harness evidence shows the spine holds — fail-closed not
+      experiment-harness evidence shows the spine holds - fail-closed not
       bypassable (read-only-craft boundary), gap-discovery terminates, approvals
-      emit decision-gate records — before the spell promotes out of draft.
-    evidence: ART-ADO-PLAN
-    decision_ref: none
-    reason: The two audit BLOCKs (B1 staging, B2 bypass) must be proven resolved, not asserted.
+      emit decision-gate records - before the spell promotes out of draft.
+    evidence: ART-GOAL-PROMOTION-RECEIPT
+    decision_ref: DEC-GOAL-PROMOTE-REGISTER-001
+    reason: The two audit BLOCKs (B1 staging, B2 bypass) were proven resolved by fixtures, dispatch validation, and Experiment Harness evidence.
   - item_id: ENA-ADO-DESIGN-001
     kind: enabler
     base_type: design_enabler
@@ -250,19 +268,19 @@ decisions:
   - decision_id: DEC-GOAL-PROFILE-HOME-001
     scope_id: ART-DECISION-PROFILE-PRIVATE
     decision_type: selection
-    question: Where does the filled decision-profile.yml live?
+    question: Where does the filled profile instance live?
     description: Private runtime home for the operator's filled decision profile.
     options:
-      - domainspec-core-dot-arcanum-profiles
-      - workspace-resonant-artifact
+      - consuming-root-private-profile-instance
+      - external-private-artifact
       - inside-arcanum-submodule
-    default_option: domainspec-core-dot-arcanum-profiles
-    selected: domainspec-core-dot-arcanum-profiles
-    rationale: Private, co-located with arcanum runtime state (.arcanum/), loadable by the spell. Not inside the public arcanum submodule.
+    default_option: consuming-root-private-profile-instance
+    selected: consuming-root-private-profile-instance
+    rationale: Public arcanum carries only generic contracts and schemas. The consuming root repository owns the filled schema instance and supplies it at runtime.
     evidence: ART-DECISION-PROFILE-PRIVATE
     status: closed
     blocking: false
-    impact: Profile at domainspec-core/.arcanum/profiles/decision-profile.yml; spell loads it at runtime.
+    impact: Profile instance stays private in the consuming root; the public spell loads a private runtime instance without shipping filled data or local paths.
     owner: operator
     links:
       - label: private profile
@@ -276,11 +294,11 @@ decisions:
     options:
       - spells-goal-dot-craft
       - spells-goal-development-dot-craft
-      - domainspec-core-root-dot-craft
-      - workspace-resonant-child-context
+      - consuming-root-craft
+      - external-private-child-context
     default_option: spells-goal-dot-craft
     selected: spells-goal-dot-craft
-    rationale: Operator correction — the spell is the scope, so .craft sits at the spell root (spells/goal/.craft). Rows reference the private profile by path, not content.
+    rationale: Operator correction — the spell is the scope, so .craft sits at the spell root (spells/goal/.craft). Rows reference the private profile by opaque handle, not by content or local path.
     evidence: ART-GOAL-CRAFT-LEDGER
     status: closed
     blocking: false
@@ -290,18 +308,42 @@ decisions:
       - label: ledger source
         target: ART-GOAL-CRAFT-LEDGER
         kind: artifact-id
+  - decision_id: DEC-GOAL-PROMOTE-REGISTER-001
+    scope_id: CTX-GOAL-ROOT
+    decision_type: approval
+    question: Should the goal spell promote, register, and install after post-workpack validation?
+    description: Owner approval to move the goal spell from draft evidence into registered reusable spell status and install a consuming-repository generated runtime package.
+    options:
+      - promote-register-install
+      - keep-draft
+      - register-only
+    default_option: promote-register-install
+    selected: promote-register-install
+    rationale: Spellcraft post-workpack validation passed; fixture runner, dispatch validation, Experiment Harness evidence, generated-surface dry run, diff check, and public-boundary scan passed.
+    evidence: ART-GOAL-PROMOTION-RECEIPT
+    status: closed
+    blocking: false
+    impact: The public spell is registered and the consuming repository may expose the generated native Codex package without copying a filled decision profile into public arcanum.
+    owner: operator
+    links:
+      - label: promotion receipt
+        target: ART-GOAL-PROMOTION-RECEIPT
+        kind: artifact-id
+      - label: promotion gate
+        target: GATE-GOAL-PROMOTION-001
+        kind: row-id
 
 gaps:
   - gap_id: GAP-GOAL-SCHEMA-001
     scope_id: CTX-GOAL-ROOT
-    summary: decision-profile.schema (public shape + neutral default) is not yet authored; the spell needs it as the public counterpart to the private profile.
-    severity: flag
-    treatment: resolve
+    summary: decision-profile.schema is authored and remains the public generic counterpart to the private consuming-root profile instance.
+    severity: info
+    treatment: plan
     owner: SWU-GOAL-D3
     evidence: ART-DECISION-PROFILE-SCHEMA
   - gap_id: GAP-GOAL-ADO-MOVE-001
     scope_id: CTX-GOAL-ROOT
-    summary: The scrubbed, public-safe ADO design artifacts have not yet been moved into spells/goal/development/; private corpus stays in workspace-resonant. Move is gated (writes to public submodule).
+    summary: Public-safe upstream design notes are represented by opaque handles; any future materialization into spells/goal/development/ remains gated.
     severity: flag
     treatment: defer
     owner: operator-approval

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/goal-loop-result.schema.json",
+  "title": "Goal Loop Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spell",
+    "goal",
+    "result",
+    "rounds",
+    "frontier",
+    "risk_tiers_seen",
+    "stop_reason",
+    "next_route"
+  ],
+  "properties": {
+    "spell": {
+      "const": "goal"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "STOP",
+        "BLOCK",
+        "FLAG"
+      ]
+    },
+    "rounds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "decision_profile": {
+      "type": "string",
+      "default": "neutral-default"
+    },
+    "frontier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "risk_tiers_seen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "properties": {
+        "T0": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T1": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T2": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T3": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "stop_reason": {
+      "type": "string"
+    },
+    "extra_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "next_route": {
+      "type": "string"
+    }
+  }
+}

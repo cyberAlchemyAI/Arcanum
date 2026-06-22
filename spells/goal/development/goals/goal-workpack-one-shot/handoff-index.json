@@ -1,0 +1,150 @@
+{
+  "index_id": "goal-workpack-one-shot-handoff-index",
+  "created_at": "2026-06-20T23:38:38Z",
+  "strict_coverage": "pass",
+  "selected_stream": {
+    "kind": "one-shot",
+    "id": "GOAL-WORKPACK-ONE-SHOT",
+    "source_work_pack": "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/WORK-PACK.md",
+    "execution_pack": "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/EXECUTION-PACK.md",
+    "dispatch": "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/PLAN-DISPATCH.json"
+  },
+  "handoff_pack": "arcanum/spells/goal/development/goals/goal-workpack-one-shot/handoff-pack.md",
+  "sidecar_profile": "arcanum/spells/goal/development/goals/goal-workpack-one-shot/CODEX-GOAL-PROFILE.md",
+  "goal_command": "arcanum/spells/goal/development/goals/goal-workpack-one-shot/00-goal-command.md",
+  "ordered_swus": [
+    {
+      "id": "SWU-GOAL-001",
+      "wave": "W0",
+      "owner_lane": "spellcraft",
+      "gate": "ready"
+    },
+    {
+      "id": "SWU-GOAL-002",
+      "wave": "W0",
+      "owner_lane": "local-fallback",
+      "gate": "after SWU-GOAL-001"
+    },
+    {
+      "id": "SWU-GOAL-003",
+      "wave": "W1",
+      "owner_lane": "task-session",
+      "gate": "after W0"
+    },
+    {
+      "id": "SWU-GOAL-004",
+      "wave": "W1",
+      "owner_lane": "task-session",
+      "gate": "after SWU-GOAL-003"
+    },
+    {
+      "id": "SWU-GOAL-005",
+      "wave": "W2",
+      "owner_lane": "task-session",
+      "gate": "after W1"
+    },
+    {
+      "id": "SWU-GOAL-006",
+      "wave": "W2",
+      "owner_lane": "task-session",
+      "gate": "after SWU-GOAL-005"
+    },
+    {
+      "id": "SWU-GOAL-007",
+      "wave": "W3",
+      "owner_lane": "task-session",
+      "gate": "after W2"
+    },
+    {
+      "id": "SWU-GOAL-008",
+      "wave": "W3",
+      "owner_lane": "task-session",
+      "gate": "after SWU-GOAL-007"
+    },
+    {
+      "id": "SWU-GOAL-009",
+      "wave": "W3",
+      "owner_lane": "experiment-harness",
+      "gate": "after SWU-GOAL-008"
+    },
+    {
+      "id": "SWU-GOAL-010",
+      "wave": "W3",
+      "owner_lane": "runtime-installer",
+      "gate": "after SWU-GOAL-009"
+    }
+  ],
+  "task_contracts": [
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/tasks/TASK-GOAL-SPELLCRAFT-VALIDATE.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/tasks/TASK-GOAL-RUNTIME-SKELETON.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/tasks/TASK-GOAL-DELEGATION-STAGING.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/tasks/TASK-GOAL-APPROVAL-PROMOTION.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/tasks/TASK-GOAL-VERIFY-EVIDENCE.md"
+  ],
+  "wave_contracts": [
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/waves/W0.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/waves/W1.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/waves/W2.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T212656Z-goal-plan/work-pack/waves/W3.md"
+  ],
+  "source_contracts": [
+    "arcanum/spells/goal/README.md",
+    "arcanum/spells/goal/decision-profile.schema",
+    "arcanum/spells/goal/development/invoke-runs/20260620T202601Z-goal-spec-definitions/SPEC.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T202601Z-goal-spec-definitions/DEFINITIONS.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T205253Z-goal-architecture-rules-schemas-contracts/ARCHITECTURE.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T205253Z-goal-architecture-rules-schemas-contracts/RULES.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T205253Z-goal-architecture-rules-schemas-contracts/CONTRACTS.md",
+    "arcanum/spells/goal/development/invoke-runs/20260620T205253Z-goal-architecture-rules-schemas-contracts/SCHEMAS.md"
+  ],
+  "allowed_extra_sources": [
+    {
+      "gap_id": "G-GOAL-SCHEMA-HOME",
+      "allowed_reason": "schema-home decision"
+    },
+    {
+      "gap_id": "G-GOAL-CRAFT-SYNC",
+      "allowed_reason": "staged source-state sync proposal"
+    },
+    {
+      "gap_id": "G-GOAL-RUNTIME-SOURCE",
+      "allowed_reason": "runtime write-scope selection before runtime SWUs"
+    },
+    {
+      "gap_id": "G-GOAL-FIXTURE-SET",
+      "allowed_reason": "validation fixture construction after runtime behavior exists"
+    },
+    {
+      "gap_id": "B-GOAL-PROMOTION-EVIDENCE",
+      "allowed_reason": "Experiment Harness evidence before registry readiness"
+    }
+  ],
+  "decision_profile": {
+    "path": null,
+    "consumed_fields": []
+  },
+  "one_shot_mode": true,
+  "capability_policy": {
+    "allowed_lanes": [
+      "spellcraft",
+      "local-fallback",
+      "task-session",
+      "decision-gate",
+      "experiment-harness",
+      "runtime-installer"
+    ],
+    "subagents": "not authorized",
+    "receipt_required": true
+  },
+  "blocked_stop_conditions": [
+    "W0 Spellcraft validation blocks",
+    "runtime source or write scope unclear",
+    "approval token missing for protected apply",
+    "active Craft mutation would bypass staged proposal",
+    "reusable behavior evidence absent while registry readiness requested",
+    "generated surface ownership unclear",
+    "private profile content would enter public artifacts",
+    "SWU lacks terminal receipt",
+    "validation cannot prove current layer"
+  ]
+}

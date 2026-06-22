@@ -1,0 +1,24 @@
+swu_id: SWU-GOAL-003
+result: pass
+capability_ref: task-session
+receipt_kind: native-stage
+receipt_artifact: arcanum/spells/goal/development/task-session-runs/20260621T031241Z-workpack-one-shot-w1/W1-RESULT.md
+files_touched:
+  - arcanum/spells/goal/runtime/goal_loop.py
+  - arcanum/spells/goal/validation/fixtures/read_only_frontier.json
+  - arcanum/spells/goal/validation/fixtures/missing_source.json
+  - arcanum/spells/goal/validation/run-fixtures.py
+  - arcanum/spells/goal/validation/results/read_only_frontier.frontier-snapshot.json
+  - arcanum/spells/goal/validation/results/read_only_frontier.goal-loop-result.json
+  - arcanum/spells/goal/validation/results/missing_source.goal-loop-result.json
+validation:
+  - "python3 -m py_compile runtime/goal_loop.py validation/run-fixtures.py: pass"
+  - "python3 validation/run-fixtures.py: pass"
+  - "read_only_frontier frontier snapshot schema: pass"
+  - "read_only_frontier goal-loop result schema: pass"
+  - "missing_source goal-loop result schema: pass"
+blockers: []
+residue:
+  - "Runtime source selected for W1 only; later SWUs own delegation, audit, staging, approval, telemetry, and installer readiness."
+reroute: task-session
+handoff_note: "Proceed to SWU-GOAL-004 risk classification and non-mutating result output."

@@ -4,19 +4,19 @@
 > the source of truth; this file is a linked summary only.
 
 - **Ledger:** `spells/goal/.craft/ledger.yml`
-- **Scope:** build the `goal` composed spell from the autonomous-dag-orchestration
-  (ADO) Option A design.
-- **Stage:** plan · **Gate:** flag
+- **Scope:** build the `goal` composed spell from a validated upstream design
+  contract while keeping public artifacts generic.
+- **Stage:** registered · **Gate:** pass
 
 ## Quick links
 
-- **Next move:** Author `spells/goal/README.md` (SWU-GOAL-README) +
-  `decision-profile.schema`, then execute the scrubbed ADO design move under approval.
-- **Active blockers:** [BLK-GOAL-SUBMODULE-001](#blocker-blk-goal-submodule-001)
+- **Next move:** Use the installer-owned generated runtime surface in the
+  consuming repository; keep publication and parent gitlink movement separately
+  approved.
+- **Public-boundary guard:** [BLK-GOAL-SUBMODULE-001](#blocker-blk-goal-submodule-001)
 - **Readiness gate:** [GATE-GOAL-PROMOTION-001](#blocker-gate-goal-promotion-001)
-- **Active gaps:** [GAP-GOAL-SCHEMA-001](#gap-gap-goal-schema-001),
-  [GAP-GOAL-ADO-MOVE-001](#gap-gap-goal-ado-move-001)
-- **Open decisions:** none (4 closed)
+- **Active gaps:** [GAP-GOAL-ADO-MOVE-001](#gap-gap-goal-ado-move-001)
+- **Open decisions:** none (5 closed)
 
 ## Context
 
@@ -33,19 +33,19 @@ reusable mechanisms to owning sigils; owns inline 6 new mechanisms; N5 reads a
 | --- | --- | --- | --- |
 | <a id="decision-dec-goal-packaging-001"></a>DEC-GOAL-PACKAGING-001 | How to package the goal-loop? | **Option A — one composed spell at spells/goal** | Single gated home, composition over duplication; tournament A=19 (Pareto-dominant). |
 | <a id="decision-dec-goal-privacy-split-001"></a>DEC-GOAL-PRIVACY-SPLIT-001 | Private model vs public arcanum? | **public schema only, private filled profile** | arcanum is public; operator rule D12 forbids private data in it. |
-| <a id="decision-dec-goal-profile-home-001"></a>DEC-GOAL-PROFILE-HOME-001 | Where does the filled profile live? | **domainspec-core/.arcanum/profiles/** | Private, co-located with arcanum runtime; loadable; not in the submodule. |
+| <a id="decision-dec-goal-profile-home-001"></a>DEC-GOAL-PROFILE-HOME-001 | Where does the filled profile live? | **private consuming-root profile instance** | Public arcanum ships only generic contracts and schemas; the consuming root supplies the filled schema instance at runtime. |
 | <a id="decision-dec-goal-craft-scope-001"></a>DEC-GOAL-CRAFT-SCOPE-001 | Where does this ledger live? | **spells/goal/.craft** | The spell is the scope; .craft sits at the spell root (operator correction). |
+| <a id="decision-dec-goal-promote-register-001"></a>DEC-GOAL-PROMOTE-REGISTER-001 | Promote and register the spell? | **promote, register, then install** | Spellcraft post-workpack validation, fixtures, dispatch validation, and Experiment Harness evidence pass. |
 
 ## Blockers & gates
 
-- <a id="blocker-blk-goal-submodule-001"></a>**BLK-GOAL-SUBMODULE-001** (governance, active, refined) — `spells/goal` is in the **public** arcanum submodule; all authoring must exclude private operator data, and commits follow submodule discipline (arcanum first + `make bump-check`). Closes when authoring lands with no leak. → [DEC-GOAL-PRIVACY-SPLIT-001](#decision-dec-goal-privacy-split-001)
-- <a id="blocker-gate-goal-promotion-001"></a>**GATE-GOAL-PROMOTION-001** (readiness gate, active) — spell stays **draft** until `experiment-harness` proves the spine: fail-closed not bypassable, gap-discovery terminates, approvals emit decision-gate records. Resolves audit B1/B2.
+- <a id="blocker-blk-goal-submodule-001"></a>**BLK-GOAL-SUBMODULE-001** (governance, active, refined) — `spells/goal` is in the **public** arcanum submodule; all authoring must exclude private operator data and keep only generic contracts, schemas, neutral defaults, opaque handles, and public-safe evidence. Commits follow submodule discipline (arcanum first + `make bump-check`) only when publication is separately requested. → [DEC-GOAL-PRIVACY-SPLIT-001](#decision-dec-goal-privacy-split-001)
+- <a id="blocker-gate-goal-promotion-001"></a>**GATE-GOAL-PROMOTION-001** (readiness gate, closed) — Spellcraft post-workpack validation and `experiment-harness` evidence prove the spine: fail-closed not bypassable, gap-discovery terminates, approvals emit decision-gate records. Resolves audit B1/B2.
 - **ENA-ADO-DESIGN-001** (enabler) — the validated Option A design + recomposition proof (16/16) + `SWU-GOAL-*` plan are the ready build contract.
 
 ## Gaps
 
-- <a id="gap-gap-goal-schema-001"></a>**GAP-GOAL-SCHEMA-001** (flag, resolve) — `decision-profile.schema` (public shape + neutral default) not yet authored. Owner: SWU-GOAL-D3.
-- <a id="gap-gap-goal-ado-move-001"></a>**GAP-GOAL-ADO-MOVE-001** (flag, defer) — scrubbed public-safe ADO design not yet moved into `spells/goal/development/`; move is gated (writes to public submodule). Owner: operator-approval.
+- <a id="gap-gap-goal-ado-move-001"></a>**GAP-GOAL-ADO-MOVE-001** (flag, defer) — public-safe upstream design notes are represented by opaque handles; any future materialization into `spells/goal/development/` remains gated. Owner: operator-approval.
 
 ## Artifacts
 
@@ -53,11 +53,13 @@ reusable mechanisms to owning sigils; owns inline 6 new mechanisms; N5 reads a
 | --- | --- | --- |
 | ART-GOAL-CRAFT-LEDGER | `spells/goal/.craft/ledger.yml` | active |
 | ART-GOAL-CRAFT-VIEW | `spells/goal/CRAFT.md` | active |
-| ART-GOAL-SCAFFOLD | `spells/goal/` | planned |
-| ART-ADO-DESIGN-RESULT | _(private)_ workspace-resonant ADO RESULT.md | pass |
-| ART-ADO-PLAN | _(private)_ workspace-resonant s09-plan.md (SWU-GOAL-*) | pass |
-| ART-DECISION-PROFILE-PRIVATE | _(private)_ `domainspec-core/.arcanum/profiles/decision-profile.yml` | active |
-| ART-DECISION-PROFILE-SCHEMA | `spells/goal/decision-profile.schema` | planned |
+| ART-GOAL-SCAFFOLD | `spells/goal/` | active |
+| ART-ADO-DESIGN-RESULT | private upstream design handle | pass |
+| ART-ADO-PLAN | private upstream plan handle | pass |
+| ART-DECISION-PROFILE-PRIVATE | private consuming-root profile instance | active |
+| ART-DECISION-PROFILE-SCHEMA | `spells/goal/decision-profile.schema` | active |
+| ART-GOAL-ARTIFACT-SCHEMAS | `spells/goal/schemas/` | active |
+| ART-GOAL-PROMOTION-RECEIPT | `spells/goal/development/spellcraft-runs/20260621T034046Z-promote-register-install/PROMOTE-REGISTER-INSTALL-RESULT.md` | pass |
 
 ## Build SWUs (from ART-ADO-PLAN)
 

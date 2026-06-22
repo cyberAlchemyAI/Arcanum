@@ -1,0 +1,29 @@
+{
+  "goal": "prove audit veto blocks apparent success",
+  "goal_context_id": "CTX-GOAL-FIXTURE-AUDIT-VETO",
+  "source_ref": "fixture:audit-veto",
+  "route_id": "goal-w2-route-audit-veto",
+  "owner": "task-session",
+  "evidence_ref": "fixture:audit-veto-terminal-receipt",
+  "audit_veto": true,
+  "nodes": [
+    {
+      "node_id": "NODE-AUDIT-001",
+      "kind": "task",
+      "status": "ready",
+      "summary": "Return terminal evidence that audit veto must still block.",
+      "risk_tier": "T1",
+      "owner": "task-session"
+    }
+  ],
+  "source_change": {
+    "delta_id": "GOAL-STAGED-DELTA-W2-VETO-SHOULD-NOT-EXIST",
+    "source_authority": "arcana/craft",
+    "target": "fixture:craft-ledger",
+    "operation": "annotate",
+    "framed_diff": "This should not be emitted when audit veto is true.",
+    "validation_expectation": [
+      "audit veto prevents staged delta"
+    ]
+  }
+}

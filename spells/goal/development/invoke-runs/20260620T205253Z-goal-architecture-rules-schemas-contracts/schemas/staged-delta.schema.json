@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/staged-delta.schema.json",
+  "title": "Goal Staged Delta",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "delta_id",
+    "source_authority",
+    "target",
+    "operation",
+    "framed_diff",
+    "validation_expectation",
+    "promotion_state",
+    "created_by_receipt"
+  ],
+  "properties": {
+    "delta_id": {
+      "type": "string"
+    },
+    "source_authority": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "add",
+        "update",
+        "delete",
+        "move",
+        "annotate"
+      ]
+    },
+    "framed_diff": {
+      "type": "string"
+    },
+    "validation_expectation": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "promotion_state": {
+      "type": "string",
+      "enum": [
+        "staged",
+        "held",
+        "approved",
+        "rejected",
+        "applied",
+        "blocked"
+      ],
+      "default": "staged"
+    },
+    "created_by_receipt": {
+      "type": "string"
+    }
+  }
+}

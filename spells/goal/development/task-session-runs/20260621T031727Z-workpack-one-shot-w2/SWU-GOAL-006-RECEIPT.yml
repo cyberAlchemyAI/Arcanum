@@ -1,0 +1,23 @@
+swu_id: SWU-GOAL-006
+result: pass
+capability_ref: task-session
+receipt_kind: native-stage
+receipt_artifact: arcanum/spells/goal/development/task-session-runs/20260621T031727Z-workpack-one-shot-w2/W2-RESULT.md
+files_touched:
+  - arcanum/spells/goal/runtime/goal_loop.py
+  - arcanum/spells/goal/validation/run-fixtures.py
+  - arcanum/spells/goal/validation/results/delegation_staging.audit-verdict.json
+  - arcanum/spells/goal/validation/results/delegation_staging.staged-delta.json
+  - arcanum/spells/goal/validation/results/audit_veto.audit-verdict.json
+  - arcanum/spells/goal/validation/results/fixture-report.md
+validation:
+  - "python3 validation/run-fixtures.py: pass"
+  - "delegation_staging staged delta schema: pass"
+  - "delegation_staging promotion_state staged: pass"
+  - "audit_veto verdict block and no staged delta emitted: pass"
+  - "no active Craft mutation review: pass"
+blockers: []
+residue:
+  - "Approval token handling, gap discovery, telemetry, Experiment Harness evidence, and installer readiness remain deferred to W3."
+reroute: task-session
+handoff_note: "W2 delegation and staging behavior is ready for W3 approval/evidence work."
