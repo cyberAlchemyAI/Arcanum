@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reading Learning Package Preset Profile",
+  "type": "object",
+  "required": ["preset_profile"],
+  "properties": {
+    "preset_profile": {
+      "type": "object",
+      "required": [
+        "preset_id",
+        "source",
+        "resonance_core",
+        "relevance_core",
+        "trajectory_core",
+        "examples",
+        "pdf_preferences",
+        "approval"
+      ],
+      "properties": {
+        "preset_id": {
+          "enum": ["deep_voice_reading", "quick_video", "medium_explanation", "custom_from_examples"]
+        },
+        "source": {
+          "type": "object",
+          "required": ["tower_root", "source_artifacts"]
+        },
+        "resonance_core": {"type": "object"},
+        "relevance_core": {"type": "object"},
+        "trajectory_core": {"type": "object"},
+        "examples": {
+          "type": "object",
+          "required": ["accepted", "rejected"]
+        },
+        "pdf_preferences": {"type": "object"},
+        "approval": {
+          "type": "object",
+          "required": ["preset_preview_status"]
+        }
+      }
+    }
+  }
+}

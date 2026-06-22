@@ -1,0 +1,264 @@
+{
+  "dispatch_id": "reading-learning-package-spell-development",
+  "intent": {
+    "raw": "Create a new spell development package that composes research-tower and whisper into personalized reading/PDF learning packages with preset interviews.",
+    "objective": "Prepare a Spellcraft-ready route for a reading-learning-package spell that consumes tower/source artifacts, interviews preset and SCU core preferences with quick examples, composes through Whisper, assembles PDF output, and validates source traceability.",
+    "target_artifact": "arcanum/spells/reading-learning-package/development/",
+    "arcanum_vocabulary": ["invoke", "spellcraft", "research-tower", "whisper", "structured-interview-kits", "distill", "task-session", "experiment-harness"]
+  },
+  "mode": "spell-design",
+  "route_menu": {
+    "context_hint": "The user must choose a starter learning-package preset before Whisper composition.",
+    "items": [
+      {
+        "id": "deep_voice_reading",
+        "label": "Deep Voice Reading",
+        "description": "Long, in-depth reading or narration manuscript with source-rich explanations.",
+        "capability_ref": "whisper",
+        "pattern": "long-form reading"
+      },
+      {
+        "id": "quick_video",
+        "label": "Quick Video",
+        "description": "Short explainer script plus compact PDF handout and source sheet.",
+        "capability_ref": "whisper",
+        "pattern": "compressed script"
+      },
+      {
+        "id": "medium_explanation",
+        "label": "Medium Explanation",
+        "description": "Balanced reading guide with examples, core model, and next-reading appendix.",
+        "capability_ref": "whisper",
+        "pattern": "medium guide"
+      }
+    ],
+    "selected_item_id": null
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "artifact_contract_bridge",
+    "handle_handoff",
+    "owner_boundary_check",
+    "approval_semantics_map",
+    "validation_loop",
+    "residue_ledger",
+    "concrete_path_evidence",
+    "authority_split_gate",
+    "execution_receipt_handoff"
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b-invoke-spellcraft",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "spellcraft",
+        "applies_to_steps": ["s7"],
+        "contract": "Invoke prepares the development package and handoff; Spellcraft owns spell lifecycle mutation, validation, installation, observation, reflection, and promotion readiness.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b-tower-whisper",
+        "kind": "capability_handoff",
+        "from_owner": "research-tower",
+        "to_owner": "whisper",
+        "applies_to_steps": ["s2", "s4"],
+        "contract": "Tower artifacts provide source authority by handle; Whisper composes text intent and draft artifacts without promoting source claims.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "spellcraft",
+      "authoring": "invoke",
+      "source_evidence": "research-tower",
+      "composition": "whisper",
+      "execution": "task-session",
+      "validation": "spellcraft and experiment-harness",
+      "promotion": "owning capability after validation"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r-spellcraft",
+        "producer": "spellcraft",
+        "required_fields": ["artifacts", "validation_result", "status", "observer_status", "handoff_note"],
+        "stores": ["SPELL-HANDOFF.md", "VALIDATION.md or validation report"],
+        "on_missing": "flag"
+      },
+      {
+        "receipt_id": "r-task-session",
+        "producer": "task-session",
+        "required_fields": ["step_id", "capability_ref", "artifacts", "validation", "residue"],
+        "stores": ["SWU result artifact", ".arcanum/observability when available"],
+        "on_missing": "flag"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "tower-source",
+        "owner": "research-tower",
+        "write_policy": "read by handle unless explicit tower repair route is invoked"
+      },
+      {
+        "namespace": "reading-package-output",
+        "owner": "reading-learning-package",
+        "write_policy": "write generated package artifacts under user-selected output root"
+      },
+      {
+        "namespace": "spell-development",
+        "owner": "spellcraft",
+        "write_policy": "mutate spell contract only after Spellcraft accepts handoff"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "learning package output",
+        "target": "canonical spell or vocabulary",
+        "rule": "requires Spellcraft validation and owner review before promotion",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Resolve tower and source handles",
+      "capability_ref": "context-builder",
+      "pattern": "sequential",
+      "techniques": ["sequence", "handle_handoff", "concrete_path_evidence"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}],
+      "outputs": [{"kind": "artifact", "ref": "source-context.md"}],
+      "evidence_artifact": "source-context.md",
+      "stop_conditions": ["block if tower root or required source artifact handles are missing"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Check tower evidence contract",
+      "capability_ref": "research-tower",
+      "capability_metadata": {
+        "source": "arcanum/arcana/research-tower/SKILL.md",
+        "status": "referenced capability"
+      },
+      "pattern": "validation",
+      "techniques": ["artifact_contract_bridge", "owner_boundary_check"],
+      "inputs": [{"kind": "artifact", "ref": "source-context.md"}],
+      "outputs": [{"kind": "artifact", "ref": "tower-evidence-check.md"}],
+      "evidence_artifact": "tower-evidence-check.md",
+      "stop_conditions": ["block if final learning pack or claim evidence is absent"]
+    },
+    {
+      "step_id": "s3",
+      "name": "Select and customize preset",
+      "capability_ref": "structured-interview-kits",
+      "capability_metadata": {
+        "source": "arcanum/arcana/interrogation/SKILL.md",
+        "status": "referenced capability alias"
+      },
+      "pattern": "route",
+      "techniques": ["route_menu", "approval_semantics_map"],
+      "inputs": [{"kind": "artifact", "ref": "tower-evidence-check.md"}],
+      "outputs": [{"kind": "artifact", "ref": "preset-profile.yaml"}],
+      "evidence_artifact": "preset-profile.yaml",
+      "stop_conditions": ["flag if any SCU core lacks accepted or rejected example evidence"]
+    },
+    {
+      "step_id": "s4",
+      "name": "Compose Whisper substrate and plan",
+      "capability_ref": "whisper",
+      "capability_metadata": {
+        "source": "arcanum/spells/whisper/README.md",
+        "status": "referenced spell"
+      },
+      "pattern": "synthesis",
+      "techniques": ["artifact_contract_bridge", "recomposition_proof"],
+      "inputs": [{"kind": "artifact", "ref": "preset-profile.yaml"}],
+      "outputs": [{"kind": "artifact", "ref": "text-intent-substrate.yaml"}, {"kind": "artifact", "ref": "composition-plan.md"}],
+      "evidence_artifact": "composition-plan.md",
+      "stop_conditions": ["block if composition plan lacks SCU cores or source-use policy"]
+    },
+    {
+      "step_id": "s5",
+      "name": "Assemble manuscript and PDF package",
+      "capability_ref": "reading-learning-package",
+      "capability_status": "local-extension",
+      "pattern": "sequential",
+      "techniques": ["artifact_contract_bridge", "validation_loop"],
+      "inputs": [{"kind": "artifact", "ref": "composition-plan.md"}],
+      "outputs": [{"kind": "artifact", "ref": "manuscript.md"}, {"kind": "artifact", "ref": "source-trace.md"}, {"kind": "artifact", "ref": "learning-package.pdf"}],
+      "evidence_artifact": "validation-report.md",
+      "stop_conditions": ["block unsupported source claims", "flag when PDF renderer is unavailable but HTML exists"]
+    },
+    {
+      "step_id": "s6",
+      "name": "Validate package and residue",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "residue_ledger"],
+      "inputs": [{"kind": "artifact", "ref": "validation-report.md"}],
+      "outputs": [{"kind": "artifact", "ref": "spellcraft-validation-report.md"}],
+      "evidence_artifact": "spellcraft-validation-report.md"
+    },
+    {
+      "step_id": "s7",
+      "name": "Handoff to Spellcraft lifecycle",
+      "capability_ref": "spellcraft",
+      "pattern": "handoff",
+      "techniques": ["authority_split_gate", "execution_receipt_handoff"],
+      "inputs": [{"kind": "artifact", "ref": "SPELL-HANDOFF.md"}],
+      "outputs": [{"kind": "handoff", "ref": "spellcraft design reading-learning-package"}],
+      "evidence_artifact": "SPELL-HANDOFF.md"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-source",
+      "kind": "validation",
+      "owner": "research-tower",
+      "condition": "Tower/source handles must support load-bearing package claims.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-preset",
+      "kind": "human_approval",
+      "owner": "user",
+      "condition": "Preset and SCU cores must be approved through example-driven interview before full drafting.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g-pdf",
+      "kind": "validation",
+      "owner": "reading-learning-package",
+      "condition": "PDF must be rendered through a deterministic command or renderer gap must be explicit.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g-promotion",
+      "kind": "promotion_guardrail",
+      "owner": "spellcraft",
+      "condition": "Learning package output does not promote source claims, vocabulary, or spell readiness without owner review.",
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "step_id": "s7",
+      "capability_ref": "spellcraft",
+      "receipt_kind": "handoff",
+      "status": "not_run",
+      "artifacts": ["arcanum/spells/reading-learning-package/development/SPELL-HANDOFF.md"],
+      "validation": ["Spellcraft validation pending"],
+      "observer_status": "planned"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["reading_package_route_validated", "preset_profile_approved", "pdf_rendered_or_flagged", "spellcraft_handoff_ready"],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Invoke-authored development package is not canonical spell installation.",
+    "Research tower artifacts remain source authority; generated PDF is a learning artifact.",
+    "Whisper output does not promote research claims or author voice canon.",
+    "Experiment harness evidence is required before reusable promotion readiness."
+  ]
+}

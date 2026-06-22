@@ -1,0 +1,885 @@
+{
+  "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Review the reading-learning-package development plan for gaps before implementation.",
+    "objective": "Create an implementation-readiness review route for the reading-learning-package spell plan, stopping before runtime-backed execution until confirmed.",
+    "target_artifact": "arcanum/spells/reading-learning-package/development/WORK-PACK.md",
+    "arcanum_vocabulary": [
+      "refine",
+      "invoke",
+      "spellcraft",
+      "research-tower",
+      "whisper",
+      "work-pack",
+      "dispatch",
+      "runtime-handoff"
+    ],
+    "operator_sentence": "see if we have any gaps and do a review in the plan so we can implement"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "The operator asked for a gap review before implementation. The selected route is a sequential Refine review with a hard approval checkpoint before runtime-backed stages.",
+    "items": [
+      {
+        "id": "plan_readiness_review",
+        "label": "Plan Readiness Review",
+        "description": "Use the route_menu technique to select a source-local refine loop that reviews the package before implementation.",
+        "capability_ref": "refine",
+        "pattern": "sequence"
+      },
+      {
+        "id": "spellcraft_first_review",
+        "label": "Spellcraft First",
+        "description": "Defer detailed plan review until a spellcraft package is installed, useful only if canonical spell shape is the current blocker.",
+        "capability_ref": "spellcraft",
+        "pattern": "handoff"
+      },
+      {
+        "id": "implementation_swu_review",
+        "label": "Implementation SWU",
+        "description": "Convert directly into a Task Session work unit, useful only after gaps are known to be minor.",
+        "capability_ref": "task-session",
+        "pattern": "handoff"
+      }
+    ],
+    "selected_item_id": "plan_readiness_review"
+  },
+  "techniques": [
+    "sequence",
+    "route_menu",
+    "frame_handoff",
+    "handle_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "minimum_component_catalog",
+    "conditional_component",
+    "data_quality_completeness",
+    "artifact_contract_bridge",
+    "concrete_path_evidence",
+    "residue_ledger",
+    "approval_checkpoint",
+    "recomposition_proof",
+    "scu_swu_reduction",
+    "state_namespace_boundary"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "The review needs ordered evidence flow from package context to final plan repair.",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "handle_handoff",
+        "concrete_path_evidence",
+        "artifact_contract_bridge"
+      ],
+      "applies_to_steps": [
+        "s01-context-pack",
+        "s02-define-review",
+        "s03-gap-review",
+        "s04-research-decision",
+        "s05-distill-review-unit",
+        "s06-design-repair",
+        "s07-design-review",
+        "s08-repair-distill",
+        "s09-plan-repair",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Every non-first step consumes a prior frame, artifact, ledger, or decision, and every evidence claim cites a concrete path."
+    },
+    {
+      "overlay_id": "readiness_gap_review",
+      "trigger": "Implementation should not start until missing decisions and owner-boundary issues are explicit.",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "conditional_component",
+        "data_quality_completeness",
+        "residue_ledger",
+        "approval_checkpoint",
+        "recomposition_proof",
+        "scu_swu_reduction"
+      ],
+      "applies_to_steps": [
+        "s03-gap-review",
+        "s04-research-decision",
+        "s05-distill-review-unit",
+        "s07-design-review",
+        "s08-repair-distill",
+        "s09-plan-repair",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Review output must classify gaps as ready, repair-needed, or blocked, with recomposition proof back to the reading-learning-package objective."
+    },
+    {
+      "overlay_id": "state_and_observability_boundaries",
+      "trigger": "The route must distinguish development evidence from canonical spell installation and runtime execution.",
+      "techniques": [
+        "observability_grouping",
+        "minimum_component_catalog",
+        "state_namespace_boundary"
+      ],
+      "applies_to_steps": [
+        "s01-context-pack",
+        "s09-plan-repair",
+        "s10-final-synthesis"
+      ],
+      "validation_expectation": "Trace events, source paths, stage artifacts, and future canonical writes stay in separate named namespaces."
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "The initial plan review is source-local and does not require delegated sibling agents. If the review discovers contested lanes, a later dispatch can ask for explicit subagent permission.",
+    "authorization": "not_needed",
+    "parallelism": "none",
+    "join_policy": "none",
+    "receipt_requirements": []
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "s01-context-pack",
+      "name": "Build Package Context Pack",
+      "capability_ref": "context-builder",
+      "mode": "source-local",
+      "pattern": "sequential",
+      "techniques": [
+        "frame_handoff",
+        "concrete_path_evidence",
+        "minimum_component_catalog"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/reading-learning-package/development/WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-pack.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if required source artifacts are missing or unreadable.",
+        "Flag if a source artifact has no clear owner role."
+      ]
+    },
+    {
+      "step_id": "s02-define-review",
+      "name": "Review Definition And Scope",
+      "capability_ref": "invoke",
+      "mode": "define-review",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "owner_boundary_check",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "frame",
+          "ref": "stages/01-context-pack.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/reading-learning-package/development/DEFINE.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define-review.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the review cannot distinguish spell intent from canonical installation.",
+        "Flag if the preset-interview contract is not grounded in examples."
+      ]
+    },
+    {
+      "step_id": "s03-gap-review",
+      "name": "Interview For Plan Gaps",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define-review.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/reading-learning-package/development/WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-gap-review-ledger.md"
+        }
+      ],
+      "evidence_artifact": "stages/03-gap-review-ledger.md",
+      "stop_conditions": [
+        "Block if a required implementation decision has no owner or next route.",
+        "Flag if a gap can be repaired locally without external research."
+      ]
+    },
+    {
+      "step_id": "s04-research-decision",
+      "name": "Decide Whether External Research Is Needed",
+      "capability_ref": "refine",
+      "mode": "research-if-gap-appears",
+      "pattern": "decision",
+      "techniques": [
+        "conditional_component",
+        "approval_checkpoint",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/03-gap-review-ledger.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        }
+      ],
+      "stop_conditions": [
+        "Ask before any external research.",
+        "Block if a gap requires source evidence that the package does not currently provide."
+      ]
+    },
+    {
+      "step_id": "s05-distill-review-unit",
+      "name": "Distill Smallest Review Unit",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "techniques": [
+        "scu_swu_reduction",
+        "recomposition_proof",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research-decision.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "stages/03-gap-review-ledger.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-smallest-review-unit.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the smallest review unit cannot recompose into the spell objective.",
+        "Flag if more than one independent repair unit is discovered."
+      ]
+    },
+    {
+      "step_id": "s06-design-repair",
+      "name": "Repair Design Or Defer With Owner",
+      "capability_ref": "invoke",
+      "mode": "design-repair",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "owner_boundary_check",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-smallest-review-unit.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/reading-learning-package/development/DESIGN.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design-repair.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if repair would require canonical spell writes before review result.",
+        "Flag if a renderer, interview, or PDF contract remains underspecified."
+      ]
+    },
+    {
+      "step_id": "s07-design-review",
+      "name": "Validate Design Repair",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "data_quality_completeness",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design-repair.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-design-review-ledger.md"
+        }
+      ],
+      "evidence_artifact": "stages/07-design-review-ledger.md",
+      "stop_conditions": [
+        "Block if design repair contradicts the source package objective.",
+        "Flag if acceptance criteria still cannot be tested."
+      ]
+    },
+    {
+      "step_id": "s08-repair-distill",
+      "name": "Distill Repair Residue",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "distill",
+      "techniques": [
+        "recomposition_proof",
+        "residue_ledger",
+        "scu_swu_reduction"
+      ],
+      "inputs": [
+        {
+          "kind": "ledger",
+          "ref": "stages/07-design-review-ledger.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "stages/05-smallest-review-unit.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-repair-distill.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if residue has no owner or next-route recommendation.",
+        "Flag if a residual gap can be left as a documented deferred task."
+      ]
+    },
+    {
+      "step_id": "s09-plan-repair",
+      "name": "Repair Implementation Plan",
+      "capability_ref": "invoke",
+      "mode": "plan-repair",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "validation_loop",
+        "scu_swu_reduction",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-repair-distill.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/reading-learning-package/development/WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan-repair.md"
+        }
+      ],
+      "stop_conditions": [
+        "Block if the repaired plan lacks a verification surface.",
+        "Flag if canonical installation, Task Session, or spellcraft order remains ambiguous."
+      ]
+    },
+    {
+      "step_id": "s10-final-synthesis",
+      "name": "Synthesize Readiness Result",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "approval_checkpoint",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan-repair.md"
+        },
+        {
+          "kind": "ledger",
+          "ref": "stages/07-design-review-ledger.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        },
+        {
+          "kind": "handoff",
+          "ref": "RUNTIME-HANDOFF.md"
+        }
+      ],
+      "evidence_artifact": "RESULT.md",
+      "stop_conditions": [
+        "Block if final status is not implementation-ready, repair-needed, or blocked.",
+        "Stop before runtime-backed implementation unless the operator explicitly approves execution."
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g01-source-artifacts-readable",
+      "kind": "quality",
+      "owner": "refine",
+      "condition": "Required source artifacts in the reading-learning-package development package are readable and cited by concrete_path_evidence.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g02-owner-boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "owner_boundary_check confirms the review does not claim research-tower, whisper, spellcraft, or task-session authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g03-native-capability-receipts",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Every runtime-backed stage must return a native stage receipt with dispatch id, step id, capability ref, status, artifacts, validation, observer status, blockers, residue, and handoff note.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g04-external-research-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "approval_checkpoint requires explicit approval before any external research is run.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g05-runtime-execution-approval",
+      "kind": "human_approval",
+      "owner": "operator",
+      "condition": "approval_checkpoint requires explicit approval before this dispatch executes runtime-backed stages.",
+      "on_fail": "ask"
+    },
+    {
+      "gate_id": "g06-state-namespace-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "state_namespace_boundary keeps development evidence, generated review stages, and future canonical spell writes separate.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g07-final-readiness-classification",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Final RESULT.md classifies the plan as implementation-ready, repair-needed, or blocked and records residue_ledger entries.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "sequence_route_selected",
+      "route_menu_selected_plan_readiness_review",
+      "frame_handoff_context_pack_ready",
+      "handle_handoff_artifacts_linked",
+      "validation_loop_gap_review_ready",
+      "owner_boundary_check_ready",
+      "observability_grouping_dispatch_trace_ready",
+      "minimum_component_catalog_ready",
+      "conditional_component_research_gate_ready",
+      "data_quality_completeness_gap_map_ready",
+      "artifact_contract_bridge_review_ready",
+      "concrete_path_evidence_index_ready",
+      "residue_ledger_ready",
+      "approval_checkpoint_runtime_pending",
+      "recomposition_proof_required",
+      "scu_swu_reduction_ready",
+      "state_namespace_boundary_ready"
+    ],
+    "signal_grouping": "reading-learning-package-plan-review"
+  },
+  "boundary_evidence": {
+    "authority": {
+      "lifecycle": "refine owns this review route and its stop point.",
+      "execution": "native capabilities own their runtime stage receipts only after operator approval.",
+      "validation": "dispatch-spec validates route shape; refine synthesizes readiness result.",
+      "evidence": "source package artifacts and generated review stages remain linked by path.",
+      "memory": "memory can inform route shape but cannot alter package artifacts without a visible edit.",
+      "promotion": "canonical spell installation remains deferred to spellcraft or an explicit implementation route."
+    },
+    "boundaries": [
+      {
+        "boundary_id": "b01-source-to-review",
+        "kind": "artifact_import",
+        "from_owner": "reading-learning-package development package",
+        "to_owner": "refine",
+        "applies_to_steps": [
+          "s01-context-pack",
+          "s02-define-review",
+          "s03-gap-review",
+          "s06-design-repair",
+          "s09-plan-repair"
+        ],
+        "contract": "Source artifacts are read and cited by path; review artifacts do not rewrite them during the strategy proposal stage.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b02-review-to-runtime",
+        "kind": "human_approval",
+        "from_owner": "refine",
+        "to_owner": "operator",
+        "applies_to_steps": [
+          "s01-context-pack",
+          "s02-define-review",
+          "s03-gap-review",
+          "s04-research-decision",
+          "s05-distill-review-unit",
+          "s06-design-repair",
+          "s07-design-review",
+          "s08-repair-distill",
+          "s09-plan-repair",
+          "s10-final-synthesis"
+        ],
+        "contract": "Runtime-backed stages start only after explicit operator confirmation.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b03-stage-receipts",
+        "kind": "evidence_return",
+        "from_owner": "stage capability",
+        "to_owner": "refine",
+        "applies_to_steps": [
+          "s01-context-pack",
+          "s02-define-review",
+          "s03-gap-review",
+          "s04-research-decision",
+          "s05-distill-review-unit",
+          "s06-design-repair",
+          "s07-design-review",
+          "s08-repair-distill",
+          "s09-plan-repair",
+          "s10-final-synthesis"
+        ],
+        "contract": "Each stage returns a native-stage receipt with status, artifacts, validation, blockers, residue, and handoff note.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b04-state-namespaces",
+        "kind": "state_write",
+        "from_owner": "refine",
+        "to_owner": "development package",
+        "applies_to_steps": [
+          "s09-plan-repair",
+          "s10-final-synthesis"
+        ],
+        "contract": "Generated review evidence stays under the refinement run; source package edits require a visible repair artifact or later implementation route.",
+        "on_violation": "block"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "r01-native-stage-receipt",
+        "producer": "each stage capability",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation",
+          "observer_status",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "REFINE-DISPATCH.json/native_stage_receipts",
+          "stages/<step>.md",
+          "RESULT.md"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r02-approval-record",
+        "producer": "operator",
+        "required_fields": [
+          "approval_record",
+          "dispatch_id",
+          "status"
+        ],
+        "stores": [
+          "RUNTIME-HANDOFF.md"
+        ],
+        "on_missing": "ask"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "source-package",
+        "owner": "reading-learning-package development package",
+        "write_policy": "read-only during strategy proposal; source edits require an explicit repair step"
+      },
+      {
+        "namespace": "refine-run",
+        "owner": "refine",
+        "write_policy": "generated review evidence is written under this run directory"
+      },
+      {
+        "namespace": "canonical-spell",
+        "owner": "spellcraft",
+        "write_policy": "no canonical spell writes until a later approved route"
+      },
+      {
+        "namespace": "implementation-execution",
+        "owner": "task-session or selected executor",
+        "write_policy": "no implementation writes from this strategy proposal"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "review evidence",
+        "target": "canonical spell package",
+        "rule": "Review evidence can recommend next action but requires a separate spellcraft or implementation approval before canonical spell writes.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "This route must not claim canonical spell installation authority.",
+    "This route must not turn review evidence into package source edits without an explicit repair stage.",
+    "This route must not start external research without operator approval.",
+    "This route must not start runtime-backed stages without operator approval."
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s01-context-pack",
+      "capability_ref": "context-builder",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/01-context-pack.md"
+      ],
+      "validation": [
+        "source artifacts readable",
+        "authority map recorded"
+      ],
+      "observer_status": "complete",
+      "blockers": [],
+      "residue": "none",
+      "handoff_note": "Context confirms the package is reviewable and lifecycle-bound to Spellcraft before implementation."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s02-define-review",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "stages/02-define-review.md"
+      ],
+      "validation": [
+        "definition and ownership boundaries are explicit",
+        "runtime behavior evidence remains pending"
+      ],
+      "observer_status": "complete",
+      "blockers": [
+        "runtime behavior is not proven by define artifacts"
+      ],
+      "residue": "definition is sufficient for Spellcraft intake but not direct runtime implementation",
+      "handoff_note": "Continue to gap ledger with runtime-evidence gap preserved."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s03-gap-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "stages/03-gap-review-ledger.md"
+      ],
+      "validation": [
+        "gap ledger records owners and next actions"
+      ],
+      "observer_status": "complete",
+      "blockers": [
+        "candidate spell contract is not installed",
+        "fixtures and renderer behavior remain pending"
+      ],
+      "residue": "direct runtime implementation is blocked; Spellcraft contract creation is the next move",
+      "handoff_note": "Use local gaps to decide whether external research is needed."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s04-research-decision",
+      "capability_ref": "refine",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/04-research-decision.md"
+      ],
+      "validation": [
+        "no external research needed for the next implementation move"
+      ],
+      "observer_status": "complete",
+      "blockers": [],
+      "residue": "external research remains deferred behind approval if later renderer or layout evidence is needed",
+      "handoff_note": "Proceed to smallest review unit selection."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s05-distill-review-unit",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/05-smallest-review-unit.md"
+      ],
+      "validation": [
+        "smallest coherent next unit is SWU-RLP-001 Spellcraft contract creation",
+        "recomposition proof recorded"
+      ],
+      "observer_status": "complete",
+      "blockers": [],
+      "residue": "runtime SWUs remain deferred until Spellcraft acceptance",
+      "handoff_note": "Use Spellcraft contract creation as the implementation entry point."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s06-design-repair",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "stages/06-design-repair.md"
+      ],
+      "validation": [
+        "design does not need source rewrite before first implementation move",
+        "execution-order repair recorded"
+      ],
+      "observer_status": "complete",
+      "blockers": [
+        "source package still lacks installed spell contract and fixtures"
+      ],
+      "residue": "do not patch source plan until Spellcraft contract route decides final shape",
+      "handoff_note": "Validate that execution-order repair preserves source intent."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s07-design-review",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "stages/07-design-review-ledger.md"
+      ],
+      "validation": [
+        "repair preserves source intent",
+        "direct runtime implementation remains blocked"
+      ],
+      "observer_status": "complete",
+      "blockers": [
+        "direct runtime implementation cannot start before candidate contract exists"
+      ],
+      "residue": "contract, fixtures, renderer, and persistence residue assigned to owners",
+      "handoff_note": "Distill owner residue into implementation route."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s08-repair-distill",
+      "capability_ref": "distill",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/08-repair-distill.md"
+      ],
+      "validation": [
+        "distilled route preserves Spellcraft first, then Task Session, then Experiment Harness"
+      ],
+      "observer_status": "complete",
+      "blockers": [],
+      "residue": "custom preset persistence can defer until after L0",
+      "handoff_note": "Use distilled route to repair implementation plan order."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s09-plan-repair",
+      "capability_ref": "invoke",
+      "receipt_kind": "native-stage",
+      "status": "pass",
+      "artifacts": [
+        "stages/09-plan-repair.md"
+      ],
+      "validation": [
+        "implementation route and entry criteria recorded",
+        "classification set to repair-needed"
+      ],
+      "observer_status": "complete",
+      "blockers": [],
+      "residue": "direct runtime coding waits for Spellcraft acceptance",
+      "handoff_note": "Finalize readiness classification in RESULT.md."
+    },
+    {
+      "dispatch_id": "refine-reading-learning-package-plan-review-20260620T034710Z",
+      "step_id": "s10-final-synthesis",
+      "capability_ref": "interrogation",
+      "receipt_kind": "native-stage",
+      "status": "flag",
+      "artifacts": [
+        "RESULT.md",
+        "RUNTIME-HANDOFF.md"
+      ],
+      "validation": [
+        "final classification is repair-needed",
+        "implementation handoff records Spellcraft as next owner"
+      ],
+      "observer_status": "complete",
+      "blockers": [
+        "candidate spell contract must be created before direct runtime implementation"
+      ],
+      "residue": "fixtures, renderer fallback, and reusable readiness remain downstream implementation work",
+      "handoff_note": "Stop after review; next approved work should invoke Spellcraft on the handoff."
+    }
+  ]
+}
