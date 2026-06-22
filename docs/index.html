@@ -102,7 +102,7 @@
 
     .hero {
       position: relative;
-      min-height: 94vh;
+      min-height: min(84vh, 820px);
       display: grid;
       align-items: end;
       overflow: hidden;
@@ -143,7 +143,9 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      max-width: 900px;
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
     }
 
     .eyebrow {
@@ -600,6 +602,7 @@ Please refine this into definition, design, plan, gaps, blockers, and the next e
     const ctx = canvas.getContext('2d');
     const labels = ['refine', 'invoke', 'x-ray', 'guide', 'whisper', 'task-session', 'evidence', 'residue', 'validator'];
     let nodes = [];
+    let linkDist = 260;
 
     function resize() {
       const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -608,15 +611,23 @@ Please refine this into definition, design, plan, gaps, blockers, and the next e
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
+      // Bounded scale keeps the constellation a tight, connected cluster at any
+      // viewport size — instead of sprawling apart (and dropping its links) on wide screens.
+      const S = Math.min(Math.max(Math.min(w, h), 460), 720);
+      const cx = Math.min(w * 0.72, w - S * 0.5 - 32);
+      const cy = h * 0.46;
+      const R = S * 0.52;
+      linkDist = S * 0.5;
       nodes = labels.map((label, i) => {
         const angle = (Math.PI * 2 * i) / labels.length;
-        const radius = Math.min(w, h) * (0.22 + (i % 3) * 0.055);
+        const radius = S * (0.26 + (i % 3) * 0.06);
         return {
           label,
-          x: w * 0.68 + Math.cos(angle) * radius,
-          y: h * 0.46 + Math.sin(angle) * radius,
+          x: cx + Math.cos(angle) * radius,
+          y: cy + Math.sin(angle) * radius,
           vx: Math.sin(angle) * 0.12,
           vy: Math.cos(angle) * 0.1,
+          cx, cy, R,
           color: ['#e60023', '#e85d18', '#088f8a', '#2e6bb8', '#5c55b8'][i % 5]
         };
       });
@@ -632,8 +643,8 @@ Please refine this into definition, design, plan, gaps, blockers, and the next e
           const a = nodes[i];
           const b = nodes[j];
           const distance = Math.hypot(a.x - b.x, a.y - b.y);
-          if (distance < 260) {
-            ctx.strokeStyle = `rgba(21, 21, 21, ${Math.max(0.04, 0.16 - distance / 1900)})`;
+          if (distance < linkDist) {
+            ctx.strokeStyle = `rgba(21, 21, 21, ${Math.max(0.05, 0.18 * (1 - distance / linkDist))})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -644,8 +655,8 @@ Please refine this into definition, design, plan, gaps, blockers, and the next e
       nodes.forEach((node) => {
         node.x += node.vx;
         node.y += node.vy;
-        if (node.x < w * 0.38 || node.x > w * 0.96) node.vx *= -1;
-        if (node.y < h * 0.12 || node.y > h * 0.82) node.vy *= -1;
+        if (node.x < node.cx - node.R || node.x > node.cx + node.R) node.vx *= -1;
+        if (node.y < node.cy - node.R || node.y > node.cy + node.R) node.vy *= -1;
         ctx.fillStyle = 'rgba(255,255,255,.86)';
         ctx.strokeStyle = node.color;
         ctx.lineWidth = 1.4;
