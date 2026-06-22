@@ -28,25 +28,38 @@
     .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
     h1, h2, h3 { margin: 0; letter-spacing: 0; }
     h1 { font-size: clamp(40px, 6vw, 76px); line-height: .92; }
-    h2 { font-size: clamp(24px, 3.2vw, 38px); line-height: 1.05; }
+    h2 { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.05; letter-spacing: -.01em; }
     p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.64; }
     .lead { max-width: 720px; margin-top: 20px; color: #383838; font-size: clamp(17px, 2.2vw, 21px); }
     section { padding: clamp(40px, 6vw, 72px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
-    .inner { max-width: 760px; margin: 0 auto; }
+    .inner { max-width: 720px; margin: 0 auto; }
+
     .post { padding-bottom: 8px; }
-    .post .meta { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
-    .badge { padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 850; }
+    .post .meta { display: flex; gap: 9px; align-items: center; margin-bottom: 16px; }
+    .badge { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 850; letter-spacing: .02em; }
     .badge.draft { background: #fbeede; color: #9a6a18; }
     .post .date { color: var(--muted); font-size: 13px; font-weight: 700; }
-    .post .body { margin-top: 18px; }
-    .post .body p { color: #2c2c2c; font-size: 17px; line-height: 1.7; margin-top: 16px; max-width: 700px; }
-    .post .body p:first-child { margin-top: 0; }
-    .post .body code { background: #f1ece1; padding: 1px 5px; border-radius: 4px; font-size: 14px; }
-    .post + .post { margin-top: 44px; padding-top: 40px; border-top: 1px solid var(--line); }
-    .note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .post > h2 { max-width: 660px; }
+
+    /* readable article body */
+    .body { margin-top: 24px; }
+    .body p { color: #2b2b2b; font-size: 18px; line-height: 1.78; margin-top: 20px; max-width: 660px; }
+    .body p:first-of-type { margin-top: 0; }
+    .body p.standfirst { font-size: 21px; line-height: 1.55; color: #1c1c1c; font-weight: 450; margin-bottom: 4px; }
+    .body p.standfirst::first-letter { float: left; font-size: 64px; line-height: .8; font-weight: 850; color: var(--red); padding: 8px 12px 2px 0; }
+    .body h3 { margin: 40px 0 -4px; font-size: 14px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; color: var(--red); }
+    .body b, .body strong { color: var(--ink); font-weight: 800; }
+    .body em { font-style: italic; }
+    .body code { background: #f1ece1; padding: 1px 6px; border-radius: 4px; font-size: 15px; }
+    .body .hl { background: linear-gradient(transparent 62%, #ffe6a8 62%); padding: 0 1px; }
+    .pull { margin: 34px 0; padding: 4px 0 4px 22px; border-left: 3px solid var(--red); max-width: 640px; }
+    .pull p { margin: 0; max-width: none; font-size: clamp(22px, 3vw, 27px); line-height: 1.28; font-weight: 800; color: #161616; letter-spacing: -.01em; }
+    .post + .post { margin-top: 56px; padding-top: 48px; border-top: 1px solid var(--line); }
+    .note { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+
     .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
     .footer p { color: #c7c1b5; }
-    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } }
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } .body .standfirst::first-letter { font-size: 52px; } }
   </style>
 </head>
 <body id="top">
@@ -59,8 +72,8 @@
       <a href="index.html">Home</a>
       <a href="system.html">The System</a>
       <a href="saturn.html">Saturn</a>
-      <a href="paper.html">Paper</a>
       <a href="craft.html">Craft</a>
+      <a href="paper.html">Paper</a>
       <a href="blog.html">Blog</a>
       <a href="method.html">Method</a>
     </nav>
@@ -84,23 +97,33 @@
           </div>
           <h2>The first thing a tool needs is a name.</h2>
           <div class="body">
-            <p>A messy workflow gets easier the moment it has a name. The work has not changed. The tabs are still open, the notes are still scattered, the next step is still half-felt. But once the pattern has a name, it stops being fog. You can point at it, return to it, improve it, hand it to someone else.</p>
-            <p>That small act is easy to underestimate, because language feels ordinary. We use words all day, so we forget a word can be more than a label. A word can hold a behavior in place. A phrase can compress a method. A schema can turn a vague intention into a shape that another person — or an AI system — can inspect with you. That is one reason generative AI feels so unusually powerful. It lets us work inside the medium where humans already compress thought into handles.</p>
+            <p class="standfirst">A messy workflow gets easier the moment it has a name. The work has not changed. The tabs are still open, the notes are still scattered, the next step is still half-felt. But once the pattern has a name, <b>it stops being fog</b>. You can point at it, return to it, improve it, hand it to someone else.</p>
+            <p>That small act is easy to underestimate, because language feels ordinary. We use words all day, so we forget <b>a word can be more than a label</b>. A word can hold a behavior in place. A phrase can compress a method. A schema can turn a vague intention into a shape that another person — or an AI system — can inspect with you. That is one reason generative AI feels so unusually powerful. It lets us work inside the medium where humans already compress thought into handles.</p>
             <p>This is how human coordination already works. People organize around shared stories: symbols, agreements, imagined structures with no physical existence. Money, laws, companies, roles, professions, plans — all of them run on it. They work because enough people hold the same symbolic handle at the same time and act through it.</p>
-            <p>Generative AI changes the texture of that symbolic work. It does not merely produce text faster. It lets more people operate on language as a design material. A writer can name a recurring editorial move and ask the model to refine it. A researcher can turn a messy method into a repeatable interview kit. A founder can describe a vague strategic instinct and shape it into a reusable decision frame. The interface is not only a blank prompt box. It is a workbench for making names, aliases, schemas, and meta-schemas.</p>
-            <p>That matters because, for a long time, making executable structures belonged mostly to people who could speak the formal languages of institutions: software syntax, academic methods, legal templates, financial models, operational playbooks. Those languages are powerful, and they are also gates. If you cannot write code, you wait for someone who can. If you cannot speak the professional dialect, your insight stays informal. If you cannot convert your pattern into a recognized format, it stays personal intuition.</p>
-            <p>The possibility is not that natural language replaces engineering. That would be both false and boring. It is that language can become a first layer of tool-making, before engineering begins. You can define what a process is called. You can describe when it should be invoked. You can list the values it protects, the mistakes it must avoid, the checks that tell you whether it worked. With AI in the loop, those descriptions become active collaborators: tested, revised, delegated, reused.</p>
-            <p>Arcanum is one live experiment in this direction. There, a name is not decoration. A name can be an alias for a workflow. A sigil is a governed capability with a purpose, a process, constraints, and a validation surface. A spell composes several capabilities into a larger route. A schema gives the work a body: fields, gates, parts, dependencies, failure modes. None of it needs to be mystical. It is closer to making a shared handle for a pattern that would otherwise dissolve back into the day.</p>
+
+            <h3>Language as a design material</h3>
+            <p>Generative AI changes the texture of that symbolic work. It does not merely produce text faster. It lets more people <b>operate on language as a design material</b>. A writer can name a recurring editorial move and ask the model to refine it. A researcher can turn a messy method into a repeatable interview kit. A founder can describe a vague strategic instinct and shape it into a reusable decision frame. The interface is not only a blank prompt box. It is a workbench for making names, aliases, schemas, and meta-schemas.</p>
+            <p>That matters because, for a long time, making executable structures belonged mostly to people who could speak the formal languages of institutions: software syntax, academic methods, legal templates, financial models, operational playbooks. Those languages are powerful, and they are also <b>gates</b>. If you cannot write code, you wait for someone who can. If you cannot speak the professional dialect, your insight stays informal. If you cannot convert your pattern into a recognized format, it stays personal intuition.</p>
+
+            <div class="pull"><p>Language can become a first layer of tool-making — before engineering begins.</p></div>
+
+            <p>The possibility is not that natural language replaces engineering. That would be both false and boring. It is that <b>language can become a first layer of tool-making</b>, before engineering begins. You can define what a process is called. You can describe when it should be invoked. You can list the values it protects, the mistakes it must avoid, the checks that tell you whether it worked. With AI in the loop, those descriptions become active collaborators: tested, revised, delegated, reused.</p>
+
+            <h3>What Arcanum makes of a name</h3>
+            <p>Arcanum is one live experiment in this direction. There, <b>a name is not decoration</b>. A name can be an alias for a workflow. A sigil is a governed capability with a purpose, a process, constraints, and a validation surface. A spell composes several capabilities into a larger route. A schema gives the work a body: fields, gates, parts, dependencies, failure modes. None of it needs to be mystical. It is closer to making a shared handle for a pattern that would otherwise dissolve back into the day.</p>
             <p>For example, instead of "help me make this article better," you can build a writing substrate. The substrate names the target reader, the emotional residue, the transport type, the opening rule, the body parts, the citation policy, the validation checks. Then the work develops like a small piece of software, but in the native material of language. You draft one part, test it against the schema, see where it fails, and let the failure teach the next version.</p>
-            <p>This is where the word "alias" earns its place. An alias is a compressed invitation to a whole process. "Reference-first" can mean: check the source before drafting, separate paraphrase from quotation, record what stays blocked, and only then write. "Reader-grounded opening" can mean: begin with the reader's lived experience before introducing an outside authority. The alias is small. It carries an operational memory.</p>
+            <p>This is where the word "alias" earns its place. An alias is a compressed invitation to a whole process. "Reference-first" can mean: check the source before drafting, separate paraphrase from quotation, record what stays blocked, and only then write. "Reader-grounded opening" can mean: begin with the reader's lived experience before introducing an outside authority. The alias is small. <b>It carries an operational memory.</b></p>
             <p>A schema is the next level of compression. It says: these are the parts that matter, and these are the ways they relate. A meta-schema is a reusable shape for making schemas. Take a "workshop recap" meta-schema. Every recap needs the audience, the decision made, the open question, the evidence, the next action, and the tone. Once that shape exists, you reuse it across many events without rebuilding the structure each time. The code is not hidden inside curly braces. It lives in a named pattern that people and machines can both work with.</p>
-            <p>The danger is private jargon. A personal symbolic system can become so personal that no one else can enter it. That is why translation matters. A good name should not only mean something to its maker. It should let someone else — or a model — make the same move. A good schema should not become a shrine to complexity. It should remove friction from thought. The point is not to make language more ornate. It is to make important patterns easier to hold, inspect, and improve. If the thing needs heavy translation to be understood, the design is the problem, not the reader.</p>
+
+            <h3>The danger, and the question</h3>
+            <p>The danger is <b>private jargon</b>. A personal symbolic system can become so personal that no one else can enter it. That is why translation matters. A good name should not only mean something to its maker. It should let someone else — or a model — make the same move. A good schema should not become a shrine to complexity. It should remove friction from thought. The point is not to make language more ornate. It is to make important patterns easier to hold, inspect, and improve. <span class="hl">If the thing needs heavy translation to be understood, the design is the problem, not the reader.</span></p>
             <p>The through-line is this: generative AI gives more people a way to make their own operational language. Not just content. Not just prompts. Small, living tools made out of words. A designer can name a critique ritual. A teacher can name a feedback loop. A researcher can name an interview stance. A team can name the moment when strategy turns into theater, and build a check against it.</p>
-            <p>If that is true, the most useful question is not "what should AI write for me?" It is: what part of my work needs a name? What pattern keeps recurring without a handle? What process do I understand only while I am doing it, and lose when I try to explain it later?</p>
+            <p>If that is true, the most useful question is not "what should AI write for me?" It is: <b>what part of my work needs a name?</b> What pattern keeps recurring without a handle? What process do I understand only while I am doing it, and lose when I try to explain it later?</p>
             <p>Start there. Name one workflow. Give it a purpose, a few constraints, and one way to tell whether it worked. Then treat the name as an object you can revise. That is the point where language stops only describing the work and starts building it.</p>
           </div>
           <p class="note">Building with this kind of thing? <a href="https://www.linkedin.com/in/vladimir-rondelli/">Work with me → LinkedIn</a>. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
         </article>
+
         <article class="post" id="a-tool-that-refuses">
           <div class="meta">
             <span class="badge draft">Draft v0.1</span>
@@ -108,14 +131,19 @@
           </div>
           <h2>A tool that refuses is a measurement.</h2>
           <div class="body">
-            <p>Give our engine a specification it cannot turn into a checkable test, and it does nothing clever. It emits a gap. It marks the obligation as not-formal-enough and moves on. It does not write a plausible-looking test to fill the hole.</p>
-            <p>An LLM does the opposite. Handed the same under-specified obligation, it fabricates a test that looks right. The hole is still there. It is just hidden now, behind green checkmarks.</p>
-            <p>That difference turns out to be a measurement. If a sound generator only derives a test when the spec is formal enough, then the count of what it refused is a number: how formal the spec actually is. On our pilot feature it reads <code>96%</code> — the fraction of the obligation graph that was complete enough to derive against.</p>
-            <p>So a deterministic generator that will not guess is, by construction, a spec-completeness analyzer. The honesty and the metric are the same property seen twice. You do not add a linter on top; the refusal <em>is</em> the linter.</p>
-            <p>This is the part that is hard to fake and easy to verify. We can show you the number and the gaps it counts. We are not showing the derivation that produces them — that is the part we build with teams that need it. But the gap count needs no trust: re-run it, get the same number.</p>
-            <p>Honest scope: this is one feature, measured once. The general claim — that refusal-as-measurement holds across domains — is open, and the kind of thing we will keep testing before we promote it.</p>
+            <p class="standfirst">Give our engine a specification it cannot turn into a checkable test, and it does nothing clever. <b>It emits a gap.</b> It marks the obligation as not-formal-enough and moves on. It does not write a plausible-looking test to fill the hole.</p>
+            <p>An LLM does the opposite. Handed the same under-specified obligation, it fabricates a test that looks right. The hole is still there. It is just <b>hidden now, behind green checkmarks</b>.</p>
+
+            <h3>Refusal becomes a number</h3>
+            <p>That difference turns out to be a measurement. If a sound generator only derives a test when the spec is formal enough, then <b>the count of what it refused is a number</b>: how formal the spec actually is. On our pilot feature it reads <code>96%</code> — the fraction of the obligation graph that was complete enough to derive against.</p>
+
+            <div class="pull"><p>A generator that will not guess is, by construction, a spec-completeness analyzer.</p></div>
+
+            <p>So a deterministic generator that will not guess is, by construction, a spec-completeness analyzer. The honesty and the metric are the same property seen twice. You do not add a linter on top; <b>the refusal <em>is</em> the linter</b>.</p>
+            <p>This is the part that is hard to fake and easy to verify. We can show you the number and the gaps it counts. We are not showing the derivation that produces them — that is the part we build with teams that need it. But the gap count needs no trust: <b>re-run it, get the same number</b>.</p>
+            <p><b>Honest scope:</b> this is one feature, measured once. The general claim — that refusal-as-measurement holds across domains — is open, and the kind of thing we will keep testing before we promote it.</p>
           </div>
-          <p class="note">Draft — thinking on paper, will be sharpened. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
+          <p class="note">Draft — thinking on paper, will be sharpened. <a href="https://www.linkedin.com/in/vladimir-rondelli/">Work with me → LinkedIn</a> · part of the <a href="system.html">CyberAlchemy system</a>.</p>
         </article>
       </div>
     </section>
@@ -125,9 +153,9 @@
     <div class="inner">
       <h3>CyberAlchemy — Blog</h3>
       <p>Drafts and working notes. <a href="index.html">Home</a> · <a href="system.html">The System</a> · <a href="paper.html">Paper</a>.</p>
-                <p style="margin-top:12px"><a href="https://www.linkedin.com/in/vladimir-rondelli/" style="color:#fdfaf3;font-weight:820;text-decoration:underline">Work with me → LinkedIn</a></p>
-<p style="margin-top:14px;font-size:12px;color:#8f897e">© 2026 Vladimir Rondelli and Victor Boscaro. All rights reserved.</p>
-</div>
+      <p style="margin-top:12px"><a href="https://www.linkedin.com/in/vladimir-rondelli/" style="color:#fdfaf3;font-weight:820;text-decoration:underline">Work with me → LinkedIn</a></p>
+      <p style="margin-top:14px;font-size:12px;color:#8f897e">© 2026 Vladimir Rondelli and Victor Boscaro. All rights reserved.</p>
+    </div>
   </footer>
 </body>
 </html>
