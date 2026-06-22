@@ -1,0 +1,56 @@
+schema_version: "0.1.0"
+receipt_type: VERIFICATION-WEAVE
+fixture_id: mixed-target-split
+fixture_role: positive
+target:
+  id: synthetic-mixed-verification-package
+  target_kind: mixed
+  source_refs:
+    - synthetic://mixed/package
+classification:
+  oracle_type: explicit_gap
+  decomposition:
+    required: true
+    child_target_kinds:
+      - spec_derivation
+      - frontend_ux
+      - execution_repeatability
+      - architecture_gap
+      - research_evidence
+lanes:
+  - owner_capability_ref: arcanum/arcana/test-derivation
+    owner_status: draft
+    owned_verb: derive
+    status: flag
+  - owner_capability_ref: arcanum/arcana/ux-evidence-validator
+    owner_status: seed
+    owned_verb: validate
+    status: flag
+  - owner_capability_ref: arcanum/arcana/experiment-harness
+    owner_status: candidate
+    owned_verb: execute
+    status: flag
+  - owner_capability_ref: arcanum/arcana/architecture-pattern-inventory
+    owner_status: candidate
+    owned_verb: map
+    status: flag
+  - owner_capability_ref: arcanum/arcana/research-evidence-harness
+    owner_status: candidate
+    owned_verb: adjudicate
+    status: flag
+evidence:
+  - id: mixed-routing-plan
+    owner: arcanum/arcana/verification-weaver
+    artifact: synthetic://evidence/mixed-routing-plan
+gaps: []
+residue:
+  - owner: arcanum/arcana/verification-weaver
+    reason: child_owner_execution_required
+    severity: soft
+public_safety:
+  private_path_scan: pass
+  generated_output_scan: pass
+status: flag
+promotion_action: none
+next_route:
+  recommended_owner: arcanum/arcana/experiment-harness

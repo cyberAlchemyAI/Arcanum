@@ -1,0 +1,33 @@
+schema_version: "0.1.0"
+receipt_type: VERIFICATION-WEAVE
+fixture_id: NC-UX-DENSE-001
+fixture_role: negative-control
+control_id: NC-UX-DENSE-001
+target:
+  id: synthetic-dense-expert-ui
+  target_kind: frontend_ux
+  source_refs:
+    - synthetic://ui/dense-expert-panel
+classification:
+  oracle_type: human_review
+lanes:
+  - owner_capability_ref: arcanum/arcana/ux-evidence-validator
+    owner_status: seed
+    owned_verb: validate
+    status: flag
+evidence:
+  - id: dense-ui-grouping-evidence
+    owner: arcanum/arcana/ux-evidence-validator
+    artifact: synthetic://evidence/dense-ui-grouping
+gaps: []
+residue:
+  - owner: arcanum/arcana/ux-evidence-validator
+    reason: density_false_positive_note
+    severity: soft
+public_safety:
+  private_path_scan: pass
+  generated_output_scan: pass
+status: flag
+promotion_action: none
+next_route:
+  recommended_owner: arcanum/arcana/ux-evidence-validator

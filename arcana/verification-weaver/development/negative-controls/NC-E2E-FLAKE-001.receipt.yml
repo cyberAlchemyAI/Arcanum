@@ -1,0 +1,30 @@
+schema_version: "0.1.0"
+receipt_type: VERIFICATION-WEAVE
+fixture_id: NC-E2E-FLAKE-001
+fixture_role: negative-control
+control_id: NC-E2E-FLAKE-001
+target:
+  id: synthetic-flaky-e2e-target
+  target_kind: execution_repeatability
+  source_refs:
+    - synthetic://execution/flaky-e2e
+classification:
+  oracle_type: fixture_runner
+lanes:
+  - owner_capability_ref: arcanum/arcana/experiment-harness
+    owner_status: candidate
+    owned_verb: execute
+    status: block
+evidence: []
+gaps:
+  - owner: arcanum/arcana/experiment-harness
+    reason: flaky_evidence
+    required: true
+residue: []
+public_safety:
+  private_path_scan: pass
+  generated_output_scan: pass
+status: block
+promotion_action: none
+next_route:
+  recommended_owner: arcanum/arcana/experiment-harness
