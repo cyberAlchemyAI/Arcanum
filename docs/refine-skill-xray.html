@@ -66,9 +66,9 @@
       .controls { padding: 16px; position: sticky; top: 16px; display: grid; gap: 14px; }
       .controls h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); }
 
-      .seg { display: flex; gap: 6px; }
+      .seg { display: flex; gap: 6px; flex-wrap: wrap; }
       .seg button {
-        flex: 1; padding: 7px 8px; border: 1px solid var(--line);
+        flex: 1 1 30%; min-width: 92px; padding: 7px 8px; border: 1px solid var(--line);
         background: #f7f9fb; border-radius: 7px; cursor: pointer;
         font: inherit; font-size: 0.82rem; color: var(--muted);
       }
@@ -213,6 +213,49 @@
       .root.flat .deck { display: none; }
       .root.flat .strata { display: grid; }
       .root.flat .stage { min-height: auto; }
+
+      /* CALLS / LOOP view — what refine DOES: its 10-stage canonical loop */
+      .loopview { display: none; }
+      .root.loop .deck { display: none; }
+      .root.loop .strata { display: none; }
+      .root.loop .loopview { display: block; }
+      .root.loop .stage { min-height: auto; }
+      .loop-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
+      .cap-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem;
+        font-weight: 600; color: #fff; background: var(--capcolor, #777); border-radius: 20px; padding: 3px 10px; }
+      .cap-chip .x { background: rgba(255,255,255,.28); border-radius: 10px; padding: 0 6px; font-weight: 700; }
+      .loop-frame { display: grid; gap: 6px; margin: 4px 0 14px; padding: 10px 12px;
+        background: #f6f8fa; border: 1px dashed var(--line); border-radius: 9px; font-size: 0.82rem; color: var(--muted); }
+      .loop-frame .ff { color: var(--ink); }
+      .loop-frame b { color: var(--capcolor, var(--ink)); }
+      .phase-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 800;
+        color: var(--faint); margin: 14px 0 6px; padding-left: 4px; }
+      .phase-label:first-of-type { margin-top: 2px; }
+      .lstage { position: relative; display: block;
+        border: 1px solid var(--line); border-left: 5px solid var(--capcolor, var(--line));
+        border-radius: 10px; background: #fff; margin-left: 40px; cursor: default;
+        box-shadow: 0 8px 16px -14px rgba(20,32,43,.5); }
+      .lstage + .lstage { margin-top: 9px; }
+      .lstage::before { content: ""; position: absolute; left: -28px; top: 22px; bottom: -18px; width: 2px; background: var(--line); }
+      .lstage:last-child::before { display: none; }
+      .lstage .num { position: absolute; left: -39px; top: 12px; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--capcolor, #777); color: #fff; font-size: 0.78rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff; }
+      .lstage .lbody { padding: 11px 14px 13px; min-width: 0; }
+      .lstage .lhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .lstage .lname { font-weight: 700; font-size: 1rem; }
+      .lstage .lcap { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+        color: #fff; background: var(--capcolor, #777); border-radius: 20px; padding: 2px 8px; }
+      .lstage .lmode { font-size: 0.72rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--capcolor); background: #f4f6f8; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+      .lstage .lrole { margin-top: 6px; font-size: 0.86rem; color: var(--ink); }
+      .lstage .lev { margin-top: 5px; font-size: 0.78rem; color: var(--muted); }
+      .lstage .lev b { color: var(--structure); font-weight: 700; }
+      .lstage .ldoes { margin-top: 7px; font-size: 0.8rem; color: #4a3a3a;
+        border-left: 2px dashed var(--proof); background: #fdf6f5; border-radius: 0 7px 7px 0; padding: 6px 9px; }
+      .lstage .ldoes b { color: var(--proof); }
+      .lstage:hover { box-shadow: 0 18px 30px -18px rgba(20,32,43,.5); }
+      .root.loop.tracing-x .lstage { opacity: 1; }
       .strata .srow {
         display: grid; grid-template-columns: 40px 1fr; gap: 0;
         border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
@@ -381,14 +424,28 @@
       @media (max-width: 980px) {
         .layout { grid-template-columns: 1fr; }
         .controls { position: static; }
-        .inspector-rail { position: static; }
-        .inspector { max-height: none; overflow: visible; }
+        /* description follows the reader: a fixed bottom sheet, scroll-synced */
+        .inspector-rail { position: fixed; inset: auto 0 0 0; z-index: 60; }
+        .inspector { margin: 0; border-radius: 14px 14px 0 0; max-height: 44vh;
+          overflow: auto; gap: 8px; padding: 14px 14px 16px;
+          box-shadow: 0 -14px 30px -18px rgba(20, 32, 43, 0.45); }
+        .inspector::before { content: ""; display: block; width: 38px; height: 4px;
+          border-radius: 4px; background: var(--line); margin: -4px auto 8px; }
+        .rail-hint { display: none; }
+        .insp-grid .inf { order: -1; }
+        main { padding-bottom: 46vh; }
         .deck-inner { transform: rotateX(0deg) rotateZ(0deg); }
-        .plane { position: relative; left: 0; right: 0; top: 0; margin: 0 0 10px; transform: none !important; height: auto; }
-        .deck { height: auto; perspective: none; }
+        .plane { position: relative; left: 0; right: 0; top: 0; margin: 0 0 10px; transform: none !important; height: auto; z-index: auto !important; }
+        /* override the JS-set inline cascade height: mobile cards flow, so the deck sizes to content */
+        .deck { height: auto !important; perspective: none; padding-left: 0; }
+        .plane.active, .plane.pushed, .plane.expandable.open { transform: none !important; }
         .plane .alt { display: none; }
         .insp-grid { grid-template-columns: 1fr; }
         .drill-grid { grid-template-columns: 1fr; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .plane, .deck-inner, .subdeck, .tb-progress span, .layer { transition: none !important; animation: none !important; }
       }
     </style>
   </head>
@@ -406,7 +463,9 @@
           <b>linguistic device</b> (a "nudge") operating at a different altitude of abstraction: a binding harness
           contract at the floor, an invariant skeleton above it, discretionary branching higher still, hard stop-gates,
           proof obligations, and finally the output shape. Toggle, isolate, or <b>trace</b> a reasoning moment to see
-          which layers fire and in what order.
+          which layers fire and in what order. Then switch to <b>Calls · loop</b> for the other dimension — what refine
+          <i>does</i>: the 10-stage canonical loop where it delegates to <b>invoke</b> (define · design · plan),
+          <b>interrogation</b>, <b>distill</b>, and <b>context-builder</b>.
         </p>
       </header>
 
@@ -417,6 +476,7 @@
             <div class="seg" role="group" aria-label="View mode">
               <button id="view-stack" aria-pressed="true">Stacked deck</button>
               <button id="view-flat" aria-pressed="false">Strata · flat</button>
+              <button id="view-loop" aria-pressed="false">Calls · loop</button>
             </div>
             <button id="tour-start" class="tour-start">▶ Guided tour — build the stack</button>
           </div>
@@ -467,6 +527,7 @@
           <div class="stage">
             <div class="deck" id="deck"><div class="deck-inner" id="deck-inner"></div></div>
             <div class="strata" id="strata"></div>
+            <div class="loopview" id="loop"></div>
           </div>
 
           <section class="drill" id="drill" aria-label="Layer 6 overlay sub-topology">
@@ -710,6 +771,57 @@
         telemetry: "Finally, make it self-observe. Emit a list of signals so each run becomes data a reflection loop can learn from. The stack is complete — the skill now watches itself.",
       };
 
+      // The OTHER dimension: what refine DOES — its canonical 10-stage loop, where
+      // it delegates to other capabilities. Source: refine SKILL.md <canonical-loop>,
+      // <required-capabilities>, <stage-configuration>. role/evidence/mode are
+      // source-backed; "does" is inference.
+      const CAPS = {
+        "context-builder": { label: "context-builder", color: "#2f66d0" },
+        invoke: { label: "invoke", color: "#6851c2" },
+        interrogation: { label: "interrogation", color: "#b7791f" },
+        distill: { label: "distill", color: "#1f8a70" },
+        refine: { label: "refine (owns)", color: "#b42318" },
+        "dispatch-spec": { label: "dispatch-spec", color: "#0f8f9e" },
+        "runtime-handoff": { label: "runtime-handoff", color: "#64748b" },
+      };
+      const LOOP = [
+        { n: 1, phase: "Discover", name: "Context Builder baseline", cap: "context-builder", mode: "standard",
+          role: "Build the evidence baseline and runtime handoff context.", evidence: "Context pack path or blocked coverage reason.",
+          does: "Grounds the whole run in repository evidence before any authoring." },
+        { n: 2, phase: "Define", name: "Invoke Define", cap: "invoke", mode: "define",
+          role: "Produce the Define artifact (DomainSpec spec + glossary).", evidence: "Invoke artifact path, mode, capability handle, and verdict.",
+          does: "Turns the seed into a governed definition of what is being refined." },
+        { n: 3, phase: "Define", name: "Interrogation · refine-review", cap: "interrogation", mode: "refine-review",
+          role: "Critique the Define for gaps, ownership, and evidence.", evidence: "Interrogation artifact and pass/flag/block verdict.",
+          does: "Adversarially checks the definition before design begins." },
+        { n: 4, phase: "Research", name: "Research decision", cap: "refine", mode: "no-research | bounded | if-gap",
+          role: "Record the research decision — Refine owns this stage.", evidence: "Research mode and confirmation status.",
+          does: "Decides whether external research is allowed; default is local-first." },
+        { n: 5, phase: "Distill", name: "Distill", cap: "distill", mode: "standard",
+          role: "Select the smallest coherent unit.", evidence: "Distill artifact, selected unit, and rejected alternatives.",
+          does: "Reduces the design space to one coherent unit worth designing." },
+        { n: 6, phase: "Design", name: "Invoke Redefine / Design", cap: "invoke", mode: "design",
+          role: "Produce the Design artifact from the prior artifacts.", evidence: "Invoke artifact path, mode, handle, and verdict.",
+          does: "Designs the architecture/shape from the distilled unit." },
+        { n: 7, phase: "Design", name: "Interrogation · refine-design-review", cap: "interrogation", mode: "refine-design-review",
+          role: "Critique the Design.", evidence: "Interrogation artifact and verdict.",
+          does: "Attacks the design before any planning happens." },
+        { n: 8, phase: "Design", name: "Distill Repair", cap: "distill", mode: "validate",
+          role: "Repair / validate the selected unit before planning.", evidence: "Distill repair verdict.",
+          does: "Fixes the design gaps the critique surfaced." },
+        { n: 9, phase: "Plan", name: "Invoke Plan", cap: "invoke", mode: "plan",
+          role: "Produce a non-executed plan artifact.", evidence: "Invoke plan artifact path and verdict.",
+          does: "Lays out the implementation plan — without executing it." },
+        { n: 10, phase: "Synthesize", name: "Final Interrogation + Synthesis", cap: "interrogation", mode: "refine-final",
+          role: "Final critique, then Refine-owned synthesis of RESULT.", evidence: "Final verdict and RESULT.md.",
+          does: "Validates the whole run and writes the refined synthesis." },
+      ];
+      // cross-cutting calls that frame the loop (not numbered stages)
+      const LOOP_FRAME = [
+        { cap: "dispatch-spec", text: "validates the whole route shape (REFINE-DISPATCH.json) BEFORE any stage runs — blocks the run if invalid." },
+        { cap: "runtime-handoff", text: "prepares/validates the durable runtime handoff so stages can run on a native runtime or hand off." },
+      ];
+
       // illustrative reasoning traces: which layers fire, in order
       const TRACES = [
         {
@@ -766,7 +878,7 @@
       let selectedId = null;
 
       const N = LAYERS.length;
-      const STEP = 56;  // vertical lip per stacked card
+      const STEP = 90;  // vertical lip per stacked card — must clear band pill + title + device (device ends ~83px)
       const CARDH = 150;
 
       LAYERS.forEach((L, i) => {
@@ -947,6 +1059,63 @@
         document.getElementById("i-drill").style.display = "inline-block";
       }
 
+      function showStage(s) {
+        const c = CAPS[s.cap].color;
+        document.getElementById("i-trace").classList.remove("on");
+        document.querySelectorAll(".plane,.srow").forEach((el) => el.classList.remove("selected"));
+        document.getElementById("i-pn").textContent = "Canonical loop · stage " + s.n + " / 10";
+        document.getElementById("i-title").textContent = s.name;
+        const band = document.getElementById("i-band");
+        band.textContent = CAPS[s.cap].label;
+        band.style.display = "inline-block";
+        band.style.setProperty("--bandcolor", c);
+        document.getElementById("i-quote").textContent =
+          "mode: " + s.mode + "\nrole: " + s.role + "\nevidence: " + s.evidence;
+        document.getElementById("i-ref").textContent =
+          "refine SKILL.md <canonical-loop> / <required-capabilities>";
+        document.getElementById("i-device").textContent = "Calls: " + CAPS[s.cap].label;
+        document.getElementById("i-mech").textContent = s.does;
+        document.getElementById("i-drill").style.display = "none";
+      }
+
+      function renderLoop() {
+        const loopEl = document.getElementById("loop");
+        const counts = {};
+        LOOP.forEach((s) => { counts[s.cap] = (counts[s.cap] || 0) + 1; });
+        const order = ["context-builder", "invoke", "interrogation", "distill", "refine"];
+        const summary = order.filter((c) => counts[c]).map((c) =>
+          '<span class="cap-chip" style="--capcolor:' + CAPS[c].color + '">' +
+          CAPS[c].label + ' <span class="x">×' + counts[c] + '</span></span>'
+        ).join("");
+        const frame = LOOP_FRAME.map((f) =>
+          '<div class="ff"><b style="--capcolor:' + CAPS[f.cap].color + '">' +
+          CAPS[f.cap].label + '</b> — ' + f.text + '</div>'
+        ).join("");
+        let html =
+          '<div class="loop-summary">' + summary + '</div>' +
+          '<div class="loop-frame"><div style="font-weight:700;color:var(--ink)">Frames every run (before / around the 10 stages):</div>' + frame + '</div>';
+        let lastPhase = null;
+        LOOP.forEach((s, i) => {
+          if (s.phase !== lastPhase) { html += '<div class="phase-label">' + s.phase + '</div>'; lastPhase = s.phase; }
+          html +=
+            '<div class="lstage" data-stage="' + i + '" style="--capcolor:' + CAPS[s.cap].color + '">' +
+              '<span class="num">' + s.n + '</span>' +
+              '<div class="lbody">' +
+                '<div class="lhead"><span class="lname">' + s.name + '</span>' +
+                  '<span class="lcap">' + CAPS[s.cap].label + '</span>' +
+                  '<span class="lmode">' + s.mode + '</span></div>' +
+                '<div class="lrole">' + s.role + '</div>' +
+                '<div class="lev"><b>evidence:</b> ' + s.evidence + '</div>' +
+                '<div class="ldoes"><b>does ·</b> ' + s.does + '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        loopEl.innerHTML = html;
+        loopEl.querySelectorAll(".lstage").forEach((el) =>
+          el.addEventListener("mouseenter", () => showStage(LOOP[+el.dataset.stage]))
+        );
+      }
+
       function subdeckHTML() {
         const O = OVERLAY_SET;
         const all = [Object.assign({ _def: true }, O.default)].concat(O.optional);
@@ -1106,10 +1275,17 @@
       // view toggle
       document.getElementById("view-stack").addEventListener("click", () => setView("stack"));
       document.getElementById("view-flat").addEventListener("click", () => setView("flat"));
+      document.getElementById("view-loop").addEventListener("click", () => setView("loop"));
       function setView(v) {
+        if (tourMode && v !== "stack") exitTour();
+        clearActive();
         root.classList.toggle("flat", v === "flat");
+        root.classList.toggle("loop", v === "loop");
         document.getElementById("view-stack").setAttribute("aria-pressed", String(v === "stack"));
         document.getElementById("view-flat").setAttribute("aria-pressed", String(v === "flat"));
+        document.getElementById("view-loop").setAttribute("aria-pressed", String(v === "loop"));
+        if (v === "loop") showStage(LOOP[0]);
+        else select(selectedId || LAYERS[0].id, true);
       }
 
       document.getElementById("all-on").addEventListener("click", () => {
@@ -1143,6 +1319,43 @@
       applyVisibility();
       select(LAYERS[0].id, true);
       document.querySelectorAll(".plane,.srow").forEach((el)=>el.classList.remove("selected"));
+
+      // ---- scroll-sync: the card nearest the active reading line drives the
+      // description, so scrolling (not just hover) updates it. Essential on
+      // touch/narrow where the inspector is a sticky bottom sheet. ----
+      let lastSyncId = null;
+      const intersecting = new Set();
+      const ACTIVE_LINE = 0.36; // fraction from top where "active" is read
+      const scrollSync = new IntersectionObserver((entries) => {
+        if (tourMode) return; // the tour owns selection
+        for (const e of entries) {
+          if (e.isIntersecting) intersecting.add(e.target);
+          else intersecting.delete(e.target);
+        }
+        const line = window.innerHeight * ACTIVE_LINE;
+        let best = null, bestDist = Infinity;
+        intersecting.forEach((el) => {
+          if (!el.offsetParent) return; // skip hidden (display:none) cards
+          const r = el.getBoundingClientRect();
+          const d = Math.abs((r.top + r.bottom) / 2 - line);
+          if (d < bestDist) { bestDist = d; best = el; }
+        });
+        if (!best) return;
+        if (best.dataset.stage !== undefined) {
+          const key = "stage:" + best.dataset.stage;
+          if (key !== lastSyncId) { lastSyncId = key; showStage(LOOP[+best.dataset.stage]); }
+        } else {
+          const id = best.dataset.id;
+          if (id && id !== lastSyncId) { lastSyncId = id; select(id, true); }
+        }
+      }, { rootMargin: "-30% 0px -52% 0px", threshold: 0 });
+
+      function observeForSync() {
+        intersecting.clear();
+        document.querySelectorAll(".plane, .srow, .lstage").forEach((el) => scrollSync.observe(el));
+      }
+      renderLoop();
+      observeForSync();
     </script>
   </body>
 </html>
