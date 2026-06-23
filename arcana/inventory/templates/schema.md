@@ -14,6 +14,9 @@ This file defines the local conventions for the inventory package.
 - Typed entries: `entries/`
 - Query syntheses: `queries/`
 - Lint reports: `lint/`
+- Machine index: `index.json`
+- Optional specialized indexes: `indexes/*.json`
+- Optional CSV projections: `projections/*.csv`
 
 ## Source Policy
 
@@ -64,6 +67,24 @@ Custom entry types must define purpose, required fields, evidence rules, tag rul
 - Prefer ordinary markdown links for repository portability.
 - Wiki links may be used only when the repository explicitly chooses that convention.
 - Every generated page should link to related pages when meaningful.
+
+## Machine Index Policy
+
+- `index.md` is the human-readable catalog.
+- `index.json` is the primary machine-readable catalog and must parse with
+  `jq`.
+- Every generated page, typed entry, query file, lint report, evidence-card
+  bundle, and EvidenceSet bundle should have a stable row in `index.json`.
+- Machine index rows should include stable ID, path, kind, type, title, summary,
+  tags, sources, updated date, status, confidence when known, selectors,
+  evidence-card IDs, EvidenceSet IDs, and unresolved residue.
+- `index.json` should include derived lookup maps such as `by_id`, `by_type`,
+  `by_tag`, `by_source`, and `by_status` when useful.
+- Optional `indexes/*.json` files may specialize selector, link, backlink, tag,
+  traceability, query-pattern, gap/risk, or projection lookup.
+- Optional CSV files under `projections/` are flat read-model projections from
+  `index.json`; they must declare their source, purpose, and freshness and must
+  not replace `index.json`.
 
 ## Log Heading Pattern
 

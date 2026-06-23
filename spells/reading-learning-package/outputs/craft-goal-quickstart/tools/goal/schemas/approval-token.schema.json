@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/approval-token.schema.json",
+  "title": "Goal Approval Token",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "token_id",
+    "batch_id",
+    "approval_state",
+    "decision_record_ref",
+    "scope"
+  ],
+  "properties": {
+    "token_id": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "approver_ref": {
+      "type": "string"
+    },
+    "approval_state": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected",
+        "held",
+        "expired"
+      ]
+    },
+    "decision_record_ref": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "reuse_policy": {
+      "type": "string",
+      "enum": [
+        "single-use",
+        "batch-scoped"
+      ],
+      "default": "single-use"
+    }
+  }
+}

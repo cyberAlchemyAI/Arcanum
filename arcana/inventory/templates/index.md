@@ -2,6 +2,11 @@
 
 This index is the content-oriented catalog of generated inventory pages.
 
+Machine view: keep `index.json` in sync with this file. `index.md` is for
+human navigation; `index.json` is the primary machine-readable lookup surface.
+CSV files, when used, belong under `projections/` and are derived from
+`index.json`.
+
 ## Pages
 
 | Page | Type | Summary | Tags | Sources | Updated |

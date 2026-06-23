@@ -1,0 +1,30 @@
+{
+  "goal": "prove eligible node can route, close, audit, and stage",
+  "goal_context_id": "CTX-GOAL-FIXTURE-DELEGATION",
+  "source_ref": "fixture:delegation-staging",
+  "route_id": "goal-w2-route-delegation-staging",
+  "owner": "task-session",
+  "evidence_ref": "fixture:delegation-terminal-receipt",
+  "nodes": [
+    {
+      "node_id": "NODE-DELEGATE-001",
+      "kind": "task",
+      "status": "ready",
+      "summary": "Execute a read-only owner handoff and return terminal evidence.",
+      "risk_tier": "T1",
+      "owner": "task-session"
+    }
+  ],
+  "source_change": {
+    "delta_id": "GOAL-STAGED-DELTA-W2-FIXTURE-001",
+    "source_authority": "arcana/craft",
+    "target": "fixture:craft-ledger",
+    "operation": "annotate",
+    "framed_diff": "Record terminal W2 fixture evidence as a staged proposal only; do not apply.",
+    "validation_expectation": [
+      "staged delta schema validates",
+      "promotion_state remains staged",
+      "no active ledger mutation occurs"
+    ]
+  }
+}

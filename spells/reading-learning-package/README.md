@@ -1,7 +1,9 @@
 # Reading Learning Package
 
-Status: reusable spell candidate
+Status: reusable spell
 Canonical id: `reading-learning-package`
+Aliases: none
+Scope: library
 Lifecycle owner: `spellcraft`
 
 ## Purpose
@@ -10,6 +12,21 @@ Lifecycle owner: `spellcraft`
 `research-tower` result and source artifacts. It preserves tower evidence as
 source authority, uses a Whisper-compatible text intent substrate for composition,
 and emits traceable reading artifacts with HTML/PDF fallback behavior.
+
+## Required Sigils
+
+| Sigil | Role |
+| --- | --- |
+| `research-tower` | Supplies the completed learning pack, claim ledger, source records, definitions, notation, and residue that remain source authority. |
+| `whisper` | Owns text-intent substrate interpretation, SCU core composition, manuscript shaping, and composition-quality validation. |
+
+## Optional Sigils
+
+| Sigil | Use When |
+| --- | --- |
+| `experiment-harness` | Reusable spell behavior needs fixture-backed validation, validation reports, or telemetry-ready examples. |
+| `task-session` | Runtime implementation, renderer integration, or package repair needs a bounded executable work unit. |
+| `codex-goal-profile` | A bounded implementation or validation SWU should be converted into one native Codex `/goal` handoff. |
 
 ## Trigger Conditions
 
@@ -39,6 +56,18 @@ and emits traceable reading artifacts with HTML/PDF fallback behavior.
 | `answers` | no | Optional JSON answer fixture or captured interview answers. Defaults are visible and recorded. |
 | `source_artifacts` | no | Extra source handles; the tower final pack and claim ledger are always recorded when present. |
 
+## Prerequisites
+
+- Python 3 is available for the stdlib runtime and fixture runner.
+- `tower_root` points to a completed tower-like source package with
+  `FINAL-LEARNING-PACK.md`.
+- Claim evidence exists under the tower, normally
+  `tracks/paper-claim-ledger.md`.
+- `output_root` is writable and isolated from canonical source artifacts.
+- The selected preset exists in `runtime/presets.json`.
+- PDF rendering is optional; when no deterministic renderer is available, HTML
+  fallback plus a renderer gap is valid.
+
 ## Outputs
 
 | Output | Required | Description |
@@ -54,6 +83,18 @@ and emits traceable reading artifacts with HTML/PDF fallback behavior.
 | `learning-package.pdf` | when renderer exists | Created only when a deterministic renderer succeeds. |
 | `validation-report.md` | yes | Pass/flag/block result, renderer state, gates, residue, and next route. |
 
+## Shared State
+
+| State | Producer | Consumer |
+| --- | --- | --- |
+| `source-context.md` | Tower intake | Preset selection, source trace, validation |
+| `preset-profile.yaml` | Preset selection and core interview | Whisper substrate and package assembly |
+| `preset-preview.md` | Preset selection | Human review and validation evidence |
+| `text-intent-substrate.yaml` | Whisper substrate bridge | Package assembly and Whisper-compatible review |
+| `composition-plan.md` | Whisper substrate bridge | Manuscript, HTML, source trace, validation |
+| `source-trace.md` | Package assembly | Trace gate and no-promotion boundary |
+| `validation-report.md` | Validation | Spellcraft review, experiment harness, and follow-up routing |
+
 ## Authority Boundaries
 
 | Capability | Owns | Boundary |
@@ -61,7 +102,17 @@ and emits traceable reading artifacts with HTML/PDF fallback behavior.
 | `research-tower` | Final learning pack, claim ledger, definitions, notation, residue, and source authority. | This spell consumes tower artifacts by path/handle and does not rewrite tower evidence. |
 | `whisper` | SCU cores, composition planning, drafting, validation, and learning residue. | This spell emits a compatible substrate and does not claim Whisper internals. |
 | `reading-learning-package` | Orchestration, package artifacts, source trace, renderer fallback, and validation report. | Generated learning artifacts are not canonical source evidence. |
-| `spellcraft` | Lifecycle validation and reusable spell readiness. | This package is a candidate until Spellcraft review accepts it. |
+| `spellcraft` | Lifecycle validation, reusable spell readiness, and promotion receipts. | This package is reusable once registry, generated surface, and validation evidence pass. |
+
+## Handoff Artifacts
+
+| Handoff | Artifact | Receiving Owner |
+| --- | --- | --- |
+| Tower source intake | `source-context.md` plus referenced tower paths | `reading-learning-package` |
+| Whisper composition bridge | `text-intent-substrate.yaml` and `composition-plan.md` | `whisper` review or downstream composition work |
+| Reader package output | `manuscript.md`, `learning-package.html`, optional `learning-package.pdf` | Human reader or publication workflow |
+| Validation receipt | `validation-report.md` and `validation/results/fixture-report.md` | `spellcraft` and `experiment-harness` |
+| Runtime repair route | validation residue and renderer gap | `task-session` or `codex-goal-profile` when executable work is needed |
 
 ## Phase Contract
 
@@ -85,7 +136,33 @@ and emits traceable reading artifacts with HTML/PDF fallback behavior.
 | PDF gate | PDF exists or renderer gap is explicit while HTML exists. | pass/flag |
 | Promotion gate | Package states it is learning output, not source authority. | pass/block |
 
-## Observability Signals
+## Failure Policy
+
+- Return `block` when the tower root, final pack, claim evidence, preset, source
+  policy, or trace mapping is missing.
+- Return `flag` when the package is useful but carries non-blocking residue,
+  especially deterministic PDF renderer absence.
+- Return `pass` only when source, preset, Whisper substrate, trace, fallback,
+  and no-promotion gates are satisfied.
+- Do not promote generated learning text, HTML, PDF, preset profiles, or
+  validation reports into tower source authority.
+- Route runtime implementation or renderer integration through `task-session`;
+  route reusable behavior proof through `experiment-harness`.
+
+## Local Customization
+
+Consuming repositories may customize preset defaults, answer capture, renderer
+adapter selection, output roots, and validation strictness. They must not rewrite
+`research-tower` or `whisper` contracts from this spell. Local installations should
+adapt paths under `.arcanum/spells/reading-learning-package/` while preserving the
+source-authority and no-promotion boundaries.
+
+## Observability
+
+Reusable runs should preserve the selected preset, source gate result, Whisper
+substrate status, renderer result, validation status, residue, and next route.
+When repository observability is available, emit the following spell-level
+signals.
 
 | Signal | When Emitted |
 | --- | --- |
@@ -95,6 +172,17 @@ and emits traceable reading artifacts with HTML/PDF fallback behavior.
 | `whisper_plan_ready` | Substrate and composition plan are written. |
 | `pdf_rendered_or_flagged` | PDF stage exits with render or fallback. |
 | `reading_package_validated` | Validation report is written. |
+
+## Experiment Harness
+
+Current fixture harness:
+
+- Runner: `validation/run-fixtures.py`
+- Report: `validation/results/fixture-report.md`
+- Presets covered: `deep_voice_reading`, `quick_video`, `medium_explanation`
+- Negative fixture: missing source evidence blocks before composition
+- Expected renderer behavior: HTML exists; PDF absence is a `flag` with an
+  explicit renderer gap, not a failed package
 
 ## Runtime Examples
 
@@ -125,8 +213,35 @@ python3 arcanum/spells/reading-learning-package/validation/run-fixtures.py
 
 ## Registry Readiness
 
-Registry status: candidate.
-Reusable readiness requires Spellcraft review after the fixture suite reports pass or acceptable flag.
+Registry status: promoted in `registry/SPELLS.md`.
+Reusable readiness is backed by Spellcraft review, fixture evidence, generated
+runtime surface validation, and a promotion receipt. The current public-safe
+fixture suite reports overall `pass` with expected renderer fallback flags in
+per-package validation reports.
+
+## Output Contract
+
+Return:
+
+```markdown
+## Reading Learning Package Result
+
+- Mode: compose | preset-interview | validate-package
+- Spell: reading-learning-package
+- Preset: <deep_voice_reading | quick_video | medium_explanation>
+- Status: pass | flag | block
+- Source context: <path>
+- Preset profile: <path>
+- Whisper substrate: <path>
+- Composition plan: <path>
+- Manuscript: <path>
+- Source trace: <path>
+- HTML package: <path>
+- PDF package: <path | renderer gap>
+- Validation report: <path>
+- Residue: <renderer/source/trace gaps or none>
+- Next route: spellcraft | experiment-harness | task-session | none
+```
 
 ## No-Promotion Rule
 

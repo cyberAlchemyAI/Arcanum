@@ -1,0 +1,167 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: inventory.index.v0.1
+title: Inventory Machine Index
+type: object
+additionalProperties: true
+required:
+  - schema_version
+  - inventory_root
+  - generated_at
+  - human_index
+  - entries
+  - indexes
+  - validation
+properties:
+  schema_version:
+    const: inventory.index.v0.1
+  inventory_root:
+    type: string
+    minLength: 1
+  generated_at:
+    type: string
+    minLength: 1
+  human_index:
+    type: string
+    minLength: 1
+  entries:
+    type: array
+    items:
+      type: object
+      additionalProperties: true
+      required:
+        - id
+        - path
+        - kind
+        - type
+        - title
+        - summary
+        - tags
+        - sources
+        - updated
+        - status
+        - residue
+      properties:
+        id:
+          type: string
+          minLength: 1
+        path:
+          type: string
+          minLength: 1
+        kind:
+          enum:
+            - page
+            - entry
+            - query
+            - lint
+            - raw-manifest
+            - evidence-card-bundle
+            - evidence-set-bundle
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            type: string
+        updated:
+          type: string
+        status:
+          type: string
+        confidence:
+          enum:
+            - high
+            - medium
+            - low
+            - unknown
+        selectors:
+          type: array
+        evidence_card_ids:
+          type: array
+          items:
+            type: string
+        evidence_set_ids:
+          type: array
+          items:
+            type: string
+        residue:
+          type: array
+  indexes:
+    type: object
+    required:
+      - by_id
+      - by_type
+      - by_tag
+      - by_source
+      - by_status
+    properties:
+      by_id:
+        type: object
+      by_type:
+        type: object
+      by_tag:
+        type: object
+      by_source:
+        type: object
+      by_status:
+        type: object
+      by_evidence_card:
+        type: object
+      by_evidence_set:
+        type: object
+  projections:
+    type: array
+    items:
+      type: object
+      additionalProperties: true
+      required:
+        - path
+        - format
+        - source
+        - purpose
+        - freshness
+      properties:
+        path:
+          type: string
+          minLength: 1
+        format:
+          enum:
+            - csv
+            - markdown
+            - html
+            - sqlite
+            - vector
+            - other
+        source:
+          type: string
+          minLength: 1
+        purpose:
+          type: string
+          minLength: 1
+        freshness:
+          type: string
+          minLength: 1
+  validation:
+    type: object
+    required:
+      - parseable
+      - source_coverage
+      - validation_boundary
+    properties:
+      parseable:
+        type: boolean
+      source_coverage:
+        enum:
+          - complete
+          - partial
+          - unknown
+      validation_boundary:
+        const: inventory-read-model-only
