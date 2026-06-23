@@ -1,0 +1,11 @@
+# Refine Seed Proposal — Componentize the abstraction-topology x-ray
+
+- **Target:** `arcana/x-ray/development/refine-abstraction-topology/` (HTML + README) and the idea/process/components behind it.
+- **Source context:** a bespoke L0 x-ray that dissects the `refine` sigil into a 13-layer × 8-band nudge stack with an evidence/inference split, recursive Layer-6 sub-stack, cursor rail, reasoning traces, and an optional guided tour. Built this session via Playwright screenshot-iterate.
+- **Operator intent:** "componentize this explanation — not just a default, but reuse the idea, the process, the components in others." Layered with `/workflow-reflect /sigil-development /x-ray look at telemetry and outputs so we can improve xray".
+- **Write scope:** this run folder only (`arcanum/arcana/x-ray/development/refinement-runs/20260623-componentize-xray-explanation/`). No library or schema mutation in this run. No commits.
+- **Done criteria:** a non-executed plan that (a) adjudicates each reuse vector (idea/process/components) against the existing YAML library + schemas, (b) turns the `/workflow-reflect` telemetry review into concrete signal fields + thresholds, (c) names next routes. No premature library edits.
+- **Validation surface:** existing `library/{components,patterns}.yml`, `schemas/*.yml`, `scripts/validate-xray-example.py`, `XRAY-VISUAL-LIBRARY-CONSTITUTION.md`, prior runs, and the telemetry ledger.
+- **Preset:** standard · **Research mode:** research-if-gap-appears (no external gap surfaced → effectively no-research).
+- **Selected overlays:** `xray_for_hidden_structure` (component extraction), `tournament_for_alternatives` (boundary cuts + pareto gate), `memory_residue_for_context_recovery` (mine this session's rejected designs + prior runs), `toy_game_for_low_cost_falsification` (compose into a 2nd target). Not selected: `dialectic_for_tension`, `route_menu_for_ambiguity`, `protected_context` (reasons in dispatch).
+- **Subagent strategy:** recommended → **confirmed by operator**. Two tensioned roles: `component-cartographer`, `reuse-skeptic`. Anti-bias axis: abstraction-maximizer vs over-generalization-minimizer. Join: both receipts before parent synthesis; pareto gate resolves.

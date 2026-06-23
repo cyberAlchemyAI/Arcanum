@@ -38,6 +38,10 @@ schema:
     - mixed
   allowed_renderer_levels:
     - L0
+  allowed_lane_genres:
+    - orthogonal-toggle
+    - ordered-ladder
+    - graph
   required_lanes:
     - surface
     - properties
@@ -99,3 +103,4 @@ schema:
     - Reader fields validate baseline presence, local explanatory terms, layer outcomes, and readability configuration.
     - It does not validate full explanatory correctness, source truth, or promotion readiness.
     - Full result-envelope schema is deferred until multiple real x-ray outputs exist.
+    - lane_genre is an optional top-level hint; orthogonal-toggle is the validated default. ordered-ladder and graph are declared genres whose genre-specific validation (relaxing the four-toggle / data-lane HTML checks and the nine-lane reader contract) is not yet enforced by validate-xray-example.py. See refinement-runs/20260623-componentize-xray-explanation/RESULT.md.

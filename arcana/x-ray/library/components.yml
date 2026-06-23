@@ -160,3 +160,22 @@ components:
       </table>
     evidence_rule: Confidence should describe evidence quality, not analyst certainty alone.
     when_not_to_use: Avoid matrix scoring when there are fewer than two meaningful risks to compare.
+  - id: shape.inspector-rail
+    family: shape
+    intended_lane:
+      - components
+      - risk_questions
+    purpose: A cursor-tracking side panel that shows the hovered element's source quote and its inference side by side, keeping the evidence boundary visible while the reader scans the page.
+    inputs:
+      - active_element_handle
+      - source_quote
+      - source_ref
+      - inference_text
+      - evidence_marker
+    sketch: |
+      <aside class="xray-inspector" data-lane="components">
+        <section class="src" data-evidence="source"><blockquote>...</blockquote><cite>ref</cite></section>
+        <section class="inf" data-evidence="inference">...</section>
+      </aside>
+    evidence_rule: The source section must render only quoted source text plus a reference; the inference section must be a visibly distinct treatment using a label and marker, not color alone.
+    when_not_to_use: Do not use a persistent rail when there are too few elements to inspect, or when the page is a single static diagram with no hover target.

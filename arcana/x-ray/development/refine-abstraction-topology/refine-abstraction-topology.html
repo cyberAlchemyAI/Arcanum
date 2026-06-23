@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>x-ray: /refine — abstraction & nudge topology</title>
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16202b;
+        --muted: #5c6875;
+        --faint: #8a96a3;
+        --line: #d3dce5;
+        --surface: #eef2f6;
+        --panel: #ffffff;
+
+        --contract: #2f66d0;
+        --frame: #6851c2;
+        --structure: #1f8a70;
+        --discretion: #0f8f9e;
+        --control: #b7791f;
+        --proof: #b42318;
+        --form: #4338ca;
+        --reflexive: #64748b;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--surface);
+        line-height: 1.5;
+      }
+
+      main { max-width: 1520px; margin: 0 auto; padding: 26px; }
+
+      header { display: grid; gap: 8px; margin-bottom: 18px; }
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 1.85rem; line-height: 1.15; }
+      h2 { font-size: 1rem; }
+      .meta { color: var(--muted); max-width: 960px; }
+      .thesis {
+        margin-top: 6px; padding: 10px 14px; border-radius: 8px;
+        background: #fff; border: 1px solid var(--line);
+        color: var(--ink); max-width: 960px; font-size: 0.95rem;
+      }
+      .thesis b { color: var(--frame); }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(232px, 270px) minmax(0, 1fr) minmax(330px, 384px);
+        gap: 18px; align-items: start;
+      }
+      .main { min-width: 0; }
+      .inspector-rail { position: sticky; top: 16px; align-self: start; }
+
+      .controls, .stage, .inspector {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      .controls { padding: 16px; position: sticky; top: 16px; display: grid; gap: 14px; }
+      .controls h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); }
+
+      .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+      .seg button {
+        flex: 1 1 30%; min-width: 92px; padding: 7px 8px; border: 1px solid var(--line);
+        background: #f7f9fb; border-radius: 7px; cursor: pointer;
+        font: inherit; font-size: 0.82rem; color: var(--muted);
+      }
+      .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .tour-start {
+        width: 100%; margin-top: 8px; font: inherit; font-size: 0.84rem; font-weight: 600;
+        padding: 9px 10px; border: 1px solid var(--frame); border-radius: 8px;
+        background: #f3f0fc; color: var(--frame); cursor: pointer;
+      }
+      .tour-start:hover { background: var(--frame); color: #fff; }
+      .root.tour .tour-start { background: var(--frame); color: #fff; }
+
+      /* guided tour bar */
+      .tourbar { display: none; margin-bottom: 16px; padding: 16px 18px;
+        background: linear-gradient(180deg, #f7f4fe, #ffffff);
+        border: 1px solid #d9d0f3; border-left: 5px solid var(--frame);
+        border-radius: 12px; box-shadow: 0 14px 26px -20px rgba(20, 32, 43, 0.5); }
+      .root.tour .tourbar { display: block; }
+      .tb-head { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+      .tb-step { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--frame); }
+      .tb-title { font-size: 1.18rem; }
+      .tb-band { color: #fff; background: var(--bandcolor, var(--frame)); }
+      .tb-narr { margin-top: 9px; font-size: 0.98rem; line-height: 1.5; color: var(--ink); max-width: 760px; }
+      .tb-ctrls { display: flex; align-items: center; gap: 9px; margin-top: 13px; flex-wrap: wrap; }
+      .tb-ctrls button { font: inherit; font-size: 0.85rem; font-weight: 600; padding: 8px 16px;
+        border: 1px solid var(--frame); border-radius: 8px; background: #fff; color: var(--frame); cursor: pointer; }
+      .tb-ctrls #tb-next { background: var(--frame); color: #fff; }
+      .tb-ctrls button:disabled { opacity: 0.4; cursor: default; }
+      .tb-ctrls #tb-exit { margin-left: auto; border-color: var(--line); color: var(--muted); }
+      .tb-hint { font-size: 0.76rem; color: var(--faint); }
+      .tb-progress { margin-top: 13px; height: 5px; background: #ece6fa; border-radius: 20px; overflow: hidden; }
+      .tb-progress span { display: block; height: 100%; width: 0; background: var(--frame); transition: width .3s ease; }
+
+      .layer-toggles { display: grid; gap: 3px; }
+      .layer-toggles label {
+        display: grid; grid-template-columns: 16px 22px 1fr; gap: 8px;
+        align-items: center; padding: 3px 4px; border-radius: 6px; cursor: pointer;
+        font-size: 0.84rem;
+      }
+      .layer-toggles label:hover { background: #f2f6fa; }
+      .layer-toggles input { width: 15px; height: 15px; }
+      .swatch { width: 18px; height: 18px; border-radius: 5px; border: 1px solid rgba(0,0,0,.12); }
+      .toggle-row { display: flex; gap: 6px; }
+      .toggle-row button {
+        flex: 1; font: inherit; font-size: 0.76rem; padding: 5px;
+        border: 1px solid var(--line); background: #f7f9fb; border-radius: 6px;
+        cursor: pointer; color: var(--muted);
+      }
+
+      .trace-list { display: grid; gap: 6px; }
+      .trace-list button {
+        text-align: left; font: inherit; font-size: 0.82rem; padding: 8px 10px;
+        border: 1px solid var(--line); background: #f7f9fb; border-radius: 7px;
+        cursor: pointer; color: var(--ink); line-height: 1.3;
+      }
+      .trace-list button[aria-pressed="true"] { border-color: var(--proof); background: #fdf1f0; }
+      .trace-list .tlabel { font-weight: 600; display: block; }
+      .trace-list .tsub { color: var(--muted); font-size: 0.76rem; }
+
+      .legend { display: grid; gap: 5px; font-size: 0.78rem; color: var(--muted); }
+      .legend .row { display: flex; align-items: center; gap: 8px; }
+      .legend .ev { width: 14px; height: 14px; border-radius: 4px; background: #fff; border: 2px solid var(--structure); }
+      .legend .inf { width: 14px; height: 14px; border-radius: 4px; background: repeating-linear-gradient(45deg,#fff,#fff 3px,#e4c4c4 3px,#e4c4c4 6px); border: 2px dashed var(--proof); }
+
+      /* ===== stage / stack ===== */
+      .stage { padding: 18px; min-height: 640px; }
+
+      /* STACK VIEW — offset cascade (depth via overlap + shadow, text stays level) */
+      .deck {
+        position: relative;
+        margin: 4px auto 0;
+        padding-left: 34px; /* room for L# rail */
+      }
+      .deck-inner { position: relative; height: 100%; }
+      .plane {
+        position: absolute;
+        left: 34px; right: 2%;
+        top: var(--top, 0);
+        height: 150px;
+        border-radius: 13px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-left: 8px solid var(--bandcolor, var(--line));
+        box-shadow: 0 16px 24px -18px rgba(20, 32, 43, 0.55),
+          0 2px 0 0 rgba(20, 32, 43, 0.04);
+        padding: 13px 18px 14px 20px;
+        z-index: var(--zi, 1);
+        cursor: pointer;
+        transition: transform 0.22s ease, box-shadow 0.22s ease,
+          opacity 0.22s ease, filter 0.22s ease;
+      }
+      .plane .pt { font-weight: 700; font-size: 0.98rem; line-height: 1.18; }
+      .plane .pd {
+        margin-top: 5px; font-size: 0.82rem; color: var(--bandcolor);
+        font-weight: 600; line-height: 1.25;
+      }
+      .plane .pm {
+        margin-top: 9px; font-size: 0.82rem; color: var(--muted);
+        line-height: 1.35;
+        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+      }
+      .plane .pn { display: none; }
+      .plane .pb {
+        display: inline-block; margin-bottom: 5px; font-size: 0.62rem;
+        text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700;
+        color: #fff; background: var(--bandcolor, #777);
+        padding: 2px 8px; border-radius: 20px;
+      }
+      .plane .alt {
+        position: absolute; left: -34px; top: 16px;
+        font-size: 0.78rem; color: var(--faint); font-weight: 800;
+      }
+      /* JS-driven accordion: the hovered card becomes .active (pops to the front
+         and shows its full body), and every card BELOW it is .pushed down so its
+         lip stays reachable — the cursor can glide 1 -> 2 -> 3 without the
+         previous card trapping it. The push distance = the active card's real
+         height, so an expanded Layer 6 cleanly opens room for the rest. */
+      .plane.active {
+        transform: translateY(-4px) scale(1.012);
+        box-shadow: 0 30px 40px -20px rgba(20, 32, 43, 0.6);
+        z-index: 940;
+      }
+      .plane.pushed { transform: translateY(var(--push, 104px)); }
+      .plane.selected { border-color: var(--ink); }
+      .plane.hidden { display: none; }
+
+      /* trace state */
+      .deck.tracing .plane { opacity: 0.22; filter: grayscale(0.5); }
+      .deck.tracing .plane.fire { opacity: 1; filter: none; z-index: 800; }
+      .deck.tracing .plane.fire .pb { display: none; }
+      .plane .order {
+        position: absolute; top: 11px; right: 14px;
+        width: 24px; height: 24px; border-radius: 50%;
+        background: var(--proof); color: #fff; font-size: 0.78rem; font-weight: 700;
+        display: none; align-items: center; justify-content: center;
+      }
+      .deck.tracing .plane.fire .order { display: flex; }
+
+      /* FLAT STRATA VIEW */
+      .strata { display: none; gap: 10px; }
+      .root.flat .deck { display: none; }
+      .root.flat .strata { display: grid; }
+      .root.flat .stage { min-height: auto; }
+
+      /* CALLS / LOOP view — what refine DOES: its 10-stage canonical loop */
+      .loopview { display: none; }
+      .root.loop .deck { display: none; }
+      .root.loop .strata { display: none; }
+      .root.loop .loopview { display: block; }
+      .root.loop .stage { min-height: auto; }
+      .loop-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
+      .cap-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem;
+        font-weight: 600; color: #fff; background: var(--capcolor, #777); border-radius: 20px; padding: 3px 10px; }
+      .cap-chip .x { background: rgba(255,255,255,.28); border-radius: 10px; padding: 0 6px; font-weight: 700; }
+      .loop-frame { display: grid; gap: 6px; margin: 4px 0 14px; padding: 10px 12px;
+        background: #f6f8fa; border: 1px dashed var(--line); border-radius: 9px; font-size: 0.82rem; color: var(--muted); }
+      .loop-frame .ff { color: var(--ink); }
+      .loop-frame b { color: var(--capcolor, var(--ink)); }
+      .phase-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 800;
+        color: var(--faint); margin: 14px 0 6px; padding-left: 4px; }
+      .phase-label:first-of-type { margin-top: 2px; }
+      .lstage { position: relative; display: block;
+        border: 1px solid var(--line); border-left: 5px solid var(--capcolor, var(--line));
+        border-radius: 10px; background: #fff; margin-left: 40px; cursor: default;
+        box-shadow: 0 8px 16px -14px rgba(20,32,43,.5); }
+      .lstage + .lstage { margin-top: 9px; }
+      .lstage::before { content: ""; position: absolute; left: -28px; top: 22px; bottom: -18px; width: 2px; background: var(--line); }
+      .lstage:last-child::before { display: none; }
+      .lstage .num { position: absolute; left: -39px; top: 12px; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--capcolor, #777); color: #fff; font-size: 0.78rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff; }
+      .lstage .lbody { padding: 11px 14px 13px; min-width: 0; }
+      .lstage .lhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .lstage .lname { font-weight: 700; font-size: 1rem; }
+      .lstage .lcap { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+        color: #fff; background: var(--capcolor, #777); border-radius: 20px; padding: 2px 8px; }
+      .lstage .lmode { font-size: 0.72rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--capcolor); background: #f4f6f8; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+      .lstage .lrole { margin-top: 6px; font-size: 0.86rem; color: var(--ink); }
+      .lstage .lev { margin-top: 5px; font-size: 0.78rem; color: var(--muted); }
+      .lstage .lev b { color: var(--structure); font-weight: 700; }
+      .lstage .ldoes { margin-top: 7px; font-size: 0.8rem; color: #4a3a3a;
+        border-left: 2px dashed var(--proof); background: #fdf6f5; border-radius: 0 7px 7px 0; padding: 6px 9px; }
+      .lstage .ldoes b { color: var(--proof); }
+      .lstage:hover { box-shadow: 0 18px 30px -18px rgba(20,32,43,.5); }
+      .root.loop.tracing-x .lstage { opacity: 1; }
+      .strata .srow {
+        display: grid; grid-template-columns: 40px 1fr; gap: 0;
+        border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+        background: #fff; cursor: pointer; transition: opacity .2s;
+      }
+      .strata .srow .band { background: var(--bandcolor); }
+      .strata .srow .body { padding: 12px 16px; position: relative; }
+      .strata .srow .pn { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing:.03em;}
+      .strata .srow .pt { font-weight: 700; font-size: 1.02rem; margin-top: 1px; }
+      .strata .srow .pd { margin-top: 4px; font-size: 0.82rem; color: var(--bandcolor); font-weight: 600; }
+      .strata .srow .pm { margin-top: 4px; font-size: 0.85rem; color: var(--muted); }
+      .strata .srow .pb {
+        position: absolute; top: 12px; right: 14px; font-size: 0.66rem;
+        text-transform: uppercase; letter-spacing:.04em; font-weight: 700; color:#fff;
+        background: var(--bandcolor); padding: 2px 7px; border-radius: 20px;
+      }
+      .strata .srow.hidden { display: none; }
+      .strata .srow.selected { outline: 2px solid var(--ink); outline-offset: -2px; }
+      .root.flat .strata.tracing .srow { opacity: .3; }
+      .root.flat .strata.tracing .srow.fire { opacity: 1; }
+      .strata .srow .order {
+        position: absolute; bottom: 10px; right: 14px;
+        width: 22px; height: 22px; border-radius: 50%;
+        background: var(--proof); color:#fff; font-size:.74rem; font-weight:700;
+        display:none; align-items:center; justify-content:center;
+      }
+      .root.flat .strata.tracing .srow.fire .order { display:flex; }
+
+      /* ===== inspector ===== */
+      .inspector { padding: 16px; display: grid; gap: 12px; max-height: calc(100vh - 32px); overflow: auto; }
+      .rail-hint {
+        font-size: 0.78rem; color: var(--discretion); background: #f0fafb;
+        border: 1px solid #c5e7ea; border-radius: 8px; padding: 8px 10px; line-height: 1.35;
+      }
+      .insp-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .insp-head .pb {
+        font-size: 0.66rem; text-transform: uppercase; letter-spacing:.04em;
+        font-weight: 700; color:#fff; background: var(--bandcolor,#777);
+        padding: 2px 8px; border-radius: 20px;
+      }
+      .insp-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+      .insp-grid section { border-left: 4px solid var(--line); padding-left: 12px; min-width: 0; }
+      .insp-grid .tag { display:inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; letter-spacing:.03em; }
+      .insp-grid .src .tag { color: var(--structure); }
+      .insp-grid .inf .tag { color: var(--proof); }
+      .quote {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.8rem; background: #f6f8fa; border: 1px solid var(--line);
+        border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; color: #243140;
+      }
+      .ref { font-size: 0.74rem; color: var(--faint); margin-top: 4px; }
+      .trace-steps { display: none; margin-top: 4px; }
+      .trace-steps.on { display: block; }
+      .trace-steps ol { margin: 6px 0 0; padding-left: 20px; }
+      .trace-steps li { margin: 3px 0; font-size: 0.86rem; }
+
+      /* drill-in affordance on an expandable layer */
+      .drill-pill {
+        display: inline-block; margin-left: 8px; vertical-align: middle;
+        font-size: 0.66rem; font-weight: 700; color: var(--discretion);
+        background: #eafafa; border: 1px solid #b7e3e6; border-radius: 20px;
+        padding: 1px 8px; cursor: pointer; font-family: inherit;
+      }
+      .drill-pill:hover { background: var(--discretion); color: #fff; border-color: var(--discretion); }
+      /* in the deck, float the drill affordance to the (now free) top-right corner so it
+         never inflates the title's line count; strata keeps it inline. */
+      .plane .drill-pill { position: absolute; top: 12px; right: 12px; margin-left: 0; }
+      .plane.expandable { border-left-style: double; border-left-width: 9px; }
+      .srow.expandable .band { background:
+        repeating-linear-gradient(180deg, var(--discretion), var(--discretion) 6px, #fff 6px, #fff 9px); }
+
+      /* in-place nested sub-stack (opens on hover, inside the refine stack) */
+      .plane.expandable.open {
+        height: auto;
+        min-height: 150px;
+        transform: none !important;
+        z-index: 960 !important;
+        box-shadow: 0 44px 64px -26px rgba(20, 32, 43, 0.62);
+        background: #fbfeff;
+      }
+      .subdeck { display: none; margin-top: 11px; }
+      .plane.expandable.open .pm { -webkit-line-clamp: unset; line-clamp: unset; }
+      .plane.expandable.open .subdeck { display: block; animation: subin 0.28s ease both; }
+      @keyframes subin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+      .subhead {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+        color: var(--discretion); margin-bottom: 9px; display: flex; align-items: center; gap: 7px;
+      }
+      .subhead .cnt { background: var(--discretion); color: #fff; border-radius: 20px; padding: 1px 8px; font-size: 0.66rem; }
+      .substack { display: grid; gap: 6px; padding-left: 15px; border-left: 2px dashed var(--discretion); }
+      .mini {
+        position: relative; background: #fff; border: 1px solid var(--line);
+        border-left: 4px solid var(--discretion); border-radius: 8px;
+        padding: 7px 11px; box-shadow: 0 6px 12px -9px rgba(20, 32, 43, 0.45);
+      }
+      .mini.def { border-left-color: var(--structure); }
+      .mini::before {
+        content: ""; position: absolute; left: -16px; top: 18px; width: 13px; height: 2px;
+        background: var(--discretion);
+      }
+      .mini.def::before { background: var(--structure); }
+      .mini .mtag {
+        float: right; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.03em;
+        font-weight: 700; color: #fff; background: var(--discretion); border-radius: 20px; padding: 1px 7px;
+      }
+      .mini.def .mtag { background: var(--structure); }
+      .mini .miid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; font-weight: 700; }
+      .mini .midev { margin-top: 3px; font-size: 0.76rem; color: var(--discretion); font-weight: 600; }
+      .mini.def .midev { color: var(--structure); }
+      .mini .minudge { margin-top: 3px; font-size: 0.76rem; color: var(--muted); line-height: 1.3; }
+      .subfoot { margin-top: 10px; }
+      .subfoot button {
+        font: inherit; font-size: 0.76rem; color: var(--discretion); background: #eafafa;
+        border: 1px solid #b7e3e6; border-radius: 7px; padding: 6px 11px; cursor: pointer;
+      }
+      .subfoot button:hover { background: var(--discretion); color: #fff; }
+
+      /* drill panel — Layer 6 sub-topology */
+      .drill { display: none; margin-top: 18px; padding: 18px;
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; border-top: 4px solid var(--discretion); }
+      .drill.on { display: block; }
+      .drill .dhead { display: flex; gap: 14px; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
+      .drill h2 { font-size: 1.06rem; }
+      .drill .dkick { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--discretion); font-weight: 700; }
+      .drill .dsub { color: var(--muted); font-size: 0.9rem; max-width: 780px; margin-top: 6px; }
+      .drill .dclose { border: 1px solid var(--line); background: #f7f9fb; border-radius: 7px;
+        padding: 6px 12px; cursor: pointer; font: inherit; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+      .drill-grid { display: grid; grid-template-columns: minmax(220px, 280px) 1fr; gap: 18px; margin-top: 16px; }
+      .devices { display: grid; gap: 8px; align-content: start; }
+      .devices .dlabel { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .03em; color: var(--faint); font-weight: 700; }
+      .devices .dv { border-left: 3px solid var(--discretion); padding: 7px 10px; background: #f3fafb; border-radius: 0 8px 8px 0; }
+      .devices .dv b { display: block; font-size: 0.85rem; }
+      .devices .dv span { font-size: 0.79rem; color: var(--muted); }
+      .ovs { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 10px; align-content: start; }
+      .ov { border: 1px solid var(--line); border-left: 5px solid var(--discretion);
+        border-radius: 9px; padding: 11px 13px; background: #fff; }
+      .ov.def { border-left-color: var(--structure); background: #f4fbf8; }
+      .ov .oid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; font-weight: 700; }
+      .ov .otag { float: right; font-size: 0.6rem; text-transform: uppercase; letter-spacing: .04em;
+        font-weight: 700; color: #fff; background: var(--discretion); padding: 1px 7px; border-radius: 20px; }
+      .ov.def .otag { background: var(--structure); }
+      .ov .when { margin-top: 8px; font-size: 0.82rem; line-height: 1.35; }
+      .ov .when b { color: var(--discretion); }
+      .ov.def .when b { color: var(--structure); }
+      .chips { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
+      .chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem;
+        background: #eef4f8; border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; color: #33424f; }
+      .ov .ovread {
+        margin-top: 9px; padding: 8px 10px; border-left: 2px dashed var(--proof);
+        background: #fdf6f5; border-radius: 0 7px 7px 0; display: grid; gap: 5px;
+        font-size: 0.78rem; color: #4a3a3a; line-height: 1.32;
+      }
+      .ov .ovread .rk {
+        display: inline-block; min-width: 50px; margin-right: 4px;
+        font-size: 0.6rem; text-transform: uppercase; letter-spacing: .04em;
+        font-weight: 700; color: var(--proof); vertical-align: 1px;
+      }
+      .ov .vnote { margin-top: 9px; font-size: 0.74rem; color: var(--control); font-weight: 600; }
+      .drill .vrule { margin-top: 16px; font-size: 0.82rem; color: var(--muted);
+        border-top: 1px dashed var(--line); padding-top: 11px; }
+      .drill .vrule b { color: var(--proof); }
+
+      .foot { margin-top: 14px; color: var(--faint); font-size: 0.78rem; max-width: 960px; }
+
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .controls { position: static; }
+        /* description follows the reader: a fixed bottom sheet, scroll-synced */
+        .inspector-rail { position: fixed; inset: auto 0 0 0; z-index: 60; }
+        .inspector { margin: 0; border-radius: 14px 14px 0 0; max-height: 44vh;
+          overflow: auto; gap: 8px; padding: 14px 14px 16px;
+          box-shadow: 0 -14px 30px -18px rgba(20, 32, 43, 0.45); }
+        .inspector::before { content: ""; display: block; width: 38px; height: 4px;
+          border-radius: 4px; background: var(--line); margin: -4px auto 8px; }
+        .rail-hint { display: none; }
+        .insp-grid .inf { order: -1; }
+        main { padding-bottom: 46vh; }
+        .deck-inner { transform: rotateX(0deg) rotateZ(0deg); }
+        .plane { position: relative; left: 0; right: 0; top: 0; margin: 0 0 10px; transform: none !important; height: auto; z-index: auto !important; }
+        /* override the JS-set inline cascade height: mobile cards flow, so the deck sizes to content */
+        .deck { height: auto !important; perspective: none; padding-left: 0; }
+        .plane.active, .plane.pushed, .plane.expandable.open { transform: none !important; }
+        .plane .alt { display: none; }
+        .insp-grid { grid-template-columns: 1fr; }
+        .drill-grid { grid-template-columns: 1fr; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .plane, .deck-inner, .subdeck, .tb-progress span, .layer { transition: none !important; animation: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="root" id="root">
+      <header>
+        <h1>x-ray — <span style="color:var(--frame)">/refine</span>: the abstraction &amp; nudge topology</h1>
+        <p class="meta">
+          Mode: <b>artifact</b> · Renderer: L0 HTML/CSS layered cascade (two views, no remote deps) ·
+          Target: <code>.claude/skills/refine/SKILL.md</code> (v0.2.0).
+          One skill, sliced into the <b id="layercount">—</b> strata of language it stacks to steer an LLM.
+        </p>
+        <p class="thesis">
+          A skill file is not one instruction — it's a <b>stack of control layers</b>. Each layer uses a different
+          <b>linguistic device</b> (a "nudge") operating at a different altitude of abstraction: a binding harness
+          contract at the floor, an invariant skeleton above it, discretionary branching higher still, hard stop-gates,
+          proof obligations, and finally the output shape. Toggle, isolate, or <b>trace</b> a reasoning moment to see
+          which layers fire and in what order. Then switch to <b>Calls · loop</b> for the other dimension — what refine
+          <i>does</i>: the 10-stage canonical loop where it delegates to <b>invoke</b> (define · design · plan),
+          <b>interrogation</b>, <b>distill</b>, and <b>context-builder</b>.
+        </p>
+      </header>
+
+      <div class="layout">
+        <aside class="controls" aria-label="Controls">
+          <div>
+            <h2>View</h2>
+            <div class="seg" role="group" aria-label="View mode">
+              <button id="view-stack" aria-pressed="true">Stacked deck</button>
+              <button id="view-flat" aria-pressed="false">Strata · flat</button>
+              <button id="view-loop" aria-pressed="false">Calls · loop</button>
+            </div>
+            <button id="tour-start" class="tour-start">▶ Guided tour — build the stack</button>
+          </div>
+
+          <div>
+            <h2>Layers</h2>
+            <div class="toggle-row">
+              <button id="all-on">All</button>
+              <button id="all-off">None</button>
+            </div>
+            <div class="layer-toggles" id="toggles"></div>
+          </div>
+
+          <div>
+            <h2>Trace a reasoning moment</h2>
+            <div class="trace-list" id="traces"></div>
+            <div class="toggle-row" style="margin-top:6px">
+              <button id="trace-clear">Clear trace</button>
+            </div>
+          </div>
+
+          <div>
+            <h2>Evidence boundary</h2>
+            <div class="legend">
+              <div class="row"><span class="ev"></span> Quote = source-backed (SKILL.md)</div>
+              <div class="row"><span class="inf"></span> Mechanism = my inference (how it steers reasoning)</div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="main" aria-label="Topology">
+          <div class="tourbar" id="tourbar">
+            <div class="tb-head">
+              <span class="tb-step" id="tb-step">Layer 1 / 13</span>
+              <strong class="tb-title" id="tb-title"></strong>
+              <span class="tb-band pb" id="tb-band"></span>
+            </div>
+            <p class="tb-narr" id="tb-narr"></p>
+            <div class="tb-ctrls">
+              <button id="tb-prev">◀ Prev</button>
+              <button id="tb-next">Next ▶</button>
+              <button id="tb-exit">Exit tour</button>
+              <span class="tb-hint">you’re building the stack one layer at a time · use ← → keys</span>
+            </div>
+            <div class="tb-progress"><span id="tb-fill"></span></div>
+          </div>
+
+          <div class="stage">
+            <div class="deck" id="deck"><div class="deck-inner" id="deck-inner"></div></div>
+            <div class="strata" id="strata"></div>
+            <div class="loopview" id="loop"></div>
+          </div>
+
+          <section class="drill" id="drill" aria-label="Layer 6 overlay sub-topology">
+            <div class="dhead">
+              <div>
+                <div class="dkick">Drill-in · inside Layer 6</div>
+                <h2>Conditional overlays — a stack inside the stack</h2>
+                <p class="dsub" id="drill-framing"></p>
+              </div>
+              <button class="dclose" id="drill-close">Close ✕</button>
+            </div>
+            <div class="drill-grid">
+              <div class="devices" id="drill-devices"></div>
+              <div class="ovs" id="drill-ovs"></div>
+            </div>
+            <p class="vrule" id="drill-vrule"></p>
+          </section>
+
+          <p class="foot">
+            Source-backed: every quote and section name is lifted from <code>SKILL.md</code>. Inference: the
+            "device" labels and the "how it nudges" column are my reading of <em>why</em> the language is shaped that
+            way — they are interpretation, not claims the skill makes about itself. Trace orderings are illustrative
+            paths, not a guaranteed execution order.
+          </p>
+        </section>
+
+        <aside class="inspector-rail" aria-label="Inspector">
+          <div class="inspector" id="inspector">
+            <div class="rail-hint">Reading the stack? Hover any layer or nested overlay — its device &amp; nudge appear here, beside it.</div>
+            <div class="insp-head">
+              <span class="pn" id="i-pn" style="color:var(--faint);text-transform:uppercase;font-size:.72rem;letter-spacing:.03em">Inspector</span>
+              <strong id="i-title">Hover a layer to inspect it</strong>
+              <span class="pb" id="i-band" style="display:none"></span>
+            </div>
+            <div class="trace-steps" id="i-trace">
+              <span class="tag" style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--proof)">Trace order</span>
+              <ol id="i-trace-list"></ol>
+            </div>
+            <div class="insp-grid">
+              <section class="src">
+                <span class="tag">Evidence — source quote</span>
+                <div class="quote" id="i-quote">Hover or click any stratum. Each carries the actual text from the skill plus the device it uses.</div>
+                <div class="ref" id="i-ref"></div>
+              </section>
+              <section class="inf">
+                <span class="tag">Inference — how it nudges the LLM</span>
+                <div id="i-device" style="font-weight:600;margin-bottom:6px"></div>
+                <div id="i-mech" style="font-size:0.9rem;color:var(--muted)"></div>
+                <button id="i-drill" class="drill-pill" style="display:none;margin:10px 0 0;font-size:0.78rem;padding:5px 12px">⤢ Open the overlay sub-topology</button>
+              </section>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      // ---- Layer model: each stratum = one region of SKILL.md ----
+      // band drives color; device = linguistic nudge; mech = inference; quote/ref = source-backed.
+      const BANDS = {
+        contract:   { label: "Contract",   color: "var(--contract)"   },
+        frame:      { label: "Frame",       color: "var(--frame)"      },
+        structure:  { label: "Structure",   color: "var(--structure)"  },
+        discretion: { label: "Discretion",  color: "var(--discretion)" },
+        control:    { label: "Control",      color: "var(--control)"    },
+        proof:      { label: "Proof",        color: "var(--proof)"      },
+        form:       { label: "Form",         color: "var(--form)"       },
+        reflexive:  { label: "Reflexive",    color: "var(--reflexive)"  },
+      };
+
+      // ordered floor (1) -> surface (N)
+      const LAYERS = [
+        {
+          id: "invocation", band: "contract",
+          title: "Invocation contract",
+          device: "Trigger phrasing + tool allow-list",
+          mech: "Binds to the harness, not the model's prose. \"Use when:\" routing decides WHETHER this whole frame is entered, and allowed-tools fences which actions are even thinkable inside it.",
+          quote: 'description: "Use when: turning a vague refinement target… into a refined seed, design, or non-executed plan"\nallowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Bash, Agent',
+          ref: "SKILL.md frontmatter — lines 9, 15",
+        },
+        {
+          id: "identity", band: "frame",
+          title: "Identity frame",
+          device: "Role naming + domain mystique vocabulary",
+          mech: "\"Sigil\", \"Arcana\" assign a coherent persona. Once the model is told what it IS, every later token is generated in-character, which keeps the long contract internally consistent.",
+          quote: '# Sigil: Refine\nArcana: discovery and design orchestration with research decision, critique, repair, non-executed planning, and auditable stage evidence.',
+          ref: "SKILL.md <logic-type> — lines 18, 25",
+        },
+        {
+          id: "objective", band: "frame",
+          title: "Mission objective",
+          device: "One compound sentence spanning the whole arc",
+          mech: "Front-loads the entire end-to-end deliverable into a single clause so the goal stays in working memory across a very long file — the model never loses the thread of \"return a final refined synthesis\".",
+          quote: "Design an initial refinement seed, emit a dispatch-spec route for the canonical Arcanum refinement loop, run or hand off the validated route through native runtime stage receipts, index each stage artifact, and return a final refined synthesis.",
+          ref: "SKILL.md <objective> — line 21",
+        },
+        {
+          id: "skeleton", band: "structure",
+          title: "Invariant skeleton",
+          device: "Fixed ordered list + invariant guard sentence",
+          mech: "A numbered 10-stage spine the model cannot reorder or skip. The guard clause neutralises the obvious shortcut (\"just use a lighter preset\") by pre-declaring it illegal.",
+          quote: "1. Context Builder evidence baseline. … 10. Final Interrogation and Refine-owned synthesis.\nPresets tune budget, depth, and configuration; they do not remove stages.",
+          ref: "SKILL.md <canonical-loop> — lines 45–56",
+        },
+        {
+          id: "ownership", band: "structure",
+          title: "Ownership partition",
+          device: "Who-owns-what table + \"X owns Y\" sentences",
+          mech: "Forces decomposition and delegation. By assigning each artifact an owner, it blocks the model's default urge to do everything itself in one freeform blob.",
+          quote: "Refine owns the seed, research decision, dispatch request, run manifest, evidence index, and final synthesis. Dispatch Spec owns route-shape validation. Stage capabilities own their native artifacts.",
+          ref: "SKILL.md <required-capabilities> / <ownership-boundary> — lines 30, 259–270",
+        },
+        {
+          id: "overlays", band: "discretion",
+          title: "Conditional overlays",
+          expandable: true,
+          device: "\"use X when Y\" rule pairs + named overlay enums",
+          mech: "Grants bounded discretion. Selection is conditioned on observed evidence (\"when the target has competing principles\") rather than free choice — judgement is allowed but only along pre-cut grooves.",
+          quote: "dialectic_for_tension: use dialectic, zig_zag, and residue_ledger when the target has competing principles or likely disagreement.\nxray_for_hidden_structure: use x_ray… when hidden architecture… is the main uncertainty.",
+          ref: "SKILL.md <technique-overlay-policy> — lines 107–132",
+        },
+        {
+          id: "modes", band: "discretion",
+          title: "Mode enums + defaults",
+          device: "Closed enum of named modes with a default",
+          mech: "Collapses an open decision into a tiny labelled choice set and hands the model a default fallback, so an under-specified request still resolves deterministically instead of stalling.",
+          quote: "no-research | bounded-research | research-if-gap-appears (default)\npreset: compact | standard | full | deep (default standard)",
+          ref: "SKILL.md <research-policy> / <preset-policy> — lines 272–293",
+        },
+        {
+          id: "gates", band: "control",
+          title: "Stop gates",
+          device: "Imperative stop conditions + blocking verbs",
+          mech: "A hard human-in-the-loop checkpoint. Imperatives (\"Stop here\", \"must ask\") interrupt autoregressive momentum at exactly the point where the run would otherwise spend tokens or spawn agents.",
+          quote: "Stop here until the operator confirms.\nIf subagent_strategy.status is recommended or required, Refine must ask for operator permission before spawning subagents or running runtime-backed stages.",
+          ref: "SKILL.md <strategy-preview-and-permission> / process §8 — lines 99–105, 303",
+        },
+        {
+          id: "proof", band: "proof",
+          title: "Proof obligation",
+          device: "Validity predicate (\"invalid when…\") + artifact-or-blocked rule",
+          mech: "Kills hand-waving. Every stage must point to a durable artifact OR an explicit blocked reason; \"pass without a file\" is defined as invalid, so the model cannot claim completion it can't evidence.",
+          quote: "A selected stage is invalid when it has neither an artifact path nor a blocked reason. A stage marked pass is invalid when its artifact path is missing or does not exist.",
+          ref: "SKILL.md <run-manifest-contract> / <stage-receipt-contract> — lines 134–197",
+        },
+        {
+          id: "negative", band: "control",
+          title: "Negative space",
+          device: "Prohibition lists + named failure modes",
+          mech: "Defines the boundary by exclusion. Naming the specific wrong moves (\"replacing runtime-backed stages with hand-written prose\") pre-empts the most likely failure rather than only describing success.",
+          quote: "Avoid: replacing runtime-backed stages with hand-written prose; running runtime-backed stages or subagents before showing the Dispatch Spec strategy and receiving permission.\nDo not use this sigil when: the user wants immediate execution of one already-approved task.",
+          ref: "SKILL.md <anti-patterns> / <non-applicability> — lines 208–215, 370–381",
+        },
+        {
+          id: "rubric", band: "proof",
+          title: "Acceptance rubric",
+          device: "Self-evaluation checklist",
+          mech: "Hands the model a rubric to grade its own run before returning — a built-in second pass. \"A successful run must…\" turns implicit quality into an explicit, checkable list.",
+          quote: "A successful Refine run must: produce a clear seed proposal before stage execution, produce and validate REFINE-DISPATCH.json before runtime-backed stage execution, preserve the canonical ten-stage loop…",
+          ref: "SKILL.md <quality-bar> / <promotion-gate> — lines 314–368",
+        },
+        {
+          id: "output", band: "form",
+          title: "Output schema",
+          device: "Fill-in template with fixed fields",
+          mech: "Constrains the surface form. A literal markdown skeleton with labelled blanks makes the response parseable and uniform, and the final \"Confirmation prompt:\" line re-imposes the stop-gate at the output layer.",
+          quote: "## Refine Run Strategy Proposal\n- Target: <inferred target>\n- Preset: compact | standard | full | deep\n- Subagent strategy: <none | recommended | required | blocked>\n- Confirmation prompt: Confirm to run this strategy?",
+          ref: "SKILL.md <output-contract> — lines 383–432",
+        },
+        {
+          id: "telemetry", band: "reflexive",
+          title: "Reflexive telemetry",
+          device: "Post-run signal field list",
+          mech: "Makes the run self-describe for later reflection. By enumerating the fields to emit, the layer turns each execution into structured data a workflow-reflect loop can learn from — the skill watching itself.",
+          quote: "Recommended signal fields: target, selected preset, selected research mode, research confirmation status, runtime handoff status, dispatch strategy status, subagent strategy status…",
+          ref: "SKILL.md <observability> — lines 334–353",
+        },
+      ];
+
+      // Layer 6 expands into its own sub-topology: techniques chunked into named,
+      // evidence-gated overlays. Source: SKILL.md <technique-overlay-policy> lines 107-132.
+      const OVERLAY_SET = {
+        framing:
+          "Layer 6 is itself a stack. It doesn't steer with one device — it operates a whole sub-set of abstractions: atomic techniques are chunked into named overlays, each overlay carries its own evidence trigger, and a default/optional split bounds the baseline. Each overlay below is read twice — what it IS (its trigger + technique bundle, source-backed) and what it DOES to the model's reasoning (its own language device + nudge, inference).",
+        devices: [
+          ["Named bundle", "An overlay id (e.g. dialectic_for_tension) packages ~3 atomic techniques under one selectable name — abstraction by chunking."],
+          ["Evidence trigger", "Every overlay carries a “when Y” guard, so selection is conditioned on an observed feature of the target, not on preference."],
+          ["Default + optional split", "One always-on baseline overlay; the other seven are opt-in. Bounds default behaviour while preserving discretion."],
+          ["Composition / nesting", "techniques → overlays → dispatch route. The atomic devices nest into this layer, which nests into the skill — devices within a device."],
+          ["Cross-reference rule", "“citations must be reflected in steps, gates, observability…” — a named overlay is invalid unless expressed downstream. Ties back to the Proof layer (L9)."],
+        ],
+        default: {
+          id: "baseline_sequence",
+          when: "ordinary refinement (always on)",
+          bundle: ["sequence", "frame_handoff", "handle_handoff", "validation_loop", "owner_boundary", "observability", "minimum_component", "data_quality"],
+          device: "Linear pipeline + handle-handoff framing",
+          nudge: "The default “do the stages in order and pass each result forward as a named handle” — holds reasoning sequential and traceable instead of letting the model jump ahead.",
+          note: "",
+        },
+        optional: [
+          { id: "route_menu_for_ambiguity", when: "route, owner, output, or research choice is ambiguous", bundle: ["route_menu", "one_or_more_option_set", "approval_checkpoint"],
+            device: "Enumerated option set + approval checkpoint",
+            nudge: "Turns an ambiguous open choice into a visible menu the operator must approve — forces the model to surface alternatives rather than silently committing to one.", note: "" },
+          { id: "dialectic_for_tension", when: "the target has competing principles or likely disagreement", bundle: ["dialectic", "zig_zag", "residue_ledger"],
+            device: "Opposing roles + zig-zag exchange + residue ledger",
+            nudge: "Makes the model argue against itself across rounds before converging — a built-in anti-confirmation-bias move when principles compete.", note: "requires roles + convergence criteria" },
+          { id: "tournament_for_alternatives", when: "several plausible designs, abstractions, or SWU boundaries must be compared", bundle: ["tournament", "pareto_gate", "recomposition_proof"],
+            device: "Parallel candidates + pareto gate",
+            nudge: "Generates several rival designs and scores them against each other — prevents first-idea lock-in by making comparison mandatory.", note: "requires roles + convergence criteria" },
+          { id: "xray_for_hidden_structure", when: "hidden architecture, workflow, or relationship structure is the main uncertainty", bundle: ["x_ray", "component_descriptor", "entity_component_reference"],
+            device: "Component / entity descriptors",
+            nudge: "Forces hidden structure to be decomposed and named before reasoning continues — externalises architecture the model would otherwise hand-wave.", note: "requires an artifact or handle output" },
+          { id: "toy_game_for_low_cost_falsification", when: "a selected abstraction needs a controlled failure test before planning", bundle: ["toy_game", "validation_loop", "assessment_failure_reference"],
+            device: "Controlled failure probe + validation loop",
+            nudge: "Demands a cheap, disposable test that could break the chosen abstraction before any planning — a falsify-before-build move.", note: "requires an evidence artifact" },
+          { id: "memory_residue_for_context_recovery", when: "prior sessions, rejected candidates, or repository memory are material", bundle: ["memory_loop", "residue_ledger", "data_quality_deduplication"],
+            device: "Memory loop + residue ledger + dedup",
+            nudge: "Re-injects prior sessions and rejected candidates as residue — an anti-amnesia nudge so the model doesn't re-litigate settled or already-failed paths.", note: "" },
+          { id: "protected_context_for_external_or_sensitive_evidence", when: "external, sensitive, or non-canonical evidence is used", bundle: ["protected_context_flag", "system_agnostic_standard", "local_nuance_coordination"],
+            device: "Quarantine flag + system-agnostic standard",
+            nudge: "Marks external/sensitive evidence and walls it off from canonical repo facts — a boundary nudge that stops untrusted context from overriding local truth.", note: "" },
+        ],
+        vrule: "technique citations must be reflected in steps, gates, observability, route menu, or validation expectations.",
+      };
+
+      // guided-tour narration — frames each layer as the NEXT thing you add
+      // when building the skill from scratch (the construction story).
+      const TOUR = {
+        invocation: "Start at the floor. Before the skill can steer anything, it has to be reachable — so the first layer is a binding contract: a “Use when …” trigger that tells the harness when to enter, and an allow-list fencing which tools are even thinkable.",
+        identity: "Give the model a self. Name what it IS (“Sigil”, “Arcana”) so every instruction that follows is read in-character — this is what keeps a long file internally consistent.",
+        objective: "State the whole journey in one breath. A single compound sentence holds the end-to-end goal in working memory so the model never loses the thread across the rest of the stack.",
+        skeleton: "Lay the spine. A fixed, numbered sequence the model may tune but never skip — plus a guard clause that pre-declares the obvious shortcut illegal.",
+        ownership: "Split the work. Hand each artifact an owner so the model can’t collapse everything into one freeform blob — decomposition is forced, not hoped for.",
+        overlays: "Now add discretion — but bounded. Bundles of techniques the model may switch on, each only when the target calls for it. This layer is itself a stack: hover it to watch its 8 overlays unfold.",
+        modes: "Collapse the open choices. A few named modes with a default, so an under-specified request still resolves deterministically instead of stalling.",
+        gates: "Install the brakes. Hard checkpoints with imperative stop-verbs that halt the model before it spends tokens, spawns agents, or acts.",
+        proof: "Demand evidence. Every step must point to a durable artifact or an explicit blocked reason — “pass without a file” is defined as invalid, which kills hand-waving.",
+        negative: "Draw the fences. Name the specific wrong moves so the most likely failure is pre-empted, not just the success path described.",
+        rubric: "Hand it a grader. A “a successful run must …” checklist the model runs against itself before returning — a built-in second pass.",
+        output: "Shape the surface. A fill-in template with fixed fields so the result is uniform and parseable — and it re-imposes the stop-gate at the output layer.",
+        telemetry: "Finally, make it self-observe. Emit a list of signals so each run becomes data a reflection loop can learn from. The stack is complete — the skill now watches itself.",
+      };
+
+      // The OTHER dimension: what refine DOES — its canonical 10-stage loop, where
+      // it delegates to other capabilities. Source: refine SKILL.md <canonical-loop>,
+      // <required-capabilities>, <stage-configuration>. role/evidence/mode are
+      // source-backed; "does" is inference.
+      const CAPS = {
+        "context-builder": { label: "context-builder", color: "#2f66d0" },
+        invoke: { label: "invoke", color: "#6851c2" },
+        interrogation: { label: "interrogation", color: "#b7791f" },
+        distill: { label: "distill", color: "#1f8a70" },
+        refine: { label: "refine (owns)", color: "#b42318" },
+        "dispatch-spec": { label: "dispatch-spec", color: "#0f8f9e" },
+        "runtime-handoff": { label: "runtime-handoff", color: "#64748b" },
+      };
+      const LOOP = [
+        { n: 1, phase: "Discover", name: "Context Builder baseline", cap: "context-builder", mode: "standard",
+          role: "Build the evidence baseline and runtime handoff context.", evidence: "Context pack path or blocked coverage reason.",
+          does: "Grounds the whole run in repository evidence before any authoring." },
+        { n: 2, phase: "Define", name: "Invoke Define", cap: "invoke", mode: "define",
+          role: "Produce the Define artifact (DomainSpec spec + glossary).", evidence: "Invoke artifact path, mode, capability handle, and verdict.",
+          does: "Turns the seed into a governed definition of what is being refined." },
+        { n: 3, phase: "Define", name: "Interrogation · refine-review", cap: "interrogation", mode: "refine-review",
+          role: "Critique the Define for gaps, ownership, and evidence.", evidence: "Interrogation artifact and pass/flag/block verdict.",
+          does: "Adversarially checks the definition before design begins." },
+        { n: 4, phase: "Research", name: "Research decision", cap: "refine", mode: "no-research | bounded | if-gap",
+          role: "Record the research decision — Refine owns this stage.", evidence: "Research mode and confirmation status.",
+          does: "Decides whether external research is allowed; default is local-first." },
+        { n: 5, phase: "Distill", name: "Distill", cap: "distill", mode: "standard",
+          role: "Select the smallest coherent unit.", evidence: "Distill artifact, selected unit, and rejected alternatives.",
+          does: "Reduces the design space to one coherent unit worth designing." },
+        { n: 6, phase: "Design", name: "Invoke Redefine / Design", cap: "invoke", mode: "design",
+          role: "Produce the Design artifact from the prior artifacts.", evidence: "Invoke artifact path, mode, handle, and verdict.",
+          does: "Designs the architecture/shape from the distilled unit." },
+        { n: 7, phase: "Design", name: "Interrogation · refine-design-review", cap: "interrogation", mode: "refine-design-review",
+          role: "Critique the Design.", evidence: "Interrogation artifact and verdict.",
+          does: "Attacks the design before any planning happens." },
+        { n: 8, phase: "Design", name: "Distill Repair", cap: "distill", mode: "validate",
+          role: "Repair / validate the selected unit before planning.", evidence: "Distill repair verdict.",
+          does: "Fixes the design gaps the critique surfaced." },
+        { n: 9, phase: "Plan", name: "Invoke Plan", cap: "invoke", mode: "plan",
+          role: "Produce a non-executed plan artifact.", evidence: "Invoke plan artifact path and verdict.",
+          does: "Lays out the implementation plan — without executing it." },
+        { n: 10, phase: "Synthesize", name: "Final Interrogation + Synthesis", cap: "interrogation", mode: "refine-final",
+          role: "Final critique, then Refine-owned synthesis of RESULT.", evidence: "Final verdict and RESULT.md.",
+          does: "Validates the whole run and writes the refined synthesis." },
+      ];
+      // cross-cutting calls that frame the loop (not numbered stages)
+      const LOOP_FRAME = [
+        { cap: "dispatch-spec", text: "validates the whole route shape (REFINE-DISPATCH.json) BEFORE any stage runs — blocks the run if invalid." },
+        { cap: "runtime-handoff", text: "prepares/validates the durable runtime handoff so stages can run on a native runtime or hand off." },
+      ];
+
+      // illustrative reasoning traces: which layers fire, in order
+      const TRACES = [
+        {
+          id: "entry",
+          label: "“$refine refine everything until MVP-ready”",
+          sub: "A bare operator sentence arrives",
+          steps: [
+            ["invocation", "harness matches “Use when:” and enters the frame"],
+            ["identity", "model adopts the Sigil/Arcana persona"],
+            ["objective", "holds the end-to-end goal: a refined synthesis"],
+            ["modes", "infers preset=standard, research=if-gap, defaults fill the gaps"],
+            ["skeleton", "anchors to the fixed 10-stage spine"],
+            ["output", "emits a Run Strategy Proposal in the template"],
+            ["gates", "STOPS — asks for confirmation before any stage runs"],
+          ],
+        },
+        {
+          id: "research",
+          label: "Model is tempted to do external research",
+          sub: "A knowledge gap appears mid-run",
+          steps: [
+            ["modes", "checks the research enum — was bounded-research selected?"],
+            ["overlays", "may add protected_context overlay for external evidence"],
+            ["gates", "external research requires explicit confirmation first"],
+            ["proof", "the decision must be recorded as a durable artifact"],
+            ["telemetry", "research mode + confirmation status emitted as signals"],
+          ],
+        },
+        {
+          id: "shortcut",
+          label: "Model wants to skip a stage to save effort",
+          sub: "The pressure every long loop creates",
+          steps: [
+            ["skeleton", "the invariant: “presets… do not remove stages”"],
+            ["ownership", "the stage has an owner — Refine can’t absorb it"],
+            ["negative", "anti-pattern: don’t replace stages with hand-written prose"],
+            ["proof", "a skipped stage = no artifact = invalid"],
+            ["rubric", "quality bar fails: “preserve the canonical ten-stage loop”"],
+          ],
+        },
+      ];
+
+      // ---- render ----
+      const root = document.getElementById("root");
+      const deckInner = document.getElementById("deck-inner");
+      const strata = document.getElementById("strata");
+      const togglesEl = document.getElementById("toggles");
+      const tracesEl = document.getElementById("traces");
+      const deck = document.getElementById("deck");
+      document.getElementById("layercount").textContent = LAYERS.length;
+
+      let hidden = new Set();
+      let activeTrace = null;
+      let selectedId = null;
+
+      const N = LAYERS.length;
+      const STEP = 90;  // vertical lip per stacked card — must clear band pill + title + device (device ends ~83px)
+      const CARDH = 150;
+
+      LAYERS.forEach((L, i) => {
+        L._band = BANDS[L.band];
+        // stacked plane
+        const pill = L.expandable ? ' <button class="drill-pill" data-drill="1">⤢ inside</button>' : "";
+        const p = document.createElement("div");
+        p.className = "plane" + (L.expandable ? " expandable" : "");
+        p.dataset.id = L.id;
+        p.style.setProperty("--bandcolor", L._band.color);
+        p.innerHTML =
+          '<span class="alt">L' + (i + 1) + '</span>' +
+          '<span class="pb">' + L._band.label + '</span>' +
+          '<div class="pt">' + (i + 1) + '. ' + L.title + pill + '</div>' +
+          '<div class="pd">' + L.device + '</div>' +
+          '<div class="pm">' + L.mech + '</div>' +
+          (L.expandable ? subdeckHTML() : "") +
+          '<div class="order"></div>';
+        p.addEventListener("click", () => select(L.id));
+        p.addEventListener("mouseenter", () => { select(L.id, true); setActive(i); });
+        const pp = p.querySelector(".drill-pill");
+        if (pp) pp.addEventListener("click", (e) => { e.stopPropagation(); openDrill(); });
+        if (L.expandable) {
+          const sf = p.querySelector(".subfoot button");
+          if (sf) sf.addEventListener("click", (e) => { e.stopPropagation(); openDrill(); });
+          const all = [Object.assign({ _def: true }, OVERLAY_SET.default)].concat(OVERLAY_SET.optional);
+          p.querySelectorAll(".mini").forEach((m, k) => {
+            m.addEventListener("mouseenter", (e) => { e.stopPropagation(); showOverlay(all[k]); });
+            m.addEventListener("click", (e) => { e.stopPropagation(); openDrill(); });
+          });
+        }
+        deckInner.appendChild(p);
+
+        // flat strata row
+        const r = document.createElement("div");
+        r.className = "srow" + (L.expandable ? " expandable" : "");
+        r.dataset.id = L.id;
+        r.style.setProperty("--bandcolor", L._band.color);
+        r.innerHTML =
+          '<div class="band"></div>' +
+          '<div class="body">' +
+            '<span class="pb">' + L._band.label + '</span>' +
+            '<div class="pn">L' + (i + 1) + ' · layer ' + (i + 1) + ' / ' + N + '</div>' +
+            '<div class="pt">' + L.title + pill + '</div>' +
+            '<div class="pd">' + L.device + '</div>' +
+            '<div class="pm">' + L.mech + '</div>' +
+            '<div class="order"></div>' +
+          '</div>';
+        r.addEventListener("click", () => select(L.id));
+        const rp = r.querySelector(".drill-pill");
+        if (rp) rp.addEventListener("click", (e) => { e.stopPropagation(); openDrill(); });
+        strata.appendChild(r);
+
+        // toggle
+        const lab = document.createElement("label");
+        lab.innerHTML =
+          '<input type="checkbox" checked data-id="' + L.id + '" />' +
+          '<span class="swatch" style="background:' + L._band.color + '"></span>' +
+          '<span>' + (i + 1) + '. ' + L.title + '</span>';
+        lab.querySelector("input").addEventListener("change", (e) => {
+          if (e.target.checked) hidden.delete(L.id); else hidden.add(L.id);
+          applyVisibility();
+        });
+        togglesEl.appendChild(lab);
+      });
+
+      TRACES.forEach((T) => {
+        const b = document.createElement("button");
+        b.dataset.trace = T.id;
+        b.setAttribute("aria-pressed", "false");
+        b.innerHTML = '<span class="tlabel">' + T.label + '</span><span class="tsub">' + T.sub + '</span>';
+        b.addEventListener("click", () => toggleTrace(T.id));
+        tracesEl.appendChild(b);
+      });
+
+      function planeEls(id) {
+        return [
+          deckInner.querySelector('.plane[data-id="' + id + '"]'),
+          strata.querySelector('.srow[data-id="' + id + '"]'),
+        ];
+      }
+
+      function applyVisibility() {
+        clearActive();
+        // flat rows: simple hide
+        LAYERS.forEach((L) => {
+          const row = strata.querySelector('.srow[data-id="' + L.id + '"]');
+          if (row) row.classList.toggle("hidden", hidden.has(L.id));
+        });
+        // stacked planes: reflow so visible cards cascade with no gaps
+        let idx = 0;
+        LAYERS.forEach((L) => {
+          const plane = deckInner.querySelector('.plane[data-id="' + L.id + '"]');
+          if (!plane) return;
+          if (hidden.has(L.id)) {
+            plane.classList.add("hidden");
+            return;
+          }
+          plane.classList.remove("hidden");
+          plane.style.setProperty("--top", idx * STEP + "px");
+          plane.style.setProperty("--zi", idx + 1);
+          idx++;
+        });
+        const visible = Math.max(idx, 1);
+        deck.style.height = (visible - 1) * STEP + CARDH + 26 + "px";
+      }
+
+      // Accordion hover: the active card pops/expands; every card below it is
+      // pushed down by the active card's real height so its lip stays reachable.
+      function setActive(i) {
+        if (root.classList.contains("flat")) return;
+        clearActive();
+        const L = LAYERS[i];
+        if (!L || hidden.has(L.id)) return;
+        const visible = LAYERS.filter((x) => !hidden.has(x.id));
+        const pos = visible.indexOf(L);
+        const el = deckInner.querySelector('.plane[data-id="' + L.id + '"]');
+        if (!el) return;
+        el.classList.add("active");
+        if (L.expandable) {
+          // expandable layer grows in place and COVERS the cards below it
+          // (self-contained nested exploration); no push.
+          el.classList.add("open");
+          return;
+        }
+        const push = el.offsetHeight + 10 - STEP; // ~104px; offsetHeight forces layout
+        for (let j = pos + 1; j < visible.length; j++) {
+          const pe = deckInner.querySelector('.plane[data-id="' + visible[j].id + '"]');
+          if (pe) { pe.classList.add("pushed"); pe.style.setProperty("--push", push + "px"); }
+        }
+      }
+      function clearActive() {
+        deckInner.querySelectorAll(".plane").forEach((p) =>
+          p.classList.remove("active", "pushed", "open")
+        );
+      }
+
+      function select(id, soft) {
+        selectedId = id;
+        const L = LAYERS.find((x) => x.id === id);
+        document.querySelectorAll(".plane,.srow").forEach((el) =>
+          el.classList.toggle("selected", el.dataset.id === id)
+        );
+        document.getElementById("i-pn").textContent = L._band.label + " band";
+        document.getElementById("i-title").textContent =
+          (LAYERS.indexOf(L) + 1) + ". " + L.title;
+        const band = document.getElementById("i-band");
+        band.textContent = L._band.label;
+        band.style.display = "inline-block";
+        band.style.setProperty("--bandcolor", L._band.color);
+        document.getElementById("i-quote").textContent = L.quote;
+        document.getElementById("i-ref").textContent = L.ref;
+        document.getElementById("i-device").textContent = "Device: " + L.device;
+        document.getElementById("i-mech").textContent = L.mech;
+        document.getElementById("i-drill").style.display = L.expandable ? "inline-block" : "none";
+        if (!soft) document.getElementById("inspector").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function showOverlay(o) {
+        const isDef = !!o._def;
+        const col = isDef ? "var(--structure)" : "var(--discretion)";
+        document.getElementById("i-trace").classList.remove("on");
+        document.querySelectorAll(".plane,.srow").forEach((el) => el.classList.remove("selected"));
+        document.getElementById("i-pn").textContent =
+          (isDef ? "Default overlay" : "Optional overlay") + " · inside L6";
+        document.getElementById("i-title").textContent = o.id;
+        const band = document.getElementById("i-band");
+        band.textContent = isDef ? "default" : "optional";
+        band.style.display = "inline-block";
+        band.style.setProperty("--bandcolor", col);
+        document.getElementById("i-quote").textContent =
+          "use when " + o.when + "\n\ntechniques: " + o.bundle.join(", ") +
+          (o.note ? "\n\nvalidation: " + o.note : "");
+        document.getElementById("i-ref").textContent =
+          "SKILL.md <technique-overlay-policy> — lines 107-132";
+        document.getElementById("i-device").textContent = "Device: " + o.device;
+        document.getElementById("i-mech").textContent = o.nudge;
+        document.getElementById("i-drill").style.display = "inline-block";
+      }
+
+      function showStage(s) {
+        const c = CAPS[s.cap].color;
+        document.getElementById("i-trace").classList.remove("on");
+        document.querySelectorAll(".plane,.srow").forEach((el) => el.classList.remove("selected"));
+        document.getElementById("i-pn").textContent = "Canonical loop · stage " + s.n + " / 10";
+        document.getElementById("i-title").textContent = s.name;
+        const band = document.getElementById("i-band");
+        band.textContent = CAPS[s.cap].label;
+        band.style.display = "inline-block";
+        band.style.setProperty("--bandcolor", c);
+        document.getElementById("i-quote").textContent =
+          "mode: " + s.mode + "\nrole: " + s.role + "\nevidence: " + s.evidence;
+        document.getElementById("i-ref").textContent =
+          "refine SKILL.md <canonical-loop> / <required-capabilities>";
+        document.getElementById("i-device").textContent = "Calls: " + CAPS[s.cap].label;
+        document.getElementById("i-mech").textContent = s.does;
+        document.getElementById("i-drill").style.display = "none";
+      }
+
+      function renderLoop() {
+        const loopEl = document.getElementById("loop");
+        const counts = {};
+        LOOP.forEach((s) => { counts[s.cap] = (counts[s.cap] || 0) + 1; });
+        const order = ["context-builder", "invoke", "interrogation", "distill", "refine"];
+        const summary = order.filter((c) => counts[c]).map((c) =>
+          '<span class="cap-chip" style="--capcolor:' + CAPS[c].color + '">' +
+          CAPS[c].label + ' <span class="x">×' + counts[c] + '</span></span>'
+        ).join("");
+        const frame = LOOP_FRAME.map((f) =>
+          '<div class="ff"><b style="--capcolor:' + CAPS[f.cap].color + '">' +
+          CAPS[f.cap].label + '</b> — ' + f.text + '</div>'
+        ).join("");
+        let html =
+          '<div class="loop-summary">' + summary + '</div>' +
+          '<div class="loop-frame"><div style="font-weight:700;color:var(--ink)">Frames every run (before / around the 10 stages):</div>' + frame + '</div>';
+        let lastPhase = null;
+        LOOP.forEach((s, i) => {
+          if (s.phase !== lastPhase) { html += '<div class="phase-label">' + s.phase + '</div>'; lastPhase = s.phase; }
+          html +=
+            '<div class="lstage" data-stage="' + i + '" style="--capcolor:' + CAPS[s.cap].color + '">' +
+              '<span class="num">' + s.n + '</span>' +
+              '<div class="lbody">' +
+                '<div class="lhead"><span class="lname">' + s.name + '</span>' +
+                  '<span class="lcap">' + CAPS[s.cap].label + '</span>' +
+                  '<span class="lmode">' + s.mode + '</span></div>' +
+                '<div class="lrole">' + s.role + '</div>' +
+                '<div class="lev"><b>evidence:</b> ' + s.evidence + '</div>' +
+                '<div class="ldoes"><b>does ·</b> ' + s.does + '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        loopEl.innerHTML = html;
+        loopEl.querySelectorAll(".lstage").forEach((el) =>
+          el.addEventListener("mouseenter", () => showStage(LOOP[+el.dataset.stage]))
+        );
+      }
+
+      function subdeckHTML() {
+        const O = OVERLAY_SET;
+        const all = [Object.assign({ _def: true }, O.default)].concat(O.optional);
+        const mini = (o) =>
+          '<div class="mini' + (o._def ? " def" : "") + '">' +
+            '<span class="mtag">' + (o._def ? "default" : "optional") + '</span>' +
+            '<div class="miid">' + o.id + '</div>' +
+            '<div class="midev">' + o.device + '</div>' +
+            '<div class="minudge">' + o.nudge + '</div>' +
+          '</div>';
+        return (
+          '<div class="subdeck">' +
+            '<div class="subhead">a stack inside this layer <span class="cnt">' + all.length + ' overlays</span></div>' +
+            '<div class="substack">' + all.map(mini).join("") + '</div>' +
+            '<div class="subfoot"><button>⤢ Open full sub-topology — triggers, bundles &amp; validation →</button></div>' +
+          '</div>'
+        );
+      }
+
+      function openDrill() {
+        const O = OVERLAY_SET;
+        document.getElementById("drill-framing").textContent = O.framing;
+        const dv = document.getElementById("drill-devices");
+        dv.innerHTML = '<div class="dlabel">New language devices at this sub-level</div>' +
+          O.devices.map((d) => '<div class="dv"><b>' + d[0] + '</b><span>' + d[1] + '</span></div>').join("");
+        const card = (o, isDef) =>
+          '<div class="ov' + (isDef ? " def" : "") + '">' +
+            '<span class="otag">' + (isDef ? "default · always on" : "optional") + '</span>' +
+            '<span class="oid">' + o.id + '</span>' +
+            '<div class="when">use <b>when</b> ' + o.when + '</div>' +
+            '<div class="chips">' + o.bundle.map((t) => '<span class="chip">' + t + '</span>').join("") + '</div>' +
+            '<div class="ovread">' +
+              '<div><span class="rk">device</span> ' + o.device + '</div>' +
+              '<div><span class="rk">nudge</span> ' + o.nudge + '</div>' +
+            '</div>' +
+            (o.note ? '<div class="vnote">⚠ ' + o.note + '</div>' : "") +
+          '</div>';
+        document.getElementById("drill-ovs").innerHTML =
+          card(O.default, true) + O.optional.map((o) => card(o, false)).join("");
+        document.getElementById("drill-vrule").innerHTML =
+          "<b>Cross-reference validation:</b> " + O.vrule;
+        const d = document.getElementById("drill");
+        d.classList.add("on");
+        d.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      function closeDrill() { document.getElementById("drill").classList.remove("on"); }
+
+      function toggleTrace(id) {
+        if (activeTrace === id) return clearTrace();
+        activeTrace = id;
+        const T = TRACES.find((t) => t.id === id);
+        tracesEl.querySelectorAll("button").forEach((b) =>
+          b.setAttribute("aria-pressed", String(b.dataset.trace === id))
+        );
+        deck.classList.add("tracing");
+        strata.classList.add("tracing");
+        document.querySelectorAll(".plane,.srow").forEach((el) => {
+          el.classList.remove("fire");
+          el.querySelectorAll(".order").forEach((o) => (o.textContent = ""));
+        });
+        T.steps.forEach(([lid], n) => {
+          planeEls(lid).forEach((el) => {
+            if (!el) return;
+            el.classList.add("fire");
+            const o = el.querySelector(".order");
+            if (o) o.textContent = n + 1;
+          });
+        });
+        // inspector trace list
+        document.getElementById("i-trace").classList.add("on");
+        const ol = document.getElementById("i-trace-list");
+        ol.innerHTML = "";
+        T.steps.forEach(([lid, note]) => {
+          const L = LAYERS.find((x) => x.id === lid);
+          const li = document.createElement("li");
+          li.innerHTML = "<b>" + L.title + "</b> — " + note;
+          ol.appendChild(li);
+        });
+        document.getElementById("i-title").textContent = "Trace: " + T.label;
+        document.getElementById("i-pn").textContent = T.steps.length + " layers fire, in order";
+        document.getElementById("i-band").style.display = "none";
+        document.getElementById("i-quote").textContent =
+          "This reasoning moment is steered by " + T.steps.length +
+          " different layers — no single instruction handles it. Click any lit stratum to read its device and source.";
+        document.getElementById("i-ref").textContent = "";
+        document.getElementById("i-device").textContent = "";
+        document.getElementById("i-mech").textContent = "";
+      }
+
+      // ---- guided tour: construct the stack one layer at a time ----
+      let tourMode = false, tourStep = 0, savedHidden = null;
+
+      function enterTour() {
+        tourMode = true;
+        savedHidden = new Set(hidden);
+        setView("stack");
+        clearTrace();
+        closeDrill();
+        root.classList.add("tour");
+        document.getElementById("tour-start").textContent = "■ Exit guided tour";
+        tourStep = 1;
+        renderTour();
+        document.getElementById("tourbar").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function exitTour() {
+        tourMode = false;
+        root.classList.remove("tour");
+        document.getElementById("tour-start").textContent = "▶ Guided tour — build the stack";
+        clearActive();
+        hidden = savedHidden || new Set();
+        togglesEl.querySelectorAll("input").forEach((i) => (i.checked = !hidden.has(i.dataset.id)));
+        applyVisibility();
+        select(LAYERS[0].id, true);
+        document.querySelectorAll(".plane,.srow").forEach((el) => el.classList.remove("selected"));
+      }
+
+      function tourGo(delta) {
+        tourStep = Math.max(1, Math.min(LAYERS.length, tourStep + delta));
+        renderTour();
+      }
+
+      function renderTour() {
+        const k = tourStep, N = LAYERS.length;
+        // construct: only the first k layers are present
+        hidden = new Set(LAYERS.slice(k).map((L) => L.id));
+        togglesEl.querySelectorAll("input").forEach((i) => (i.checked = !hidden.has(i.dataset.id)));
+        applyVisibility();
+
+        const L = LAYERS[k - 1];
+        select(L.id, true);
+        setActive(k - 1); // highlights + expands the current layer (and opens L6)
+        const pl = deckInner.querySelector('.plane[data-id="' + L.id + '"]');
+        if (pl) pl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+        document.getElementById("tb-step").textContent = "Layer " + k + " / " + N;
+        document.getElementById("tb-title").textContent = L.title;
+        const band = document.getElementById("tb-band");
+        band.textContent = L._band.label;
+        band.style.setProperty("--bandcolor", L._band.color);
+        document.getElementById("tb-narr").textContent = TOUR[L.id] || L.mech;
+        document.getElementById("tb-prev").disabled = k === 1;
+        document.getElementById("tb-next").disabled = k === N;
+        document.getElementById("tb-next").textContent = k === N ? "Stack complete ✓" : "Next ▶";
+        document.getElementById("tb-fill").style.width = (k / N) * 100 + "%";
+      }
+
+      function clearTrace() {
+        activeTrace = null;
+        tracesEl.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        deck.classList.remove("tracing");
+        strata.classList.remove("tracing");
+        document.querySelectorAll(".plane,.srow").forEach((el) => el.classList.remove("fire"));
+        document.getElementById("i-trace").classList.remove("on");
+      }
+
+      // view toggle
+      document.getElementById("view-stack").addEventListener("click", () => setView("stack"));
+      document.getElementById("view-flat").addEventListener("click", () => setView("flat"));
+      document.getElementById("view-loop").addEventListener("click", () => setView("loop"));
+      function setView(v) {
+        if (tourMode && v !== "stack") exitTour();
+        clearActive();
+        root.classList.toggle("flat", v === "flat");
+        root.classList.toggle("loop", v === "loop");
+        document.getElementById("view-stack").setAttribute("aria-pressed", String(v === "stack"));
+        document.getElementById("view-flat").setAttribute("aria-pressed", String(v === "flat"));
+        document.getElementById("view-loop").setAttribute("aria-pressed", String(v === "loop"));
+        if (v === "loop") showStage(LOOP[0]);
+        else select(selectedId || LAYERS[0].id, true);
+      }
+
+      document.getElementById("all-on").addEventListener("click", () => {
+        hidden.clear();
+        togglesEl.querySelectorAll("input").forEach((i) => (i.checked = true));
+        applyVisibility();
+      });
+      document.getElementById("all-off").addEventListener("click", () => {
+        LAYERS.forEach((L) => hidden.add(L.id));
+        togglesEl.querySelectorAll("input").forEach((i) => (i.checked = false));
+        applyVisibility();
+      });
+      document.getElementById("trace-clear").addEventListener("click", clearTrace);
+      document.getElementById("i-drill").addEventListener("click", openDrill);
+      document.getElementById("drill-close").addEventListener("click", closeDrill);
+      deck.addEventListener("mouseleave", () => { if (!tourMode) clearActive(); });
+
+      // guided tour wiring
+      document.getElementById("tour-start").addEventListener("click", () => tourMode ? exitTour() : enterTour());
+      document.getElementById("tb-prev").addEventListener("click", () => tourGo(-1));
+      document.getElementById("tb-next").addEventListener("click", () => tourGo(1));
+      document.getElementById("tb-exit").addEventListener("click", exitTour);
+      document.addEventListener("keydown", (e) => {
+        if (!tourMode) return;
+        if (e.key === "ArrowRight") { e.preventDefault(); tourGo(1); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); tourGo(-1); }
+        else if (e.key === "Escape") exitTour();
+      });
+
+      // initial layout + inspector
+      applyVisibility();
+      select(LAYERS[0].id, true);
+      document.querySelectorAll(".plane,.srow").forEach((el)=>el.classList.remove("selected"));
+
+      // ---- scroll-sync: the card nearest the active reading line drives the
+      // description, so scrolling (not just hover) updates it. Essential on
+      // touch/narrow where the inspector is a sticky bottom sheet. ----
+      let lastSyncId = null;
+      const intersecting = new Set();
+      const ACTIVE_LINE = 0.36; // fraction from top where "active" is read
+      const scrollSync = new IntersectionObserver((entries) => {
+        if (tourMode) return; // the tour owns selection
+        for (const e of entries) {
+          if (e.isIntersecting) intersecting.add(e.target);
+          else intersecting.delete(e.target);
+        }
+        const line = window.innerHeight * ACTIVE_LINE;
+        let best = null, bestDist = Infinity;
+        intersecting.forEach((el) => {
+          if (!el.offsetParent) return; // skip hidden (display:none) cards
+          const r = el.getBoundingClientRect();
+          const d = Math.abs((r.top + r.bottom) / 2 - line);
+          if (d < bestDist) { bestDist = d; best = el; }
+        });
+        if (!best) return;
+        if (best.dataset.stage !== undefined) {
+          const key = "stage:" + best.dataset.stage;
+          if (key !== lastSyncId) { lastSyncId = key; showStage(LOOP[+best.dataset.stage]); }
+        } else {
+          const id = best.dataset.id;
+          if (id && id !== lastSyncId) { lastSyncId = id; select(id, true); }
+        }
+      }, { rootMargin: "-30% 0px -52% 0px", threshold: 0 });
+
+      function observeForSync() {
+        intersecting.clear();
+        document.querySelectorAll(".plane, .srow, .lstage").forEach((el) => scrollSync.observe(el));
+      }
+      renderLoop();
+      observeForSync();
+    </script>
+  </body>
+</html>

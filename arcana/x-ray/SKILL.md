@@ -216,6 +216,18 @@ For meaningful executions, record:
 - internal and external dependency coverage,
 - missing-context gaps,
 - user correction signals.
+
+Additionally record these UX-and-rework signals (added 2026-06-23 from the componentize/workflow-reflect run, which found the default reflection trigger fires on invocation count, not on any quality signal — so iteration cost was invisible):
+
+- `renderer_level_attempted` and `renderer_level_shipped` (L0–L4) — a downgrade delta is the single most informative UX signal, e.g. an attempted 3D layer shipped as L0,
+- `renderer_downgrade_reason` (readability | validation | perf | mobile),
+- `ux_revision_count` — post-first-render layout reworks in the run,
+- `interaction_defects_found` (overlap | hover-trap | hardcoded-spacer | mobile-illegible | z-index-collision),
+- `ux_validation_evidence` (none | screenshot | playwright | manual),
+- `validator_status` (pass | block | n-a-bespoke) so the share of unvalidatable artifacts is visible,
+- `lane_genre` (orthogonal-toggle | ordered-ladder | graph).
+
+Reflection thresholds should be evidence-based, not clock-based: trigger reflect-now when `ux_revision_count >= 2` in a run, OR `interaction_defects_found` is non-empty, OR `renderer_level_attempted > renderer_level_shipped` recurs across >= 2 runs, OR `validator_status: n-a-bespoke` exceeds a share of recent x-ray runs.
 </observability>
 
 <promotion-gate>
