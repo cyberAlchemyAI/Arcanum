@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Anatomy of a Skill — a deep dive that takes one Arcanum skill apart, layer by layer, with an interactive x-ray. A skill file is not a list of instructions; it is a layered control structure. Each layer steers the model with a distinct linguistic device operating at a distinct level of abstraction. Learn to read one, and the CyberAlchemy method becomes readable.">
+  <title>Anatomy of a Skill — CyberAlchemy</title>
+  <style>
+    :root {
+      --ink: #151515; --muted: #626262; --paper: #fdfaf3; --surface: #fffdf8;
+      --line: #e3ded2; --red: #e60023; --orange: #e85d18; --teal: #088f8a;
+      --green: #2f8b57; --blue: #2e6bb8; --violet: #5c55b8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    a { color: inherit; }
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px clamp(18px, 4vw, 52px); background: rgba(253, 250, 243, .88); border-bottom: 1px solid rgba(227, 222, 210, .84); backdrop-filter: blur(14px); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 180px; font-weight: 850; text-decoration: none; }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    nav { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    nav a { min-height: 34px; padding: 7px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 760; }
+    nav a:hover { background: #f2eee3; color: var(--ink); }
+    nav a.active { color: var(--ink); background: #f2eee3; box-shadow: inset 0 -2px 0 var(--red); }
+    .subnav { position: fixed; top: 61px; left: 0; right: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding: 8px clamp(18px, 5vw, 70px); background: rgba(253,250,243,.93); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
+    .subnav .on { color: var(--muted); font-size: 11px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; margin-right: 2px; }
+    .subnav a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 740; }
+    .subnav a:hover { color: var(--ink); }
+    @media (max-width: 680px) { .subnav { position: static; } }
+    .nav-toggle { display:none; align-items:center; justify-content:center; width:42px; height:36px; padding:0; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--ink); font-size:17px; line-height:1; cursor:pointer; }
+    .nav-toggle:hover { background:#f2eee3; }
+    @media (max-width: 940px) {
+      .nav-toggle { display:inline-flex; }
+      .topbar nav { display:none; width:100%; margin-top:8px; flex-direction:column; gap:2px; }
+      .topbar nav.open { display:flex; }
+      .topbar nav a { padding:11px 10px; font-size:15px; }
+    }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { max-width: 980px; font-size: clamp(40px, 6.4vw, 80px); line-height: .94; }
+    h2 { max-width: 880px; font-size: clamp(26px, 3.6vw, 44px); line-height: 1.04; }
+    h3 { font-size: 19px; line-height: 1.2; }
+    p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.66; }
+    .hero { position: relative; padding: 138px clamp(18px, 5vw, 70px) 56px; border-bottom: 1px solid var(--line); background: #fbf8ef; }
+    .hero-content { position: relative; z-index: 2; max-width: 980px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; color: var(--red); font-size: 13px; font-weight: 850; text-transform: uppercase; }
+    .lead { max-width: 800px; margin-top: 24px; color: #383838; font-size: clamp(18px, 2.3vw, 23px); }
+    section { padding: clamp(44px, 7vw, 80px) clamp(18px, 5vw, 70px); border-bottom: 1px solid var(--line); }
+    .inner { max-width: 1040px; margin: 0 auto; }
+    .narrow { max-width: 760px; }
+    .section-head { margin-bottom: 28px; }
+    .section-head p { max-width: 760px; margin-top: 14px; }
+    .prose p + p { margin-top: 18px; }
+    .prose p { color: #353535; font-size: 18px; line-height: 1.72; }
+    .prose .big { font-size: 21px; color: var(--ink); font-weight: 600; line-height: 1.55; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 760px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .panel { padding: 18px 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .panel h3 { margin: 8px 0 6px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    .note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+    pre.code { margin: 0; padding: 18px 20px; background: #151515; color: #f3efe6; border-radius: 12px; font-size: 13.5px; line-height: 1.62; overflow-x: auto; font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; }
+    /* the reveal / turn */
+    .turn { max-width: 820px; margin: 8px auto 0; padding: 26px 28px; border-radius: 16px; background: linear-gradient(180deg, #fff7f7, #fffdf8); border: 1px solid #f0d2d2; border-left: 6px solid var(--red); }
+    .turn .k { display:block; font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+    .turn p { font-size: 22px; line-height: 1.5; color: var(--ink); font-weight: 600; }
+    /* instrument frame */
+    .instrument { margin-top: 8px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 60px -45px rgba(20,32,43,.6); }
+    .instrument-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; background: #151515; color: #f3efe6; }
+    .instrument-bar .label { font-size: 13px; font-weight: 800; letter-spacing: .02em; }
+    .instrument-bar .label span { color: #b8b2a6; font-weight: 600; }
+    .instrument-bar a { color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; padding: 6px 12px; border: 1px solid rgba(255,255,255,.3); border-radius: 7px; }
+    .instrument-bar a:hover { background: rgba(255,255,255,.14); }
+    .instrument iframe { display: block; width: 100%; height: 78vh; min-height: 560px; border: 0; background: #eef2f6; }
+    .instrument-fallback { padding: 14px 16px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+    /* layer list */
+    .layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: lyr; }
+    .layers li { display: grid; grid-template-columns: 132px 1fr; gap: 16px; align-items: start; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; border-left: 5px solid var(--band, var(--line)); }
+    @media (max-width: 640px) { .layers li { grid-template-columns: 1fr; gap: 6px; } }
+    .layers .band { font-size: 11px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; color: var(--band, var(--muted)); }
+    .layers .band b { display:block; font-size: 15px; color: var(--ink); letter-spacing: 0; text-transform: none; margin-top: 3px; }
+    .layers .what { color: #353535; font-size: 16px; line-height: 1.6; }
+    .layers .what em { color: var(--ink); font-style: normal; font-weight: 700; }
+    .b-contract { --band: #2e6bb8; } .b-frame { --band: #5c55b8; } .b-structure { --band: #088f8a; }
+    .b-discretion { --band: #0f8f9e; } .b-control { --band: #b7791f; } .b-proof { --band: var(--red); } .b-form { --band: #4338ca; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .cta { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 10px; font-weight: 800; font-size: 15px; text-decoration: none; }
+    .cta.primary { background: var(--ink); color: var(--paper); }
+    .cta.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+    .cta:hover { transform: translateY(-1px); }
+    .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
+    .footer p { color: #c7c1b5; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="CyberAlchemy home">
+      <img src="assets/cyberalchemy-mark.svg" alt="">
+      <span>CyberAlchemy</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+    <nav id="primary-nav" aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">The System</a>
+      <a href="saturn.html">Saturn</a>
+      <a href="craft.html">Craft</a>
+      <a href="method.html">Method</a>
+      <a href="skill-anatomy.html" class="active" aria-current="page">Anatomy</a>
+      <a href="registry.html">Skills</a>
+      <a href="paper.html">Paper</a>
+      <a href="blog.html">Blog</a>
+      <a href="who-we-are.html">About</a>
+    </nav>
+  </header>
+  <div class="subnav"><span class="on">On this page</span>
+    <a href="#model">Common reading</a>
+    <a href="#turn">The correction</a>
+    <a href="#instrument">Inspect the artifact</a>
+    <a href="#walk">Layer reference</a>
+    <a href="#boundary">Evidence boundary</a>
+    <a href="#loop">In the system</a>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Deep dive · Anatomy of a skill</p>
+        <h1>A skill is not a list of instructions.</h1>
+        <p class="lead">It is a layered control structure. Each region of the file steers the model with a distinct linguistic device, operating at a distinct level of abstraction. This page takes one real skill apart with an interactive x-ray, names each layer and the device it uses, and shows how the same structure runs through the CyberAlchemy method.</p>
+      </div>
+    </section>
+
+    <section id="model">
+      <div class="inner narrow prose">
+        <div class="section-head">
+          <p class="eyebrow">Begin with the prevailing assumption</p>
+          <h2>The common reading</h2>
+        </div>
+        <p class="big">A common reading treats a skill — or a prompt, or a system message — as a set of instructions written for a model: a sequence of directions the model is expected to follow in order.</p>
+        <p>It is a reasonable account. It is how prompting is usually taught, and it is not wrong so much as incomplete. Read top to bottom, a skill file does resemble a long list of instructions, and so competent agent behaviour is naturally attributed to well-written instructions.</p>
+        <p>The reading fails, however, against a sharper question: why does <em>this</em> directive sit at the top of the file and <em>that</em> one near the bottom? Why is one passage a role assignment ("you are a…"), the next a numbered sequence, the next a hard "stop here", and the next a demand for a citation? Under the instruction model, order and form would be largely incidental. In practice they are load-bearing.</p>
+      </div>
+    </section>
+
+    <section id="turn" style="background:#fbf8ef">
+      <div class="turn">
+        <span class="k">The correction</span>
+        <p>Stated precisely: a skill file is not one instruction in many forms. It is a stack of <em>control layers</em>, and each layer steers the model with a <strong>distinct linguistic device</strong> operating at a <strong>distinct level of abstraction</strong> — a binding contract at the floor, an identity frame above it, a fixed skeleton, bounded discretion, hard stop-gates, proof obligations, and the output shape on top. Read as strata rather than as instructions, the file's order and form become legible.</p>
+      </div>
+    </section>
+
+    <section id="instrument">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Inspect the artifact directly</p>
+          <h2>An x-ray of a real skill</h2>
+          <p>The artifact below is the actual <code>/refine</code> skill — one of Arcanum's capabilities — sliced into the strata of language it stacks to steer a model. The interface is interactive: toggle layers on and off, run the guided tour to assemble the stack one layer at a time, and hover any layer to read the device it uses and the inference about how it steers the model. Readers are encouraged to examine it before continuing.</p>
+        </div>
+        <div class="instrument">
+          <div class="instrument-bar">
+            <span class="label">x-ray · <span>/refine — abstraction &amp; nudge topology</span></span>
+            <a href="refine-skill-xray.html" target="_blank" rel="noopener">Open full screen ↗</a>
+          </div>
+          <iframe src="refine-skill-xray.html" title="Interactive x-ray of the /refine skill: its control layers and nudges" loading="lazy"></iframe>
+          <p class="instrument-fallback">Interactive panel not loading? <a href="refine-skill-xray.html">Open the x-ray in its own tab →</a> Use the <b>Guided tour</b> button to build the stack layer by layer, or toggle <b>Stacked deck / Strata</b> to switch views.</p>
+        </div>
+        <p class="note">A note on how to read it: every <b>quote</b> in the x-ray is lifted verbatim from the skill's source file and is therefore source-backed. The <b>device</b> labels and the "how it steers" column are an <i>interpretation</i> of why the language is shaped as it is. That distinction is itself part of the lesson; it returns below.</p>
+      </div>
+    </section>
+
+    <section id="walk">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">Layer reference</p>
+          <h2>The stack, floor to surface.</h2>
+          <p>Seven classes of layer, ordered from the floor of the file to its surface. Each performs a function the others cannot, because each addresses the model at a different level of abstraction. This is the order the guided tour follows in the x-ray above.</p>
+        </div>
+        <ol class="layers">
+          <li class="b-contract">
+            <div class="band">Contract<b>The floor</b></div>
+            <div class="what">An <em>invocation contract</em> — trigger phrasing plus an allow-list of tools. It binds to the harness, not to prose. It decides <em>whether this whole frame is even entered</em>, and fences which actions are thinkable inside it. Nothing else fires until this does.</div>
+          </li>
+          <li class="b-frame">
+            <div class="band">Frame<b>Who the model is, and what it's chasing</b></div>
+            <div class="what">An <em>identity frame</em> ("you are a Sigil…") gives the model a persona, so every later token is generated in-character and the long file stays internally consistent. A <em>mission objective</em> packs the entire end-to-end deliverable into one sentence, so the goal stays in working memory across thousands of tokens.</div>
+          </li>
+          <li class="b-structure">
+            <div class="band">Structure<b>The spine it can't reorder</b></div>
+            <div class="what">An <em>invariant skeleton</em> — a fixed, numbered sequence of stages — plus an <em>ownership partition</em> that says who owns which artifact. Together they prevent the model from defaulting to a single freeform response and force decomposition instead.</div>
+          </li>
+          <li class="b-discretion">
+            <div class="band">Discretion<b>Freedom, but only along pre-cut grooves</b></div>
+            <div class="what"><em>Conditional overlays</em> ("use X <i>when</i> Y") and <em>closed mode enums</em> with defaults. Judgement is allowed — but conditioned on observed evidence, and collapsed into a small labelled choice set so an under-specified request still resolves instead of stalling.</div>
+          </li>
+          <li class="b-control">
+            <div class="band">Control<b>The hard interrupts</b></div>
+            <div class="what"><em>Stop-gates</em>: imperative blocking conditions ("Stop here until the operator confirms"). They interrupt the model's autoregressive momentum at exactly the point where it would otherwise spend tokens or spawn agents without permission. This is where the human stays in the loop.</div>
+          </li>
+          <li class="b-proof">
+            <div class="band">Proof<b>Claims must carry evidence</b></div>
+            <div class="what"><em>Proof obligations</em> — demands that outputs cite, validate, or leave a trace. The skill won't accept a confident-sounding answer that isn't backed. This is how "sounds right" is separated from "is shown."</div>
+          </li>
+          <li class="b-form">
+            <div class="band">Form<b>The shape it must return</b></div>
+            <div class="what">The <em>output contract</em> on top — the exact structure of the final deliverable. It turns a free-flowing reasoning process into something a human or a downstream agent can pick up, review, and continue.</div>
+          </li>
+        </ol>
+        <p class="note">Note the progression: from a hard binding at the floor, up through identity and structure, into bounded discretion, then back to hard control and proof, and finally a fixed output shape. The model is granted latitude precisely where latitude helps, and constrained precisely where it would otherwise drift.</p>
+      </div>
+    </section>
+
+    <section id="boundary" style="background:#fbf8ef">
+      <div class="inner narrow prose">
+        <div class="section-head">
+          <p class="eyebrow">The governing discipline</p>
+          <h2>Source-backed vs. inferred</h2>
+        </div>
+        <p>Return to the note about quotes. The x-ray draws a line through itself: the <b>quotes</b> are source-backed — the skill's own words — while the <b>device names and the "how it steers" reasoning are inference</b>, a reading of why the language is shaped as it is rather than a claim the skill makes about itself.</p>
+        <p class="big">That line is not presentational. It is the governing discipline.</p>
+        <p>An explanation that conflates what is <em>established</em> with what is <em>conjectured</em> is the mechanism by which confident, unsupported assertion propagates. The x-ray keeps the two visibly separate, and a rigorous reading does the same. In CyberAlchemy this principle is named <b>claim ≤ proof</b>: assert no more than the evidence carries. The boundary the skill enforces on the model, the explanation enforces on itself.</p>
+      </div>
+    </section>
+
+    <section id="loop">
+      <div class="inner">
+        <div class="section-head">
+          <p class="eyebrow">In the system</p>
+          <h2>The same structure runs through the method.</h2>
+          <p>This layering is not particular to one skill. It is the method made visible.</p>
+        </div>
+        <div class="prose narrow" style="margin-bottom:28px">
+          <p>Consider the argument in full. The common reading held that a skill is a list of instructions. Close inspection broke that reading and replaced it: a skill is a <b>stack of control layers</b>, each operating at its own level of abstraction. This is not an idiosyncrasy of one file — it is what CyberAlchemy means by treating agent work as a <b>governed artifact</b> rather than a one-off reply.</p>
+          <p>The contract, the frame, the skeleton, the gates, the proof obligations, and the output shape are the same moves the <a href="method.html">CyberAlchemy method</a> makes throughout: they render the reasoning <b>reusable</b> (the skeleton), <b>inspectable</b> (the x-ray demonstrated here), and <b>improvable</b> (alter a layer, then re-observe). A deterministic engine can derive tests and contracts from a typed model by rule rather than by guess; the x-ray makes that structure visible in a single view.</p>
+          <p class="big">Read one skill as strata and the system becomes readable. Every capability in the registry is built the same way.</p>
+        </div>
+        <div class="grid-3">
+          <article class="panel"><span class="tag">go deeper</span><h3>The Method</h3><p>The working method these layers come from — reusable, inspectable, improvable agent work.</p><p style="margin-top:10px"><a href="method.html" style="font-weight:800;color:var(--ink)">Read the method →</a></p></article>
+          <article class="panel"><span class="tag">the example</span><h3>The /refine skill</h3><p>The capability x-rayed above — and the rest of the registry, built the same way.</p><p style="margin-top:10px"><a href="registry.html" style="font-weight:800;color:var(--ink)">Browse the skills →</a></p></article>
+          <article class="panel"><span class="tag">the picture</span><h3>The System</h3><p>How DomainSpec, Arcanum, and Saturn fit together into one closed loop.</p><p style="margin-top:10px"><a href="system.html" style="font-weight:800;color:var(--ink)">See the system →</a></p></article>
+        </div>
+        <div class="cta-row">
+          <a class="cta primary" href="refine-skill-xray.html">Open the x-ray full screen ↗</a>
+          <a class="cta ghost" href="https://github.com/cyberAlchemyAI/Arcanum">Open Arcanum on GitHub →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <h3>Anatomy of a Skill</h3>
+      <p>A skill is not a list of instructions — it is a layered control structure. Read one as strata and the CyberAlchemy method becomes legible. Part of CyberAlchemy.</p>
+      <p style="margin-top:12px"><a href="https://www.linkedin.com/in/vladimir-rondelli/" style="color:#fdfaf3;font-weight:820;text-decoration:underline">Work with me → LinkedIn</a></p>
+      <p style="margin-top:14px;font-size:12px;color:#8f897e">© 2026 Vladimir Rondelli and Victor Boscaro. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      var b = document.querySelector('.nav-toggle');
+      var n = document.querySelector('.topbar nav');
+      if (!b || !n) return;
+      b.addEventListener('click', function () {
+        var open = n.classList.toggle('open');
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      n.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') { n.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }
+      });
+    })();
+  </script>
+</body>
+</html>
