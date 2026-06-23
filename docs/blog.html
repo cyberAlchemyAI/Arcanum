@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CyberAlchemy blog — working notes and drafts on deterministic derivation, governance, and the system being built.">
+  <meta name="description" content="CyberAlchemy blog — essays, working notes, and drafts on deterministic derivation, governance, and the system being built.">
   <title>Blog — CyberAlchemy</title>
   <style>
     :root {
@@ -40,6 +40,12 @@
     .badge.draft { background: #fbeede; color: #9a6a18; }
     .post .date { color: var(--muted); font-size: 13px; font-weight: 700; }
     .post > h2 { max-width: 660px; }
+    .blog-tabs { position: sticky; top: 72px; z-index: 10; margin: -8px 0 34px; padding: 10px 0; background: rgba(253, 250, 243, .94); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
+    .tablist { display: flex; flex-wrap: wrap; gap: 6px; }
+    .blog-tab { min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--muted); font: inherit; font-size: 13px; font-weight: 820; cursor: pointer; }
+    .blog-tab:hover { background: #f2eee3; color: var(--ink); }
+    .blog-tab[aria-pressed="true"] { border-color: #151515; background: #151515; color: #fffdf8; }
+    .post[hidden] { display: none; }
 
     /* readable article body */
     .body { margin-top: 24px; }
@@ -59,8 +65,8 @@
 
     .footer { padding: 28px clamp(18px, 5vw, 70px); background: #151515; color: #fdfaf3; }
     .footer p { color: #c7c1b5; }
-    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } .body .standfirst::first-letter { font-size: 52px; } }
-  
+    @media (max-width: 680px) { .topbar { position: static; align-items: flex-start; flex-direction: column; } nav { justify-content: flex-start; } .hero { padding-top: 40px; } .blog-tabs { position: static; } .body .standfirst::first-letter { font-size: 52px; } }
+
     nav a.active { color: var(--ink); background: #f2eee3; box-shadow: inset 0 -2px 0 var(--red); }
     .subnav { position: fixed; top: 61px; left: 0; right: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding: 8px clamp(18px, 5vw, 70px); background: rgba(253,250,243,.93); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
     .subnav .on { color: var(--muted); font-size: 11px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; margin-right: 2px; }
@@ -69,7 +75,7 @@
     section { scroll-margin-top: 112px; }
     @media (max-width: 680px) { .subnav { position: static; } }
 
-  
+
     .nav-toggle { display:none; align-items:center; justify-content:center; width:42px; height:36px; padding:0; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--ink); font-size:17px; line-height:1; cursor:pointer; }
     .nav-toggle:hover { background:#f2eee3; }
     @media (max-width:940px) {
@@ -107,18 +113,27 @@
       <div class="hero-content">
         <p class="eyebrow">Blog</p>
         <h1>Working notes.</h1>
-        <p class="lead">Drafts and thinking-in-progress on deterministic derivation, governance, and the system we are building. Marked as drafts because they are — we write to think, then sharpen.</p>
+        <p class="lead">Essays, drafts, and thinking-in-progress on deterministic derivation, governance, and the system we are building. We write to think, then sharpen.</p>
       </div>
     </section>
 
     <section>
       <div class="inner">
-        <article class="post" id="first-thing-a-tool-needs-a-name">
+        <div class="blog-tabs" aria-label="Choose a post">
+          <div class="tablist" aria-label="Blog posts">
+            <button class="blog-tab" type="button" aria-pressed="true" data-blog-tab="all">All</button>
+            <button class="blog-tab" type="button" aria-pressed="false" data-blog-tab="first-thing-a-tool-needs-a-name">Essay 01</button>
+            <button class="blog-tab" type="button" aria-pressed="false" data-blog-tab="object-first-abstraction">Essay 02</button>
+            <button class="blog-tab" type="button" aria-pressed="false" data-blog-tab="drafts">Drafts</button>
+          </div>
+        </div>
+
+        <article class="post" id="first-thing-a-tool-needs-a-name" data-blog-group="essays">
           <div class="meta">
             <span class="badge" style="background:#e7eef9;color:#2e6bb8">Essay</span>
             <span class="date">2026-06-22</span>
           </div>
-          <h2>The first thing a tool needs is a name.</h2>
+          <h2>The First Thing a Tool Needs Is a Name</h2>
           <div class="body">
             <p class="standfirst">A messy workflow gets easier the moment it has a name. The work has not changed. The tabs are still open, the notes are still scattered, the next step is still half-felt. But once the pattern has a name, <b>it stops being fog</b>. You can point at it, return to it, improve it, hand it to someone else.</p>
             <p>That small act is easy to underestimate, because language feels ordinary. We use words all day, so we forget <b>a word can be more than a label</b>. A word can hold a behavior in place. A phrase can compress a method. A schema can turn a vague intention into a shape that another person — or an AI system — can inspect with you. That is one reason generative AI feels so unusually powerful. It lets us work inside the medium where humans already compress thought into handles.</p>
@@ -147,7 +162,54 @@
           <p class="note">Building with this kind of thing? <a href="https://www.linkedin.com/in/vladimir-rondelli/">Work with me → LinkedIn</a>. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
         </article>
 
-        <article class="post" id="a-tool-that-refuses">
+        <article class="post" id="object-first-abstraction" data-blog-group="essays">
+          <div class="meta">
+            <span class="badge" style="background:#e7eef9;color:#2e6bb8">Essay</span>
+            <span class="date">2026-06-23</span>
+          </div>
+          <h2>Object, the First Abstraction</h2>
+          <div class="body">
+            <p class="standfirst"><a href="#first-thing-a-tool-needs-a-name">The First Thing a Tool Needs Is a Name</a> ended with a small instruction: name one workflow, give it a purpose, give it a few constraints, and then treat the name as an object you can revise. That last phrase is doing more work than it first appears to do. After a pattern has a name, <b>it still needs a shape</b>.</p>
+            <p>A name gives us a handle. That is already powerful. Before the name, the workflow is a fog of repeated effort: the way you start an article, the way you check a source, the way you notice a meeting has become theater, the way you ask an AI system to help without letting it flatten the work. Once the pattern has a name, you can point at it. You can say, "I need the reader-grounded opening here," or "this needs a reference-first pass." The work becomes addressable.</p>
+            <p>But a handle is not yet a model. Naming something lets us pick it up in conversation. It does not tell us what the thing is made of, what it remembers, what it can do, or how it fails. A named workflow can still be vague. It can still mean one thing to you and another thing to someone else. It can still become private jargon wearing the costume of a tool.</p>
+
+            <h3>From handle to shape</h3>
+            <p>This is where Object becomes useful, not as a programming lesson, but as a more primitive abstraction. An object is a bounded thing we can inspect. It has a shape. It has parts that matter more than other parts. It has a boundary between what belongs to it and what does not. It can be held still long enough for us to ask better questions.</p>
+
+            <div class="pull"><p>If a name is the handle, an object is the shaped thing the handle lets us pick up and turn around.</p></div>
+
+            <p>Take the name <code>reader-grounded opening</code>. As a phrase, it is memorable enough. It points at a writing move: begin with the reader's lived situation before introducing an outside authority or an abstract claim. That name helps, but it is not yet enough. If I hand it to another person, or to an AI collaborator, they may nod and still start the paragraph with a grand theory, a famous name, or a definition. The handle exists. The shape is missing.</p>
+
+            <h3>Properties are structure</h3>
+            <p>To give it object shape, we first ask about properties. Properties are what the concept carries, remembers, protects, or depends on. For <code>reader-grounded opening</code>, the properties might be: target reader, reader state, opening constraint, forbidden opening moves, and success signal. Those are not decorative labels. They are the memory of the object. They say what must be preserved if this move is going to remain itself.</p>
+            <p>The target reader might be "AI-curious creative builders." The reader state might be "curious but allergic to private jargon." The opening constraint might be "start from a concrete experience before naming the theory." The forbidden opening moves might be "do not begin with an external authority, a software term, or an abstract definition." The success signal might be "the reader knows why the next paragraph matters before any framework arrives."</p>
+            <p>Now the name has structure. It is still made of language, but it is no longer only a vibe. You can inspect it. You can ask whether one property is missing. You can ask whether a property is too strict, too vague, or too private. You can compare two versions of the same object and see what changed.</p>
+
+            <h3>Methods are action</h3>
+            <p>Then we ask about methods. Methods are what the object can do, trigger, change, or refuse. For <code>reader-grounded opening</code>, the methods might be: start from lived experience, reject an abstract first sentence, delay external authority until the reader has a handle, revise a paragraph that opens too far away, and validate whether the first paragraph contains a reader-facing situation.</p>
+            <p>This is the structure-action split in its most basic form. <b>Properties say what the object carries. Methods say what it can do.</b> Properties give the concept memory and boundary. Methods give it verbs.</p>
+            <p>That distinction matters because many named workflows fail by mixing those two layers together. We say "reference-first" and mean a source policy, a drafting order, a refusal rule, a note-taking habit, and a validation check all at once. The compression is useful, but if we never unfold it, the name becomes heavy. It carries too much invisible judgment. Modeling turns the hidden judgment into something we can examine.</p>
+
+            <h3>How Arcanum uses the move</h3>
+            <p>Arcanum is a live example of this. An alias is a small handle for a repeatable move. A sigil is closer to an object-like capability: it has a purpose, a process, constraints, inputs, outputs, gates, and validation. A spell composes several capabilities into a larger route. A schema exposes the body's fields, dependencies, checks, and failure policies. None of that is magic. It is a way of keeping named work from dissolving back into long explanations.</p>
+            <p>The important part is not the internal vocabulary. It is the movement underneath it. First, a pattern gets a name. Then the name gets an object shape. Then the object gets a schema, so its structure and action can be inspected, reused, tested, and handed across contexts.</p>
+            <p>This is also where generative AI becomes more interesting than "write this for me." If I can name a workflow and sketch its object shape, I can ask an AI system to help me work on the model. What properties are missing? Which method is too vague? What should this object refuse to do? What validation check would reveal that it failed? The AI is no longer only producing text. It is helping me negotiate the shape of a symbolic tool.</p>
+
+            <h3>Try the object move</h3>
+            <p>Try it with one pattern from your own work. Choose a name that already feels useful. Maybe it is <code>meeting salvage</code>, <code>gentle critique</code>, <code>source-first summary</code>, <code>launch-risk scan</code>, or <code>reader-grounded opening</code>. Then give it three properties. What does it need to remember? What boundary protects it from becoming something else? What does it depend on?</p>
+            <p>Then give it three methods. What can it do? What can it trigger? What should it refuse? Finally, add one validation check. How would you know the model helped?</p>
+            <p>The result does not need to be complete. A useful object is not the same as a perfect object. The map is not the territory, and the model is not the work. It is a selected shape that preserves enough of the work for you to return to it with more precision. If the model makes the pattern easier to inspect, revise, share, or delegate, it is already doing something real.</p>
+            <p>There is a danger here. Once we start making names and objects, we can fall in love with our own private system. A name can become meaningful only to its maker. An object can become elaborate without becoming usable. A schema can become a shrine to complexity. That is a failed interface, not a superior abstraction.</p>
+            <p>The test is translation. Can the name unfold back into plain language? Can the properties be recognized by someone outside your head? Can the methods be tried? Can the validation check catch a real failure? If not, the abstraction may still be interesting, but it is not yet a shared tool.</p>
+            <p>So the sequence is simple, but not small. A name gives the pattern a handle. An object gives the handle a shape. Properties define what the shape carries. Methods define what it can do. Schema is the next step: the visible contract that lets the object travel.</p>
+            <p>That is where language starts to feel newly executable. Not because words replace engineering, but because they let more people begin the modeling work before engineering arrives. We can make our patterns visible. We can ask better questions of them. We can build small tools out of names, then give those names enough structure to be revised.</p>
+            <p>Name one workflow. Give it a boundary. List what it carries. List what it can do. Add one check that tells you whether it worked.</p>
+            <p>That is the moment the name stops being only a label and becomes something you can build with.</p>
+          </div>
+          <p class="note">Essay 02 in the language-as-toolmaking sequence. <a href="https://www.linkedin.com/in/vladimir-rondelli/">Work with me → LinkedIn</a>. Part of the <a href="system.html">CyberAlchemy system</a>.</p>
+        </article>
+
+        <article class="post" id="a-tool-that-refuses" data-blog-group="drafts">
           <div class="meta">
             <span class="badge draft">Draft v0.1</span>
             <span class="date">2026-06-22</span>
@@ -191,6 +253,46 @@
       });
       n.addEventListener('click', function (e) {
         if (e.target.tagName === 'A') { n.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }
+      });
+    })();
+    (function () {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-blog-tab]'));
+      var posts = Array.prototype.slice.call(document.querySelectorAll('.post'));
+      if (!tabs.length || !posts.length) return;
+
+      function selectTab(target, updateHash) {
+        var selected = tabs.some(function (tab) { return tab.getAttribute('data-blog-tab') === target; }) ? target : 'all';
+
+        tabs.forEach(function (tab) {
+          tab.setAttribute('aria-pressed', tab.getAttribute('data-blog-tab') === selected ? 'true' : 'false');
+        });
+
+        posts.forEach(function (post) {
+          var show = selected === 'all' || post.id === selected || post.getAttribute('data-blog-group') === selected;
+          post.hidden = !show;
+        });
+
+        if (updateHash && selected !== 'all' && history.replaceState) {
+          history.replaceState(null, '', '#' + selected);
+        }
+
+        if (updateHash && selected === 'all' && history.replaceState) {
+          history.replaceState(null, '', location.pathname + location.search);
+        }
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          selectTab(tab.getAttribute('data-blog-tab'), true);
+        });
+      });
+
+      if (location.hash) {
+        selectTab(location.hash.slice(1), false);
+      }
+
+      window.addEventListener('hashchange', function () {
+        selectTab(location.hash.slice(1), false);
       });
     })();
   </script>
