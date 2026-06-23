@@ -147,7 +147,7 @@
         position: absolute;
         left: 34px; right: 2%;
         top: var(--top, 0);
-        height: 150px;
+        height: auto;
         border-radius: 13px;
         background: #fff;
         border: 1px solid var(--line);
@@ -878,8 +878,6 @@
       let selectedId = null;
 
       const N = LAYERS.length;
-      const STEP = 90;  // vertical lip per stacked card — must clear band pill + title + device (device ends ~83px)
-      const CARDH = 150;
 
       LAYERS.forEach((L, i) => {
         L._band = BANDS[L.band];
@@ -968,8 +966,9 @@
           const row = strata.querySelector('.srow[data-id="' + L.id + '"]');
           if (row) row.classList.toggle("hidden", hidden.has(L.id));
         });
-        // stacked planes: reflow so visible cards cascade with no gaps
-        let idx = 0;
+        // stacked planes: position each card right below the MEASURED lip of the
+        // previous one, so wrapped titles never clip (the lip adapts to width).
+        let idx = 0, y = 0, lastPlane = null;
         LAYERS.forEach((L) => {
           const plane = deckInner.querySelector('.plane[data-id="' + L.id + '"]');
           if (!plane) return;
@@ -978,12 +977,29 @@
             return;
           }
           plane.classList.remove("hidden");
-          plane.style.setProperty("--top", idx * STEP + "px");
+          plane.style.setProperty("--top", y + "px");
           plane.style.setProperty("--zi", idx + 1);
+          y += lipHeight(plane); // measured band+title+device height + gap
+          lastPlane = plane;
           idx++;
         });
-        const visible = Math.max(idx, 1);
-        deck.style.height = (visible - 1) * STEP + CARDH + 26 + "px";
+        if (lastPlane) {
+          const lastTop = parseFloat(lastPlane.style.getPropertyValue("--top")) || 0;
+          deck.style.height = lastTop + lastPlane.offsetHeight + 24 + "px";
+        } else {
+          deck.style.height = "120px";
+        }
+      }
+
+      // Visible lip of a card = where its hidden mechanism text begins, so band +
+      // title + device always show fully and the mechanism is cleanly covered by
+      // the next card. Measured, so it tracks wrapping at any width.
+      function lipHeight(plane) {
+        const pm = plane.querySelector(".pm");
+        if (pm && pm.offsetParent) return pm.offsetTop;
+        const pd = plane.querySelector(".pd");
+        if (pd) return pd.offsetTop + pd.offsetHeight + 12;
+        return 64;
       }
 
       // Accordion hover: the active card pops/expands; every card below it is
@@ -1004,7 +1020,7 @@
           el.classList.add("open");
           return;
         }
-        const push = el.offsetHeight + 10 - STEP; // ~104px; offsetHeight forces layout
+        const push = Math.max(0, el.offsetHeight - lipHeight(el) + 12); // the hidden body + gap
         for (let j = pos + 1; j < visible.length; j++) {
           const pe = deckInner.querySelector('.plane[data-id="' + visible[j].id + '"]');
           if (pe) { pe.classList.add("pushed"); pe.style.setProperty("--push", push + "px"); }
@@ -1356,6 +1372,13 @@
       }
       renderLoop();
       observeForSync();
+
+      // re-measure the cascade when width changes (iframe embeds, rotation, resize)
+      let _resizeT;
+      window.addEventListener("resize", () => {
+        clearTimeout(_resizeT);
+        _resizeT = setTimeout(() => { if (!root.classList.contains("flat") && !root.classList.contains("loop")) applyVisibility(); }, 150);
+      });
     </script>
   </body>
 </html>
