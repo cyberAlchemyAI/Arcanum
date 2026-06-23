@@ -1,0 +1,407 @@
+{
+  "dispatch_id": "2026-06-23-ux-lessons-w8-studio-fitness",
+  "parent_dispatch_id": "2026-06-23-ux-lessons",
+  "intent": {
+    "raw": "Design how a ux-lessons ux-pattern maps into ui-prototyping-studio's existing UX-constraint exploit/explore fitness; name buildable-now vs blocked-on-OQ-5/evaluator. Design only.",
+    "objective": "Non-executed design + parked plan for a ux-lessons emit-studio-fitness adapter (ux-pattern -> FitnessSignal/FitnessVector), with explicit unblock conditions.",
+    "target_artifact": "arcana/ux-lessons emit-studio-fitness adapter (design)",
+    "arcanum_vocabulary": [
+      "ux-pattern",
+      "FitnessSignal",
+      "FitnessVector",
+      "explore",
+      "exploit",
+      "hard-gate",
+      "soft-gradient"
+    ],
+    "operator_sentence": "refine W8 the studio variant/fitness intake, design only, build stays blocked"
+  },
+  "mode": "sequence",
+  "route_menu": {
+    "context_hint": "Buildable-now subset and mapping ownership are the only open forks.",
+    "items": [
+      {
+        "id": "scope_design_only",
+        "label": "Design + parked adapter spec",
+        "description": "Specify the projection now; ship nothing into studio until the cycle evaluator + OQ-5 exist.",
+        "pattern": "sequential"
+      },
+      {
+        "id": "owner_producer",
+        "label": "Mapping owned by ux-lessons",
+        "description": "ux-lessons owns ux-pattern -> FitnessSignal projection; studio owns cycle/weights/evaluator.",
+        "pattern": "sequential"
+      }
+    ],
+    "selected_item_id": null
+  },
+  "techniques": [
+    "sequence",
+    "frame_handoff",
+    "validation_loop",
+    "owner_boundary_check",
+    "observability_grouping",
+    "x_ray",
+    "route_menu",
+    "toy_game"
+  ],
+  "technique_overlays": [
+    {
+      "overlay_id": "baseline_sequence",
+      "trigger": "ordinary compact refinement spine",
+      "techniques": [
+        "sequence",
+        "frame_handoff",
+        "validation_loop",
+        "owner_boundary_check",
+        "observability_grouping"
+      ],
+      "applies_to_steps": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6",
+        "s7",
+        "s8",
+        "s9",
+        "s10"
+      ],
+      "validation_expectation": "owner boundary preserved; each stage has a receipt or blocked reason"
+    },
+    {
+      "overlay_id": "xray_for_hidden_structure",
+      "trigger": "the mapping structure ux-pattern -> FitnessSignal -> explore/exploit is the one uncertainty",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "entity_component_reference"
+      ],
+      "applies_to_steps": [
+        "s6"
+      ],
+      "validation_expectation": "a structure map artifact is emitted"
+    },
+    {
+      "overlay_id": "route_menu_for_ambiguity",
+      "trigger": "buildable-now vs blocked; mapping ownership",
+      "techniques": [
+        "route_menu",
+        "one_or_more_option_set",
+        "approval_checkpoint"
+      ],
+      "applies_to_steps": [
+        "s6"
+      ],
+      "validation_expectation": "scope + ownership decisions recorded"
+    },
+    {
+      "overlay_id": "toy_game_for_low_cost_falsification",
+      "trigger": "falsify the projection on the detail-beside-the-subject pattern",
+      "techniques": [
+        "toy_game",
+        "validation_loop",
+        "assessment_failure_reference"
+      ],
+      "applies_to_steps": [
+        "s8"
+      ],
+      "validation_expectation": "an evidence artifact projecting a real pattern to a FitnessVector exists"
+    }
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "Low ambiguity: the studio fitness mechanism is already specced and the mapping reuses the existing validator claim map. A tensioned pair is not warranted for compact preset; can be added only if Design surfaces contested ownership.",
+    "authorization": "not_needed"
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Context Builder baseline",
+      "capability_ref": "context-builder",
+      "mode": "lean",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "REFINE-SEED-PROPOSAL.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/01-context.md"
+        }
+      ],
+      "stop_conditions": [
+        "owner capability unavailable -> block",
+        "no artifact and no blocked reason -> block"
+      ]
+    },
+    {
+      "step_id": "s2",
+      "name": "Invoke Define",
+      "capability_ref": "invoke",
+      "mode": "define",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/01-context.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define.md"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ]
+    },
+    {
+      "step_id": "s3",
+      "name": "Interrogation refine-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-review",
+      "pattern": "validation",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/02-define.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-review.md"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ],
+      "evidence_artifact": "stages/03-review.md"
+    },
+    {
+      "step_id": "s4",
+      "name": "Research decision",
+      "capability_ref": "refine",
+      "mode": "no-research",
+      "pattern": "decision",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "stages/04-research.md"
+        }
+      ],
+      "stop_conditions": [
+        "no decision recorded -> block"
+      ]
+    },
+    {
+      "step_id": "s5",
+      "name": "Distill",
+      "capability_ref": "distill",
+      "mode": "standard",
+      "pattern": "distill",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/03-review.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ]
+    },
+    {
+      "step_id": "s6",
+      "name": "Invoke Design",
+      "capability_ref": "invoke",
+      "mode": "design",
+      "pattern": "xray",
+      "techniques": [
+        "x_ray",
+        "component_descriptor",
+        "route_menu"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/05-distill.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design.md"
+        },
+        {
+          "kind": "route_menu",
+          "ref": "stages/06-design.md#decisions"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ]
+    },
+    {
+      "step_id": "s7",
+      "name": "Interrogation design-review",
+      "capability_ref": "interrogation",
+      "mode": "refine-design-review",
+      "pattern": "validation",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/07-design-review.md"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ],
+      "evidence_artifact": "stages/07-design-review.md"
+    },
+    {
+      "step_id": "s8",
+      "name": "Distill Repair (toy_game)",
+      "capability_ref": "distill",
+      "mode": "validate",
+      "pattern": "toy_game",
+      "evidence_artifact": "stages/08-toygame.md",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/06-design.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "stop_conditions": [
+        "no evidence artifact -> block"
+      ]
+    },
+    {
+      "step_id": "s9",
+      "name": "Invoke Plan (parked)",
+      "capability_ref": "invoke",
+      "mode": "plan",
+      "pattern": "sequential",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/08-distill-repair.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan.md"
+        }
+      ],
+      "stop_conditions": [
+        "no artifact and no blocked reason -> block"
+      ]
+    },
+    {
+      "step_id": "s10",
+      "name": "Final + Synthesis",
+      "capability_ref": "interrogation",
+      "mode": "refine-final",
+      "pattern": "synthesis",
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "stages/09-plan.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "RESULT.md"
+        }
+      ],
+      "stop_conditions": [
+        "no synthesis artifact -> block"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1_dispatch_validation",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "dispatch conforms before stages run",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g2_stage_receipts",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "every stage has an artifact or blocked reason",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g3_owner_boundary",
+      "kind": "policy",
+      "owner": "refine",
+      "condition": "ux-lessons owns the projection only; studio owns cycle/weights/evaluator; no invented FitnessVector fields",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g4_toy_game_evidence",
+      "kind": "validation",
+      "owner": "distill",
+      "condition": "toy_game projects a real pattern to a FitnessVector with no invented fields",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g5_build_blocked_named",
+      "kind": "promotion_guardrail",
+      "owner": "refine",
+      "condition": "build remains blocked; unblock conditions (axe/layout evaluator + OQ-5) named explicitly",
+      "on_fail": "flag"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": "2026-06-23-ux-lessons",
+    "trace_events": [
+      "stage_started",
+      "stage_receipt",
+      "research_decision",
+      "toy_game_result",
+      "final_synthesis"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "design only; no build",
+    "build blocked on studio axe/layout evaluator + OQ-5",
+    "claim <= proof"
+  ]
+}
