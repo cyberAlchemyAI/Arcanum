@@ -1,0 +1,65 @@
+---
+# whisper_schema_example:
+#   tier: optional_extension_fixture
+#   provenance: 20260623T052410Z-readability-dynamics-invoke
+#   expected_validation: FLAG with exit 0 against a dense draft
+#
+text_intent_substrate:
+  transport_schema:
+    length_words:
+      min: 100
+      max: 3000
+    max_characters: 20000
+    opening_contract:
+      validation_rules:
+        first_paragraph_must_include_any:
+          - workflow
+          - name
+          - tool
+        draft_must_include_anywhere:
+          - language
+          - schema
+          - name
+      external_reference_policy:
+        external_reference_terms: []
+        allowed_after_paragraph: 2
+  readability_dynamics:
+    layer_id: substack_research_post_readability_fixture_v1
+    defaults:
+      severity_default: flag
+      max_words_per_paragraph: 85
+      max_sentences_per_paragraph: 5
+      max_consecutive_dense_paragraphs: 1
+      require_scan_anchor_every_n_blocks: 2
+    density_profile:
+      abstraction_terms:
+        - abstraction
+        - alias
+        - language
+        - meta-schema
+        - pattern
+        - schema
+        - system
+      example_markers:
+        - for example
+        - for instance
+        - imagine
+        - in practice
+        - instead of
+        - take
+        - try this
+    scan_anchors:
+      terms:
+        - for example
+        - in practice
+        - instead of
+        - start there
+        - take
+        - the danger is
+        - the through-line is
+        - this is where
+    validation_rules:
+      density_limit_violation: flag
+      sentence_density_violation: flag
+      scan_anchor_gap: flag
+      abstraction_without_example: flag

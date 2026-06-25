@@ -1,0 +1,347 @@
+{
+  "dispatch_id": "whisper-essay-lifecycle-20260623T082756Z",
+  "intent": {
+    "raw": "Review the Draft 02 to Draft 003 bridge, then use invoke and spellcraft to add essay lifecycle/type management.",
+    "objective": "Separate essay identity from draft state so Draft 02 can become Essay 01 and Draft 003 can become the related Essay 02 without confusing revision numbering and sequence identity.",
+    "target_artifact": "arcanum/spells/whisper",
+    "arcanum_vocabulary": [
+      "invoke",
+      "spellcraft",
+      "whisper",
+      "task-session",
+      "essay_artifact",
+      "draft_artifact",
+      "series_relation"
+    ]
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "artifact_contract_bridge",
+    "owner_boundary_check",
+    "handle_handoff",
+    "validation_loop",
+    "concrete_path_evidence",
+    "state_namespace_boundary",
+    "residue_ledger",
+    "execution_receipt_handoff"
+  ],
+  "steps": [
+    {
+      "step_id": "s1-review",
+      "name": "Review draft sequence ambiguity",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "techniques": [
+        "concrete_path_evidence",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/development/refinement-runs/20260526T204134Z-language-ai-substack/DRAFT-SUBSTACK-002.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/development/refinement-runs/20260623T045653Z-object-first-abstraction/DRAFT-SUBSTACK-003.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/README.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "WRITING-SEQUENCE-REVIEW.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if the review cannot identify concrete source artifacts"
+      ]
+    },
+    {
+      "step_id": "s2-invoke-model",
+      "name": "Author lifecycle type model and work-pack",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "state_namespace_boundary",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WRITING-SEQUENCE-REVIEW.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "ESSAY-LIFECYCLE-TYPE-MODEL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "IMPLEMENTATION-LAYERING.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-RESULT.md"
+        }
+      ],
+      "stop_conditions": [
+        "block canonical mutation if essay identity and draft state remain conflated"
+      ]
+    },
+    {
+      "step_id": "s3-spellcraft-acceptance",
+      "name": "Accept or amend Whisper lifecycle route",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": [
+        "owner_boundary_check",
+        "handle_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "INVOKE-RESULT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "ESSAY-LIFECYCLE-TYPE-MODEL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "SPELLCRAFT-RESULT.md"
+        }
+      ],
+      "evidence_artifact": "SPELLCRAFT-RESULT.md",
+      "stop_conditions": [
+        "block README/schema mutation until Spellcraft accepts coordination with the active schema-canonization work-pack"
+      ]
+    },
+    {
+      "step_id": "s4-contract-refresh",
+      "name": "Add optional lifecycle fields to canonical Whisper docs",
+      "capability_ref": "task-session",
+      "pattern": "handoff",
+      "techniques": [
+        "execution_receipt_handoff",
+        "validation_loop",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "SPELLCRAFT-RESULT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "ESSAY-LIFECYCLE-TYPE-MODEL.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "active schema-canonization SWU-WSC-004"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/README.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/schemas/"
+        }
+      ],
+      "evidence_artifact": "Task Session receipt for selected SWU",
+      "stop_conditions": [
+        "block if development draft filenames are treated as public essay identity",
+        "block if fields become mandatory for all non-series transports"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1-state-namespace",
+      "kind": "policy",
+      "owner": "whisper",
+      "condition": "Essay sequence identity and development draft revision state are separate namespaces.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g2-owner-boundary",
+      "kind": "policy",
+      "owner": "spellcraft",
+      "condition": "Invoke authors the model, Spellcraft accepts the lifecycle route, and Task Session owns canonical mutation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g3-active-workpack-coordination",
+      "kind": "policy",
+      "owner": "spellcraft",
+      "condition": "README/schema changes coordinate with the already-ready SWU-WSC-004 instead of competing with it.",
+      "on_fail": "flag"
+    },
+    {
+      "gate_id": "g4-validation",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Canonical docs/schema changes have parser, path-scan, and validator compatibility evidence.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1-draft-to-essay",
+        "kind": "state_write",
+        "from_owner": "development draft artifacts",
+        "to_owner": "Whisper essay lifecycle model",
+        "applies_to_steps": [
+          "s1-review",
+          "s2-invoke-model"
+        ],
+        "contract": "Draft files remain provenance while essay IDs and titles become stable public identity.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b2-invoke-to-spellcraft",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "spellcraft",
+        "applies_to_steps": [
+          "s3-spellcraft-acceptance"
+        ],
+        "contract": "Spellcraft validates the Whisper lifecycle route before canonical contract mutation.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b3-spellcraft-to-task-session",
+        "kind": "capability_handoff",
+        "from_owner": "spellcraft",
+        "to_owner": "task-session",
+        "applies_to_steps": [
+          "s4-contract-refresh"
+        ],
+        "contract": "Task Session executes exactly one accepted SWU and returns receipt evidence.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "authoring": "invoke",
+      "lifecycle": "spellcraft",
+      "execution": "task-session",
+      "validation": "task-session and experiment-harness",
+      "evidence": "task-session receipts and fixture matrix",
+      "promotion": "spellcraft"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r1-spellcraft-acceptance",
+        "producer": "spellcraft",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "status",
+          "handoff_note"
+        ],
+        "stores": [
+          "SPELLCRAFT-RESULT.md"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r2-task-session-contract-refresh",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "step_id",
+          "artifacts",
+          "validation_result",
+          "status",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "arcanum/spells/whisper/README.md",
+          "arcanum/spells/whisper/schemas/",
+          ".arcanum/observability/"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r3-promotion-evidence",
+        "producer": "experiment-harness",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "status",
+          "residue"
+        ],
+        "stores": [
+          "essay lifecycle fixture matrix"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "development-draft-artifacts",
+        "owner": "arcanum/spells/whisper/development",
+        "write_policy": "Draft files remain provenance and revision state."
+      },
+      {
+        "namespace": "essay-public-identity",
+        "owner": "arcanum/spells/whisper",
+        "write_policy": "Essay IDs, titles, series relation, and publication state require contract/schema admission."
+      },
+      {
+        "namespace": "generated-runtime-surfaces",
+        "owner": "bootstrap/runtime installer",
+        "write_policy": "Regenerate from canonical source; do not hand-author generated mirrors."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "development draft sequence evidence",
+        "target": "canonical Whisper essay lifecycle model",
+        "rule": "requires Spellcraft acceptance and Task Session mutation evidence before promotion",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "writing_sequence_reviewed",
+      "lifecycle_type_model_authored",
+      "dispatch_validated",
+      "spellcraft_handoff_ready",
+      "task_session_contract_refresh_deferred"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Development draft paths are provenance, not stable public essay identity.",
+    "Essay lifecycle fields stay optional until fixture evidence supports promotion.",
+    "Generated runtime mirrors are not source authority."
+  ]
+}

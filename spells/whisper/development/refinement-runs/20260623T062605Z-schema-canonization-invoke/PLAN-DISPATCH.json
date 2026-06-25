@@ -1,0 +1,371 @@
+{
+  "dispatch_id": "whisper-schema-canonization-20260623T062605Z",
+  "intent": {
+    "raw": "[$invoke] add the plan we need to canonize schema artifacts",
+    "objective": "Plan review and promotion of Whisper schema artifacts from development evidence into a stable canonical schema package.",
+    "target_artifact": "arcanum/spells/whisper",
+    "arcanum_vocabulary": [
+      "invoke",
+      "whisper",
+      "spellcraft",
+      "task-session",
+      "experiment-harness",
+      "text_intent_substrate",
+      "readability_dynamics"
+    ]
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "handle_handoff",
+    "residue_ledger",
+    "execution_receipt_handoff",
+    "delegation_boundary",
+    "authority_split_gate",
+    "artifact_contract_bridge",
+    "concrete_path_evidence",
+    "state_namespace_boundary"
+  ],
+  "steps": [
+    {
+      "step_id": "s1-plan-packet",
+      "name": "Author schema canonization plan",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "techniques": [
+        "sequence",
+        "artifact_contract_bridge",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "CONTEXT-PACK.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "IMPLEMENTATION-LAYERING.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "EXECUTION-PACK.md"
+        }
+      ],
+      "stop_conditions": [
+        "block if the plan lacks a first executable SWU or concrete schema artifact paths"
+      ]
+    },
+    {
+      "step_id": "s2-spellcraft-acceptance",
+      "name": "Accept or amend Whisper lifecycle route",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "authority_split_gate",
+        "handle_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "PLAN-DISPATCH.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "Spellcraft acceptance report"
+        }
+      ],
+      "evidence_artifact": "Spellcraft acceptance report",
+      "stop_conditions": [
+        "block canonical package mutation until Spellcraft accepts or repairs the route"
+      ]
+    },
+    {
+      "step_id": "s3-l0-review-swu",
+      "name": "Inventory and classify schema artifacts",
+      "capability_ref": "task-session",
+      "pattern": "handoff",
+      "techniques": [
+        "scu_swu_reduction",
+        "execution_receipt_handoff",
+        "delegation_boundary",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "WORK-PACK.md#SWU-WSC-001"
+        },
+        {
+          "kind": "artifact",
+          "ref": "work-pack/tasks/TASK-WSC-001.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "SCHEMA-ARTIFACT-AUDIT.md"
+        }
+      ],
+      "evidence_artifact": "SCHEMA-ARTIFACT-AUDIT.md",
+      "stop_conditions": [
+        "block L1 package creation if article-specific fields are not separated from base schema contracts"
+      ]
+    },
+    {
+      "step_id": "s4-canonical-package-swus",
+      "name": "Create canonical schema package after review",
+      "capability_ref": "task-session",
+      "pattern": "handoff",
+      "techniques": [
+        "validation_loop",
+        "recomposition_proof",
+        "execution_receipt_handoff",
+        "state_namespace_boundary"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "SCHEMA-ARTIFACT-AUDIT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "Spellcraft acceptance report"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/schemas/"
+        }
+      ],
+      "evidence_artifact": "Task Session receipt for selected package SWU",
+      "stop_conditions": [
+        "block if development-run content is copied without canonical rewrite",
+        "block if validation still depends on development-only paths"
+      ]
+    },
+    {
+      "step_id": "s5-promotion-evidence",
+      "name": "Record reusable schema behavior evidence",
+      "capability_ref": "experiment-harness",
+      "capability_status": "candidate",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "residue_ledger",
+        "owner_boundary_check"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcanum/spells/whisper/schemas/"
+        },
+        {
+          "kind": "artifact",
+          "ref": "current Whisper fixtures"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "schema evidence matrix"
+        }
+      ],
+      "evidence_artifact": "schema evidence matrix",
+      "stop_conditions": [
+        "block promotion-ready claims until reusable evidence exists"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1-authority-split",
+      "kind": "policy",
+      "owner": "dispatch-spec",
+      "condition": "Invoke plans, Spellcraft accepts lifecycle mutation, Task Session executes selected SWUs, and Experiment Harness records reusable evidence.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g2-canonical-source-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "spellcraft",
+      "condition": "Development artifacts are reviewed and rewritten into canonical language before becoming schema authority.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g3-state-namespace",
+      "kind": "policy",
+      "owner": "whisper",
+      "condition": "Canonical schema files, development evidence, examples, and generated mirrors remain distinct state namespaces.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g4-validation-loop",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Every package or contract mutation has a parser, validator, or path-reference check.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b1-invoke-to-spellcraft",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "spellcraft",
+        "applies_to_steps": [
+          "s2-spellcraft-acceptance"
+        ],
+        "contract": "Spellcraft validates the Whisper lifecycle route before canonical schema mutation.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b2-development-to-canonical",
+        "kind": "artifact_import",
+        "from_owner": "development evidence",
+        "to_owner": "canonical Whisper schema package",
+        "applies_to_steps": [
+          "s3-l0-review-swu",
+          "s4-canonical-package-swus"
+        ],
+        "contract": "Development artifacts may seed canonical schemas only after classification and rewrite.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b3-task-session-to-experiment",
+        "kind": "evidence_return",
+        "from_owner": "task-session",
+        "to_owner": "experiment-harness",
+        "applies_to_steps": [
+          "s5-promotion-evidence"
+        ],
+        "contract": "Task receipts feed reusable evidence but do not by themselves establish broad promotion readiness.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "authoring": "invoke",
+      "lifecycle": "spellcraft",
+      "execution": "task-session",
+      "validation": "task-session and experiment-harness",
+      "evidence": "task-session receipts and experiment matrix",
+      "promotion": "spellcraft"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r1-spellcraft-acceptance",
+        "producer": "spellcraft",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "arcanum/spells/whisper/development/refinement-runs/20260623T062605Z-schema-canonization-invoke/"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r2-task-session-swu",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "step_id",
+          "artifacts",
+          "validation_result",
+          "status",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "SCHEMA-ARTIFACT-AUDIT.md",
+          ".arcanum/observability/"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r3-experiment-matrix",
+        "producer": "experiment-harness",
+        "required_fields": [
+          "run_id",
+          "artifacts",
+          "validation_result",
+          "residue",
+          "audit_reference",
+          "status"
+        ],
+        "stores": [
+          "schema evidence matrix"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "canonical-whisper-source",
+        "owner": "arcanum/spells/whisper",
+        "write_policy": "Stable schema package and README edits require lifecycle acceptance."
+      },
+      {
+        "namespace": "development-evidence",
+        "owner": "arcanum/spells/whisper/development",
+        "write_policy": "Run-local artifacts remain provenance and examples unless explicitly promoted."
+      },
+      {
+        "namespace": "generated-runtime-surfaces",
+        "owner": "bootstrap/runtime installer",
+        "write_policy": "Regenerate from canonical source; do not hand-author generated mirrors."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "development schema evidence",
+        "target": "canonical Whisper schema package",
+        "rule": "requires L0 audit and Spellcraft acceptance before package creation",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "plan_artifacts_created",
+      "dispatch_validated",
+      "spellcraft_handoff_ready",
+      "first_swu_recorded",
+      "promotion_residue_recorded"
+    ],
+    "signal_grouping": "dispatch_id"
+  },
+  "promotion_guardrails": [
+    "Development evidence is not canonical authority until owner-reviewed.",
+    "Fixture evidence does not imply registry or runtime promotion.",
+    "Generated runtime mirrors are not source authority."
+  ]
+}

@@ -114,6 +114,63 @@ def first_external_reference(paragraphs: list[str], terms: list[str]) -> int | N
     return None
 
 
+def sentence_count(text: str) -> int:
+    return len([part for part in re.split(r"[.!?]+", text) if part.strip()])
+
+
+def terms_from(*values: object) -> list[str]:
+    terms: list[str] = []
+    for value in values:
+        if isinstance(value, str):
+            if value.strip():
+                terms.append(value.strip())
+        elif isinstance(value, list):
+            for item in value:
+                term = str(item).strip()
+                if term:
+                    terms.append(term)
+
+    return terms
+
+
+def optional_positive_int(value: object) -> int | None:
+    if value is None:
+        return None
+
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return None
+
+    if number <= 0:
+        return None
+    return number
+
+
+def readability_rule_severity(config: dict, rule_id: str, default: str) -> str:
+    rules = config.get("validation_rules", {})
+    severity = default
+    if isinstance(rules, dict):
+        severity = str(rules.get(rule_id, default))
+
+    return "block" if severity.strip().lower() == "block" else "flag"
+
+
+def record_readability_finding(
+    config: dict,
+    rule_id: str,
+    default_severity: str,
+    message: str,
+    errors: list[str],
+    flags: list[str],
+) -> None:
+    finding = f"readability {rule_id}: {message}"
+    if readability_rule_severity(config, rule_id, default_severity) == "block":
+        errors.append(finding)
+    else:
+        flags.append(finding)
+
+
 def ids_from(items: list[dict], key: str = "id") -> set[str]:
     return {str(item.get(key, "")).strip() for item in items if isinstance(item, dict) and item.get(key)}
 
@@ -301,9 +358,161 @@ def validate_composition_parts(schema: dict, selected_candidate: str) -> tuple[l
     return errors, checks
 
 
-def validate(schema: dict, draft: str) -> tuple[list[str], list[str]]:
+def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[list[str], list[str], list[str]]:
     errors: list[str] = []
     checks: list[str] = []
+    flags: list[str] = []
+
+    config = schema.get("readability_dynamics")
+    if config is None:
+        return errors, checks, flags
+
+    if not isinstance(config, dict):
+        errors.append("readability_dynamics must be a mapping when present")
+        return errors, checks, flags
+
+    defaults = config.get("defaults", {})
+    density_profile = config.get("density_profile", {})
+    scan_anchors = config.get("scan_anchors", {})
+
+    if defaults is None:
+        defaults = {}
+    if density_profile is None:
+        density_profile = {}
+    if scan_anchors is None:
+        scan_anchors = {}
+
+    if not isinstance(defaults, dict):
+        errors.append("readability_dynamics.defaults must be a mapping when present")
+        return errors, checks, flags
+    if not isinstance(density_profile, dict):
+        errors.append("readability_dynamics.density_profile must be a mapping when present")
+        return errors, checks, flags
+    if not isinstance(scan_anchors, dict):
+        errors.append("readability_dynamics.scan_anchors must be a mapping when present")
+        return errors, checks, flags
+
+    default_severity = str(defaults.get("severity_default", "flag"))
+    max_words = optional_positive_int(defaults.get("max_words_per_paragraph"))
+    max_sentences = optional_positive_int(defaults.get("max_sentences_per_paragraph"))
+    max_consecutive_dense = optional_positive_int(defaults.get("max_consecutive_dense_paragraphs"))
+    scan_anchor_interval = optional_positive_int(defaults.get("require_scan_anchor_every_n_blocks"))
+    scan_terms = terms_from(scan_anchors.get("terms"))
+    abstraction_terms = terms_from(
+        config.get("abstraction_terms"),
+        config.get("abstract_internal_terms"),
+        density_profile.get("abstraction_terms"),
+        density_profile.get("abstract_terms"),
+        density_profile.get("internal_terms"),
+    )
+    example_terms = terms_from(
+        config.get("example_markers"),
+        config.get("example_terms"),
+        density_profile.get("example_markers"),
+        density_profile.get("example_terms"),
+        scan_anchors.get("example_markers"),
+    )
+    if not example_terms:
+        example_terms = ["for example", "for instance", "imagine", "consider", "in practice", "try this"]
+
+    dense_paragraphs: list[int] = []
+    for index, paragraph in enumerate(paragraphs, start=1):
+        paragraph_words = markdown_word_count(paragraph)
+        paragraph_sentences = sentence_count(paragraph)
+        dense = False
+
+        if max_words and paragraph_words > max_words:
+            dense = True
+            record_readability_finding(
+                config,
+                "density_limit_violation",
+                default_severity,
+                f"paragraph {index} has {paragraph_words} words, limit {max_words}",
+                errors,
+                flags,
+            )
+
+        if max_sentences and paragraph_sentences > max_sentences:
+            dense = True
+            record_readability_finding(
+                config,
+                "sentence_density_violation",
+                default_severity,
+                f"paragraph {index} has {paragraph_sentences} sentences, limit {max_sentences}",
+                errors,
+                flags,
+            )
+
+        if dense:
+            dense_paragraphs.append(index)
+
+        if abstraction_terms and contains_any(paragraph, abstraction_terms):
+            grounding_terms = scan_terms + example_terms
+            if grounding_terms and not contains_any(paragraph, grounding_terms):
+                record_readability_finding(
+                    config,
+                    "abstraction_without_example",
+                    default_severity,
+                    f"paragraph {index} uses configured abstraction terms without a configured example or scan anchor",
+                    errors,
+                    flags,
+                )
+
+    if max_consecutive_dense and dense_paragraphs:
+        streak: list[int] = []
+        for index in range(1, len(paragraphs) + 1):
+            if index in dense_paragraphs:
+                streak.append(index)
+                continue
+
+            if len(streak) > max_consecutive_dense:
+                record_readability_finding(
+                    config,
+                    "density_limit_violation",
+                    default_severity,
+                    f"paragraphs {streak[0]}-{streak[-1]} are consecutive dense paragraphs, limit {max_consecutive_dense}",
+                    errors,
+                    flags,
+                )
+            streak = []
+
+        if len(streak) > max_consecutive_dense:
+            record_readability_finding(
+                config,
+                "density_limit_violation",
+                default_severity,
+                f"paragraphs {streak[0]}-{streak[-1]} are consecutive dense paragraphs, limit {max_consecutive_dense}",
+                errors,
+                flags,
+            )
+
+    if scan_anchor_interval and scan_terms:
+        for start in range(0, len(paragraphs), scan_anchor_interval):
+            chunk = paragraphs[start : start + scan_anchor_interval]
+            if chunk and not any(contains_any(paragraph, scan_terms) for paragraph in chunk):
+                end = start + len(chunk)
+                record_readability_finding(
+                    config,
+                    "scan_anchor_gap",
+                    default_severity,
+                    f"paragraphs {start + 1}-{end} lack a configured scan anchor",
+                    errors,
+                    flags,
+                )
+
+    checks.append(f"readability dynamics evaluated {len(paragraphs)} prose paragraphs")
+    if config.get("layer_id"):
+        checks.append(f"readability dynamics layer `{config.get('layer_id')}` is configured")
+    if not errors and not flags:
+        checks.append("readability dynamics emitted no findings")
+
+    return errors, checks, flags
+
+
+def validate(schema: dict, draft: str) -> tuple[list[str], list[str], list[str]]:
+    errors: list[str] = []
+    checks: list[str] = []
+    flags: list[str] = []
 
     pareto_errors, pareto_checks = validate_pareto_tournament(schema)
     errors.extend(pareto_errors)
@@ -378,7 +587,12 @@ def validate(schema: dict, draft: str) -> tuple[list[str], list[str]]:
     else:
         checks.append(f"character count {char_count} within max {max_characters}")
 
-    return errors, checks
+    readability_errors, readability_checks, readability_flags = validate_readability_dynamics(schema, paragraphs)
+    errors.extend(readability_errors)
+    checks.extend(readability_checks)
+    flags.extend(readability_flags)
+
+    return errors, checks, flags
 
 
 def main() -> int:
@@ -390,7 +604,7 @@ def main() -> int:
     try:
         schema = load_schema(args.schema)
         draft = args.draft.read_text(encoding="utf-8")
-        errors, checks = validate(schema, draft)
+        errors, checks, flags = validate(schema, draft)
     except Exception as exc:  # pragma: no cover - command-line guard
         print(f"BLOCK whisper draft validation\n- error: {exc}")
         return 2
@@ -399,9 +613,19 @@ def main() -> int:
         print("BLOCK whisper draft validation")
         for error in errors:
             print(f"- {error}")
+        for flag in flags:
+            print(f"- flag: {flag}")
         for check in checks:
             print(f"- ok: {check}")
         return 1
+
+    if flags:
+        print("FLAG whisper draft validation")
+        for flag in flags:
+            print(f"- flag: {flag}")
+        for check in checks:
+            print(f"- ok: {check}")
+        return 0
 
     print("PASS whisper draft validation")
     for check in checks:

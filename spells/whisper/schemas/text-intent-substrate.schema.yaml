@@ -1,0 +1,217 @@
+schema_contract:
+  id: whisper.text_intent_substrate
+  version: "0.1"
+  status: candidate_stable
+  format: yaml_native_contract
+  root_key: text_intent_substrate
+  executable_validator: arcanum/spells/whisper/tools/validate-whisper-draft.py
+  description: >
+    Contract for Whisper text intent substrates. This file records field-family
+    ownership and validation tiers; it is not a standalone JSON Schema.
+
+complete_substrate:
+  required_field_families:
+    - metadata
+    - author_objective
+    - resonance_core
+    - relevance_core
+    - trajectory_core
+    - transport_schema
+    - composition_plan
+    - draft_artifact
+    - validation
+    - learning_residue
+  optional_field_families:
+    - source_context
+    - intake_decisions
+    - distill_trace
+    - scu_candidate_set
+    - pareto_tournament
+    - technique_stack
+    - composition_parts
+    - execution_policy
+    - readability_dynamics
+  deferred_field_families:
+    - review_payload_schema
+
+field_families:
+  metadata:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    required_fields:
+      - substrate_version
+      - transport_type
+      - artifact_status
+    example_only_fields:
+      - source_packet
+      - parent_sequence
+      - style_lens
+  source_context:
+    owner: examples
+    required_for: []
+    notes: >
+      Raw author intent, AI result, live example, citation gaps, and reference
+      candidates are example/provenance values rather than base requirements.
+  author_objective:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - primary_outcome
+      - desired_reader_change
+      - success_signal
+      - author_stance
+  resonance_core:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - tone
+      - voice
+      - style_register
+      - emotional_residue
+      - value_signal
+      - forbidden_feels
+  relevance_core:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - target_public
+      - reader_state
+      - domain
+      - authority_mode
+      - assumed_knowledge
+      - likely_objections
+      - reader_reward
+  trajectory_core:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - narrative_anchor
+      - transport_type
+      - introduction_strategy
+      - body_parts
+      - ending_strategy
+      - must_include
+      - must_avoid
+  transport_schema:
+    owner: base_contract_plus_transport_profile
+    required_for:
+      - complete_substrate
+      - draft_validator_fixture
+    draft_validator_fields:
+      - opening_contract
+      - length_words
+      - max_characters
+    notes: >
+      Transport-specific values belong to examples or transport profiles.
+  scu_candidate_set:
+    owner: compatibility_contract
+    required_for: []
+    notes: >
+      Candidate-set history is useful evidence, but draft validation depends on
+      pareto_tournament when tournament_mode is pareto_aware.
+  pareto_tournament:
+    owner: advanced_selection_contract
+    required_when:
+      - scu_candidate_set.tournament_mode == pareto_aware
+      - draft validation is expected
+    required_semantics:
+      - tiering is two_tier
+      - objectives include resonance, relevance, and trajectory
+      - hard gates include opening_contract_compliance, citation_integrity, and audience_legibility
+      - at least two candidates are compared
+      - selected candidate appears in candidates and carries rationale
+      - rejected alternatives preserve tradeoffs
+  composition_plan:
+    owner: base_planning_contract
+    required_for:
+      - complete_substrate
+      - draft_validator_fixture
+    notes: >
+      source_candidate_set must match pareto_tournament consensus when both are
+      present.
+  composition_parts:
+    owner: advanced_selection_contract
+    required_when:
+      - pareto_tournament participates in draft validation
+    required_semantics:
+      - cover composition_plan construction_sequence
+      - bind each part to the selected global candidate
+      - use only delegated, revised, or validation_failed mini-tournament triggers
+  draft_artifact:
+    owner: base_contract_plus_examples
+    required_for:
+      - complete_substrate
+    example_only_fields:
+      - target_path
+      - source_schema
+  validation:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - checks
+      - review_mode
+  learning_residue:
+    owner: base_contract
+    required_for:
+      - complete_substrate
+    typical_fields:
+      - status
+      - capture_after
+      - residue_slots
+  execution_policy:
+    owner: optional_contract
+    required_for: []
+    notes: >
+      Optional guidance for when Task Session should execute bounded transitions.
+  readability_dynamics:
+    owner: optional_extension
+    required_for: []
+    validator_behavior:
+      absent: ignored
+      present: evaluates paragraph density, sentence density, scan-anchor gaps, and abstraction grounding
+      default_result: flag
+    notes: >
+      Candidate-stable optional layer. Do not treat it as a base requirement
+      until broader fixture evidence exists.
+  review_payload_schema:
+    owner: deferred_future_schema
+    required_for: []
+    notes: >
+      Review HTML payload fields are consumed by the review surface but are not
+      part of the first text-intent-substrate base package.
+
+validation_tiers:
+  full_draft_validator_fixture:
+    requires:
+      - YAML parse
+      - complete transport_schema draft validation fields
+      - pareto_tournament when pareto_aware
+      - composition_parts when two-tier Pareto is present
+      - paired draft artifact
+    expected_validator_result: pass
+  partial_compatibility_fixture:
+    requires:
+      - YAML parse
+      - field-family coverage review
+    expected_validator_result: not_required
+  optional_extension_fixture:
+    requires:
+      - YAML parse
+      - validator-specific behavior check
+    expected_validator_result: flag_or_pass_by_fixture_policy
+
+promotion_policy:
+  base_contract_requires:
+    - repeated use across examples or executable validator support
+    - clear separation from article-specific source context
+    - no dependency on development-run paths as runtime authority
+  generated_surfaces:
+    source_authority: false
+    update_policy: regenerate_from_canonical_source
+
