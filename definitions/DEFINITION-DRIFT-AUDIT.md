@@ -65,3 +65,24 @@ Scope: `spells/goal/` define-stage spec and definitions baseline.
   one package before runtime SWU execution.
 - Experiment Harness should produce reusable behavior evidence before any
   registry promotion beyond draft.
+
+## 2026-06-23 Development To Canonical Promotion Addendum
+
+Scope: artifact authority boundary between development evidence and canonical
+source artifacts.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Canonical terms promoted | pass | Added `DEF-ARC-DEVELOPMENT-ARTIFACT`, `DEF-ARC-CANONICAL-ARTIFACT`, and `DEF-ARC-PROMOTION-PATCH`. |
+| Definition voices complete | pass | Each promoted term includes scientific/formal, operational, plain-language, domain-context, boundary, consumers, and related definitions. |
+| Index synced | pass | `DEFINITIONS-INDEX.md` includes term rows and alias mappings for the promoted terms. |
+| Process artifact created | pass | `framework/DEVELOPMENT-TO-CANONICAL-PROMOTION.md` defines the owner-gated promotion-patch process. |
+| Downstream drift | non-blocking | Existing development packages and architecture artifacts may still use candidate/canonical language without direct definition links. |
+
+### Remediation Targets
+
+| Target | Drift type | Recommended action |
+| --- | --- | --- |
+| `arcana/architecture-pattern-inventory/README.md` | Architecture package wording says the main agent decides what belongs in canonical inventory. | Link `DEF-ARC-PROMOTION-PATCH` and the framework process when the architecture inventory contract is next revised. |
+| `framework/EXPERIMENT-HARNESS-STANDARD.md` | Promotion rule describes registry readiness without the new promotion-patch term. | Reference `DEF-ARC-PROMOTION-PATCH` during the next validation-standard refresh. |
+| `disciplines/cards/development-package-promotion-gate.md` | Discipline already matches the new boundary but lacks canonical definition IDs. | Add direct definition ID links when the discipline card is next maintained. |

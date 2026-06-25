@@ -88,6 +88,32 @@ Examples:
    constitution when the path belongs to generated or local runtime state.
 7. Validation must run after file-creating tools and before handoff.
 
+## Promotion Boundary Rules
+
+| Rule ID | Selector | Rule | Validation mode | Status |
+| --- | --- | --- | --- | --- |
+| `artifact.promotion.development-to-canonical` | A source artifact change derives from a development artifact, run package, runtime observation, validation report, glossary candidate, architecture draft, or other non-authoritative evidence. | The change must be framed as a promotion patch that names the source evidence, target canonical artifact, owning route, selected durable claim or structure, omitted candidate material, validation surface, approval state, and required index or generated-surface sync. Raw development content must not be bulk-copied into canonical source. | hybrid: artifact constitution validation plus source-review against [Development To Canonical Promotion](DEVELOPMENT-TO-CANONICAL-PROMOTION.md) | canonical |
+
+### Examples
+
+- A task-session result proposes a new rule for `framework/`; the final source
+  change extracts only the accepted rule, cites the task-session path as
+  evidence, updates affected lookup surfaces, and records validation.
+- An architecture development artifact proposes a dependency rule; the canonical
+  architecture artifact receives a normalized rule, companion indexes are
+  updated, and unselected draft notes stay in `development/`.
+- A local glossary candidate becomes Arcanum-wide terminology only after
+  `definitions-governance` patches `definitions/DEFINITIONS.md` and syncs
+  `definitions/DEFINITIONS-INDEX.md`.
+
+### Non-Examples
+
+- Committing an entire refinement-run folder because one result looked useful.
+- Copying development prose into a canonical README without naming omitted
+  candidate material, owner route, or validation surface.
+- Treating a validation report as direct authority instead of evidence for a
+  reviewed source change.
+
 ## Rendering Rules
 
 1. Charts and visual artifacts must not rely on literal `\n` sequences for label,

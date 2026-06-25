@@ -11,6 +11,7 @@ Use this folder when you are changing the rules of the system rather than adding
 - [Anti-Patterns](ANTI-PATTERNS.md) - failure modes and misuse boundaries.
 - [Validation Experiment Protocol](VALIDATION-EXPERIMENT-PROTOCOL.md) - repeatable release-gate experiments for spells, sigils, and canonical templates.
 - [Experiment Harness Standard](EXPERIMENT-HARNESS-STANDARD.md) - artifact-local test harness layout for fixtures, prompts, outputs, runs, and promotion evidence.
+- [Development To Canonical Promotion](DEVELOPMENT-TO-CANONICAL-PROMOTION.md) - process for turning development evidence into owner-gated canonical artifact patches.
 - [Sigil Development Workflow](SIGIL-DEVELOPMENT-WORKFLOW.md) - lifecycle from candidate capture through maintenance.
 - [Sigil Template](templates/sigil-template.md) - base `SKILL.md` structure.
 - [Validation Experiment Template](templates/validation-experiment.md) - starter validation experiment for any spell or sigil.
