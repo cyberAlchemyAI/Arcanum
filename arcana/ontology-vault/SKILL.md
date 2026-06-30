@@ -1,10 +1,10 @@
 ---
 name: ontology-vault
 description: "Use when: mapping, distilling, validating, or evolving a governed knowledge vault with roles, confidence, premises, sessions, edge rules, branch-aware ontology, and ontology conventions."
-argument-hint: "<map|distill-sessions|promote-confidence|premise-review|convention-update|validate> [--path <repo-root>] [--source <path>] [--branch <business|system|bridge>] [--branches business,system] [--bridge business-system] [--output <path>] [--dry-run]"
+argument-hint: "<map|distill-sessions|promote-confidence|premise-review|convention-update|validate> [--path <repo-root>] [--source <path>] [--profile <path>] [--runtime inline|agents] [--branch <business|system|bridge>] [--branches business,system] [--bridge business-system] [--output <path>] [--dry-run]"
 tier: arcana
 domain: ontology-governance
-version: 0.1.0
+version: 0.1.1
 origin: generalized from governed knowledge-vault maintenance patterns
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -40,6 +40,30 @@ Branch-aware ontology is optional. Use it when the repository has both business/
 - `convention-update --branch business|system|bridge`: propose convention changes scoped to one branch or to bridge rules.
   </branch-aware-arguments>
 
+<project-runtime-profile-arguments>
+Project-local runtime profiles are optional. Use them when a repository has a
+local ontology surface that instantiates a reusable ontology model and needs
+repeatable map, validate, distill, confidence, drift, or projection runs before
+it has a dedicated runtime.
+
+- `--profile <path>`: load a project-local runtime profile that names local
+  ontology refs, owner refs, source-spine refs, implementation/runtime refs,
+  allowed runtime modes, allowed outputs, blocked outputs, owner gates, residue
+  route, and observability route.
+- `--runtime inline`: default. Run the selected Ontology Vault mode directly
+  over the profile sources inside the current agent session.
+- `--runtime agents`: use a governed subagent strategy as an execution backend
+  only when the profile permits it and the repository has a local strategy
+  owner. The subagent strategy must handle trigger checks, tension design,
+  explicit human confirmation, registration, closeout, and ledger evidence.
+
+Profile outputs are evidence artifacts, validation reports, confidence action
+reports, drift reports, and optional read-model projections. They are not
+promotion verdicts, source authority, spec mutations, runtime conformance
+verdicts, or canonical source edits unless a separate owner route explicitly
+permits that movement.
+</project-runtime-profile-arguments>
+
 <applicability>
 Use this sigil when a repository has vault-like knowledge governance: sessions, discoveries, premises, constitutions, ontology conventions, confidence rules, edge types, or delegated research artifacts.
 </applicability>
@@ -53,6 +77,9 @@ Expected inputs, if available:
 - discovery or research folders,
 - premise, axiom, constitution, or convention documents,
 - existing inventory entries,
+- project-local runtime profile, when using `--profile`,
+- local ontology, owner, source-spine, implementation, test, telemetry, or
+  projection references named by that profile,
 - prior findings and audits,
 - schema or frontmatter conventions,
 - user-stated ontology goal.
@@ -72,8 +99,10 @@ If the user does not provide `--output`, prefer:
 
 1. Resolve the target repository, source folders, mode, and output path.
 2. Detect local knowledge-governance structures before asking questions.
-3. Identify local labels for roles, statuses, confidence dimensions, tags, edge types, and sessions.
-4. Translate local labels into generic Arcanum concepts:
+3. When `--profile` is provided, load the project-local runtime profile before
+   broad source discovery and treat its source refs as the execution boundary.
+4. Identify local labels for roles, statuses, confidence dimensions, tags, edge types, and sessions.
+5. Translate local labels into generic Arcanum concepts:
    - knowledge role,
    - maturity status,
    - evidence confidence,
@@ -85,7 +114,7 @@ If the user does not provide `--output`, prefer:
    - business ontology,
    - system ontology,
    - bridge ontology.
-5. Preserve local label names as aliases only when reporting on the repository. Do not promote local labels into canonical Arcanum vocabulary.
+6. Preserve local label names as aliases only when reporting on the repository. Do not promote local labels into canonical Arcanum vocabulary.
 
 ## Step 2 - Map Current Ontology
 
@@ -124,34 +153,65 @@ When branch-aware mapping is requested or clearly useful:
 19. Bridge claims that assert alignment must cite evidence from both branches.
 20. System claims must not silently redefine business meaning; business claims must not pretend implementation exists without bridge evidence.
 
+## Step 2C - Execute A Project-Local Runtime Profile When Provided
+
+When `--profile` is provided:
+
+21. Validate that the profile names at least local ontology refs, local owner
+    refs, source or evidence refs, allowed runtime modes, allowed outputs,
+    blocked outputs, owner gates, and residue route.
+22. Treat profile refs as local aliases to generic concepts; do not add profile
+    labels, statuses, or roles to canonical Arcanum vocabulary by default.
+23. For `--runtime inline`, run the selected mode over the profile refs and
+    record profile coverage, profile gaps, and blocked output attempts.
+24. For `--runtime agents`, verify the profile permits an agent backend and
+    route through the repository-local governed subagent strategy. Do not spawn
+    agents directly from Ontology Vault when the local strategy requires its
+    own trigger check, tension gate, human confirmation, registry append, and
+    closeout.
+25. Treat agent returns, dispatch findings, close rows, and ledger evidence as
+    delegated evidence records. They may support synthesis or confidence
+    review, but they do not decide authority.
+26. Emit only allowed profile outputs. Block or escalate any attempt to emit a
+    promotion verdict, source mutation, spec mutation, runtime conformance
+    verdict, or generated projection that outranks its owner evidence.
+
 ## Step 3 - Distill Sessions And Delegated Evidence
 
-21. Treat sessions as evidence records, not authority.
-22. Extract durable claims, decisions, contradictions, open questions, and promoted candidates.
-23. Preserve context and goal for each distillation.
-24. When delegated research exists, keep raw delegated research separate from synthesis findings.
-25. Require synthesis findings to cite delegated research before making load-bearing claims.
-26. Surface contradictions between raw evidence outputs instead of resolving them silently.
+27. Treat sessions as evidence records, not authority.
+28. Extract durable claims, decisions, contradictions, open questions, and promoted candidates.
+29. Preserve context and goal for each distillation.
+30. When delegated research exists, keep raw delegated research separate from synthesis findings.
+31. Require synthesis findings to cite delegated research before making load-bearing claims.
+32. Surface contradictions between raw evidence outputs instead of resolving them silently.
 
 ## Step 4 - Review Premises And Confidence
 
-27. For each premise or working bet, identify evidence, counterevidence, current use, falsification criteria, and confidence state.
-28. Separate evidence confidence from commitment confidence.
-29. Recommend one action: promote, keep, revise, demote, split, merge, retire, or escalate to decision gate.
-30. Block promotion when evidence links are missing, contradictions remain unresolved, or the claim would outrank its sources.
-31. For branch-aware promotion, keep business confidence and system confidence separate until bridge evidence supports alignment.
+33. For each premise or working bet, identify evidence, counterevidence, current use, falsification criteria, and confidence state.
+34. Separate evidence confidence from commitment confidence.
+35. Recommend one action: promote, keep, revise, demote, split, merge, retire, or escalate to decision gate.
+36. Block promotion when evidence links are missing, contradictions remain unresolved, or the claim would outrank its sources.
+37. For branch-aware promotion, keep business confidence and system confidence separate until bridge evidence supports alignment.
+38. For project-local profiles, promotion recommendations must name the local
+    owner route and remain non-executing unless that owner route returns an
+    approval or PromotionRecord-compatible decision.
 
 ## Step 5 - Propose Convention Changes
 
-32. For schema or ontology changes, record current rule, proposed rule, rationale, migration impact, affected files, and rollback path.
-33. Ask one blocker-level governance decision at a time.
-34. Do not mutate conventions unless the user explicitly approves the change.
-35. For branch-aware convention changes, state whether the rule affects business, system, bridge, or cross-branch validation.
+39. For schema or ontology changes, record current rule, proposed rule, rationale, migration impact, affected files, and rollback path.
+40. Ask one blocker-level governance decision at a time.
+41. Do not mutate conventions unless the user explicitly approves the change.
+42. For branch-aware convention changes, state whether the rule affects business, system, bridge, or cross-branch validation.
+43. For project-local profile changes, separate reusable profile convention
+    changes from one repository's private profile data.
 
 ## Step 6 - Validate And Report
 
-36. Validate links, role consistency, confidence gates, delegated-evidence traceability, source authority rules, branch ownership, bridge edges, drift findings, test links, and observability links.
-37. Return a concise report with outputs, blockers, promotion decisions, convention changes, and next action.
+44. Validate links, role consistency, confidence gates, delegated-evidence traceability, source authority rules, branch ownership, bridge edges, drift findings, test links, and observability links.
+45. When a project-local profile is used, validate profile completeness, runtime
+    mode permission, blocked output attempts, owner-gate coverage, and whether
+    agent backend evidence has closeout receipts.
+46. Return a concise report with outputs, blockers, promotion decisions, convention changes, runtime profile state, and next action.
     </process>
 
 <branch-role-catalogs>
@@ -180,6 +240,12 @@ A successful execution must:
 - preserve drift as a first-class finding rather than smoothing it away,
 - identify migration impact before convention changes,
 - use the inflection heuristic to justify ontology investment level.
+- keep project-local runtime profiles bounded to their owner routes and source
+  refs,
+- treat governed-agent runtime returns as delegated evidence rather than
+  authority,
+- block profile outputs that would mutate specs, canonical sources, runtime
+  conformance, or promotion state without owner approval.
   </quality-bar>
 
 <anti-patterns>
@@ -198,12 +264,20 @@ Avoid:
 - claiming implementation alignment without bridge evidence,
 - treating test coverage or telemetry as business meaning instead of bridge evidence,
 - forcing branch-aware ontology on repositories that only need a simple map.
+- hardcoding one project-local runtime profile into the reusable sigil contract,
+- treating an agent-backed profile run as permission to bypass the local
+  governed subagent strategy,
+- letting a generated projection or profile report become canonical authority
+  by proximity.
   </anti-patterns>
 
 <observability>
 When `.arcanum/observability/` exists, emit post-run signals for:
 
 - mode,
+- runtime profile path when provided,
+- runtime mode,
+- agent backend status,
 - source folders scanned,
 - sessions distilled,
 - delegated research records found,
@@ -233,6 +307,8 @@ Return:
 - Mode: map | distill-sessions | promote-confidence | premise-review | convention-update | validate
 - Repository: <path>
 - Branch: business | system | bridge | mixed | none
+- Runtime profile: <path | none>
+- Runtime mode: inline | agents | none
 - Sources reviewed: <count>
 - Business documents mapped: <count>
 - System documents mapped: <count>

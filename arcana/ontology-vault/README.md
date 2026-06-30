@@ -21,6 +21,9 @@ When a repository has both domain intent and implementation evidence, Ontology V
 - ontology roles, tags, edge types, or maturity states are drifting,
 - delegated research and synthesis findings need traceable links,
 - business intent needs traceability to system implementation, tests, telemetry, or runtime constraints.
+- a project has a local ontology surface and needs a repeatable runtime profile
+  for map, validation, confidence, drift, projection, or delegated-evidence
+  runs before a dedicated runtime exists.
 
 ## Do Not Use When
 
@@ -82,9 +85,30 @@ The sigil can produce:
 - premise review,
 - confidence promotion or demotion report,
 - ontology convention change plan,
+- project-local runtime profile validation,
 - delegated research record,
 - synthesis findings record,
 - validation report.
+
+## Project-Local Runtime Profiles
+
+A runtime profile is a local execution boundary for applying Ontology Vault to
+one project without turning that project's labels into reusable Arcanum law.
+
+Use a runtime profile when a project has local ontology entries, local owner
+routes, source-spine rules, implementation evidence, and allowed/blocked
+runtime outputs. The profile names what Ontology Vault may read, what it may
+emit, which owner gates control movement, and where residue and observability
+go.
+
+Runtime profiles can run inline or through a governed agent backend. Agent
+returns are delegated evidence; they can support maps, validation reports,
+confidence review, or drift findings, but they do not decide authority.
+
+Runtime profile outputs are non-authority unless an owner route permits the
+movement. Blocked outputs include promotion verdicts, spec mutation, canonical
+source mutation, runtime conformance verdicts, and generated projection as
+authority.
 
 ## Integration
 
@@ -95,6 +119,10 @@ Use [context-builder](../../transmutations/context-builder/) to prove future tas
 Use [decision-gate](../decision-gate/) when convention changes or confidence promotions require human trade-off decisions.
 
 Use [feature-glossary](../../transmutations/feature-glossary/) when local ontology terms need concise explanation for readers.
+
+Use a repository-local governed subagent strategy when a runtime profile selects
+an agent backend. The local strategy owns trigger checks, tension design,
+explicit human confirmation, registration, closeout, and ledger evidence.
 
 ## Why This Is Arcana
 
