@@ -43,6 +43,8 @@ A discipline is a reusable operating practice with:
 | `ux-evidence` | UX evidence discipline | candidate | UX Evidence Validator | [UX Evidence Validator](../arcana/ux-evidence-validator/README.md) | Use browser evidence and accessibility checks when interface work becomes durable. |
 | `gitignore` | Gitignore discipline | candidate | Constitution Governance | [Gitignore constitution](../framework/GITIGNORE-CONSTITUTION.md) | Give the gitignore constitution a validation surface (ignore-policy check) before promoting beyond candidate. |
 | `receipt-id-legend` | Receipt id legend discipline | candidate | Constitution Governance | [Receipt id legend constitution](../framework/RECEIPT-ID-LEGEND-CONSTITUTION.md) | Validator `tools/validate-receipt-legend.py` now enforces gloss-on-cite (2026-06-21); extend to define-on-mint + bulk-legend, then canonical. |
+| `two-lane-dialectic` | Two-lane dialectic discipline | active-pattern | Research Tower, Refine, and Robot Talks | [Two-lane dialectic card](cards/two-lane-dialectic.md) | Extract a shared Lane-Z / Lane-A / synthesis SEED + bridge-decision template from research-tower and refine; route the bridge-decision verdict vocabulary (`borrow-carefully` / `analogy-only` / `block` / `promotion-candidate` / `future-work`) to definitions-governance for canonical terms. |
+| `two-lane-representation` | Two-lane representation discipline | candidate | Craft development package and Inventory | [Inventory](../arcana/inventory/README.md) | Prove independent cross-capability recurrence beyond craft and inventory, and add a lane-sync drift check (validator or constitution route) before promoting past candidate. |
 
 ## Status Meanings
 
