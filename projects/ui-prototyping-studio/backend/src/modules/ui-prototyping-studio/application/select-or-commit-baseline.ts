@@ -67,32 +67,41 @@ export function makeSelectOrCommitBaselineUseCase(
       const normalizedLabel = input.selectedLabel?.trim().toUpperCase();
 
       if (!normalizedLabel) {
-        throw createUiPrototypingStudioError(
-          "BASELINE_SELECTION_REQUIRED",
-          "Baseline selection is required when variantCount is greater than 1",
-          {
-            sessionId: input.sessionId,
-          },
+        // GAP-015 (G1): `baseline commit` with no label COMMITS the already-selected
+        // baseline (idempotent select -> commit), instead of erroring. Only error when
+        // nothing has been selected yet.
+        const alreadySelected = session.baseline?.label;
+        if (alreadySelected && variants.some((v) => v.variantLabel === alreadySelected)) {
+          selectedLabel = alreadySelected;
+          mode = "committed";
+        } else {
+          throw createUiPrototypingStudioError(
+            "BASELINE_SELECTION_REQUIRED",
+            "Baseline selection is required before commit when variantCount is greater than 1",
+            {
+              sessionId: input.sessionId,
+            },
+          );
+        }
+      } else {
+        const matchedVariant = variants.find(
+          (variant) => variant.variantLabel === normalizedLabel,
         );
-      }
+        if (!matchedVariant) {
+          throw createUiPrototypingStudioError(
+            "BASELINE_LABEL_INVALID",
+            "Selected baseline label is invalid",
+            {
+              sessionId: input.sessionId,
+              selectedLabel: normalizedLabel,
+              variantLabels: variants.map((variant) => variant.variantLabel),
+            },
+          );
+        }
 
-      const matchedVariant = variants.find(
-        (variant) => variant.variantLabel === normalizedLabel,
-      );
-      if (!matchedVariant) {
-        throw createUiPrototypingStudioError(
-          "BASELINE_LABEL_INVALID",
-          "Selected baseline label is invalid",
-          {
-            sessionId: input.sessionId,
-            selectedLabel: normalizedLabel,
-            variantLabels: variants.map((variant) => variant.variantLabel),
-          },
-        );
+        selectedLabel = matchedVariant.variantLabel;
+        mode = "selected";
       }
-
-      selectedLabel = matchedVariant.variantLabel;
-      mode = "selected";
     }
 
     const updatedVariants = variants.map((variant) => {

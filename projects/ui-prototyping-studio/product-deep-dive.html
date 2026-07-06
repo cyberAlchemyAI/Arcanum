@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Prototyping Studio - How It Works</title>
+  <style>
+    :root {
+      --ink: #17201d;
+      --muted: #5a6761;
+      --line: #d8ddd8;
+      --paper: #fbfcf8;
+      --panel: #ffffff;
+      --green: #1d7a58;
+      --blue: #2367a2;
+      --amber: #ad7214;
+      --coral: #b44b42;
+      --teal: #1c7c82;
+      --soft-green: #e8f4ee;
+      --soft-blue: #e8f0f9;
+      --soft-amber: #fbf1dc;
+      --soft-coral: #fae9e6;
+      --shadow: 0 14px 35px rgba(20, 34, 28, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .layer-input {
+      position: absolute;
+      left: -9999px;
+    }
+
+    #toggle-surface:not(:checked) ~ main [data-lane~="surface"],
+    #toggle-flow:not(:checked) ~ main [data-lane~="flow"],
+    #toggle-deps:not(:checked) ~ main [data-lane~="internal_dependencies"],
+    #toggle-deps:not(:checked) ~ main [data-lane~="external_dependencies"],
+    #toggle-risk:not(:checked) ~ main [data-lane~="risk_questions"] {
+      display: none !important;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 248, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background:
+        linear-gradient(135deg, var(--green) 0 49%, transparent 50%),
+        linear-gradient(315deg, var(--blue) 0 49%, var(--amber) 50%);
+      border: 1px solid rgba(23, 32, 29, 0.22);
+    }
+
+    .toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .toggles label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #toggle-surface:checked ~ .topbar label[for="toggle-surface"],
+    #toggle-flow:checked ~ .topbar label[for="toggle-flow"],
+    #toggle-deps:checked ~ .topbar label[for="toggle-deps"],
+    #toggle-risk:checked ~ .topbar label[for="toggle-risk"] {
+      color: var(--ink);
+      border-color: rgba(29, 122, 88, 0.45);
+      background: var(--soft-green);
+    }
+
+    main {
+      overflow: clip;
+    }
+
+    .slide {
+      padding: 76px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .slide:nth-child(even) {
+      background: #f5f8f2;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      align-items: center;
+      padding: 64px 0 36px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(251,252,248,0.96)),
+        repeating-linear-gradient(90deg, rgba(23,32,29,0.035) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(23,32,29,0.035) 0 1px, transparent 1px 64px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(48px, 8vw, 106px);
+      max-width: 780px;
+    }
+
+    h2 {
+      font-size: clamp(31px, 4vw, 56px);
+      max-width: 900px;
+    }
+
+    h3 {
+      font-size: 20px;
+    }
+
+    .lead {
+      margin: 22px 0 0;
+      max-width: 750px;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 23px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid var(--ink);
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .hero-board {
+      position: relative;
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.86);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-board svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 560px;
+    }
+
+    .board-caption {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(255,255,255,0.92);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .intro-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: -28px;
+      padding-bottom: 46px;
+    }
+
+    .metric {
+      min-height: 120px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.45fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 32px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 18px rgba(20, 34, 28, 0.05);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .card p,
+    .card li {
+      color: var(--muted);
+    }
+
+    .card p {
+      margin: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--soft-blue);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 760;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .tag.green {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .tag.amber {
+      background: var(--soft-amber);
+      color: var(--amber);
+    }
+
+    .tag.coral {
+      background: var(--soft-coral);
+      color: var(--coral);
+    }
+
+    .callout {
+      padding: 24px;
+      border-left: 5px solid var(--green);
+      background: #fff;
+      box-shadow: var(--shadow);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .callout p {
+      margin: 0;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .diagram {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .diagram svg {
+      display: block;
+      width: 100%;
+      min-height: 460px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(95px, 1fr));
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .step {
+      min-height: 124px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .step span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .step.hot {
+      border-color: rgba(29,122,88,0.38);
+      background: var(--soft-green);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eff4ee;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    td {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(320px, 0.28fr);
+      gap: 16px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .source-backed {
+      border-left: 4px solid var(--green);
+    }
+
+    .inferred {
+      border-left: 4px dashed var(--amber);
+    }
+
+    .footer {
+      padding: 44px 0;
+      color: var(--muted);
+      background: var(--ink);
+    }
+
+    .footer .wrap {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .footer code {
+      color: #fff;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: rgba(23, 32, 29, 0.07);
+      color: var(--ink);
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 980px) {
+      .topbar-inner,
+      .hero-grid,
+      .section-head,
+      .source-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 12px 0;
+      }
+
+      .hero-board,
+      .hero-board svg {
+        min-height: 470px;
+      }
+
+      .intro-strip,
+      .cols-2,
+      .cols-3,
+      .cols-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      .topbar {
+        position: static;
+      }
+
+      .slide,
+      .hero {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <input class="layer-input" type="checkbox" id="toggle-surface" checked>
+  <input class="layer-input" type="checkbox" id="toggle-flow" checked>
+  <input class="layer-input" type="checkbox" id="toggle-deps" checked>
+  <input class="layer-input" type="checkbox" id="toggle-risk" checked>
+
+  <nav class="topbar" aria-label="Presentation controls">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span>UI Prototyping Studio</span>
+      </div>
+      <div class="toggles" aria-label="Layer toggles">
+        <label for="toggle-surface">Surface</label>
+        <label for="toggle-flow">Flow</label>
+        <label for="toggle-deps">Dependencies</label>
+        <label for="toggle-risk">Risk</label>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero" data-lane="surface flow">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Tool walkthrough</p>
+          <h1>UI Prototyping Studio</h1>
+          <p class="lead">A guided way to try UI ideas with Claude Code: make a few HTML options, look at them in a browser, click the parts you want changed, preview the result, and keep a clean history of what changed.</p>
+          <div class="hero-actions">
+            <a class="button" href="#start">Start Here</a>
+            <a class="button secondary" href="#examples">See Examples</a>
+          </div>
+          <div class="legend" aria-label="Evidence legend">
+            <span><i class="dot" style="color: var(--green)"></i>source-backed</span>
+            <span><i class="dot" style="color: var(--amber)"></i>inference</span>
+            <span><i class="dot" style="color: var(--blue)"></i>L0 static HTML/SVG</span>
+          </div>
+        </div>
+
+        <div class="hero-board" aria-label="Product loop diagram">
+          <svg viewBox="0 0 720 560" role="img" aria-labelledby="hero-title hero-desc">
+            <title id="hero-title">Governed UI prototyping loop</title>
+            <desc id="hero-desc">A visual loop showing human intent, Claude Code proposals, studio admission, staged preview, and append-only revision.</desc>
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#17201d"></path>
+              </marker>
+              <filter id="softShadow">
+                <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f2018" flood-opacity="0.12"></feDropShadow>
+              </filter>
+            </defs>
+            <rect x="24" y="26" width="672" height="432" rx="12" fill="#f7faf5" stroke="#d8ddd8"></rect>
+            <text x="48" y="62" font-size="15" font-weight="800" fill="#17201d">The basic idea: design by trying, reviewing, and accepting</text>
+
+            <g data-lane="surface flow" filter="url(#softShadow)">
+              <rect x="55" y="105" width="132" height="68" rx="8" fill="#e8f4ee" stroke="#8cc7ad"></rect>
+              <text x="72" y="132" font-size="14" font-weight="800" fill="#17201d">Prompt</text>
+              <text x="72" y="153" font-size="12" fill="#5a6761">human intent</text>
+
+              <rect x="250" y="88" width="158" height="98" rx="8" fill="#e8f0f9" stroke="#9fc0df"></rect>
+              <text x="268" y="116" font-size="14" font-weight="800" fill="#17201d">A few variants</text>
+              <text x="268" y="138" font-size="12" fill="#5a6761">HTML generated</text>
+              <text x="268" y="158" font-size="12" fill="#5a6761">registered by CLI</text>
+
+              <rect x="475" y="105" width="142" height="68" rx="8" fill="#fbf1dc" stroke="#dfbf7d"></rect>
+              <text x="493" y="132" font-size="14" font-weight="800" fill="#17201d">Baseline</text>
+              <text x="493" y="153" font-size="12" fill="#5a6761">selected or committed</text>
+
+              <rect x="55" y="250" width="150" height="78" rx="8" fill="#ffffff" stroke="#d8ddd8"></rect>
+              <text x="72" y="278" font-size="14" font-weight="800" fill="#17201d">Component comments</text>
+              <text x="72" y="301" font-size="12" fill="#5a6761">data-od-id targets</text>
+
+              <rect x="270" y="242" width="170" height="96" rx="8" fill="#ffffff" stroke="#d8ddd8"></rect>
+              <text x="288" y="270" font-size="14" font-weight="800" fill="#17201d">Change plan</text>
+              <text x="288" y="293" font-size="12" fill="#5a6761">comments -> tasks</text>
+              <text x="288" y="313" font-size="12" fill="#5a6761">review before applying</text>
+
+              <rect x="508" y="242" width="142" height="96" rx="8" fill="#fae9e6" stroke="#d99b94"></rect>
+              <text x="526" y="270" font-size="14" font-weight="800" fill="#17201d">Stage candidate</text>
+              <text x="526" y="293" font-size="12" fill="#5a6761">head unchanged</text>
+              <text x="526" y="313" font-size="12" fill="#5a6761">honest diff</text>
+
+              <rect x="268" y="382" width="190" height="66" rx="8" fill="#e7f3f4" stroke="#8dc9cc"></rect>
+              <text x="288" y="409" font-size="14" font-weight="800" fill="#17201d">Accept / revert / export</text>
+              <text x="288" y="431" font-size="12" fill="#5a6761">append-only record</text>
+            </g>
+
+            <g data-lane="flow" fill="none" stroke="#17201d" stroke-width="2" marker-end="url(#arrow)">
+              <path d="M187 139 C215 139 224 137 250 137"></path>
+              <path d="M408 137 C435 137 448 139 475 139"></path>
+              <path d="M546 173 C530 217 206 210 142 250"></path>
+              <path d="M205 289 C232 289 244 290 270 290"></path>
+              <path d="M440 290 C467 290 481 290 508 290"></path>
+              <path d="M579 338 C560 384 484 414 458 414"></path>
+              <path d="M268 414 C190 414 122 372 130 328"></path>
+            </g>
+
+            <g data-lane="risk_questions">
+              <circle cx="627" cy="121" r="13" fill="#fae9e6" stroke="#b44b42"></circle>
+              <text x="623" y="126" font-size="14" font-weight="900" fill="#b44b42">?</text>
+              <text x="515" y="384" font-size="12" fill="#b44b42">Export is the final handoff.</text>
+              <text x="515" y="403" font-size="12" fill="#b44b42">Everything else is reviewable.</text>
+            </g>
+          </svg>
+          <div class="board-caption">
+            <span class="pill"><i class="dot" style="color: var(--green)"></i>Human intent</span>
+            <span class="pill"><i class="dot" style="color: var(--blue)"></i>Agent proposal</span>
+            <span class="pill"><i class="dot" style="color: var(--amber)"></i>Studio checks</span>
+            <span class="pill"><i class="dot" style="color: var(--coral)"></i>Open risk</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap intro-strip" data-lane="surface properties">
+      <div class="metric source-backed">
+        <strong>What is it?</strong>
+        <span>A local studio for making, comparing, annotating, and revising HTML UI prototypes.</span>
+      </div>
+      <div class="metric source-backed">
+        <strong>Who drives it?</strong>
+        <span>You and Claude Code share the same `studio` CLI, while the browser preview shows the actual UI.</span>
+      </div>
+      <div class="metric source-backed">
+        <strong>What comes out?</strong>
+        <span>A chosen HTML revision, an append-only history, and an exportable handoff bundle.</span>
+      </div>
+    </div>
+
+    <section id="start" class="slide" data-lane="surface">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Start Here</p>
+            <h2>Think of it as a workshop for trying UI ideas with a visible trail.</h2>
+          </div>
+          <p>You are not reading a business case. You are learning the tool: what it does, how you operate it, and how a prototype moves from idea to accepted change.</p>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card source-backed">
+            <span class="tag green">Plain Version</span>
+            <h3>You ask for an interface</h3>
+            <p>Claude Code makes HTML variants. The studio records them, shows them, and keeps the next steps explicit.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">Main Use</span>
+            <h3>You compare and comment</h3>
+            <p>You pick the version you want to continue from, then click or name components that need changes.</p>
+          </article>
+          <article class="card inferred">
+            <span class="tag amber">Why It Exists</span>
+            <h3>You see the change before keeping it</h3>
+            <p>The studio stages the new HTML and shows a before/after view, so generated work does not silently become the accepted design.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="surface properties risk_questions">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">First Session</p>
+            <h2>A real session feels like a short conversation with a browser in the loop.</h2>
+          </div>
+          <p>The important thing is the rhythm: ask, look, choose, point, revise, inspect, accept.</p>
+        </div>
+
+        <div class="grid cols-2">
+          <div class="callout source-backed">
+            <p><strong>Example prompt:</strong> "Make me a sign-up card for a small analytics product. Give me a calmer version and a bolder version."</p>
+          </div>
+          <div class="callout inferred">
+            <p><strong>Example comment:</strong> "On the primary button, make the label clearer and reduce the visual weight of the secondary link."</p>
+          </div>
+        </div>
+
+        <div class="grid cols-4" style="margin-top: 18px">
+          <article class="card">
+            <span class="tag green">1</span>
+            <h3>Open a session</h3>
+            <p>The studio creates a workspace with its own state file and artifact folder.</p>
+          </article>
+          <article class="card">
+            <span class="tag green">2</span>
+            <h3>Register HTML</h3>
+            <p>Claude Code writes variant files, then registers them with the studio.</p>
+          </article>
+          <article class="card">
+            <span class="tag green">3</span>
+            <h3>Preview and annotate</h3>
+            <p>The browser preview lets you inspect the options and comment on specific parts.</p>
+          </article>
+          <article class="card">
+            <span class="tag green">4</span>
+            <h3>Accept or revert</h3>
+            <p>You keep the staged result only after seeing it. If it is wrong, discard or revert.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="flow internal_dependencies external_dependencies" id="workflow">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Workflow</p>
+            <h2>How one prototype moves through the tool.</h2>
+          </div>
+          <p>This is the map to keep in your head while trying it: you ask and choose, Claude Code proposes, the CLI records, and the core decides what is allowed to become history.</p>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 520" role="img" aria-labelledby="flow-title flow-desc">
+            <title id="flow-title">Governed product workflow</title>
+            <desc id="flow-desc">A swimlane workflow for human, Claude Code, studio CLI, core, and artifacts.</desc>
+            <defs>
+              <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#17201d"></path>
+              </marker>
+            </defs>
+            <rect x="24" y="28" width="1072" height="78" fill="#e8f4ee" stroke="#d8ddd8"></rect>
+            <rect x="24" y="106" width="1072" height="78" fill="#e8f0f9" stroke="#d8ddd8"></rect>
+            <rect x="24" y="184" width="1072" height="78" fill="#ffffff" stroke="#d8ddd8"></rect>
+            <rect x="24" y="262" width="1072" height="132" fill="#fbf1dc" stroke="#d8ddd8"></rect>
+            <rect x="24" y="394" width="1072" height="78" fill="#f7faf5" stroke="#d8ddd8"></rect>
+
+            <g font-size="13" font-weight="800" fill="#17201d">
+              <text x="44" y="72">Human</text>
+              <text x="44" y="150">Claude Code</text>
+              <text x="44" y="228">studio CLI</text>
+              <text x="44" y="330">Orchestration core</text>
+              <text x="44" y="438">Artifacts</text>
+            </g>
+
+            <g data-lane="flow" font-size="12" fill="#17201d">
+              <rect x="160" y="52" width="118" height="30" rx="6" fill="#fff" stroke="#8cc7ad"></rect>
+              <text x="178" y="72">prompt</text>
+              <rect x="332" y="52" width="128" height="30" rx="6" fill="#fff" stroke="#8cc7ad"></rect>
+              <text x="350" y="72">select baseline</text>
+              <rect x="514" y="52" width="132" height="30" rx="6" fill="#fff" stroke="#8cc7ad"></rect>
+              <text x="532" y="72">approve batch</text>
+              <rect x="712" y="52" width="130" height="30" rx="6" fill="#fff" stroke="#8cc7ad"></rect>
+              <text x="730" y="72">accept diff</text>
+              <rect x="902" y="52" width="126" height="30" rx="6" fill="#fff" stroke="#8cc7ad"></rect>
+              <text x="920" y="72">confirm export</text>
+            </g>
+
+            <g data-lane="external_dependencies" font-size="12" fill="#17201d">
+              <rect x="210" y="130" width="150" height="30" rx="6" fill="#fff" stroke="#9fc0df"></rect>
+              <text x="228" y="150">generate HTML</text>
+              <rect x="658" y="130" width="150" height="30" rx="6" fill="#fff" stroke="#9fc0df"></rect>
+              <text x="676" y="150">propose candidate</text>
+            </g>
+
+            <g data-lane="internal_dependencies" font-size="12" fill="#17201d">
+              <rect x="232" y="208" width="158" height="30" rx="6" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="250" y="228">variants register</text>
+              <rect x="468" y="208" width="116" height="30" rx="6" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="486" y="228">synthesize</text>
+              <rect x="674" y="208" width="106" height="30" rx="6" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="692" y="228">apply</text>
+              <rect x="836" y="208" width="114" height="30" rx="6" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="854" y="228">handoff</text>
+
+              <rect x="224" y="292" width="148" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="242" y="314">state machine</text>
+              <rect x="434" y="292" width="168" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="452" y="314">comment -> task fold</text>
+              <rect x="656" y="292" width="164" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="674" y="314">od-id scope fence</text>
+              <rect x="866" y="292" width="154" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="884" y="314">export gate in core</text>
+
+              <rect x="656" y="344" width="164" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="674" y="366">stage temp ref</text>
+              <rect x="842" y="344" width="178" height="34" rx="6" fill="#fff" stroke="#dfbf7d"></rect>
+              <text x="860" y="366">append revision</text>
+            </g>
+
+            <g data-lane="flow" stroke="#17201d" stroke-width="2" fill="none" marker-end="url(#arrow2)">
+              <path d="M278 67 C295 86 278 110 260 130"></path>
+              <path d="M360 145 C394 166 328 186 312 208"></path>
+              <path d="M390 223 C430 223 430 223 468 223"></path>
+              <path d="M584 223 C625 223 633 223 674 223"></path>
+              <path d="M727 208 C719 185 720 166 730 160"></path>
+              <path d="M733 160 C735 182 736 204 727 208"></path>
+              <path d="M727 238 C725 260 735 281 738 292"></path>
+              <path d="M738 326 C738 334 738 336 738 344"></path>
+              <path d="M820 361 C828 361 834 361 842 361"></path>
+              <path d="M842 67 C866 74 888 81 902 67"></path>
+            </g>
+
+            <g data-lane="risk_questions">
+              <circle cx="1028" cy="306" r="13" fill="#fae9e6" stroke="#b44b42"></circle>
+              <text x="1024" y="311" font-size="14" font-weight="900" fill="#b44b42">?</text>
+              <text x="822" y="420" font-size="12" fill="#b44b42">L4-L6 identity, fitness, and human trust evidence stay deferred.</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="examples" class="slide" data-lane="surface flow components">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Examples</p>
+            <h2>Three ways someone would try the studio.</h2>
+          </div>
+          <p>These examples are intentionally plain. They show the tool from the user's side before naming the internals.</p>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card source-backed">
+            <span class="tag green">Example 1</span>
+            <h3>Create a sign-up card</h3>
+            <p><strong>Prompt:</strong> "Make a sign-up card for a calm analytics app."</p>
+            <p style="margin-top: 10px"><strong>What happens:</strong> Claude Code creates HTML variants, you choose one in preview, then you comment on the CTA or helper text.</p>
+            <p style="margin-top: 10px"><strong>Useful command shape:</strong> <code>studio variants register &lt;sid&gt; --from ./variants</code></p>
+          </article>
+
+          <article class="card source-backed">
+            <span class="tag">Example 2</span>
+            <h3>Refine a login screen</h3>
+            <p><strong>Prompt:</strong> "Keep this login screen trustworthy, but make the password-reset path easier to notice."</p>
+            <p style="margin-top: 10px"><strong>What happens:</strong> you comment on a specific component, the studio turns that comment into a change task, and the candidate must stay inside that scope.</p>
+            <p style="margin-top: 10px"><strong>Useful command shape:</strong> <code>studio apply &lt;sid&gt; &lt;batch&gt; --candidate-from candidate.html</code></p>
+          </article>
+
+          <article class="card source-backed">
+            <span class="tag amber">Example 3</span>
+            <h3>Run a reversible AUTO pass</h3>
+            <p><strong>Prompt:</strong> "Try one exploit pass that makes the current CTA clearer."</p>
+            <p style="margin-top: 10px"><strong>What happens:</strong> the studio can score proposed candidates, keep the best admitted one, and still let you revert because history is append-only.</p>
+            <p style="margin-top: 10px"><strong>Useful command shape:</strong> <code>studio cycle &lt;sid&gt; exploit --objective "clearer CTA" --candidate continue.html:0.9</code></p>
+          </article>
+        </div>
+
+        <div class="grid cols-2" style="margin-top: 18px">
+          <article class="card inferred">
+            <span class="tag green">What You See</span>
+            <h3>The browser is not decorative</h3>
+            <p>The preview page shows the actual HTML variants, the selected baseline, the staged before/after view, and the controls to accept, discard, or revert. That is the main learning surface for a new user.</p>
+          </article>
+          <article class="card inferred">
+            <span class="tag coral">What You Should Notice</span>
+            <h3>It keeps the workflow honest</h3>
+            <p>The studio is useful because it slows down only the dangerous parts: accepting a staged revision and exporting a handoff. The exploratory parts stay fast.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="internal_dependencies external_dependencies">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">How It Was Made</p>
+            <h2>It is a small local backend with a CLI, a browser preview, and a strict core.</h2>
+          </div>
+          <p>Once the workflow is clear, the implementation is easier to understand: adapters talk inward to the core; generated HTML comes from outside.</p>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card source-backed">
+            <span class="tag green">Inside Boundary</span>
+            <h3>Rules, state, storage, preview</h3>
+            <p>`domain/` defines the session state and invariants. `application/` owns use cases and gates. `infrastructure/` stores session and artifact content. The CLI and preview are adapters.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">Outside Boundary</span>
+            <h3>Generation engine and host operator</h3>
+            <p>Claude Code creates variants and proposed candidates. A human or host app drives the CLI. Future MCP or SDK adapters can plug in behind the same operations.</p>
+          </article>
+        </div>
+
+        <div class="diagram" style="margin-top: 18px">
+          <svg viewBox="0 0 1120 420" role="img" aria-label="Dependency boundary">
+            <defs>
+              <marker id="arrow3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#17201d"></path>
+              </marker>
+            </defs>
+            <rect x="306" y="42" width="520" height="316" rx="14" fill="#ffffff" stroke="#1d7a58" stroke-width="2" data-lane="internal_dependencies"></rect>
+            <text x="334" y="78" font-size="15" font-weight="900" fill="#1d7a58">Studio governance boundary</text>
+
+            <g data-lane="internal_dependencies" font-size="12" fill="#17201d">
+              <rect x="350" y="112" width="150" height="52" rx="8" fill="#e8f4ee" stroke="#8cc7ad"></rect>
+              <text x="372" y="136" font-weight="800">CLI adapter</text>
+              <text x="372" y="154" fill="#5a6761">JSON commands</text>
+
+              <rect x="576" y="112" width="170" height="52" rx="8" fill="#fbf1dc" stroke="#dfbf7d"></rect>
+              <text x="598" y="136" font-weight="800">Orchestration core</text>
+              <text x="598" y="154" fill="#5a6761">server-side gates</text>
+
+              <rect x="350" y="226" width="150" height="52" rx="8" fill="#e8f0f9" stroke="#9fc0df"></rect>
+              <text x="372" y="250" font-weight="800">Domain model</text>
+              <text x="372" y="268" fill="#5a6761">state + invariants</text>
+
+              <rect x="576" y="226" width="170" height="52" rx="8" fill="#fae9e6" stroke="#d99b94"></rect>
+              <text x="598" y="250" font-weight="800">Artifact store</text>
+              <text x="598" y="268" fill="#5a6761">HTML refs + revisions</text>
+            </g>
+
+            <g data-lane="external_dependencies" font-size="12" fill="#17201d">
+              <rect x="66" y="112" width="156" height="52" rx="8" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="88" y="136" font-weight="800">Claude Code</text>
+              <text x="88" y="154" fill="#5a6761">generates proposals</text>
+
+              <rect x="66" y="226" width="156" height="52" rx="8" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="88" y="250" font-weight="800">Human / host app</text>
+              <text x="88" y="268" fill="#5a6761">selects and confirms</text>
+
+              <rect x="898" y="168" width="156" height="52" rx="8" fill="#fff" stroke="#d8ddd8"></rect>
+              <text x="920" y="192" font-weight="800">Downstream handoff</text>
+              <text x="920" y="210" fill="#5a6761">developer/tester use</text>
+            </g>
+
+            <g stroke="#17201d" stroke-width="2" fill="none" marker-end="url(#arrow3)">
+              <path data-lane="external_dependencies" d="M222 138 C260 138 300 138 350 138"></path>
+              <path data-lane="external_dependencies" d="M222 252 C260 252 300 252 350 252"></path>
+              <path data-lane="internal_dependencies" d="M500 138 C526 138 548 138 576 138"></path>
+              <path data-lane="internal_dependencies" d="M661 164 C660 186 660 204 661 226"></path>
+              <path data-lane="internal_dependencies" d="M576 252 C548 252 526 252 500 252"></path>
+              <path data-lane="external_dependencies" d="M746 252 C812 248 858 222 898 200"></path>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="properties flow lifecycle">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Lifecycle</p>
+            <h2>The session state machine is the product's spine.</h2>
+          </div>
+          <p>Reader outcomes: after this layer, you should understand where the user can intervene and where the core refuses invalid movement.</p>
+        </div>
+
+        <div class="timeline" data-lane="lifecycle">
+          <div class="step"><b>1. SessionInitialized</b><span>Variant count is bounded and gates begin pending.</span></div>
+          <div class="step"><b>2. PromptCaptured</b><span>The user's UI objective is recorded.</span></div>
+          <div class="step"><b>3. VariantsReady</b><span>HTML variants enter through the generator seam.</span></div>
+          <div class="step"><b>4. BaselineReady</b><span>A baseline is selected or committed.</span></div>
+          <div class="step"><b>5. CommentsCaptured</b><span>Component-level intent becomes durable input.</span></div>
+          <div class="step"><b>6. MutationDrafted</b><span>Comments deterministically fold into tasks.</span></div>
+          <div class="step"><b>7. MutationApproved</b><span>Intent is approved before any candidate applies.</span></div>
+          <div class="step hot"><b>8. RevisionApplied</b><span>Candidate is staged; head has not advanced.</span></div>
+          <div class="step hot"><b>9. RevisionRecorded</b><span>Accepted candidate becomes append-only history.</span></div>
+          <div class="step"><b>10. SessionCompleted</b><span>Export is terminal and explicitly confirmed.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="properties internal_dependencies flow">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Control Model</p>
+            <h2>The studio checks the proposed change before it becomes the saved version.</h2>
+          </div>
+          <p>Claude Code can be creative. The studio's job is to ask a simpler question: did this candidate stay inside the change the user asked for?</p>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card source-backed">
+            <span class="tag green">Gate 1</span>
+            <h3>Approve the plan</h3>
+            <p>The studio first shows the change tasks it inferred from your comments. This is the "yes, try that" moment.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag amber">Check</span>
+            <h3>Keep the change inside the target</h3>
+            <p>The candidate is checked against the component ids from your comments. Unexpected edits are rejected instead of silently accepted.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">Gate 2</span>
+            <h3>Accept what you saw</h3>
+            <p>The staged version is shown before it becomes the new head. Accept keeps it; discard leaves the previous version in place.</p>
+          </article>
+        </div>
+
+        <table style="margin-top: 18px" data-lane="properties">
+          <thead>
+            <tr>
+              <th>Part of the tool</th>
+              <th>Plain meaning</th>
+              <th>Why a user cares</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Small variant set</td>
+              <td>The studio asks for only a few options at a time.</td>
+              <td>You compare real alternatives instead of scrolling through endless generated noise.</td>
+            </tr>
+            <tr>
+              <td>Baseline choice</td>
+              <td>You pick the version to continue from.</td>
+              <td>Later comments and revisions have a clear source.</td>
+            </tr>
+            <tr>
+              <td>Scope check</td>
+              <td>The studio compares the candidate to the component you asked to change.</td>
+              <td>A button-label edit should not secretly redesign the whole card.</td>
+            </tr>
+            <tr>
+              <td>Append-only history</td>
+              <td>Each accepted change adds a record instead of erasing the past.</td>
+              <td>You can inspect or revert without losing the trail.</td>
+            </tr>
+            <tr>
+              <td>Export confirmation</td>
+              <td>Handoff is the final explicit step.</td>
+              <td>The tool does not accidentally send unfinished work downstream.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="components flow external_dependencies">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Operating Surface</p>
+            <h2>You operate the studio with simple commands and a browser page.</h2>
+          </div>
+          <p>The CLI is how sessions move forward. The preview is how people understand what happened.</p>
+        </div>
+
+        <div class="grid cols-2">
+          <article class="card source-backed">
+            <span class="tag green">Human-in-the-loop</span>
+            <h3>The normal path</h3>
+            <p>Open a session, submit a prompt, register variants, select a baseline, comment, synthesize, approve, apply, preview, accept, then export only when ready.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">AUTO loop</span>
+            <h3>Fast iteration when you know the objective</h3>
+            <p>A cycle can try candidates against a goal and keep the best admitted one. It is still visible and revertible.</p>
+          </article>
+        </div>
+
+        <div class="grid cols-3" style="margin-top: 18px">
+          <article class="card source-backed">
+            <span class="tag green">Preview</span>
+            <h3>See the UI in place</h3>
+            <p>`studio preview` serves a loopback page with variants, staged before/after, honest diff, annotate, accept, discard, and revert controls.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">Integration</span>
+            <h3>JSON stdout contract</h3>
+            <p>`INTEGRATION.md` defines stdout JSON, stderr error payloads, exit code branching, and per-run `STUDIO_DATA` isolation.</p>
+          </article>
+          <article class="card inferred">
+            <span class="tag amber">Future Product</span>
+            <h3>Adapter-ready kernel</h3>
+            <p>The same operations could support an SDK, typed tool, or hosted surface once auth and multi-user state are designed.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="properties components lifecycle">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Built Today</p>
+            <h2>This is already runnable as a local prototype tool.</h2>
+          </div>
+          <p>The project is not just a concept document. It has a TypeScript backend, a CLI, a preview server, fixtures, and tests around the main loop.</p>
+        </div>
+
+        <div class="grid cols-3">
+          <article class="card source-backed">
+            <span class="tag green">Backend</span>
+            <h3>Node + TypeScript</h3>
+            <p>The backend package contains the CLI, core use cases, file-backed state, and artifact storage.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag green">Two-gate apply</span>
+            <h3>Preview before keeping</h3>
+            <p>The code can stage a candidate, show the diff, and then commit only the accepted version.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag green">Governance tests</span>
+            <h3>Loop tests exist</h3>
+            <p>The test suite covers annotation, preview accept, revert, export confirmation, and AUTO cycle behavior.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="risk_questions properties">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Careful Parts</p>
+            <h2>What a new user should not misunderstand.</h2>
+          </div>
+          <p>The studio is useful because it makes changes visible. That is different from proving the design is good, preferred, or trusted.</p>
+        </div>
+
+        <table data-lane="risk_questions">
+          <thead>
+            <tr>
+              <th>Misunderstanding</th>
+              <th>Better reading</th>
+              <th>Why it matters</th>
+              <th>Where the tool is going</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>"The browser test proves users trust it."</td>
+              <td>The browser test proves what happened on screen.</td>
+              <td>Trust and preference still need human evidence.</td>
+              <td>Human-study and UX evidence work.</td>
+            </tr>
+            <tr>
+              <td>"The scope checker understands every UI change."</td>
+              <td>It checks stable component ids and known structure.</td>
+              <td>Large structural changes need stronger identity logic.</td>
+              <td>Component identity and registry work.</td>
+            </tr>
+            <tr>
+              <td>"AUTO mode means unattended production design."</td>
+              <td>AUTO is a reversible local cycle.</td>
+              <td>It is for exploration, not final judgment.</td>
+              <td>Better scoring and calibration.</td>
+            </tr>
+            <tr>
+              <td>"All future layers are already live."</td>
+              <td>The current tool is the local workflow floor.</td>
+              <td>Identity, fitness, and trust layers should stay clearly marked.</td>
+              <td>Roadmap after the workflow is solid.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="flow lifecycle risk_questions">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Learn Next</p>
+            <h2>Once the workflow clicks, these are the next concepts.</h2>
+          </div>
+          <p>This is the order I would use to teach the tool: workflow first, architecture second, deeper evidence later.</p>
+        </div>
+
+        <div class="grid cols-4">
+          <article class="card source-backed">
+            <span class="tag green">Near</span>
+            <h3>Polish the local loop</h3>
+            <p>Keep CLI, preview, annotation, accept, discard, revert, and export aligned with docs and tests.</p>
+          </article>
+          <article class="card source-backed">
+            <span class="tag">Next</span>
+            <h3>Deepen component identity</h3>
+            <p>Promote `UIIdentityIndex` and stronger node identity when L4 work is ready.</p>
+          </article>
+          <article class="card inferred">
+            <span class="tag amber">Later</span>
+            <h3>Calibrate fitness</h3>
+            <p>Move from self-critique and heuristic signals toward measured accessibility, layout, and user-study evidence.</p>
+          </article>
+          <article class="card inferred">
+            <span class="tag coral">Careful</span>
+            <h3>Only then publicize trust</h3>
+            <p>Use evidence taxonomy before saying the product improves human confidence or taste.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-lane="visual_composition surface risk_questions">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Evidence Boundary</p>
+            <h2>This presentation separates source-backed facts from inference.</h2>
+          </div>
+          <p>The page is an x-ray L0 static HTML/SVG artifact. Its companion lane model is `product-deep-dive.lanes.json`.</p>
+        </div>
+
+        <div class="source-grid">
+          <div class="grid cols-2">
+            <article class="card source-backed">
+              <span class="tag green">Source-backed</span>
+              <h3>Used as evidence</h3>
+              <p>`README.md`, `SPEC.md`, `ARCHITECTURE.md`, `INTEGRATION.md`, `states.md`, `operations.md`, `CRAFT.md`, `.craft/ledger.yml`, `PLAN-NEXT.md`, package scripts, CLI, state model, admission, two-gate, cycle, and e2e files.</p>
+            </article>
+            <article class="card inferred">
+              <span class="tag amber">Inference</span>
+              <h3>Used as interpretation</h3>
+              <p>Product positioning, buyer/user framing, adapter-readiness, roadmap sequencing, and the claim that the strongest market wedge is accountable AI UI change rather than generation alone.</p>
+            </article>
+          </div>
+          <aside class="card" data-lane="visual_composition">
+            <span class="tag">Reader terms</span>
+            <h3>Reader terms and reader outcomes</h3>
+            <p>This deck defines local terms like generator seam, admission boundary, two-gate apply, honest diff, and reversibility model before relying on them.</p>
+            <p class="small" style="margin-top: 10px">Why it matters: a reader should leave knowing both the product promise and the implementation boundary.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Generated artifact:</strong> `projects/ui-prototyping-studio/product-deep-dive.html`</p>
+      <p><strong>Lane model:</strong> `projects/ui-prototyping-studio/product-deep-dive.lanes.json`</p>
+      <p class="small">Renderer: L0 static HTML/SVG. No remote assets or runtime services required.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -87,6 +87,57 @@ diff is shown — the saw-the-diff moment. Second gate = the human **accept-diff
 candidate; only then does the recorder commit. Whole-batch all-or-nothing; commit binds the previewed
 `candidateHtmlHash` (seen == recorded).
 
+## 2b. Operating-model update — reversibility + two modes (DEC-026 / DEC-027)
+
+> Supersedes the "human disposes every durable change" framing above where they conflict. The earlier
+> sections are kept for lineage; this is the current model.
+
+**Control is reversibility, not a gate on who acts (DEC-REVERSIBILITY-NOT-GATING-026).** The revision log is
+append-only and every durable action is undoable, so the agent may drive the whole loop — including
+`accept`. The **one irreversible edge is `handoff export`**, which requires an explicit human `--confirm`.
+The prior human-vs-agent identity gate (F2/`GAP-CORE-IDENTITY-GATE-010`) is **dropped, not built**.
+
+**Two modes (DEC-AUTO-BUILD-027):**
+- **HUMAN-in-the-loop** — human selects baseline + points at components; agent records comments, proposes +
+  stages; the human accepts/reverts.
+- **AUTO (exploit / explore)** — the human gives an objective; the agent runs `cycle` (generate candidate +
+  self-critique score; the core gates via the scope fence and **auto-accepts the top score**). Reversible +
+  visible; this is the *sanctioned* auto-accept path — so **INV-4 ("auto-apply forbidden") scopes to the
+  human comment→batch apply path**, not to `cycle` (reconciles F2; the literal `system:auto` actor is still
+  refused as a smoke-test).
+
+**Runnable verb surface (today, in `backend/src/cli/studio.ts`):** `session open · prompt submit · variants
+generate|register · state · preview` (loopback server: sandboxed variant iframes, before/after honest diff,
+**annotate** click→comment via `POST /comment`, `/state`) `· comment add · pending · synthesize · baseline
+select|commit · batch approve · apply · accept · discard · cycle · watch · revert [--to] · revisions ·
+handoff export --confirm`.
+
+**Test reality:** 53 unit tests + 12 Playwright e2e (`backend/e2e/`), including a blind naive-user suite and
+governance falsifiers (export-without-confirm, revert-restores, auto-accept-revertible) that are
+mutation-verified to fail when the guarantee breaks.
+
+**Corrections to earlier claims (from the 2026-06-18 gap-audit):**
+- **INV-7 (escaping):** comment notes/prompt are escaped **at render** (`studio preview`), not before
+  persistence — `captureCommentEvent` stores trimmed raw text. (Earlier "escaped before persistence" was an
+  overclaim.)
+- **Honest diff / `buildDiffSummary`:** the two-gate `apply`→`accept` path uses the honest per-od-id diff
+  (`DiffSummaryHonest`). The **legacy single-gate `batch apply` is deprecated** and still derives counts from
+  `changeType` via `buildDiffSummary` (not yet deleted). (Earlier "deletes buildDiffSummary" was aspirational.)
+
+### Known gaps — gap-audit 2026-06-18 (tracked in `development/PLAN-NEXT.md`)
+
+| ID | Sev | Gap | Status |
+|----|-----|-----|--------|
+| F1 | HIGH | HTTP `/handoff/export` bypasses the `--confirm` edge (gate is CLI-only; `0.0.0.0:8787`) | plan P0 — move confirm into the core use-case |
+| F2 | HIGH | AUTO `cycle` auto-accepts with no `system:auto` check (vs INV-4) | reconciled above; smoke-guard queued |
+| F5 | HIGH | `revert --to <rev>` with no `candidateHtmlHash` silently restores baseline | plan P1 — error instead |
+| F3/F8 | MED | doc overclaims (corrected above) | corrected |
+| F6/F7 | MED | no e2e for `accept` CLI; legacy HTTP surface untested + ungated | plan — UI-accept e2e; decide gate-or-remove HTTP |
+| F9/F10 | MED | AUTO fitness unvalidated (ties/NaN/gamed); stop dials not core-enforced | plan — validate scores; core cycle ceiling |
+| F11 | MED | comment lifecycle across head moves underspecified | plan — spec it |
+| F12/F13 | LOW | file-store silent reset on corrupt JSON + no lock; preview fixed port | plan (low) |
+| (UI) | — | browser loop dead-ends at annotate; accept/revert are CLI-only | plan P1 — in-preview accept/revert control |
+
 ## 3. Scope: L0→L2 (this release)
 
 ### IN
@@ -115,6 +166,30 @@ candidate; only then does the recorder commit. Whole-batch all-or-nothing; commi
 | L4 | Identity/DNA + conformance-delta (`UIElementIdentity`, `UIVisualSignature`, `previewRef`, signed `DiffSummary.fieldDeltas`) | The identity/conformance types **do not exist in code** (`DiffSummary` is bare `{added,changed,removed}` counts); net-new build | `development/deep-spec-dispatch/` (L4) |
 | L5 | Domain/fitness scoring, concurrency atomicity, bounded stores (`FitnessSignal`/`FitnessVector`, `Inv-3..5,8`) | Net-new types + backend serialization; **OQ-3** blocks it | `development/deep-spec-dispatch/` (L5) |
 | L6 | Human-evidence / trust ergonomics (`WorkflowStep` projection, plain-language copy, trust meter) | Ergonomics payoff is **unproven and human-study-gated**; **OQ-1/OQ-2** block it | `development/deep-spec-dispatch/` (L6) |
+| L5+ | **UX-constraint exploit/explore fitness** — drive `GenerationMode` `explore`/`exploit` cycles from the studio's UX-constraint layers as a machine-readable `FitnessSignal` (see subsection below) | Needs the `ux-evidence-validator` + a **runnable axe/layout evaluator in the cycle** (Playwright-backed), which does not exist in code; builds on the L5 `FitnessSignal`/`FitnessVector` deferral; soft-score weights need calibration (**OQ-5**) | `development/refinement-runs/20260618-ux-constraints-exploit-explore-spec/` |
+
+#### UX-constraint exploit/explore fitness `[DEFERRED]`
+
+The existing `GenerationMode {explore, exploit}` cycles use the studio's **already-defined UX-constraint
+layers** as their fitness signal. Same constraints, two uses: **explore** treats them as a *boundary* (sample
+divergent candidates that all clear the hard gates, maximizing variety in soft dimensions); **exploit** treats
+them as a *gradient* (from the current head, climb toward higher soft scores without dropping below the gates).
+
+Constraint roles (reuses the existing acceptance-vs-advisory line):
+
+- **Hard gates — objective correctness, binary, fail ⇒ discard in both modes:** L1 a11y (axe, role/name/state,
+  keyboard), L2 layout integrity, and the deterministic part of L3 interaction-flow. (These are the existing
+  L1/L2 *acceptance criteria*.)
+- **Soft gradient — taste/ergonomics, scored, never discards:** L4 cognitive/attention, `laws-of-ux`, and the
+  subjective part of L3. The **human objective** (prompt + accepted comments + picks) weights the soft terms.
+
+Boundaries: the constraint signal **informs candidate selection only — it never gates disposal.** Per
+DEC-REVERSIBILITY-NOT-GATING-026, the human still owns export; a high-scoring candidate is still revertible, and
+a gate failure simply means the agent never offers that candidate. **Deferral dependency:** a per-candidate
+constraint evaluator wired into the cycle (`ux-evidence-validator` + axe/layout runner) — post-MVP. The MVP
+ships modes with the lighter ML2 fitness (heuristic + self-critique + human objective); this is the named
+upgrade that makes the heuristic part rigorous. Design + falsification:
+`development/refinement-runs/20260618-ux-constraints-exploit-explore-spec/`.
 
 ### Deferred open questions (carried)
 
@@ -122,6 +197,7 @@ candidate; only then does the recorder commit. Whole-batch all-or-nothing; commi
 - **OQ-2** — "saw-the-diff" proxy before irreversible apply (blocks L6).
 - **OQ-3** — operator-handoff carry/reset/prompt policy (blocks L5).
 - **OQ-4** — import-integrity MVP boundary (forged-provenance scope, out of L1).
+- **OQ-5** — soft-score weights + L4/laws-of-ux scoring functions for the UX-constraint fitness (blocks the L5+ exploit/explore-fitness build; calibrate against the UX-EVIDENCE-REPORT fixtures).
 
 ## 4. Domain model (what exists in code)
 

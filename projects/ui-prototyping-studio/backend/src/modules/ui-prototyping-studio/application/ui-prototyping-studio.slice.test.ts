@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { resolve } from "node:path";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import test from "node:test";
 
 import { makeApplyApprovedBatchUseCase } from "./apply-approved-batch.js";
@@ -400,6 +402,7 @@ test("UPS-CON-008 UPS-CON-009 UPS-CON-010 UPS-OP-009 UPS-OP-010 UPS-QRY-005 UPS-
       context.exportDesignHandoff({
         sessionId: session.sessionId,
         requestedBy: "test-suite",
+        confirmedBy: "test-suite", // N1: confirm passes so this reaches the revision-required check it tests
       }),
     (error) => {
       assert.ok(isUiPrototypingStudioError(error));
@@ -418,6 +421,7 @@ test("UPS-CON-008 UPS-CON-009 UPS-CON-010 UPS-OP-009 UPS-OP-010 UPS-QRY-005 UPS-
   const exported = context.exportDesignHandoff({
     sessionId: session.sessionId,
     requestedBy: "test-suite",
+    confirmedBy: "test-suite", // N1: export is the one irreversible edge — confirmation required
     exportProfile: "mvp",
   });
   assert.equal(exported.bundle.storyRefs.length, 1);
@@ -443,6 +447,51 @@ test("UPS-CON-008 UPS-CON-009 UPS-CON-010 UPS-OP-009 UPS-OP-010 UPS-QRY-005 UPS-
   assert.equal(snapshot.integration.uiPhaseBridgeReady, true);
   assert.equal(snapshot.integration.generateTestsUiReady, true);
   assert.equal(snapshot.integration.uiImplementReady, true);
+});
+
+test("ui-prototyping-studio handoff export can use a target-specific profile", () => {
+  const featureDocsRootDir = mkdtempSync(join(tmpdir(), "ups-handoff-profile-"));
+  writeFileSync(
+    join(featureDocsRootDir, "troqar-profile.json"),
+    JSON.stringify({
+      profileId: "troqar-product-architecture",
+      storyRefs: ["projects/body-war/docs/features/troqar-product-architecture/SPEC.md"],
+      requirementRefs: ["projects/body-war/docs/features/troqar-product-architecture/UI-SPEC.md#requirements"],
+      acceptanceRefs: ["projects/body-war/docs/features/troqar-product-architecture/TEST-SPEC.md#acceptance"],
+      uiSpecRef: "projects/body-war/docs/features/troqar-product-architecture/UI-SPEC.md",
+      testSpecRef: "projects/body-war/docs/features/troqar-product-architecture/TEST-SPEC.md",
+      sourceRefs: ["projects/body-war/docs/features/troqar-product-architecture/VISUAL-DEFINITIONS.md"],
+    }),
+    "utf8",
+  );
+  const context = createTestContext(featureDocsRootDir);
+  const session = prepareBaselineReadySession(context, 1);
+  const approvedDraft = prepareApprovedBatch(context, session.sessionId);
+  context.applyApprovedBatch({
+    sessionId: session.sessionId,
+    batchId: approvedDraft.batchId,
+    applyRequestedBy: "test-suite",
+  });
+
+  const exported = context.exportDesignHandoff({
+    sessionId: session.sessionId,
+    requestedBy: "test-suite",
+    confirmedBy: "test-suite",
+    exportProfile: "troqar-profile.json",
+  });
+
+  assert.equal(exported.bundle.exportProfile, "troqar-product-architecture");
+  assert.equal(
+    exported.bundle.uiSpecRef,
+    "projects/body-war/docs/features/troqar-product-architecture/UI-SPEC.md",
+  );
+  assert.equal(
+    exported.bundle.testSpecRef,
+    "projects/body-war/docs/features/troqar-product-architecture/TEST-SPEC.md",
+  );
+  assert.deepEqual(exported.bundle.sourceRefs, [
+    "projects/body-war/docs/features/troqar-product-architecture/VISUAL-DEFINITIONS.md",
+  ]);
 });
 
 function prepareBaselineReadySession(
@@ -514,9 +563,9 @@ function prepareApprovedBatch(
   return approved.batch;
 }
 
-function createTestContext() {
+function createTestContext(featureDocsRootOverride?: string) {
   const store = createInMemoryStudioSessionStore();
-  const featureDocsRootDir = resolve(
+  const featureDocsRootDir = featureDocsRootOverride ?? resolve(
     process.cwd(),
     "..",
     "provenance",

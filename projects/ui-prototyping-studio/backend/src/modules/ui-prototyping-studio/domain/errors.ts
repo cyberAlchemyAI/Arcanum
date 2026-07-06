@@ -28,7 +28,14 @@ export type UiPrototypingStudioErrorCode =
   | "OD_ID_MISSING"
   | "ARTIFACT_CONTENT_PORT_UNAVAILABLE"
   | "CURRENT_HTML_UNRESOLVABLE"
-  | "SCOPE_EMPTY";
+  | "SCOPE_EMPTY"
+  | "NO_REVISION_TO_REVERT"
+  | "REVISION_NOT_FOUND"
+  | "HANDOFF_CONFIRMATION_REQUIRED"
+  | "AUTO_OBJECTIVE_REQUIRED"
+  | "CYCLE_CANDIDATES_REQUIRED"
+  | "CYCLE_SCORE_INVALID"
+  | "CYCLE_CEILING_REACHED";
 
 export type UiPrototypingStudioError = Error & {
   code: UiPrototypingStudioErrorCode;

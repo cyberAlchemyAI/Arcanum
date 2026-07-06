@@ -7,6 +7,9 @@ import { makeRegisterStudioVariantsUseCase } from "./register-variants.js";
 import { makeApplyAndStageUseCase } from "./apply-and-stage.js";
 import { makeAcceptStagedRevisionUseCase } from "./accept-staged-revision.js";
 import { makeDiscardStagedRevisionUseCase } from "./discard-staged-revision.js";
+import { makeRevertRevisionUseCase } from "./revert-revision.js";
+import { makeRunCycleUseCase } from "./run-cycle.js";
+import { makeListPendingCommentsQuery } from "./list-pending-comments.js";
 import type { ArtifactContentPort } from "./artifact-content-port.js";
 import { makeGetDraftMutationBatchQuery } from "./get-draft-mutation-batch.js";
 import { makeGetHandoffBundleQuery } from "./get-handoff-bundle.js";
@@ -48,6 +51,9 @@ export function createStudioOrchestrationModule(
     applyAndStage: makeApplyAndStageUseCase(store, options.artifactContentStore ?? null),
     acceptStagedRevision: makeAcceptStagedRevisionUseCase(store, options.artifactContentStore ?? null),
     discardStagedRevision: makeDiscardStagedRevisionUseCase(store, options.artifactContentStore ?? null),
+    revertRevision: makeRevertRevisionUseCase(store, options.artifactContentStore ?? null),
+    runCycle: makeRunCycleUseCase(store, options.artifactContentStore ?? null),
+    listPendingComments: makeListPendingCommentsQuery(store),
     exportDesignHandoff: makeExportDesignHandoffUseCase(store, {
       featureDocsRootDir: options.featureDocsRootDir,
     }),

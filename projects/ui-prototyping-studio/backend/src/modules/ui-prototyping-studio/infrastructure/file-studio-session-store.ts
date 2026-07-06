@@ -176,13 +176,18 @@ function loadDocument(filePath: string): PersistentStoreDocument {
     return createEmptyDocument();
   }
 
+  // N10 (F12): only an ABSENT file means "fresh start". A present-but-unparseable file must NOT be silently
+  // reset to empty (that is silent data-loss) — fail loud so the operator can back it up / investigate.
+  const raw = readFileSync(filePath, "utf8");
+  let parsed: Partial<PersistentStoreDocument>;
   try {
-    const raw = readFileSync(filePath, "utf8");
-    const parsed = JSON.parse(raw) as Partial<PersistentStoreDocument>;
-    return normalizeDocument(parsed);
-  } catch {
-    return createEmptyDocument();
+    parsed = JSON.parse(raw) as Partial<PersistentStoreDocument>;
+  } catch (cause) {
+    throw new Error(
+      `Studio data file is present but not valid JSON: ${filePath}. Refusing to silently reset (data-loss guard) — back it up or remove it to start fresh. Cause: ${String(cause)}`,
+    );
   }
+  return normalizeDocument(parsed);
 }
 
 function writeDocument(
@@ -335,5 +340,7 @@ function cloneHandoffBundle(bundle: HandoffBundle): HandoffBundle {
     storyRefs: [...bundle.storyRefs],
     requirementRefs: [...bundle.requirementRefs],
     acceptanceRefs: [...bundle.acceptanceRefs],
+    sourceRefs: bundle.sourceRefs ? [...bundle.sourceRefs] : undefined,
+    missingRefs: bundle.missingRefs ? [...bundle.missingRefs] : undefined,
   };
 }

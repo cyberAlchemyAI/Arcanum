@@ -1,0 +1,1549 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>IDE Ergonomics Experience Prototype</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #04070a;
+      --panel: rgba(9, 15, 19, 0.84);
+      --panel-2: rgba(14, 22, 28, 0.92);
+      --ink: #f2faf7;
+      --muted: #97a4a6;
+      --dim: #647073;
+      --line: rgba(226, 242, 237, 0.14);
+      --line-strong: rgba(226, 242, 237, 0.24);
+      --teal: #00d8a4;
+      --teal-soft: rgba(0, 216, 164, 0.12);
+      --amber: #f0b45f;
+      --violet: #9b8cff;
+      --rose: #d9708d;
+      --green: #7be78e;
+      --shadow: 0 24px 90px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -18%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg, transparent 0 11%, rgba(0, 216, 164, 0.24) 23%, transparent 38%, transparent 58%, rgba(0, 216, 164, 0.18) 78%, transparent 92%),
+        linear-gradient(66deg, transparent 0 12%, rgba(240, 180, 95, 0.08) 24%, transparent 38%, rgba(155, 140, 255, 0.1) 84%, transparent 100%),
+        linear-gradient(180deg, #11171c 0%, #06090c 50%, #020304 100%);
+      filter: blur(36px);
+      transform: scale(1.08);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.26;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mix-blend-mode: screen;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .prototype {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+    }
+
+    .chrome {
+      min-height: calc(100vh - 44px);
+      border: 1px solid rgba(226, 242, 237, 0.09);
+      background: rgba(3, 6, 8, 0.38);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .topbar {
+      min-height: 64px;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto minmax(220px, 0.8fr);
+      gap: 18px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(4, 8, 11, 0.72);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background:
+        radial-gradient(circle at 72% 26%, rgba(255,255,255,0.55), transparent 0 14%, transparent 20%),
+        linear-gradient(135deg, var(--teal), #146d59 48%, #121820 49% 100%);
+      box-shadow: 0 0 30px rgba(0, 216, 164, 0.28);
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      min-width: 0;
+    }
+
+    .brand-title strong {
+      display: block;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-title span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .story-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .ghost,
+    .primary,
+    .choice,
+    .mini-action {
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, color 160ms ease, background 160ms ease;
+    }
+
+    .ghost,
+    .primary {
+      padding: 9px 13px;
+      font-size: 0.86rem;
+      font-weight: 740;
+    }
+
+    .primary {
+      border-color: rgba(0, 216, 164, 0.58);
+      background: var(--teal);
+      color: #03110e;
+      box-shadow: 0 0 24px rgba(0, 216, 164, 0.26);
+    }
+
+    .ghost:hover,
+    .ghost:focus-visible,
+    .choice:hover,
+    .choice:focus-visible,
+    .mini-action:hover,
+    .mini-action:focus-visible {
+      border-color: rgba(0, 216, 164, 0.72);
+      color: var(--teal);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .primary:hover,
+    .primary:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+      background: #16ebba;
+    }
+
+    .progress-label {
+      justify-self: end;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 760;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 290px minmax(520px, 1fr) 340px;
+      gap: 1px;
+      background: rgba(226, 242, 237, 0.08);
+    }
+
+    .pane {
+      min-height: 0;
+      background: rgba(4, 8, 11, 0.86);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .pane-header {
+      min-height: 50px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #e7f2ef;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .pane-header span {
+      color: var(--teal);
+      font-size: 0.72rem;
+    }
+
+    .left-body,
+    .right-body,
+    .center-body {
+      min-height: 0;
+      overflow: auto;
+      scrollbar-color: rgba(0, 216, 164, 0.55) rgba(255, 255, 255, 0.06);
+    }
+
+    .left-body,
+    .right-body {
+      padding: 16px;
+    }
+
+    .scenario {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid rgba(226, 242, 237, 0.11);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      opacity: 0.56;
+    }
+
+    .step.active,
+    .step.done {
+      opacity: 1;
+    }
+
+    .step .num {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      color: var(--teal);
+      border: 1px solid rgba(0, 216, 164, 0.45);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .step.done .num {
+      color: #03110e;
+      background: var(--teal);
+    }
+
+    .step strong {
+      display: block;
+      color: #ecf7f4;
+      font-size: 0.95rem;
+    }
+
+    .step p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.36;
+    }
+
+    .center-body {
+      position: relative;
+      background:
+        radial-gradient(circle at 40% 18%, rgba(0, 216, 164, 0.08), transparent 0 25%, transparent 38%),
+        linear-gradient(180deg, rgba(255,255,255,0.025), transparent 24%);
+    }
+
+    .ide-surface {
+      min-height: 100%;
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .context-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .file-tabs {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .tab {
+      padding: 8px 11px;
+      border: 1px solid rgba(226, 242, 237, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--ink);
+      border-color: rgba(0, 216, 164, 0.34);
+      background: rgba(0, 216, 164, 0.08);
+    }
+
+    .session-status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 18px rgba(0, 216, 164, 0.68);
+    }
+
+    .chat-shell {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(7, 12, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .chat-scroll {
+      min-height: 0;
+      overflow: auto;
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .message {
+      max-width: 82%;
+      border: 1px solid rgba(226, 242, 237, 0.12);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #dce7e4;
+      font-size: 0.92rem;
+      line-height: 1.43;
+    }
+
+    .message.user {
+      justify-self: end;
+      border-color: rgba(0, 216, 164, 0.28);
+      background: rgba(0, 216, 164, 0.085);
+    }
+
+    .message .speaker {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      color: var(--dim);
+      font-size: 0.72rem;
+      font-weight: 720;
+    }
+
+    .message .speaker strong {
+      color: #dce7e4;
+      font-size: 0.74rem;
+      font-weight: 820;
+    }
+
+    .message .speaker span {
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    .message p {
+      margin: 0;
+    }
+
+    .message p + p {
+      margin-top: 8px;
+    }
+
+    .hotphrase {
+      appearance: none;
+      border: 1px solid rgba(0, 216, 164, 0.55);
+      border-radius: 7px;
+      padding: 2px 6px;
+      color: var(--teal);
+      background: rgba(0, 216, 164, 0.1);
+      font-weight: 760;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(0, 216, 164, 0.16);
+    }
+
+    .hotphrase.pulsing {
+      animation: pulse 1600ms ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(0,216,164,0.0); }
+      50% { box-shadow: 0 0 32px rgba(0,216,164,0.45); }
+    }
+
+    .composer {
+      border-top: 1px solid var(--line);
+      padding: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .input-fake {
+      flex: 1;
+      min-height: 42px;
+      border: 1px solid rgba(226, 242, 237, 0.12);
+      border-radius: 999px;
+      padding: 11px 15px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.22);
+      font-size: 0.9rem;
+    }
+
+    .send {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(0, 216, 164, 0.5);
+      border-radius: 50%;
+      background: var(--teal);
+      color: #03110e;
+      font-weight: 900;
+    }
+
+    .route-popover {
+      position: absolute;
+      top: 154px;
+      left: 50%;
+      width: min(520px, calc(100% - 44px));
+      transform: translate(-50%, 18px) scale(0.98);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 220ms ease, transform 260ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0ms linear 220ms;
+      z-index: 10;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(10, 16, 20, 0.96);
+      box-shadow: 0 28px 95px rgba(0, 0, 0, 0.64), 0 0 50px rgba(0, 216, 164, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .route-popover.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0) scale(1);
+      transition-delay: 0ms;
+    }
+
+    .route-head {
+      padding: 17px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .route-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .route-close {
+      width: 32px;
+      height: 32px;
+      font-size: 1rem;
+    }
+
+    .route-head strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .route-head span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 6px 9px;
+      border: 1px solid rgba(226, 242, 237, 0.16);
+      border-radius: 999px;
+      color: #dde8e5;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.72rem;
+      font-weight: 780;
+      white-space: nowrap;
+    }
+
+    .choices {
+      display: grid;
+    }
+
+    .choice {
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 18px;
+      border: 0;
+      border-bottom: 1px solid rgba(226, 242, 237, 0.1);
+      border-radius: 0;
+      text-align: left;
+      background: transparent;
+    }
+
+    .choice:last-child {
+      border-bottom: 0;
+    }
+
+    .choice-num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(0, 216, 164, 0.5);
+      border-radius: 50%;
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .choice strong {
+      display: block;
+      color: #f0faf7;
+      font-size: 0.94rem;
+    }
+
+    .choice p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.32;
+    }
+
+    .choice .tag {
+      color: var(--amber);
+      font-size: 0.73rem;
+      font-weight: 780;
+      white-space: nowrap;
+    }
+
+    .modal-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 18;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: rgba(2, 5, 7, 0.54);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 180ms ease, visibility 0ms linear 180ms;
+      backdrop-filter: blur(7px);
+    }
+
+    .modal-layer.open {
+      opacity: 1;
+      visibility: visible;
+      transition-delay: 0ms;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      max-height: min(660px, calc(100vh - 140px));
+      overflow: auto;
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      background: rgba(9, 15, 19, 0.98);
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.18rem;
+      line-height: 1.2;
+    }
+
+    .modal-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .close {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      min-height: 86px;
+      padding: 13px;
+      border: 1px solid rgba(226, 242, 237, 0.12);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .field .label {
+      margin-bottom: 8px;
+      color: var(--dim);
+      font-size: 0.68rem;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .field p {
+      margin: 0;
+      color: #dde8e5;
+      font-size: 0.9rem;
+      line-height: 1.36;
+    }
+
+    .modal-actions {
+      padding: 16px 20px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .artifact-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .artifact {
+      border: 1px solid rgba(226, 242, 237, 0.11);
+      border-radius: 9px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.035);
+      opacity: 0.44;
+      transform: translateY(5px);
+      transition: opacity 220ms ease, transform 260ms ease, border-color 220ms ease;
+    }
+
+    .artifact[hidden] {
+      display: none;
+    }
+
+    .artifact.visible {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: rgba(0, 216, 164, 0.26);
+    }
+
+    .artifact-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .artifact-type {
+      color: var(--teal);
+      font-size: 0.68rem;
+      font-weight: 840;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .artifact-state {
+      color: var(--amber);
+      font-size: 0.72rem;
+      font-weight: 780;
+      white-space: nowrap;
+    }
+
+    .artifact strong {
+      display: block;
+      color: #eef8f5;
+      font-size: 0.94rem;
+    }
+
+    .artifact p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .empty-state {
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      border: 1px dashed rgba(226, 242, 237, 0.16);
+      border-radius: 9px;
+      color: var(--dim);
+      text-align: center;
+      font-size: 0.88rem;
+      line-height: 1.42;
+    }
+
+    .right-body.has-artifacts .empty-state {
+      display: none;
+    }
+
+    .receipt-panel {
+      margin-top: 16px;
+      padding: 13px;
+      border: 1px solid rgba(240, 180, 95, 0.24);
+      border-radius: 9px;
+      background: rgba(240, 180, 95, 0.065);
+      color: #ead8bd;
+      font-size: 0.84rem;
+      line-height: 1.38;
+      display: none;
+    }
+
+    .receipt-panel.visible {
+      display: block;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      z-index: 30;
+      min-width: min(460px, calc(100% - 44px));
+      border: 1px solid rgba(0, 216, 164, 0.32);
+      border-radius: 999px;
+      padding: 11px 16px;
+      color: #ddfaf2;
+      background: rgba(5, 18, 17, 0.96);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45), 0 0 35px rgba(0,216,164,0.16);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 240ms ease;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .role {
+      border: 1px solid rgba(226, 242, 237, 0.12);
+      border-radius: 9px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .role h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .role p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.36;
+    }
+
+    .final-mode .workspace {
+      grid-template-columns: 1fr;
+    }
+
+    .final-mode .left-pane,
+    .final-mode .right-pane {
+      display: none;
+    }
+
+    .final-workbench {
+      display: none;
+      min-height: 100%;
+      padding: 32px;
+      background:
+        radial-gradient(circle at 72% 24%, rgba(0, 216, 164, 0.1), transparent 0 24%, transparent 40%),
+        rgba(4, 8, 11, 0.86);
+    }
+
+    .final-mode .final-workbench {
+      display: grid;
+      align-content: center;
+      gap: 24px;
+    }
+
+    .final-mode .context-row,
+    .final-mode .chat-shell {
+      display: none;
+    }
+
+    .final-title {
+      max-width: 1020px;
+    }
+
+    .final-title .kicker {
+      margin: 0 0 12px;
+      color: var(--teal);
+      font-size: 0.76rem;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .final-title h1 {
+      margin: 0;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 0.98;
+      font-weight: 360;
+    }
+
+    .final-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .final-card {
+      min-height: 190px;
+      padding: 18px;
+      border: 1px solid rgba(226, 242, 237, 0.13);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .final-card .artifact-type {
+      margin-bottom: 16px;
+    }
+
+    .final-card h2 {
+      margin: 0;
+      font-size: 1.12rem;
+      line-height: 1.22;
+    }
+
+    .final-card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.38;
+    }
+
+    .mobile-actions {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      .prototype {
+        min-height: auto;
+      }
+
+      .chrome {
+        min-height: calc(100vh - 44px);
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .story-controls,
+      .progress-label {
+        justify-content: start;
+        justify-self: start;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .left-pane {
+        display: none;
+      }
+
+      .pane {
+        min-height: 360px;
+      }
+
+      .right-pane {
+        min-height: 320px;
+      }
+
+      .route-popover {
+        position: fixed;
+        top: 94px;
+      }
+
+      .final-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mobile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 24px 18px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .prototype {
+        padding: 0;
+      }
+
+      .chrome {
+        min-height: 100vh;
+        border: 0;
+      }
+
+      .topbar {
+        padding: 14px;
+      }
+
+      .story-controls {
+        flex-wrap: wrap;
+      }
+
+      .ide-surface,
+      .final-workbench {
+        padding: 16px;
+      }
+
+      .context-row {
+        grid-template-columns: 1fr;
+      }
+
+      .message {
+        max-width: 100%;
+      }
+
+      .choice {
+        grid-template-columns: 30px 1fr;
+      }
+
+      .choice .tag {
+        grid-column: 2;
+      }
+
+      .field-grid,
+      .role-grid,
+      .final-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="prototype" data-od-id="prototype.root">
+    <section class="chrome" id="chrome">
+      <header class="topbar" data-od-id="prototype.topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>IDE Ergonomics</strong>
+            <span>Experience prototype inside UI Prototyping Studio</span>
+          </div>
+        </div>
+        <div class="story-controls" aria-label="Prototype controls">
+          <button class="ghost" type="button" id="reset" data-od-id="control.reset">Reset</button>
+          <button class="primary" type="button" id="next" data-od-id="control.next">Next moment</button>
+        </div>
+        <div class="progress-label" id="progressLabel" data-od-id="prototype.progress">Moment 1 / 7</div>
+      </header>
+
+      <section class="workspace" data-od-id="workspace.layout">
+        <aside class="pane left-pane" data-od-id="scenario.rail">
+          <div class="pane-header">Scenario <span>live path</span></div>
+          <div class="left-body">
+            <div class="scenario">
+              <div class="step active" data-step="1" data-od-id="scenario.step.select">
+                <div class="num">1</div>
+                <div><strong>Select the phrase</strong><p>The session reveals a term that should not be lost.</p></div>
+              </div>
+              <div class="step" data-step="2" data-od-id="scenario.step.route">
+                <div class="num">2</div>
+                <div><strong>Choose a route</strong><p>The card offers concrete outcomes and boundaries.</p></div>
+              </div>
+              <div class="step" data-step="3" data-od-id="scenario.step.definition">
+                <div class="num">3</div>
+                <div><strong>Save a candidate</strong><p>A definition packet appears without promotion.</p></div>
+              </div>
+              <div class="step" data-step="4" data-od-id="scenario.step.side-node">
+                <div class="num">4</div>
+                <div><strong>Park the tangent</strong><p>The useful aside becomes visible later work.</p></div>
+              </div>
+              <div class="step" data-step="5" data-od-id="scenario.step.handoff">
+                <div class="num">5</div>
+                <div><strong>Draft handoff</strong><p>The next session starts with refs and open calls.</p></div>
+              </div>
+              <div class="step" data-step="6" data-od-id="scenario.step.delegate">
+                <div class="num">6</div>
+                <div><strong>Preview delegation</strong><p>Roles and receipts appear before fanout.</p></div>
+              </div>
+              <div class="step" data-step="7" data-od-id="scenario.step.workbench">
+                <div class="num">7</div>
+                <div><strong>Open workbench</strong><p>The session leaves durable outputs behind.</p></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="pane center-pane" data-od-id="workspace.center">
+          <div class="pane-header">Editor + Chat <span id="centerStatus">select phrase</span></div>
+          <div class="center-body">
+            <div class="ide-surface" data-od-id="ide.surface">
+              <div class="context-row">
+                <div class="file-tabs" aria-label="Open files">
+                  <div class="tab active">transition-card.fixture.md</div>
+                  <div class="tab">PRODUCT-VIEW.md</div>
+                  <div class="tab">handoff-draft.md</div>
+                </div>
+                <div class="session-status"><span class="status-dot"></span><span id="sessionStatus">A useful term just appeared</span></div>
+              </div>
+
+              <section class="chat-shell" data-od-id="chat.shell">
+                <div class="chat-scroll">
+                  <article class="message user" data-od-id="chat.message.user-1">
+                    <div class="speaker"><strong>You</strong><span>12:41 PM</span></div>
+                    <p>I keep coming back to <button class="hotphrase pulsing" type="button" id="hotphrase" data-od-id="chat.hotphrase.evidence-rail">evidence rail</button>: the strip beside the chat that shows receipts, blocked actions, and what still needs a human call.</p>
+                  </article>
+                  <article class="message" data-od-id="chat.message.assistant-1">
+                    <div class="speaker"><strong>Codex</strong><span>12:41 PM</span></div>
+                    <p>Got it. I will not treat it as a canonical definition.</p>
+                    <p>I can save a candidate, park the observability tangent, or draft a handoff. Nothing becomes durable until you choose.</p>
+                  </article>
+                  <article class="message user" data-od-id="chat.message.user-2">
+                    <div class="speaker"><strong>You</strong><span>12:42 PM</span></div>
+                    <p>Yes. Capture the phrase, park the tangent, and keep the routing-card task active.</p>
+                  </article>
+                </div>
+                <div class="mobile-actions" aria-label="Quick actions">
+                  <button class="ghost" type="button" data-action="open-route">Open route card</button>
+                  <button class="ghost" type="button" data-action="candidate">Candidate</button>
+                  <button class="ghost" type="button" data-action="side-node">Side node</button>
+                  <button class="ghost" type="button" data-action="handoff">Handoff</button>
+                </div>
+                <div class="composer">
+                  <div class="input-fake">Ask, route, or leave a durable note...</div>
+                  <button class="send" type="button" aria-label="Send">↗</button>
+                </div>
+              </section>
+
+              <section class="final-workbench" data-od-id="final.workbench">
+                <div class="final-title">
+                  <p class="kicker">After the interaction</p>
+                  <h1>The session leaves a workbench, not a transcript.</h1>
+                </div>
+                <div class="final-grid">
+                  <div class="final-card" data-od-id="final.card.candidate">
+                    <div class="artifact-type">candidate</div>
+                    <h2>Definition: evidence rail</h2>
+                    <p>Source span, owner, and blocked promotion are already attached.</p>
+                  </div>
+                  <div class="final-card" data-od-id="final.card.side-node">
+                    <div class="artifact-type">side node</div>
+                    <h2>Observability tangent</h2>
+                    <p>Parked without switching the active task.</p>
+                  </div>
+                  <div class="final-card" data-od-id="final.card.handoff">
+                    <div class="artifact-type">handoff</div>
+                    <h2>Transition-card proof restart</h2>
+                    <p>Next prompt, source refs, open calls, and boundaries.</p>
+                  </div>
+                  <div class="final-card" data-od-id="final.card.delegation">
+                    <div class="artifact-type">decision</div>
+                    <h2>Delegation not approved yet</h2>
+                    <p>Role lanes were previewed; no agents spawned.</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside class="route-popover" id="routePopover" aria-label="Workflow transition card" aria-hidden="true" data-od-id="popover.route-card">
+              <div class="route-head">
+                <div>
+                  <strong>Possible workflow transition detected</strong>
+                  <span>Span: <span style="color:var(--teal); font-weight:760">"evidence rail"</span></span>
+                </div>
+                <div class="route-actions">
+                  <span class="pill">preview only</span>
+                  <button class="close route-close" type="button" id="routeClose" aria-label="Close route card" data-od-id="popover.close">×</button>
+                </div>
+              </div>
+              <div class="choices">
+                <button class="choice" type="button" data-action="candidate" data-od-id="route.choice.candidate">
+                  <span class="choice-num">1</span>
+                  <span><strong>Create definition candidate</strong><p>Draft packet for Definitions Governance.</p></span>
+                  <span class="tag">no promotion</span>
+                </button>
+                <button class="choice" type="button" data-action="side-node" data-od-id="route.choice.side-node">
+                  <span class="choice-num">2</span>
+                  <span><strong>Save observability tangent</strong><p>Park as a side node; active task stays open.</p></span>
+                  <span class="tag">parked</span>
+                </button>
+                <button class="choice" type="button" data-action="handoff" data-od-id="route.choice.handoff">
+                  <span class="choice-num">3</span>
+                  <span><strong>Prepare next-session handoff</strong><p>Collect restart prompt, refs, gaps, and boundary.</p></span>
+                  <span class="tag">draft</span>
+                </button>
+                <button class="choice" type="button" data-action="delegation" data-od-id="route.choice.delegation">
+                  <span class="choice-num">4</span>
+                  <span><strong>Preview delegated lanes</strong><p>Show roles and receipts before fanout.</p></span>
+                  <span class="tag">approval needed</span>
+                </button>
+              </div>
+            </aside>
+
+            <div class="modal-layer" id="modalLayer" aria-hidden="true" data-od-id="modal.layer">
+              <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" data-od-id="modal.dialog">
+                <div class="modal-header">
+                  <div>
+                    <h2 id="modalTitle">Result preview</h2>
+                    <p id="modalSubtitle">The selected action produces a bounded artifact.</p>
+                  </div>
+                  <button class="close" type="button" id="modalClose" aria-label="Close preview">×</button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-actions">
+                  <button class="ghost" type="button" id="modalDismiss">Keep previewing</button>
+                  <button class="primary" type="button" id="modalSave">Save result</button>
+                </div>
+              </section>
+            </div>
+
+            <div class="toast" id="toast" data-od-id="prototype.toast">Saved</div>
+          </div>
+        </section>
+
+        <aside class="pane right-pane" data-od-id="artifact.rail">
+          <div class="pane-header">Durable outputs <span id="artifactCount">0 saved</span></div>
+          <div class="right-body" id="rightBody">
+            <div class="empty-state" data-od-id="artifact.empty">No durable outputs yet. Select the highlighted phrase to start turning chat residue into workbench artifacts.</div>
+            <div class="artifact-list">
+              <article class="artifact" id="artifactCandidate" data-artifact="candidate" data-od-id="artifact.candidate" hidden aria-hidden="true">
+                <div class="artifact-top"><span class="artifact-type">candidate</span><span class="artifact-state">review later</span></div>
+                <strong>Definition: evidence rail</strong>
+                <p>Drafted with source span, owner, and blocked promotion.</p>
+              </article>
+              <article class="artifact" id="artifactSide" data-artifact="side" data-od-id="artifact.side-node" hidden aria-hidden="true">
+                <div class="artifact-top"><span class="artifact-type">side node</span><span class="artifact-state">parked</span></div>
+                <strong>Observability tangent</strong>
+                <p>Visible later; active task stayed open.</p>
+              </article>
+              <article class="artifact" id="artifactHandoff" data-artifact="handoff" data-od-id="artifact.handoff" hidden aria-hidden="true">
+                <div class="artifact-top"><span class="artifact-type">handoff</span><span class="artifact-state">ready</span></div>
+                <strong>Transition-card proof restart</strong>
+                <p>Next prompt, open calls, refs, and proof boundary.</p>
+              </article>
+              <article class="artifact" id="artifactDelegation" data-artifact="delegation" data-od-id="artifact.delegation" hidden aria-hidden="true">
+                <div class="artifact-top"><span class="artifact-type">decision</span><span class="artifact-state">gated</span></div>
+                <strong>Delegation not approved yet</strong>
+                <p>Role lanes previewed; no agents spawned.</p>
+              </article>
+            </div>
+            <div class="receipt-panel" id="receiptPanel" data-od-id="receipt.panel">
+              Preview is not execution. Candidate is not promotion. Handoff is not proof. Recommendation is not permission.
+            </div>
+          </div>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      moment: 1,
+      routeOpen: false,
+      saved: new Set(),
+      pendingAction: null
+    };
+
+    const actionContent = {
+      candidate: {
+        title: "Definition candidate",
+        subtitle: "Saved as a draft packet; no canonical definition changes.",
+        save: "Save candidate",
+        artifact: "candidate",
+        moment: 3,
+        toast: "Definition candidate saved. No canonical promotion happened.",
+        html: `
+          <div class="field-grid">
+            <div class="field"><div class="label">Source span</div><p>"the strip beside the chat that shows receipts, blocked actions, and what still needs a human call"</p></div>
+            <div class="field"><div class="label">Owner</div><p>Definitions Governance</p></div>
+            <div class="field"><div class="label">Draft meaning</div><p>A side surface that keeps receipts, gaps, and proof status visible beside the work.</p></div>
+            <div class="field"><div class="label">Blocked action</div><p>No canonical promotion until the owner route approves it.</p></div>
+          </div>`
+      },
+      "side-node": {
+        title: "Side node",
+        subtitle: "The tangent is parked while the active routing-card task remains open.",
+        save: "Park side node",
+        artifact: "side",
+        moment: 4,
+        toast: "Side node parked. The active task stayed open.",
+        html: `
+          <div class="field-grid">
+            <div class="field"><div class="label">Class</div><p>Design tangent</p></div>
+            <div class="field"><div class="label">Source</div><p>Chat span 14:22</p></div>
+            <div class="field"><div class="label">Summary</div><p>Why do failed routes leave weak receipts?</p></div>
+            <div class="field"><div class="label">Next</div><p>Revisit after the card MVP proof.</p></div>
+          </div>`
+      },
+      handoff: {
+        title: "Next-session handoff",
+        subtitle: "A restart surface appears before the session loses context.",
+        save: "Save handoff draft",
+        artifact: "handoff",
+        moment: 5,
+        toast: "Handoff draft saved with restart prompt and open calls.",
+        html: `
+          <div class="field-grid">
+            <div class="field"><div class="label">Start prompt</div><p>Open the card fixture set and test one span: "evidence rail".</p></div>
+            <div class="field"><div class="label">Open call</div><p>Should the route card show 4 choices or 6?</p></div>
+            <div class="field"><div class="label">Source refs</div><p>PRODUCT-VIEW.md, ERGONOMICS-OPPORTUNITIES.md, current chat span.</p></div>
+            <div class="field"><div class="label">Boundary</div><p>Handoff is not execution proof.</p></div>
+          </div>`
+      },
+      delegation: {
+        title: "Delegated-lane preview",
+        subtitle: "Roles and receipts are visible before any fanout is approved.",
+        save: "Record preview only",
+        artifact: "delegation",
+        moment: 6,
+        toast: "Delegation preview recorded. No agents spawned.",
+        html: `
+          <div class="role-grid">
+            <div class="role"><h3>Research lane</h3><p>Check route ambiguity fixtures. Receipt: 3 cards with owner + blocked action.</p></div>
+            <div class="role"><h3>Design lane</h3><p>Stress the popup and handoff surfaces. Receipt: screenshot + failure notes.</p></div>
+            <div class="role"><h3>Validation lane</h3><p>Run static proof and mark pass, flag, or block. Receipt: fixture table.</p></div>
+            <div class="role"><h3>User gate</h3><p>Approve fanout or keep single-lane. Preview alone cannot spawn agents.</p></div>
+          </div>`
+      }
+    };
+
+    const elements = {
+      chrome: document.getElementById("chrome"),
+      hotphrase: document.getElementById("hotphrase"),
+      route: document.getElementById("routePopover"),
+      routeClose: document.getElementById("routeClose"),
+      modalLayer: document.getElementById("modalLayer"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalSubtitle: document.getElementById("modalSubtitle"),
+      modalBody: document.getElementById("modalBody"),
+      modalSave: document.getElementById("modalSave"),
+      modalDismiss: document.getElementById("modalDismiss"),
+      modalClose: document.getElementById("modalClose"),
+      next: document.getElementById("next"),
+      reset: document.getElementById("reset"),
+      toast: document.getElementById("toast"),
+      progressLabel: document.getElementById("progressLabel"),
+      centerStatus: document.getElementById("centerStatus"),
+      sessionStatus: document.getElementById("sessionStatus"),
+      rightBody: document.getElementById("rightBody"),
+      artifactCount: document.getElementById("artifactCount"),
+      receiptPanel: document.getElementById("receiptPanel")
+    };
+
+    const artifactByAction = {
+      candidate: "artifactCandidate",
+      side: "artifactSide",
+      handoff: "artifactHandoff",
+      delegation: "artifactDelegation"
+    };
+
+    function openRoute() {
+      state.routeOpen = true;
+      state.moment = Math.max(state.moment, 2);
+      elements.route.classList.add("open");
+      elements.route.setAttribute("aria-hidden", "false");
+      elements.hotphrase.classList.remove("pulsing");
+      elements.centerStatus.textContent = "route card open";
+      elements.sessionStatus.textContent = "Choose an owner-safe result";
+      update();
+    }
+
+    function closeRoute(options = {}) {
+      state.routeOpen = false;
+      elements.route.classList.remove("open");
+      elements.route.setAttribute("aria-hidden", "true");
+      if (!options.quiet) {
+        elements.centerStatus.textContent = "route card closed";
+        elements.sessionStatus.textContent = "Select the phrase to reopen route choices";
+      }
+    }
+
+    function toggleRoute() {
+      if (state.routeOpen) closeRoute();
+      else openRoute();
+    }
+
+    function openModal(action) {
+      const config = actionContent[action];
+      if (!config) return;
+      closeRoute({ quiet: true });
+      state.pendingAction = action;
+      elements.modalTitle.textContent = config.title;
+      elements.modalSubtitle.textContent = config.subtitle;
+      elements.modalBody.innerHTML = config.html;
+      elements.modalSave.textContent = config.save;
+      elements.modalLayer.classList.add("open");
+      elements.modalLayer.setAttribute("aria-hidden", "false");
+      elements.centerStatus.textContent = "result preview";
+      elements.sessionStatus.textContent = config.subtitle;
+      state.moment = Math.max(state.moment, config.moment);
+      update();
+    }
+
+    function closeModal() {
+      elements.modalLayer.classList.remove("open");
+      elements.modalLayer.setAttribute("aria-hidden", "true");
+    }
+
+    function savePending() {
+      const config = actionContent[state.pendingAction];
+      if (!config) return;
+      state.saved.add(config.artifact);
+      closeModal();
+      showToast(config.toast);
+      state.pendingAction = null;
+      elements.centerStatus.textContent = "artifact saved";
+      elements.sessionStatus.textContent = "Durable output added to the workbench";
+      update();
+    }
+
+    function showToast(message) {
+      elements.toast.textContent = message;
+      elements.toast.classList.add("show");
+      window.setTimeout(() => elements.toast.classList.remove("show"), 1800);
+    }
+
+    function nextMoment() {
+      if (state.moment === 1) {
+        openRoute();
+        return;
+      }
+      if (!state.saved.has("candidate")) {
+        openModal("candidate");
+        return;
+      }
+      if (!state.saved.has("side")) {
+        openModal("side-node");
+        return;
+      }
+      if (!state.saved.has("handoff")) {
+        openModal("handoff");
+        return;
+      }
+      if (!state.saved.has("delegation")) {
+        openModal("delegation");
+        return;
+      }
+      state.moment = 7;
+      elements.chrome.classList.add("final-mode");
+      elements.centerStatus.textContent = "workbench";
+      elements.sessionStatus.textContent = "Session outputs are durable";
+      update();
+    }
+
+    function resetAll() {
+      state.moment = 1;
+      state.routeOpen = false;
+      state.saved.clear();
+      state.pendingAction = null;
+      elements.chrome.classList.remove("final-mode");
+      closeRoute({ quiet: true });
+      elements.modalLayer.classList.remove("open");
+      elements.modalLayer.setAttribute("aria-hidden", "true");
+      elements.hotphrase.classList.add("pulsing");
+      elements.centerStatus.textContent = "select phrase";
+      elements.sessionStatus.textContent = "A useful term just appeared";
+      showToast("Prototype reset.");
+      update();
+    }
+
+    function update() {
+      document.querySelectorAll(".step").forEach((step) => {
+        const n = Number(step.dataset.step);
+        step.classList.toggle("active", n === state.moment);
+        step.classList.toggle("done", n < state.moment);
+      });
+
+      for (const artifact of ["candidate", "side", "handoff", "delegation"]) {
+        const id = artifactByAction[artifact];
+        const card = document.getElementById(id);
+        const isSaved = state.saved.has(artifact);
+        card.hidden = !isSaved;
+        card.setAttribute("aria-hidden", isSaved ? "false" : "true");
+        card.classList.toggle("visible", isSaved);
+      }
+
+      const savedCount = state.saved.size;
+      elements.artifactCount.textContent = `${savedCount} saved`;
+      elements.rightBody.classList.toggle("has-artifacts", savedCount > 0);
+      elements.receiptPanel.classList.toggle("visible", savedCount > 0);
+      elements.progressLabel.textContent = `Moment ${Math.min(state.moment, 7)} / 7`;
+      elements.next.textContent = state.moment >= 7 ? "Show workbench" : "Next moment";
+    }
+
+    elements.hotphrase.addEventListener("click", toggleRoute);
+    elements.routeClose.addEventListener("click", closeRoute);
+    elements.next.addEventListener("click", nextMoment);
+    elements.reset.addEventListener("click", resetAll);
+    elements.modalSave.addEventListener("click", savePending);
+    elements.modalDismiss.addEventListener("click", closeModal);
+    elements.modalClose.addEventListener("click", closeModal);
+    elements.modalLayer.addEventListener("click", (event) => {
+      if (event.target === elements.modalLayer) closeModal();
+    });
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.action;
+        if (action === "open-route") openRoute();
+        else openModal(action);
+      });
+    });
+
+    document.addEventListener("pointerdown", (event) => {
+      if (!state.routeOpen) return;
+      if (elements.route.contains(event.target)) return;
+      if (elements.hotphrase.contains(event.target)) return;
+      closeRoute();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+        closeRoute();
+      }
+      if (event.key === "ArrowRight") {
+        nextMoment();
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

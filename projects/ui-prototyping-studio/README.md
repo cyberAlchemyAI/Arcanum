@@ -10,6 +10,7 @@ This is a **standalone project** (extracted from the now-deprecated `domainspec`
 |------|-----------|
 | [SPEC.md](SPEC.md) | **Lean spec** — the L0→L2 survival/trust floor (this release). The buildable contract. |
 | [CRAFT.md](CRAFT.md) · [.craft/](.craft/) | Craft ledger — live project state (contexts, decisions, blockers, gaps). Source of truth = `.craft/ledger.yml`. |
+| [ide-ergonomics-experience-prototype.html](ide-ergonomics-experience-prototype.html) | Interactive click-through prototype for the IDE Ergonomics presentation: highlighted chat phrase → route card → candidate/side-node/handoff/delegation previews → durable workbench outputs. |
 | [development/deep-spec-dispatch/](development/deep-spec-dispatch/) | The deep-spec exploration that produced the design + plan + readiness verdict ([RESULT.md](development/deep-spec-dispatch/RESULT.md), [DEEP-SPEC-PROPOSAL.md](development/deep-spec-dispatch/DEEP-SPEC-PROPOSAL.md), [ONE-SHOT-IMPLEMENTATION-PLAN.md](development/deep-spec-dispatch/ONE-SHOT-IMPLEMENTATION-PLAN.md)). |
 | [development/standalone-extraction/](development/standalone-extraction/) | The plan to bring the code over and make this project runnable. |
 | `provenance/` | Archive, not spine: the 19-doc full-vision DomainSpec spec (`legacy-domainspec-spec/`) and a vendored design-skills reference tree (`open-design-reference/`). Mine for detail; do not treat as current. |
@@ -28,7 +29,7 @@ Per the deep-spec readiness verdict, only **L0** exists in code (the 10-state se
 
 - Spec spine + Craft ledger: **in place**.
 - **Backend lifted and runnable** — the full mutation loop works through the `studio` CLI: generate/register variants (real HTML), select a baseline, comment, synthesize, **approve → apply → accept** (two-gate, with an honest per-component diff), record, hand off. Backend is node + fastify + TypeScript (run via `tsx`).
-- Deferred (design only): the browser preview/annotate surface, e2e Playwright, the full workspace scaffold. There is **no `web/` and no `pnpm test:e2e` yet** — do not expect a browser UI.
+- **Shipped:** the browser **preview + click-to-annotate** surface (`studio preview <sid>`), AUTO `cycle`/`watch` verbs, in-preview **Accept/Revert** controls, and a Playwright e2e suite (`pnpm test:e2e`). Export stays the one terminal, `--confirm` edge (no button). (A full `web/` SPA scaffold is still deferred — the preview is a no-build loopback page, not an SPA.)
 
 ## Running
 
@@ -64,6 +65,6 @@ pnpm studio revisions ups-session-0001
 pnpm studio handoff export ups-session-0001
 ```
 
-**Seeing the result in a browser:** `register`/`apply`/`accept` print an `openPaths`/`openPath` field — the absolute path of the rendered `.html` on disk. Open it with your browser (`xdg-open <path>`). There is no in-app preview yet (it's the next build); the variant HTML you register must be self-contained (inline styles) to render faithfully from a file.
+**Seeing the result in a browser:** run `studio preview <sid>` and open the printed loopback URL in VSCode's Simple Browser — it renders the variants (sandboxed), the staged before/after + honest diff, a click-to-annotate panel, and in-preview **Accept/Revert** buttons. (`register`/`apply`/`accept` also print an `openPath` to the rendered `.html` on disk if you prefer `xdg-open`.) Variant HTML should be self-contained (inline styles) to render faithfully.
 
 **Reset:** point `STUDIO_DATA` at a file inside a fresh **directory** per run (e.g. `/tmp/ups-run-2/studio.json`) — both the session state and the artifacts live under that directory, so a new dir is a clean slate. To reset in place: `rm -rf "$(dirname "$STUDIO_DATA")"`.

@@ -133,11 +133,15 @@ export interface HandoffBundle {
   revisionHeadId: string;
   baseline: BaselineProvenance;
   variantCount: VariantCount;
+  exportProfile?: string;
   storyRefs: string[];
   requirementRefs: string[];
   acceptanceRefs: string[];
   uiSpecRef: string;
   testSpecRef: string;
+  sourceRefs?: string[];
+  /** [G2] advisory: feature-doc refs not present under the docs root (lean project); non-gating. */
+  missingRefs?: string[];
 }
 
 /**

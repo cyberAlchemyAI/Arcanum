@@ -1,0 +1,227 @@
+{
+  "xray_version": "0.2.0",
+  "example_id": "ui-prototyping-studio-product-deep-dive",
+  "mode": "mixed",
+  "target_boundary": "projects/ui-prototyping-studio docs plus sampled live backend code under backend/src/modules/ui-prototyping-studio and backend/src/cli/studio.ts",
+  "renderer_level": "L0",
+  "layer_interaction": "stacked isolate compare trace",
+  "reader_contract": {
+    "reader_baseline": "newcomer",
+    "target_public": "Local private project explanation for a person who wants to understand and try the UI Prototyping Studio tool.",
+    "assumed_knowledge": [
+      "Basic idea of making a UI mockup",
+      "Light familiarity with command-line examples",
+      "No prior knowledge of this repository"
+    ],
+    "reader_reward": "Understand what the tool is, what a first session feels like, how the workflow moves, how it was made, and which examples to try.",
+    "opening_contract": {
+      "must_start_with": [
+        "the product name",
+        "the plain product promise",
+        "a first-session mental model"
+      ],
+      "must_not_start_with": [
+        "a raw repository tree",
+        "unexplained local jargon",
+        "proof metrics before the reader understands the workflow"
+      ],
+      "failure_message": "If the page reads like a product pitch or file inventory before explaining how to use the tool, the reader contract failed."
+    }
+  },
+  "reader_terms": [
+    {
+      "term": "Accountable UI exploration",
+      "plain_meaning": "AI can generate and revise interfaces, but durable changes remain visible, reversible, or explicitly confirmed.",
+      "why_it_matters": "It tells a new user why the studio asks them to look, choose, and accept instead of just generating a final answer.",
+      "source_or_lane": "README.md and SPEC.md; surface lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not start with governance jargon before showing the user what they actually do."
+    },
+    {
+      "term": "Generator seam",
+      "plain_meaning": "The point where externally generated HTML enters the studio through the CLI.",
+      "why_it_matters": "It explains why generated HTML can come from Claude Code today and another engine later without changing the main workflow.",
+      "source_or_lane": "ARCHITECTURE.md and interfaces.md; external_dependencies lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not treat generation as embedded in the studio core."
+    },
+    {
+      "term": "Admission boundary",
+      "plain_meaning": "The deterministic core decision that admits or rejects a proposed UI change.",
+      "why_it_matters": "It explains the plain checkpoint where the studio says whether a proposed change is allowed to become a staged candidate.",
+      "source_or_lane": "ARCHITECTURE.md, admission.ts, two-gate-apply.ts; flow lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not claim the AI proposal itself is replayable; the verdict is."
+    },
+    {
+      "term": "Two-gate apply",
+      "plain_meaning": "Approve the intent first, then stage the candidate and accept the exact diff before it becomes head.",
+      "why_it_matters": "It explains why a user sees the proposed result before keeping it.",
+      "source_or_lane": "SPEC.md, states.md, apply-and-stage.ts, accept-staged-revision.ts; lifecycle lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not collapse staging and recording into one apply action."
+    },
+    {
+      "term": "Honest diff",
+      "plain_meaning": "A per-component before/after measurement based on od-id structure, not on declared task labels.",
+      "why_it_matters": "It lets a user compare what actually changed instead of trusting a vague summary.",
+      "source_or_lane": "admission.ts and PLAN-NEXT.md; properties lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not describe it as proof of human understanding or preference."
+    },
+    {
+      "term": "Reversibility model",
+      "plain_meaning": "Most actions can be undone through append-only history; export remains the explicit irreversible edge.",
+      "why_it_matters": "It explains why trying a faster automated pass can still be safe enough for local exploration.",
+      "source_or_lane": "SPEC.md, run-cycle.ts, governance.spec.ts; lifecycle lane",
+      "authority": "source-backed",
+      "misuse_warning": "Do not use reversibility to justify unconfirmed handoff export."
+    }
+  ],
+  "layer_reader_outcomes": [
+    {
+      "layer": "surface",
+      "as_a_reader": "I want to understand what this tool is before seeing implementation details.",
+      "should_understand": "The studio helps a person try UI ideas with Claude Code, inspect the HTML in a browser, comment on components, and keep or revert revisions.",
+      "because_it_matters_for": "Starting the presentation with a usable mental model instead of proof metrics."
+    },
+    {
+      "layer": "flow",
+      "as_a_reader": "I want to know what I would do in a first session.",
+      "should_understand": "Ask, register variants, preview, choose a baseline, annotate, synthesize, stage, accept or revert, and export when ready.",
+      "because_it_matters_for": "Trying the tool without getting lost in local vocabulary."
+    },
+    {
+      "layer": "internal_dependencies",
+      "as_a_reader": "I want to know how it was made after I understand the workflow.",
+      "should_understand": "A CLI adapter, browser preview, orchestration core, domain state machine, admission checker, artifact store, and tests cooperate around one local loop.",
+      "because_it_matters_for": "Connecting the user's actions to the implementation without making the deck feel like a code audit."
+    },
+    {
+      "layer": "external_dependencies",
+      "as_a_reader": "I want to know where Claude Code fits.",
+      "should_understand": "Claude Code makes the HTML proposal; the studio records, previews, checks, stages, and saves it.",
+      "because_it_matters_for": "Avoiding the mistaken idea that the studio itself is an embedded model."
+    },
+    {
+      "layer": "risk_questions",
+      "as_a_reader": "I want to know the careful parts without being buried in caveats.",
+      "should_understand": "Browser evidence shows what happened on screen, but not whether the design is good or trusted; deeper identity and scoring work remain future layers.",
+      "because_it_matters_for": "Using the tool honestly while learning what it can and cannot prove."
+    }
+  ],
+  "readability_dynamics": {
+    "max_words_per_paragraph": 95,
+    "max_consecutive_dense_blocks": 2,
+    "require_scan_anchor_every_n_blocks": 2,
+    "allowed_visual_treatments": [
+      "inline svg system map",
+      "swimlane workflow",
+      "dependency boundary",
+      "timeline strip",
+      "risk matrix",
+      "source-backed and inference legend"
+    ]
+  },
+  "lanes": {
+    "surface": {
+      "handle": "surface.summary",
+      "evidence": [
+        "README.md describes the product as accountable UI exploration: generate a bounded set of variants, select a baseline, annotate, synthesize, approve, apply, append a revision manifest, and hand off.",
+        "README.md states the backend is runnable through the studio CLI and preview surface.",
+        "SPEC.md scopes the release to the L0 -> L2 survival/trust floor."
+      ],
+      "inference": [
+        "The strongest product positioning is not generic UI generation; it is accountable AI-assisted UI revision."
+      ]
+    },
+    "properties": {
+      "handle": "properties.catalog",
+      "evidence": [
+        "SPEC.md and states.md define variantCount 1..3, baseline selection, comments, mutation batches, revisions, and session states.",
+        "models.ts includes StudioSessionState values through RevisionApplied, RevisionRecorded, and SessionCompleted.",
+        "admission.ts implements an od-id attributed scope validator and honest per-od-id diff."
+      ],
+      "inference": [
+        "The most valuable properties are reversibility, bounded exploration, source-backed intent capture, and visible admission."
+      ]
+    },
+    "components": {
+      "handle": "components.map",
+      "evidence": [
+        "ARCHITECTURE.md names Claude Code, studio CLI, operating skill, orchestration core, session store, and studio preview.",
+        "backend/src/cli/studio.ts implements session, prompt, variants, baseline, comment, synthesize, approve, apply, accept, discard, preview, revert, pending, watch, cycle, revisions, and handoff export.",
+        "backend/package.json exposes build, check, studio, test, test:e2e, and test:skill scripts."
+      ],
+      "inference": [
+        "The component map reads as a local-first product kernel that could later accept other generation engines without changing the core contract."
+      ]
+    },
+    "internal_dependencies": {
+      "handle": "dependencies.internal",
+      "evidence": [
+        "ARCHITECTURE.md states interface depends on application, application depends on domain, infrastructure implements ports, and domain depends on nothing.",
+        "apply-and-stage.ts depends on current HTML resolution, admission validation, artifact content, and the session store.",
+        "accept-staged-revision.ts commits staged content, appends a revision, saves session state, and clears staged candidate."
+      ],
+      "inference": [
+        "The load-bearing internal dependency is the path from CLI command to orchestration use case to pure gate to append-only store."
+      ]
+    },
+    "external_dependencies": {
+      "handle": "dependencies.external",
+      "evidence": [
+        "ARCHITECTURE.md says Claude Code is the generation engine and the CLI is the seam; no MCP server, no web SPA, no API key in the MVP.",
+        "INTEGRATION.md says host apps drive the CLI by shelling out, parsing stdout JSON, and checking the exit code.",
+        "backend/package.json lists Fastify and Playwright-related development dependencies."
+      ],
+      "inference": [
+        "A future hosted product would need to replace the local trust boundary with explicit auth, multi-user state, and engine adapters."
+      ]
+    },
+    "flow": {
+      "handle": "flow.graph",
+      "evidence": [
+        "README.md and INTEGRATION.md list the loop: session open, prompt submit, variants register, baseline select or commit, comment add, synthesize, approve, apply, accept, revisions, handoff export.",
+        "run-cycle.ts implements AUTO exploit/explore cycles that gate candidates and auto-accept the top admitted score with reversibility.",
+        "preview e2e tests cover annotation into pending comments."
+      ],
+      "inference": [
+        "The product has two useful modes: supervised human-in-the-loop revision and reversible automated cycling."
+      ]
+    },
+    "lifecycle": {
+      "handle": "lifecycle.timeline",
+      "evidence": [
+        "states.md defines the deterministic StudioSessionState sequence and the RevisionApplied staged preview state.",
+        "PLAN-NEXT.md says post-build hardening landed with unit 61/61, Playwright e2e 13/13, tsc clean, export confirm in core, preview accept/discard/revert, cycle score validation, and cycle ceiling.",
+        "governance.spec.ts tests export confirmation, revert restoration, and append-only auto-accept reversibility."
+      ],
+      "inference": [
+        "The live product is best described as an MVP-grade local control loop, not the full L4-L6 research vision."
+      ]
+    },
+    "risk_questions": {
+      "handle": "risk.questions",
+      "evidence": [
+        "CRAFT.md and the ledger name ergonomics unproven, fixture or validator calibration, identity types, failure states, and other gaps.",
+        "admission.ts carries a note that the V3 alignment key is brittle to legitimate structural reordering and production needs more robust node identity plus real CSS cascade.",
+        "SPEC.md defers L4 identity/DNA, L5 fitness, and L6 human evidence/trust."
+      ],
+      "inference": [
+        "The main product risk is overclaiming human trust or taste from automated browser evidence.",
+        "The main technical risk is relying too long on od-id scope attribution before deeper identity and CSS semantics are built."
+      ]
+    },
+    "visual_composition": {
+      "handle": "visual.model",
+      "evidence": [
+        "x-ray library patterns used: dependency-boundary, lifecycle-stack, process-branch, evidence-inference-split.",
+        "x-ray library components used: shape.node, shape.boundary, shape.layer-panel, shape.risk-marker, connector.arrow, connector.branch, connector.feedback-loop, chart.timeline-strip, chart.risk-matrix."
+      ],
+      "inference": [
+        "A static slide deck with layer toggles is enough because the target is a codebase/product explanation, not a live product demo."
+      ]
+    }
+  }
+}

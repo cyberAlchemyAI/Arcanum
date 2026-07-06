@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TROQAR Production Login - Variant B</title>
+    <style>
+      :root { --bg:#050808; --shell:#0b0f10; --panel:#101918; --raised:#121c1a; --line:#1c2b28; --fire:#ff5c1a; --green:#5fa882; --ink:#f4f1e8; --muted:#8a9693; }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; background:radial-gradient(circle at 80% 15%,#1ed97a22,transparent 28%),linear-gradient(135deg,var(--bg),var(--shell)); color:var(--ink); font:16px/1.45 "DM Sans",Inter,system-ui,sans-serif; }
+      .shell { min-height:100vh; padding:16px clamp(16px,4vw,56px) 40px; }
+      .top { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:68px; }
+      .brand { display:flex; align-items:center; gap:12px; font:800 32px/1 Impact,"Arial Narrow",sans-serif; color:var(--fire); }
+      .brand em { color:var(--green); font-style:normal; }
+      .mark { width:42px; height:42px; clip-path:polygon(50% 0,92% 24%,92% 76%,50% 100%,8% 76%,8% 24%); background:linear-gradient(135deg,var(--fire) 0 53%,var(--green) 53%); }
+      .button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 16px; border-radius:8px; border:1px solid var(--fire); background:var(--fire); color:white; font-weight:800; text-decoration:none; }
+      .hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,420px); gap:clamp(24px,5vw,64px); align-items:center; min-height:calc(100vh - 120px); }
+      h1,h2,h3 { font-family:Impact,"Arial Narrow",sans-serif; line-height:1; margin:0 0 10px; }
+      h1 { font-size:clamp(54px,11vw,126px); max-width:8ch; }
+      h2 { font-size:28px; }
+      p { color:var(--muted); margin:0 0 14px; }
+      .line { color:var(--green); font:800 clamp(22px,4vw,46px)/1 Impact,"Arial Narrow",sans-serif; }
+      .notice { color:var(--green); }
+      .danger { color:#ff8d6b; }
+      .phone { background:#07100e; border:1px solid #29433d; border-radius:28px; box-shadow:0 24px 80px #0008; padding:22px; }
+      .metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0; }
+      .card,.panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; }
+      .route path { fill:none; stroke:var(--green); stroke-width:5; stroke-linecap:round; }
+      .app-grid { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:14px; margin-top:22px; }
+      .tag { color:var(--green); font-weight:800; }
+      @media (max-width:760px) { .top,.hero,.app-grid { grid-template-columns:1fr; flex-direction:column; align-items:stretch; } .button{width:100%;} h1{font-size:58px;} }
+    </style>
+  </head>
+  <body>
+    <main class="shell" data-od-id="troqar.shell">
+      <header class="top"><div class="brand"><span class="mark"></span><span>TROQ<em>AR</em></span></div><nav data-od-id="topbar.account.actions"></nav></header>
+      <section class="hero" data-od-id="auth.login-first">
+        <div>
+          <p>TROQAR / Body War</p>
+          <h1 data-od-id="login.hero">Online Runner Profile</h1>
+          <p class="line">Corra. Conecte. Conquiste.</p>
+          <p data-od-id="login.trust-copy">Start with Strava. Tokens stay server-side, activity summaries stay redacted, and preview evidence stays separate from final scoring.</p>
+          <a class="button" data-od-id="auth.connect.cta" href="/api/auth/strava/start">Continue with Strava</a>
+          <p class="notice" data-od-id="auth.callback-status">Strava connected. Tokens stay server-side.</p>
+          <p class="danger" data-od-id="auth.error.banner">Strava access was not granted. <a data-od-id="auth.reconnect.cta" href="/api/auth/strava/start">Try Strava again</a></p>
+        </div>
+        <aside class="phone" data-od-id="login.preview-card">
+          <h2>TROQAR</h2>
+          <div class="metrics"><div class="card"><p>Semana</p><strong>42,7 km</strong></div><div class="card"><p>Territorio</p><strong>verde</strong></div></div>
+          <div class="card route"><p>Rota em destaque</p><h3>Trilha do Morro</h3><svg viewBox="0 0 220 72"><path d="M8 56c28-26 41-9 62-20 19-10 27 13 49 2 22-11 34-23 57-11 15 8 21 14 36 1"/></svg></div>
+        </aside>
+      </section>
+      <section class="app-grid">
+        <article class="panel" data-od-id="profile.safe-athlete-card"><p class="tag">Privacy</p><h2>Ada Runner</h2><p data-od-id="profile.privacy-card">Tokens stay server-side and never render in this page.</p><a data-od-id="profile.strava-link">Open public Strava profile</a></article>
+        <article class="panel" data-od-id="activity.recent-summary"><p data-od-id="activity.loading">Loading</p><p data-od-id="activity.empty">No recent runs found</p><p data-od-id="activity.error">Connect Strava to continue</p><span data-od-id="track.geometry-status">Geometry pending</span><button class="button" data-od-id="evidence.submit.cta">Submit preview</button><p data-od-id="evidence.submit.error"></p></article>
+        <article class="panel" data-od-id="evidence.submission-list"><span data-od-id="evidence.status-chip">submitted - preview</span></article>
+      </section>
+    </main>
+  </body>
+</html>

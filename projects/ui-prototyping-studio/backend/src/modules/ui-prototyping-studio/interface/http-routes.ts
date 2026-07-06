@@ -74,6 +74,7 @@ interface ApplyApprovedBatchBody {
 interface ExportDesignHandoffBody {
   exportProfile?: unknown;
   requestedBy?: unknown;
+  confirm?: unknown;
 }
 
 interface SessionParams {
@@ -362,6 +363,9 @@ export function registerUiPrototypingStudioRoutes(
           sessionId: request.params.sessionId,
           exportProfile: parseOptionalString(request.body.exportProfile),
           requestedBy: parseActor(request.body.requestedBy, "web-ui"),
+          // N1: the confirm requirement lives in the core use-case; the route must pass an explicit
+          // human confirmation (the `confirm` body field) or the core refuses HANDOFF_CONFIRMATION_REQUIRED.
+          confirmedBy: parseOptionalString((request.body as { confirm?: unknown }).confirm),
         });
 
         return reply.status(200).send({
@@ -551,6 +555,9 @@ function mapHandoffBundle(bundle: HandoffBundle) {
     acceptanceRefs: [...bundle.acceptanceRefs],
     uiSpecRef: bundle.uiSpecRef,
     testSpecRef: bundle.testSpecRef,
+    exportProfile: bundle.exportProfile,
+    sourceRefs: bundle.sourceRefs ? [...bundle.sourceRefs] : [],
+    missingRefs: bundle.missingRefs ? [...bundle.missingRefs] : [],
   };
 }
 

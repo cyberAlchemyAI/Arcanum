@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TROQAR Production Login - Variant A</title>
+    <style>
+      :root { --bg:#050808; --ink:#f4f1e8; --muted:#8a9693; --panel:#101918; --line:#1c2b28; --fire:#ff5c1a; --green:#1ed97a; }
+      * { box-sizing: border-box; }
+      body { margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font:16px/1.45 "DM Sans", Inter, system-ui, sans-serif; }
+      .shell { min-height:100vh; padding:18px clamp(16px,4vw,56px) 34px; }
+      .top { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+      .brand { display:flex; align-items:center; gap:10px; font-family:Impact,"Arial Narrow",sans-serif; font-size:30px; color:var(--fire); }
+      .mark { width:38px; height:38px; clip-path:polygon(50% 0,92% 24%,92% 76%,50% 100%,8% 76%,8% 24%); background:linear-gradient(135deg,var(--fire) 0 52%,var(--green) 52%); }
+      .hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,400px); gap:40px; align-items:center; min-height:calc(100vh - 100px); }
+      h1,h2 { font-family:Impact,"Arial Narrow",sans-serif; line-height:1; margin:0 0 12px; }
+      h1 { font-size:clamp(54px,12vw,122px); max-width:8ch; }
+      p { color:var(--muted); margin:0 0 16px; }
+      .cta { display:inline-flex; min-height:44px; align-items:center; justify-content:center; padding:10px 16px; border-radius:8px; background:var(--fire); color:white; font-weight:800; text-decoration:none; }
+      .phone,.card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; }
+      .phone { border-radius:26px; box-shadow:0 24px 80px #0009; }
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0; }
+      .line { height:64px; border:2px solid var(--green); border-width:0 0 4px; border-radius:50%; }
+      [data-od-id="auth.callback-status"] { color:var(--green); }
+      @media (max-width:700px) { .top,.hero { grid-template-columns:1fr; flex-direction:column; align-items:stretch; } .cta { width:100%; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell" data-od-id="troqar.shell">
+      <header class="top" data-od-id="topbar.account.actions"><div class="brand"><span class="mark"></span><span>TROQAR</span></div></header>
+      <section class="hero" data-od-id="auth.login-first">
+        <div>
+          <p>TROQAR / Body War</p>
+          <h1 data-od-id="login.hero">Online Runner Profile</h1>
+          <p data-od-id="login.trust-copy">Strava only for MVP. Tokens stay server-side; preview evidence stays separate from final scoring.</p>
+          <a class="cta" data-od-id="auth.connect.cta" href="/api/auth/strava/start">Continue with Strava</a>
+          <p data-od-id="auth.callback-status">Strava connected. Safe profile data only.</p>
+          <p data-od-id="auth.error.banner"><a data-od-id="auth.reconnect.cta" href="/api/auth/strava/start">Try Strava again</a></p>
+        </div>
+        <aside class="phone" data-od-id="login.preview-card">
+          <h2>TROQAR</h2>
+          <div class="grid"><div class="card">42,7 km</div><div class="card">territorio verde</div></div>
+          <div class="card"><p>Trilha do Morro</p><div class="line"></div></div>
+        </aside>
+      </section>
+      <section hidden data-od-id="profile.safe-athlete-card"><a data-od-id="profile.strava-link">Open public Strava profile</a><div data-od-id="profile.privacy-card"></div></section>
+      <section hidden data-od-id="activity.recent-summary"><p data-od-id="activity.loading"></p><p data-od-id="activity.empty"></p><p data-od-id="activity.error"></p><span data-od-id="track.geometry-status"></span><button data-od-id="evidence.submit.cta">Submit preview</button><p data-od-id="evidence.submit.error"></p></section>
+      <section hidden data-od-id="evidence.submission-list"><span data-od-id="evidence.status-chip"></span></section>
+    </main>
+  </body>
+</html>

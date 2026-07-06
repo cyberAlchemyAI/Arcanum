@@ -129,6 +129,34 @@ Each is a named extension point; nothing here is canonical until operator-approv
   idempotency-at-verdict (the human accepts a specific `candidateHtmlHash`; record commits exactly that hash,
   so seen == recorded).
 
+## 6b. Operating-model update — reversibility + two modes (DEC-026 / DEC-027)
+
+> Current model; supersedes "human disposes every durable change" (§1, §6) where they conflict.
+
+- **Reversibility, not gating (DEC-026).** The append-only revision log + content-addressed HTML make every
+  durable action undoable (`revert` appends an inverse revision — head moves forward, content goes back, never
+  a destructive rewind). So the agent may drive the whole loop, including `accept`. The **one irreversible
+  edge is `handoff export`** (downstream consumption), guarded by an explicit human `--confirm`. The
+  human-vs-agent identity gate is **dropped, not built**.
+- **Two modes (DEC-027).** HUMAN-in-the-loop (human selects/accepts) and AUTO exploit/explore `cycle`
+  (agent generates + self-critique-scores; the core gates via the scope fence and auto-accepts the top score).
+  New core use-cases: `run-cycle`, `revert-revision`, `list-pending-comments`; new CLI/preview surface:
+  `cycle · watch · pending · revert · preview (+ annotate /comment, /state) · handoff export --confirm`.
+- **Admission boundary unchanged.** AUTO still passes the same pure scope fence (§6a); exploit refines within
+  head od-ids, explore may diverge with integrity. Determinism-at-admission + replay-by-verdict still hold.
+
+## 6c. Known architecture gaps — gap-audit 2026-06-18
+
+- **F1 (HIGH) — the export gate is in the wrong layer.** The `--confirm` edge is enforced only in the CLI
+  adapter; the mounted Fastify route `POST /…/handoff/export` (`interface/http-routes.ts`) calls
+  `exportDesignHandoff` with no confirm, on `0.0.0.0:8787` (`src/index.ts`). This **violates §4's "gates live
+  in the core, never in the adapter."** Fix: move the confirm requirement into the `exportDesignHandoff`
+  use-case so every adapter inherits it. (Tracked in `development/PLAN-NEXT.md`.)
+- **F7 (MED) — the legacy HTTP surface is ungated + untested.** Decide: bring it to CLI parity (gates + tests)
+  or remove the bootstrap, since §1 names the CLI as the surface.
+- **F2 (MED) — `cycle` carries no `system:auto` guard.** Sanctioned under DEC-026 (reversibility is the
+  control); a literal-`system:auto` smoke-guard is queued for parity with the apply path.
+
 ## 7. Trust & governance architecture
 
 Governance is the product, not a constraint bolted on:

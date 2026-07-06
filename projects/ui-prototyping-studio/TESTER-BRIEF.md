@@ -10,9 +10,9 @@ proposes UI changes — and stay in control of every decision that sticks? Speci
 variants, pick a baseline, leave comments, and then **you alone** approve / apply / accept each durable
 change.
 
-You are **not** (yet) testing the *visual* experience — there is no in-app preview or click-to-annotate
-surface in this build. You'll view rendered HTML by opening a file path the tool prints. The polished
-visual experience is the next build; your feedback here is about the **control surface**, not the pixels.
+A browser **preview + click-to-annotate** surface now ships (`studio preview <sid>`), with in-preview
+Accept/Revert controls. The *polished* visual styling is still maturing, so your feedback here is primarily
+about the **control surface** — staying in control of every durable change — not the pixels.
 
 ## The one safety caveat — please understand this before you consent
 

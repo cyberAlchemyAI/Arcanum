@@ -2,8 +2,8 @@
 
 **Scope (read this line):** this protocol tests **governance / integrity ergonomics** — can a human
 supervise the agent and stay in control of every durable change. It does **NOT** test visual prototyping
-ergonomics (no in-app preview yet — that's the next build). Please don't rate "how pretty/usable the UI
-looks"; rate "did I understand what was happening and stay in control."
+ergonomics. A browser preview + click-to-annotate surface now ships (`studio preview <sid>`), but please
+don't rate "how pretty/usable the UI looks"; rate "did I understand what was happening and stay in control."
 
 **Before you start:** read [TESTER-BRIEF.md](TESTER-BRIEF.md) (the safety/consent note). Setup is in the
 [README "Running"](README.md#running) section. Use a **fresh `STUDIO_DATA` path** for each full run-through.

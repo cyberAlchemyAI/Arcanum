@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TROQAR Production Login - Variant C</title>
+    <style>
+      :root { --bg:#050808; --panel:#101918; --line:#1c2b28; --fire:#ff5c1a; --green:#1ed97a; --ink:#f4f1e8; --muted:#8a9693; }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font:15px/1.45 "DM Sans",Inter,system-ui,sans-serif; }
+      .shell { display:grid; grid-template-columns:260px 1fr; gap:20px; min-height:100vh; padding:18px; }
+      .rail,.panel,.phone { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; }
+      .brand { font:800 34px/1 Impact,"Arial Narrow",sans-serif; color:var(--fire); }
+      .brand span { color:var(--green); }
+      h1,h2,h3 { font-family:Impact,"Arial Narrow",sans-serif; line-height:1; margin:0 0 10px; }
+      h1 { font-size:clamp(52px,10vw,112px); max-width:8ch; }
+      p { color:var(--muted); margin:0 0 14px; }
+      .button { display:inline-flex; min-height:44px; align-items:center; justify-content:center; border-radius:8px; background:var(--fire); color:white; font-weight:800; padding:10px 16px; text-decoration:none; }
+      .content { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,380px); gap:20px; align-items:center; }
+      .green { color:var(--green); }
+      .phone { border-radius:28px; }
+      .stack { display:grid; gap:10px; }
+      .tag { color:var(--green); font-weight:800; }
+      @media (max-width:760px) { .shell,.content { grid-template-columns:1fr; } .button { width:100%; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell" data-od-id="troqar.shell">
+      <aside class="rail"><div class="brand">TROQ<span>AR</span></div><nav data-od-id="topbar.account.actions"></nav><p>Corra. Conecte. Conquiste.</p></aside>
+      <section class="content">
+        <div data-od-id="auth.login-first">
+          <p>TROQAR / Body War</p>
+          <h1 data-od-id="login.hero">Online Runner Profile</h1>
+          <p data-od-id="login.trust-copy">Strava is the only visible MVP login method. Tokens stay server-side; summaries stay redacted.</p>
+          <a class="button" data-od-id="auth.connect.cta" href="/api/auth/strava/start">Continue with Strava</a>
+          <p class="green" data-od-id="auth.callback-status">Strava connected. Public profile data only.</p>
+          <p data-od-id="auth.error.banner">Retry Strava when ready. <a data-od-id="auth.reconnect.cta" href="/api/auth/strava/start">Try Strava again</a></p>
+        </div>
+        <aside class="phone stack" data-od-id="login.preview-card">
+          <div class="panel"><h2>42,7 km</h2><p>Resumo da semana</p></div>
+          <div class="panel"><h2>Territorio verde</h2><p>Preview authority</p></div>
+          <div class="panel"><h3>Trilha do Morro</h3><p>Route geometry pending</p></div>
+        </aside>
+        <article class="panel" data-od-id="profile.safe-athlete-card"><p class="tag" data-od-id="profile.privacy-card">Tokens stay server-side and never render in this page.</p><a data-od-id="profile.strava-link">Open public Strava profile</a></article>
+        <article class="panel" data-od-id="activity.recent-summary"><p data-od-id="activity.loading">Loading</p><p data-od-id="activity.empty">No recent runs found</p><p data-od-id="activity.error">Connect Strava to continue</p><span data-od-id="track.geometry-status">Geometry pending</span><button class="button" data-od-id="evidence.submit.cta">Submit preview</button><p data-od-id="evidence.submit.error"></p></article>
+        <article class="panel" data-od-id="evidence.submission-list"><span data-od-id="evidence.status-chip">submitted - preview</span></article>
+      </section>
+    </main>
+  </body>
+</html>
