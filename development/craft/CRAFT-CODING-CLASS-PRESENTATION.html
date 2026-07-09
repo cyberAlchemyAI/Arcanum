@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Table Is Not The Project</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f6f0;
+      --surface: #ffffff;
+      --ink: #1f242b;
+      --muted: #616b76;
+      --line: #d7d2c7;
+      --green: #23724d;
+      --blue: #2f639d;
+      --amber: #9a6a12;
+      --coral: #b6543b;
+      --violet: #6750a4;
+      --soft-green: #eaf6ef;
+      --soft-blue: #eaf2fb;
+      --soft-amber: #fff2d3;
+      --soft-coral: #fae9e4;
+      --soft-violet: #eee9fa;
+      --shadow: 0 16px 40px rgba(31, 36, 43, .12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      min-height: 56px;
+      padding: 9px 18px;
+      border-bottom: 1px solid rgba(215, 210, 199, .9);
+      background: rgba(247, 246, 240, .92);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      display: block;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .deck-title {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 750;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button {
+      display: inline-grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 4px 14px rgba(31, 36, 43, .07);
+      cursor: pointer;
+    }
+
+    .icon-button:hover,
+    .icon-button:focus-visible {
+      border-color: var(--blue);
+      outline: 3px solid rgba(47, 99, 157, .18);
+    }
+
+    .counter {
+      min-width: 68px;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    .progress {
+      position: fixed;
+      z-index: 25;
+      top: 56px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(215, 210, 199, .85);
+    }
+
+    .progress span {
+      display: block;
+      width: 7.14%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--blue), var(--coral));
+      transition: width .2s ease;
+    }
+
+    .deck {
+      height: 100vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: none;
+    }
+
+    .slide {
+      min-height: 100vh;
+      padding: 88px clamp(22px, 5vw, 72px) 38px;
+      display: grid;
+      align-items: center;
+      scroll-snap-align: start;
+    }
+
+    .slide-inner {
+      width: min(1220px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(360px, 1.08fr) minmax(320px, .92fr);
+      gap: clamp(24px, 4vw, 56px);
+      align-items: center;
+    }
+
+    .visual-stage {
+      min-height: 480px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at top left, rgba(47, 99, 157, .08), transparent 34%),
+        linear-gradient(135deg, rgba(255, 255, 255, .92), rgba(247, 246, 240, .98));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .visual-stage[data-has-reveal="true"] {
+      cursor: pointer;
+    }
+
+    .visual-stage[data-has-reveal="true"]:focus-visible {
+      outline: 4px solid rgba(47, 99, 157, .24);
+      outline-offset: 5px;
+    }
+
+    .copy {
+      display: grid;
+      gap: 17px;
+    }
+
+    .slide-id {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 5.2vw, 76px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .question {
+      margin: 0;
+      color: var(--blue);
+      font-size: clamp(21px, 2.1vw, 30px);
+      font-weight: 760;
+      line-height: 1.16;
+    }
+
+    .takeaway {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(18px, 1.35vw, 22px);
+    }
+
+    .speaker-note b {
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .speaker-note p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .term {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      min-height: 32px;
+      padding: 5px 10px;
+      border: 1px solid currentColor;
+      border-radius: 8px;
+      color: var(--coral);
+      font-size: 13px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .speaker-note {
+      display: none;
+      gap: 7px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    body.show-notes .speaker-note {
+      display: grid;
+    }
+
+    .visual {
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      padding: 34px;
+      display: grid;
+      place-items: center;
+    }
+
+    .visual svg {
+      width: 100%;
+      max-height: 420px;
+      display: block;
+    }
+
+    .scene-grid,
+    .branch-grid,
+    .compare-grid,
+    .schema-grid,
+    .mini-grid {
+      width: 100%;
+      display: grid;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .scene-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .compare-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-grid {
+      grid-template-columns: .8fr 1.2fr;
+    }
+
+    .branch-grid,
+    .schema-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .mini-grid .schema-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .visual-card,
+    .node,
+    .schema-field {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: 0 10px 24px rgba(31, 36, 43, .07);
+    }
+
+    .visual-card {
+      min-height: 150px;
+      padding: 16px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .visual-card strong,
+    .node strong,
+    .schema-field strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.15;
+    }
+
+    .visual-card span,
+    .node span,
+    .schema-field span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .prompt-box {
+      width: min(520px, 100%);
+      margin: 0 auto 22px;
+      padding: 18px;
+      border: 2px solid var(--blue);
+      border-radius: 8px;
+      background: var(--soft-blue);
+      color: var(--ink);
+      font-size: clamp(20px, 2.4vw, 30px);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .node {
+      min-height: 96px;
+      padding: 15px;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+      text-align: center;
+    }
+
+    .node.root {
+      grid-column: 1 / -1;
+      background: var(--soft-amber);
+      border-color: rgba(154, 106, 18, .35);
+    }
+
+    .node.green {
+      background: var(--soft-green);
+    }
+
+    .node.blue {
+      background: var(--soft-blue);
+    }
+
+    .node.coral {
+      background: var(--soft-coral);
+    }
+
+    .node.violet {
+      background: var(--soft-violet);
+    }
+
+    .schema-field {
+      min-height: 110px;
+      padding: 15px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      justify-content: center;
+    }
+
+    .chip {
+      min-height: 36px;
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .reveal-prompt {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+    }
+
+    .pause-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 7px 11px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .pause-badge {
+      border: 1px solid rgba(154, 106, 18, .35);
+      background: var(--soft-amber);
+      color: var(--amber);
+    }
+
+    .slide[data-reveal-step="1"] .pause-badge,
+    .slide[data-reveal-step="2"] .pause-badge {
+      display: none;
+    }
+
+    .reveal-step {
+      display: none;
+    }
+
+    .slide[data-reveal-step="1"] .reveal-step-1,
+    .slide[data-reveal-step="2"] .reveal-step-1,
+    .slide[data-reveal-step="2"] .reveal-step-2 {
+      display: flex;
+    }
+
+    .example-map {
+      width: min(560px, 100%);
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .slide[data-reveal-step="2"] .example-map {
+      display: grid;
+    }
+
+    .example-item {
+      min-height: 68px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .86);
+    }
+
+    .example-item b,
+    .example-item span {
+      display: block;
+    }
+
+    .example-item b {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .example-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bad-prompt {
+      padding: 22px;
+      border: 2px solid rgba(182, 84, 59, .4);
+      border-radius: 8px;
+      background: var(--soft-coral);
+      color: var(--ink);
+      font-size: clamp(24px, 2.4vw, 36px);
+      font-weight: 820;
+      text-align: center;
+    }
+
+    .arrow-label {
+      align-self: center;
+      color: var(--muted);
+      font-weight: 850;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .slide {
+        padding-top: 84px;
+      }
+
+      .slide-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .visual-stage,
+      .visual {
+        min-height: 360px;
+      }
+
+      .scene-grid,
+      .compare-grid,
+      .branch-grid,
+      .schema-grid,
+      .mini-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .node.root {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .toolbar {
+        justify-content: space-between;
+      }
+
+      .progress {
+        top: 102px;
+      }
+
+      .slide {
+        padding: 126px 16px 34px;
+      }
+
+      .visual {
+        padding: 20px;
+      }
+
+      .scene-grid,
+      .compare-grid,
+      .branch-grid,
+      .schema-grid,
+      .mini-grid,
+      .example-map {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(34px, 13vw, 48px);
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .topbar,
+      .progress {
+        display: none;
+      }
+
+      .deck {
+        height: auto;
+        overflow: visible;
+      }
+
+      .slide {
+        min-height: 100vh;
+        page-break-after: always;
+        padding: 26px;
+      }
+
+      .slide-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .visual-stage,
+      .visual {
+        min-height: 360px;
+        box-shadow: none;
+      }
+
+      .speaker-note {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="eyebrow">Beginner coding class</span>
+      <span class="deck-title">The Table Is Not The Project</span>
+    </div>
+    <div class="toolbar" aria-label="Deck controls">
+      <button class="icon-button" id="prev-slide" type="button" aria-label="Previous slide" title="Previous slide">&lt;</button>
+      <span class="counter" id="slide-counter">1 / 14</span>
+      <button class="icon-button" id="next-slide" type="button" aria-label="Next slide" title="Next slide">&gt;</button>
+      <button class="icon-button" id="toggle-notes" type="button" aria-label="Toggle speaker notes" title="Toggle speaker notes">i</button>
+    </div>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  <main class="deck" id="deck" aria-label="Beginner coding class slide deck"></main>
+
+  <script>
+    const slides = [
+      {
+        id: "CRAFT-INTRO-S01",
+        title: "Look At This Table",
+        question: "What would you need before anyone builds?",
+        term: "",
+        concept: "Do not answer yet. Let the object make the missing work visible.",
+        activity: "Silent list for 15 seconds. Then click the table twice: first reveal buckets, then reveal examples.",
+        note: "Begin with recognition, not explanation. Hold the answer back for one short pause. The point is not that a table is hard. The point is that even a familiar object has hidden requirements before it can be built.",
+        check: "Students name at least materials, tools, measurements, and steps without needing formal vocabulary.",
+        bridge: "Good. That list is raw material. Craft starts by defining what this object is supposed to become.",
+        visual: "simpleTable",
+        revealMax: 2
+      },
+      {
+        id: "CRAFT-INTRO-S02",
+        title: "Define The Object",
+        question: "Which table are we actually talking about?",
+        term: "define",
+        concept: "Define turns a wish into a bounded target.",
+        activity: "Ask students what must be named before the table can be discussed responsibly: use, place, user, size range, and what it is not.",
+        note: "Use the closure condition from the initial definition: what is being built, why, for whom or what, in what bounded space, and what artifact should exist next. Do not design yet. Only name the target clearly enough that everyone is talking about the same object.",
+        check: "Students can distinguish a dining table, desk, coffee table, and work table as different targets.",
+        bridge: "Now that the target is named, we still need facts before choosing the shape.",
+        visual: "defineTarget"
+      },
+      {
+        id: "CRAFT-INTRO-S03",
+        title: "Research Before Design",
+        question: "What do we need to learn before choosing?",
+        term: "research",
+        concept: "Research gathers evidence so the design is not just a guess.",
+        activity: "Ask which facts would change the table: room size, material strength, available tools, examples, cost, and how people will use it.",
+        note: "Research here means grounding, not a school report. In the formal definition, research is an input to Define and a route when domain information is missing. For beginners, make it practical: look at reality before locking the design.",
+        check: "Students can name at least two facts that would change the table design.",
+        bridge: "Now the evidence can become a structure.",
+        visual: "researchBoard"
+      },
+      {
+        id: "CRAFT-INTRO-S04",
+        title: "Design The Schema",
+        question: "What structure will hold the target?",
+        term: "schema",
+        concept: "The design becomes a schema: the chosen shape of valid work.",
+        activity: "Point to one design choice the schema now fixes: material, size, joinery, finish, or check.",
+        note: "This is where the first formal Craft word is earned. Schema should not feel abstract. It is the chosen structure that makes the target legible enough to build, compare, and say whether a result still counts.",
+        check: "Students can say that the schema narrows which tables count as valid for this job.",
+        bridge: "A design is still not a build order. We need a plan.",
+        visual: "planShape"
+      },
+      {
+        id: "CRAFT-INTRO-S05",
+        title: "Plan The Build",
+        question: "What is the next executable piece?",
+        term: "plan",
+        concept: "Plan turns the design into ordered work with done checks.",
+        activity: "Ask which step should happen first and what would prove that step is done.",
+        note: "Bring in the initial definition's planning ladder gently: plan becomes waves, tasks, and smallest work units. For the table, that can be measure, cut, join, finish, and check. The plan closes only when the next piece can actually be executed.",
+        check: "Students can name a next step, its input, its output, and a done check.",
+        bridge: "Once a step is clear enough, someone can build.",
+        visual: "planSteps"
+      },
+      {
+        id: "CRAFT-INTRO-S06",
+        title: "Build The Artifact",
+        question: "What exists after the work runs?",
+        term: "artifact",
+        concept: "The artifact is the thing produced from the schema and plan.",
+        activity: "Ask what changed when the drawing became a physical table.",
+        note: "Make the contrast physical. The sketch cannot hold your coffee. The artifact can. But because it now exists, it can also fail in inspectable ways.",
+        check: "Students can distinguish the plan from the produced object.",
+        bridge: "Now we compare the thing back to the shape that produced it.",
+        visual: "artifactCompare"
+      },
+      {
+        id: "CRAFT-INTRO-S07",
+        title: "Validate The Match",
+        question: "Does the table match the design?",
+        term: "validate",
+        concept: "Validate means compare the artifact back to the schema.",
+        activity: "Ask students which check they would run first: height, level surface, wobble, material, or fit.",
+        note: "The initial definition treats validation as residue measurement. Keep the first pass simple: the check is not a vibe. It is a comparison between the thing we made and the structure we chose.",
+        check: "Students name concrete checks such as height, stability, level surface, and material match.",
+        bridge: "Anything left over is not shame. It is information.",
+        visual: "validationChecks"
+      },
+      {
+        id: "CRAFT-INTRO-S08",
+        title: "Reflect On The Leftover",
+        question: "What does the leftover teach us?",
+        term: "residue",
+        concept: "Residue is the mismatch or missing detail that tells us the next responsible move.",
+        activity: "Name the leftover and route it: repair, research again, redesign, re-plan, or split a new layer.",
+        note: "This is the reflection moment. Residue is not total failure. It is signal that the current layer may be missing information, structure, a check, a smaller unit, or a better path back into the whole.",
+        check: "Students can distinguish residue from total failure and name one next move.",
+        bridge: "Sometimes the leftover is small. Sometimes it reveals a hidden project.",
+        visual: "leftOver"
+      },
+      {
+        id: "CRAFT-INTRO-S09",
+        title: "Same Word, New Problem",
+        question: "Would the same plan still be enough?",
+        term: "",
+        concept: "The word stayed small, but the work inside it got much bigger.",
+        activity: "List the new hidden work: drawings, carving tools, practice cuts, patterns, checks.",
+        note: "Do not rush to the term yet. Let the ornate table create the pressure. The class should feel that 'make the legs' is no longer one simple instruction. It may need its own define, research, design, plan, build, validate, and reflect cycle.",
+        check: "Students identify that the leg design may need its own drawing, tools, practice, and checks.",
+        bridge: "The leg is part of the table, but it may also need its own layer.",
+        visual: "ornateTable"
+      },
+      {
+        id: "CRAFT-INTRO-S10",
+        title: "A Step Becomes a Build",
+        question: "When does one step need its own cycle?",
+        term: "craft layer",
+        concept: "If a part needs its own lifecycle and way back into the whole, it has become a craft layer.",
+        activity: "Choose the leg, carving, assembly, or finish. What would its own define, research, design, plan, build, and check need?",
+        note: "This is the core rule of the class. The layer is not separate because we like complexity. It is separate because the current step can no longer be responsibly handled as a single step inside the upper plan.",
+        check: "Students can say why 'make the legs' is too broad.",
+        bridge: "Software hides the same kind of work inside feature names.",
+        visual: "plansInsidePlans"
+      },
+      {
+        id: "CRAFT-INTRO-S11",
+        title: "Software Does This Too",
+        question: "What is hiding inside 'login'?",
+        term: "",
+        concept: "A feature name can hide its own target, evidence, design, plan, checks, and residue.",
+        activity: "Break login into parts: field, button, validation, error, session, redirect.",
+        note: "Keep this grounded in what beginners have seen. Login sounds like one feature until you ask what has to happen when the password is wrong, the network fails, the session expires, or the user returns tomorrow.",
+        check: "Students produce at least three smaller responsibilities under one feature.",
+        bridge: "Now we need a way to choose how much work belongs in one responsible piece.",
+        visual: "codingVersion"
+      },
+      {
+        id: "CRAFT-INTRO-S12",
+        title: "Small Enough To Hold",
+        question: "Which piece can we build and check?",
+        term: "SCU",
+        concept: "An SCU is the smallest coherent unit that still carries responsibility.",
+        activity: "Pick the responsible unit: whole app, login form, or one blue button.",
+        note: "The trap is thinking smaller always means better. Too large loses details. Too tiny stops meaning anything. The useful middle is small enough to build and check, but large enough to fit back into the whole.",
+        check: "Students can reject both too-large and too-tiny units for the given objective.",
+        bridge: "When the unit is too loose, too many paths compete.",
+        visual: "responsiblePiece"
+      },
+      {
+        id: "CRAFT-INTRO-S13",
+        title: "Too Many Good Answers",
+        question: "Why does the result drift?",
+        term: "entropy",
+        concept: "Entropy is the uncertainty pressure created when too many meanings are still possible.",
+        activity: "Make 'dashboard' less slippery: who uses it, what data, what actions, what done means.",
+        note: "Keep the term humble. Entropy here means uncertainty pressure. The AI has many plausible continuations, and the larger or vaguer the task is, the more those continuations compete.",
+        check: "Students suggest constraints such as user, data, layout, actions, and success criteria.",
+        bridge: "Craft is the method for routing that pressure instead of letting it drift.",
+        visual: "manyPaths"
+      },
+      {
+        id: "CRAFT-INTRO-S14",
+        title: "The Craft Rule",
+        question: "What did we actually do?",
+        term: "Craft",
+        concept: "Craft searches for the next responsible schema/data layer: define, research when needed, design, plan, execute, validate, reflect.",
+        activity: "Ask students to explain the loop using the simple table, ornate leg, or login example.",
+        note: "End with the formal spine from the initial definition. Craft is the recursive search for the next smallest coherent schema/data layer needed to translate intent into artifact with acceptable residue. The deck should now make that sentence feel earned.",
+        check: "Students can map intention, schema, artifact, residue, and next layer onto at least one example.",
+        bridge: "Next class, we use this loop to build a small app without letting the plan disappear.",
+        visual: "craftLoop"
+      }
+    ];
+
+    const visuals = {
+      simpleTable: () => `
+        <div class="visual" aria-label="Plain table with four straight legs">
+          <svg viewBox="0 0 760 460" role="img">
+            <rect x="100" y="142" width="560" height="58" rx="8" fill="#936b3d"/>
+            <rect x="126" y="194" width="46" height="206" rx="6" fill="#70502e"/>
+            <rect x="588" y="194" width="46" height="206" rx="6" fill="#70502e"/>
+            <rect x="218" y="202" width="34" height="174" rx="6" fill="#80613a"/>
+            <rect x="508" y="202" width="34" height="174" rx="6" fill="#80613a"/>
+            <ellipse cx="380" cy="410" rx="300" ry="18" fill="rgba(31,36,43,.12)"/>
+            <text x="380" y="74" text-anchor="middle" font-size="34" font-weight="800" fill="#1f242b">what would you need?</text>
+            <text x="380" y="112" text-anchor="middle" font-size="18" fill="#616b76">think first, then reveal the structure</text>
+          </svg>
+          <div class="reveal-prompt">
+            <span class="pause-badge">Think for 15 seconds</span>
+          </div>
+          <div class="chip-row reveal-step reveal-step-1" aria-label="Clue buckets">
+            <span class="chip">materials</span>
+            <span class="chip">tools</span>
+            <span class="chip">measurements</span>
+            <span class="chip">steps</span>
+          </div>
+          <div class="example-map reveal-step reveal-step-2" aria-label="Concrete choices">
+            <div class="example-item"><b>materials</b><span>wood, screws, glue</span></div>
+            <div class="example-item"><b>tools</b><span>saw, drill, clamp</span></div>
+            <div class="example-item"><b>measurements</b><span>width, height, leg positions</span></div>
+            <div class="example-item"><b>steps</b><span>table design, cut list, assembly order</span></div>
+          </div>
+        </div>
+      `,
+      defineTarget: () => `
+        <div class="visual" aria-label="Defined table target">
+          <div class="branch-grid">
+            <div class="node root"><strong>small work table</strong><span>one person, one room</span></div>
+            <div class="node blue"><strong>use</strong><span>laptop, notebook, coffee</span></div>
+            <div class="node green"><strong>place</strong><span>fits beside the window</span></div>
+            <div class="node coral"><strong>not</strong><span>dining table, shelf, bench</span></div>
+            <div class="node violet"><strong>next artifact</strong><span>a buildable sketch</span></div>
+          </div>
+        </div>
+      `,
+      researchBoard: () => `
+        <div class="visual" aria-label="Research board before table design">
+          <div class="scene-grid">
+            <div class="visual-card" style="background: var(--soft-blue)">
+              <strong>room facts</strong>
+              <span>available width, chair height, walking space</span>
+            </div>
+            <div class="visual-card" style="background: var(--soft-green)">
+              <strong>material facts</strong>
+              <span>wood strength, cost, what tools can cut it</span>
+            </div>
+            <div class="visual-card" style="background: var(--soft-amber)">
+              <strong>example facts</strong>
+              <span>similar tables, stable joins, common mistakes</span>
+            </div>
+          </div>
+        </div>
+      `,
+      dimensionedSketch: () => `
+        <div class="visual" aria-label="Table sketch with dimensions">
+          <svg viewBox="0 0 760 460" role="img">
+            <rect x="168" y="150" width="424" height="38" rx="4" fill="none" stroke="#1f242b" stroke-width="5"/>
+            <line x1="204" y1="188" x2="204" y2="344" stroke="#1f242b" stroke-width="5"/>
+            <line x1="556" y1="188" x2="556" y2="344" stroke="#1f242b" stroke-width="5"/>
+            <line x1="168" y1="114" x2="592" y2="114" stroke="#2f639d" stroke-width="4"/>
+            <path d="M168 104 L168 124 M592 104 L592 124" stroke="#2f639d" stroke-width="4"/>
+            <text x="380" y="94" text-anchor="middle" font-size="25" font-weight="800" fill="#2f639d">120 cm wide</text>
+            <line x1="632" y1="150" x2="632" y2="344" stroke="#23724d" stroke-width="4"/>
+            <path d="M622 150 L642 150 M622 344 L642 344" stroke="#23724d" stroke-width="4"/>
+            <text x="662" y="253" font-size="24" font-weight="800" fill="#23724d">75 cm</text>
+            <path d="M156 384 H604" stroke="#d7d2c7" stroke-width="4"/>
+            <text x="380" y="414" text-anchor="middle" font-size="20" fill="#616b76">the wish now has shape</text>
+          </svg>
+        </div>
+      `,
+      vibeMirror: () => `
+        <div class="visual" aria-label="Vague prompt branching into three app mockups">
+          <div class="prompt-box">"Make me a cool app"</div>
+          <div class="scene-grid">
+            <div class="visual-card" style="background: var(--soft-blue)">
+              <strong>Fitness tracker</strong>
+              <span>charts, streaks, workouts</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><polyline points="12,54 42,38 70,45 98,22 132,30 150,14" fill="none" stroke="#2f639d" stroke-width="6" stroke-linecap="round"/></svg>
+            </div>
+            <div class="visual-card" style="background: var(--soft-amber)">
+              <strong>Shopfront</strong>
+              <span>cards, prices, checkout</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><rect x="18" y="18" width="44" height="34" fill="#9a6a12"/><rect x="70" y="18" width="44" height="34" fill="#d6a84e"/><rect x="122" y="18" width="20" height="34" fill="#9a6a12"/></svg>
+            </div>
+            <div class="visual-card" style="background: var(--soft-coral)">
+              <strong>Music toy</strong>
+              <span>playlists, buttons, glow</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><circle cx="54" cy="35" r="22" fill="#b6543b"/><polygon points="50,24 50,46 70,35" fill="#fff"/><rect x="92" y="18" width="44" height="8" rx="4" fill="#b6543b"/><rect x="92" y="36" width="30" height="8" rx="4" fill="#b6543b"/></svg>
+            </div>
+          </div>
+        </div>
+      `,
+      planShape: () => `
+        <div class="visual" aria-label="Annotated table plan">
+          <svg viewBox="0 0 760 460" role="img">
+            <rect x="192" y="146" width="376" height="42" rx="5" fill="#9c7444"/>
+            <rect x="226" y="188" width="42" height="160" rx="6" fill="#715232"/>
+            <rect x="492" y="188" width="42" height="160" rx="6" fill="#715232"/>
+            <line x1="248" y1="144" x2="116" y2="94" stroke="#2f639d" stroke-width="4"/>
+            <line x1="380" y1="188" x2="382" y2="82" stroke="#23724d" stroke-width="4"/>
+            <line x1="514" y1="222" x2="650" y2="118" stroke="#b6543b" stroke-width="4"/>
+            <line x1="382" y1="146" x2="622" y2="68" stroke="#9a6a12" stroke-width="4"/>
+            <rect x="48" y="54" width="150" height="54" rx="8" fill="#eaf2fb" stroke="#2f639d"/>
+            <text x="123" y="88" text-anchor="middle" font-size="20" font-weight="800" fill="#2f639d">material</text>
+            <rect x="309" y="46" width="146" height="54" rx="8" fill="#eaf6ef" stroke="#23724d"/>
+            <text x="382" y="80" text-anchor="middle" font-size="20" font-weight="800" fill="#23724d">size</text>
+            <rect x="560" y="82" width="154" height="54" rx="8" fill="#fae9e4" stroke="#b6543b"/>
+            <text x="637" y="116" text-anchor="middle" font-size="20" font-weight="800" fill="#b6543b">joinery</text>
+            <rect x="552" y="28" width="132" height="48" rx="8" fill="#fff2d3" stroke="#9a6a12"/>
+            <text x="618" y="59" text-anchor="middle" font-size="19" font-weight="800" fill="#9a6a12">finish</text>
+            <text x="380" y="404" text-anchor="middle" font-size="22" fill="#616b76">the plan decides what counts as the right table</text>
+          </svg>
+        </div>
+      `,
+      planSteps: () => `
+        <div class="visual" aria-label="Table build plan broken into steps">
+          <div class="branch-grid">
+            <div class="node root"><strong>plan</strong><span>design into executable work</span></div>
+            <div class="node blue"><strong>measure</strong><span>mark top and legs</span></div>
+            <div class="node green"><strong>cut</strong><span>pieces match sketch</span></div>
+            <div class="node coral"><strong>join</strong><span>legs attach squarely</span></div>
+            <div class="node violet"><strong>finish + check</strong><span>smooth, level, stable</span></div>
+          </div>
+        </div>
+      `,
+      artifactCompare: () => `
+        <div class="visual" aria-label="Plan compared with finished table">
+          <div class="compare-grid">
+            <div class="visual-card">
+              <strong>plan</strong>
+              <svg viewBox="0 0 250 170" role="img">
+                <rect x="52" y="48" width="146" height="18" fill="none" stroke="#2f639d" stroke-width="4"/>
+                <line x1="72" y1="66" x2="72" y2="132" stroke="#2f639d" stroke-width="4"/>
+                <line x1="178" y1="66" x2="178" y2="132" stroke="#2f639d" stroke-width="4"/>
+                <text x="125" y="154" text-anchor="middle" font-size="17" fill="#616b76">75 cm, level, stable</text>
+              </svg>
+            </div>
+            <div class="visual-card" style="background: var(--soft-green)">
+              <strong>artifact</strong>
+              <svg viewBox="0 0 250 170" role="img">
+                <rect x="50" y="52" width="150" height="22" rx="5" fill="#936b3d"/>
+                <rect x="72" y="74" width="18" height="68" rx="4" fill="#70502e"/>
+                <rect x="162" y="74" width="18" height="68" rx="4" fill="#70502e"/>
+                <path d="M62 24 L83 46 L118 14" fill="none" stroke="#23724d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="125" y="158" text-anchor="middle" font-size="17" fill="#616b76">check the thing that exists</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      `,
+      validationChecks: () => `
+        <div class="visual" aria-label="Validation checklist for table">
+          <div class="schema-grid">
+            <div class="schema-field"><strong>height</strong><span>matches the sketch</span></div>
+            <div class="schema-field"><strong>level</strong><span>surface does not tilt</span></div>
+            <div class="schema-field"><strong>stable</strong><span>does not wobble</span></div>
+            <div class="schema-field"><strong>fit</strong><span>works in the room</span></div>
+          </div>
+        </div>
+      `,
+      ornateTable: () => `
+        <div class="visual" aria-label="Ornate table with carved legs">
+          <svg viewBox="0 0 760 460" role="img">
+            <defs>
+              <pattern id="carve" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M2 18 C8 4, 16 4, 22 18" fill="none" stroke="#f2d49b" stroke-width="3"/>
+              </pattern>
+            </defs>
+            <rect x="110" y="104" width="540" height="58" rx="12" fill="#6c4625"/>
+            <rect x="142" y="76" width="476" height="38" rx="16" fill="#9b6c3b"/>
+            <path d="M160 158 C130 214, 198 246, 152 316 C126 356, 168 386, 148 414" fill="none" stroke="#6c4625" stroke-width="34" stroke-linecap="round"/>
+            <path d="M600 158 C630 214, 562 246, 608 316 C634 356, 592 386, 612 414" fill="none" stroke="#6c4625" stroke-width="34" stroke-linecap="round"/>
+            <path d="M258 162 C238 218, 292 246, 250 304 C226 338, 268 378, 246 414" fill="none" stroke="#835932" stroke-width="24" stroke-linecap="round"/>
+            <path d="M502 162 C522 218, 468 246, 510 304 C534 338, 492 378, 514 414" fill="none" stroke="#835932" stroke-width="24" stroke-linecap="round"/>
+            <path d="M142 164 C244 202, 516 202, 618 164" fill="none" stroke="#b98d55" stroke-width="12"/>
+            <rect x="122" y="186" width="74" height="206" rx="34" fill="url(#carve)" opacity=".9"/>
+            <rect x="564" y="186" width="74" height="206" rx="34" fill="url(#carve)" opacity=".9"/>
+            <ellipse cx="380" cy="426" rx="318" ry="20" fill="rgba(31,36,43,.12)"/>
+            <text x="380" y="46" text-anchor="middle" font-size="31" font-weight="850" fill="#1f242b">same word, hidden build</text>
+          </svg>
+        </div>
+      `,
+      plansInsidePlans: () => `
+        <div class="visual" aria-label="Table plan branching into smaller plans">
+          <div class="branch-grid">
+            <div class="node root"><strong>table plan</strong><span>one object</span></div>
+            <div class="node blue"><strong>leg plan</strong><span>shape and strength</span></div>
+            <div class="node coral"><strong>carving plan</strong><span>pattern and tools</span></div>
+            <div class="node green"><strong>assembly plan</strong><span>joins and order</span></div>
+            <div class="node violet"><strong>finish plan</strong><span>surface and color</span></div>
+          </div>
+        </div>
+      `,
+      codingVersion: () => `
+        <div class="visual" aria-label="Student portal broken into features">
+          <div class="branch-grid">
+            <div class="node root"><strong>student portal</strong><span>the visible app goal</span></div>
+            <div class="node blue"><strong>login</strong><span>email, password, errors</span></div>
+            <div class="node green"><strong>profile</strong><span>name, avatar, settings</span></div>
+            <div class="node coral"><strong>dashboard</strong><span>cards, status, alerts</span></div>
+            <div class="node violet"><strong>assignments</strong><span>list, due date, submit</span></div>
+          </div>
+        </div>
+      `,
+      responsiblePiece: () => `
+        <div class="visual" aria-label="Too big, useful middle, too tiny">
+          <div class="scene-grid">
+            <div class="visual-card" style="background: var(--soft-coral)">
+              <strong>too big</strong>
+              <span>build the whole app</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><rect x="18" y="18" width="124" height="34" rx="8" fill="#b6543b"/><path d="M30 35 H130" stroke="#fff" stroke-width="5"/></svg>
+            </div>
+            <div class="visual-card" style="background: var(--soft-green)">
+              <strong>useful middle</strong>
+              <span>login form with validation</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><rect x="34" y="12" width="92" height="46" rx="8" fill="#23724d"/><rect x="48" y="24" width="64" height="7" rx="3" fill="#fff"/><rect x="48" y="39" width="44" height="7" rx="3" fill="#fff"/></svg>
+            </div>
+            <div class="visual-card" style="background: var(--soft-blue)">
+              <strong>too tiny</strong>
+              <span>make button blue</span>
+              <svg viewBox="0 0 160 70" aria-hidden="true"><rect x="50" y="25" width="60" height="22" rx="11" fill="#2f639d"/></svg>
+            </div>
+          </div>
+        </div>
+      `,
+      manyPaths: () => `
+        <div class="visual" aria-label="A vague dashboard prompt branching into many paths">
+          <div class="prompt-box">"make a dashboard"</div>
+          <div class="branch-grid">
+            <div class="node blue"><strong>sales</strong><span>revenue, funnel, deals</span></div>
+            <div class="node green"><strong>school</strong><span>grades, attendance, tasks</span></div>
+            <div class="node coral"><strong>health</strong><span>steps, sleep, calories</span></div>
+            <div class="node violet"><strong>ops</strong><span>queues, errors, alerts</span></div>
+          </div>
+        </div>
+      `,
+      leftOver: () => `
+        <div class="visual" aria-label="Mismatch examples for residue">
+          <div class="compare-grid">
+            <div class="visual-card" style="background: var(--soft-amber)">
+              <strong>wobbly table</strong>
+              <svg viewBox="0 0 250 170" role="img">
+                <rect x="48" y="58" width="150" height="22" rx="5" fill="#936b3d" transform="rotate(-4 123 69)"/>
+                <line x1="74" y1="79" x2="58" y2="144" stroke="#70502e" stroke-width="16" stroke-linecap="round"/>
+                <line x1="168" y1="70" x2="184" y2="142" stroke="#70502e" stroke-width="16" stroke-linecap="round"/>
+                <path d="M46 146 C84 132, 114 160, 150 144 C178 132, 200 150, 218 140" fill="none" stroke="#b6543b" stroke-width="5"/>
+              </svg>
+              <span>the plan said stable</span>
+            </div>
+            <div class="visual-card" style="background: var(--soft-coral)">
+              <strong>broken login</strong>
+              <svg viewBox="0 0 250 170" role="img">
+                <rect x="42" y="24" width="166" height="122" rx="12" fill="#fff" stroke="#d7d2c7" stroke-width="3"/>
+                <rect x="66" y="52" width="118" height="15" rx="6" fill="#d7d2c7"/>
+                <rect x="66" y="80" width="118" height="15" rx="6" fill="#d7d2c7"/>
+                <rect x="86" y="112" width="78" height="22" rx="11" fill="#b6543b"/>
+                <text x="125" y="164" text-anchor="middle" font-size="15" fill="#616b76">no error state</text>
+              </svg>
+              <span>the result forgot a check</span>
+            </div>
+          </div>
+        </div>
+      `,
+      craftLoop: () => `
+        <div class="visual" aria-label="Craft loop">
+          <div class="branch-grid">
+            <div class="node root"><strong>Craft loop</strong><span>intention into artifact with acceptable residue</span></div>
+            <div class="node blue"><strong>Define</strong><span>name the target</span></div>
+            <div class="node green"><strong>Research</strong><span>ground missing facts</span></div>
+            <div class="node green"><strong>Design</strong><span>choose the schema</span></div>
+            <div class="node violet"><strong>Plan</strong><span>make work executable</span></div>
+            <div class="node coral"><strong>Execute</strong><span>produce the artifact</span></div>
+            <div class="node blue"><strong>Validate</strong><span>compare back to schema</span></div>
+            <div class="node root"><strong>Reflect on residue</strong><span>repair, route, or split only when it lowers residue</span></div>
+          </div>
+        </div>
+      `,
+      miniExercise: () => `
+        <div class="visual" aria-label="Mini exercise rewriting a vague prompt">
+          <div class="mini-grid">
+            <div class="bad-prompt">"Make a todo app."</div>
+            <div class="schema-grid">
+              <div class="schema-field"><strong>user</strong><span>Who is it for?</span></div>
+              <div class="schema-field"><strong>actions</strong><span>Add, edit, complete</span></div>
+              <div class="schema-field"><strong>data</strong><span>Task text, due date</span></div>
+              <div class="schema-field"><strong>done check</strong><span>How will we test it?</span></div>
+            </div>
+          </div>
+        </div>
+      `,
+      formalSentence: () => `
+        <div class="visual" aria-label="Intention to schema to artifact to residue to next layer">
+          <div class="branch-grid">
+            <div class="node blue"><strong>intention</strong><span>what we want</span></div>
+            <div class="node green"><strong>schema</strong><span>the shape of the work</span></div>
+            <div class="node amber" style="background: var(--soft-amber)"><strong>artifact</strong><span>the thing that exists</span></div>
+            <div class="node coral"><strong>residue</strong><span>what is left over</span></div>
+            <div class="node root"><strong>next layer</strong><span>repair locally or split out a smaller project</span></div>
+          </div>
+        </div>
+      `
+    };
+
+    const deck = document.getElementById("deck");
+    const counter = document.getElementById("slide-counter");
+    const progress = document.getElementById("progress-bar");
+    let activeIndex = 0;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderSlides() {
+      deck.innerHTML = slides.map((slide, index) => `
+        <section class="slide" id="${escapeHtml(slide.id)}" data-index="${index}" data-reveal-step="0" data-reveal-max="${slide.revealMax || 0}" aria-labelledby="${escapeHtml(slide.id)}-title">
+          <div class="slide-inner">
+            <div class="visual-stage" data-has-reveal="${slide.revealMax ? "true" : "false"}"${slide.revealMax ? ` role="button" tabindex="0" aria-label="Reveal more for ${escapeHtml(slide.title)}"` : ""}>${visuals[slide.visual]()}</div>
+            <article class="copy">
+              <span class="slide-id">${escapeHtml(slide.id)}</span>
+              ${slide.term ? `<span class="term">${escapeHtml(slide.term)}</span>` : ""}
+              <h1 id="${escapeHtml(slide.id)}-title">${escapeHtml(slide.title)}</h1>
+              <p class="question">${escapeHtml(slide.question)}</p>
+              <p class="takeaway">${escapeHtml(slide.concept)}</p>
+              <aside class="speaker-note">
+                <b>Prompt</b>
+                <p>${escapeHtml(slide.activity)}</p>
+                <b>Speaker note</b>
+                <p>${escapeHtml(slide.note)}</p>
+                <b>Check</b>
+                <p>${escapeHtml(slide.check)}</p>
+                <b>Bridge</b>
+                <p>${escapeHtml(slide.bridge)}</p>
+              </aside>
+            </article>
+          </div>
+        </section>
+      `).join("");
+    }
+
+    function advanceReveal(slideElement) {
+      const max = Number(slideElement.dataset.revealMax || 0);
+      if (!max) {
+        return;
+      }
+      const current = Number(slideElement.dataset.revealStep || 0);
+      const next = current >= max ? 0 : current + 1;
+      slideElement.dataset.revealStep = String(next);
+    }
+
+    function wireRevealControls() {
+      deck.querySelectorAll(".slide").forEach((slideElement) => {
+        const stage = slideElement.querySelector(".visual-stage[data-has-reveal='true']");
+        if (stage) {
+          stage.addEventListener("click", () => advanceReveal(slideElement));
+          stage.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              advanceReveal(slideElement);
+            }
+          });
+        }
+      });
+    }
+
+    function updateChrome(index) {
+      activeIndex = Math.max(0, Math.min(slides.length - 1, index));
+      counter.textContent = `${activeIndex + 1} / ${slides.length}`;
+      progress.style.width = `${((activeIndex + 1) / slides.length) * 100}%`;
+    }
+
+    function scrollToTarget(target, behavior = "smooth") {
+      if (target) {
+        const slideElements = Array.from(deck.querySelectorAll(".slide"));
+        const targetIndex = slideElements.indexOf(target);
+        const scrollTop = slideElements
+          .slice(0, Math.max(0, targetIndex))
+          .reduce((total, slide) => total + slide.offsetHeight, 0);
+        const previousSnap = deck.style.scrollSnapType;
+
+        deck.style.scrollSnapType = "none";
+        deck.scrollTo({ top: scrollTop, behavior });
+        if (behavior === "auto") {
+          deck.scrollTop = scrollTop;
+        }
+        window.clearTimeout(scrollToTarget.snapTimer);
+        scrollToTarget.snapTimer = window.setTimeout(() => {
+          deck.style.scrollSnapType = previousSnap;
+        }, behavior === "auto" ? 140 : 520);
+      }
+    }
+
+    function goToSlide(index, behavior = "smooth") {
+      const target = deck.querySelector(`[data-index="${Math.max(0, Math.min(slides.length - 1, index))}"]`);
+      scrollToTarget(target, behavior);
+    }
+
+    function goToHash(behavior = "auto") {
+      if (!window.location.hash) {
+        return;
+      }
+      const target = deck.querySelector(window.location.hash);
+      if (target) {
+        scrollToTarget(target, behavior);
+        updateChrome(Number(target.dataset.index));
+      }
+    }
+
+    renderSlides();
+    wireRevealControls();
+    updateChrome(0);
+    requestAnimationFrame(() => {
+      goToHash("auto");
+      setTimeout(() => goToHash("auto"), 60);
+      setTimeout(() => goToHash("auto"), 300);
+    });
+    window.addEventListener("load", () => {
+      goToHash("auto");
+      setTimeout(() => goToHash("auto"), 300);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) {
+        updateChrome(Number(visible.target.dataset.index));
+      }
+    }, { root: deck, threshold: [.58, .72, .86] });
+
+    deck.querySelectorAll(".slide").forEach((slide) => observer.observe(slide));
+
+    document.getElementById("prev-slide").addEventListener("click", () => goToSlide(activeIndex - 1));
+    document.getElementById("next-slide").addEventListener("click", () => goToSlide(activeIndex + 1));
+    document.getElementById("toggle-notes").addEventListener("click", () => {
+      document.body.classList.toggle("show-notes");
+    });
+
+    window.addEventListener("hashchange", () => goToHash("smooth"));
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        goToSlide(activeIndex + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        goToSlide(activeIndex - 1);
+      }
+      if (event.key.toLowerCase() === "n") {
+        document.body.classList.toggle("show-notes");
+      }
+    });
+  </script>
+</body>
+</html>
