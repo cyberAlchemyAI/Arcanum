@@ -1,0 +1,1401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whisper Draft Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11100f;
+      --panel: #1b1917;
+      --panel-2: #24211e;
+      --text: #f1ebe3;
+      --muted: #a69b8f;
+      --line: #3a332d;
+      --accent: #d59f54;
+      --accent-2: #6ab7a8;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(213, 159, 84, 0.08), transparent 320px), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button, select, textarea, input { font: inherit; }
+
+    button, select {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+    }
+
+    button {
+      cursor: pointer;
+      min-height: 36px;
+      padding: 0 12px;
+    }
+
+    button:hover, button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #141312;
+      color: var(--text);
+      padding: 10px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent-2);
+      outline: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+      min-height: 100vh;
+    }
+
+    .draft-pane {
+      min-width: 0;
+      padding: 28px clamp(18px, 4vw, 56px) 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .meta-line {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 8px 0 0;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .article {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .article h1 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 1;
+      margin: 0 0 30px;
+      font-weight: 760;
+      letter-spacing: 0;
+      color: #f6e3bf;
+    }
+
+    .review-block {
+      position: relative;
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 22px 0;
+      scroll-margin-top: 24px;
+    }
+
+    .review-block.is-selected {
+      background: linear-gradient(90deg, rgba(106, 183, 168, 0.13), transparent);
+      box-shadow: -12px 0 0 rgba(106, 183, 168, 0.24);
+    }
+
+    .block-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .block-id {
+      color: var(--accent-2);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .part-id {
+      display: block;
+      color: #cdbfae;
+    }
+
+    .block-body p {
+      margin: 0;
+      color: #f0e7dc;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.08rem, 1.55vw, 1.28rem);
+      line-height: 1.78;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .comment-count {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      background: #171514;
+      font-size: 0.82rem;
+    }
+
+    .side-pane {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-left: 1px solid var(--line);
+      background: rgba(27, 25, 23, 0.96);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #f6e3bf;
+    }
+
+    .target {
+      margin: 14px 0 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      color: var(--muted);
+      min-height: 64px;
+    }
+
+    .target strong { color: var(--text); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    select {
+      min-height: 38px;
+      padding: 0 8px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .primary {
+      background: #3a2b1d;
+      border-color: #7a5b35;
+      color: #f6e3bf;
+    }
+
+    .comments {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      padding: 10px;
+    }
+
+    .comment-item header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--accent-2);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .comment-item p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .comment-item small {
+      display: block;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .payload {
+      min-height: 180px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 0.82rem;
+      min-height: 1.2em;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .side-pane {
+        position: relative;
+        height: auto;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { display: block; }
+      .toolbar {
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+      .review-block {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .block-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script id="whisper-review-data" type="application/json">{
+  "review_id": "essay-03-why-vibe-coding-drifts-e956fc15fb93",
+  "transport": "presentation_companion_review",
+  "draft": {
+    "id": "essay-03-why-vibe-coding-drifts",
+    "title": "Why Vibe Coding Drifts",
+    "path": "development/craft/research/craft-storytelling-essay-research-2026-07-09/essay-03-why-vibe-coding-drifts.md",
+    "sha256_12": "e956fc15fb93"
+  },
+  "schema": {
+    "path": "development/craft/research/craft-storytelling-essay-research-2026-07-09/whisper-review-substrate.yml",
+    "substrate_version": "craft-storytelling-review-2026-07-09"
+  },
+  "pareto": {
+    "tiering": "selected_three_linked_essays",
+    "selected_candidate": "visible_object_hidden_layer_software_drift",
+    "objectives": [
+      "beginner_recognition_before_terms",
+      "craft_definition_fidelity",
+      "deck_revision_usefulness"
+    ],
+    "hard_gates": [
+      "learner_scene_pause_visible_object_witness",
+      "schema_data_residue_recomposition",
+      "no_generic_planning_or_prompt_advice"
+    ]
+  },
+  "blocks": [
+    {
+      "block_id": "p001",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "learner scene and pause",
+      "paragraph_index": 1,
+      "source_line": 3,
+      "text": "Status: draft essay Whisper transport: presentation companion essay Deck range: `CRAFT-INTRO-S11` through `CRAFT-INTRO-S14` Source substrate: `findings.md`"
+    },
+    {
+      "block_id": "p002",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "learner scene and pause",
+      "paragraph_index": 2,
+      "source_line": 8,
+      "text": "\"Make me a dashboard\" sounds like a request."
+    },
+    {
+      "block_id": "p003",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 3,
+      "source_line": 10,
+      "text": "To an AI, it is closer to a fog bank."
+    },
+    {
+      "block_id": "p004",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 4,
+      "source_line": 12,
+      "text": "A dashboard for whom? A teacher? A student? A manager? A developer? What data does it show? Grades, sales, server errors, class attendance, project health? What can the user do there? Filter, export, approve, comment, assign, compare? What should happen when there is no data? What counts as done?"
+    },
+    {
+      "block_id": "p005",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 5,
+      "source_line": 17,
+      "text": "If those answers are missing, the model still has to continue. It will produce something plausible because plausibility is easy when the target is loose. A header, a few cards, a chart, a sidebar, a table. It may look good. It may even look like the thing people expect when they hear \"dashboard.\""
+    },
+    {
+      "block_id": "p006",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 6,
+      "source_line": 22,
+      "text": "And still be wrong."
+    },
+    {
+      "block_id": "p007",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 7,
+      "source_line": 24,
+      "text": "This is why vibe coding drifts. Not because the AI is bad. Not because the user is foolish. Drift happens because a vague feature name contains too many valid worlds. The translator has not been given a chosen shape of valid work, so many possible meanings compete."
+    },
+    {
+      "block_id": "p008",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 8,
+      "source_line": 29,
+      "text": "That is the software version of the table problem."
+    },
+    {
+      "block_id": "p009",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 9,
+      "source_line": 31,
+      "text": "\"Table\" felt obvious until we had to build one. \"Dashboard\" feels obvious until we have to decide who uses it, what data it carries, what actions it supports, what validation proves it works, and how it fits into the larger app."
+    },
+    {
+      "block_id": "p010",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "schema/data hinge",
+      "paragraph_index": 10,
+      "source_line": 35,
+      "text": "Craft does not solve this by saying \"write better prompts.\" That is too shallow. Prompt clarity helps, but Craft is deeper than prompt polish. Craft asks what schema/data translation is happening."
+    },
+    {
+      "block_id": "p011",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "schema/data hinge",
+      "paragraph_index": 11,
+      "source_line": 39,
+      "text": "The schema is the chosen structure that makes the intent legible enough to produce valid work. The artifact is the thing that actually exists: the generated screen, the component, the route, the behavior, the test result. Validation compares the artifact back to the chosen structure. Residue is what remains when the result does not fully match the shape we chose."
+    },
+    {
+      "block_id": "p012",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 12,
+      "source_line": 45,
+      "text": "So the learner starts with the bad dashboard."
+    },
+    {
+      "block_id": "p013",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 13,
+      "source_line": 47,
+      "text": "It has charts, but not the right charts. It has a table, but no useful action. It looks complete, but nobody knows whether it helps the user. This is the pause. The learner should feel the same recognition as the table slide: \"I thought I knew what I asked for, but now I can see the missing structure.\""
+    },
+    {
+      "block_id": "p014",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 14,
+      "source_line": 52,
+      "text": "Now constrain the work."
+    },
+    {
+      "block_id": "p015",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "core Craft movement",
+      "paragraph_index": 15,
+      "source_line": 54,
+      "text": "This dashboard is for a student checking assignments. It shows due soon, overdue, submitted, and graded work. The student can open an assignment, filter by class, and see what needs action today. The empty state tells them they are caught up. Validation means a student can answer three questions without explanation: what is due next, what is overdue, and what did the teacher return?"
+    },
+    {
+      "block_id": "p016",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "schema/data hinge",
+      "paragraph_index": 16,
+      "source_line": 60,
+      "text": "That is not just a better prompt. It is a small schema."
+    },
+    {
+      "block_id": "p017",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 17,
+      "source_line": 62,
+      "text": "Now the artifact can be judged. Does the screen show the right groups? Does the filter work? Is the empty state clear? Can a student find the next action? Does the route connect to the rest of the student portal? If not, the leftover is residue."
+    },
+    {
+      "block_id": "p018",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 18,
+      "source_line": 67,
+      "text": "Some residue is local. A label is unclear. A card is too crowded. The empty state is missing. Repair it."
+    },
+    {
+      "block_id": "p019",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "schema/data hinge",
+      "paragraph_index": 19,
+      "source_line": 70,
+      "text": "Some residue says the schema was incomplete. Maybe students need assignment status definitions before the dashboard can be valid. Research and define."
+    },
+    {
+      "block_id": "p020",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 20,
+      "source_line": 73,
+      "text": "Some residue says the unit is too large. \"Student dashboard\" may contain assignment summary, grade trend, messages, class switcher, and notifications. Trying to build all of that at once gives the translator too many relations to preserve. Split a responsible piece."
+    },
+    {
+      "block_id": "p021",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 21,
+      "source_line": 78,
+      "text": "But do not split blindly."
+    },
+    {
+      "block_id": "p022",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 22,
+      "source_line": 80,
+      "text": "The smallest coherent unit is not the smallest possible task. A single blue button may be too tiny to mean anything by itself. The whole dashboard may be too large to build and check responsibly. The useful middle might be \"assignment summary panel\": one user, one data shape, one action surface, clear validation, and a path back into the dashboard."
+    },
+    {
+      "block_id": "p023",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 23,
+      "source_line": 86,
+      "text": "That path back matters. If the assignment panel works alone but cannot connect to the student portal, the work has recomposition residue. Craft cares about the piece and the whole."
+    },
+    {
+      "block_id": "p024",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 24,
+      "source_line": 90,
+      "text": "This is the real correction to vibe coding."
+    },
+    {
+      "block_id": "p025",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 25,
+      "source_line": 92,
+      "text": "Vibe coding often jumps from intent to artifact: \"make me a dashboard\" becomes a screen. Craft inserts the missing discipline:"
+    },
+    {
+      "block_id": "p026",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 26,
+      "source_line": 95,
+      "text": "Name the target. Find facts that would change the design. Choose the shape of valid work. Build the smallest responsible piece. Validate the artifact. Route the residue. Recompose the result into the whole."
+    },
+    {
+      "block_id": "p027",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 27,
+      "source_line": 99,
+      "text": "The AI is still useful. In fact, it becomes more useful. A model can generate, compare, revise, and explore quickly. But speed without a chosen structure only multiplies plausible wrong answers. Craft turns speed into learning by giving each output a way to be checked."
+    },
+    {
+      "block_id": "p028",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 28,
+      "source_line": 104,
+      "text": "The point is not to remove uncertainty. The point is to make uncertainty visible soon enough to route it."
+    },
+    {
+      "block_id": "p029",
+      "part_id": "implications_for_personal_code",
+      "role": "deck and software implication",
+      "paragraph_index": 29,
+      "source_line": 107,
+      "text": "That is why the final Craft rule matters:"
+    },
+    {
+      "block_id": "p030",
+      "part_id": "arcanum_example_aliases_sigils_schemas",
+      "role": "schema/data hinge",
+      "paragraph_index": 30,
+      "source_line": 109,
+      "text": "Craft is not making the work smaller; it is finding the next smallest coherent schema/data layer whose artifact can be validated, whose residue can be routed, and whose result can recompose into the whole."
+    },
+    {
+      "block_id": "p031",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "closing recomposition rule",
+      "paragraph_index": 31,
+      "source_line": 113,
+      "text": "A vague prompt asks the model to guess the world."
+    },
+    {
+      "block_id": "p032",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "closing recomposition rule",
+      "paragraph_index": 32,
+      "source_line": 115,
+      "text": "Craft builds the world one responsible layer at a time."
+    }
+  ]
+}</script>
+  <main class="shell">
+    <section class="draft-pane">
+      <header class="topbar">
+        <div>
+          <p class="kicker">Whisper Review</p>
+          <p class="meta-line" id="draft-meta"></p>
+        </div>
+        <div class="toolbar">
+          <button type="button" id="copy-payload">Copy JSON</button>
+          <button type="button" id="download-payload">Download JSON</button>
+          <button type="button" id="clear-comments">Clear</button>
+        </div>
+      </header>
+      <article class="article" id="draft-article">
+        <h1>Why Vibe Coding Drifts</h1>
+<section class="review-block" data-review-block data-block-id="p001" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p001</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 3</span>
+  </div>
+  <div class="block-body">
+    <p>Status: draft essay Whisper transport: presentation companion essay Deck range: <code>CRAFT-INTRO-S11</code> through <code>CRAFT-INTRO-S14</code> Source substrate: <code>findings.md</code></p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p001">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p002" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p002</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 8</span>
+  </div>
+  <div class="block-body">
+    <p>&quot;Make me a dashboard&quot; sounds like a request.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p002">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p003" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p003</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 10</span>
+  </div>
+  <div class="block-body">
+    <p>To an AI, it is closer to a fog bank.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p003">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p004" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p004</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 12</span>
+  </div>
+  <div class="block-body">
+    <p>A dashboard for whom? A teacher? A student? A manager? A developer? What data does it show? Grades, sales, server errors, class attendance, project health? What can the user do there? Filter, export, approve, comment, assign, compare? What should happen when there is no data? What counts as done?</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p004">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p005" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p005</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 17</span>
+  </div>
+  <div class="block-body">
+    <p>If those answers are missing, the model still has to continue. It will produce something plausible because plausibility is easy when the target is loose. A header, a few cards, a chart, a sidebar, a table. It may look good. It may even look like the thing people expect when they hear &quot;dashboard.&quot;</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p005">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p006" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p006</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 22</span>
+  </div>
+  <div class="block-body">
+    <p>And still be wrong.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p006">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p007" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p007</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 24</span>
+  </div>
+  <div class="block-body">
+    <p>This is why vibe coding drifts. Not because the AI is bad. Not because the user is foolish. Drift happens because a vague feature name contains too many valid worlds. The translator has not been given a chosen shape of valid work, so many possible meanings compete.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p007">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p008" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p008</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 29</span>
+  </div>
+  <div class="block-body">
+    <p>That is the software version of the table problem.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p008">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p009" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p009</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 31</span>
+  </div>
+  <div class="block-body">
+    <p>&quot;Table&quot; felt obvious until we had to build one. &quot;Dashboard&quot; feels obvious until we have to decide who uses it, what data it carries, what actions it supports, what validation proves it works, and how it fits into the larger app.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p009">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p010" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p010</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 35</span>
+  </div>
+  <div class="block-body">
+    <p>Craft does not solve this by saying &quot;write better prompts.&quot; That is too shallow. Prompt clarity helps, but Craft is deeper than prompt polish. Craft asks what schema/data translation is happening.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p010">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p011" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p011</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 39</span>
+  </div>
+  <div class="block-body">
+    <p>The schema is the chosen structure that makes the intent legible enough to produce valid work. The artifact is the thing that actually exists: the generated screen, the component, the route, the behavior, the test result. Validation compares the artifact back to the chosen structure. Residue is what remains when the result does not fully match the shape we chose.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p011">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p012" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p012</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 45</span>
+  </div>
+  <div class="block-body">
+    <p>So the learner starts with the bad dashboard.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p012">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p013" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p013</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 47</span>
+  </div>
+  <div class="block-body">
+    <p>It has charts, but not the right charts. It has a table, but no useful action. It looks complete, but nobody knows whether it helps the user. This is the pause. The learner should feel the same recognition as the table slide: &quot;I thought I knew what I asked for, but now I can see the missing structure.&quot;</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p013">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p014" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p014</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 52</span>
+  </div>
+  <div class="block-body">
+    <p>Now constrain the work.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p014">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p015" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p015</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 54</span>
+  </div>
+  <div class="block-body">
+    <p>This dashboard is for a student checking assignments. It shows due soon, overdue, submitted, and graded work. The student can open an assignment, filter by class, and see what needs action today. The empty state tells them they are caught up. Validation means a student can answer three questions without explanation: what is due next, what is overdue, and what did the teacher return?</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p015">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p016" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p016</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 60</span>
+  </div>
+  <div class="block-body">
+    <p>That is not just a better prompt. It is a small schema.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p016">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p017" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p017</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 62</span>
+  </div>
+  <div class="block-body">
+    <p>Now the artifact can be judged. Does the screen show the right groups? Does the filter work? Is the empty state clear? Can a student find the next action? Does the route connect to the rest of the student portal? If not, the leftover is residue.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p017">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p018" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p018</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 67</span>
+  </div>
+  <div class="block-body">
+    <p>Some residue is local. A label is unclear. A card is too crowded. The empty state is missing. Repair it.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p018">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p019" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p019</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 70</span>
+  </div>
+  <div class="block-body">
+    <p>Some residue says the schema was incomplete. Maybe students need assignment status definitions before the dashboard can be valid. Research and define.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p019">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p020" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p020</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 73</span>
+  </div>
+  <div class="block-body">
+    <p>Some residue says the unit is too large. &quot;Student dashboard&quot; may contain assignment summary, grade trend, messages, class switcher, and notifications. Trying to build all of that at once gives the translator too many relations to preserve. Split a responsible piece.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p020">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p021" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p021</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 78</span>
+  </div>
+  <div class="block-body">
+    <p>But do not split blindly.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p021">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p022" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p022</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 80</span>
+  </div>
+  <div class="block-body">
+    <p>The smallest coherent unit is not the smallest possible task. A single blue button may be too tiny to mean anything by itself. The whole dashboard may be too large to build and check responsibly. The useful middle might be &quot;assignment summary panel&quot;: one user, one data shape, one action surface, clear validation, and a path back into the dashboard.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p022">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p023" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p023</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 86</span>
+  </div>
+  <div class="block-body">
+    <p>That path back matters. If the assignment panel works alone but cannot connect to the student portal, the work has recomposition residue. Craft cares about the piece and the whole.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p023">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p024" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p024</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 90</span>
+  </div>
+  <div class="block-body">
+    <p>This is the real correction to vibe coding.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p024">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p025" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p025</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 92</span>
+  </div>
+  <div class="block-body">
+    <p>Vibe coding often jumps from intent to artifact: &quot;make me a dashboard&quot; becomes a screen. Craft inserts the missing discipline:</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p025">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p026" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p026</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 95</span>
+  </div>
+  <div class="block-body">
+    <p>Name the target. Find facts that would change the design. Choose the shape of valid work. Build the smallest responsible piece. Validate the artifact. Route the residue. Recompose the result into the whole.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p026">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p027" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p027</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 99</span>
+  </div>
+  <div class="block-body">
+    <p>The AI is still useful. In fact, it becomes more useful. A model can generate, compare, revise, and explore quickly. But speed without a chosen structure only multiplies plausible wrong answers. Craft turns speed into learning by giving each output a way to be checked.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p027">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p028" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p028</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 104</span>
+  </div>
+  <div class="block-body">
+    <p>The point is not to remove uncertainty. The point is to make uncertainty visible soon enough to route it.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p028">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p029" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p029</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 107</span>
+  </div>
+  <div class="block-body">
+    <p>That is why the final Craft rule matters:</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p029">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p030" data-part-id="arcanum_example_aliases_sigils_schemas" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p030</span>
+    <span class="part-id">arcanum_example_aliases_sigils_schemas</span>
+    <span>line 109</span>
+  </div>
+  <div class="block-body">
+    <p>Craft is not making the work smaller; it is finding the next smallest coherent schema/data layer whose artifact can be validated, whose residue can be routed, and whose result can recompose into the whole.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p030">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p031" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p031</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 113</span>
+  </div>
+  <div class="block-body">
+    <p>A vague prompt asks the model to guess the world.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p031">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p032" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p032</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 115</span>
+  </div>
+  <div class="block-body">
+    <p>Craft builds the world one responsible layer at a time.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p032">0</span>
+    </div>
+  </div>
+</section>
+      </article>
+    </section>
+
+    <aside class="side-pane">
+      <h2 class="panel-title">Review Request</h2>
+      <div class="target" id="selected-target"></div>
+
+      <div class="form-grid">
+        <label>
+          Issue
+          <select id="issue-type">
+            <option value="unnatural_transition">Unnatural transition</option>
+            <option value="unclear">Unclear</option>
+            <option value="tone_mismatch">Tone mismatch</option>
+            <option value="structure">Structure</option>
+            <option value="evidence_source">Evidence/source</option>
+            <option value="schema_fit">Schema fit</option>
+            <option value="cut">Cut</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          Request
+          <select id="request-type">
+            <option value="offer_options">Offer options</option>
+            <option value="revise_directly">Revise directly</option>
+            <option value="diagnose">Diagnose</option>
+            <option value="tighten">Tighten</option>
+            <option value="expand">Expand</option>
+            <option value="preserve">Preserve</option>
+          </select>
+        </label>
+      </div>
+
+      <label>
+        Priority
+        <select id="priority">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+
+      <label style="margin-top: 10px;">
+        Comment
+        <textarea id="comment-text" rows="5"></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="primary" id="save-comment">Save Comment</button>
+        <button type="button" id="focus-target">Focus Target</button>
+      </div>
+
+      <h2 class="panel-title">Comments <span class="comment-count" id="comment-total">0</span></h2>
+      <div class="comments" id="comments"></div>
+
+      <h2 class="panel-title">Agent Payload</h2>
+      <textarea class="payload" id="whisper-agent-payload" readonly></textarea>
+      <div class="status-line" id="status-line"></div>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById("whisper-review-data").textContent);
+      const storageKey = "whisper-review:" + data.review_id;
+      const state = {
+        comments: [],
+        selectedBlockId: data.blocks[0] ? data.blocks[0].block_id : null,
+        selectedText: ""
+      };
+
+      const targetEl = document.getElementById("selected-target");
+      const commentsEl = document.getElementById("comments");
+      const totalEl = document.getElementById("comment-total");
+      const payloadEl = document.getElementById("whisper-agent-payload");
+      const statusEl = document.getElementById("status-line");
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+
+      function getBlock(blockId) {
+        return data.blocks.find((block) => block.block_id === blockId) || data.blocks[0] || null;
+      }
+
+      function commentId() {
+        return "c-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.comments)) state.comments = parsed.comments;
+          }
+        } catch (error) {
+          state.comments = [];
+        }
+      }
+
+      function save() {
+        localStorage.setItem(storageKey, JSON.stringify({
+          review_id: data.review_id,
+          updated_at: nowIso(),
+          comments: state.comments
+        }, null, 2));
+      }
+
+      function selectionInside(blockEl) {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) return "";
+        if (!blockEl.contains(selection.anchorNode) || !blockEl.contains(selection.focusNode)) return "";
+        return selection.toString().trim();
+      }
+
+      function selectBlock(blockId, selectedText) {
+        state.selectedBlockId = blockId;
+        state.selectedText = selectedText || "";
+        document.querySelectorAll("[data-review-block]").forEach((el) => {
+          el.classList.toggle("is-selected", el.dataset.blockId === blockId);
+        });
+        renderTarget();
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderTarget() {
+        const block = getBlock(state.selectedBlockId);
+        if (!block) {
+          targetEl.textContent = "No target";
+          return;
+        }
+        const selection = state.selectedText ? "<br><strong>Selection:</strong> " + escapeHtml(state.selectedText) : "";
+        targetEl.innerHTML = "<strong>" + block.block_id + "</strong> / " + escapeHtml(block.part_id) + selection;
+      }
+
+      function enrichComment(comment) {
+        const block = getBlock(comment.block_id);
+        return {
+          id: comment.id,
+          created_at: comment.created_at,
+          block_id: comment.block_id,
+          part_id: block ? block.part_id : comment.part_id,
+          role: block ? block.role : comment.role,
+          paragraph_index: block ? block.paragraph_index : comment.paragraph_index,
+          source_line: block ? block.source_line : comment.source_line,
+          issue_type: comment.issue_type,
+          request_type: comment.request_type,
+          priority: comment.priority,
+          selected_text: comment.selected_text || "",
+          comment: comment.comment,
+          block_text: block ? block.text : "",
+          status: comment.status || "open"
+        };
+      }
+
+      function getAgentPayload() {
+        return {
+          kind: "whisper_review_payload",
+          version: "0.1",
+          exported_at: nowIso(),
+          review_id: data.review_id,
+          draft: data.draft,
+          schema: data.schema,
+          pareto: data.pareto,
+          instruction: "Use comments as located revision requests. Preserve block_id and part_id in proposals; offer options when request_type is offer_options.",
+          comments: state.comments.map(enrichComment),
+          blocks: data.blocks
+        };
+      }
+
+      function renderComments() {
+        commentsEl.innerHTML = "";
+        totalEl.textContent = String(state.comments.length);
+        const counts = new Map();
+        state.comments.forEach((comment) => {
+          counts.set(comment.block_id, (counts.get(comment.block_id) || 0) + 1);
+        });
+        document.querySelectorAll("[data-comment-count]").forEach((el) => {
+          el.textContent = String(counts.get(el.dataset.commentCount) || 0);
+        });
+
+        state.comments.slice().reverse().forEach((comment) => {
+          const item = document.createElement("section");
+          item.className = "comment-item";
+          const block = getBlock(comment.block_id);
+          item.innerHTML =
+            "<header><span>" + escapeHtml(comment.block_id) + "</span><button type=\"button\" data-delete-comment=\"" + comment.id + "\">Delete</button></header>" +
+            "<p>" + escapeHtml(comment.comment) + "</p>" +
+            "<small>" + escapeHtml(comment.issue_type) + " / " + escapeHtml(comment.request_type) + " / " + escapeHtml(comment.priority) +
+            (comment.selected_text ? "<br>Selection: " + escapeHtml(comment.selected_text) : "") +
+            (block ? "<br>Part: " + escapeHtml(block.part_id) : "") + "</small>";
+          commentsEl.appendChild(item);
+        });
+
+        payloadEl.value = JSON.stringify(getAgentPayload(), null, 2);
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+        if (text) {
+          window.setTimeout(() => {
+            if (statusEl.textContent === text) statusEl.textContent = "";
+          }, 2200);
+        }
+      }
+
+      function saveComment() {
+        const block = getBlock(state.selectedBlockId);
+        const text = document.getElementById("comment-text").value.trim();
+        if (!block || !text) {
+          setStatus("Select a block and add a comment.");
+          return;
+        }
+        state.comments.push({
+          id: commentId(),
+          created_at: nowIso(),
+          block_id: block.block_id,
+          part_id: block.part_id,
+          role: block.role,
+          paragraph_index: block.paragraph_index,
+          source_line: block.source_line,
+          issue_type: document.getElementById("issue-type").value,
+          request_type: document.getElementById("request-type").value,
+          priority: document.getElementById("priority").value,
+          selected_text: state.selectedText,
+          comment: text,
+          status: "open"
+        });
+        document.getElementById("comment-text").value = "";
+        state.selectedText = "";
+        save();
+        renderTarget();
+        renderComments();
+        setStatus("Comment saved.");
+      }
+
+      function downloadPayload() {
+        const blob = new Blob([JSON.stringify(getAgentPayload(), null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = data.review_id + ".agent-payload.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function copyPayload() {
+        const text = JSON.stringify(getAgentPayload(), null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => setStatus("Payload copied."));
+          return;
+        }
+        payloadEl.select();
+        document.execCommand("copy");
+        setStatus("Payload copied.");
+      }
+
+      document.getElementById("draft-meta").textContent =
+        data.draft.id + " / " + data.transport + " / " + data.pareto.selected_candidate;
+
+      document.querySelectorAll("[data-review-block]").forEach((blockEl) => {
+        blockEl.addEventListener("click", () => selectBlock(blockEl.dataset.blockId, selectionInside(blockEl)));
+        const button = blockEl.querySelector("[data-add-comment]");
+        if (button) {
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectBlock(blockEl.dataset.blockId, selectionInside(blockEl));
+            document.getElementById("comment-text").focus();
+          });
+        }
+      });
+
+      commentsEl.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-delete-comment]");
+        if (!button) return;
+        state.comments = state.comments.filter((comment) => comment.id !== button.dataset.deleteComment);
+        save();
+        renderComments();
+      });
+
+      document.getElementById("save-comment").addEventListener("click", saveComment);
+      document.getElementById("download-payload").addEventListener("click", downloadPayload);
+      document.getElementById("copy-payload").addEventListener("click", copyPayload);
+      document.getElementById("clear-comments").addEventListener("click", () => {
+        if (!confirm("Clear all comments for this draft review?")) return;
+        state.comments = [];
+        save();
+        renderComments();
+      });
+      document.getElementById("focus-target").addEventListener("click", () => {
+        const block = document.querySelector("[data-block-id=\"" + state.selectedBlockId + "\"]");
+        if (block) block.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+
+      window.WhisperReview = {
+        data,
+        getAgentPayload,
+        setComments(comments) {
+          state.comments = Array.isArray(comments) ? comments : [];
+          save();
+          renderComments();
+        },
+        clearComments() {
+          state.comments = [];
+          save();
+          renderComments();
+        }
+      };
+
+      load();
+      selectBlock(state.selectedBlockId, "");
+      renderComments();
+    })();
+  </script>
+</body>
+</html>
