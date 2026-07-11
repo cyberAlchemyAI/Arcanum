@@ -1,0 +1,121 @@
+preset:
+  id: live_presentation
+  label: Live Presentation
+  status: candidate_whisper_preset
+  transport: live_presentation
+  proof_status: candidate
+  full_generation_default: blocked_pending_language_audition
+
+intent:
+  objective: >
+    Create a presentation that a person can deliver naturally while the screen
+    carries only the audience-facing thought needed for each moment.
+  interpretation_rule: >
+    Preserve source meaning without copying source structure, schema fields,
+    authoring instructions, or validation language into audience-facing copy.
+  first_output: three_moment_language_audition
+
+surface_contract:
+  projected_copy:
+    audience_access: visible
+    responsibility: Carry one concise audience-facing thought.
+  spoken_copy:
+    audience_access: heard
+    responsibility: Give the presenter natural words for the live room.
+  speaker_notes:
+    audience_access: hidden
+    responsibility: Preserve timing, transitions, evidence, and delivery cues.
+  interaction_prompt:
+    audience_access: invited
+    responsibility: Ask a genuine question or invite an action without revealing the answer.
+  authoring_metadata:
+    audience_access: forbidden
+    responsibility: Preserve story state, pedagogy, consequence, source mapping, and validation intent for authors only.
+
+audition_gate:
+  required: true
+  sample_moments:
+    - opening
+    - tension
+    - reveal
+  operator_view:
+    - projected_copy
+    - spoken_copy
+  hidden_during_approval:
+    - speaker_notes
+    - authoring_metadata
+  required_decision: operator_voice_approval
+  allowed_decisions:
+    - approved
+    - rejected
+    - pending
+  continue_only_when: approved
+  blocked_outputs_before_approval:
+    - essays
+    - complete_slide_schema
+    - complete_deck
+    - html_implementation
+    - browser_validation
+
+composition_contract:
+  candidate_roles:
+    - source_faithful
+    - conversational_live_room
+    - minimal_visual
+  selection_order:
+    - projected_copy_without_notes
+    - spoken_read_aloud
+    - source_fidelity_audit
+  moment_rule: one_visible_thought
+  question_rule: preserve_answer_until_reveal
+  terminology_rule: introduce_after_concrete_need
+  metadata_rule: never_project_authoring_metadata
+
+validation:
+  independent_gate_groups:
+    editorial:
+      - read_aloud_natural
+      - projected_copy_is_audience_facing
+      - question_does_not_contain_answer
+      - no_unearned_jargon
+      - one_visible_thought_per_moment
+      - notes_are_not_projected
+      - operator_voice_approval
+    source:
+      - source_meaning_preserved
+      - unsupported_claims_absent
+    implementation:
+      - schema_valid
+      - layout_valid
+      - browser_checks_pass
+  pass_policy: all_editorial_checks_and_all_required_source_checks_pass
+  non_substitution_rules:
+    - source_fidelity_cannot_satisfy_editorial_checks
+    - browser_checks_cannot_satisfy_editorial_checks
+    - layout_validity_cannot_satisfy_operator_voice_approval
+  fail_conditions:
+    - projected_copy_contains_authoring_metadata
+    - slide_title_reads_like_an_author_instruction
+    - question_contains_its_answer
+    - formal_vocabulary_precedes_concrete_need
+    - full_generation_started_before_operator_voice_approval
+
+observability:
+  record:
+    - transport
+    - proof_status
+    - audition_status
+    - per_gate_status
+    - operator_corrections
+    - correction_category
+    - final_recommendation
+  correction_policy: append_only
+
+output_contract:
+  first_artifact: live-presentation-language-audition.md
+  full_artifact_status_before_approval: block
+  next_route_options:
+    - revise_audition
+    - approve_and_generate
+    - decision_gate
+    - deferred

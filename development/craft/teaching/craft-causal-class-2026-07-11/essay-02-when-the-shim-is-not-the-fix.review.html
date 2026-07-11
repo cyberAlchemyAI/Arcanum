@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whisper Draft Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11100f;
+      --panel: #1b1917;
+      --panel-2: #24211e;
+      --text: #f1ebe3;
+      --muted: #a69b8f;
+      --line: #3a332d;
+      --accent: #d59f54;
+      --accent-2: #6ab7a8;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, rgba(213, 159, 84, 0.08), transparent 320px), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button, select, textarea, input { font: inherit; }
+
+    button, select {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+    }
+
+    button {
+      cursor: pointer;
+      min-height: 36px;
+      padding: 0 12px;
+    }
+
+    button:hover, button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #141312;
+      color: var(--text);
+      padding: 10px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent-2);
+      outline: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+      min-height: 100vh;
+    }
+
+    .draft-pane {
+      min-width: 0;
+      padding: 28px clamp(18px, 4vw, 56px) 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .meta-line {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 8px 0 0;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .article {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .article h1 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 1;
+      margin: 0 0 30px;
+      font-weight: 760;
+      letter-spacing: 0;
+      color: #f6e3bf;
+    }
+
+    .review-block {
+      position: relative;
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 22px 0;
+      scroll-margin-top: 24px;
+    }
+
+    .review-block.is-selected {
+      background: linear-gradient(90deg, rgba(106, 183, 168, 0.13), transparent);
+      box-shadow: -12px 0 0 rgba(106, 183, 168, 0.24);
+    }
+
+    .block-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .block-id {
+      color: var(--accent-2);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .part-id {
+      display: block;
+      color: #cdbfae;
+    }
+
+    .block-body p {
+      margin: 0;
+      color: #f0e7dc;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.08rem, 1.55vw, 1.28rem);
+      line-height: 1.78;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .comment-count {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      background: #171514;
+      font-size: 0.82rem;
+    }
+
+    .side-pane {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-left: 1px solid var(--line);
+      background: rgba(27, 25, 23, 0.96);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #f6e3bf;
+    }
+
+    .target {
+      margin: 14px 0 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      color: var(--muted);
+      min-height: 64px;
+    }
+
+    .target strong { color: var(--text); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    select {
+      min-height: 38px;
+      padding: 0 8px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .primary {
+      background: #3a2b1d;
+      border-color: #7a5b35;
+      color: #f6e3bf;
+    }
+
+    .comments {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #151412;
+      padding: 10px;
+    }
+
+    .comment-item header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--accent-2);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .comment-item p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .comment-item small {
+      display: block;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .payload {
+      min-height: 180px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 0.82rem;
+      min-height: 1.2em;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .side-pane {
+        position: relative;
+        height: auto;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { display: block; }
+      .toolbar {
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+      .review-block {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .block-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script id="whisper-review-data" type="application/json">{
+  "review_id": "essay-02-when-the-shim-is-not-the-fix-9d05cbb8606f",
+  "transport": "unknown",
+  "draft": {
+    "id": "essay-02-when-the-shim-is-not-the-fix",
+    "title": "When the Shim Is Not the Fix",
+    "path": "development/craft/teaching/craft-causal-class-2026-07-11/essay-02-when-the-shim-is-not-the-fix.md",
+    "sha256_12": "9d05cbb8606f"
+  },
+  "schema": {
+    "path": null,
+    "substrate_version": null
+  },
+  "pareto": {
+    "tiering": null,
+    "selected_candidate": "",
+    "objectives": [],
+    "hard_gates": []
+  },
+  "blocks": [
+    {
+      "block_id": "p001",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "part",
+      "paragraph_index": 1,
+      "source_line": 3,
+      "text": "The desk fit the wall, held the books, and reached the right height. It also moved every time someone typed."
+    },
+    {
+      "block_id": "p002",
+      "part_id": "reader_grounded_opening_hook",
+      "role": "part",
+      "paragraph_index": 2,
+      "source_line": 6,
+      "text": "That exactness mattered. \"The desk is wrong\" would have sent us wandering. \"The desk moves sideways under typing force\" gave us somewhere to begin."
+    },
+    {
+      "block_id": "p003",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 3,
+      "source_line": 9,
+      "text": "The floor was uneven, so we tried the cheapest visible repair: a thin shim under the shortest foot. The top became level."
+    },
+    {
+      "block_id": "p004",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 4,
+      "source_line": 12,
+      "text": "Then we pushed the corner again."
+    },
+    {
+      "block_id": "p005",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 5,
+      "source_line": 14,
+      "text": "The sideways wobble remained."
+    },
+    {
+      "block_id": "p006",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 6,
+      "source_line": 16,
+      "text": "The shim had fixed the contact between one foot and the floor. It had not changed the way the legs joined the top. We had repaired a real problem, just not the problem that was making the desk sway."
+    },
+    {
+      "block_id": "p007",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 7,
+      "source_line": 20,
+      "text": "The original plan had hidden all of that work inside three words: \"attach the legs.\" Those words now had to carry joint shape, rail size, screw position, wood thickness, and a way to test sideways force. We could keep stuffing new instructions into the same step, but the step would stop telling us who owned which decisions or how to know they were finished."
+    },
+    {
+      "block_id": "p008",
+      "part_id": "core_insight_language_becomes_executable_through_ai",
+      "role": "part",
+      "paragraph_index": 8,
+      "source_line": 26,
+      "text": "So we drew a smaller job."
+    },
+    {
+      "block_id": "p009",
+      "part_id": "research_context_generative_ai_changes_who_can_operate_on_language",
+      "role": "part",
+      "paragraph_index": 9,
+      "source_line": 28,
+      "text": "It would receive the desk height, attachment points, available wood, and expected load. It would produce one leg-and-rail assembly. On the workbench, it had to match its dimensions, keep its joints tight, and resist a sideways push. Back in the desk, it still had to preserve the fit, height, load, and stability promises of the whole build."
+    },
+    {
+      "block_id": "p010",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 10,
+      "source_line": 34,
+      "text": "The smaller job did not earn independence merely because we drew a box around it. First it had to work."
+    },
+    {
+      "block_id": "p011",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 11,
+      "source_line": 37,
+      "text": "The first test joint split when a screw sat too close to the edge. That failure was cheaper on a scrap piece than on four finished legs. We moved the screw, made another joint, and pushed from the side. The second one held."
+    },
+    {
+      "block_id": "p012",
+      "part_id": "research_context_generative_ai_changes_who_can_operate_on_language",
+      "role": "part",
+      "paragraph_index": 12,
+      "source_line": 41,
+      "text": "Two assemblies followed. Their dimensions matched. Their joints stayed tight. They resisted sideways force on the workbench."
+    },
+    {
+      "block_id": "p013",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 13,
+      "source_line": 44,
+      "text": "That was one pass, not two."
+    },
+    {
+      "block_id": "p014",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 14,
+      "source_line": 46,
+      "text": "The assemblies returned to the desk. We attached the top, moved it back to the one-meter wall, loaded it with the laptop and books, and repeated every original check."
+    },
+    {
+      "block_id": "p015",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 15,
+      "source_line": 50,
+      "text": "Fit passed. Height passed. Load passed. Level passed. Stability passed."
+    },
+    {
+      "block_id": "p016",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 16,
+      "source_line": 52,
+      "text": "The smaller build had now proved two things: it worked on its own, and it worked inside the desk that needed it. The wobble was gone. A small screw mark remained where the old corner joint had been removed, but appearance was not blocking this bedroom desk."
+    },
+    {
+      "block_id": "p017",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 17,
+      "source_line": 57,
+      "text": "The residue was lower, the important promises passed, and the result had returned to the whole. The smaller build had earned its boundary as a **craft layer**. Its successful return was **recomposition**."
+    },
+    {
+      "block_id": "p018",
+      "part_id": "implications_for_personal_code",
+      "role": "part",
+      "paragraph_index": 18,
+      "source_line": 61,
+      "text": "This is what keeps smaller work from turning into endless fragmentation. A piece is not valuable because it is small. It is valuable when it carries a coherent responsibility, can be checked, and returns something the larger work can use."
+    },
+    {
+      "block_id": "p019",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "part",
+      "paragraph_index": 19,
+      "source_line": 66,
+      "text": "The desk was not perfect. It was steady enough for the job we had chosen."
+    },
+    {
+      "block_id": "p020",
+      "part_id": "invitation_to_name_a_workflow",
+      "role": "part",
+      "paragraph_index": 20,
+      "source_line": 68,
+      "text": "So we stopped."
+    }
+  ]
+}</script>
+  <main class="shell">
+    <section class="draft-pane">
+      <header class="topbar">
+        <div>
+          <p class="kicker">Whisper Review</p>
+          <p class="meta-line" id="draft-meta"></p>
+        </div>
+        <div class="toolbar">
+          <button type="button" id="copy-payload">Copy JSON</button>
+          <button type="button" id="download-payload">Download JSON</button>
+          <button type="button" id="clear-comments">Clear</button>
+        </div>
+      </header>
+      <article class="article" id="draft-article">
+        <h1>When the Shim Is Not the Fix</h1>
+<section class="review-block" data-review-block data-block-id="p001" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p001</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 3</span>
+  </div>
+  <div class="block-body">
+    <p>The desk fit the wall, held the books, and reached the right height. It also moved every time someone typed.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p001">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p002" data-part-id="reader_grounded_opening_hook" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p002</span>
+    <span class="part-id">reader_grounded_opening_hook</span>
+    <span>line 6</span>
+  </div>
+  <div class="block-body">
+    <p>That exactness mattered. &quot;The desk is wrong&quot; would have sent us wandering. &quot;The desk moves sideways under typing force&quot; gave us somewhere to begin.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p002">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p003" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p003</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 9</span>
+  </div>
+  <div class="block-body">
+    <p>The floor was uneven, so we tried the cheapest visible repair: a thin shim under the shortest foot. The top became level.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p003">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p004" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p004</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 12</span>
+  </div>
+  <div class="block-body">
+    <p>Then we pushed the corner again.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p004">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p005" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p005</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 14</span>
+  </div>
+  <div class="block-body">
+    <p>The sideways wobble remained.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p005">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p006" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p006</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 16</span>
+  </div>
+  <div class="block-body">
+    <p>The shim had fixed the contact between one foot and the floor. It had not changed the way the legs joined the top. We had repaired a real problem, just not the problem that was making the desk sway.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p006">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p007" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p007</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 20</span>
+  </div>
+  <div class="block-body">
+    <p>The original plan had hidden all of that work inside three words: &quot;attach the legs.&quot; Those words now had to carry joint shape, rail size, screw position, wood thickness, and a way to test sideways force. We could keep stuffing new instructions into the same step, but the step would stop telling us who owned which decisions or how to know they were finished.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p007">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p008" data-part-id="core_insight_language_becomes_executable_through_ai" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p008</span>
+    <span class="part-id">core_insight_language_becomes_executable_through_ai</span>
+    <span>line 26</span>
+  </div>
+  <div class="block-body">
+    <p>So we drew a smaller job.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p008">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p009" data-part-id="research_context_generative_ai_changes_who_can_operate_on_language" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p009</span>
+    <span class="part-id">research_context_generative_ai_changes_who_can_operate_on_language</span>
+    <span>line 28</span>
+  </div>
+  <div class="block-body">
+    <p>It would receive the desk height, attachment points, available wood, and expected load. It would produce one leg-and-rail assembly. On the workbench, it had to match its dimensions, keep its joints tight, and resist a sideways push. Back in the desk, it still had to preserve the fit, height, load, and stability promises of the whole build.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p009">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p010" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p010</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 34</span>
+  </div>
+  <div class="block-body">
+    <p>The smaller job did not earn independence merely because we drew a box around it. First it had to work.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p010">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p011" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p011</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 37</span>
+  </div>
+  <div class="block-body">
+    <p>The first test joint split when a screw sat too close to the edge. That failure was cheaper on a scrap piece than on four finished legs. We moved the screw, made another joint, and pushed from the side. The second one held.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p011">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p012" data-part-id="research_context_generative_ai_changes_who_can_operate_on_language" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p012</span>
+    <span class="part-id">research_context_generative_ai_changes_who_can_operate_on_language</span>
+    <span>line 41</span>
+  </div>
+  <div class="block-body">
+    <p>Two assemblies followed. Their dimensions matched. Their joints stayed tight. They resisted sideways force on the workbench.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p012">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p013" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p013</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 44</span>
+  </div>
+  <div class="block-body">
+    <p>That was one pass, not two.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p013">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p014" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p014</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 46</span>
+  </div>
+  <div class="block-body">
+    <p>The assemblies returned to the desk. We attached the top, moved it back to the one-meter wall, loaded it with the laptop and books, and repeated every original check.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p014">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p015" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p015</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 50</span>
+  </div>
+  <div class="block-body">
+    <p>Fit passed. Height passed. Load passed. Level passed. Stability passed.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p015">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p016" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p016</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 52</span>
+  </div>
+  <div class="block-body">
+    <p>The smaller build had now proved two things: it worked on its own, and it worked inside the desk that needed it. The wobble was gone. A small screw mark remained where the old corner joint had been removed, but appearance was not blocking this bedroom desk.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p016">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p017" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p017</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 57</span>
+  </div>
+  <div class="block-body">
+    <p>The residue was lower, the important promises passed, and the result had returned to the whole. The smaller build had earned its boundary as a <strong>craft layer</strong>. Its successful return was <strong>recomposition</strong>.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p017">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p018" data-part-id="implications_for_personal_code" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p018</span>
+    <span class="part-id">implications_for_personal_code</span>
+    <span>line 61</span>
+  </div>
+  <div class="block-body">
+    <p>This is what keeps smaller work from turning into endless fragmentation. A piece is not valuable because it is small. It is valuable when it carries a coherent responsibility, can be checked, and returns something the larger work can use.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p018">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p019" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p019</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 66</span>
+  </div>
+  <div class="block-body">
+    <p>The desk was not perfect. It was steady enough for the job we had chosen.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p019">0</span>
+    </div>
+  </div>
+</section>
+<section class="review-block" data-review-block data-block-id="p020" data-part-id="invitation_to_name_a_workflow" tabindex="0">
+  <div class="block-meta">
+    <span class="block-id">p020</span>
+    <span class="part-id">invitation_to_name_a_workflow</span>
+    <span>line 68</span>
+  </div>
+  <div class="block-body">
+    <p>So we stopped.</p>
+    <div class="block-actions">
+      <button type="button" data-add-comment>Comment</button>
+      <span class="comment-count" data-comment-count="p020">0</span>
+    </div>
+  </div>
+</section>
+      </article>
+    </section>
+
+    <aside class="side-pane">
+      <h2 class="panel-title">Review Request</h2>
+      <div class="target" id="selected-target"></div>
+
+      <div class="form-grid">
+        <label>
+          Issue
+          <select id="issue-type">
+            <option value="unnatural_transition">Unnatural transition</option>
+            <option value="unclear">Unclear</option>
+            <option value="tone_mismatch">Tone mismatch</option>
+            <option value="structure">Structure</option>
+            <option value="evidence_source">Evidence/source</option>
+            <option value="schema_fit">Schema fit</option>
+            <option value="cut">Cut</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          Request
+          <select id="request-type">
+            <option value="offer_options">Offer options</option>
+            <option value="revise_directly">Revise directly</option>
+            <option value="diagnose">Diagnose</option>
+            <option value="tighten">Tighten</option>
+            <option value="expand">Expand</option>
+            <option value="preserve">Preserve</option>
+          </select>
+        </label>
+      </div>
+
+      <label>
+        Priority
+        <select id="priority">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+
+      <label style="margin-top: 10px;">
+        Comment
+        <textarea id="comment-text" rows="5"></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="primary" id="save-comment">Save Comment</button>
+        <button type="button" id="focus-target">Focus Target</button>
+      </div>
+
+      <h2 class="panel-title">Comments <span class="comment-count" id="comment-total">0</span></h2>
+      <div class="comments" id="comments"></div>
+
+      <h2 class="panel-title">Agent Payload</h2>
+      <textarea class="payload" id="whisper-agent-payload" readonly></textarea>
+      <div class="status-line" id="status-line"></div>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById("whisper-review-data").textContent);
+      const storageKey = "whisper-review:" + data.review_id;
+      const state = {
+        comments: [],
+        selectedBlockId: data.blocks[0] ? data.blocks[0].block_id : null,
+        selectedText: ""
+      };
+
+      const targetEl = document.getElementById("selected-target");
+      const commentsEl = document.getElementById("comments");
+      const totalEl = document.getElementById("comment-total");
+      const payloadEl = document.getElementById("whisper-agent-payload");
+      const statusEl = document.getElementById("status-line");
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+
+      function getBlock(blockId) {
+        return data.blocks.find((block) => block.block_id === blockId) || data.blocks[0] || null;
+      }
+
+      function commentId() {
+        return "c-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.comments)) state.comments = parsed.comments;
+          }
+        } catch (error) {
+          state.comments = [];
+        }
+      }
+
+      function save() {
+        localStorage.setItem(storageKey, JSON.stringify({
+          review_id: data.review_id,
+          updated_at: nowIso(),
+          comments: state.comments
+        }, null, 2));
+      }
+
+      function selectionInside(blockEl) {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) return "";
+        if (!blockEl.contains(selection.anchorNode) || !blockEl.contains(selection.focusNode)) return "";
+        return selection.toString().trim();
+      }
+
+      function selectBlock(blockId, selectedText) {
+        state.selectedBlockId = blockId;
+        state.selectedText = selectedText || "";
+        document.querySelectorAll("[data-review-block]").forEach((el) => {
+          el.classList.toggle("is-selected", el.dataset.blockId === blockId);
+        });
+        renderTarget();
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderTarget() {
+        const block = getBlock(state.selectedBlockId);
+        if (!block) {
+          targetEl.textContent = "No target";
+          return;
+        }
+        const selection = state.selectedText ? "<br><strong>Selection:</strong> " + escapeHtml(state.selectedText) : "";
+        targetEl.innerHTML = "<strong>" + block.block_id + "</strong> / " + escapeHtml(block.part_id) + selection;
+      }
+
+      function enrichComment(comment) {
+        const block = getBlock(comment.block_id);
+        return {
+          id: comment.id,
+          created_at: comment.created_at,
+          block_id: comment.block_id,
+          part_id: block ? block.part_id : comment.part_id,
+          role: block ? block.role : comment.role,
+          paragraph_index: block ? block.paragraph_index : comment.paragraph_index,
+          source_line: block ? block.source_line : comment.source_line,
+          issue_type: comment.issue_type,
+          request_type: comment.request_type,
+          priority: comment.priority,
+          selected_text: comment.selected_text || "",
+          comment: comment.comment,
+          block_text: block ? block.text : "",
+          status: comment.status || "open"
+        };
+      }
+
+      function getAgentPayload() {
+        return {
+          kind: "whisper_review_payload",
+          version: "0.1",
+          exported_at: nowIso(),
+          review_id: data.review_id,
+          draft: data.draft,
+          schema: data.schema,
+          pareto: data.pareto,
+          instruction: "Use comments as located revision requests. Preserve block_id and part_id in proposals; offer options when request_type is offer_options.",
+          comments: state.comments.map(enrichComment),
+          blocks: data.blocks
+        };
+      }
+
+      function renderComments() {
+        commentsEl.innerHTML = "";
+        totalEl.textContent = String(state.comments.length);
+        const counts = new Map();
+        state.comments.forEach((comment) => {
+          counts.set(comment.block_id, (counts.get(comment.block_id) || 0) + 1);
+        });
+        document.querySelectorAll("[data-comment-count]").forEach((el) => {
+          el.textContent = String(counts.get(el.dataset.commentCount) || 0);
+        });
+
+        state.comments.slice().reverse().forEach((comment) => {
+          const item = document.createElement("section");
+          item.className = "comment-item";
+          const block = getBlock(comment.block_id);
+          item.innerHTML =
+            "<header><span>" + escapeHtml(comment.block_id) + "</span><button type=\"button\" data-delete-comment=\"" + comment.id + "\">Delete</button></header>" +
+            "<p>" + escapeHtml(comment.comment) + "</p>" +
+            "<small>" + escapeHtml(comment.issue_type) + " / " + escapeHtml(comment.request_type) + " / " + escapeHtml(comment.priority) +
+            (comment.selected_text ? "<br>Selection: " + escapeHtml(comment.selected_text) : "") +
+            (block ? "<br>Part: " + escapeHtml(block.part_id) : "") + "</small>";
+          commentsEl.appendChild(item);
+        });
+
+        payloadEl.value = JSON.stringify(getAgentPayload(), null, 2);
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+        if (text) {
+          window.setTimeout(() => {
+            if (statusEl.textContent === text) statusEl.textContent = "";
+          }, 2200);
+        }
+      }
+
+      function saveComment() {
+        const block = getBlock(state.selectedBlockId);
+        const text = document.getElementById("comment-text").value.trim();
+        if (!block || !text) {
+          setStatus("Select a block and add a comment.");
+          return;
+        }
+        state.comments.push({
+          id: commentId(),
+          created_at: nowIso(),
+          block_id: block.block_id,
+          part_id: block.part_id,
+          role: block.role,
+          paragraph_index: block.paragraph_index,
+          source_line: block.source_line,
+          issue_type: document.getElementById("issue-type").value,
+          request_type: document.getElementById("request-type").value,
+          priority: document.getElementById("priority").value,
+          selected_text: state.selectedText,
+          comment: text,
+          status: "open"
+        });
+        document.getElementById("comment-text").value = "";
+        state.selectedText = "";
+        save();
+        renderTarget();
+        renderComments();
+        setStatus("Comment saved.");
+      }
+
+      function downloadPayload() {
+        const blob = new Blob([JSON.stringify(getAgentPayload(), null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = data.review_id + ".agent-payload.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function copyPayload() {
+        const text = JSON.stringify(getAgentPayload(), null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => setStatus("Payload copied."));
+          return;
+        }
+        payloadEl.select();
+        document.execCommand("copy");
+        setStatus("Payload copied.");
+      }
+
+      document.getElementById("draft-meta").textContent =
+        data.draft.id + " / " + data.transport + " / " + data.pareto.selected_candidate;
+
+      document.querySelectorAll("[data-review-block]").forEach((blockEl) => {
+        blockEl.addEventListener("click", () => selectBlock(blockEl.dataset.blockId, selectionInside(blockEl)));
+        const button = blockEl.querySelector("[data-add-comment]");
+        if (button) {
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectBlock(blockEl.dataset.blockId, selectionInside(blockEl));
+            document.getElementById("comment-text").focus();
+          });
+        }
+      });
+
+      commentsEl.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-delete-comment]");
+        if (!button) return;
+        state.comments = state.comments.filter((comment) => comment.id !== button.dataset.deleteComment);
+        save();
+        renderComments();
+      });
+
+      document.getElementById("save-comment").addEventListener("click", saveComment);
+      document.getElementById("download-payload").addEventListener("click", downloadPayload);
+      document.getElementById("copy-payload").addEventListener("click", copyPayload);
+      document.getElementById("clear-comments").addEventListener("click", () => {
+        if (!confirm("Clear all comments for this draft review?")) return;
+        state.comments = [];
+        save();
+        renderComments();
+      });
+      document.getElementById("focus-target").addEventListener("click", () => {
+        const block = document.querySelector("[data-block-id=\"" + state.selectedBlockId + "\"]");
+        if (block) block.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+
+      window.WhisperReview = {
+        data,
+        getAgentPayload,
+        setComments(comments) {
+          state.comments = Array.isArray(comments) ? comments : [];
+          save();
+          renderComments();
+        },
+        clearComments() {
+          state.comments = [];
+          save();
+          renderComments();
+        }
+      };
+
+      load();
+      selectBlock(state.selectedBlockId, "");
+      renderComments();
+    })();
+  </script>
+</body>
+</html>

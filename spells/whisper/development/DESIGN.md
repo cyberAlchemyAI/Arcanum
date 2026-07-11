@@ -158,6 +158,20 @@ fundraising_extension:
 
 The fundraising extension should not become a fourth SCU core by default. It is a transport-specific relevance and trajectory extension unless repeated use proves that trust/proof/ask mechanics need their own core.
 
+## Live Presentation Extension Boundary
+
+Live presentation is a candidate preset extension created from repeated
+presentation quality failures. It does not change the three SCU cores. It adds
+transport-owned surfaces and a strict pre-generation language audition.
+
+The transport keeps `projected_copy`, `spoken_copy`, `speaker_notes`,
+`interaction_prompt`, and `authoring_metadata` separate. The first generated
+artifact is an opening/tension/reveal audition, not a complete deck. Full
+generation remains blocked until an operator approves the voice.
+
+This gate exists because source fidelity, schema validity, and browser validity
+do not prove that projected or spoken language works in a room.
+
 ## Pareto-Aware Candidate Selection
 
 Each candidate set must be scored across the three SCU cores:
@@ -224,7 +238,8 @@ Expected outputs:
 
 ## Deferred Complexity
 
-- Full cross-transport schema library.
+- Full cross-transport schema library beyond the current Substack proof and
+  candidate business-plan and live-presentation presets.
 - Automated memory of all author voice preferences.
 - Multi-agent writing room.
 - Fundraising-specific validation.

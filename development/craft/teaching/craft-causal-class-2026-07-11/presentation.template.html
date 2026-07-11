@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="deck-data-sha256" content="__DECK_SHA__">
+  <title>The Wobble We Chose</title>
+  <style>
+    :root {
+      --paper: #f5f7f4;
+      --ink: #172028;
+      --muted: #56636d;
+      --line: #cbd3d0;
+      --white: #ffffff;
+      --blue: #1769aa;
+      --blue-soft: #dfeef9;
+      --green: #18794e;
+      --green-soft: #ddf2e8;
+      --yellow: #e8b735;
+      --yellow-soft: #fff2c4;
+      --red: #b5483a;
+      --red-soft: #f8e2de;
+      --wood: #9a6a3a;
+      --wood-dark: #68462a;
+      --shadow: 0 18px 42px rgba(23, 32, 40, .10);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--paper); color: var(--ink); }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; overflow: hidden; }
+    button { font: inherit; }
+    button:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid rgba(23,105,170,.35); outline-offset: 3px; }
+
+    .topbar {
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.92);
+      position: relative; z-index: 20;
+    }
+    .brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+    .brand strong { font-size: 17px; white-space: nowrap; }
+    .brand span { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .controls { display: flex; align-items: center; gap: 7px; }
+    .icon-button, .text-button {
+      border: 1px solid var(--line); background: var(--white); color: var(--ink); height: 38px;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+      border-radius: 6px;
+    }
+    .icon-button { width: 38px; font-size: 20px; }
+    .text-button { padding: 0 12px; font-weight: 700; font-size: 13px; }
+    .icon-button:hover, .text-button:hover { border-color: var(--blue); color: var(--blue); }
+    .icon-button:disabled, .text-button:disabled { opacity: .36; cursor: default; }
+    .counter { min-width: 58px; text-align: center; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .progress { height: 4px; background: #e3e8e5; position: relative; z-index: 19; }
+    .progress span { display: block; height: 100%; width: 0; background: var(--blue); transition: width .25s ease; }
+
+    .deck { height: calc(100vh - 68px); position: relative; }
+    .slide { display: none; height: 100%; padding: clamp(18px, 2.4vw, 38px) clamp(22px, 3vw, 46px); overflow: auto; }
+    .slide.active { display: block; }
+    .slide-grid { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(330px, .85fr); gap: clamp(28px, 4vw, 64px); align-items: center; max-width: 1500px; margin: 0 auto; }
+    .scene {
+      min-height: min(66vh, 620px); background: var(--white); border: 1px solid var(--line);
+      box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between;
+      padding: clamp(24px, 3vw, 44px); border-radius: 7px; cursor: pointer; overflow: hidden;
+    }
+    .scene.terminal { cursor: default; }
+    .scene-head { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+    .state-dots { display: flex; gap: 6px; }
+    .state-dot { width: 8px; height: 8px; border-radius: 50%; background: #d4dbd8; }
+    .state-dot.active { background: var(--blue); }
+    .visual { flex: 1; min-height: 300px; display: flex; align-items: center; justify-content: center; position: relative; padding: 20px 0; }
+    .scene-foot { display: flex; justify-content: flex-end; min-height: 38px; }
+    .reveal-button { border: 0; background: var(--ink); color: white; height: 38px; padding: 0 14px; border-radius: 6px; font-weight: 750; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; }
+    .reveal-button:hover { background: var(--blue); }
+    .poll-embed { width: min(100%, 680px); aspect-ratio: 16 / 9; position: relative; overflow: hidden; border: 1px solid var(--line); background: white; }
+    .poll-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .narrative { align-self: stretch; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+    h1 { font-size: clamp(30px, 3.2vw, 50px); line-height: 1.05; margin: 0 0 18px; max-width: 18ch; letter-spacing: 0; }
+    .prompt { font-size: clamp(19px, 1.7vw, 26px); line-height: 1.25; margin: 0 0 18px; color: var(--blue); font-weight: 760; }
+    .visible-list { display: grid; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; }
+    .visible-list:empty { display: none; }
+    .visible-list li { border-left: 3px solid var(--line); padding: 5px 0 5px 12px; font-size: 17px; line-height: 1.3; }
+    .term { display: inline-flex; align-self: flex-start; margin-top: 22px; background: var(--green-soft); color: var(--green); border: 1px solid #add8c2; padding: 8px 12px; border-radius: 5px; font-size: 15px; font-weight: 850; }
+
+    .table-wrap { width: min(92%, 620px); height: 300px; position: relative; }
+    .floor { position: absolute; left: 5%; right: 5%; bottom: 22px; height: 2px; background: #bfc7c3; transform: rotate(-1.2deg); }
+    .table-top { position: absolute; left: 12%; right: 12%; top: 74px; height: 38px; background: var(--wood); border-radius: 4px; box-shadow: inset 0 -5px rgba(0,0,0,.08); transition: transform .25s ease; }
+    .leg { position: absolute; top: 108px; width: 30px; height: 154px; background: var(--wood-dark); border-radius: 2px; transform-origin: top; transition: transform .25s ease; }
+    .leg.a { left: 18%; } .leg.b { left: 33%; } .leg.c { right: 33%; } .leg.d { right: 18%; }
+    .rail { position: absolute; left: 19%; right: 19%; top: 148px; height: 18px; background: #7b5633; opacity: 0; transition: opacity .25s ease; }
+    .shim { position: absolute; left: 16.7%; bottom: 24px; width: 44px; height: 10px; background: var(--yellow); clip-path: polygon(0 100%, 100% 100%, 100% 0); opacity: 0; }
+    .table-label { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .table-wrap.wobble .table-top { transform: rotate(.9deg) translateX(5px); }
+    .table-wrap.wobble .leg.a, .table-wrap.wobble .leg.c { transform: rotate(1.4deg); }
+    .table-wrap.wobble .leg.b, .table-wrap.wobble .leg.d { transform: rotate(-1.4deg); }
+    .table-wrap.shim .shim, .table-wrap.shim-wobble .shim { opacity: 1; }
+    .table-wrap.shim-wobble .table-top { transform: translateX(5px); }
+    .table-wrap.closed .rail, .table-wrap.earned .rail, .table-wrap.upper .rail { opacity: 1; }
+    .table-wrap.drawing { filter: grayscale(.7); opacity: .78; }
+    .table-wrap.drawing .table-top, .table-wrap.drawing .leg { background: transparent; border: 2px dashed var(--blue); box-shadow: none; }
+
+    .choice-grid, .candidate-grid, .dashboard-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .option-panel { border: 1px solid var(--line); border-radius: 6px; padding: 20px; background: #fbfcfb; min-height: 190px; }
+    .option-panel strong { display: block; margin-bottom: 10px; font-size: 18px; }
+    .option-panel.selected { border-color: var(--blue); background: var(--blue-soft); }
+    .desk-profile { height: 92px; margin: 10px 0 8px; position: relative; }
+    .profile-top { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; border-radius: 2px; background: var(--wood); }
+    .profile-leg { position: absolute; top: 20px; bottom: 8px; width: 10px; background: var(--wood-dark); }
+    .profile-leg.left { left: 16%; }
+    .profile-leg.right { right: 16%; }
+    .profile-rail { display: none; position: absolute; left: calc(16% + 10px); right: calc(16% + 10px); top: 31px; height: 12px; background: #7b5633; }
+    .profile-rail::after { content: "side rail"; position: absolute; left: 50%; top: 16px; transform: translateX(-50%); color: var(--green); font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .option-panel.rails .profile-rail { display: block; }
+    .option-caption { display: block; color: var(--muted); line-height: 1.3; }
+    .mini-table { height: 70px; margin: 12px 0; border-top: 12px solid var(--wood); position: relative; }
+    .mini-table::before, .mini-table::after { content: ""; position: absolute; top: 0; width: 10px; height: 58px; background: var(--wood-dark); }
+    .mini-table::before { left: 14%; } .mini-table::after { right: 14%; }
+
+    .fact-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .fact { padding: 18px; border-left: 4px solid var(--yellow); background: var(--yellow-soft); min-height: 90px; }
+    .fact strong { display: block; font-size: 20px; margin-bottom: 5px; }
+    .schema-list, .check-list { width: min(100%, 620px); display: grid; gap: 10px; }
+    .schema-row, .check-row { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 13px 15px; background: #f7f9f8; border: 1px solid var(--line); border-radius: 4px; }
+    .status { font-weight: 850; font-size: 13px; color: var(--muted); }
+    .status.pass { color: var(--green); } .status.fail { color: var(--red); } .status.active { color: var(--blue); }
+    .timeline { width: 100%; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: stretch; }
+    .step { padding: 14px 7px; text-align: center; border-top: 4px solid var(--blue); background: var(--blue-soft); font-size: 13px; font-weight: 750; }
+    .flow { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; }
+    .flow-node { border: 1px solid var(--line); padding: 20px; background: white; min-height: 180px; }
+    .flow-node strong { display: block; margin-bottom: 12px; color: var(--blue); }
+    .flow-arrow { font-size: 34px; color: var(--blue); font-weight: 900; }
+    .dual { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .check-surface { border-top: 5px solid var(--blue); padding: 18px; background: var(--blue-soft); min-height: 170px; }
+    .check-surface.upper { border-color: var(--green); background: var(--green-soft); }
+    .check-surface strong { display: block; margin-bottom: 12px; }
+    .dashboard { border: 1px solid var(--line); background: white; min-height: 230px; overflow: hidden; }
+    .dashboard-head { height: 34px; background: var(--ink); color: white; padding: 8px 12px; font-size: 12px; }
+    .dash-body { padding: 14px; display: grid; gap: 9px; }
+    .dash-card { height: 42px; background: var(--blue-soft); border-left: 4px solid var(--blue); padding: 11px; font-size: 12px; }
+    .dash-card.warn { background: var(--yellow-soft); border-color: var(--yellow); }
+    .dash-card.bad { background: var(--red-soft); border-color: var(--red); }
+    .path { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .path-node { min-height: 92px; padding: 14px; background: white; border: 1px solid var(--line); border-top: 4px solid var(--blue); font-size: 13px; font-weight: 760; }
+    .path-node.return { border-color: var(--green); background: var(--green-soft); }
+    .path-node.stop { border-color: var(--yellow); background: var(--yellow-soft); }
+
+    .notes-overlay { position: fixed; inset: 68px 0 0; background: rgba(23,32,40,.55); z-index: 40; display: none; align-items: flex-end; justify-content: center; padding: 24px; }
+    .notes-overlay.open { display: flex; }
+    .notes-panel { width: min(760px, 100%); background: white; border-radius: 7px; padding: 24px; box-shadow: var(--shadow); max-height: 65vh; overflow: auto; }
+    .notes-panel h2 { margin: 0 0 12px; font-size: 18px; }
+    .notes-panel p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    @media (max-width: 820px) {
+      body { overflow: auto; }
+      .topbar { height: 56px; padding: 0 12px; position: sticky; top: 0; }
+      .brand span { display: none; }
+      .brand strong { font-size: 14px; }
+      .text-button { width: 38px; padding: 0; font-size: 0; }
+      .text-button::before { content: "i"; font-size: 16px; font-weight: 900; }
+      .progress { position: sticky; top: 56px; z-index: 19; }
+      .deck { height: auto; min-height: calc(100vh - 60px); }
+      .slide { min-height: calc(100vh - 60px); height: auto; padding: 16px 14px 84px; overflow: visible; }
+      .slide-grid { grid-template-columns: 1fr; gap: 22px; align-items: start; }
+      .scene { min-height: 380px; padding: 18px; box-shadow: 0 8px 24px rgba(23,32,40,.08); }
+      .visual { min-height: 250px; padding: 8px 0; }
+      .poll-embed { width: 100%; }
+      .narrative { justify-content: start; }
+      h1 { font-size: 39px; max-width: none; margin-bottom: 16px; }
+      .prompt { font-size: 23px; }
+      .table-wrap { height: 245px; }
+      .table-top { top: 52px; } .leg { top: 88px; height: 126px; }
+      .floor { bottom: 17px; } .shim { bottom: 18px; }
+      .choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .candidate-grid, .dual { grid-template-columns: 1fr; }
+      .option-panel { min-height: 172px; padding: 11px; }
+      .option-panel strong { font-size: 14px; line-height: 1.15; min-height: 32px; margin-bottom: 4px; }
+      .desk-profile { height: 66px; margin: 4px 0; }
+      .profile-top { top: 5px; height: 9px; }
+      .profile-leg { top: 14px; bottom: 4px; width: 7px; }
+      .profile-rail { left: calc(16% + 7px); right: calc(16% + 7px); top: 23px; height: 9px; }
+      .profile-rail::after { top: 11px; font-size: 9px; }
+      .option-caption { font-size: 12px; line-height: 1.2; }
+      .dashboard-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .dashboard-grid.single { grid-template-columns: 1fr; }
+      .dashboard { min-height: 190px; }
+      .dash-body { padding: 8px; gap: 6px; }
+      .dash-card { height: 34px; padding: 8px; }
+      .timeline { grid-template-columns: repeat(3, 1fr); }
+      .flow { grid-template-columns: 1fr; }
+      .flow-arrow { transform: rotate(90deg); text-align: center; }
+      .recomposition-flow { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+      .recomposition-flow .flow-node { min-height: 150px; padding: 10px; font-size: 12px; }
+      .recomposition-flow .flow-arrow { transform: none; font-size: 24px; }
+      .path { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .notes-overlay { inset: 60px 0 0; padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><strong>The Wobble We Chose</strong><span>A beginner Craft class</span></div>
+    <nav class="controls" aria-label="Presentation controls">
+      <button class="icon-button" id="prev-slide" type="button" aria-label="Previous slide" title="Previous slide">&#8592;</button>
+      <span class="counter" id="counter" aria-live="polite">1 / 14</span>
+      <button class="icon-button" id="next-slide" type="button" aria-label="Next slide" title="Next slide">&#8594;</button>
+      <button class="text-button" id="notes-toggle" type="button" aria-pressed="false" title="Speaker notes">Notes</button>
+    </nav>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  <main class="deck" id="deck" aria-label="Craft causal class"></main>
+  <div class="notes-overlay" id="notes-overlay" role="dialog" aria-modal="true" aria-labelledby="notes-title">
+    <div class="notes-panel">
+      <h2 id="notes-title">Speaker notes</h2>
+      <p id="notes-copy"></p>
+    </div>
+  </div>
+
+  <script id="deck-data" type="application/json">__DECK_DATA__</script>
+  <script>
+    const deckData = JSON.parse(document.getElementById("deck-data").textContent);
+    const stateBySlide = deckData.slides.map(() => 0);
+    let activeSlide = 0;
+
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    const stateClass = value => escapeHtml(value || "plain");
+
+    function renderTable(state) {
+      const label = state.includes("wobble") ? "still wobbles sideways" : state === "closed" || state === "upper" || state === "earned" ? "steady after the rebuild" : state === "shim" ? "shim under one foot" : "bedroom desk";
+      return `<div class="table-wrap ${stateClass(state)}"><div class="table-label">${escapeHtml(label)}</div><div class="floor"></div><div class="table-top"></div><div class="rail"></div><div class="leg a"></div><div class="leg b"></div><div class="leg c"></div><div class="leg d"></div><div class="shim"></div></div>`;
+    }
+
+    function renderPoll() {
+      return `<div class="poll-embed"><iframe sandbox="allow-popups allow-scripts allow-same-origin allow-presentation" allowfullscreen="true" allowtransparency="true" frameborder="0" src="https://www.mentimeter.com/app/presentation/alp3oabge8exjja9bondf9szd8m8zaff/embed" title="Mentimeter poll: choose the table we will build"></iframe></div>`;
+    }
+
+    function renderChoices(state) {
+      const profile = withRail => `<div class="desk-profile" aria-label="front view of desk ${withRail ? "with a side rail joining the legs" : "with legs attached only at the corners"}"><div class="profile-top"></div><div class="profile-leg left"></div><div class="profile-leg right"></div>${withRail ? '<div class="profile-rail"></div>' : ""}</div>`;
+      return `<div class="choice-grid"><div class="option-panel ${state === "corners" ? "selected" : ""}"><strong>Corners only</strong>${profile(false)}<span class="option-caption">The legs meet only at the tabletop. Faster, fewer parts.</span></div><div class="option-panel rails"><strong>Add boards between the legs</strong>${profile(true)}<span class="option-caption">A side rail ties the legs together and resists sideways movement.</span></div></div>`;
+    }
+
+    function renderFacts(state) {
+      const facts = state === "facts" ? [["100 cm","wall"],["uneven","floor"],["basic","tools"],["10 kg","load"]] : [["?","wall"],["?","floor"],["?","tools"],["?","load"]];
+      return `<div class="fact-grid">${facts.map(([a,b]) => `<div class="fact"><strong>${a}</strong>${b}</div>`).join("")}</div>`;
+    }
+
+    function renderSchema(state) {
+      const rows = state === "schema" ? [["Fit the wall","<= 100 cm"],["Working height","72 cm"],["Expected load","10 kg"],["Typing stability","required"]] : [["Vague promise","it should be good"],["Testable promise","fit + height + load + stability"]];
+      return `<div class="schema-list">${rows.map(([a,b]) => `<div class="schema-row"><strong>${escapeHtml(a)}</strong><span class="status">${escapeHtml(b)}</span></div>`).join("")}</div>`;
+    }
+
+    function renderPlan(state) {
+      const steps = state === "ordered" ? ["1 Measure","2 Mark","3 Cut","4 Attach","5 Place","6 Check"] : ["Cut","Check","Attach","Measure","Place","Mark"];
+      return `<div class="timeline">${steps.map(step => `<div class="step">${escapeHtml(step)}</div>`).join("")}</div>`;
+    }
+
+    function renderChecks(state) {
+      const rows = state === "partial-pass" ? [["Fit","pass"],["Height","pass"],["Load","pass"],["Stability","active"]] : [["Fit","waiting"],["Height","waiting"],["Load","waiting"],["Stability","waiting"]];
+      return `<div class="check-list">${rows.map(([a,b]) => `<div class="check-row"><strong>${a}</strong><span class="status ${b}">${b}</span></div>`).join("")}</div>`;
+    }
+
+    function renderBoundary(state) {
+      if (state === "hidden-work") return `<div class="fact-grid">${["joint shape","rail size","screw position","wood thickness"].map(x => `<div class="fact"><strong>${x}</strong>hidden inside three words</div>`).join("")}</div>`;
+      return `<div class="flow"><div class="flow-node"><strong>The desk gives us</strong>height<br>attachment points<br>expected load</div><div class="flow-arrow">&#8594;</div><div class="flow-node"><strong>The assembly returns</strong>joined legs and rails<br>workbench checks<br>ready for the desk</div></div>`;
+    }
+
+    function renderDual(state) {
+      const localActive = state === "local";
+      const upperActive = state === "upper" || state === "earned";
+      return `<div class="dual"><div class="check-surface"><strong>On the workbench</strong>dimensions ${localActive ? "pass" : "pass"}<br>joints pass<br>side resistance pass</div><div class="check-surface upper"><strong>Back in the desk</strong>${upperActive ? "fit pass<br>height pass<br>load pass<br>stability pass" : "the desk still needs a test"}</div></div>`;
+    }
+
+    function renderRecomposition(state) {
+      return `<div class="flow recomposition-flow"><div class="flow-node"><strong>New assembly</strong>legs and rails pass on the workbench</div><div class="flow-arrow">&#8594;</div><div class="flow-node"><strong>Back in the desk</strong><div class="mini-table"></div>${state === "closed" ? "the desk checks pass" : "test the whole desk again"}</div></div>`;
+    }
+
+    function renderDashboard(state) {
+      if (state === "assignment-panel") return `<div class="dashboard-grid single"><div class="dashboard"><div class="dashboard-head">Assignment summary</div><div class="dash-body"><div class="dash-card warn">Due next</div><div class="dash-card bad">Overdue</div><div class="dash-card">Returned for revision</div><div class="dash-card">Filter by class</div></div></div></div>`;
+      const bad = state === "failed-task";
+      return `<div class="dashboard-grid"><div class="dashboard"><div class="dashboard-head">Student analytics</div><div class="dash-body"><div class="dash-card">Activity chart</div><div class="dash-card">Four statistics</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Cannot answer tomorrow's task" : "Recent activity"}</div></div></div><div class="dashboard"><div class="dashboard-head">Assignments</div><div class="dash-body"><div class="dash-card warn">Due dates</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Overdue hidden" : "Class filter"}</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Returned work mixed in" : "Status list"}</div></div></div></div>`;
+    }
+
+    function renderPath(state) {
+      const labels = ["remember the promise","build a real thing","find the exact mismatch","repair or open a smaller job","test the smaller job","return it","test the whole again","stop when it is good enough"];
+      return `<div class="path">${labels.map((label,index) => `<div class="path-node ${index === 5 ? "return" : index === 7 ? "stop" : ""}">${escapeHtml(label)}</div>`).join("")}</div>`;
+    }
+
+    function renderVisual(slide, state) {
+      const key = slide.visual;
+      const value = state.visual_state;
+      if (key === "poll-table") return value === "poll" ? renderPoll() : renderTable(value);
+      if (key === "table") return renderTable(value);
+      if (key === "table-choice") return renderChoices(value);
+      if (key === "constraint-board") return renderFacts(value);
+      if (key === "schema-board") return renderSchema(value);
+      if (key === "plan-line") return renderPlan(value);
+      if (key === "check-board") return renderChecks(value);
+      if (key === "layer-boundary") return renderBoundary(value);
+      if (key === "dual-check") return renderDual(value);
+      if (key === "recomposition") return renderRecomposition(value);
+      if (key === "dashboard") return renderDashboard(value);
+      if (key === "craft-path") return renderPath(value);
+      return renderTable(value);
+    }
+
+    function render() {
+      const root = document.getElementById("deck");
+      root.innerHTML = deckData.slides.map((slide, slideIndex) => {
+        const stateIndex = stateBySlide[slideIndex];
+        const state = slide.states[stateIndex];
+        const terminal = !state.transition_to;
+        const dots = slide.states.map((_, index) => `<span class="state-dot ${index === stateIndex ? "active" : ""}"></span>`).join("");
+        const list = state.visible.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+        const term = state.earned_term ? `<span class="term">${escapeHtml(state.earned_term)}</span>` : "";
+        const revealLabel = escapeHtml(state.reveal_label || "Reveal");
+        const visual = slideIndex === activeSlide ? renderVisual(slide,state) : "";
+        return `<section class="slide ${slideIndex === activeSlide ? "active" : ""}" id="${escapeHtml(slide.id)}" data-index="${slideIndex}" aria-labelledby="title-${slideIndex}"><div class="slide-grid"><div class="scene ${terminal ? "terminal" : ""}" tabindex="0" role="group" aria-label="${escapeHtml(slide.title)}, state ${stateIndex + 1} of ${slide.states.length}" data-scene-index="${slideIndex}"><div class="scene-head"><div class="state-dots" aria-hidden="true">${dots}</div></div><div class="visual">${visual}</div><div class="scene-foot">${terminal ? "" : `<button class="reveal-button" type="button" data-reveal-index="${slideIndex}" title="${revealLabel}">${revealLabel} <span aria-hidden="true">&#8594;</span></button>`}</div></div><div class="narrative"><h1 id="title-${slideIndex}">${escapeHtml(slide.title)}</h1><p class="prompt">${escapeHtml(state.learner_prompt)}</p><ul class="visible-list">${list}</ul>${term}</div></div></section>`;
+      }).join("");
+
+      root.querySelectorAll("[data-reveal-index]").forEach(button => button.addEventListener("click", event => {
+        event.stopPropagation();
+        advanceState(Number(button.dataset.revealIndex));
+      }));
+      root.querySelectorAll("[data-scene-index]").forEach(scene => {
+        scene.addEventListener("click", event => {
+          if (event.target.closest("button")) return;
+          advanceState(Number(scene.dataset.sceneIndex));
+        });
+        scene.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            event.stopPropagation();
+            advanceState(Number(scene.dataset.sceneIndex));
+          }
+          if (event.key === "ArrowRight" || event.key === "PageDown") {
+            event.preventDefault();
+            event.stopPropagation();
+            stepForward();
+          }
+          if (event.key === "ArrowLeft" || event.key === "PageUp") {
+            event.preventDefault();
+            event.stopPropagation();
+            stepBack();
+          }
+        });
+      });
+      updateChrome();
+    }
+
+    function advanceState(index) {
+      if (index !== activeSlide) return;
+      const states = deckData.slides[index].states;
+      if (stateBySlide[index] >= states.length - 1) return;
+      stateBySlide[index] += 1;
+      render();
+      document.querySelector(`[data-scene-index="${index}"]`).focus({preventScroll:true});
+    }
+
+    function stepForward() {
+      const states = deckData.slides[activeSlide].states;
+      if (stateBySlide[activeSlide] < states.length - 1) advanceState(activeSlide);
+      else goToSlide(activeSlide + 1);
+    }
+
+    function stepBack() {
+      if (stateBySlide[activeSlide] > 0) {
+        stateBySlide[activeSlide] -= 1;
+        render();
+      } else goToSlide(activeSlide - 1, true);
+    }
+
+    function goToSlide(index, useTerminal = false) {
+      const next = Math.max(0, Math.min(deckData.slides.length - 1, index));
+      if (next === activeSlide) return;
+      activeSlide = next;
+      stateBySlide[activeSlide] = useTerminal ? deckData.slides[activeSlide].states.length - 1 : 0;
+      history.replaceState(null, "", `#${deckData.slides[activeSlide].id}`);
+      render();
+      window.scrollTo(0,0);
+    }
+
+    function updateChrome() {
+      document.getElementById("counter").textContent = `${activeSlide + 1} / ${deckData.slides.length}`;
+      const stateProgress = stateBySlide[activeSlide] / deckData.slides[activeSlide].states.length;
+      const progress = ((activeSlide + stateProgress) / deckData.slides.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progress}%`;
+      document.getElementById("prev-slide").disabled = activeSlide === 0 && stateBySlide[0] === 0;
+      document.getElementById("next-slide").disabled = activeSlide === deckData.slides.length - 1 && stateBySlide[activeSlide] === deckData.slides[activeSlide].states.length - 1;
+      document.getElementById("notes-copy").textContent = deckData.slides[activeSlide].notes;
+    }
+
+    function toggleNotes(force) {
+      const overlay = document.getElementById("notes-overlay");
+      const button = document.getElementById("notes-toggle");
+      const open = typeof force === "boolean" ? force : !overlay.classList.contains("open");
+      overlay.classList.toggle("open", open);
+      button.setAttribute("aria-pressed", String(open));
+      if (open) document.getElementById("notes-title").focus?.();
+    }
+
+    document.getElementById("prev-slide").addEventListener("click", stepBack);
+    document.getElementById("next-slide").addEventListener("click", stepForward);
+    document.getElementById("notes-toggle").addEventListener("click", () => toggleNotes());
+    document.getElementById("notes-overlay").addEventListener("click", event => { if (event.target.id === "notes-overlay") toggleNotes(false); });
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape") { toggleNotes(false); return; }
+      if (event.target.closest("button, [data-scene-index]")) return;
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") { event.preventDefault(); stepForward(); }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") { event.preventDefault(); stepBack(); }
+    });
+    window.addEventListener("hashchange", () => {
+      const index = deckData.slides.findIndex(slide => `#${slide.id}` === location.hash);
+      if (index < 0 || index === activeSlide) return;
+      activeSlide = index;
+      stateBySlide[activeSlide] = 0;
+      render();
+      window.scrollTo(0,0);
+    });
+
+    const hashIndex = deckData.slides.findIndex(slide => `#${slide.id}` === location.hash);
+    if (hashIndex >= 0) activeSlide = hashIndex;
+    render();
+  </script>
+</body>
+</html>

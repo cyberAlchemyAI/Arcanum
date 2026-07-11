@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="deck-data-sha256" content="956ca20a54139fb8b19ac45dd795222729d4cf4f12d1407a1634255f892a27d4">
+  <title>The Wobble We Chose</title>
+  <style>
+    :root {
+      --paper: #f5f7f4;
+      --ink: #172028;
+      --muted: #56636d;
+      --line: #cbd3d0;
+      --white: #ffffff;
+      --blue: #1769aa;
+      --blue-soft: #dfeef9;
+      --green: #18794e;
+      --green-soft: #ddf2e8;
+      --yellow: #e8b735;
+      --yellow-soft: #fff2c4;
+      --red: #b5483a;
+      --red-soft: #f8e2de;
+      --wood: #9a6a3a;
+      --wood-dark: #68462a;
+      --shadow: 0 18px 42px rgba(23, 32, 40, .10);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--paper); color: var(--ink); }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; overflow: hidden; }
+    button { font: inherit; }
+    button:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid rgba(23,105,170,.35); outline-offset: 3px; }
+
+    .topbar {
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.92);
+      position: relative; z-index: 20;
+    }
+    .brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+    .brand strong { font-size: 17px; white-space: nowrap; }
+    .brand span { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .controls { display: flex; align-items: center; gap: 7px; }
+    .icon-button, .text-button {
+      border: 1px solid var(--line); background: var(--white); color: var(--ink); height: 38px;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+      border-radius: 6px;
+    }
+    .icon-button { width: 38px; font-size: 20px; }
+    .text-button { padding: 0 12px; font-weight: 700; font-size: 13px; }
+    .icon-button:hover, .text-button:hover { border-color: var(--blue); color: var(--blue); }
+    .icon-button:disabled, .text-button:disabled { opacity: .36; cursor: default; }
+    .counter { min-width: 58px; text-align: center; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .progress { height: 4px; background: #e3e8e5; position: relative; z-index: 19; }
+    .progress span { display: block; height: 100%; width: 0; background: var(--blue); transition: width .25s ease; }
+
+    .deck { height: calc(100vh - 68px); position: relative; }
+    .slide { display: none; height: 100%; padding: clamp(18px, 2.4vw, 38px) clamp(22px, 3vw, 46px); overflow: auto; }
+    .slide.active { display: block; }
+    .slide-grid { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(330px, .85fr); gap: clamp(28px, 4vw, 64px); align-items: center; max-width: 1500px; margin: 0 auto; }
+    .scene {
+      min-height: min(66vh, 620px); background: var(--white); border: 1px solid var(--line);
+      box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between;
+      padding: clamp(24px, 3vw, 44px); border-radius: 7px; cursor: pointer; overflow: hidden;
+    }
+    .scene.terminal { cursor: default; }
+    .scene-head { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+    .state-dots { display: flex; gap: 6px; }
+    .state-dot { width: 8px; height: 8px; border-radius: 50%; background: #d4dbd8; }
+    .state-dot.active { background: var(--blue); }
+    .visual { flex: 1; min-height: 300px; display: flex; align-items: center; justify-content: center; position: relative; padding: 20px 0; }
+    .scene-foot { display: flex; justify-content: flex-end; min-height: 38px; }
+    .reveal-button { border: 0; background: var(--ink); color: white; height: 38px; padding: 0 14px; border-radius: 6px; font-weight: 750; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; }
+    .reveal-button:hover { background: var(--blue); }
+    .poll-embed { width: min(100%, 680px); aspect-ratio: 16 / 9; position: relative; overflow: hidden; border: 1px solid var(--line); background: white; }
+    .poll-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    .narrative { align-self: stretch; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+    h1 { font-size: clamp(30px, 3.2vw, 50px); line-height: 1.05; margin: 0 0 18px; max-width: 18ch; letter-spacing: 0; }
+    .prompt { font-size: clamp(19px, 1.7vw, 26px); line-height: 1.25; margin: 0 0 18px; color: var(--blue); font-weight: 760; }
+    .visible-list { display: grid; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; }
+    .visible-list:empty { display: none; }
+    .visible-list li { border-left: 3px solid var(--line); padding: 5px 0 5px 12px; font-size: 17px; line-height: 1.3; }
+    .term { display: inline-flex; align-self: flex-start; margin-top: 22px; background: var(--green-soft); color: var(--green); border: 1px solid #add8c2; padding: 8px 12px; border-radius: 5px; font-size: 15px; font-weight: 850; }
+
+    .table-wrap { width: min(92%, 620px); height: 300px; position: relative; }
+    .floor { position: absolute; left: 5%; right: 5%; bottom: 22px; height: 2px; background: #bfc7c3; transform: rotate(-1.2deg); }
+    .table-top { position: absolute; left: 12%; right: 12%; top: 74px; height: 38px; background: var(--wood); border-radius: 4px; box-shadow: inset 0 -5px rgba(0,0,0,.08); transition: transform .25s ease; }
+    .leg { position: absolute; top: 108px; width: 30px; height: 154px; background: var(--wood-dark); border-radius: 2px; transform-origin: top; transition: transform .25s ease; }
+    .leg.a { left: 18%; } .leg.b { left: 33%; } .leg.c { right: 33%; } .leg.d { right: 18%; }
+    .rail { position: absolute; left: 19%; right: 19%; top: 148px; height: 18px; background: #7b5633; opacity: 0; transition: opacity .25s ease; }
+    .shim { position: absolute; left: 16.7%; bottom: 24px; width: 44px; height: 10px; background: var(--yellow); clip-path: polygon(0 100%, 100% 100%, 100% 0); opacity: 0; }
+    .table-label { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .table-wrap.wobble .table-top { transform: rotate(.9deg) translateX(5px); }
+    .table-wrap.wobble .leg.a, .table-wrap.wobble .leg.c { transform: rotate(1.4deg); }
+    .table-wrap.wobble .leg.b, .table-wrap.wobble .leg.d { transform: rotate(-1.4deg); }
+    .table-wrap.shim .shim, .table-wrap.shim-wobble .shim { opacity: 1; }
+    .table-wrap.shim-wobble .table-top { transform: translateX(5px); }
+    .table-wrap.closed .rail, .table-wrap.earned .rail, .table-wrap.upper .rail { opacity: 1; }
+    .table-wrap.drawing { filter: grayscale(.7); opacity: .78; }
+    .table-wrap.drawing .table-top, .table-wrap.drawing .leg { background: transparent; border: 2px dashed var(--blue); box-shadow: none; }
+
+    .choice-grid, .candidate-grid, .dashboard-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .option-panel { border: 1px solid var(--line); border-radius: 6px; padding: 20px; background: #fbfcfb; min-height: 190px; }
+    .option-panel strong { display: block; margin-bottom: 10px; font-size: 18px; }
+    .option-panel.selected { border-color: var(--blue); background: var(--blue-soft); }
+    .desk-profile { height: 92px; margin: 10px 0 8px; position: relative; }
+    .profile-top { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; border-radius: 2px; background: var(--wood); }
+    .profile-leg { position: absolute; top: 20px; bottom: 8px; width: 10px; background: var(--wood-dark); }
+    .profile-leg.left { left: 16%; }
+    .profile-leg.right { right: 16%; }
+    .profile-rail { display: none; position: absolute; left: calc(16% + 10px); right: calc(16% + 10px); top: 31px; height: 12px; background: #7b5633; }
+    .profile-rail::after { content: "side rail"; position: absolute; left: 50%; top: 16px; transform: translateX(-50%); color: var(--green); font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .option-panel.rails .profile-rail { display: block; }
+    .option-caption { display: block; color: var(--muted); line-height: 1.3; }
+    .mini-table { height: 70px; margin: 12px 0; border-top: 12px solid var(--wood); position: relative; }
+    .mini-table::before, .mini-table::after { content: ""; position: absolute; top: 0; width: 10px; height: 58px; background: var(--wood-dark); }
+    .mini-table::before { left: 14%; } .mini-table::after { right: 14%; }
+
+    .fact-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .fact { padding: 18px; border-left: 4px solid var(--yellow); background: var(--yellow-soft); min-height: 90px; }
+    .fact strong { display: block; font-size: 20px; margin-bottom: 5px; }
+    .schema-list, .check-list { width: min(100%, 620px); display: grid; gap: 10px; }
+    .schema-row, .check-row { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 13px 15px; background: #f7f9f8; border: 1px solid var(--line); border-radius: 4px; }
+    .status { font-weight: 850; font-size: 13px; color: var(--muted); }
+    .status.pass { color: var(--green); } .status.fail { color: var(--red); } .status.active { color: var(--blue); }
+    .timeline { width: 100%; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: stretch; }
+    .step { padding: 14px 7px; text-align: center; border-top: 4px solid var(--blue); background: var(--blue-soft); font-size: 13px; font-weight: 750; }
+    .flow { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; }
+    .flow-node { border: 1px solid var(--line); padding: 20px; background: white; min-height: 180px; }
+    .flow-node strong { display: block; margin-bottom: 12px; color: var(--blue); }
+    .flow-arrow { font-size: 34px; color: var(--blue); font-weight: 900; }
+    .dual { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .check-surface { border-top: 5px solid var(--blue); padding: 18px; background: var(--blue-soft); min-height: 170px; }
+    .check-surface.upper { border-color: var(--green); background: var(--green-soft); }
+    .check-surface strong { display: block; margin-bottom: 12px; }
+    .dashboard { border: 1px solid var(--line); background: white; min-height: 230px; overflow: hidden; }
+    .dashboard-head { height: 34px; background: var(--ink); color: white; padding: 8px 12px; font-size: 12px; }
+    .dash-body { padding: 14px; display: grid; gap: 9px; }
+    .dash-card { height: 42px; background: var(--blue-soft); border-left: 4px solid var(--blue); padding: 11px; font-size: 12px; }
+    .dash-card.warn { background: var(--yellow-soft); border-color: var(--yellow); }
+    .dash-card.bad { background: var(--red-soft); border-color: var(--red); }
+    .path { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .path-node { min-height: 92px; padding: 14px; background: white; border: 1px solid var(--line); border-top: 4px solid var(--blue); font-size: 13px; font-weight: 760; }
+    .path-node.return { border-color: var(--green); background: var(--green-soft); }
+    .path-node.stop { border-color: var(--yellow); background: var(--yellow-soft); }
+
+    .notes-overlay { position: fixed; inset: 68px 0 0; background: rgba(23,32,40,.55); z-index: 40; display: none; align-items: flex-end; justify-content: center; padding: 24px; }
+    .notes-overlay.open { display: flex; }
+    .notes-panel { width: min(760px, 100%); background: white; border-radius: 7px; padding: 24px; box-shadow: var(--shadow); max-height: 65vh; overflow: auto; }
+    .notes-panel h2 { margin: 0 0 12px; font-size: 18px; }
+    .notes-panel p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    @media (max-width: 820px) {
+      body { overflow: auto; }
+      .topbar { height: 56px; padding: 0 12px; position: sticky; top: 0; }
+      .brand span { display: none; }
+      .brand strong { font-size: 14px; }
+      .text-button { width: 38px; padding: 0; font-size: 0; }
+      .text-button::before { content: "i"; font-size: 16px; font-weight: 900; }
+      .progress { position: sticky; top: 56px; z-index: 19; }
+      .deck { height: auto; min-height: calc(100vh - 60px); }
+      .slide { min-height: calc(100vh - 60px); height: auto; padding: 16px 14px 84px; overflow: visible; }
+      .slide-grid { grid-template-columns: 1fr; gap: 22px; align-items: start; }
+      .scene { min-height: 380px; padding: 18px; box-shadow: 0 8px 24px rgba(23,32,40,.08); }
+      .visual { min-height: 250px; padding: 8px 0; }
+      .poll-embed { width: 100%; }
+      .narrative { justify-content: start; }
+      h1 { font-size: 39px; max-width: none; margin-bottom: 16px; }
+      .prompt { font-size: 23px; }
+      .table-wrap { height: 245px; }
+      .table-top { top: 52px; } .leg { top: 88px; height: 126px; }
+      .floor { bottom: 17px; } .shim { bottom: 18px; }
+      .choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .candidate-grid, .dual { grid-template-columns: 1fr; }
+      .option-panel { min-height: 172px; padding: 11px; }
+      .option-panel strong { font-size: 14px; line-height: 1.15; min-height: 32px; margin-bottom: 4px; }
+      .desk-profile { height: 66px; margin: 4px 0; }
+      .profile-top { top: 5px; height: 9px; }
+      .profile-leg { top: 14px; bottom: 4px; width: 7px; }
+      .profile-rail { left: calc(16% + 7px); right: calc(16% + 7px); top: 23px; height: 9px; }
+      .profile-rail::after { top: 11px; font-size: 9px; }
+      .option-caption { font-size: 12px; line-height: 1.2; }
+      .dashboard-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .dashboard-grid.single { grid-template-columns: 1fr; }
+      .dashboard { min-height: 190px; }
+      .dash-body { padding: 8px; gap: 6px; }
+      .dash-card { height: 34px; padding: 8px; }
+      .timeline { grid-template-columns: repeat(3, 1fr); }
+      .flow { grid-template-columns: 1fr; }
+      .flow-arrow { transform: rotate(90deg); text-align: center; }
+      .recomposition-flow { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+      .recomposition-flow .flow-node { min-height: 150px; padding: 10px; font-size: 12px; }
+      .recomposition-flow .flow-arrow { transform: none; font-size: 24px; }
+      .path { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .notes-overlay { inset: 60px 0 0; padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><strong>The Wobble We Chose</strong><span>A beginner Craft class</span></div>
+    <nav class="controls" aria-label="Presentation controls">
+      <button class="icon-button" id="prev-slide" type="button" aria-label="Previous slide" title="Previous slide">&#8592;</button>
+      <span class="counter" id="counter" aria-live="polite">1 / 14</span>
+      <button class="icon-button" id="next-slide" type="button" aria-label="Next slide" title="Next slide">&#8594;</button>
+      <button class="text-button" id="notes-toggle" type="button" aria-pressed="false" title="Speaker notes">Notes</button>
+    </nav>
+  </header>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  <main class="deck" id="deck" aria-label="Craft causal class"></main>
+  <div class="notes-overlay" id="notes-overlay" role="dialog" aria-modal="true" aria-labelledby="notes-title">
+    <div class="notes-panel">
+      <h2 id="notes-title">Speaker notes</h2>
+      <p id="notes-copy"></p>
+    </div>
+  </div>
+
+  <script id="deck-data" type="application/json">{"id":"craft-causal-class-2026-07-11","title":"The Wobble We Chose","subtitle":"A beginner class about making the next responsible move","audience":"Beginning developers with some vibe-coding experience","objective":"Learners make consequential choices, observe results, and name Craft only after using its pattern.","story":{"object":"A small bedroom desk","target":"Fit a one-meter wall, hold a laptop and two books, and remain steady while typing.","persistent_constraint":"The room is narrow, the floor is uneven, and only basic tools are available.","chosen_history":"The class chooses fast corner attachments without side rails; the desk fits but wobbles sideways.","bounded_repair_scene":"A shim levels one foot but does not close the sideways-stability mismatch.","lower_build":"A stable leg-and-rail assembly","return_condition":"The assembly passes local checks and the reassembled desk passes the original upper checks with lower residue.","software_transfer":"A student assignment-summary panel must answer what is due, overdue, and returned."},"formal_terms":["schema","artifact","validation","residue","craft layer","recomposition","Craft"],"interaction_contract":{"primary_sequence":"witness -> learner choice or prediction -> consequence -> earned term -> check","one_input_one_transition":true,"terminal_states_reset_implicitly":false,"term_before_witness_allowed":false,"notes_visible_by_default":false},"surface_contract":{"projected_copy":["slide title","learner prompt","visible details","earned term"],"spoken_copy":["speaker notes"],"interaction_prompt":["learner prompt","reveal label"],"authoring_metadata":["chapter","story state","consequence","validation check","focus behavior","viewport contract"],"authoring_metadata_may_be_projected":false},"viewport_contract":{"desktop":["stage, prompt, current action, progress, and navigation fit within one viewport","speaker notes open in an overlay and do not resize the slide"],"mobile":["vertical reading is allowed","persistent witness, current prompt, primary action, progress, and navigation appear before the first fold","state survives scrolling and notes open in an overlay"]},"slides":[{"id":"CRAFT-CAUSAL-S01","title":"Before We Build","chapter":"invitation","story_state":"generic object becomes a bounded target","visual":"poll-table","focus_behavior":"The scene owns Enter and Space while focused; events do not bubble to deck navigation.","viewport":{"desktop_required":["Mentimeter poll or table","prompt","progress"],"mobile_before_fold":["Mentimeter poll or table","prompt","reveal control"]},"notes":"Presenter preflight: remove the unconfigured Option 3 in Mentimeter, then open this slide and dismiss Mentimeter's cookie panel once. Begin with the poll before explaining either design. When the result settles, click Keep the vote. Then put the plain table on screen and say: 'Imagine we have to build this today.' Give the room fifteen quiet seconds before revealing any build clues.","states":[{"id":"S01-POLL","visual_state":"poll","visible":[],"learner_prompt":"Which one would you choose for one afternoon with basic tools?","reveal_label":"Keep the vote","accepted_inputs":["pointer","enter","space"],"transition_to":"S01-PAUSE","consequence":"The room commits before the structural explanation appears.","earned_term":null,"validation_check":"Learners vote before seeing the front-profile comparison."},{"id":"S01-PAUSE","visual_state":"plain","visible":[],"learner_prompt":"What would you need to build this?","reveal_label":"Show clues","accepted_inputs":["pointer","enter","space"],"transition_to":"S01-BUCKETS","consequence":"The familiar word opens into missing work.","earned_term":null,"validation_check":"Learners independently name at least two missing needs."},{"id":"S01-BUCKETS","visual_state":"needs","visible":["materials","tools","measurements","order"],"learner_prompt":"The room starts calling out answers. They fall into four groups.","reveal_label":"Make it concrete","accepted_inputs":["pointer","enter","space"],"transition_to":"S01-TARGET","consequence":"Facts and choices begin to separate from supplies.","earned_term":null,"validation_check":"Learners distinguish a build fact from a shopping item."},{"id":"S01-TARGET","visual_state":"bounded","visible":["pine boards and screws","drill and hand saw","100 x 50 x 72 cm","finished before dinner"],"learner_prompt":"So we choose one job: a small desk for a narrow bedroom.","accepted_inputs":[],"transition_to":null,"consequence":"The object now has a use, place, and boundary.","earned_term":null,"validation_check":"Learners explain why a dining table would be a different job."}]},{"id":"CRAFT-CAUSAL-S02","title":"One Afternoon, Two Choices","chapter":"choice","story_state":"the class chooses a structural direction","visual":"table-choice","focus_behavior":"Choice buttons own their activation; the scene reveal control handles only state progression.","viewport":{"desktop_required":["two choices","target reminder","prompt"],"mobile_before_fold":["target reminder","first choice","prompt"]},"notes":"Now explain what the vote meant. A side rail is a board joining one leg to another beneath the tabletop. Show both front profiles, then carry the corner-only path forward without warning the room about the wobble.","states":[{"id":"S02-OPTIONS","visual_state":"options","visible":["corners only are faster","boards between the legs take longer but resist sideways movement"],"learner_prompt":"Now we can see what the two choices mean.","reveal_label":"Carry our choice forward","accepted_inputs":["pointer","enter","space"],"transition_to":"S02-COMMIT","consequence":"The class commits to the fast corner attachment.","earned_term":null,"validation_check":"Learners give one reason for the choice before seeing the result."},{"id":"S02-COMMIT","visual_state":"corners","visible":["four legs","four corner joints","no boards between the legs","one afternoon"],"learner_prompt":"The room votes for corners only. Our desk now has a history.","accepted_inputs":[],"transition_to":null,"consequence":"A choice now belongs to the artifact history.","earned_term":null,"validation_check":"Learners preserve fit, height, load, and stability as obligations."}]},{"id":"CRAFT-CAUSAL-S03","title":"Then We Walk Into the Room","chapter":"grounding","story_state":"constraints become design evidence","visual":"constraint-board","focus_behavior":"The scene owns reveal input; facts remain visible after reveal.","viewport":{"desktop_required":["room width","floor condition","tools","expected load"],"mobile_before_fold":["room width","floor condition","prompt"]},"notes":"Carry the choice into the actual bedroom. The wall is narrower than it looked in our heads. The floor slopes. The only tools on the floor are a drill and a hand saw. None of this cancels our choice, but it changes what that choice will have to survive.","states":[{"id":"S03-GUESS","visual_state":"questions","visible":["a narrow bedroom","an old floor","a small pile of tools"],"learner_prompt":"Before the first cut, we carry the idea into the bedroom.","reveal_label":"Look closer","accepted_inputs":["pointer","enter","space"],"transition_to":"S03-FACTS","consequence":"The build waits for facts that can change it.","earned_term":null,"validation_check":"Learners select a fact and name the decision it could alter."},{"id":"S03-FACTS","visual_state":"facts","visible":["100 cm of free wall","a floor that slopes","a drill and hand saw","a laptop and two books"],"learner_prompt":"The fast plan still fits. Now we can see where it might fail.","accepted_inputs":[],"transition_to":null,"consequence":"The fast option remains possible, but stability risk becomes visible.","earned_term":null,"validation_check":"Learners connect the uneven floor and missing rails to a risk without claiming failure yet."}]},{"id":"CRAFT-CAUSAL-S04","title":"Four Promises Before the First Cut","chapter":"schema","story_state":"validity conditions are fixed before execution order","visual":"schema-board","focus_behavior":"The comparison owns reveal input and preserves both candidates for the term reveal.","viewport":{"desktop_required":["candidate comparison","validity checks","prompt"],"mobile_before_fold":["candidate comparison","prompt"]},"notes":"Back at the workbench, someone says: 'It just needs to be a good desk.' Ask whether that sentence could settle an argument tomorrow. Replace it with four promises we can test after the build. Only then give that chosen shape its name: schema.","states":[{"id":"S04-COMPARE","visual_state":"candidates","visible":["\"It should be a good desk.\"","\"It should fit, hold the load, and stay steady.\""],"learner_prompt":"Two promises. Which one could settle an argument tomorrow?","reveal_label":"Write it down","accepted_inputs":["pointer","enter","space"],"transition_to":"S04-SCHEMA","consequence":"Candidate B supplies a checkable shape of valid work.","earned_term":null,"validation_check":"Learners reject candidate A because a required relation is missing."},{"id":"S04-SCHEMA","visual_state":"schema","visible":["fits within 100 cm","working height is 72 cm","holds 10 kg","stays steady while typing"],"learner_prompt":"Before the first cut, we write four promises on the wall.","accepted_inputs":[],"transition_to":null,"consequence":"Validity is explicit before the build begins.","earned_term":"schema","validation_check":"Learners use the schema to classify one valid and one invalid desk."}]},{"id":"CRAFT-CAUSAL-S05","title":"What Happens First?","chapter":"planning","story_state":"schema conditions become ordered actions","visual":"plan-line","focus_behavior":"The step order owns reveal input; no formal term is activated.","viewport":{"desktop_required":["schema reminder","ordered steps","done check"],"mobile_before_fold":["schema reminder","first three steps","prompt"]},"notes":"We know what the finished desk must do, but that does not tell us what to do first. Let the room order the work. Then point out that changing the order did not change the promises.","states":[{"id":"S05-UNORDERED","visual_state":"unordered","visible":["measure","cut","attach","place","test"],"learner_prompt":"We know what must be true. What should happen first?","reveal_label":"Put it in order","accepted_inputs":["pointer","enter","space"],"transition_to":"S05-ORDERED","consequence":"The validity structure becomes executable work.","earned_term":null,"validation_check":"Learners name one input, output, and done check."},{"id":"S05-ORDERED","visual_state":"ordered","visible":["1 measure","2 mark","3 cut","4 attach","5 place","6 test"],"learner_prompt":"The order changed. Did our promises change?","accepted_inputs":[],"transition_to":null,"consequence":"Order serves the schema without replacing it.","earned_term":null,"validation_check":"Learners distinguish validity conditions from execution order."}]},{"id":"CRAFT-CAUSAL-S06","title":"The Sketch Cannot Wobble","chapter":"artifact","story_state":"execution produces an inspectable desk","visual":"table","focus_behavior":"Build reveal input is terminal and cannot reset implicitly.","viewport":{"desktop_required":["built table","prior schema","prompt"],"mobile_before_fold":["built table","prompt"]},"notes":"A drawing can look convincing without carrying weight or moving under a hand. Build the desk, but do not call it successful yet. The important change is that reality can finally disagree with us.","states":[{"id":"S06-DRAWING","visual_state":"drawing","visible":["Will the joints move?","Will the floor matter?","Will typing shake it?"],"learner_prompt":"What can only a real desk tell us?","reveal_label":"Build it","accepted_inputs":["pointer","enter","space"],"transition_to":"S06-BUILT","consequence":"The work moves from representation to physical result.","earned_term":null,"validation_check":"Learners name one property that requires a real or simulated result."},{"id":"S06-BUILT","visual_state":"built","visible":["it fits the wall","it holds the laptop and books","nobody has pushed it sideways yet"],"learner_prompt":"Now reality gets a vote.","accepted_inputs":[],"transition_to":null,"consequence":"A result now exists and can disagree with the schema.","earned_term":"artifact","validation_check":"Learners distinguish the produced thing from the plan and schema."}]},{"id":"CRAFT-CAUSAL-S07","title":"Three Passes, One Unknown","chapter":"validation","story_state":"earlier obligations become comparisons","visual":"check-board","focus_behavior":"Check selection owns input; result reveal does not navigate.","viewport":{"desktop_required":["schema checks","desk","prompt"],"mobile_before_fold":["desk","first checks","prompt"]},"notes":"Bring back the four promises from earlier. Three have evidence; one is still unknown. Ask whether three passes are enough before touching the desk from the side.","states":[{"id":"S07-SELECT","visual_state":"unchecked","visible":["fit passes","height passes","load passes","stability is still unknown"],"learner_prompt":"Which promise should we test next?","reveal_label":"Test the last promise","accepted_inputs":["pointer","enter","space"],"transition_to":"S07-RESULTS","consequence":"The class compares the artifact with its own prior commitments.","earned_term":null,"validation_check":"Learners justify a check by pointing back to the schema."},{"id":"S07-RESULTS","visual_state":"partial-pass","visible":["fit passes","height passes","load passes","stability still needs evidence"],"learner_prompt":"Can we call it finished yet?","accepted_inputs":[],"transition_to":null,"consequence":"Comparison remains incomplete while one named condition is unknown.","earned_term":"validation","validation_check":"Learners refuse a final verdict until the remaining condition is tested."}]},{"id":"CRAFT-CAUSAL-S08","title":"Then We Push the Corner","chapter":"residue","story_state":"the recorded choice produces a named mismatch","visual":"table","focus_behavior":"The wobble reveal is terminal and preserves the failed state.","viewport":{"desktop_required":["wobbling table","failed stability check","history strip"],"mobile_before_fold":["wobbling table","failed check","prompt"]},"notes":"Ask for a prediction before the push. When the desk moves, connect it to the choice the room made earlier: fast corner joints, no side rails, and an uneven floor. The wobble is not a surprise inserted for drama; it belongs to the history.","states":[{"id":"S08-TEST","visual_state":"test","visible":[],"learner_prompt":"What do you think happens when we push here?","reveal_label":"Push the corner","accepted_inputs":["pointer","enter","space"],"transition_to":"S08-WOBBLE","consequence":"Sideways force exposes the unbraced relation.","earned_term":null,"validation_check":"Learners state a prediction before the reveal."},{"id":"S08-WOBBLE","visual_state":"wobble","visible":["fit passes","height passes","load passes","stability fails"],"learner_prompt":"It is usable. It is also not steady enough.","accepted_inputs":[],"transition_to":null,"consequence":"The next move can be routed from a specific failed obligation.","earned_term":"residue","validation_check":"Learners name the failed check without calling the whole desk useless."}]},{"id":"CRAFT-CAUSAL-S09","title":"A Fix That Fixes the Wrong Thing","chapter":"repair","story_state":"a shim closes level but not sideways stability","visual":"table","focus_behavior":"Repair input reveals one consequence and remains terminal.","viewport":{"desktop_required":["shim","before and after checks","prompt"],"mobile_before_fold":["shim","active check","prompt"]},"notes":"A shim is cheap, visible, and worth trying in this story. It is not a universal rule that repair must come first. Ask what the shim should fix, then test the exact wobble again.","states":[{"id":"S09-REPAIR","visual_state":"shim","visible":["uneven floor","one short foot","a top that is not level"],"learner_prompt":"A thin shim goes under the short foot. What should improve?","reveal_label":"Retest the desk","accepted_inputs":["pointer","enter","space"],"transition_to":"S09-RETEST","consequence":"The top becomes level, but the attachment relation is unchanged.","earned_term":null,"validation_check":"Learners predict level may improve while sideways stability may not."},{"id":"S09-RETEST","visual_state":"shim-wobble","visible":["the top is level","the sideways wobble remains","the corner joints did not change"],"learner_prompt":"We fixed what we could see. What did we actually fix?","accepted_inputs":[],"transition_to":null,"consequence":"The remaining work needs a clearer boundary and its own checks.","earned_term":null,"validation_check":"Learners explain why adding more vague instructions would hide responsibility."}]},{"id":"CRAFT-CAUSAL-S10","title":"\"Attach the Legs\" Is Hiding a Project","chapter":"candidate layer","story_state":"hidden joint work receives a provisional boundary","visual":"layer-boundary","focus_behavior":"Boundary reveal input is terminal; the slide does not award the layer term yet.","viewport":{"desktop_required":["upper input","lower responsibility","return interface"],"mobile_before_fold":["candidate responsibility","input","output"]},"notes":"The old plan said only, \"attach the legs.\" Let the room discover how many choices those three words were hiding. Then draw a smaller job with a clear input, output, and proof, without claiming yet that the split is good.","states":[{"id":"S10-HIDDEN","visual_state":"hidden-work","visible":["joint shape","rail size","screw position","wood thickness","side-force test"],"learner_prompt":"How much work was hiding inside those three words?","reveal_label":"Draw the boundary","accepted_inputs":["pointer","enter","space"],"transition_to":"S10-BOUNDARY","consequence":"Hidden obligations become a candidate responsibility.","earned_term":null,"validation_check":"Learners identify at least one input, output, and independent check."},{"id":"S10-BOUNDARY","visual_state":"boundary","visible":["receive the desk dimensions and attachment points","produce one leg-and-rail assembly","prove it is strong alone and steady in the desk"],"learner_prompt":"What should this smaller build receive, produce, and prove?","accepted_inputs":[],"transition_to":null,"consequence":"The candidate can now be accepted or rejected with evidence.","earned_term":null,"validation_check":"Learners require lower residue plus local and upper validation."}]},{"id":"CRAFT-CAUSAL-S11","title":"It Has to Work Twice","chapter":"layer proof","story_state":"the lower artifact passes locally and in the desk","visual":"dual-check","focus_behavior":"Local and upper checks advance in order; terminal state cannot cycle backward by activation.","viewport":{"desktop_required":["local checks","upper checks","residue comparison"],"mobile_before_fold":["active check surface","prompt","progress"]},"notes":"First test the assembly on the workbench. Then remind the room that a strong assembly can still fail to fit the desk. Only after both checks pass and the wobble is lower has this smaller build earned its boundary.","states":[{"id":"S11-LOCAL","visual_state":"local","visible":["dimensions pass","joints hold","side force does not rack the frame"],"learner_prompt":"The assembly holds on the workbench. Is that enough?","reveal_label":"Put it in the desk","accepted_inputs":["pointer","enter","space"],"transition_to":"S11-UPPER","consequence":"Local success is necessary but not sufficient.","earned_term":null,"validation_check":"Learners insist on the upper check."},{"id":"S11-UPPER","visual_state":"upper","visible":["fit passes","height passes","load passes","level passes","stability passes"],"learner_prompt":"The desk works again. What changed from before?","reveal_label":"Compare before and after","accepted_inputs":["pointer","enter","space"],"transition_to":"S11-EARNED","consequence":"The failed stability obligation is closed without creating another blocking failure.","earned_term":null,"validation_check":"Learners compare the declared before and after checks."},{"id":"S11-EARNED","visual_state":"earned","visible":["one clear job","its own checks","works inside the whole","the wobble is lower"],"learner_prompt":"This smaller build has earned its own boundary.","accepted_inputs":[],"transition_to":null,"consequence":"The lower build has earned independent governance inside the whole.","earned_term":"craft layer","validation_check":"Learners reject complexity alone as a sufficient reason to split."}]},{"id":"CRAFT-CAUSAL-S12","title":"Back in the Whole Desk","chapter":"recomposition","story_state":"the lower artifact changes the upper artifact and closes the blocking mismatch","visual":"recomposition","focus_behavior":"Return reveal is terminal and keeps the completed table visible.","viewport":{"desktop_required":["lower artifact","return arrow","completed desk","stop condition"],"mobile_before_fold":["completed desk","return relation","prompt"]},"notes":"Returning the assembly is not the end; the original desk promises must run again. A small screw mark remains after the repair, but it does not block this bedroom desk. Stop at the objective, not at imagined perfection.","states":[{"id":"S12-RETURN","visual_state":"return","visible":["fit","height","load","level","stability"],"learner_prompt":"What do we have to test again after the new assembly returns?","reveal_label":"Run the desk checks","accepted_inputs":["pointer","enter","space"],"transition_to":"S12-CLOSED","consequence":"The lower result changes the upper artifact.","earned_term":null,"validation_check":"Learners name the original upper checks, not only the local ones."},{"id":"S12-CLOSED","visual_state":"closed","visible":["all important checks pass","one cosmetic screw mark remains","stop here for this job"],"learner_prompt":"The desk is steady. Are we done for this job?","accepted_inputs":[],"transition_to":null,"consequence":"Work stops at acceptable residue for the chosen objective.","earned_term":"recomposition","validation_check":"Learners distinguish acceptable residue from perfect completion."}]},{"id":"CRAFT-CAUSAL-S13","title":"A Dashboard Can Look Right and Be Wrong","chapter":"software transfer","story_state":"a plausible screen fails a concrete student task before explanation","visual":"dashboard","focus_behavior":"Dashboard comparison owns reveal input; no new formal term is introduced.","viewport":{"desktop_required":["two dashboards","student task","result"],"mobile_before_fold":["first dashboard","student task","prompt"]},"notes":"Show both screens before diagnosing either one. Give the room one student task: find what must be done before tomorrow. Let that task expose what the polished screens forgot.","states":[{"id":"S13-SCREENS","visual_state":"plausible","visible":["charts and recent activity","assignments and due dates"],"learner_prompt":"Which screen can tell a student what to do before tomorrow?","reveal_label":"Try the task","accepted_inputs":["pointer","enter","space"],"transition_to":"S13-FAILURE","consequence":"Plausible appearance is separated from the required action.","earned_term":null,"validation_check":"Learners choose by task evidence rather than visual preference."},{"id":"S13-FAILURE","visual_state":"failed-task","visible":["what is due next is unclear","overdue work is hidden","returned work is mixed in"],"learner_prompt":"Neither screen answers the whole question. What is missing?","reveal_label":"Fix the smallest useful piece","accepted_inputs":["pointer","enter","space"],"transition_to":"S13-PANEL","consequence":"The learner supplies constraints before the correction appears.","earned_term":null,"validation_check":"Learners name at least one missing relation and one check."},{"id":"S13-PANEL","visual_state":"assignment-panel","visible":["due next","overdue","returned for revision","open the assignment","filter by class"],"learner_prompt":"Now the student can act without guessing.","accepted_inputs":[],"transition_to":null,"consequence":"The table pattern transfers without a second vocabulary lecture.","earned_term":null,"validation_check":"Learners reject both the whole portal and an isolated button as the next responsible unit."}]},{"id":"CRAFT-CAUSAL-S14","title":"Now We Can Name It","chapter":"closure","story_state":"learners reconstruct the causal path before the final term appears","visual":"craft-path","focus_behavior":"Reconstruction advances to one terminal term reveal; no reset occurs without explicit reload.","viewport":{"desktop_required":["table path","software echo","stop condition","final term"],"mobile_before_fold":["causal path","prompt","reveal control"]},"notes":"Ask the room to retell the journey without formal vocabulary. We kept promises visible, built something reality could challenge, used the mismatch to choose the next move, and checked the result again inside the whole. Only now give that way of working its name.","states":[{"id":"S14-RECONSTRUCT","visual_state":"path","visible":["went back to the promise","found the exact mismatch","repaired or opened a smaller build","returned and checked again"],"learner_prompt":"When the result disagreed with us, what did we do next?","reveal_label":"Name the method","accepted_inputs":["pointer","enter","space"],"transition_to":"S14-CRAFT","consequence":"Learners reconstruct the method from witnessed decisions.","earned_term":null,"validation_check":"Learners explain the path using either the table or dashboard without reading labels."},{"id":"S14-CRAFT","visual_state":"craft","visible":["choose what counts","build something inspectable","let the mismatch guide the next move","stop when the remainder is acceptable"],"learner_prompt":"Craft keeps the next responsible move visible.","accepted_inputs":[],"transition_to":null,"consequence":"The formal name arrives after the learner has used the pattern.","earned_term":"Craft","validation_check":"Learners state when to repair, revise, descend, return, or stop."}]}]}</script>
+  <script>
+    const deckData = JSON.parse(document.getElementById("deck-data").textContent);
+    const stateBySlide = deckData.slides.map(() => 0);
+    let activeSlide = 0;
+
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    const stateClass = value => escapeHtml(value || "plain");
+
+    function renderTable(state) {
+      const label = state.includes("wobble") ? "still wobbles sideways" : state === "closed" || state === "upper" || state === "earned" ? "steady after the rebuild" : state === "shim" ? "shim under one foot" : "bedroom desk";
+      return `<div class="table-wrap ${stateClass(state)}"><div class="table-label">${escapeHtml(label)}</div><div class="floor"></div><div class="table-top"></div><div class="rail"></div><div class="leg a"></div><div class="leg b"></div><div class="leg c"></div><div class="leg d"></div><div class="shim"></div></div>`;
+    }
+
+    function renderPoll() {
+      return `<div class="poll-embed"><iframe sandbox="allow-popups allow-scripts allow-same-origin allow-presentation" allowfullscreen="true" allowtransparency="true" frameborder="0" src="https://www.mentimeter.com/app/presentation/alp3oabge8exjja9bondf9szd8m8zaff/embed" title="Mentimeter poll: choose the table we will build"></iframe></div>`;
+    }
+
+    function renderChoices(state) {
+      const profile = withRail => `<div class="desk-profile" aria-label="front view of desk ${withRail ? "with a side rail joining the legs" : "with legs attached only at the corners"}"><div class="profile-top"></div><div class="profile-leg left"></div><div class="profile-leg right"></div>${withRail ? '<div class="profile-rail"></div>' : ""}</div>`;
+      return `<div class="choice-grid"><div class="option-panel ${state === "corners" ? "selected" : ""}"><strong>Corners only</strong>${profile(false)}<span class="option-caption">The legs meet only at the tabletop. Faster, fewer parts.</span></div><div class="option-panel rails"><strong>Add boards between the legs</strong>${profile(true)}<span class="option-caption">A side rail ties the legs together and resists sideways movement.</span></div></div>`;
+    }
+
+    function renderFacts(state) {
+      const facts = state === "facts" ? [["100 cm","wall"],["uneven","floor"],["basic","tools"],["10 kg","load"]] : [["?","wall"],["?","floor"],["?","tools"],["?","load"]];
+      return `<div class="fact-grid">${facts.map(([a,b]) => `<div class="fact"><strong>${a}</strong>${b}</div>`).join("")}</div>`;
+    }
+
+    function renderSchema(state) {
+      const rows = state === "schema" ? [["Fit the wall","<= 100 cm"],["Working height","72 cm"],["Expected load","10 kg"],["Typing stability","required"]] : [["Vague promise","it should be good"],["Testable promise","fit + height + load + stability"]];
+      return `<div class="schema-list">${rows.map(([a,b]) => `<div class="schema-row"><strong>${escapeHtml(a)}</strong><span class="status">${escapeHtml(b)}</span></div>`).join("")}</div>`;
+    }
+
+    function renderPlan(state) {
+      const steps = state === "ordered" ? ["1 Measure","2 Mark","3 Cut","4 Attach","5 Place","6 Check"] : ["Cut","Check","Attach","Measure","Place","Mark"];
+      return `<div class="timeline">${steps.map(step => `<div class="step">${escapeHtml(step)}</div>`).join("")}</div>`;
+    }
+
+    function renderChecks(state) {
+      const rows = state === "partial-pass" ? [["Fit","pass"],["Height","pass"],["Load","pass"],["Stability","active"]] : [["Fit","waiting"],["Height","waiting"],["Load","waiting"],["Stability","waiting"]];
+      return `<div class="check-list">${rows.map(([a,b]) => `<div class="check-row"><strong>${a}</strong><span class="status ${b}">${b}</span></div>`).join("")}</div>`;
+    }
+
+    function renderBoundary(state) {
+      if (state === "hidden-work") return `<div class="fact-grid">${["joint shape","rail size","screw position","wood thickness"].map(x => `<div class="fact"><strong>${x}</strong>hidden inside three words</div>`).join("")}</div>`;
+      return `<div class="flow"><div class="flow-node"><strong>The desk gives us</strong>height<br>attachment points<br>expected load</div><div class="flow-arrow">&#8594;</div><div class="flow-node"><strong>The assembly returns</strong>joined legs and rails<br>workbench checks<br>ready for the desk</div></div>`;
+    }
+
+    function renderDual(state) {
+      const localActive = state === "local";
+      const upperActive = state === "upper" || state === "earned";
+      return `<div class="dual"><div class="check-surface"><strong>On the workbench</strong>dimensions ${localActive ? "pass" : "pass"}<br>joints pass<br>side resistance pass</div><div class="check-surface upper"><strong>Back in the desk</strong>${upperActive ? "fit pass<br>height pass<br>load pass<br>stability pass" : "the desk still needs a test"}</div></div>`;
+    }
+
+    function renderRecomposition(state) {
+      return `<div class="flow recomposition-flow"><div class="flow-node"><strong>New assembly</strong>legs and rails pass on the workbench</div><div class="flow-arrow">&#8594;</div><div class="flow-node"><strong>Back in the desk</strong><div class="mini-table"></div>${state === "closed" ? "the desk checks pass" : "test the whole desk again"}</div></div>`;
+    }
+
+    function renderDashboard(state) {
+      if (state === "assignment-panel") return `<div class="dashboard-grid single"><div class="dashboard"><div class="dashboard-head">Assignment summary</div><div class="dash-body"><div class="dash-card warn">Due next</div><div class="dash-card bad">Overdue</div><div class="dash-card">Returned for revision</div><div class="dash-card">Filter by class</div></div></div></div>`;
+      const bad = state === "failed-task";
+      return `<div class="dashboard-grid"><div class="dashboard"><div class="dashboard-head">Student analytics</div><div class="dash-body"><div class="dash-card">Activity chart</div><div class="dash-card">Four statistics</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Cannot answer tomorrow's task" : "Recent activity"}</div></div></div><div class="dashboard"><div class="dashboard-head">Assignments</div><div class="dash-body"><div class="dash-card warn">Due dates</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Overdue hidden" : "Class filter"}</div><div class="dash-card ${bad ? "bad" : ""}">${bad ? "Returned work mixed in" : "Status list"}</div></div></div></div>`;
+    }
+
+    function renderPath(state) {
+      const labels = ["remember the promise","build a real thing","find the exact mismatch","repair or open a smaller job","test the smaller job","return it","test the whole again","stop when it is good enough"];
+      return `<div class="path">${labels.map((label,index) => `<div class="path-node ${index === 5 ? "return" : index === 7 ? "stop" : ""}">${escapeHtml(label)}</div>`).join("")}</div>`;
+    }
+
+    function renderVisual(slide, state) {
+      const key = slide.visual;
+      const value = state.visual_state;
+      if (key === "poll-table") return value === "poll" ? renderPoll() : renderTable(value);
+      if (key === "table") return renderTable(value);
+      if (key === "table-choice") return renderChoices(value);
+      if (key === "constraint-board") return renderFacts(value);
+      if (key === "schema-board") return renderSchema(value);
+      if (key === "plan-line") return renderPlan(value);
+      if (key === "check-board") return renderChecks(value);
+      if (key === "layer-boundary") return renderBoundary(value);
+      if (key === "dual-check") return renderDual(value);
+      if (key === "recomposition") return renderRecomposition(value);
+      if (key === "dashboard") return renderDashboard(value);
+      if (key === "craft-path") return renderPath(value);
+      return renderTable(value);
+    }
+
+    function render() {
+      const root = document.getElementById("deck");
+      root.innerHTML = deckData.slides.map((slide, slideIndex) => {
+        const stateIndex = stateBySlide[slideIndex];
+        const state = slide.states[stateIndex];
+        const terminal = !state.transition_to;
+        const dots = slide.states.map((_, index) => `<span class="state-dot ${index === stateIndex ? "active" : ""}"></span>`).join("");
+        const list = state.visible.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+        const term = state.earned_term ? `<span class="term">${escapeHtml(state.earned_term)}</span>` : "";
+        const revealLabel = escapeHtml(state.reveal_label || "Reveal");
+        const visual = slideIndex === activeSlide ? renderVisual(slide,state) : "";
+        return `<section class="slide ${slideIndex === activeSlide ? "active" : ""}" id="${escapeHtml(slide.id)}" data-index="${slideIndex}" aria-labelledby="title-${slideIndex}"><div class="slide-grid"><div class="scene ${terminal ? "terminal" : ""}" tabindex="0" role="group" aria-label="${escapeHtml(slide.title)}, state ${stateIndex + 1} of ${slide.states.length}" data-scene-index="${slideIndex}"><div class="scene-head"><div class="state-dots" aria-hidden="true">${dots}</div></div><div class="visual">${visual}</div><div class="scene-foot">${terminal ? "" : `<button class="reveal-button" type="button" data-reveal-index="${slideIndex}" title="${revealLabel}">${revealLabel} <span aria-hidden="true">&#8594;</span></button>`}</div></div><div class="narrative"><h1 id="title-${slideIndex}">${escapeHtml(slide.title)}</h1><p class="prompt">${escapeHtml(state.learner_prompt)}</p><ul class="visible-list">${list}</ul>${term}</div></div></section>`;
+      }).join("");
+
+      root.querySelectorAll("[data-reveal-index]").forEach(button => button.addEventListener("click", event => {
+        event.stopPropagation();
+        advanceState(Number(button.dataset.revealIndex));
+      }));
+      root.querySelectorAll("[data-scene-index]").forEach(scene => {
+        scene.addEventListener("click", event => {
+          if (event.target.closest("button")) return;
+          advanceState(Number(scene.dataset.sceneIndex));
+        });
+        scene.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            event.stopPropagation();
+            advanceState(Number(scene.dataset.sceneIndex));
+          }
+          if (event.key === "ArrowRight" || event.key === "PageDown") {
+            event.preventDefault();
+            event.stopPropagation();
+            stepForward();
+          }
+          if (event.key === "ArrowLeft" || event.key === "PageUp") {
+            event.preventDefault();
+            event.stopPropagation();
+            stepBack();
+          }
+        });
+      });
+      updateChrome();
+    }
+
+    function advanceState(index) {
+      if (index !== activeSlide) return;
+      const states = deckData.slides[index].states;
+      if (stateBySlide[index] >= states.length - 1) return;
+      stateBySlide[index] += 1;
+      render();
+      document.querySelector(`[data-scene-index="${index}"]`).focus({preventScroll:true});
+    }
+
+    function stepForward() {
+      const states = deckData.slides[activeSlide].states;
+      if (stateBySlide[activeSlide] < states.length - 1) advanceState(activeSlide);
+      else goToSlide(activeSlide + 1);
+    }
+
+    function stepBack() {
+      if (stateBySlide[activeSlide] > 0) {
+        stateBySlide[activeSlide] -= 1;
+        render();
+      } else goToSlide(activeSlide - 1, true);
+    }
+
+    function goToSlide(index, useTerminal = false) {
+      const next = Math.max(0, Math.min(deckData.slides.length - 1, index));
+      if (next === activeSlide) return;
+      activeSlide = next;
+      stateBySlide[activeSlide] = useTerminal ? deckData.slides[activeSlide].states.length - 1 : 0;
+      history.replaceState(null, "", `#${deckData.slides[activeSlide].id}`);
+      render();
+      window.scrollTo(0,0);
+    }
+
+    function updateChrome() {
+      document.getElementById("counter").textContent = `${activeSlide + 1} / ${deckData.slides.length}`;
+      const stateProgress = stateBySlide[activeSlide] / deckData.slides[activeSlide].states.length;
+      const progress = ((activeSlide + stateProgress) / deckData.slides.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progress}%`;
+      document.getElementById("prev-slide").disabled = activeSlide === 0 && stateBySlide[0] === 0;
+      document.getElementById("next-slide").disabled = activeSlide === deckData.slides.length - 1 && stateBySlide[activeSlide] === deckData.slides[activeSlide].states.length - 1;
+      document.getElementById("notes-copy").textContent = deckData.slides[activeSlide].notes;
+    }
+
+    function toggleNotes(force) {
+      const overlay = document.getElementById("notes-overlay");
+      const button = document.getElementById("notes-toggle");
+      const open = typeof force === "boolean" ? force : !overlay.classList.contains("open");
+      overlay.classList.toggle("open", open);
+      button.setAttribute("aria-pressed", String(open));
+      if (open) document.getElementById("notes-title").focus?.();
+    }
+
+    document.getElementById("prev-slide").addEventListener("click", stepBack);
+    document.getElementById("next-slide").addEventListener("click", stepForward);
+    document.getElementById("notes-toggle").addEventListener("click", () => toggleNotes());
+    document.getElementById("notes-overlay").addEventListener("click", event => { if (event.target.id === "notes-overlay") toggleNotes(false); });
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape") { toggleNotes(false); return; }
+      if (event.target.closest("button, [data-scene-index]")) return;
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") { event.preventDefault(); stepForward(); }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") { event.preventDefault(); stepBack(); }
+    });
+    window.addEventListener("hashchange", () => {
+      const index = deckData.slides.findIndex(slide => `#${slide.id}` === location.hash);
+      if (index < 0 || index === activeSlide) return;
+      activeSlide = index;
+      stateBySlide[activeSlide] = 0;
+      render();
+      window.scrollTo(0,0);
+    });
+
+    const hashIndex = deckData.slides.findIndex(slide => `#${slide.id}` === location.hash);
+    if (hashIndex >= 0) activeSlide = hashIndex;
+    render();
+  </script>
+</body>
+</html>

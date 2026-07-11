@@ -50,7 +50,9 @@ The first proof target is a Substack post for an Arcanum research group. Fundrai
 | `text_intent_substrate` | Whisper | intake, distill | candidate tournament, composition plan, validation |
 | `transport_schema` | Whisper | transport selection | composition plan, validation |
 | `scu_candidate_set` | Whisper | distill tournament | Pareto consensus |
-| `composition_plan` | Whisper | plan phase | draft phase, review |
+| `composition_plan` | Whisper | plan phase | transport audition, draft phase, review |
+| `surface_map` | Whisper | transport selection, composition plan | transport audition, draft phase, validation |
+| `language_audition` | Whisper | transport audition | full draft, validation |
 | `draft_artifact` | Whisper | draft phase | validation, revision |
 | `learning_residue` | Whisper | validation, reflection | future composition runs |
 
@@ -65,6 +67,8 @@ Whisper treats composition as an artifact state machine, not as a loose sequence
 | `scu_candidate_set` | primitive/technique tournament | distill tournament | Pareto consensus | each candidate combines resonance, relevance, and trajectory rather than optimizing one category repeatedly |
 | `pareto_consensus` | selection decision | candidate tournament | composition plan | selected set is non-dominated across resonance, relevance, trajectory, and cost |
 | `composition_plan` | construction plan | plan phase | draft phase, review | body parts, sequence, anchor, examples, and validation checklist are ready |
+| `surface_map` | transport surface contract | transport selection, plan phase | transport audition, draft phase, validation | audience-facing, presenter-facing, and authoring-only content have distinct owners |
+| `language_audition` | early transport proof | transport audition | full draft, validation | representative moments pass transport-specific review before full artifact generation |
 | `draft_artifact` | text artifact | draft phase | validation, revision | draft exists, names its schema source, and preserves known citation gaps |
 | `review_html` | review surface | review phase | revision, learning residue | every draft can be rendered into stable comment blocks whose agent payload preserves `block_id`, `part_id`, selected text, and requested change mode |
 | `validation_report` | quality gate | validation | revision, learning residue | checks pass, flag, or block with actionable reasons |
@@ -98,9 +102,10 @@ This keeps review feedback addressable enough for the next Whisper revision pass
 | 1. Transport and intent intake | `structured-interview-kits` | raw author intent | selected transport and blocker decisions | transport, objective, target public, and success signal are named | Ask one focused question; block only when target text cannot be identified. |
 | 2. Substrate distillation | `distill` | intake record | `text_intent_substrate` with resonance, relevance, and trajectory cores | each core has named values and recomposes into the target artifact | Flag unsupported assumptions; route consequential uncertainty to `decision-gate`. |
 | 3. SCU candidate tournament | `distill` | substrate and transport schema | candidate primitive/technique sets | one balanced candidate preserves Pareto trade-offs across all three cores | Keep stable disagreement in the ledger; do not optimize only tone/style. |
-| 4. Composition plan | Whisper | selected candidate set | body-part plan, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, and constraints | Revise plan if it violates transport schema. |
-| 5. Draft and review | Whisper | composition plan | draft text and review notes | draft passes constraint, audience, resonance, and structure checks | Produce revision tasks or return flag when quality is below target. |
-| 6. Learning residue | Whisper | final or flagged draft | reusable lessons, technique results, unresolved gaps | residue distinguishes observed result from canonical truth | Defer promotion to inventory or glossary owners when durable knowledge appears. |
+| 4. Composition plan | Whisper | selected candidate set | body-part plan, surface map, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, constraints, and transport-owned surfaces | Revise plan if it violates transport schema or leaves a surface owner ambiguous. |
+| 5. Transport audition | Whisper | composition plan and surface map | smallest representative transport sample | required sample moments pass transport-specific review; live presentations require explicit operator voice approval | Stop before full generation when the audition is flagged, blocked, or unapproved. |
+| 6. Draft and review | Whisper | approved audition and composition plan | draft text and review notes | draft passes constraint, audience, resonance, structure, and transport-specific checks | Produce revision tasks or return flag when quality is below target. Browser or rendering checks cannot promote editorial status. |
+| 7. Learning residue | Whisper | final or flagged draft | reusable lessons, technique results, unresolved gaps | residue distinguishes observed result from canonical truth | Defer promotion to inventory or glossary owners when durable knowledge appears. |
 
 ## SCU Core Model
 
@@ -121,6 +126,12 @@ Each viable candidate must include one coherent selection from all three cores. 
 | 1 | `substack_research_post` | selected L0 proof | Forces clarity, voice, research-group relevance, argument structure, and reflective ending without immediate conversion pressure. |
 | 2 | `fundraising_copy` | next extension | Adds trust, proof, urgency, ask mechanics, and donor psychology after the base substrate works. |
 | 3 | `business_plan` | local preset extension | Builds a full business plan, investor memo, operating plan, lender package, or deck substrate from audience, evidence, financial assumptions, risks, and next-witness gates. |
+| 4 | `live_presentation` | candidate preset extension with strict human gate | Separates projected language from spoken delivery, notes, interaction prompts, and authoring metadata; full-deck generation remains blocked until a three-moment language audition is approved. |
+
+Transport availability is not transport proof. A transport listed as a possible
+output remains unproven until it has a transport contract, representative
+fixtures, and validation evidence. Candidate transports must return `flag`
+rather than `pass` when their required human or experiment gate has not run.
 
 ## Preset Extensions
 
@@ -132,11 +143,53 @@ Available local presets live in [presets/](presets/):
 | Preset ID | Use |
 | --------- | --- |
 | `business_plan` | Generic business-plan writing preset for investor, lender/financing, operating, partner, and public-impact variants. It keeps the plan claim-bounded, assumption-explicit, and tied to evidence, financial model, risk, and next-witness gates. |
+| `live_presentation` | Live-room presentation preset that separates projected copy, spoken copy, speaker notes, interaction prompts, and authoring metadata, then requires a three-moment language audition before full generation. |
 
-Use this preset when the user asks for a business plan, investor plan, operating
+Use the `business_plan` preset when the user asks for a business plan, investor plan, operating
 plan, financing plan, or BP substrate that must turn a venture or project into a
 coherent decision document without overclaiming traction, compliance, market
 certainty, or financial certainty.
+
+Use the `live_presentation` preset whenever a person will present the artifact
+to a room or call. Do not substitute `slide narrative`, `deck substrate`, or an
+HTML rendering request for this transport when projected language and spoken
+delivery are part of the outcome.
+
+## Live Presentation Guardrail
+
+A live presentation has five content surfaces with different owners:
+
+| Surface | Audience sees it? | Responsibility |
+| ------- | ----------------- | -------------- |
+| `projected_copy` | yes | The smallest audience-facing thought needed for the current moment. |
+| `spoken_copy` | hears it | Natural language the presenter can say aloud without sounding like a schema or essay. |
+| `speaker_notes` | no | Context, timing, transitions, and evidence the presenter may need. |
+| `interaction_prompt` | when invited | A real question or action that does not contain its answer. |
+| `authoring_metadata` | never | Story state, consequence, pedagogy, source mapping, validation intent, and construction instructions. |
+
+Before writing essays, a complete slide schema, HTML, or browser tests, Whisper
+must produce a language audition containing exactly three representative
+moments: `opening`, `tension`, and `reveal`. Each moment shows only
+`projected_copy` and `spoken_copy` to the operator. Full generation is blocked
+until the operator explicitly approves the voice.
+
+A live-presentation draft cannot receive `pass` unless all of these checks pass:
+
+- `read_aloud_natural`: a presenter can say the spoken copy naturally.
+- `projected_copy_is_audience_facing`: projected words address the room rather
+  than describe the authoring process.
+- `question_does_not_contain_answer`: prompts preserve genuine thinking time.
+- `no_unearned_jargon`: formal terms appear only after the audience has a reason
+  to need them.
+- `one_visible_thought_per_moment`: the screen does not project title, metadata,
+  explanation, and conclusion at once.
+- `notes_are_not_projected`: facilitation and reasoning stay in presenter or
+  authoring surfaces.
+- `operator_voice_approval`: the operator approved the three-moment audition.
+
+Source fidelity, schema validity, layout checks, and Playwright results remain
+separate evidence. None can satisfy `operator_voice_approval` or promote a
+failed editorial gate.
 
 ## Local Customization
 
@@ -158,7 +211,7 @@ Record spell-level telemetry when `.arcanum/observability/` exists:
 - gates passed, flagged, or blocked,
 - draft artifact status,
 - validation result,
-- user corrections,
+- user corrections, including append-only correction events when a prior pass is rejected,
 - learning residue and next transport pressure.
 
 ## Output Contract
@@ -170,12 +223,14 @@ Return:
 
 - Spell: whisper
 - Transport: <transport id>
+- Transport proof status: proven | candidate | unproven
 - Objective: <author objective>
 - Target public: <audience>
 - SCU cores: <resonance | relevance | trajectory summary>
 - Candidate selected: <candidate id and rationale>
 - Composition plan: <sections or body parts>
 - Draft status: pass | flag | block
+- Human gate: approved | rejected | pending | not_applicable
 - Validation: <checks and result>
 - Learning residue: <durable lessons or none>
 - Next route: revise | publish-prep | task-session | decision-gate | deferred
