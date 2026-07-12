@@ -47,23 +47,13 @@ deck:
       title: Before We Build
       chapter: invitation
       story_state: generic object becomes a bounded target
-      visual: poll-table
+      visual: table
       focus_behavior: The scene owns Enter and Space while focused; events do not bubble to deck navigation.
       viewport:
-        desktop_required: [Mentimeter poll or table, prompt, progress]
-        mobile_before_fold: [Mentimeter poll or table, prompt, reveal control]
-      notes: "Presenter preflight: remove the unconfigured Option 3 in Mentimeter, then open this slide and dismiss Mentimeter's cookie panel once. Begin with the poll before explaining either design. When the result settles, click Keep the vote. Then put the plain table on screen and say: 'Imagine we have to build this today.' Give the room fifteen quiet seconds before revealing any build clues."
+        desktop_required: [table, prompt, progress]
+        mobile_before_fold: [table, prompt, reveal control]
+      notes: "Put the table on screen and say: 'Imagine we have to build this today.' Give the room fifteen quiet seconds before revealing any build clues. Gather their answers into four groups, then choose one real job together: a small bedroom desk, built before dinner."
       states:
-        - id: S01-POLL
-          visual_state: poll
-          visible: []
-          learner_prompt: Which one would you choose for one afternoon with basic tools?
-          reveal_label: Keep the vote
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S01-PAUSE
-          consequence: The room commits before the structural explanation appears.
-          earned_term: null
-          validation_check: Learners vote before seeing the front-profile comparison.
         - id: S01-PAUSE
           visual_state: plain
           visible: []
@@ -98,18 +88,28 @@ deck:
       title: One Afternoon, Two Choices
       chapter: choice
       story_state: the class chooses a structural direction
-      visual: table-choice
+      visual: choice-poll
       focus_behavior: Choice buttons own their activation; the scene reveal control handles only state progression.
       viewport:
         desktop_required: [two choices, target reminder, prompt]
         mobile_before_fold: [target reminder, first choice, prompt]
-      notes: "Now explain what the vote meant. A side rail is a board joining one leg to another beneath the tabletop. Show both front profiles, then carry the corner-only path forward without warning the room about the wobble."
+      notes: "Presenter preflight: remove the unconfigured Option 3 in Mentimeter, then open this slide and dismiss Mentimeter's cookie panel once. In class, first explain the profiles: a side rail is a board joining one leg to another beneath the tabletop. Then click Vote on Mentimeter. When the result settles, click Carry the result forward and record the corner-only path without warning the room about the wobble."
       states:
         - id: S02-OPTIONS
           visual_state: options
           visible: [corners only are faster, boards between the legs take longer but resist sideways movement]
           learner_prompt: Now we can see what the two choices mean.
-          reveal_label: Carry our choice forward
+          reveal_label: Vote on Mentimeter
+          accepted_inputs: [pointer, enter, space]
+          transition_to: S02-POLL
+          consequence: Learners understand the structural trade-off before voting.
+          earned_term: null
+          validation_check: Learners can explain the difference between corners only and a side rail.
+        - id: S02-POLL
+          visual_state: poll
+          visible: []
+          learner_prompt: Which one would you choose for one afternoon with basic tools?
+          reveal_label: Carry the result forward
           accepted_inputs: [pointer, enter, space]
           transition_to: S02-COMMIT
           consequence: The class commits to the fast corner attachment.

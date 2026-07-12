@@ -12,6 +12,6 @@
 - **Composition plan:** Approved language audition, three cumulative essays, fourteen slides with thirty-two interaction states, one authoritative YAML model, and one browser-tested HTML deck.
 - **Human gate:** approved on 2026-07-11.
 - **Draft status:** pass for editorial, source-boundary, schema-parity, and browser checks; pedagogical effectiveness remains untested with learners.
-- **Validation:** Audience-facing copy is separated from speaker notes and authoring metadata; Mentimeter records the first blind choice before the deck reveals the table or design profiles; 374 Playwright assertions pass across four viewports with zero local deck console errors.
+- **Validation:** Audience-facing copy is separated from speaker notes and authoring metadata; slide 2 explains both design profiles before opening Mentimeter, then carries the vote into the desk's history; 391 Playwright assertions pass across four viewports with zero local deck console errors.
 - **Learning residue:** A presentation can preserve the right causal sequence and still fail when its construction metadata becomes projected language. Live presentation work now requires an approved opening/tension/reveal audition before full generation.
 - **Next route:** beginner learner trial for independent choice, explanation, delayed recall, and software transfer.

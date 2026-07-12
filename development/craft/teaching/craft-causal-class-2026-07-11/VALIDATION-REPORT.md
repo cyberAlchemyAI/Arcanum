@@ -17,7 +17,7 @@ Pedagogical effectiveness is not established by these checks. A learner trial is
 - The surface contract forbids projecting authoring metadata.
 - Projected titles, prompts, and details pass the authoring-language leak guard.
 - Embedded HTML data exactly matches the YAML deck object.
-- Canonical deck-data SHA-256: `956ca20a54139fb8b19ac45dd795222729d4cf4f12d1407a1634255f892a27d4`.
+- Canonical deck-data SHA-256: `350b00328c6112627f8496ad2b4492bf174de176e7a03d000303798e776a1d25`.
 
 Run:
 
@@ -30,7 +30,7 @@ python3 validate-package.py
 
 Browser: Playwright CLI with Firefox 152.0. Chrome was unavailable in the environment because the expected system Chrome distribution was not installed.
 
-The CLI-driven browser run completed 374 assertions across:
+The CLI-driven browser run completed 391 assertions across:
 
 - `1280x720`
 - `1366x768`
@@ -47,7 +47,8 @@ Checks covered:
 - notes overlay and `aria-pressed` state;
 - the approved opening language audition;
 - first reveal clue buckets and second reveal concrete materials, dimensions, and order;
-- Mentimeter as the first interaction state, supplied sandbox, external frame loading, and explicit poll-to-story transition;
+- the slide-2 sequence of profile explanation, Mentimeter vote, and committed story history;
+- the supplied iframe sandbox, external frame loading, and poll unmount after voting;
 - absence of projected story-state, consequence, validation, and chapter metadata;
 - all 14 slides and all 32 states;
 - desktop one-viewport fit;
@@ -55,7 +56,7 @@ Checks covered:
 - horizontal overflow;
 - browser console errors.
 
-Result: 374 passed, zero local deck console errors.
+Result: 391 passed, zero local deck console errors.
 
 Firefox reports Mentimeter cross-site cookie rejection notices from inside the
 third-party iframe. These are classified separately from local deck errors. The
@@ -68,10 +69,10 @@ between the legs, remains horizontal, and creates no overflow. The compact
 side-by-side mobile comparison was then covered by the complete `360x800`
 matrix.
 
-Focused Mentimeter checks at `1280x720` and `360x800` confirmed that the frame
-is the first state, no explanatory profile appears while voting, and `Keep the
-vote` unmounts the iframe before the plain-table pause. Slide 2 then shows both
-front profiles without repeating the poll.
+Focused slide-2 checks at `1280x720` and `360x800` confirmed the intended order:
+both design profiles appear first, `Vote on Mentimeter` mounts the frame, and
+`Carry the result forward` unmounts it before the selected design becomes part
+of the desk's history.
 
 ## Screenshots
 
@@ -80,6 +81,9 @@ front profiles without repeating the poll.
 - `output/playwright/desktop-1280-11.png`
 - `output/playwright/desktop-1280-13.png`
 - `output/playwright/desktop-1280-14.png`
+- `output/playwright/desktop-01-profiles.png`
+- `output/playwright/desktop-02-poll.png`
+- `output/playwright/desktop-03-commit.png`
 - matching `1366`, `390`, and `360` viewport receipts for those moments
 
 ## Review Surfaces
@@ -101,8 +105,8 @@ The package does not contain non-public project names, local absolute paths, ema
 Before presenting:
 
 1. Remove the unconfigured `Option 3` from the Mentimeter presentation.
-2. Open slide 2 once and accept or reject Mentimeter's cookie prompt so the
-   first live view opens directly on the poll.
+2. Open slide 2's voting state once and accept or reject Mentimeter's cookie
+   prompt so the live vote opens directly on the poll.
 
 Then run a beginner trial that checks:
 
