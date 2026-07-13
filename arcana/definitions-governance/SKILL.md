@@ -4,7 +4,7 @@ description: "Use when: maintaining canonical definitions, synchronized indexes,
 argument-hint: "[--add <id>] [--update <id>] [--sync] [--audit] [--config <path>]"
 tier: arcana
 domain: semantic-governance
-version: 0.2.0
+version: 0.1.0
 origin: generalized from recurring canonical definitions maintenance practice
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
@@ -55,11 +55,7 @@ definitions/
   DEFINITIONS.md
   DEFINITIONS-INDEX.md
   DEFINITION-DRIFT-AUDIT.md
-  DEFINITION-SCHEMAS.md
 ```
-
-`DEFINITION-SCHEMAS.md` is the tracked-schema surface; initialize it only when a
-definition carries a schema (see process step 7).
 
 For this Arcanum repository, the canonical project-level source is
 `definitions/DEFINITIONS.md` and the lookup layer is
@@ -71,15 +67,13 @@ For this Arcanum repository, the canonical project-level source is
    from the installed sigil package:
    - canonical definitions source,
    - lookup or index layer,
-   - schema registry or tracked-schema surface,
    - narrative consumers,
    - operational consumers,
    - validation checks.
 2. If no canonical definitions source exists, initialize the default
    project-level `definitions/` surface unless the user or repository metadata
    names a different location.
-3. Read the canonical definitions source, index, and any schema registry before
-   making changes.
+3. Read the canonical definitions source and index before making changes.
 4. Add or update critical terms with stable IDs when the repository uses IDs.
 5. Ensure every canonical definition has the three definition voices together:
    - scientific/formal voice,
@@ -90,33 +84,19 @@ For this Arcanum repository, the canonical project-level source is
    - variable or notation meaning,
    - operational interpretation,
    - plain-language intuition.
-7. Track schemas with their definitions. When a definition asserts a record,
-   tuple, field set, or structural contract in its formal voice, keep the schema
-   colocated with the definition — a labeled schema block carrying a stable
-   schema handle bound to the definition ID plus per-field meanings — and
-   register it in the project's schema registry or tracked-schema surface so the
-   schema is discoverable as a first-class artifact. A pure equation or relation
-   is tracked as a schema only when it states a structural contract consumers
-   must satisfy. Record schema changes through the project's schema-amendment or
-   witness convention where one exists. When the surface does not yet exist,
-   initialize it and queue untracked schema-bearing definitions explicitly
-   instead of silently leaving them undiscoverable.
-8. Keep explanatory intuition and domain context colocated with the definition
+7. Keep explanatory intuition and domain context colocated with the definition
    and clearly non-normative.
-9. Sync lookup, index, and schema-registry artifacts so definitions and their
-   schemas are discoverable.
-10. Audit downstream drift:
+8. Sync lookup or index artifacts so definitions are discoverable.
+9. Audit downstream drift:
    - conflicting wording,
    - stale anchors,
    - undefined critical terms,
    - narrative text that redefines authority,
    - missing references,
    - definitions missing one or more required voices,
-   - schema-bearing definitions whose schema is untracked or has drifted from
-     the definition,
    - domain-context voices that point at the wrong project or workspace.
-11. Emit remediation items with target files and recommended action.
-12. Run available structure, link, or schema validation checks.
+10. Emit remediation items with target files and recommended action.
+11. Run available structure, link, or schema validation checks.
 </process>
 
 <authority-rule>
@@ -140,8 +120,6 @@ A successful execution must:
 - ensure domain context is anchored to the current project or workspace,
 - prevent intuition or domain context from contradicting normative wording,
 - keep indexes synchronized,
-- track every schema-bearing definition's schema colocated with the definition
-  and in the schema registry, with a stable schema handle bound to the term,
 - identify downstream drift with exact remediation targets,
 - validate structure where checks exist.
 </quality-bar>
@@ -159,8 +137,6 @@ Avoid:
 - letting plain-language or domain-context wording redefine formal semantics,
 - changing stable IDs casually,
 - syncing indexes without auditing downstream consumers,
-- leaving a definition's record or tuple schema buried in prose, untracked, and
-  undiscoverable, or letting it drift from the definition it belongs to,
 - treating local glossary terms as global canonical definitions without review.
 </anti-patterns>
 

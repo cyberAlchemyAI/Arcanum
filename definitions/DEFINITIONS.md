@@ -83,11 +83,10 @@ YAML schema, JSON Schema
 
 ### Scientific/Formal Voice
 
-A schema is an explicit declaration of admissible structure: what kinds of
-thing may occur, what relations they may stand in, and what constraints a
-well-formed configuration must satisfy. It is stated independently of any
-particular occupant, so that conformance can be decided by inspection alone,
-without executing the thing, populating it, or interpreting what it means.
+A schema is an explicit structural representation of valid artifact, data,
+route, ledger, or runtime state. It defines fields, row families, types,
+enums, references, cardinality, shape constraints, and parse or validation
+rules used to store, exchange, inspect, or validate instances.
 
 ### Operational Interpretation
 
@@ -101,16 +100,12 @@ A schema is the form the evidence must fit.
 
 ### Domain Context
 
-In this workspace, the things that carry a schema include dispatch routes,
-Craft ledgers, artifact frontmatter and metadata, definition indexes, and
-generated or runtime-facing structured files. Depending on the carrier, the
-declared structure is notated as fields, types, enums, references,
-cardinality, row families, or shape constraints; these are notations for
-structure, not the definition of it. Schemas give agents a parseable shape to
-inspect before a contract decides what that shape means. The Arcanum
-user-guide can use schemas as examples of governed structure, but schema
-validity is not by itself execution proof, promotion proof, or authority
-transfer.
+In this workspace, schemas appear in dispatch validation, Craft ledgers,
+artifact metadata, definition indexes, and generated or runtime-facing
+structured files. They give agents a parseable shape to inspect before a
+contract decides what that shape means. The Arcanum user-guide can use schemas
+as examples of governed structure, but schema validity is not by itself
+execution proof, promotion proof, or authority transfer.
 
 ### Boundary
 
