@@ -121,6 +121,14 @@ It belongs here because it governs a full task lifecycle rather than a single lo
 
 It belongs here because it coordinates cross-run evidence analysis, threshold interpretation, proposal generation, and lifecycle routing.
 
+[workbench-up](workbench-up/) starts or checks the local ide-extension HTML workbench, optionally prepares an open-poll bridge request, and can run a bounded bridge smoke.
+
+It belongs here because it coordinates local server readiness, operator-visible workbench access, approval-gated request availability, optional claim/result smoke evidence, and honest proof boundaries for the manual bridge.
+
+[workbench-poll](workbench-poll/) lets an interested local session poll the ide-extension bridge, claim one ready request, and submit a bound result or interruption.
+
+It belongs here because it coordinates opaque readiness, atomic claim, post-claim task disclosure, claimant-bound receipts, and clean interruption without turning the poller into a background worker.
+
 [x-ray](x-ray/) turns supplied context into a guided HTML explanation page with actors, flows, transformations, relationships, assumptions, and open questions.
 
 It belongs here because it coordinates user intent clarification, context modeling, visual explanation structure, evidence boundaries, and lifecycle validation before reusable explanation behavior is promoted.
