@@ -1,0 +1,47 @@
+---
+# whisper_schema_example:
+#   tier: optional_extension_fixture
+#   expected_validation:
+#     delivery-flow-pass.md: PASS
+#     delivery-flow-fail.md: FLAG with exit 0
+#
+text_intent_substrate:
+  transport_schema:
+    length_words:
+      min: 20
+      max: 400
+    max_characters: 4000
+    opening_contract:
+      validation_rules: {}
+      external_reference_policy:
+        external_reference_terms: []
+        allowed_after_paragraph: 1
+  readability_dynamics:
+    layer_id: generic_delivery_flow_fixture_v1
+    defaults:
+      severity_default: flag
+    delivery_flow:
+      allowed_block_jobs:
+        - new_meaning
+        - consequence
+        - action
+        - transition
+      reading_sequence:
+        - entry
+        - new_information
+        - consequence
+        - transition
+      detect_exact_duplicate_prose_blocks: true
+      duplicate_block_min_words: 8
+      intent_narration_patterns:
+        - '(?i)\bthis (section|page|slide) (shows|explains|describes)\b'
+        - '(?i)\bthe (goal|purpose) of this (section|page|slide) is\b'
+        - '(?i)\bwe want (you|the reader|the audience) to understand\b'
+      human_review_checks:
+        - semantic_repetition
+        - heading_body_paraphrase
+        - reading_sequence
+        - load_bearing_examples_preserved
+    validation_rules:
+      intent_narration_detected: flag
+      duplicate_prose_block: flag

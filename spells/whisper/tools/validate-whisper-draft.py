@@ -98,6 +98,11 @@ def markdown_word_count(markdown: str) -> int:
     return len(re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?", body))
 
 
+def normalize_prose_block(text: str) -> str:
+    words = re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?", text.lower())
+    return " ".join(words)
+
+
 def contains_any(text: str, terms: list[str]) -> bool:
     lowered = text.lower()
     for term in terms:
@@ -374,6 +379,7 @@ def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[
     defaults = config.get("defaults", {})
     density_profile = config.get("density_profile", {})
     scan_anchors = config.get("scan_anchors", {})
+    delivery_flow = config.get("delivery_flow", {})
 
     if defaults is None:
         defaults = {}
@@ -381,6 +387,8 @@ def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[
         density_profile = {}
     if scan_anchors is None:
         scan_anchors = {}
+    if delivery_flow is None:
+        delivery_flow = {}
 
     if not isinstance(defaults, dict):
         errors.append("readability_dynamics.defaults must be a mapping when present")
@@ -390,6 +398,9 @@ def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[
         return errors, checks, flags
     if not isinstance(scan_anchors, dict):
         errors.append("readability_dynamics.scan_anchors must be a mapping when present")
+        return errors, checks, flags
+    if not isinstance(delivery_flow, dict):
+        errors.append("readability_dynamics.delivery_flow must be a mapping when present")
         return errors, checks, flags
 
     default_severity = str(defaults.get("severity_default", "flag"))
@@ -499,6 +510,57 @@ def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[
                     errors,
                     flags,
                 )
+
+    if delivery_flow:
+        intent_patterns = terms_from(delivery_flow.get("intent_narration_patterns"))
+        for index, paragraph in enumerate(paragraphs, start=1):
+            for pattern in intent_patterns:
+                try:
+                    matched = re.search(pattern, paragraph)
+                except re.error as exc:
+                    errors.append(f"readability delivery_flow has invalid intent pattern `{pattern}`: {exc}")
+                    continue
+
+                if matched:
+                    record_readability_finding(
+                        config,
+                        "intent_narration_detected",
+                        default_severity,
+                        f"paragraph {index} matches configured author-intent narration pattern `{pattern}`",
+                        errors,
+                        flags,
+                    )
+                    break
+
+        if delivery_flow.get("detect_exact_duplicate_prose_blocks", False):
+            minimum_words = optional_positive_int(delivery_flow.get("duplicate_block_min_words")) or 8
+            seen_blocks: dict[str, int] = {}
+            for index, paragraph in enumerate(paragraphs, start=1):
+                normalized = normalize_prose_block(paragraph)
+                if len(normalized.split()) < minimum_words:
+                    continue
+
+                first_index = seen_blocks.get(normalized)
+                if first_index is not None:
+                    record_readability_finding(
+                        config,
+                        "duplicate_prose_block",
+                        default_severity,
+                        f"paragraph {index} duplicates paragraph {first_index} after conservative normalization",
+                        errors,
+                        flags,
+                    )
+                    continue
+
+                seen_blocks[normalized] = index
+
+        human_checks = terms_from(delivery_flow.get("human_review_checks"))
+        checks.append(f"delivery flow evaluated {len(paragraphs)} prose paragraphs")
+        if human_checks:
+            checks.append(
+                "delivery flow reserves human-only checks without claiming mechanical proof: "
+                + ", ".join(human_checks)
+            )
 
     checks.append(f"readability dynamics evaluated {len(paragraphs)} prose paragraphs")
     if config.get("layer_id"):

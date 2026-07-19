@@ -31,6 +31,9 @@ schemas/
     substack-language-ai.yaml
     substack-object-first-abstraction.yaml
     readability-dynamics.yaml
+    delivery-flow.yaml
+    delivery-flow-pass.md
+    delivery-flow-fail.md
 ```
 
 ## Fixture Tiers
@@ -40,6 +43,7 @@ schemas/
 | `examples/substack-language-ai.yaml` | `full_draft_validator_fixture` | Complete Substack proof fixture; should validate against its paired draft. |
 | `examples/substack-object-first-abstraction.yaml` | `partial_compatibility_fixture` | Sequel substrate fixture; useful for field coverage, not yet a full draft-validator fixture. |
 | `examples/readability-dynamics.yaml` | `optional_extension_fixture` | Minimal optional readability layer; should produce expected readability flags against a dense draft. |
+| `examples/delivery-flow.yaml` | `optional_extension_fixture` | Configures conservative intent-narration and duplicate-block checks against paired pass/fail drafts. |
 
 ## Base Contract
 
@@ -64,7 +68,11 @@ and matching `composition_parts` when the candidate set declares
 
 `readability_dynamics` is an optional extension. It can flag dense paragraphs,
 long sentence clusters, scan-anchor gaps, and abstraction terms that lack
-grounding. It is not a required base field.
+grounding. Its candidate `delivery_flow` branch can also flag configured
+intent-narration patterns and conservatively normalized duplicate prose blocks.
+Semantic repetition, heading/body paraphrase, reading sequence, and preservation
+of load-bearing examples remain human editorial checks. The extension is not a
+required base field.
 
 Review payload fields such as `block_id`, `part_id`, selected text, issue type,
 requested change mode, and priority are deferred to a future review schema.
@@ -103,6 +111,21 @@ python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
 
 The readability command is expected to print `FLAG whisper draft validation`
 and exit 0.
+
+Check the paired delivery-flow fixtures:
+
+```bash
+python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
+  --schema arcanum/spells/whisper/schemas/examples/delivery-flow.yaml \
+  --draft arcanum/spells/whisper/schemas/examples/delivery-flow-pass.md
+
+python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
+  --schema arcanum/spells/whisper/schemas/examples/delivery-flow.yaml \
+  --draft arcanum/spells/whisper/schemas/examples/delivery-flow-fail.md
+```
+
+The first command must print `PASS`; the second must print `FLAG` with both
+`intent_narration_detected` and `duplicate_prose_block` findings.
 
 ## Promotion Policy
 

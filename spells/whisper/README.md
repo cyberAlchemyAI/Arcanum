@@ -53,6 +53,7 @@ The first proof target is a Substack post for an Arcanum research group. Fundrai
 | `composition_plan` | Whisper | plan phase | transport audition, draft phase, review |
 | `surface_map` | Whisper | transport selection, composition plan | transport audition, draft phase, validation |
 | `language_audition` | Whisper | transport audition | full draft, validation |
+| `intent_state` | Whisper | intake, operator correction, intent receipt | composition plan, derivative generation, observability |
 | `draft_artifact` | Whisper | draft phase | validation, revision |
 | `learning_residue` | Whisper | validation, reflection | future composition runs |
 
@@ -66,7 +67,7 @@ Whisper treats composition as an artifact state machine, not as a loose sequence
 | `transport_schema` | transport contract | transport selection | composition plan, validation | required body parts, length, evidence, introduction, ending, and CTA policy are named |
 | `scu_candidate_set` | primitive/technique tournament | distill tournament | Pareto consensus | each candidate combines resonance, relevance, and trajectory rather than optimizing one category repeatedly |
 | `pareto_consensus` | selection decision | candidate tournament | composition plan | selected set is non-dominated across resonance, relevance, trajectory, and cost |
-| `composition_plan` | construction plan | plan phase | draft phase, review | body parts, sequence, anchor, examples, and validation checklist are ready |
+| `composition_plan` | construction plan | plan phase | draft phase, review | body parts, sequence, anchor, examples, validation checklist, and the delivery-flow map for public-facing work are ready |
 | `surface_map` | transport surface contract | transport selection, plan phase | transport audition, draft phase, validation | audience-facing, presenter-facing, and authoring-only content have distinct owners |
 | `language_audition` | early transport proof | transport audition | full draft, validation | representative moments pass transport-specific review before full artifact generation |
 | `draft_artifact` | text artifact | draft phase | validation, revision | draft exists, names its schema source, and preserves known citation gaps |
@@ -102,9 +103,9 @@ This keeps review feedback addressable enough for the next Whisper revision pass
 | 1. Transport and intent intake | `structured-interview-kits` | raw author intent | selected transport and blocker decisions | transport, objective, target public, and success signal are named | Ask one focused question; block only when target text cannot be identified. |
 | 2. Substrate distillation | `distill` | intake record | `text_intent_substrate` with resonance, relevance, and trajectory cores | each core has named values and recomposes into the target artifact | Flag unsupported assumptions; route consequential uncertainty to `decision-gate`. |
 | 3. SCU candidate tournament | `distill` | substrate and transport schema | candidate primitive/technique sets | one balanced candidate preserves Pareto trade-offs across all three cores | Keep stable disagreement in the ledger; do not optimize only tone/style. |
-| 4. Composition plan | Whisper | selected candidate set | body-part plan, surface map, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, constraints, and transport-owned surfaces | Revise plan if it violates transport schema or leaves a surface owner ambiguous. |
-| 5. Transport audition | Whisper | composition plan and surface map | smallest representative transport sample | required sample moments pass transport-specific review; live presentations require explicit operator voice approval | Stop before full generation when the audition is flagged, blocked, or unapproved. |
-| 6. Draft and review | Whisper | approved audition and composition plan | draft text and review notes | draft passes constraint, audience, resonance, structure, and transport-specific checks | Produce revision tasks or return flag when quality is below target. Browser or rendering checks cannot promote editorial status. |
+| 4. Composition plan | Whisper | selected candidate set | body-part plan, surface map, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, constraints, transport-owned surfaces, and the default delivery-flow extension for public-facing work | Keep authoring intent out of audience surfaces; stop derivative fan-out while intent is volatile. |
+| 5. Transport audition | Whisper | composition plan and surface map | smallest representative transport sample | required sample moments pass transport-specific review; live presentations require explicit operator voice approval | Stop before full generation when the audition is flagged, blocked, or unapproved. An audition cannot prove a transport. |
+| 6. Draft and review | Whisper | approved audition and composition plan | draft text and review notes | draft passes constraint, audience, resonance, structure, default delivery-flow checks for public-facing work, and transport-specific checks | Produce revision tasks or return flag when quality is below target. Browser, rendering, or density checks cannot promote editorial status. |
 | 7. Learning residue | Whisper | final or flagged draft | reusable lessons, technique results, unresolved gaps | residue distinguishes observed result from canonical truth | Defer promotion to inventory or glossary owners when durable knowledge appears. |
 
 ## SCU Core Model
@@ -132,6 +133,40 @@ Transport availability is not transport proof. A transport listed as a possible
 output remains unproven until it has a transport contract, representative
 fixtures, and validation evidence. Candidate transports must return `flag`
 rather than `pass` when their required human or experiment gate has not run.
+
+## Convergence And Delivery Guardrail
+
+Whisper tracks intent as `forming`, `volatile`, or `frozen`. A correction that
+changes a meaning core, or two related corrections in one transport, makes the
+intent volatile. While volatile, update only the intent substrate, surface map,
+composition plan, and smallest language audition. Do not fan out full HTML,
+slides, video, review projections, or learning residue. A frozen intent receipt
+is authoring-only; its explanatory language must never be copied directly into
+audience text.
+
+Public-facing transport profiles use the candidate
+`readability_dynamics.delivery_flow` extension by default. A profile may opt out
+only with a recorded reason. When active:
+
+1. Give each audience block one job: new meaning, consequence, action, or
+   transition.
+2. Map the reading sequence as entry, new information, consequence, and
+   transition; remove a step when it does not earn the next.
+3. Compress structure before editing sentences: remove repeated theses,
+   heading/body paraphrases, duplicate mechanism explanations, and endings that
+   only repeat the opening.
+4. Audition three transport-owned moments before full derivative generation.
+
+Executable checks may flag configured intent-narration phrases and duplicate
+prose blocks. Semantic repetition, reading flow, and preservation of
+load-bearing examples remain editorial judgments. A successful delivery
+audition improves editorial confidence but cannot promote an unproven transport
+beyond `flag`.
+
+Use a `retell_chain` only when the text explains a mechanism or lifecycle, or
+asks a participant to enter one. In that case, test whether the audience can
+retell the input or invitation, transformation, immediate consequence, and
+later lifecycle or limit. Other transports do not inherit this structure.
 
 ## Preset Extensions
 
@@ -210,9 +245,14 @@ Record spell-level telemetry when `.arcanum/observability/` exists:
 - candidate set count,
 - gates passed, flagged, or blocked,
 - draft artifact status,
+- transport proof status and human gate,
+- intent state and derivative fan-out count,
 - validation result,
-- user corrections, including append-only correction events when a prior pass is rejected,
+- user corrections and correction scope, including append-only correction events when a prior pass is rejected,
 - learning residue and next transport pressure.
+
+Whisper owns the values it emits. Shared envelope fields, ledger projections,
+workflow-gap schema, and consumer migration remain observability-owner work.
 
 ## Output Contract
 
@@ -226,11 +266,13 @@ Return:
 - Transport proof status: proven | candidate | unproven
 - Objective: <author objective>
 - Target public: <audience>
+- Intent state: forming | volatile | frozen
 - SCU cores: <resonance | relevance | trajectory summary>
 - Candidate selected: <candidate id and rationale>
 - Composition plan: <sections or body parts>
 - Draft status: pass | flag | block
 - Human gate: approved | rejected | pending | not_applicable
+- Delivery flow: active | inactive | not_applicable
 - Validation: <checks and result>
 - Learning residue: <durable lessons or none>
 - Next route: revise | publish-prep | task-session | decision-gate | deferred
