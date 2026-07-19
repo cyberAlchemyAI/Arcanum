@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "receipt_id": "distill-receipt-001",
+  "run_id": "distill-run-001",
+  "request_ref": {
+    "path": "development/runs/distill-run-001/request.json",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "size_bytes": 512
+  },
+  "event_refs": ["event-001", "event-002"],
+  "role_trace": [
+    {
+      "role": "proposer",
+      "execution_path": "true_subagent",
+      "invocation_ref": "agent-proposer-001",
+      "evidence_refs": ["event-001"],
+      "result_ref": {
+        "path": "development/runs/distill-run-001/proposer.md",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "size_bytes": 256
+      }
+    },
+    {
+      "role": "balancer",
+      "execution_path": "true_subagent",
+      "invocation_ref": "agent-balancer-001",
+      "evidence_refs": ["event-002"],
+      "result_ref": {
+        "path": "development/runs/distill-run-001/balancer.md",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "size_bytes": 320
+      }
+    }
+  ],
+  "objections": [
+    { "statement": "The receipt cannot authorize handoff.", "evidence_refs": ["event-002"] }
+  ],
+  "reconciliations": [
+    { "statement": "Keep authorization validator-owned.", "evidence_refs": ["event-001", "event-002"] }
+  ],
+  "technique_trace": [
+    { "technique": "design-standard", "status": "applied", "evidence_refs": ["event-001"] }
+  ],
+  "termination": { "reason": "round_budget_satisfied", "round_count": 2 },
+  "verdict": "pass",
+  "gaps": [],
+  "recomposition": {
+    "summary": "The proposal preserves validator-owned authorization.",
+    "result_ref": {
+      "path": "development/runs/distill-run-001/recomposition.md",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "size_bytes": 384
+    }
+  },
+  "next_route": { "capability": "invoke", "status": "ready" },
+  "reviewed_input_provenance": [
+    {
+      "path": "development/example-input.md",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size_bytes": 128
+    }
+  ]
+}

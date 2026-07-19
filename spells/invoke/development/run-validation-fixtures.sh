@@ -523,12 +523,17 @@ run_plan_split_fixture() {
 	require_pattern "$expected" 'Per-layer planning: L0, L1, L2, L3' "$label expected per-layer planning"
 	require_pattern "$expected" 'Implementation detail: task specs complete' "$label expected implementation detail status"
 	require_pattern "$expected" 'Smallest working units: complete' "$label expected SWU status"
+	require_pattern "$expected" 'SWU atomicity: pass, task-shaped count 0' "$label expected SWU atomicity"
+	require_pattern "$expected" 'First-unit narrowness: pass' "$label expected first-unit narrowness"
 	require_pattern "$expected" 'Execution-pack|execution-pack' "$label expected execution-pack handoff"
 	require_pattern "$expected" '## Per-Layer Planning Slices' "$label per-layer slice heading"
 	require_pattern "$expected" '## Implementation Detail Specs' "$label implementation detail specs heading"
 	require_pattern "$expected" '## Smallest Working Units' "$label SWU heading"
+	require_pattern "$expected" '## SWU Atomicity Review' "$label SWU atomicity heading"
 	require_pattern "$expected" '## Dispatch Technique Trace' "$label dispatch technique trace heading"
 	require_pattern "$expected" '## Distill Validation' "$label distill validation heading"
+	require_pattern "$expected" 'SWU atomicity and split analysis' "$label atomicity distill check"
+	require_pattern "$expected" 'First-unit narrowness' "$label first-unit distill check"
 	require_pattern "$expected" '\| L0 \|' "$label L0 slice"
 	require_pattern "$expected" '\| L1 \|' "$label L1 slice"
 	require_pattern "$expected" '\| L2 \|' "$label L2 slice"
@@ -550,6 +555,31 @@ run_plan_split_fixture() {
 	require_pattern "$PLAN_CONTRACT" 'Each SWU maps to exactly one parent task' "$label contract SWU parent gate"
 	require_pattern "$PLAN_CONTRACT" 'Algorithmic or domain-logic tasks must include algorithm steps or pseudocode' "$label contract algorithm detail gate"
 	require_pattern "$PLAN_CONTRACT" 'Layer promotion must cite evidence from the previous layer' "$label contract promotion evidence"
+
+	if [[ "$failures" -eq 0 ]]; then
+		passed_fixtures+=("$label")
+		output_artifacts+=("${expected#$ROOT_DIR/}")
+		record "PASS: $label"
+	fi
+}
+
+run_plan_atomicity_block_fixture() {
+	local fixture="$1"
+	local expected="$2"
+	local label="$3"
+
+	require_file "$fixture"
+	require_file "$expected"
+	require_pattern "$fixture" 'Phase status: `block`' "$label fixture status"
+	require_pattern "$fixture" 'semantic shell, desktop grid, mobile navigation, and a' "$label bundled concerns"
+	require_pattern "$fixture" 'each has an independent browser or unit acceptance check' "$label independent child acceptance"
+	require_pattern "$expected" 'Phase status: block' "$label expected status"
+	require_pattern "$expected" 'SWU atomicity: block, task-shaped count 1' "$label atomicity verdict"
+	require_pattern "$expected" 'First-unit narrowness: block' "$label first-unit verdict"
+	require_pattern "$expected" 'Next route: plan repair' "$label repair route"
+	require_pattern "$PLAN_CONTRACT" 'Each SWU owns exactly one primary behavior or decision' "$label one-behavior contract"
+	require_pattern "$PLAN_CONTRACT" 'Each medium/high SWU must record a split analysis' "$label split-analysis contract"
+	require_pattern "$PLAN_CONTRACT" 'The first selected SWU must be the narrowest reversible trust-building step' "$label narrow-first contract"
 
 	if [[ "$failures" -eq 0 ]]; then
 		passed_fixtures+=("$label")
@@ -802,6 +832,11 @@ run_plan_split_fixture \
 	"$FIXTURE_DIR/INV-PLAN-SPLIT-001.md" \
 	"$FIXTURE_DIR/INV-PLAN-SPLIT-001.expected.md" \
 	'INV-PLAN-SPLIT-001'
+
+run_plan_atomicity_block_fixture \
+	"$FIXTURE_DIR/INV-PLAN-ATOMICITY-BLOCK-001.md" \
+	"$FIXTURE_DIR/INV-PLAN-ATOMICITY-BLOCK-001.expected.md" \
+	'INV-PLAN-ATOMICITY-BLOCK-001'
 
 run_fixture \
 	"$FIXTURE_DIR/INV-PLAN-BLOCK-001.md" \

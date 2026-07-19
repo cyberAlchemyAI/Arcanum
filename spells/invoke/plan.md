@@ -128,6 +128,9 @@ Before returning a pass or flag plan, run Distill in validate mode over:
 Distill validation must inspect:
 
 - smallest coherent unit or SWU boundary,
+- SWU atomicity: one primary behavior, one independently reviewable acceptance boundary, and no bundled responsive, projection, interaction, or region changes that can pass separately,
+- split analysis for every medium/high SWU, including candidate child units and the reason the retained boundary is still the smallest coherent executable unit,
+- first-unit narrowness: the selected first SWU is the smallest reversible trust-building step, not a task-shaped bundle,
 - recomposition proof into the approved design,
 - hidden acceptance-critical gaps,
 - overbuilt abstractions or premature future scale,
@@ -176,6 +179,10 @@ Work-pack tables must be navigable. Task-board task IDs should link to task cont
 - Medium and high complexity plans must include a shared SWU manifest and task-local SWU lists.
 - SWU IDs use `SWU-{FEATURE-CODE}-{NNN}` when a feature code is known; otherwise use a stable local code derived from the work-pack name.
 - Each SWU maps to exactly one parent task.
+- Each SWU owns exactly one primary behavior or decision and has one independently reviewable acceptance boundary. Shared files do not make otherwise independent behaviors atomic.
+- Each medium/high SWU must record a split analysis: name plausible child units, then explain why splitting further would break executability, acceptance closure, or semantic coherence. If plausible child units can pass independently, split the SWU.
+- A SWU is task-shaped and must block when it bundles independently verifiable concerns such as semantic structure, responsive layout, state projection, interaction behavior, or multiple workspace regions under one goal.
+- The first selected SWU must be the narrowest reversible trust-building step. It must not combine baseline structure with later responsive, projection, or interaction work merely to preserve task order.
 - Each SWU must include goal, dependencies, write scope, done criteria, acceptance evidence, and verification command or reviewable check.
 - Each SWU must include an execution-owner recommendation: `subagent`, `local-fallback`, or `manual`.
 - Each SWU must include a handoff note with the exact context needed by a worker or subagent.
@@ -193,6 +200,9 @@ Invoke plan must make every non-exempt SWU assignable by providing:
 
 - one parent task,
 - one objective,
+- one primary behavior or decision,
+- one independently reviewable acceptance boundary,
+- split analysis with candidate child units and retained-boundary rationale,
 - explicit dependencies,
 - explicit write scope,
 - done criteria,
@@ -279,6 +289,8 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - Medium/high complexity plans must include explicit waves that map to L0-L3 layer decisions.
 - Medium/high complexity plans must include implementation-detail specs for execution tasks.
 - Medium/high complexity plans must include SWU decomposition for non-exempt execution tasks.
+- Medium/high SWUs must pass atomicity, independent-acceptance, and split-analysis checks; task-shaped SWUs block mutation-capable handoff.
+- The first selected SWU must pass the narrow-first-unit gate.
 - Algorithmic or domain-logic tasks must include algorithm steps or pseudocode, inputs, outputs, edge cases, failure modes, and validation evidence.
 - Medium/high complexity plans must include execution-pack handoff or a recorded blocker.
 - Validation strategy is required for every delivery slice.
@@ -331,6 +343,8 @@ When `.arcanum/observability/` exists, record:
 - layer-mapped wave status for medium/high complexity,
 - implementation-detail coverage status,
 - SWU coverage status,
+- SWU atomicity status and task-shaped SWU count,
+- first-unit narrowness status,
 - gates passed, flagged, or blocked,
 - artifact-redundancy gaps,
 - navigation-efficiency gaps,
@@ -363,9 +377,18 @@ Return:
 - Per-layer planning: compact | layer-mapped waves | blocked
 - Implementation detail: inline | task specs complete | detail gaps recorded | blocked
 - Smallest working units: n/a | complete | gaps recorded | blocked
+- SWU atomicity: n/a | pass | flag | block, task-shaped count <n>
+- First-unit narrowness: n/a | pass | flag | block
 - Template/profile selection: <selected templates and eligibility evidence>
 - Validation strategy: <summary>
 - Decisions: <summary>
 - Unresolved gaps: <summary>
 - Next route: task-session | full | spellcraft | sigil-development | deferred
 ```
+
+## Evidence Capability Contract
+
+Active plan output must carry `execution_path`, `dispatch_trace`, `work_pack`,
+`implementation_layering`, `swu_manifest`, `validation_strategy`, `result`, and `next_route`
+evidence. Plan Distill is required and must pass. The validator result, not an authored handoff
+label, controls mutation readiness.

@@ -202,3 +202,10 @@ Return:
 - Unresolved gaps: <invoke gaps; target artifact gaps>
 - Next route: task-session | workflow-reflect | invoke plan | deferred
 ```
+
+## Evidence Capability Contract
+
+Active refresh output must carry `execution_path`, `dispatch_trace`, `source_evidence`,
+`target_inventory`, `mutation_mode`, `result`, and `next_route` evidence. A conditional Distill
+skip requires a rationale. The validator result, not an authored handoff label, controls mutation
+readiness.

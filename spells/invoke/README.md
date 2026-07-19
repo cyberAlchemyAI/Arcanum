@@ -43,6 +43,14 @@ Invoke does not require deprecated command files, slash commands, or command-res
 | `full`     | deferred         | [full.md](./full.md)         | Composite execution mode, pending L2 and L3 readiness. |
 | `validate` | deferred         | [validate.md](./validate.md) | Lifecycle validation mode, pending L3.                 |
 
+## Evidence Capability Contract
+
+The machine-readable capability table is [mode-capabilities.json](./mode-capabilities.json).
+The capability gate resolves mode readiness before lifecycle processing. Deferred `full` and
+`validate` return `unsupported` without evaluating Dispatch or Distill and never grant mutation
+handoff authority. Active modes expose evidence obligations; a later mode-composition phase must
+consume those obligations before routing.
+
 ## Core Required Sigils
 
 | Sigil                       | Role In Spell                                                         | Required Mode  |
@@ -133,7 +141,7 @@ Do not list techniques as decoration. A technique citation that does not affect 
 
 ## Distill Validation
 
-Plan, full, and validate must run automatic Distill validation against the draft implementation plan, layering artifact, work-pack, and handoff route before reporting mutation-capable readiness. Distill validation checks whether the selected unit is small enough to execute, large enough to preserve meaning, recomposes into the approved design, exposes hidden gaps, and avoids overbuilt or vague task structure.
+Plan, full, and validate must run automatic Distill validation against the draft implementation plan, layering artifact, work-pack, and handoff route before reporting mutation-capable readiness. Distill validation checks whether the selected unit is small enough to execute, large enough to preserve meaning, owns one primary behavior with an independently reviewable acceptance boundary, records why it cannot be split further, recomposes into the approved design, exposes hidden gaps, and avoids overbuilt or vague task structure. The first selected SWU must be the narrowest reversible trust-building step, not a task-shaped bundle.
 
 Distill verdict handling:
 
@@ -231,7 +239,8 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
 - Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
 - Medium/high complexity plans must include implementation-detail specs for execution tasks, and algorithmic or domain-logic tasks must document inputs, outputs, ordered rules or pseudocode, edge cases, failure modes, and validation evidence.
-- Medium/high complexity work-packs must include Smallest Working Units: a shared SWU manifest, task-local SWU lists, one parent task per SWU, write scope, acceptance evidence, and verification command or reviewable check.
+- Medium/high complexity work-packs must include Smallest Working Units: a shared SWU manifest, task-local SWU lists, one parent task per SWU, one primary behavior, one independently reviewable acceptance boundary, split analysis, write scope, acceptance evidence, and verification command or reviewable check.
+- Medium/high SWUs that bundle independently verifiable structure, responsive layout, state projection, interaction behavior, or workspace regions are task-shaped and block mutation-capable handoff.
 - Vague task labels such as "implement this bundle" are not execution-ready unless backed by implementation-detail specs.
 - Layer promotion requires evidence from the previous layer, not preference alone.
 - Candidate glossary or registry promotion is never automatic.

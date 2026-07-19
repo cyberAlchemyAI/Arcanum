@@ -27,6 +27,8 @@ This template is standalone at invoke scope and is composed by the DomainSpec im
 | layeringArtifactRef | {path or n/a} | Should reference implementation-layering.md. |
 | dispatchTechniqueTrace | {technique ids or path} | Required Invoke plan technique trace; cite only techniques that affect gates, evidence, handoff, or gaps. |
 | distillValidationStatus | pass, flag, block, or skipped | Required for Invoke plan/full/validate before mutation-capable handoff. |
+| swuAtomicityStatus | pass, flag, block, or n/a | Required for medium/high plans; task-shaped SWUs block handoff. |
+| firstUnitNarrownessStatus | pass, flag, block, or n/a | Required before selecting the first mutation-capable SWU. |
 | activeLayerWindow | L0, L1, L2, L3, or n/a | Primary layer focus for current execution slice. |
 | lastUpdatedAt | {iso-timestamp} | Last update time for this work-pack. |
 | readinessProfile | pilot, release-candidate, production | Completion target profile. |
@@ -87,11 +89,19 @@ When `outputMode = split`, each `work-pack/tasks/TASK-*.md` file must include:
 - dependencies,
 - blocker/gap state,
 - Smallest Working Units,
-- for each SWU: dependencies, source anchors, related context hints, write scope, done criteria, acceptance evidence, validation surface, execution owner, and handoff note,
+- for each SWU: primary behavior, independent acceptance boundary, split analysis, dependencies, source anchors, related context hints, write scope, done criteria, acceptance evidence, validation surface, execution owner, and handoff note,
 - synchronization rules,
 - completion evidence.
 
 Placeholder task files are not execution-ready. If task files exist but do not include the task-local SWU execution contract, set `workPackGateStatus = block`.
+
+## SWU Atomicity Review
+
+| SWU ID | Primary Behavior Or Decision | Independent Acceptance Boundary | Candidate Child Units | Retained-Boundary Rationale | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| SWU-{FEATURE-CODE}-001 | {one behavior or decision} | {evidence that can pass without sibling behavior} | {plausible splits considered} | {why further split breaks executable semantic closure} | pass, flag, or block |
+
+If candidate child units can pass independently, split the SWU. Shared files, one parent task, or sequential convenience do not prove atomicity. The first selected SWU must also be the narrowest reversible trust-building step.
 
 ## SWU Execution Handoff
 
@@ -122,6 +132,8 @@ For SWUs intended for Task Session or runtime-goal handoff, `Source Anchors` and
 | Check | Result | Evidence Or Gap |
 | --- | --- | --- |
 | Smallest coherent unit or SWU boundary | pass, flag, or block | {evidence or named gap} |
+| SWU atomicity and split analysis | pass, flag, or block | {task-shaped count, candidate splits, and retained-boundary rationale} |
+| First-unit narrowness | pass, flag, or block | {first selected SWU and why it is the narrowest reversible step} |
 | Recomposition proof | pass, flag, or block | {evidence or named gap} |
 | Hidden acceptance-critical gaps | pass, flag, or block | {none or named gaps} |
 | Deferred complexity | pass, flag, or block | {what was deferred and why} |
@@ -156,6 +168,8 @@ Split mode:
 8. Any runtime-goal SWU missing source anchors or related-context hints needed for Context Builder handoff-pack generation keeps gate status at block.
 9. Any task with multiple SWUs must select one SWU before mutation-capable execution.
 10. Parallel SWUs must have disjoint write scopes or an explicit merge plan.
+11. Medium/high SWUs must own one primary behavior, have an independently reviewable acceptance boundary, and include split analysis; task-shaped SWUs keep the gate blocked.
+12. The first selected SWU must pass the narrow-first-unit gate.
 
 ## Handoff To Execution Pack
 

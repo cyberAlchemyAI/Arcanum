@@ -188,3 +188,9 @@ Return:
 - Unresolved gaps: <summary>
 - Next route: plan | define | spellcraft | sigil-development | deferred
 ```
+
+## Evidence Capability Contract
+
+Active design output must carry `execution_path`, `dispatch_trace`, `source_contracts`,
+`template_selection`, `result`, and `next_route` evidence. A conditional Distill skip requires a
+rationale. The validator result, not an authored handoff label, controls mutation readiness.

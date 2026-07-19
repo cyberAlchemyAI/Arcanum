@@ -168,3 +168,10 @@ Return:
 - Unresolved gaps: <gaps or none>
 - Next route: <workflow-reflect | invoke define | invoke design | invoke full | research | task-session | spellcraft | sigil-development | deferred>
 ```
+
+## Evidence Capability Contract
+
+Active handoff output must carry `execution_path`, `dispatch_trace`, `source_session`,
+`context_builder`, `obligation_coverage`, `result`, and `next_route` evidence. A conditional
+Distill skip requires a rationale. The validator result, not an authored handoff label, controls
+mutation readiness.

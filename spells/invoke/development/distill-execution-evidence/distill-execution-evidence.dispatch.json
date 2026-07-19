@@ -1,0 +1,174 @@
+{
+  "dispatch_id": "invoke-distill-execution-evidence-v1",
+  "intent": {
+    "raw": "Define, design, and plan enforceable Distill execution evidence for Invoke.",
+    "objective": "Route accepted review findings through lifecycle acceptance, deterministic validation, mode integration, generated synchronization, and Workbench replay.",
+    "target_artifact": "arcanum/spells/invoke/development/distill-execution-evidence/WORK-PACK.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "artifact_contract_bridge",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "handle_handoff",
+    "residue_ledger",
+    "observability_grouping"
+  ],
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Accept or narrow the enforcement architecture",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": ["owner_boundary_check", "artifact_contract_bridge", "scu_swu_reduction", "residue_ledger"],
+      "inputs": [
+        {"kind": "artifact", "ref": "arcanum/spells/invoke/development/distill-execution-evidence/DESIGN.md"},
+        {"kind": "ledger", "ref": "arcanum/spells/invoke/development/distill-execution-evidence/GAP-LEDGER.md"}
+      ],
+      "outputs": [
+        {"kind": "decision", "ref": "DEC-DEE-001 lifecycle result"},
+        {"kind": "ledger", "ref": "owned lifecycle residue"}
+      ],
+      "evidence_artifact": "spellcraft lifecycle receipt",
+      "stop_conditions": ["block implementation while DEC-DEE-001 is pending or rejected"]
+    },
+    {
+      "step_id": "S2",
+      "name": "Implement evidence contracts and validator",
+      "capability_ref": "task-session",
+      "pattern": "sequential",
+      "techniques": ["execution_receipt_handoff", "validation_loop", "concrete_path_evidence"],
+      "inputs": [
+        {"kind": "decision", "ref": "S1.DEC-DEE-001"},
+        {"kind": "artifact", "ref": "arcanum/spells/invoke/development/distill-execution-evidence/WORK-PACK.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "accepted receipt/event schemas and validator"},
+        {"kind": "artifact", "ref": "adversarial fixture results"}
+      ],
+      "evidence_artifact": "task-session SWU receipts",
+      "stop_conditions": ["block if fabricated evidence passes", "block if runtime events cannot be resolved"]
+    },
+    {
+      "step_id": "S3",
+      "name": "Compose Invoke modes and regenerate mirrors",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": ["artifact_contract_bridge", "owner_boundary_check", "validation_loop"],
+      "inputs": [
+        {"kind": "artifact", "ref": "S2 accepted validator contract"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "canonical and generated Invoke/Distill surfaces"}
+      ],
+      "evidence_artifact": "canonical/generated parity validation",
+      "stop_conditions": ["block on private prose in public Arcanum", "block on mirror drift"]
+    },
+    {
+      "step_id": "S4",
+      "name": "Replay Workbench and append superseding evidence",
+      "capability_ref": "task-session",
+      "pattern": "validation",
+      "techniques": ["recomposition_proof", "handle_handoff", "observability_grouping"],
+      "inputs": [
+        {"kind": "artifact", "ref": "S3 accepted runtime surface"},
+        {"kind": "artifact", "ref": "projects/ide-extension/development/workbench-ui-v1/WORK-PACK.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "superseding Workbench Distill validation record"},
+        {"kind": "trace_event", "ref": "append-only replay observability"}
+      ],
+      "evidence_artifact": "Workbench replay result",
+      "stop_conditions": ["preserve historical record", "block mutation handoff unless replay validator permits it"]
+    },
+    {
+      "step_id": "S5",
+      "name": "Run independent integrated closeout",
+      "capability_ref": "spellcraft",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "recomposition_proof", "residue_ledger", "owner_boundary_check"],
+      "inputs": [
+        {"kind": "artifact", "ref": "S3 canonical/generated parity evidence"},
+        {"kind": "artifact", "ref": "S4 Workbench replay result"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "integrated closeout receipt"},
+        {"kind": "ledger", "ref": "owned remaining residue"}
+      ],
+      "evidence_artifact": "independent closeout receipt",
+      "stop_conditions": ["block closeout on contract, fixture, parity, history, or boundary failure"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-lifecycle-acceptance",
+      "kind": "human_approval",
+      "owner": "spellcraft",
+      "condition": "DEC-DEE-001 accepts or narrows the proposed architecture before implementation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-semantic-evidence",
+      "kind": "validation",
+      "owner": "spellcraft",
+      "condition": "Schema-complete fabricated evidence is rejected by semantic and provenance validation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-public-private-boundary",
+      "kind": "validation",
+      "owner": "spellcraft",
+      "condition": "Canonical and generated public Arcanum surfaces contain no private authority prose.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-invoke-to-spellcraft",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "spellcraft",
+        "applies_to_steps": ["S1", "S3"],
+        "contract": "Invoke authors the package; Spellcraft accepts and mutates the spell lifecycle.",
+        "on_violation": "block",
+        "delegation_target": "spellcraft",
+        "input_contract": "define, design, dispatch, layering, work-pack, and gap artifacts",
+        "owner_boundary": "Invoke cannot approve or implement its own spell lifecycle revision.",
+        "blocked_fallback": "preserve the proposal and open residue without canonical mutation"
+      },
+      {
+        "boundary_id": "B2-validation-to-workbench",
+        "kind": "capability_handoff",
+        "from_owner": "spellcraft",
+        "to_owner": "task-session",
+        "applies_to_steps": ["S4"],
+        "contract": "Task Session may replay Workbench only after accepted validator and mirror evidence exist.",
+        "on_violation": "block",
+        "delegation_target": "task-session",
+        "input_contract": "accepted validator result, current Workbench package, and historical evidence reference",
+        "owner_boundary": "Task Session executes replay but cannot waive the validator gate.",
+        "blocked_fallback": "keep Workbench unverified and mutation handoff blocked"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "distill-evidence-stage-receipt",
+        "producer": "spellcraft, task-session, or deterministic validator",
+        "required_fields": ["run_id", "session_id", "artifacts", "validation_result", "audit_reference", "residue"],
+        "stores": ["work-pack task receipts", ".arcanum/observability when available"],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["lifecycle_decided", "validator_passed", "mirrors_regenerated", "workbench_replayed", "closeout_verified"],
+    "signal_grouping": "dispatch_id"
+  }
+}

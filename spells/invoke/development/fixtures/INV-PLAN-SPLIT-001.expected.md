@@ -19,6 +19,8 @@
 - Per-layer planning: L0, L1, L2, L3
 - Implementation detail: task specs complete
 - Smallest working units: complete
+- SWU atomicity: pass, task-shaped count 0
+- First-unit narrowness: pass
 - Template/profile selection: implementation-plan plus standalone implementation-layering, work-pack, and module-formulae execution-pack companions
 - Validation strategy: unit checks, fixture replay, governance checks, and release-readiness evidence mapped to every delivery slice
 - Decisions: use split work-pack; require execution-pack handoff; plan per-layer slices before execution
@@ -62,6 +64,13 @@
 | SWU-MHS-009 | TASK-L3-packaging | Group execution tasks by layer and dependency. | execution-pack wave manifest | wave dependency evidence | `run execution-pack review` |
 | SWU-MHS-010 | TASK-L3-release | Prepare task-session handoff route. | work-pack handoff and plan transport | handoff readiness evidence | `run handoff readiness review` |
 
+## SWU Atomicity Review
+
+| SWU ID | Primary Behavior Or Decision | Independent Acceptance Boundary | Candidate Child Units | Retained-Boundary Rationale | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| SWU-MHS-001 | Reject missing required intake fields. | Required-field fixture passes independently of normalization. | one child per required field | Fields share one admission decision and fixture oracle. | pass |
+| SWU-MHS-002 | Normalize category and urgency hints. | Normalized draft fixture passes independently. | category normalization; urgency normalization | Both values form one normalized intake record and share one output oracle. | pass |
+
 ## Dispatch Technique Trace
 
 | Technique ID | Applied To | Validation Expectation | Status |
@@ -77,6 +86,8 @@
 | Check | Result | Evidence Or Gap |
 | --- | --- | --- |
 | Smallest coherent unit or SWU boundary | pass | SWU-MHS-001 through SWU-MHS-010 each map to one parent task. |
+| SWU atomicity and split analysis | pass | Each SWU owns one primary behavior; candidate children either split into separate SWUs or share one inseparable output oracle. |
+| First-unit narrowness | pass | SWU-MHS-001 is the smallest reversible admission check and does not bundle normalization or state initialization. |
 | Recomposition proof | pass | L0-L3 slices recompose into the approved supply workflow. |
 | Hidden acceptance-critical gaps | pass | none blocking |
 | Deferred complexity | pass | release packaging remains L3 and execution remains deferred |

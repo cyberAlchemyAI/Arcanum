@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/distill-validation-result/1-0-0",
+  "title": "DistillValidationResult",
+  "description": "Structural shape for a validator-owned result. This schema cannot establish validator identity, resolve evidence, or authorize mutation by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "validation_result_id",
+    "validator_version",
+    "receipt_ref",
+    "status",
+    "checks",
+    "diagnostics",
+    "owned_gaps",
+    "mutation_handoff_allowed"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "validation_result_id": { "type": "string", "minLength": 1 },
+    "validator_version": { "type": "string", "minLength": 1 },
+    "receipt_ref": { "$ref": "#/$defs/exactArtifactRef" },
+    "status": { "enum": ["pass", "flag", "block"] },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "status", "evidence_refs"],
+        "properties": {
+          "check_id": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["pass", "flag", "block"] },
+          "evidence_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "diagnostics": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "owned_gaps": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "mutation_handoff_allowed": { "type": "boolean" }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
