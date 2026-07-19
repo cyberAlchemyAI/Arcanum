@@ -1,17 +1,17 @@
 # Whisper Result
 
 - **Spell:** whisper
-- **Transport:** `live_presentation` with companion essay trilogy
-- **Transport proof status:** candidate; structurally and editorially validated, not learner-proven
-- **Objective:** Let a beginner infer the need for Craft by making choices, seeing consequences, and naming each concept only after it becomes useful.
+- **Transport:** `live_presentation`
+- **Transport proof status:** candidate; structurally and visually validated, not learner-proven
+- **Objective:** Let beginners construct the sketch-schema relation, then transfer it to software that helps people write.
 - **Target public:** Beginning developers with some experience asking an AI to build software.
-- **Resonance core:** Curious, concrete, calm, and free of shame; uncertainty is something to inspect.
-- **Relevance core:** A physical table provides a visible causal witness, then a student dashboard turns the same reasoning into a familiar coding problem.
-- **Trajectory core:** Choice -> artifact -> failed check -> bounded lower build -> return -> software recognition -> name the method.
-- **Candidate selected:** Persistent causal witness with delayed naming.
-- **Composition plan:** Approved language audition, three cumulative essays, fourteen slides with thirty-two interaction states, one authoritative YAML model, and one browser-tested HTML deck.
-- **Human gate:** approved on 2026-07-11.
-- **Draft status:** pass for editorial, source-boundary, schema-parity, and browser checks; pedagogical effectiveness remains untested with learners.
-- **Validation:** Audience-facing copy is separated from speaker notes and authoring metadata; slide 2 explains both design profiles before opening Mentimeter, then carries the vote into the desk's history; 391 Playwright assertions pass across four viewports with zero local deck console errors.
-- **Learning residue:** A presentation can preserve the right causal sequence and still fail when its construction metadata becomes projected language. Live presentation work now requires an approved opening/tension/reveal audition before full generation.
-- **Next route:** beginner learner trial for independent choice, explanation, delayed recall, and software transfer.
+- **Resonance core:** Practical, participatory, and cumulative; each reveal uses something the room already produced.
+- **Relevance core:** Building a familiar table makes the need for selected parts, dimensions, relations, and checks visible without theory-first language.
+- **Trajectory core:** Table question -> private thought -> word cloud -> buildable sketch -> schema -> writing mold -> adaptable structure.
+- **Candidate selected:** One analogy that changes domain only after its relation is understood.
+- **Composition plan:** Five slides, eleven interaction states, one live word cloud, one earned term, and one explicit challenge to a universal text outline.
+- **Human gate:** refreshed direction approved by the operator; final read-aloud review remains pending.
+- **Draft status:** flag until the supplied Mentimeter passes a live-response preflight and the table-to-writing transition is reviewed aloud.
+- **Validation:** YAML/HTML parity, state transitions, formal-term boundary, browser interactions, responsive layout, and console behavior are validated separately in `VALIDATION-REPORT.md`.
+- **Learning residue:** A sketch is not introduced as decoration. Learners first use it to preserve what a build needs, then recognize that writing software needs an equivalent structure between author intent and generated sentences.
+- **Next route:** operator read-aloud review, Mentimeter participation preflight, then a beginner trial focused on whether learners can explain both sides of the analogy without reciting the slide.

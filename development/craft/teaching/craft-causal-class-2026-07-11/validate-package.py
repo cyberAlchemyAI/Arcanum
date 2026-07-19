@@ -18,6 +18,14 @@ FORBIDDEN_PROJECTED_PHRASES = {
     "story state",
     "consequence",
 }
+EXPECTED_SLIDE_IDS = [f"CRAFT-CAUSAL-S{index:02d}" for index in range(1, 6)]
+LATER_LESSON_TERMS = {
+    "artifact",
+    "validation",
+    "residue",
+    "craft layer",
+    "recomposition",
+}
 
 
 class DeckParser(HTMLParser):
@@ -58,8 +66,39 @@ def main():
         raise SystemExit("HTML deck digest differs from YAML authority")
 
     slide_ids = [slide["id"] for slide in deck["slides"]]
+    if slide_ids != EXPECTED_SLIDE_IDS:
+        raise SystemExit("first presentation must contain exactly slides S01 through S05")
     if len(slide_ids) != len(set(slide_ids)):
         raise SystemExit("duplicate slide id")
+
+    if deck.get("formal_terms") != ["schema"]:
+        raise SystemExit("first presentation must earn only schema")
+
+    earned_terms = [
+        (slide["id"], state["id"], state.get("earned_term"))
+        for slide in deck["slides"]
+        for state in slide["states"]
+        if state.get("earned_term") is not None
+    ]
+    expected_earned_terms = [("CRAFT-CAUSAL-S03", "S03-SCHEMA", "schema")]
+    if earned_terms != expected_earned_terms:
+        raise SystemExit("schema must be earned once, in the final state of slide S03")
+
+    opening = deck["slides"][0]
+    opening_states = [state["visual_state"] for state in opening["states"]]
+    if opening["visual"] != "table-question":
+        raise SystemExit("the first slide must frame the table-building question")
+    if opening_states != ["table", "cloud", "gathered"]:
+        raise SystemExit("opening interaction must follow table -> cloud -> gathered")
+
+    cloud_states = [
+        (slide["id"], state["id"])
+        for slide in deck["slides"]
+        for state in slide["states"]
+        if state["visual_state"] == "cloud"
+    ]
+    if cloud_states != [("CRAFT-CAUSAL-S01", "S01-CLOUD")]:
+        raise SystemExit("the Mentimeter word cloud must appear once, on slide S01")
 
     surfaces = deck.get("surface_contract", {})
     if surfaces.get("authoring_metadata_may_be_projected") is not False:
@@ -80,6 +119,11 @@ def main():
                 [state["learner_prompt"], *[str(item) for item in state["visible"]]]
             ).lower()
             projected = f"{projected_slide} {projected_state}"
+            leaked_later_terms = sorted(term for term in LATER_LESSON_TERMS if term in projected)
+            if leaked_later_terms:
+                raise SystemExit(
+                    f"later-lesson term leaked into {state['id']}: {', '.join(leaked_later_terms)}"
+                )
             leaked = [phrase for phrase in FORBIDDEN_PROJECTED_PHRASES if phrase in projected]
             if leaked:
                 raise SystemExit(f"authoring language leaked into {state['id']}: {', '.join(leaked)}")

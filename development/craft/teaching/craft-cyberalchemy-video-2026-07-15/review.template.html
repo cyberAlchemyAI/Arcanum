@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Craft and CyberAlchemy Video Review</title>
+  <style>
+    :root {
+      --ink: #191919;
+      --muted: #66645f;
+      --paper: #f4f4f1;
+      --white: #ffffff;
+      --line: #d9d8d2;
+      --green: #146b55;
+      --red: #b63c32;
+      --blue: #245e9a;
+      --amber: #a96216;
+      --rail: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); color: var(--ink); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    button, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 76px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(244, 244, 241, 0.98);
+    }
+    .identity { min-width: 0; }
+    .eyebrow {
+      margin: 0 0 2px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .status { color: var(--green); font-weight: 800; }
+    .shell {
+      display: grid;
+      grid-template-columns: var(--rail) minmax(0, 1fr);
+      min-height: calc(100vh - 76px);
+    }
+    .rail {
+      border-right: 1px solid var(--line);
+      background: var(--white);
+      min-width: 0;
+    }
+    .rail-head {
+      padding: 18px 16px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .scene-list { padding: 0 8px 24px; }
+    .scene-button {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 48px;
+      padding: 7px 8px;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+    }
+    .scene-button:hover { background: var(--paper); }
+    .scene-button[aria-current="true"] {
+      border-left-color: var(--red);
+      background: #f7efed;
+    }
+    .scene-number { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .scene-name {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scene-duration { color: var(--muted); font-size: 12px; }
+    .workspace { min-width: 0; background: var(--white); }
+    .scene-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      padding: 28px clamp(20px, 4vw, 56px) 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .scene-meta { color: var(--blue); font-size: 12px; font-weight: 800; }
+    h2 {
+      margin: 4px 0 8px;
+      max-width: 900px;
+      font-size: 34px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+    .story-job { max-width: 800px; margin: 0; color: var(--muted); }
+    .nav-buttons { display: flex; align-items: flex-start; gap: 8px; }
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--ink);
+      font-size: 20px;
+    }
+    .icon-button:hover { border-color: var(--ink); }
+    .icon-button:disabled { cursor: default; opacity: 0.35; }
+    .visual-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(250px, 34%);
+      min-height: 230px;
+      border-bottom: 1px solid var(--line);
+    }
+    .visual-field {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 30px clamp(20px, 4vw, 56px);
+      background: #eef2f0;
+      border-right: 1px solid var(--line);
+    }
+    .visual-mode { color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .visual-title { max-width: 720px; font-size: 24px; font-weight: 760; line-height: 1.3; }
+    .concepts { color: var(--muted); font-size: 13px; }
+    .prior-model {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 28px;
+      background: #f8efed;
+    }
+    .prior-model strong { color: var(--red); font-size: 12px; text-transform: uppercase; }
+    .prior-model p { margin: 8px 0 0; font-size: 18px; line-height: 1.45; }
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      padding: 0 clamp(20px, 4vw, 56px);
+      background: var(--white);
+    }
+    .tab {
+      flex: 0 0 auto;
+      padding: 15px 14px 12px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 760;
+    }
+    .tab[aria-selected="true"] { border-bottom-color: var(--blue); color: var(--ink); }
+    .surface {
+      max-width: 1120px;
+      min-height: 330px;
+      padding: 30px clamp(20px, 4vw, 56px) 50px;
+    }
+    .surface h3 { margin: 0 0 14px; font-size: 14px; color: var(--muted); text-transform: uppercase; }
+    .voice-copy {
+      max-width: 820px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.62;
+    }
+    .copy-line, .prompt-block, .edit-row, .source-row {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .copy-text { margin: 0 0 5px; font-size: 20px; font-weight: 760; }
+    .copy-meta, .field-label { color: var(--muted); font-size: 12px; }
+    .prompt-text { margin: 6px 0 0; white-space: pre-wrap; }
+    .negative { color: var(--red); }
+    .comment-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 36%);
+      gap: 28px;
+      padding: 28px clamp(20px, 4vw, 56px);
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .comment-band h3 { margin: 0 0 12px; font-size: 16px; }
+    .comment-form { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 10px; }
+    select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--ink);
+    }
+    select { height: 40px; padding: 0 10px; }
+    textarea { min-height: 96px; padding: 10px; resize: vertical; }
+    .comment-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .command {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--white);
+      font-weight: 760;
+    }
+    .command.secondary { background: var(--white); color: var(--ink); border-color: var(--line); }
+    .comment-list { display: grid; gap: 10px; }
+    .comment-item { padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .comment-item p { margin: 5px 0 0; }
+    .empty { color: var(--muted); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-width: 860px) {
+      .topbar { position: static; align-items: flex-start; padding: 12px 14px; }
+      .stats { flex-direction: column; align-items: flex-end; gap: 2px; font-size: 12px; }
+      h1 { font-size: 17px; }
+      .shell { display: block; }
+      .rail { border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-head { display: none; }
+      .scene-list { display: flex; overflow-x: auto; padding: 8px; }
+      .scene-button { flex: 0 0 170px; border-left: 0; border-bottom: 3px solid transparent; }
+      .scene-button[aria-current="true"] { border-left-color: transparent; border-bottom-color: var(--red); }
+      .scene-head { padding: 22px 16px 18px; }
+      h2 { font-size: 27px; }
+      .visual-band { grid-template-columns: 1fr; }
+      .visual-field { min-height: 190px; border-right: 0; border-bottom: 1px solid var(--line); padding: 24px 16px; }
+      .prior-model { padding: 20px 16px; }
+      .tabs { padding: 0 8px; }
+      .surface { padding: 24px 16px 36px; }
+      .voice-copy { font-size: 20px; }
+      .comment-band { grid-template-columns: 1fr; padding: 24px 16px; }
+    }
+    @media (max-width: 520px) {
+      .topbar { gap: 8px; }
+      .stats span:not(.status) { display: none; }
+      .scene-head { grid-template-columns: 1fr; }
+      .nav-buttons { justify-content: flex-end; }
+      .comment-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script id="video-review-data" type="application/json">__VIDEO_DATA__</script>
+  <header class="topbar">
+    <div class="identity">
+      <p class="eyebrow">Whisper Video Review</p>
+      <h1 id="package-title"></h1>
+    </div>
+    <div class="stats" aria-label="Package status">
+      <span id="runtime-stat"></span>
+      <span id="word-stat"></span>
+      <span class="status">Voice approved</span>
+    </div>
+  </header>
+  <div class="shell">
+    <aside class="rail" aria-label="Video scenes">
+      <div class="rail-head">Scenes</div>
+      <nav class="scene-list" id="scene-list"></nav>
+    </aside>
+    <main class="workspace">
+      <section class="scene-head">
+        <div>
+          <div class="scene-meta" id="scene-meta"></div>
+          <h2 id="scene-title"></h2>
+          <p class="story-job" id="story-job"></p>
+        </div>
+        <div class="nav-buttons">
+          <button class="icon-button" id="prev-scene" type="button" title="Previous scene" aria-label="Previous scene">&larr;</button>
+          <button class="icon-button" id="next-scene" type="button" title="Next scene" aria-label="Next scene">&rarr;</button>
+        </div>
+      </section>
+      <section class="visual-band">
+        <div class="visual-field">
+          <div class="visual-mode" id="visual-mode"></div>
+          <div class="visual-title" id="visual-title"></div>
+          <div class="concepts" id="concepts"></div>
+        </div>
+        <div class="prior-model">
+          <strong>Prior model</strong>
+          <p id="prior-model"></p>
+        </div>
+      </section>
+      <div class="tabs" role="tablist" aria-label="Review surfaces">
+        <button class="tab" type="button" data-tab="voice" role="tab">Voice</button>
+        <button class="tab" type="button" data-tab="copy" role="tab">Screen copy</button>
+        <button class="tab" type="button" data-tab="visual" role="tab">Visual prompt</button>
+        <button class="tab" type="button" data-tab="edit" role="tab">Edit</button>
+        <button class="tab" type="button" data-tab="sources" role="tab">Sources</button>
+      </div>
+      <section class="surface" id="surface" role="tabpanel"></section>
+      <section class="comment-band">
+        <div>
+          <h3>Scene comment</h3>
+          <div class="comment-form">
+            <label>
+              <span class="sr-only">Issue type</span>
+              <select id="issue-type" aria-label="Issue type">
+                <option value="voice">Voice</option>
+                <option value="definition">Definition</option>
+                <option value="visual">Visual</option>
+                <option value="screen_copy">Screen copy</option>
+                <option value="evidence">Evidence</option>
+                <option value="edit">Edit</option>
+              </select>
+            </label>
+            <label>
+              <span class="sr-only">Comment</span>
+              <textarea id="comment-text" aria-label="Comment"></textarea>
+            </label>
+          </div>
+          <div class="comment-actions">
+            <button class="command" id="save-comment" type="button">Save comment</button>
+            <button class="command secondary" id="copy-surface" type="button">Copy current surface</button>
+          </div>
+        </div>
+        <div>
+          <h3>Comments <span id="comment-count">0</span></h3>
+          <div class="comment-list" id="comment-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById("video-review-data").textContent);
+      const storageKey = "video-review:" + data.review_id;
+      const state = { index: 0, tab: "voice", comments: [] };
+
+      const els = {
+        list: document.getElementById("scene-list"),
+        meta: document.getElementById("scene-meta"),
+        title: document.getElementById("scene-title"),
+        job: document.getElementById("story-job"),
+        mode: document.getElementById("visual-mode"),
+        visualTitle: document.getElementById("visual-title"),
+        concepts: document.getElementById("concepts"),
+        prior: document.getElementById("prior-model"),
+        surface: document.getElementById("surface"),
+        comments: document.getElementById("comment-list"),
+        count: document.getElementById("comment-count"),
+        text: document.getElementById("comment-text"),
+        issue: document.getElementById("issue-type"),
+        prev: document.getElementById("prev-scene"),
+        next: document.getElementById("next-scene")
+      };
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>\"]/g, function (char) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char];
+        });
+      }
+      function formatTime(seconds) {
+        return String(Math.floor(seconds / 60)).padStart(2, "0") + ":" + String(seconds % 60).padStart(2, "0");
+      }
+      function current() { return data.segments[state.index]; }
+      function load() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+          if (Array.isArray(parsed.comments)) state.comments = parsed.comments;
+        } catch (error) { state.comments = []; }
+      }
+      function persist() {
+        localStorage.setItem(storageKey, JSON.stringify({ comments: state.comments }, null, 2));
+      }
+      function keepInContainerView(container, item) {
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        if (itemRect.left < containerRect.left) container.scrollLeft -= containerRect.left - itemRect.left;
+        if (itemRect.right > containerRect.right) container.scrollLeft += itemRect.right - containerRect.right;
+        if (itemRect.top < containerRect.top) container.scrollTop -= containerRect.top - itemRect.top;
+        if (itemRect.bottom > containerRect.bottom) container.scrollTop += itemRect.bottom - containerRect.bottom;
+      }
+      function renderList() {
+        els.list.innerHTML = data.segments.map(function (segment, index) {
+          return '<button class="scene-button" type="button" data-index="' + index + '" aria-current="' + (index === state.index) + '">' +
+            '<span class="scene-number">' + String(index + 1).padStart(2, "0") + '</span>' +
+            '<span class="scene-name">' + escapeHtml(segment.title) + '</span>' +
+            '<span class="scene-duration">' + segment.duration_seconds + 's</span></button>';
+        }).join("");
+        els.list.querySelectorAll("[data-index]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            state.index = Number(button.dataset.index);
+            render();
+          });
+        });
+        const activeScene = els.list.querySelector('[aria-current="true"]');
+        if (activeScene) keepInContainerView(els.list, activeScene);
+      }
+      function surfaceHtml(segment) {
+        if (state.tab === "voice") {
+          return '<h3>Voice copy</h3><p class="voice-copy">' + escapeHtml(segment.voice_copy) + '</p>';
+        }
+        if (state.tab === "copy") {
+          return '<h3>On-screen copy</h3>' + segment.written_copy.map(function (item) {
+            return '<div class="copy-line"><p class="copy-text">' + escapeHtml(item.text) + '</p>' +
+              '<div class="copy-meta">' + escapeHtml(item.role) + ' / ' + escapeHtml(item.position) + ' / ' + item.display_seconds + 's</div></div>';
+          }).join("");
+        }
+        if (state.tab === "visual") {
+          return '<h3>Visual-model input</h3>' +
+            '<div class="prompt-block"><div class="field-label">Prompt</div><p class="prompt-text">' + escapeHtml(segment.visual_prompt) + '</p></div>' +
+            '<div class="prompt-block negative"><div class="field-label">Negative prompt</div><p class="prompt-text">' + escapeHtml(segment.negative_prompt) + '</p></div>' +
+            '<div class="prompt-block"><div class="field-label">Continuity assets</div><p class="prompt-text">' + escapeHtml(segment.continuity_assets.join(", ")) + '</p></div>';
+        }
+        if (state.tab === "edit") {
+          const fields = [
+            ["Camera and motion", segment.camera_and_motion],
+            ["Sound", segment.sound_direction],
+            ["Transition in", segment.transition_in],
+            ["Transition out", segment.transition_out],
+            ["Assembly", segment.editor_notes]
+          ];
+          return '<h3>Edit surface</h3>' + fields.map(function (field) {
+            return '<div class="edit-row"><div class="field-label">' + escapeHtml(field[0]) + '</div><div>' + escapeHtml(field[1]) + '</div></div>';
+          }).join("");
+        }
+        return '<h3>Claim and sources</h3><div class="source-row"><div class="field-label">Claim posture</div><div>' +
+          escapeHtml(segment.claim_posture) + '</div></div><div class="source-row"><div class="field-label">Source refs</div><div>' +
+          escapeHtml(segment.source_refs.join(", ")) + '</div></div>';
+      }
+      function renderComments() {
+        const comments = state.comments.filter(function (comment) { return comment.segment_id === current().segment_id; });
+        els.count.textContent = String(comments.length);
+        els.comments.innerHTML = comments.length ? comments.map(function (comment) {
+          return '<div class="comment-item"><div class="field-label">' + escapeHtml(comment.issue_type) + '</div><p>' + escapeHtml(comment.comment) + '</p></div>';
+        }).join("") : '<div class="empty">No comments for this scene.</div>';
+      }
+      function render() {
+        const segment = current();
+        renderList();
+        els.meta.textContent = segment.segment_id + " / " + segment.act_id + " / " + segment.duration_seconds + "s";
+        els.title.textContent = segment.title;
+        els.job.textContent = segment.story_job;
+        els.mode.textContent = segment.visual_mode + " / source clip " + segment.generation_clip_seconds + "s";
+        els.visualTitle.textContent = segment.visual_prompt.split(".")[0] + ".";
+        els.concepts.textContent = "Concepts: " + segment.concepts.join(" / ");
+        els.prior.textContent = segment.prior_model;
+        els.surface.innerHTML = surfaceHtml(segment);
+        document.querySelectorAll("[data-tab]").forEach(function (tab) {
+          const selected = tab.dataset.tab === state.tab;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.setAttribute("tabindex", selected ? "0" : "-1");
+          if (selected) keepInContainerView(tab.parentElement, tab);
+        });
+        els.prev.disabled = state.index === 0;
+        els.next.disabled = state.index === data.segments.length - 1;
+        renderComments();
+      }
+
+      document.getElementById("package-title").textContent = data.package.title + " / " + data.package.subtitle;
+      document.getElementById("runtime-stat").textContent = formatTime(data.runtime) + " runtime";
+      document.getElementById("word-stat").textContent = data.voice_words + " words";
+      document.querySelectorAll("[data-tab]").forEach(function (tab) {
+        tab.addEventListener("click", function () { state.tab = tab.dataset.tab; render(); });
+      });
+      els.prev.addEventListener("click", function () { if (state.index > 0) { state.index -= 1; render(); } });
+      els.next.addEventListener("click", function () { if (state.index < data.segments.length - 1) { state.index += 1; render(); } });
+      document.getElementById("save-comment").addEventListener("click", function () {
+        const comment = els.text.value.trim();
+        if (!comment) { els.text.focus(); return; }
+        state.comments.push({
+          comment_id: "c-" + Date.now().toString(36),
+          segment_id: current().segment_id,
+          issue_type: els.issue.value,
+          surface: state.tab,
+          comment: comment
+        });
+        els.text.value = "";
+        persist();
+        renderComments();
+      });
+      document.getElementById("copy-surface").addEventListener("click", function () {
+        navigator.clipboard.writeText(els.surface.innerText);
+      });
+      document.addEventListener("keydown", function (event) {
+        const tag = document.activeElement && document.activeElement.tagName;
+        if (tag === "TEXTAREA" || tag === "SELECT" || tag === "INPUT") return;
+        if (event.key === "ArrowLeft" && state.index > 0) { state.index -= 1; render(); }
+        if (event.key === "ArrowRight" && state.index < data.segments.length - 1) { state.index += 1; render(); }
+      });
+
+      window.VideoReview = {
+        getAgentPayload: function () {
+          return {
+            kind: "whisper_video_review_payload",
+            version: "0.1",
+            review_id: data.review_id,
+            package_id: data.package.package_id,
+            comments: state.comments,
+            selected_segment_id: current().segment_id,
+            selected_surface: state.tab
+          };
+        }
+      };
+      load();
+      render();
+    })();
+  </script>
+</body>
+</html>

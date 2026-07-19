@@ -1,29 +1,21 @@
-schema_version: "1.0.0"
+schema_version: "1.3.0"
 deck:
   id: craft-causal-class-2026-07-11
-  title: The Wobble We Chose
-  subtitle: A beginner class about making the next responsible move
+  title: From Table to Text
+  subtitle: A beginner class about sketches, schemas, and writing software
   audience: Beginning developers with some vibe-coding experience
-  objective: Learners make consequential choices, observe results, and name Craft only after using its pattern.
+  objective: Learners move from practical table-building needs to a buildable sketch, recognize the sketch as a schema, and transfer that relation to an adaptable schema for writing software.
   story:
-    object: A small bedroom desk
-    target: Fit a one-meter wall, hold a laptop and two books, and remain steady while typing.
-    persistent_constraint: The room is narrow, the floor is uneven, and only basic tools are available.
-    chosen_history: The class chooses fast corner attachments without side rails; the desk fits but wobbles sideways.
-    bounded_repair_scene: A shim levels one foot but does not close the sideways-stability mismatch.
-    lower_build: A stable leg-and-rail assembly
-    return_condition: The assembly passes local checks and the reassembled desk passes the original upper checks with lower residue.
-    software_transfer: A student assignment-summary panel must answer what is due, overdue, and returned.
+    table_question: What would you need to build this table?
+    collective_discovery: A Mentimeter word cloud gathers the room's materials, tools, measurements, and steps.
+    table_sketch: Selected answers become dimensions, parts, materials, and relations on one drawing.
+    schema_relation: The sketch is acting as a schema because it preserves structure that building and checking need.
+    software_transfer: A writing assistant needs the equivalent of a sketch before it generates text.
+    text_mold: Stable writing questions remain reusable while each text type supplies its own structure.
   formal_terms:
     - schema
-    - artifact
-    - validation
-    - residue
-    - craft layer
-    - recomposition
-    - Craft
   interaction_contract:
-    primary_sequence: witness -> learner choice or prediction -> consequence -> earned term -> check
+    primary_sequence: see table -> private answer -> live word cloud -> sketch -> earned schema -> writing analogy -> adaptable text mold
     one_input_one_transition: true
     terminal_states_reset_implicitly: false
     term_before_witness_allowed: false
@@ -31,7 +23,7 @@ deck:
   surface_contract:
     projected_copy: [slide title, learner prompt, visible details, earned term]
     spoken_copy: [speaker notes]
-    interaction_prompt: [learner prompt, reveal label]
+    interaction_prompt: [learner prompt, reveal label, Mentimeter word cloud]
     authoring_metadata: [chapter, story state, consequence, validation check, focus behavior, viewport contract]
     authoring_metadata_may_be_projected: false
   viewport_contract:
@@ -44,475 +36,166 @@ deck:
       - state survives scrolling and notes open in an overlay
   slides:
     - id: CRAFT-CAUSAL-S01
-      title: Before We Build
-      chapter: invitation
-      story_state: generic object becomes a bounded target
-      visual: table
-      focus_behavior: The scene owns Enter and Space while focused; events do not bubble to deck navigation.
+      title: What Would You Need to Build This Table?
+      chapter: practical opening
+      story_state: learners inspect one table and supply build needs before receiving categories
+      visual: table-question
+      focus_behavior: The first reveal mounts Mentimeter; the second reveal unmounts it and preserves the room's vocabulary.
       viewport:
-        desktop_required: [table, prompt, progress]
-        mobile_before_fold: [table, prompt, reveal control]
-      notes: "Put the table on screen and say: 'Imagine we have to build this today.' Give the room fifteen quiet seconds before revealing any build clues. Gather their answers into four groups, then choose one real job together: a small bedroom desk, built before dinner."
+        desktop_required: [table, word cloud, prompt, progress]
+        mobile_before_fold: [table or word cloud, prompt, reveal control]
+      notes: "Put the table on screen immediately. Give the room fifteen quiet seconds with the question. Then open the supplied Mentimeter word cloud and let everyone add one or two short answers. Read the growing cloud without correcting or sorting it. Bring the words back only after the audience has seen its own build list."
       states:
-        - id: S01-PAUSE
-          visual_state: plain
+        - id: S01-THINK
+          visual_state: table
           visible: []
-          learner_prompt: What would you need to build this?
-          reveal_label: Show clues
+          learner_prompt: Think for fifteen seconds before the word cloud appears.
+          reveal_label: Open the word cloud
           accepted_inputs: [pointer, enter, space]
-          transition_to: S01-BUCKETS
-          consequence: The familiar word opens into missing work.
+          transition_to: S01-CLOUD
+          consequence: The table remains the object while each learner forms an independent build list.
           earned_term: null
-          validation_check: Learners independently name at least two missing needs.
-        - id: S01-BUCKETS
-          visual_state: needs
-          visible: [materials, tools, measurements, order]
-          learner_prompt: The room starts calling out answers. They fall into four groups.
-          reveal_label: Make it concrete
+          validation_check: Learners independently name at least two things needed to build the table.
+        - id: S01-CLOUD
+          visual_state: cloud
+          visible: []
+          learner_prompt: Add one or two words. Watch the room build the list together.
+          reveal_label: Bring the words back
           accepted_inputs: [pointer, enter, space]
-          transition_to: S01-TARGET
-          consequence: Facts and choices begin to separate from supplies.
+          transition_to: S01-GATHERED
+          consequence: Private build needs become shared and visible.
           earned_term: null
-          validation_check: Learners distinguish a build fact from a shopping item.
-        - id: S01-TARGET
-          visual_state: bounded
-          visible: [pine boards and screws, drill and hand saw, 100 x 50 x 72 cm, finished before dinner]
-          learner_prompt: "So we choose one job: a small desk for a narrow bedroom."
+          validation_check: Multiple learners contribute before the presenter continues.
+        - id: S01-GATHERED
+          visual_state: gathered
+          visible: [materials, tools, measurements, steps]
+          learner_prompt: The room has found four kinds of things the build will need.
           accepted_inputs: []
           transition_to: null
-          consequence: The object now has a use, place, and boundary.
+          consequence: The audience's vocabulary is ready to be carried into a sketch.
           earned_term: null
-          validation_check: Learners explain why a dining table would be a different job.
+          validation_check: Learners place at least one contributed word in a useful group.
 
     - id: CRAFT-CAUSAL-S02
-      title: One Afternoon, Two Choices
-      chapter: choice
-      story_state: the class chooses a structural direction
-      visual: choice-poll
-      focus_behavior: Choice buttons own their activation; the scene reveal control handles only state progression.
+      title: Now Make the Sketch
+      chapter: buildable representation
+      story_state: selected build answers move from a list into one relational drawing
+      visual: annotated-sketch
+      focus_behavior: The annotation reveal owns input and preserves the completed sketch.
       viewport:
-        desktop_required: [two choices, target reminder, prompt]
-        mobile_before_fold: [target reminder, first choice, prompt]
-      notes: "Presenter preflight: remove the unconfigured Option 3 in Mentimeter, then open this slide and dismiss Mentimeter's cookie panel once. In class, first explain the profiles: a side rail is a board joining one leg to another beneath the tabletop. Then click Vote on Mentimeter. When the result settles, click Carry the result forward and record the corner-only path without warning the room about the wobble."
+        desktop_required: [rough sketch, build answers, annotations, prompt]
+        mobile_before_fold: [sketch, prompt, reveal control]
+      notes: "Bring forward the room's answers. Ask which answers must be visible on the drawing and which can stay beside it. Dimensions, materials, parts, and attachment relations change the sketch. The drill, saw, and work order guide the making but do not become the table's shape."
       states:
-        - id: S02-OPTIONS
-          visual_state: options
-          visible: [corners only are faster, boards between the legs take longer but resist sideways movement]
-          learner_prompt: Now we can see what the two choices mean.
-          reveal_label: Vote on Mentimeter
+        - id: S02-CHOICES
+          visual_state: choices
+          visible: [pine and screws, drill and saw, 100 x 50 x 72 cm, measure then cut then join then test]
+          learner_prompt: Which answers belong on the sketch, and which should stay beside it?
+          reveal_label: Draw this table
           accepted_inputs: [pointer, enter, space]
-          transition_to: S02-POLL
-          consequence: Learners understand the structural trade-off before voting.
+          transition_to: S02-ANNOTATED
+          consequence: The class separates the selected table structure from the means and order of making it.
           earned_term: null
-          validation_check: Learners can explain the difference between corners only and a side rail.
-        - id: S02-POLL
-          visual_state: poll
-          visible: []
-          learner_prompt: Which one would you choose for one afternoon with basic tools?
-          reveal_label: Carry the result forward
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S02-COMMIT
-          consequence: The class commits to the fast corner attachment.
-          earned_term: null
-          validation_check: Learners give one reason for the choice before seeing the result.
-        - id: S02-COMMIT
-          visual_state: corners
-          visible: [four legs, four corner joints, no boards between the legs, one afternoon]
-          learner_prompt: The room votes for corners only. Our desk now has a history.
+          validation_check: Learners place dimensions, materials, parts, or relations on the sketch while keeping tools and steps beside it.
+        - id: S02-ANNOTATED
+          visual_state: annotated
+          visible: [pine top 100 x 50 cm, working height 72 cm, four straight legs, screws beneath each corner, steady under a hand]
+          learner_prompt: The sketch carries what this table is and how its parts relate.
           accepted_inputs: []
           transition_to: null
-          consequence: A choice now belongs to the artifact history.
+          consequence: The drawing becomes buildable and checkable rather than merely recognizable.
           earned_term: null
-          validation_check: Learners preserve fit, height, load, and stability as obligations.
+          validation_check: Learners point from an annotation to a build decision and a future check.
 
     - id: CRAFT-CAUSAL-S03
-      title: Then We Walk Into the Room
-      chapter: grounding
-      story_state: constraints become design evidence
-      visual: constraint-board
-      focus_behavior: The scene owns reveal input; facts remain visible after reveal.
+      title: How Does the Sketch Relate to Schema?
+      chapter: term reveal
+      story_state: learners distinguish a table picture from a drawing that preserves selected build structure
+      visual: schema-reveal
+      focus_behavior: The comparison advances once to a terminal term reveal and cannot reset implicitly.
       viewport:
-        desktop_required: [room width, floor condition, tools, expected load]
-        mobile_before_fold: [room width, floor condition, prompt]
-      notes: "Carry the choice into the actual bedroom. The wall is narrower than it looked in our heads. The floor slopes. The only tools on the floor are a drill and a hand saw. None of this cancels our choice, but it changes what that choice will have to survive."
+        desktop_required: [plain and buildable sketches, prompt, earned term]
+        mobile_before_fold: [sketch comparison, prompt, reveal control]
+      notes: "Show a plain table picture beside the buildable sketch. Ask which one can guide the build and settle a disagreement later. The second sketch is not a schema because it is detailed or attractive. It is acting as a schema because it selects parts, dimensions, relations, and conditions that the making must preserve."
       states:
-        - id: S03-GUESS
-          visual_state: questions
-          visible: [a narrow bedroom, an old floor, a small pile of tools]
-          learner_prompt: Before the first cut, we carry the idea into the bedroom.
-          reveal_label: Look closer
+        - id: S03-COMPARE
+          visual_state: compare
+          visible: [a picture of a table, the selected structure of this table]
+          learner_prompt: Which sketch could guide the build and settle a disagreement later?
+          reveal_label: Name what the sketch is doing
           accepted_inputs: [pointer, enter, space]
-          transition_to: S03-FACTS
-          consequence: The build waits for facts that can change it.
+          transition_to: S03-SCHEMA
+          consequence: Learners choose by build and judgment power rather than visual polish.
           earned_term: null
-          validation_check: Learners select a fact and name the decision it could alter.
-        - id: S03-FACTS
-          visual_state: facts
-          visible: [100 cm of free wall, a floor that slopes, a drill and hand saw, a laptop and two books]
-          learner_prompt: The fast plan still fits. Now we can see where it might fail.
+          validation_check: Learners prefer the annotated sketch because it preserves the selected table.
+        - id: S03-SCHEMA
+          visual_state: schema
+          visible: [selects the distinctions that matter, keeps their relations explicit, gives building and checking a shared structure]
+          learner_prompt: The sketch is acting as a schema because it makes what we mean explicit enough to translate and test.
           accepted_inputs: []
           transition_to: null
-          consequence: The fast option remains possible, but stability risk becomes visible.
-          earned_term: null
-          validation_check: Learners connect the uneven floor and missing rails to a risk without claiming failure yet.
+          consequence: The formal term names a practical function the learners have already constructed.
+          earned_term: schema
+          validation_check: Learners explain when a table sketch is acting as a schema and when it is only a picture.
 
     - id: CRAFT-CAUSAL-S04
-      title: Four Promises Before the First Cut
-      chapter: schema
-      story_state: validity conditions are fixed before execution order
-      visual: schema-board
-      focus_behavior: The comparison owns reveal input and preserves both candidates for the term reveal.
+      title: What Is the Sketch for Writing Software?
+      chapter: software transfer
+      story_state: learners seek the table-sketch equivalent for a system that helps people write
+      visual: writing-question
+      focus_behavior: The writing surface reveal replaces an empty page with a candidate text mold.
       viewport:
-        desktop_required: [candidate comparison, validity checks, prompt]
-        mobile_before_fold: [candidate comparison, prompt]
-      notes: "Back at the workbench, someone says: 'It just needs to be a good desk.' Ask whether that sentence could settle an argument tomorrow. Replace it with four promises we can test after the build. Only then give that chosen shape its name: schema."
+        desktop_required: [writing surface, analogy question, mold fields]
+        mobile_before_fold: [writing surface, prompt, reveal control]
+      notes: "Transfer only the relation, not the furniture story. If our software helps someone write, sentences are the final material. Before generating them, what structure must preserve what the author means? Let the room answer before showing the mold."
       states:
-        - id: S04-COMPARE
-          visual_state: candidates
-          visible: ['"It should be a good desk."', '"It should fit, hold the load, and stay steady."']
-          learner_prompt: Two promises. Which one could settle an argument tomorrow?
-          reveal_label: Write it down
+        - id: S04-QUESTION
+          visual_state: blank
+          visible: [software that helps someone write]
+          learner_prompt: If the output is text, what would play the role of the table sketch?
+          reveal_label: Build the writing mold
           accepted_inputs: [pointer, enter, space]
-          transition_to: S04-SCHEMA
-          consequence: Candidate B supplies a checkable shape of valid work.
+          transition_to: S04-MOLD
+          consequence: Learners search for a representation between author intent and generated sentences.
           earned_term: null
-          validation_check: Learners reject candidate A because a required relation is missing.
-        - id: S04-SCHEMA
-          visual_state: schema
-          visible: [fits within 100 cm, working height is 72 cm, holds 10 kg, stays steady while typing]
-          learner_prompt: Before the first cut, we write four promises on the wall.
+          validation_check: Learners propose at least one distinction the software needs before writing.
+        - id: S04-MOLD
+          visual_state: mold
+          visible: [purpose, audience, meaning, evidence, shape, voice, ending]
+          learner_prompt: The software needs a mold for what the text must preserve before it writes sentences.
           accepted_inputs: []
           transition_to: null
-          consequence: Validity is explicit before the build begins.
-          earned_term: schema
-          validation_check: Learners use the schema to classify one valid and one invalid desk.
+          consequence: The writing equivalent of the table sketch becomes visible.
+          earned_term: null
+          validation_check: Learners connect one mold field to a meaningful difference in the resulting text.
 
     - id: CRAFT-CAUSAL-S05
-      title: What Happens First?
-      chapter: planning
-      story_state: schema conditions become ordered actions
-      visual: plan-line
-      focus_behavior: The step order owns reveal input; no formal term is activated.
+      title: Can One Mold Write Any Text?
+      chapter: adaptable writing schema
+      story_state: a reusable writing schema keeps stable questions while allowing transport-specific structure
+      visual: writing-mold
+      focus_behavior: The rigid-mold challenge advances once to an adaptable terminal schema.
       viewport:
-        desktop_required: [schema reminder, ordered steps, done check]
-        mobile_before_fold: [schema reminder, first three steps, prompt]
-      notes: We know what the finished desk must do, but that does not tell us what to do first. Let the room order the work. Then point out that changing the order did not change the promises.
+        desktop_required: [rigid mold, adaptable mold, prompt, closing relation]
+        mobile_before_fold: [mold, prompt, reveal control]
+      notes: "Push against the phrase 'any text.' One fixed outline would flatten an email, essay, instructions, and poem into the same shape. Keep stable questions such as purpose, audience, meaning, evidence, voice, and ending, but let the selected text type define its body parts and checks. The reusable mold fixes the questions, not every answer or final form."
       states:
-        - id: S05-UNORDERED
-          visual_state: unordered
-          visible: [measure, cut, attach, place, test]
-          learner_prompt: We know what must be true. What should happen first?
-          reveal_label: Put it in order
+        - id: S05-RIGID
+          visual_state: rigid
+          visible: [email, essay, instructions, presentation]
+          learner_prompt: Should every kind of text be forced into the same outline?
+          reveal_label: Make the mold adaptable
           accepted_inputs: [pointer, enter, space]
-          transition_to: S05-ORDERED
-          consequence: The validity structure becomes executable work.
+          transition_to: S05-ADAPTABLE
+          consequence: The universal-template assumption is challenged before the reusable structure appears.
           earned_term: null
-          validation_check: Learners name one input, output, and done check.
-        - id: S05-ORDERED
-          visual_state: ordered
-          visible: [1 measure, 2 mark, 3 cut, 4 attach, 5 place, 6 test]
-          learner_prompt: The order changed. Did our promises change?
+          validation_check: Learners reject one fixed body shape for every text type.
+        - id: S05-ADAPTABLE
+          visual_state: adaptable
+          visible: [stable questions preserve intent, text type selects the body parts, each text receives its own checkable schema]
+          learner_prompt: A reusable writing mold fixes the questions, not the final form.
           accepted_inputs: []
           transition_to: null
-          consequence: Order serves the schema without replacing it.
+          consequence: The table relation transfers without claiming one universal text template.
           earned_term: null
-          validation_check: Learners distinguish validity conditions from execution order.
-
-    - id: CRAFT-CAUSAL-S06
-      title: The Sketch Cannot Wobble
-      chapter: artifact
-      story_state: execution produces an inspectable desk
-      visual: table
-      focus_behavior: Build reveal input is terminal and cannot reset implicitly.
-      viewport:
-        desktop_required: [built table, prior schema, prompt]
-        mobile_before_fold: [built table, prompt]
-      notes: A drawing can look convincing without carrying weight or moving under a hand. Build the desk, but do not call it successful yet. The important change is that reality can finally disagree with us.
-      states:
-        - id: S06-DRAWING
-          visual_state: drawing
-          visible: ["Will the joints move?", "Will the floor matter?", "Will typing shake it?"]
-          learner_prompt: What can only a real desk tell us?
-          reveal_label: Build it
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S06-BUILT
-          consequence: The work moves from representation to physical result.
-          earned_term: null
-          validation_check: Learners name one property that requires a real or simulated result.
-        - id: S06-BUILT
-          visual_state: built
-          visible: [it fits the wall, it holds the laptop and books, nobody has pushed it sideways yet]
-          learner_prompt: Now reality gets a vote.
-          accepted_inputs: []
-          transition_to: null
-          consequence: A result now exists and can disagree with the schema.
-          earned_term: artifact
-          validation_check: Learners distinguish the produced thing from the plan and schema.
-
-    - id: CRAFT-CAUSAL-S07
-      title: Three Passes, One Unknown
-      chapter: validation
-      story_state: earlier obligations become comparisons
-      visual: check-board
-      focus_behavior: Check selection owns input; result reveal does not navigate.
-      viewport:
-        desktop_required: [schema checks, desk, prompt]
-        mobile_before_fold: [desk, first checks, prompt]
-      notes: Bring back the four promises from earlier. Three have evidence; one is still unknown. Ask whether three passes are enough before touching the desk from the side.
-      states:
-        - id: S07-SELECT
-          visual_state: unchecked
-          visible: [fit passes, height passes, load passes, stability is still unknown]
-          learner_prompt: Which promise should we test next?
-          reveal_label: Test the last promise
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S07-RESULTS
-          consequence: The class compares the artifact with its own prior commitments.
-          earned_term: null
-          validation_check: Learners justify a check by pointing back to the schema.
-        - id: S07-RESULTS
-          visual_state: partial-pass
-          visible: [fit passes, height passes, load passes, stability still needs evidence]
-          learner_prompt: Can we call it finished yet?
-          accepted_inputs: []
-          transition_to: null
-          consequence: Comparison remains incomplete while one named condition is unknown.
-          earned_term: validation
-          validation_check: Learners refuse a final verdict until the remaining condition is tested.
-
-    - id: CRAFT-CAUSAL-S08
-      title: Then We Push the Corner
-      chapter: residue
-      story_state: the recorded choice produces a named mismatch
-      visual: table
-      focus_behavior: The wobble reveal is terminal and preserves the failed state.
-      viewport:
-        desktop_required: [wobbling table, failed stability check, history strip]
-        mobile_before_fold: [wobbling table, failed check, prompt]
-      notes: "Ask for a prediction before the push. When the desk moves, connect it to the choice the room made earlier: fast corner joints, no side rails, and an uneven floor. The wobble is not a surprise inserted for drama; it belongs to the history."
-      states:
-        - id: S08-TEST
-          visual_state: test
-          visible: []
-          learner_prompt: What do you think happens when we push here?
-          reveal_label: Push the corner
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S08-WOBBLE
-          consequence: Sideways force exposes the unbraced relation.
-          earned_term: null
-          validation_check: Learners state a prediction before the reveal.
-        - id: S08-WOBBLE
-          visual_state: wobble
-          visible: [fit passes, height passes, load passes, stability fails]
-          learner_prompt: It is usable. It is also not steady enough.
-          accepted_inputs: []
-          transition_to: null
-          consequence: The next move can be routed from a specific failed obligation.
-          earned_term: residue
-          validation_check: Learners name the failed check without calling the whole desk useless.
-
-    - id: CRAFT-CAUSAL-S09
-      title: A Fix That Fixes the Wrong Thing
-      chapter: repair
-      story_state: a shim closes level but not sideways stability
-      visual: table
-      focus_behavior: Repair input reveals one consequence and remains terminal.
-      viewport:
-        desktop_required: [shim, before and after checks, prompt]
-        mobile_before_fold: [shim, active check, prompt]
-      notes: A shim is cheap, visible, and worth trying in this story. It is not a universal rule that repair must come first. Ask what the shim should fix, then test the exact wobble again.
-      states:
-        - id: S09-REPAIR
-          visual_state: shim
-          visible: [uneven floor, one short foot, a top that is not level]
-          learner_prompt: A thin shim goes under the short foot. What should improve?
-          reveal_label: Retest the desk
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S09-RETEST
-          consequence: The top becomes level, but the attachment relation is unchanged.
-          earned_term: null
-          validation_check: Learners predict level may improve while sideways stability may not.
-        - id: S09-RETEST
-          visual_state: shim-wobble
-          visible: [the top is level, the sideways wobble remains, the corner joints did not change]
-          learner_prompt: We fixed what we could see. What did we actually fix?
-          accepted_inputs: []
-          transition_to: null
-          consequence: The remaining work needs a clearer boundary and its own checks.
-          earned_term: null
-          validation_check: Learners explain why adding more vague instructions would hide responsibility.
-
-    - id: CRAFT-CAUSAL-S10
-      title: '"Attach the Legs" Is Hiding a Project'
-      chapter: candidate layer
-      story_state: hidden joint work receives a provisional boundary
-      visual: layer-boundary
-      focus_behavior: Boundary reveal input is terminal; the slide does not award the layer term yet.
-      viewport:
-        desktop_required: [upper input, lower responsibility, return interface]
-        mobile_before_fold: [candidate responsibility, input, output]
-      notes: The old plan said only, "attach the legs." Let the room discover how many choices those three words were hiding. Then draw a smaller job with a clear input, output, and proof, without claiming yet that the split is good.
-      states:
-        - id: S10-HIDDEN
-          visual_state: hidden-work
-          visible: [joint shape, rail size, screw position, wood thickness, side-force test]
-          learner_prompt: How much work was hiding inside those three words?
-          reveal_label: Draw the boundary
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S10-BOUNDARY
-          consequence: Hidden obligations become a candidate responsibility.
-          earned_term: null
-          validation_check: Learners identify at least one input, output, and independent check.
-        - id: S10-BOUNDARY
-          visual_state: boundary
-          visible: [receive the desk dimensions and attachment points, produce one leg-and-rail assembly, prove it is strong alone and steady in the desk]
-          learner_prompt: What should this smaller build receive, produce, and prove?
-          accepted_inputs: []
-          transition_to: null
-          consequence: The candidate can now be accepted or rejected with evidence.
-          earned_term: null
-          validation_check: Learners require lower residue plus local and upper validation.
-
-    - id: CRAFT-CAUSAL-S11
-      title: It Has to Work Twice
-      chapter: layer proof
-      story_state: the lower artifact passes locally and in the desk
-      visual: dual-check
-      focus_behavior: Local and upper checks advance in order; terminal state cannot cycle backward by activation.
-      viewport:
-        desktop_required: [local checks, upper checks, residue comparison]
-        mobile_before_fold: [active check surface, prompt, progress]
-      notes: First test the assembly on the workbench. Then remind the room that a strong assembly can still fail to fit the desk. Only after both checks pass and the wobble is lower has this smaller build earned its boundary.
-      states:
-        - id: S11-LOCAL
-          visual_state: local
-          visible: [dimensions pass, joints hold, side force does not rack the frame]
-          learner_prompt: The assembly holds on the workbench. Is that enough?
-          reveal_label: Put it in the desk
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S11-UPPER
-          consequence: Local success is necessary but not sufficient.
-          earned_term: null
-          validation_check: Learners insist on the upper check.
-        - id: S11-UPPER
-          visual_state: upper
-          visible: [fit passes, height passes, load passes, level passes, stability passes]
-          learner_prompt: The desk works again. What changed from before?
-          reveal_label: Compare before and after
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S11-EARNED
-          consequence: The failed stability obligation is closed without creating another blocking failure.
-          earned_term: null
-          validation_check: Learners compare the declared before and after checks.
-        - id: S11-EARNED
-          visual_state: earned
-          visible: [one clear job, its own checks, works inside the whole, the wobble is lower]
-          learner_prompt: This smaller build has earned its own boundary.
-          accepted_inputs: []
-          transition_to: null
-          consequence: The lower build has earned independent governance inside the whole.
-          earned_term: craft layer
-          validation_check: Learners reject complexity alone as a sufficient reason to split.
-
-    - id: CRAFT-CAUSAL-S12
-      title: Back in the Whole Desk
-      chapter: recomposition
-      story_state: the lower artifact changes the upper artifact and closes the blocking mismatch
-      visual: recomposition
-      focus_behavior: Return reveal is terminal and keeps the completed table visible.
-      viewport:
-        desktop_required: [lower artifact, return arrow, completed desk, stop condition]
-        mobile_before_fold: [completed desk, return relation, prompt]
-      notes: Returning the assembly is not the end; the original desk promises must run again. A small screw mark remains after the repair, but it does not block this bedroom desk. Stop at the objective, not at imagined perfection.
-      states:
-        - id: S12-RETURN
-          visual_state: return
-          visible: [fit, height, load, level, stability]
-          learner_prompt: What do we have to test again after the new assembly returns?
-          reveal_label: Run the desk checks
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S12-CLOSED
-          consequence: The lower result changes the upper artifact.
-          earned_term: null
-          validation_check: Learners name the original upper checks, not only the local ones.
-        - id: S12-CLOSED
-          visual_state: closed
-          visible: [all important checks pass, one cosmetic screw mark remains, stop here for this job]
-          learner_prompt: The desk is steady. Are we done for this job?
-          accepted_inputs: []
-          transition_to: null
-          consequence: Work stops at acceptable residue for the chosen objective.
-          earned_term: recomposition
-          validation_check: Learners distinguish acceptable residue from perfect completion.
-
-    - id: CRAFT-CAUSAL-S13
-      title: A Dashboard Can Look Right and Be Wrong
-      chapter: software transfer
-      story_state: a plausible screen fails a concrete student task before explanation
-      visual: dashboard
-      focus_behavior: Dashboard comparison owns reveal input; no new formal term is introduced.
-      viewport:
-        desktop_required: [two dashboards, student task, result]
-        mobile_before_fold: [first dashboard, student task, prompt]
-      notes: "Show both screens before diagnosing either one. Give the room one student task: find what must be done before tomorrow. Let that task expose what the polished screens forgot."
-      states:
-        - id: S13-SCREENS
-          visual_state: plausible
-          visible: [charts and recent activity, assignments and due dates]
-          learner_prompt: Which screen can tell a student what to do before tomorrow?
-          reveal_label: Try the task
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S13-FAILURE
-          consequence: Plausible appearance is separated from the required action.
-          earned_term: null
-          validation_check: Learners choose by task evidence rather than visual preference.
-        - id: S13-FAILURE
-          visual_state: failed-task
-          visible: [what is due next is unclear, overdue work is hidden, returned work is mixed in]
-          learner_prompt: Neither screen answers the whole question. What is missing?
-          reveal_label: Fix the smallest useful piece
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S13-PANEL
-          consequence: The learner supplies constraints before the correction appears.
-          earned_term: null
-          validation_check: Learners name at least one missing relation and one check.
-        - id: S13-PANEL
-          visual_state: assignment-panel
-          visible: [due next, overdue, returned for revision, open the assignment, filter by class]
-          learner_prompt: Now the student can act without guessing.
-          accepted_inputs: []
-          transition_to: null
-          consequence: The table pattern transfers without a second vocabulary lecture.
-          earned_term: null
-          validation_check: Learners reject both the whole portal and an isolated button as the next responsible unit.
-
-    - id: CRAFT-CAUSAL-S14
-      title: Now We Can Name It
-      chapter: closure
-      story_state: learners reconstruct the causal path before the final term appears
-      visual: craft-path
-      focus_behavior: Reconstruction advances to one terminal term reveal; no reset occurs without explicit reload.
-      viewport:
-        desktop_required: [table path, software echo, stop condition, final term]
-        mobile_before_fold: [causal path, prompt, reveal control]
-      notes: Ask the room to retell the journey without formal vocabulary. We kept promises visible, built something reality could challenge, used the mismatch to choose the next move, and checked the result again inside the whole. Only now give that way of working its name.
-      states:
-        - id: S14-RECONSTRUCT
-          visual_state: path
-          visible: [went back to the promise, found the exact mismatch, repaired or opened a smaller build, returned and checked again]
-          learner_prompt: When the result disagreed with us, what did we do next?
-          reveal_label: Name the method
-          accepted_inputs: [pointer, enter, space]
-          transition_to: S14-CRAFT
-          consequence: Learners reconstruct the method from witnessed decisions.
-          earned_term: null
-          validation_check: Learners explain the path using either the table or dashboard without reading labels.
-        - id: S14-CRAFT
-          visual_state: craft
-          visible: [choose what counts, build something inspectable, let the mismatch guide the next move, stop when the remainder is acceptable]
-          learner_prompt: Craft keeps the next responsible move visible.
-          accepted_inputs: []
-          transition_to: null
-          consequence: The formal name arrives after the learner has used the pattern.
-          earned_term: Craft
-          validation_check: Learners state when to repair, revise, descend, return, or stop.
+          validation_check: Learners explain how stable fields and variable structure can coexist.
