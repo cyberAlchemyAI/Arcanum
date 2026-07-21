@@ -7,6 +7,8 @@
 - Canonical ID: invoke
 - Scope: library
 - Phase status: no-op
+- Phase status basis: evidence already represented; no Refresh delta required
+- Handoff readiness: not-needed
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: artifacts/refresh/REFRESH-REPORT.md
 - Mutation mode: proposal-only
@@ -17,5 +19,6 @@
 - Skipped changes: validation pass is already represented
 - Validation: compare latest report to recorded validation status
 - Decisions: record no-op rather than forcing artifact churn
+- Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0
 - Unresolved gaps: none
 - Next route: deferred

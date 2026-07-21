@@ -19,6 +19,9 @@ Refresh the artifacts from this result.
 ## Expected Result
 
 - Phase status: `block`
+- Phase status basis: mandatory target inventory and declared scope are missing
+- Handoff readiness: `blocked`
+- Blockers by scope: refresh-authoring 2; apply-authorization 0; target-lifecycle 0; audit 0
 - Missing input: target artifact inventory
 - Expected next route: deferred
 

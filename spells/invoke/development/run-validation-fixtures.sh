@@ -365,6 +365,39 @@ run_fixture() {
 	fi
 }
 
+run_refresh_fixture() {
+	local fixture="$1"
+	local expected="$2"
+	local status_pattern="$3"
+	local output_status_pattern="$4"
+	local contract_pattern="$5"
+	local label="$6"
+	local handoff_pattern="$7"
+	local blocker_pattern="$8"
+
+	require_file "$fixture"
+	require_file "$expected"
+	require_pattern "$fixture" "$status_pattern" "$label fixture expected status"
+	require_pattern "$expected" '## Invoke Validation Fixture Result' "$label expected output heading"
+	require_pattern "$expected" "$output_status_pattern" "$label expected output status"
+	require_pattern "$expected" 'User request:' "$label expected user request"
+	require_pattern "$expected" 'Mode contract: arcanum/spells/invoke/refresh.md' "$label expected mode contract"
+	require_pattern "$expected" 'Next route:' "$label expected next route"
+	require_pattern "$REFRESH_CONTRACT" "$contract_pattern" "$label contract gate"
+	require_pattern "$fixture" 'Phase status basis:' "$label fixture phase-status basis"
+	require_pattern "$fixture" 'Handoff readiness:' "$label fixture handoff readiness"
+	require_pattern "$fixture" 'Blockers by scope:' "$label fixture blocker scopes"
+	require_pattern "$expected" 'Phase status basis:' "$label expected phase-status basis"
+	require_pattern "$expected" "$handoff_pattern" "$label expected handoff readiness"
+	require_pattern "$expected" "$blocker_pattern" "$label expected blocker scopes"
+
+	if [[ "$failures" -eq 0 ]]; then
+		passed_fixtures+=("$label")
+		output_artifacts+=("${expected#$ROOT_DIR/}")
+		record "PASS: $label"
+	fi
+}
+
 run_integration_fixture() {
 	local fixture="$1"
 	local define_expected="$2"
@@ -728,9 +761,12 @@ require_pattern "$HANDOFF_CONTRACT" 'Status: implemented \(L2 companion contract
 require_pattern "$HANDOFF_CONTRACT" 'Prompt and source session reference are mandatory' 'handoff prompt session gate'
 require_pattern "$HANDOFF_CONTRACT" 'Context Builder must select from the whole referenced session' 'handoff context-builder selection'
 require_pattern "$HANDOFF_CONTRACT" 'workflow-reflection' 'handoff type coverage'
-require_pattern "$REFRESH_CONTRACT" 'Status: implemented \(L2 refresh contract, validation examples pending\)' 'refresh contract status'
+require_pattern "$REFRESH_CONTRACT" 'Status: implemented \(L2 refresh contract\)' 'refresh contract status'
 require_pattern "$REFRESH_CONTRACT" 'Source evidence and target artifact inventory are mandatory' 'refresh source inventory gate'
 require_pattern "$REFRESH_CONTRACT" 'Mutation mode defaults to `proposal-only`' 'refresh proposal-only default'
+require_pattern "$REFRESH_CONTRACT" 'Phase status must describe completion of the current Refresh artifact' 'refresh phase-local status gate'
+require_pattern "$REFRESH_CONTRACT" 'Every blocker must declare one lifecycle scope' 'refresh blocker scope gate'
+require_pattern "$REFRESH_CONTRACT" 'proposal-only.*apply-authorization.*must not lower a complete proposal from `pass`' 'refresh proposal handoff separation gate'
 require_pattern "$REFRESH_CONTRACT" 'No-op is a valid phase status' 'refresh no-op gate'
 require_pattern "$REFRESH_CONTRACT" 'Refresh must not execute target tasks' 'refresh no execution gate'
 
@@ -868,45 +904,55 @@ run_fixture \
 	'Handoff mode blocks when the prompt or session reference is missing' \
 	'INV-HANDOFF-BLOCK-001'
 
-run_fixture \
+run_refresh_fixture \
 	"$FIXTURE_DIR/INV-REFRESH-PASS-001.md" \
 	"$FIXTURE_DIR/INV-REFRESH-PASS-001.expected.md" \
 	'Phase status: `pass`' \
 	'Phase status: pass' \
-	"$REFRESH_CONTRACT" \
-	'Mode contract: arcanum/spells/invoke/refresh.md' \
 	'Every proposed or applied change must map to at least one `RefreshSignal`' \
-	'INV-REFRESH-PASS-001'
+	'INV-REFRESH-PASS-001' \
+	'Handoff readiness: gated' \
+	'Blockers by scope: refresh-authoring 0; apply-authorization 1; target-lifecycle 1; audit 0'
 
-run_fixture \
+run_refresh_fixture \
 	"$FIXTURE_DIR/INV-REFRESH-FLAG-001.md" \
 	"$FIXTURE_DIR/INV-REFRESH-FLAG-001.expected.md" \
 	'Phase status: `flag`' \
 	'Phase status: flag' \
-	"$REFRESH_CONTRACT" \
-	'Mode contract: arcanum/spells/invoke/refresh.md' \
 	'Artifact drift must flag when the safe correction is not obvious' \
-	'INV-REFRESH-FLAG-001'
+	'INV-REFRESH-FLAG-001' \
+	'Handoff readiness: blocked' \
+	'Blockers by scope: refresh-authoring 1; apply-authorization 0; target-lifecycle 0; audit 0'
 
-run_fixture \
+run_refresh_fixture \
 	"$FIXTURE_DIR/INV-REFRESH-BLOCK-001.md" \
 	"$FIXTURE_DIR/INV-REFRESH-BLOCK-001.expected.md" \
 	'Phase status: `block`' \
 	'Phase status: block' \
-	"$REFRESH_CONTRACT" \
-	'Mode contract: arcanum/spells/invoke/refresh.md' \
 	'Refresh blocks when source evidence is missing, target artifact inventory is missing' \
-	'INV-REFRESH-BLOCK-001'
+	'INV-REFRESH-BLOCK-001' \
+	'Handoff readiness: blocked' \
+	'Blockers by scope: refresh-authoring 2; apply-authorization 0; target-lifecycle 0; audit 0'
 
-run_fixture \
+run_refresh_fixture \
 	"$FIXTURE_DIR/INV-REFRESH-NOOP-001.md" \
 	"$FIXTURE_DIR/INV-REFRESH-NOOP-001.expected.md" \
 	'Phase status: `no-op`' \
 	'Phase status: no-op' \
-	"$REFRESH_CONTRACT" \
-	'Mode contract: arcanum/spells/invoke/refresh.md' \
 	'No-op is a valid phase status when latest evidence is already represented' \
-	'INV-REFRESH-NOOP-001'
+	'INV-REFRESH-NOOP-001' \
+	'Handoff readiness: not-needed' \
+	'Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0'
+
+run_refresh_fixture \
+	"$FIXTURE_DIR/INV-REFRESH-APPLY-PASS-001.md" \
+	"$FIXTURE_DIR/INV-REFRESH-APPLY-PASS-001.expected.md" \
+	'Phase status: `pass`' \
+	'Phase status: pass' \
+	'`apply-approved` requires explicit approval, declared scope, and validation commands' \
+	'INV-REFRESH-APPLY-PASS-001' \
+	'Handoff readiness: ready' \
+	'Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0'
 
 run_integration_fixture \
 	"$FIXTURE_DIR/INV-INTEGRATION-DEFINE-DESIGN-001.md" \

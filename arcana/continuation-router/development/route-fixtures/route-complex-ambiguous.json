@@ -1,0 +1,42 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "route-complex-ambiguous",
+  "source": {"capability": "review", "mode": "inspect", "result": "flag", "receipt": "fixtures/source-ambiguous-gap.json", "blocker_fingerprint": "sha256:ambiguous-gap-v1", "legacy_adaptation": false},
+  "authorization": {"requested": false, "exact_route": null, "evidence": null},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "decision-gate",
+      "mode": "blocker",
+      "mutation_mode": null,
+      "owner": "decision-gate",
+      "evidence": ["The receipt contains two consequential interpretations with different downstream scope."],
+      "required_inputs": ["decision scope", "two or more viable options"],
+      "missing_inputs": [],
+      "mutation_risk": "none",
+      "approval_required": false,
+      "authorization_status": "not-required",
+      "expected_receipt": "Decision record with selected option or unresolved blocker.",
+      "fallback": "Stop and request the missing owner choice."
+    },
+    {
+      "rank": 2,
+      "capability": "refine",
+      "mode": "standard",
+      "mutation_mode": null,
+      "owner": "refine",
+      "evidence": ["The receipt also indicates the target boundary may be under-specified."],
+      "required_inputs": ["bounded refinement target"],
+      "missing_inputs": [],
+      "mutation_risk": "low",
+      "approval_required": false,
+      "authorization_status": "not-required",
+      "expected_receipt": "Refinement synthesis with a concrete next route.",
+      "fallback": "Return the ambiguity without dispatch."
+    }
+  ],
+  "selection": {"status": "ambiguous", "candidate_rank": null, "reason": "The evidence does not establish whether a choice or missing target definition is controlling."},
+  "dispatch": {"status": "not-requested", "runtime": null, "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": null
+}

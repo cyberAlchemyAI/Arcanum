@@ -1,10 +1,10 @@
 ---
 name: task-session
-description: "Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, and optional runtime handoff delegation."
-argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via runtime] [--auto] [--dry-run] [--output <path>]"
+description: "Use when: executing one bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, completion criteria, validation, synchronized evidence, optional runtime handoff, and an optional one-hop continuation route."
+argument-hint: "<task-reference|to <target>> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.3.1
+version: 0.4.0
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -25,6 +25,7 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 | --- | --- | --- |
 | `context-builder` | Build a bounded context pack from the selected task/SWU, source links, constraints, related architecture/spec artifacts, write scope, and validation surface before decisions, gates, or runtime handoff. For `--via runtime`, produce a strict Markdown plus JSON/index handoff pack stored as session evidence. | lean or standard |
 | `decision-gate` | Convert unresolved blocker-level choices into user-ready option cards with context, trade-offs, recommendation, and a durable decision record before returning `BLOCK`. | blocker-only |
+| `continuation-router` | Normalize a terminal Task Session receipt, expose one to three probable owner routes, prevent unchanged re-entry, and optionally dispatch one exactly authorized route without absorbing the owner's work. | one-hop |
 
 </required-sigils>
 
@@ -37,6 +38,8 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 - `--swu <SWU-ID>`: select one Smallest Working Unit from a work-pack.
 - `--runtime <id>`: choose the execution runtime adapter, such as `codex`.
 - `--via runtime`: delegate through the selected runtime adapter when available.
+- `--follow-next-route`: after a terminal Task Session result, run one Continuation Router hop and return the selected owner's receipt and next route. Never recursively resume Task Session.
+- `--authorize-route <capability>:<mode>[:<mutation-mode>]`: authorize only the exact continuation tuple for the declared target and write scope. It does not bypass the selected owner's gates.
 </flags>
 
 <applicability>
@@ -63,6 +66,8 @@ Expected inputs, if available:
 - optional `WORK-PACK.md` with task board, SWU manifest, waves, and task contracts,
 - optional runtime adapter selection from the installed repository command context.
 - optional lifecycle owner and experiment harness path when executing spell or sigil development work.
+- optional previous terminal receipt and continuation receipt for repeated-block and cycle detection.
+- optional exact continuation authorization evidence from the current user request or a durable approval artifact.
 </inputs>
 
 <process>
@@ -104,51 +109,60 @@ Expected inputs, if available:
 ## Step 4 - Evaluate Gates
 
 22. Check task dependencies, stated constraints, required approvals, source links, context-pack obligations, strict handoff coverage when applicable, write scope, and available validation paths.
-23. If a blocker exists because a human approval, policy choice, destructive cleanup, irreversible mutation, cost/risk acceptance, or rollout option is unresolved, run `decision-gate` for that blocker before returning `BLOCK`.
-24. If a blocker exists for missing evidence, missing files, unavailable tools, or contradictory context with no meaningful user option, return `BLOCK` with exact unblock actions and stop before mutation.
+23. If a blocker exists because a human approval, policy choice, destructive cleanup, irreversible mutation, cost/risk acceptance, or rollout option is unresolved, run `decision-gate` for that blocker before continuing to Step 4A or returning `BLOCK`.
+24. If a blocker exists for missing evidence, missing files, unavailable tools, or contradictory context with no meaningful user option, preserve `BLOCK`, record exact unblock actions, and continue only to Step 4A when a terminal owner handoff can be formed. Stop mutation inside the selected task.
 25. If the task can proceed with assumptions, record those assumptions before mutation.
+
+## Step 4A - Resolve One Terminal Continuation
+
+26. When the gate is terminal, emit a normalized continuation handoff containing the source result, receipt path, target scope, blocker class, controlling evidence identities or digests, blocker fingerprint, explicit next-route advice, and unblock actions.
+27. Invoke `continuation-router` to expose one to three probable routes whenever a terminal handoff exists. Do not re-enter Task Session when the same blocker fingerprint and source evidence are unchanged.
+28. Without `--follow-next-route`, return the terminal Task Session result plus probable routes and stop.
+29. With `--follow-next-route`, pass the exact `--authorize-route` tuple and current approval evidence to Continuation Router. It may dispatch at most one owner route and must run that owner's own gates.
+30. Preserve the Task Session result even when the continuation succeeds. The owner route returns a separate receipt and a next route; Task Session must not recursively execute it.
+31. Treat an ambiguous route, missing authorization, cycle, owner validation failure, or unjoined helper as `BLOCK` and report the exact missing condition.
 
 ## Step 5 - Select Runtime
 
-26. Resolve the current repository runtime from the installed command context or `--runtime`.
-27. If `--via runtime` is set, load the matching runtime adapter from `arcana/task-session/runtime-adapters/`.
-28. For durable Arcanum runtime runs, use the `runtime-handoff` adapter and selected executor adapter such as `native-skill`, `codex-skill`, `claude-skill`, `copilot-instructions`, `dry-run`, or explicit legacy `codex-exec`.
-29. If `--via runtime` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
-30. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
+32. Resolve the current repository runtime from the installed command context or `--runtime`.
+33. If `--via runtime` is set, load the matching runtime adapter from `arcana/task-session/runtime-adapters/`.
+34. For durable Arcanum runtime runs, use the `runtime-handoff` adapter and selected executor adapter such as `native-skill`, `codex-skill`, `claude-skill`, `copilot-instructions`, `dry-run`, or explicit legacy `codex-exec`.
+35. If `--via runtime` is set and the session lacks a complete session-evidence handoff pack with Markdown plus JSON/index and strict coverage, return `BLOCK`.
+36. If the adapter cannot safely produce a runtime command, return `BLOCK` with the exact missing field or setup action.
 
 ## Step 6 - Execute Task
 
-31. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
-32. If a runtime adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime handoff and preserve the Task Session synchronization obligations.
-33. If running locally, make only the changes required for the task scope.
-34. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
+37. Convert selected options, context-pack obligations, and checklist items into an ordered execution path.
+38. If a runtime adapter is used, pass the handoff pack Markdown path and JSON/index path to the runtime handoff and preserve the Task Session synchronization obligations.
+39. If running locally, make only the changes required for the task scope.
+40. Avoid unrelated refactors or opportunistic cleanup unless they are necessary for completion.
 
 ## Step 7 - Validate Completion
 
-35. Validate against every done criterion and context-pack obligation.
-36. Run relevant checks based on touched assets.
-37. If a runtime adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
-38. If the task-session route spawned, inherited, or requested subagents, verify the subagent lifecycle ledger before reporting success: every agent must be joined, closed, blocked with residue, timed out with residue and reroute, or handed off with reroute.
-39. Treat hidden open agents, pending joins, pending closes, and unreported thread-cap failures as `BLOCK`, not as successful fallback exploration.
-40. If validation cannot be run, record why and provide the closest useful substitute.
-41. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
+41. Validate against every done criterion and context-pack obligation.
+42. Run relevant checks based on touched assets.
+43. If a runtime adapter performed execution, review the runtime result against the original work-pack contract, context pack, handoff pack/index, and any reported fallback exploration.
+44. If Task Session or Continuation Router spawned, inherited, or requested subagents, verify the subagent lifecycle ledger before reporting success: every agent must be joined, closed, blocked with residue, timed out with residue and reroute, or handed off with reroute.
+45. Treat hidden open agents, pending joins, pending closes, and unreported thread-cap failures as `BLOCK`, not as successful fallback exploration.
+46. If validation cannot be run, record why and provide the closest useful substitute.
+47. If validation fails, attempt bounded recovery when appropriate; otherwise return `FLAG` with required follow-up.
 
 ## Step 8 - Synchronize Evidence
 
-42. Update the task record when evidence supports completion.
-43. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
-44. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
-45. If no synchronization is needed, report why.
+48. Update the task record when evidence supports completion.
+49. Update related traceability, checklist, registry, or status artifacts only when the task scope requires it.
+50. If the task belongs to a spell or sigil lifecycle, preserve experiment harness status and report whether reusable-behavior validation is updated, pending, blocked, or not applicable.
+51. If no synchronization is needed, report why.
 
 ## Step 9 - Report
 
-46. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, subagent closeout, files updated, validations, experiment harness status, and remaining follow-up.
-47. Report subagent closeout as `n/a`, `pass`, `flag`, or `block`; when it is not `n/a`, include counts for spawned, joined, closed, blocked, timed-out, handed-off, open, plus residue and reroute paths.
-48. When the result is `BLOCK` because a decision is required, append a `Decision Gate Result` section that names the target scope, lists the blocker question, presents 2-4 concrete options with trade-offs, records the recommended option if one exists, and points to the decision artifact path.
+52. Return a compact task-session report with context pack, handoff pack artifact, strict coverage, fallback-search status, decisions, runtime adapter, gate verdict, continuation handoff, probable routes, continuation status, owner receipt, returned next route, subagent closeout, files updated, validations, experiment harness status, and remaining follow-up.
+53. Report subagent closeout as `n/a`, `pass`, `flag`, or `block`; when it is not `n/a`, include counts for spawned, joined, closed, blocked, timed-out, handed-off, open, plus residue and reroute paths.
+54. When the result is `BLOCK` because a decision is required, append a `Decision Gate Result` section that names the target scope, lists the blocker question, presents 2-4 concrete options with trade-offs, records the recommended option if one exists, and points to the decision artifact path.
 </process>
 
 <authority-rule>
-No consequential mutation proceeds when gate status is `BLOCK`. Completion state may only be updated when supporting evidence exists.
+No consequential mutation proceeds inside the selected task when its gate status is `BLOCK`. A separate owner route may run only through Continuation Router with an exact authorized tuple and the owner's own gates; its mutation and receipt remain attributed to that owner. Completion state may only be updated when supporting evidence exists.
 </authority-rule>
 
 <observability>
@@ -173,6 +187,8 @@ Recommended signals:
 - selected runtime and adapter when used,
 - runtime handoff command shape or blocked fallback.
 - experiment harness status when the task belongs to spell or sigil lifecycle work.
+- continuation handoff path, blocker fingerprint, candidate count, probable route tuples, selection and authorization status,
+- continuation dispatch status, owner receipt, returned next route, and repeated-route or cycle detection.
 </observability>
 
 <quality-bar>
@@ -185,6 +201,10 @@ A successful execution of this sigil must:
 - block when required source context is missing, contradictory, or too weak to check constraints,
 - expose meaningful implementation trade-offs,
 - stop before mutation when blockers remain,
+- emit an actionable machine-readable continuation handoff for a terminal result when owner routing evidence exists,
+- expose one to three probable routes before any continuation dispatch,
+- dispatch at most one exactly authorized continuation route and preserve the selected owner's gates,
+- prevent unchanged blocked Task Session re-entry and recursive continuation,
 - run `decision-gate` before reporting blocker-level human approval, destructive cleanup, rollout, or policy choices,
 - keep runtime delegation behind an explicit adapter boundary,
 - block success when delegated subagents remain open, pending, hidden, or only implicitly abandoned,
@@ -211,6 +231,10 @@ Avoid:
 - hardcoding Codex as the only possible runtime,
 - treating a generated runtime handoff as completed work before evidence returns.
 - reporting AFK research as successful while subagent joins, closes, residues, or reroutes are unproven.
+- treating free-text `next_route` as mutation approval.
+- re-entering Task Session with the same blocker fingerprint and unchanged controlling evidence.
+- performing Invoke Refresh, Decision Gate, Goal, or another owner's work inside Task Session.
+- recursively executing the next route returned by a continuation owner.
 </anti-patterns>
 
 <output-contract>
@@ -229,6 +253,12 @@ Return:
 - Runtime: <runtime id or local>
 - Adapter: <adapter id or none>
 - Gate verdict: <summary>
+- Continuation handoff: <path or inline id | none>
+- Blocker fingerprint: <stable identifier | none>
+- Probable routes: <ranked 1-3 capability/mode tuples | none>
+- Continuation: not-requested | not-authorized | ambiguous | blocked | completed | flagged
+- Continuation owner receipt: <path | none>
+- Returned next route: <capability>:<mode> <target | none>
 - Subagent closeout: n/a | pass | flag | block, <spawned/joined/closed/blocked/timed_out/handed_off/open counts, residue, reroute>
 - Files updated: <paths or none>
 - Validation: <commands and results>

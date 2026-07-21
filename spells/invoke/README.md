@@ -39,7 +39,7 @@ Invoke does not require deprecated command files, slash commands, or command-res
 | `design`   | implemented (L1 contract) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts; validation examples still gate promotion. |
 | `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
 | `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
-| `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas. |
+| `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas while separating phase completion from handoff readiness. |
 | `full`     | deferred         | [full.md](./full.md)         | Composite execution mode, pending L2 and L3 readiness. |
 | `validate` | deferred         | [validate.md](./validate.md) | Lifecycle validation mode, pending L3.                 |
 
@@ -251,11 +251,13 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Handoff mode must preserve the user's split reason: workflow gap, new lifecycle idea, research direction, execution continuation, or generic continuation.
 - Refresh mode must map every proposed or applied artifact update to a typed source signal and must default to proposal-only.
 - Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
+- Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
 
 ## Global Failure Policy
 
 - Return `block` when blocker ambiguity, missing mandatory inputs, or governance violations prevent safe mode output.
 - Return `flag` when mode output is usable but includes unresolved non-blocker gaps.
+- Apply these statuses to the current mode artifact. A downstream target or later lifecycle gate must not lower a complete current-mode artifact unless the mode contract explicitly makes that condition a current input.
 - Stop at the first blocked gate and return remediation guidance rather than silently switching modes.
 
 ## Local Customization
@@ -278,6 +280,7 @@ When `.arcanum/observability/` exists, record:
 - handoff target recommendation,
 - handoff type and source session reference when mode is `handoff`,
 - refresh source signal count, delta classes, mutation mode, and no-op rationale when mode is `refresh`,
+- authored phase status, phase-status basis, handoff status, and blocker counts by lifecycle scope when mode is `refresh`,
 - target artifact name, type, owner, and lifecycle cycle,
 - gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
@@ -301,7 +304,7 @@ Return:
 - Spell: invoke
 - Canonical ID: invoke
 - Scope: library
-- Phase status: pass | flag | block
+- Phase status: pass | flag | block | no-op
 - Mode contract: <path>
 - Outputs: <mode output paths>
 - Design views: <coverage summary | n/a>

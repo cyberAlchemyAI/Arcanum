@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "route-unknown-capability-block",
+  "source": {"capability": "review", "mode": "inspect", "result": "flag", "receipt": "fixtures/source-unknown-route.json", "blocker_fingerprint": "sha256:unknown-route-v1", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "unknown-owner:mutate", "evidence": "The caller named a route absent from the installed capability catalog."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "unknown-owner",
+      "mode": "mutate",
+      "mutation_mode": null,
+      "owner": "unresolved",
+      "evidence": ["The source receipt contains an unresolvable legacy route string."],
+      "required_inputs": ["installed owner contract"],
+      "missing_inputs": ["installed owner contract"],
+      "mutation_risk": "high",
+      "approval_required": true,
+      "authorization_status": "mismatch",
+      "expected_receipt": "No owner receipt can be defined until the capability resolves.",
+      "fallback": "Stop and inspect the installed capability catalog."
+    }
+  ],
+  "selection": {"status": "blocked", "candidate_rank": 1, "reason": "The named capability and mode do not resolve to an installed owner contract."},
+  "dispatch": {"status": "blocked", "runtime": null, "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": null
+}

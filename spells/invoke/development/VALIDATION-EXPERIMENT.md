@@ -6,14 +6,14 @@ This experiment applies the framework [Validation Experiment Protocol](../../../
 
 - Canonical ID: `invoke`
 - Source path: [../README.md](../README.md)
-- Promotion target: library spell registry release after L1 validation
-- Current status: L0 `define` implemented, L1 `design` contract implemented, L2/L3 modes deferred
+- Promotion target: preserve implemented-mode evidence and proceed toward library spell registry release only after `full` and `validate` evidence
+- Current status: L0 `define`, L1 `design`, L2 `plan`, L2H `handoff`, and L2R `refresh` implemented; `full` and `validate` deferred
 
 ## Hypothesis
 
-`invoke` can reliably turn vague development intent into governed define outputs, then turn approved define outputs into a governed design bundle with six required views, glossary consistency checks, explicit gaps, non-mutating upstream behavior, and transport-ready handoff reports.
+`invoke` can reliably turn vague development intent into governed define outputs, turn approved define outputs into governed design and plan artifacts, and refresh existing workflow artifacts without confusing completion of the current Refresh artifact with permission or readiness for later lifecycle work.
 
-If this passes, `invoke` is ready to proceed to L2 planning work. If it fails, planning/full/validate work remains blocked.
+If this passes, the implemented modes retain their evidence-backed status and the targeted Refresh repair is usable. `full`, `validate`, and registry release remain separately gated.
 
 ## Fixtures
 
@@ -29,6 +29,11 @@ If this passes, `invoke` is ready to proceed to L2 planning work. If it fails, p
 | [INV-DESIGN-FLAG-001](fixtures/INV-DESIGN-FLAG-001.md) | Evidence ambiguity. | Approved spec exists, but architecture evidence is contradictory or incomplete. | `flag` or `block` depending on decision impact; research companion is selected and claim status is carried into design decisions. |
 | [INV-DESIGN-HANDOFF-001](fixtures/INV-DESIGN-HANDOFF-001.md) | Spell or sigil target. | Approved define outputs target a spell or sigil. | `pass` or `flag`; `invoke` emits handoff context and routes execution to `spellcraft` or `sigil-development`. |
 | [INV-INTEGRATION-DEFINE-DESIGN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-001.md) | Define-to-design integration chain. | Realistic request, define expected output, concrete spec/glossary/transport artifacts, and design expected output. | `pass`; design consumes define artifacts, preserves glossary terms, emits six views, records transport, and routes to `plan`. |
+| [INV-REFRESH-PASS-001](fixtures/INV-REFRESH-PASS-001.md) | Complete proposal with later gates. | Exact proposal, no apply approval, and pending target work. | `pass`; current proposal is complete, handoff is gated, and mutation remains unauthorized. |
+| [INV-REFRESH-FLAG-001](fixtures/INV-REFRESH-FLAG-001.md) | Refresh-authoring ambiguity. | Conflicting artifacts with no known authority winner. | `flag`; exact safe proposal remains incomplete and the blocker is scoped to refresh authoring. |
+| [INV-REFRESH-BLOCK-001](fixtures/INV-REFRESH-BLOCK-001.md) | Missing current-mode inputs. | Target artifact inventory and exact scope are missing. | `block`; no safe Refresh artifact is produced. |
+| [INV-REFRESH-NOOP-001](fixtures/INV-REFRESH-NOOP-001.md) | Evidence already represented. | No delta or drift. | `no-op`; handoff is not needed. |
+| [INV-REFRESH-APPLY-PASS-001](fixtures/INV-REFRESH-APPLY-PASS-001.md) | Approved application. | Exact scope, explicit approval, and validation command. | `pass`; delta is applied and validated with ready handoff. |
 
 ## Execution Method
 
@@ -58,6 +63,8 @@ To run every template task through Codex, generate prompts with [generate-templa
 | Prompt selector coverage | Run [select-template-example-prompt.sh](select-template-example-prompt.sh). | Exact task ID, template+complexity, and `next` selection return prompt and output paths. |
 | Define gate coverage | Review [../define.md](../define.md). | Missing goal blocks, candidate-template gaps flag, glossary promotion is gated, and define transport behavior is defined. |
 | Design gate coverage | Review [../design.md](../design.md). | Six views, glossary consistency, source-contract gate, no-silent-upstream-mutation, and transport behavior are defined. |
+| Refresh gate coverage | Review [../refresh.md](../refresh.md) and refresh fixtures. | Phase status is current-artifact-local, blockers have lifecycle scope, handoff readiness is separate, and proposal-only pass never authorizes mutation. |
+| Refresh machine evidence | Run `run-distill-active-mode-evidence-fixtures.sh`. | Valid apply and proposal evidence pass; proposal mutation stays unauthorized; downstream-only flag misclassification blocks. |
 | Codex adapter readiness | Inspect `.agents/skills/invoke/SKILL.md`, `.arcanum/runtime/config.json`, and `.codex/commands/arcanum-spell-invoke.md` when legacy commands are installed. | Codex can discover the native `invoke` skill package, and the optional legacy command routes to canonical `arcanum/spells/invoke` contracts. |
 | Fixture replay | `arcanum/spells/invoke/development/run-validation-fixtures.sh` | Every fixture and expected output reports `PASS`, the final result is `RESULT: pass`, and a timestamped run report is written. |
 | Integration replay | `arcanum/spells/invoke/development/run-validation-fixtures.sh` | Define-to-design fixture proves spec, glossary, and transport artifacts feed the design output. |
@@ -71,8 +78,10 @@ Each fixture dry-run should return:
 ## Invoke Validation Fixture Result
 
 - Fixture: <fixture-id>
-- Mode: define | design
+- Mode: define | design | plan | handoff | refresh
 - Phase status: pass | flag | block
+- Phase status basis: <current artifact completeness when mode is refresh>
+- Handoff readiness: <ready | gated | deferred | blocked | not-needed when mode is refresh>
 - Inputs present: <summary>
 - Template/profile selection: <summary>
 - Design views: <coverage summary | n/a>
@@ -86,7 +95,7 @@ Each fixture dry-run should return:
 
 ## Promotion Gates
 
-`invoke` may move from L1 contract to L2 planning work when:
+The implemented Invoke modes retain their validation status when:
 
 - `TEMPLATE-TASK-MATRIX` passes,
 - `PROMPT-SELECTOR` passes,
@@ -97,6 +106,8 @@ Each fixture dry-run should return:
 - `INV-DESIGN-PASS-001` passes,
 - `INV-DESIGN-BLOCK-001` blocks for the expected reason,
 - `INV-INTEGRATION-DEFINE-DESIGN-001` passes,
+- all five Refresh classification fixtures pass,
+- Refresh machine evidence rejects downstream-only proposal flags and proposal-only mutation authority,
 - companion selection works for research, UX, spell, and sigil design cases,
 - glossary conflicts are recorded instead of silently promoted,
 - Codex adapter files exist and point to canonical `invoke` contracts,
@@ -104,14 +115,15 @@ Each fixture dry-run should return:
 
 Registry release remains blocked until L2/L3 plan, full, validate, examples, and registry gates pass.
 
-## Current Initial Verdict
+## Current Verdict
 
 `pass`.
 
-The contract and template scaffolds are present, markdown links pass, Codex adapter files exist, and the L0 define plus L1 design dry-run fixtures are recorded in [VALIDATION.md](VALIDATION.md).
+The contract and template scaffolds are present, markdown links pass, runtime mirrors exist, and deterministic controls cover the implemented define, design, plan, handoff, and Refresh surfaces. Live Refresh stability evidence remains deferred and no `full`, `validate`, or registry-promotion claim is made.
 
 ## Next Actions
 
-1. Use the Codex command bridge at `.codex/commands/arcanum-spell-invoke.md` for local Codex invocation.
-2. Promote to L2 planning work.
-3. Keep registry release blocked until L2/L3 validation passes.
+1. Add a live Refresh stability regime before using this repair as promotion evidence.
+2. Implement and validate `full` mode.
+3. Implement and validate `validate` mode.
+4. Keep registry release blocked until the remaining lifecycle evidence passes.

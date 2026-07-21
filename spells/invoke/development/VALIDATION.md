@@ -6,7 +6,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 
 - Artifact: `invoke`
 - Scope: library spell
-- Validation date: 2026-05-18
+- Validation date: 2026-07-20
 - Validated layer: L0 define, L1 design, L2 plan contract, L2H handoff contract, L2R refresh contract, and define-to-design-to-plan live loop readiness
 - Promotion target: proceed to `full` and `validate` mode work after L2 plan evidence
 - Verdict: `pass`
@@ -27,13 +27,14 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
 | Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-layering, canonical work-pack, validation strategy, complexity-based output mode, layer-mapped waves for medium/high complexity, implementation-detail specs, SWU decomposition for execution tasks, navigable work-pack tables, artifact-boundary clarity, and subagent/local-fallback-ready SWU handoff fields. |
 | Handoff gate coverage | pass | [../handoff.md](../handoff.md) requires a new-session prompt, source session reference, handoff type, Context Builder selection, selected/excluded context, and explicit next route. |
-| Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, and pass/flag/block/no-op statuses. |
+| Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, pass/flag/block/no-op statuses, phase-local completion, scoped blockers, and separate handoff readiness. |
+| Refresh evidence relationships | pass | `run-distill-active-mode-evidence-fixtures.sh` proves apply-approved pass can authorize mutation, proposal-only pass cannot authorize mutation, and a proposal-only flag with only apply/downstream blockers is rejected. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Native authoring readiness | pass | `README.md`, `define.md`, `design.md`, and `plan.md` do not require deprecated command files as readiness evidence; plan SWUs include native receipt/subagent result shape. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
 | Integration replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-001` proves define artifacts feed design inputs, preserve glossary terms, emit six views, and route next to `plan`. |
 | Plan replay | pass | `INV-PLAN-PASS-001`, `INV-PLAN-SPLIT-001`, and `INV-PLAN-BLOCK-001` prove low-complexity compact mapping, medium/high layer planning with implementation-detail specs and SWU decomposition, and blocked missing-input behavior. The canonical work-pack hierarchy, navigable table links, and new SWU handoff fields are a contract refresh and should be covered in the next plan fixture refresh. |
-| Refresh replay | pass | `INV-REFRESH-PASS-001`, `INV-REFRESH-FLAG-001`, `INV-REFRESH-BLOCK-001`, and `INV-REFRESH-NOOP-001` prove evidence-backed proposal, artifact-drift flag, missing-input block, and no-op behavior. |
+| Refresh replay | pass | `INV-REFRESH-PASS-001`, `INV-REFRESH-FLAG-001`, `INV-REFRESH-BLOCK-001`, `INV-REFRESH-NOOP-001`, and `INV-REFRESH-APPLY-PASS-001` prove complete gated proposal, authoring-ambiguity flag, missing-input block, no-op, and approved apply behavior. |
 | Define-design-plan replay | pass | `INV-INTEGRATION-DEFINE-DESIGN-PLAN-001` proves plan consumes design inputs, preserves define glossary terms, emits layering/work-pack/transport artifacts, and routes next to `task-session`. Existing fixture evidence should be refreshed against the work-pack-only planning contract. |
 | Live define loop | pass | [live-evidence/LIVE-DEFINE-001/loop-report.md](live-evidence/LIVE-DEFINE-001/loop-report.md) reached two consecutive passing Codex attempts; [output.md](live-evidence/LIVE-DEFINE-001/output.md) preserves the real artifact body. |
 | Live design loop | pass | [live-evidence/LIVE-DESIGN-001/loop-report.md](live-evidence/LIVE-DESIGN-001/loop-report.md) reached two consecutive passing Codex attempts after correcting overly broad placeholder/blocker detection in the harness validator; [output.md](live-evidence/LIVE-DESIGN-001/output.md) preserves the real artifact body. |
@@ -96,10 +97,11 @@ Registry release remains blocked for `plan`, `full`, and `validate` modes until 
 | [INV-PLAN-BLOCK-001](fixtures/INV-PLAN-BLOCK-001.md) | pass | Dry-run with missing approved design refs and companion status blocks at the plan activation gate. |
 | [INV-HANDOFF-PASS-001](fixtures/INV-HANDOFF-PASS-001.md) | pass | Dry-run for workflow reflection handoff preserves the user's felt gap, reports Context Builder coverage, and routes next to `workflow-reflect`. |
 | [INV-HANDOFF-BLOCK-001](fixtures/INV-HANDOFF-BLOCK-001.md) | pass | Dry-run without a source session reference blocks before Context Builder selection. |
-| [INV-REFRESH-PASS-001](fixtures/INV-REFRESH-PASS-001.md) | pass | Dry-run maps latest evidence into proposal-only blocker/status/route deltas without applying changes. |
-| [INV-REFRESH-FLAG-001](fixtures/INV-REFRESH-FLAG-001.md) | pass | Dry-run flags artifact drift when safe correction needs owner review. |
+| [INV-REFRESH-PASS-001](fixtures/INV-REFRESH-PASS-001.md) | pass | Dry-run completes a proposal-only artifact, keeps its phase at pass, and gates the handoff on apply authorization and downstream work. |
+| [INV-REFRESH-FLAG-001](fixtures/INV-REFRESH-FLAG-001.md) | pass | Dry-run flags artifact drift only because unresolved artifact authority prevents an exact safe proposal. |
 | [INV-REFRESH-BLOCK-001](fixtures/INV-REFRESH-BLOCK-001.md) | pass | Dry-run blocks when target artifact inventory is missing. |
 | [INV-REFRESH-NOOP-001](fixtures/INV-REFRESH-NOOP-001.md) | pass | Dry-run records no-op when latest evidence is already represented. |
+| [INV-REFRESH-APPLY-PASS-001](fixtures/INV-REFRESH-APPLY-PASS-001.md) | pass | Dry-run applies an explicitly approved scoped delta, validates it, and reports a ready handoff. |
 | [INV-INTEGRATION-DEFINE-DESIGN-PLAN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md) | pass | Integration dry-run chains define and design artifacts into plan, preserves glossary terms, emits plan artifacts and transport, and keeps execution deferred. |
 
 ## Runner Output
@@ -135,6 +137,7 @@ PASS: INV-REFRESH-PASS-001
 PASS: INV-REFRESH-FLAG-001
 PASS: INV-REFRESH-BLOCK-001
 PASS: INV-REFRESH-NOOP-001
+PASS: INV-REFRESH-APPLY-PASS-001
 PASS: INV-INTEGRATION-DEFINE-DESIGN-001
 PASS: INV-INTEGRATION-DEFINE-DESIGN-PLAN-001
 PASS: INV-QUALITY-ANTI-PATTERN-001

@@ -1,0 +1,42 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "route-medium-authorized-refresh",
+  "source": {"capability": "task-session", "mode": "execute", "result": "blocked", "receipt": "fixtures/source-planning-drift.json", "blocker_fingerprint": "sha256:planning-drift-v1", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "invoke:refresh:apply-approved", "evidence": "The current operator request explicitly approves this exact route for the declared target inventory and delta scope."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "invoke",
+      "mode": "refresh",
+      "mutation_mode": "apply-approved",
+      "owner": "invoke",
+      "evidence": ["The terminal receipt names planning artifact drift and invoke-refresh."],
+      "required_inputs": ["target inventory", "delta scope", "validation surface", "explicit apply approval"],
+      "missing_inputs": [],
+      "mutation_risk": "medium",
+      "approval_required": true,
+      "authorization_status": "matched",
+      "expected_receipt": "Invoke Refresh receipt with applied delta, validation, and next route.",
+      "fallback": "Return blocked with the exact failed Invoke gate."
+    },
+    {
+      "rank": 2,
+      "capability": "stop",
+      "mode": "user-input",
+      "mutation_mode": null,
+      "owner": "caller",
+      "evidence": ["Stopping remains safe if an Invoke owner gate fails."],
+      "required_inputs": [],
+      "missing_inputs": [],
+      "mutation_risk": "none",
+      "approval_required": false,
+      "authorization_status": "not-required",
+      "expected_receipt": "Blocked continuation result with an exact unblock action.",
+      "fallback": "Stop without mutation."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "Receipt evidence, owner fit, required inputs, and exact authorization all match."},
+  "dispatch": {"status": "completed", "runtime": "bounded-helper", "owner_receipt": "fixtures/owner-invoke-refresh-receipt.json", "helper_closeout": "pass"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "SWU-GENERIC-001"}
+}

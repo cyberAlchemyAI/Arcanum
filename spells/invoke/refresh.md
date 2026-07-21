@@ -4,7 +4,7 @@
 
 - Spell: `invoke`
 - Mode: `refresh`
-- Status: implemented (L2 refresh contract, validation examples pending)
+- Status: implemented (L2 refresh contract)
 
 ## Purpose
 
@@ -30,7 +30,7 @@ Normal refresh mode requires:
 - Context Builder-selected source context when the source session is broad,
 - explicit approval when mutation mode is `apply-approved`.
 
-Refresh blocks when source evidence is missing, target artifact inventory is missing, mutation scope is ambiguous, or a proposed status change lacks evidence.
+Refresh blocks when source evidence is missing, target artifact inventory is missing, mutation scope is ambiguous, or a proposed status change lacks evidence. Missing apply approval blocks `apply-approved`; it does not block or flag a complete `proposal-only` artifact.
 
 ## Required Sigils
 
@@ -118,13 +118,27 @@ When mutation is approved:
 {
   "mode": "refresh",
   "phaseStatus": "pass|flag|block|no-op",
+  "phaseStatusBasis": {
+    "artifactComplete": true,
+    "refreshAuthoringBlockerCount": 0
+  },
+  "mutationMode": "proposal-only|apply-approved",
+  "handoffStatus": "ready|gated|deferred|blocked|not-needed",
   "sourceSignals": [],
   "targetArtifacts": [],
   "deltaSummary": [],
   "proposedChanges": [],
   "appliedChanges": [],
   "skippedChanges": [],
-  "blockers": [],
+  "blockers": [
+    {
+      "id": "<stable-id>",
+      "scope": "refresh-authoring|apply-authorization|target-lifecycle|audit",
+      "owner": "<owner>",
+      "status": "open|deferred|blocked|resolved",
+      "claim": "<what remains>"
+    }
+  ],
   "nextRoute": "",
   "validation": []
 }
@@ -137,6 +151,9 @@ When mutation is approved:
 - Mutation mode defaults to `proposal-only`.
 - `apply-approved` requires explicit approval, declared scope, and validation commands.
 - Every proposed or applied change must map to at least one `RefreshSignal`.
+- Phase status must describe completion of the current Refresh artifact, not readiness of a later apply, target-lifecycle, or audit step.
+- Every blocker must declare one lifecycle scope: `refresh-authoring`, `apply-authorization`, `target-lifecycle`, or `audit`.
+- For `proposal-only`, apply-authorization, target-lifecycle, and audit blockers may gate the handoff but must not lower a complete proposal from `pass`.
 - Setup proof must not be promoted into completion proof.
 - Blockers must be opened or preserved before status is upgraded.
 - Artifact drift must flag when the safe correction is not obvious.
@@ -148,10 +165,32 @@ When mutation is approved:
 
 | Status | Meaning |
 | --- | --- |
-| `pass` | Evidence-backed refresh proposal or approved update is complete. |
-| `flag` | Useful deltas exist, but approval, ownership, or drift resolution is still needed. |
-| `block` | Required source evidence, target inventory, scope, or approval is missing. |
+| `pass` | The requested Refresh artifact is complete: either an exact evidence-backed proposal or an approved, applied, validated update. Later apply authorization, target work, or audit may still gate the handoff. |
+| `flag` | A usable Refresh artifact exists, but uncertainty inside Refresh authoring still prevents an exact safe delta, scope, owner, or validation conclusion. |
+| `block` | The current mode cannot produce its required artifact because mandatory source evidence, target inventory, scope, or mode-specific approval is missing. Approval is mode-specific: it is mandatory for `apply-approved`, not for `proposal-only`. |
 | `no-op` | Latest evidence is already represented and no drift is found. |
+
+### Status Decision Table
+
+| Mutation mode | Current Refresh result | Remaining condition | Phase status | Handoff status |
+| --- | --- | --- | --- | --- |
+| `proposal-only` | Exact proposal complete | Apply authorization, target work, or audit remains | `pass` | `gated` or `deferred` |
+| `proposal-only` | Report is usable, but an exact safe proposal is still ambiguous | Refresh authoring decision remains | `flag` | `blocked` or `deferred` |
+| `proposal-only` | Mandatory source evidence, target inventory, or scope is missing | Refresh authoring cannot start safely | `block` | `blocked` |
+| `apply-approved` | Scoped changes applied and validated | None inside the approved apply scope | `pass` | `ready` |
+| `apply-approved` | Approval or another mandatory activation input is missing | Current apply mode is unauthorized | `block` | `blocked` |
+| either | Evidence is already represented and no drift exists | No mutation or handoff is required | `no-op` | `not-needed` |
+
+## Blocker Scope
+
+| Scope | Meaning | Effect on a complete `proposal-only` phase |
+| --- | --- | --- |
+| `refresh-authoring` | Prevents the report or exact safe proposal from being completed. | Can produce `flag` or `block`. |
+| `apply-authorization` | Proposal is complete, but mutation permission or apply inputs are pending. | Handoff is gated; phase remains `pass`. |
+| `target-lifecycle` | Target implementation or consumer work remains after refresh authoring. | Handoff is deferred or gated; phase remains `pass`. |
+| `audit` | Independent verification is required after apply or target execution. | Handoff is deferred or gated; phase remains `pass`. |
+
+The same blocker scope can affect `apply-approved` differently because apply authorization is an input to that mode. The report must derive phase status from mutation mode plus current-artifact completeness, then report handoff status separately.
 
 ## Relationship To Existing Invoke Modes
 
@@ -170,9 +209,11 @@ When `.arcanum/observability/` exists, record:
 - source signal count,
 - target artifact count,
 - delta class counts,
+- authored phase status and phase-status basis,
 - mutation mode,
+- handoff status,
 - proposed/applied/skipped counts,
-- blocker ownership split,
+- blocker counts by lifecycle scope and owner,
 - no-op rationale when relevant,
 - next route after refresh,
 - validation commands or review checks.
@@ -189,6 +230,8 @@ Return:
 - Canonical ID: invoke
 - Scope: library
 - Phase status: pass | flag | block | no-op
+- Phase status basis: <current Refresh artifact completeness and authoring blocker count>
+- Handoff readiness: ready | gated | deferred | blocked | not-needed
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: <refresh report path>, <patch proposal path or n/a>
 - Mutation mode: proposal-only | apply-approved
@@ -199,6 +242,7 @@ Return:
 - Skipped changes: <summary or none>
 - Validation: <commands or review checks>
 - Decisions: <route decisions>
+- Blockers by scope: <refresh-authoring, apply-authorization, target-lifecycle, audit counts>
 - Unresolved gaps: <invoke gaps; target artifact gaps>
 - Next route: task-session | workflow-reflect | invoke plan | deferred
 ```
@@ -206,6 +250,7 @@ Return:
 ## Evidence Capability Contract
 
 Active refresh output must carry `execution_path`, `dispatch_trace`, `source_evidence`,
-`target_inventory`, `mutation_mode`, `result`, and `next_route` evidence. A conditional Distill
-skip requires a rationale. The validator result, not an authored handoff label, controls mutation
-readiness.
+`target_inventory`, `mutation_mode`, `phase_status`, `handoff_status`, `blocker_scopes`, `result`,
+and `next_route` evidence. A conditional Distill skip requires a rationale. Phase status never
+grants apply authority: the validator result, `apply-approved` mutation mode, explicit approval,
+and a ready handoff jointly control mutation readiness.

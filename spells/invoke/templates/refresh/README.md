@@ -9,6 +9,7 @@ Use this family when `invoke refresh` turns latest session evidence into scoped 
 3. Default mutation mode to `proposal-only`.
 4. Require explicit approval before any `apply-approved` mutation.
 5. Preserve the distinction between setup proof, blocker evidence, completion proof, artifact drift, and no-op state.
+6. Derive phase status from the current Refresh artifact and report apply, target-lifecycle, and audit readiness separately.
 
 ## Templates
 
@@ -23,6 +24,8 @@ Use this family when `invoke refresh` turns latest session evidence into scoped 
 - Source evidence is required.
 - Target artifact inventory is required.
 - Every proposed or applied change must map to a `RefreshSignal`.
+- Every blocker declares `refresh-authoring`, `apply-authorization`, `target-lifecycle`, or `audit` scope.
+- A complete proposal-only artifact passes even when its handoff is gated by apply authorization or downstream work.
 - Artifact drift flags when no safe correction is obvious.
 - No-op is valid when evidence is already represented.
 - Apply mode requires explicit approval, declared scope, and validation commands.

@@ -7,6 +7,8 @@
 - Canonical ID: invoke
 - Scope: library
 - Phase status: block
+- Phase status basis: current Refresh artifact cannot be produced safely
+- Handoff readiness: blocked
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: n/a
 - Mutation mode: proposal-only
@@ -17,5 +19,6 @@
 - Skipped changes: all changes skipped because target inventory is missing
 - Validation: n/a
 - Decisions: block until target workflow root or artifact inventory is provided
+- Blockers by scope: refresh-authoring 2; apply-authorization 0; target-lifecycle 0; audit 0
 - Unresolved gaps: target artifact inventory; refresh scope
 - Next route: deferred

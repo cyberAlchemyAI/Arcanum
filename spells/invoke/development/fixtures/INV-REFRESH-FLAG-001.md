@@ -20,6 +20,9 @@ Refresh the work-pack after the latest session. The task file says the route is 
 ## Expected Result
 
 - Phase status: `flag`
+- Phase status basis: report usable, but the exact authoritative state and safe delta remain ambiguous
+- Handoff readiness: `blocked`
+- Blockers by scope: refresh-authoring 1; apply-authorization 0; target-lifecycle 0; audit 0
 - Source signals: artifact_drift
 - Proposed changes: flag conflict and propose review
 - Expected next route: deferred

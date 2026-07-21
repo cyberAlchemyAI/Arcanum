@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyberalchemy.ai/arcanum/continuation-route.schema.json",
+  "title": "Arcanum Continuation Route Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "route_id",
+    "source",
+    "authorization",
+    "candidates",
+    "selection",
+    "dispatch",
+    "owner_boundary",
+    "returned_next_route"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "arcanum.continuation_route.v1"
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "mode", "result", "receipt", "blocker_fingerprint"],
+      "properties": {
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "result": {"enum": ["pass", "block", "flag", "completed", "blocked", "flagged", "completed_at_next_blocker"]},
+        "receipt": {"type": "string", "minLength": 1},
+        "blocker_fingerprint": {"type": "string", "minLength": 1},
+        "legacy_adaptation": {"type": "boolean", "default": false}
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "exact_route", "evidence"],
+      "properties": {
+        "requested": {"type": "boolean"},
+        "exact_route": {"type": ["string", "null"]},
+        "evidence": {"type": ["string", "null"]}
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/candidate"}
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "candidate_rank", "reason"],
+      "properties": {
+        "status": {"enum": ["selected", "ambiguous", "not-authorized", "blocked", "none"]},
+        "candidate_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 3},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "runtime", "owner_receipt", "helper_closeout"],
+      "properties": {
+        "status": {"enum": ["not-requested", "not-authorized", "blocked", "completed", "flagged"]},
+        "runtime": {"type": ["string", "null"]},
+        "owner_receipt": {"type": ["string", "null"]},
+        "helper_closeout": {"enum": ["n/a", "pass", "flag", "block"]}
+      }
+    },
+    "owner_boundary": {
+      "enum": ["pass", "block"]
+    },
+    "returned_next_route": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability", "mode", "target"],
+          "properties": {
+            "capability": {"type": "string", "minLength": 1},
+            "mode": {"type": "string", "minLength": 1},
+            "target": {"type": ["string", "null"]}
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rank",
+        "capability",
+        "mode",
+        "mutation_mode",
+        "owner",
+        "evidence",
+        "required_inputs",
+        "missing_inputs",
+        "mutation_risk",
+        "approval_required",
+        "authorization_status",
+        "expected_receipt",
+        "fallback"
+      ],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1, "maximum": 3},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "mutation_mode": {"type": ["string", "null"]},
+        "owner": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "required_inputs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "missing_inputs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "mutation_risk": {"enum": ["none", "low", "medium", "high"]},
+        "approval_required": {"type": "boolean"},
+        "authorization_status": {"enum": ["not-required", "matched", "missing", "mismatch"]},
+        "expected_receipt": {"type": "string", "minLength": 1},
+        "fallback": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

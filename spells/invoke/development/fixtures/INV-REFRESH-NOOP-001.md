@@ -19,6 +19,9 @@ Refresh the invoke handoff validation artifacts after rerunning the same passing
 ## Expected Result
 
 - Phase status: `no-op`
+- Phase status basis: evidence is already represented and no artifact drift exists
+- Handoff readiness: `not-needed`
+- Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0
 - Source signals: no_op
 - Proposed changes: none
 - Expected next route: deferred

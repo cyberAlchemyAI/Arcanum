@@ -1,6 +1,6 @@
 # Task Session
 
-Task Session is an Arcana sigil for executing one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, and synchronization.
+Task Session is an Arcana sigil for executing one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, synchronization, and an optional one-hop continuation handoff.
 
 It is the stable Arcanum execution surface. Runtime-specific systems, including Codex, are treated as adapters rather than as the task-session identity itself.
 
@@ -41,8 +41,20 @@ Refinement, discovery, and multi-pass planning should happen before Task Session
 7. Select the execution runtime for this repository and task.
 8. Execute directly or delegate through a runtime handoff adapter.
 9. Validate against done criteria and context-pack obligations.
-10. Synchronize task state and related records.
-11. Return a compact session report.
+10. If the result is terminal, emit a normalized continuation handoff and probable owner routes.
+11. Optionally dispatch one exactly authorized route through Continuation Router and join its owner receipt.
+12. Synchronize task state and related records.
+13. Return a compact session report.
+
+## Terminal Continuation Boundary
+
+Task Session still owns exactly one task or SWU. When that task ends in `BLOCK`, `FLAG`, or a completed handoff, it can pass a normalized terminal receipt to [Continuation Router](../continuation-router/).
+
+The router exposes one to three probable routes before dispatch. With `--follow-next-route` and an exact `--authorize-route <capability>:<mode>[:<mutation-mode>]` grant, it may run one owner capability and return that owner's separate receipt and next route. It never recursively resumes Task Session.
+
+For example, contradictory planning state can route to `invoke:refresh`. Task Session preserves its original block, Invoke owns any approved planning mutation, and the returned Invoke receipt may name a fresh Task Session SWU. A route string alone never grants apply authority.
+
+The blocker fingerprint prevents a fresh invocation from re-entering the same Task Session gate with unchanged controlling evidence. When evidence changed, a fresh Task Session must still rebuild its context pack.
 
 ## Refinement Boundary
 
@@ -114,6 +126,10 @@ The sigil produces:
 - validation results,
 - synchronized completion evidence,
 - follow-up items.
+- continuation handoff and blocker fingerprint for terminal results,
+- one to three probable routes,
+- exact continuation authorization and dispatch status,
+- separate owner receipt and returned next route.
 
 For runtime-backed execution, the report also includes:
 

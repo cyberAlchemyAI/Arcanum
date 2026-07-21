@@ -37,6 +37,10 @@ It belongs here because it coordinates repository-wide discovery, optional mappe
 
 It belongs here because it coordinates long-lived rule authority across artifact structure, form, context selection, validator integration, conflict handling, and promotion decisions.
 
+[continuation-router](continuation-router/) turns one terminal capability receipt into probable owner routes, one exactly authorized dispatch, a joined owner receipt, and a returned next route.
+
+It belongs here because it coordinates evidence, authorization, owner isolation, helper lifecycle, and cycle prevention across a bounded capability handoff.
+
 [craft](craft/) maintains a project-local recursive ledger for contexts, blockers, enablers, decisions, gaps, definitions, next moves, route evidence, and recomposition.
 
 It belongs here because it coordinates durable project state across human-readable views, machine indexes, nested contexts, evidence links, blocker refinement, decisions, and recomposition.

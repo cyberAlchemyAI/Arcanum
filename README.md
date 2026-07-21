@@ -156,6 +156,7 @@ Use:
 - [spellcraft](arcana/spellcraft/) to design, install, validate, observe, and revise spells.
 - [implementation-layering](transmutations/implementation-layering/) to choose the smallest responsible implementation layer and promotion evidence.
 - [task-session](arcana/task-session/) to execute a bounded task after planning is ready.
+- [continuation-router](arcana/continuation-router/) to expose probable owner routes and execute one exactly authorized terminal handoff without repeating the blocked source capability.
 
 `invoke` may prepare lifecycle handoff context, but it should not absorb the lifecycle authority of sigil-development, spellcraft, or task-session.
 

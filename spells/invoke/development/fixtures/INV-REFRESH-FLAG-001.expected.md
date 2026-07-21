@@ -7,6 +7,8 @@
 - Canonical ID: invoke
 - Scope: library
 - Phase status: flag
+- Phase status basis: exact safe proposal is incomplete because artifact authority is unresolved
+- Handoff readiness: blocked
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: artifacts/refresh/REFRESH-REPORT.md, artifacts/refresh/REFRESH-PATCH-PROPOSAL.md
 - Mutation mode: proposal-only
@@ -17,5 +19,6 @@
 - Skipped changes: do not choose the winning artifact without approval
 - Validation: compare work-pack board row with task file blocker section
 - Decisions: artifact drift needs review because safe correction is not obvious
+- Blockers by scope: refresh-authoring 1; apply-authorization 0; target-lifecycle 0; audit 0
 - Unresolved gaps: owner must decide whether ready or blocked is authoritative
 - Next route: deferred

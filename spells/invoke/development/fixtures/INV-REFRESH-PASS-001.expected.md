@@ -7,6 +7,8 @@
 - Canonical ID: invoke
 - Scope: library
 - Phase status: pass
+- Phase status basis: proposal complete; refresh-authoring blockers 0
+- Handoff readiness: gated
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: artifacts/refresh/REFRESH-REPORT.md, artifacts/refresh/REFRESH-PATCH-PROPOSAL.md
 - Mutation mode: proposal-only
@@ -17,5 +19,6 @@
 - Skipped changes: do not mark score smoke complete because setup proof is not score proof
 - Validation: review proposed patch against source evidence
 - Decisions: update blockers before completion claims; keep mutation proposal-only
+- Blockers by scope: refresh-authoring 0; apply-authorization 1; target-lifecycle 1; audit 0
 - Unresolved gaps: real candidate and worker profile remain target-artifact gaps
 - Next route: task-session
