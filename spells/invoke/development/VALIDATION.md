@@ -6,8 +6,8 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 
 - Artifact: `invoke`
 - Scope: library spell
-- Validation date: 2026-07-20
-- Validated layer: L0 define, L1 design, L2 plan contract, L2H handoff contract, L2R refresh contract, and define-to-design-to-plan live loop readiness
+- Validation date: 2026-07-23
+- Validated layer: L0 define, L1 design, L2 plan contract, L2H handoff contract, L2R refresh contract, three-axis capability-status resolution, and define-to-design-to-plan live loop readiness
 - Promotion target: proceed to `full` and `validate` mode work after L2 plan evidence
 - Verdict: `pass`
 - Latest deterministic control report: generated under ignored `runs/`
@@ -29,6 +29,7 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Handoff gate coverage | pass | [../handoff.md](../handoff.md) requires a new-session prompt, source session reference, handoff type, Context Builder selection, selected/excluded context, and explicit next route. |
 | Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, pass/flag/block/no-op statuses, phase-local completion, scoped blockers, and separate handoff readiness. |
 | Refresh evidence relationships | pass | `run-distill-active-mode-evidence-fixtures.sh` proves apply-approved pass can authorize mutation, proposal-only pass cannot authorize mutation, and a proposal-only flag with only apply/downstream blockers is rejected. |
+| Capability status ceilings | pass | `run-capability-status-fixtures.sh` proves artifact-authored, registry-released, and mutation-runtime-ready are independently receipt-bound for all five active modes; `full` and `validate` remain unsupported and false on later axes. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Native authoring readiness | pass | `README.md`, `define.md`, `design.md`, and `plan.md` do not require deprecated command files as readiness evidence; plan SWUs include native receipt/subagent result shape. |
 | Fixture replay | pass | `arcanum/spells/invoke/development/run-validation-fixtures.sh` reports all define and design realistic fixtures and expected output files passing. |
@@ -74,7 +75,10 @@ LIVE-DEFINE-DESIGN-PLAN-001: VALIDATION=pass QUALITY_BAR_STATUS=pass ANTI_PATTER
 
 Failure/improvement evidence: an earlier generated `LIVE-DESIGN-001` partial loop produced non-pass attempts with `robot-talks.md` and `improvement-argument.md` artifacts. That loop exposed overly broad harness checks for Mermaid decision braces and benign missing-field decision rules; after tightening the validator, the design regime passed with two consecutive live attempts.
 
-Registry release remains blocked for `plan`, `full`, and `validate` modes until they have matching deterministic controls and live loop regimes.
+The resolver reports registry release only when a current owner receipt is
+supplied. Existing evidence does not include such a receipt for `plan`, `full`,
+or `validate`; their registry axis therefore remains false. `full` and
+`validate` also remain artifact-unsupported and runtime-false.
 
 ## Fixture Status
 

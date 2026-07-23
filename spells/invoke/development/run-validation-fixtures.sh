@@ -19,6 +19,12 @@ EXAMPLE_OUTPUTS_DIR="$INVOKE_DIR/development/example-outputs"
 PROMPT_SELECTOR="$INVOKE_DIR/development/select-template-example-prompt.sh"
 CODEX_EXAMPLE_RUNNER="$INVOKE_DIR/development/run-template-example-with-codex.sh"
 EXPERIMENT_CODEX_RUNNER="$ROOT_DIR/arcanum/arcana/experiment-harness/scripts/run-with-codex.sh"
+MATERIAL_PACKAGE_RUNNER="$INVOKE_DIR/development/run-material-package-fixtures.sh"
+CAPABILITY_STATUS_RUNNER="$INVOKE_DIR/development/run-capability-status-fixtures.sh"
+MATERIAL_PACKAGE_VALIDATOR="$INVOKE_DIR/scripts/material_package_validator.py"
+REFRESH_MATERIAL_HANDOFF="$INVOKE_DIR/scripts/refresh_material_handoff.py"
+MATERIAL_PACKAGE_SCHEMA="$INVOKE_DIR/schemas/material-package.schema.json"
+MATERIAL_RECEIPT_SCHEMA="$INVOKE_DIR/schemas/material-package-receipt.schema.json"
 RUNS_DIR="$INVOKE_DIR/development/runs"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_REPORT="$RUNS_DIR/$RUN_ID.md"
@@ -331,6 +337,46 @@ run_example_output_checks() {
 	if [[ "$failures" -eq 0 ]]; then
 		passed_fixtures+=('EXAMPLE-OUTPUTS')
 		record "PASS: EXAMPLE-OUTPUTS ($count checked)"
+	fi
+}
+
+run_material_package_checks() {
+	local output
+	require_file "$MATERIAL_PACKAGE_RUNNER"
+	if output="$("$MATERIAL_PACKAGE_RUNNER" 2>&1)"; then
+		passed_fixtures+=('INV-MATERIAL-PACKAGE')
+		output_artifacts+=("${MATERIAL_PACKAGE_RUNNER#$ROOT_DIR/}")
+		record 'PASS: INV-MATERIAL-PACKAGE'
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	else
+		record 'FAIL: INV-MATERIAL-PACKAGE'
+		failed_checks+=('material package fixture suite failed')
+		failures=$((failures + 1))
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	fi
+}
+
+run_capability_status_checks() {
+	local output
+	require_file "$CAPABILITY_STATUS_RUNNER"
+	if output="$("$CAPABILITY_STATUS_RUNNER" 2>&1)"; then
+		passed_fixtures+=('INV-CAPABILITY-STATUS')
+		output_artifacts+=("${CAPABILITY_STATUS_RUNNER#$ROOT_DIR/}")
+		record 'PASS: INV-CAPABILITY-STATUS'
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	else
+		record 'FAIL: INV-CAPABILITY-STATUS'
+		failed_checks+=('capability status fixture suite failed')
+		failures=$((failures + 1))
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
 	fi
 }
 
@@ -727,6 +773,12 @@ require_file "$TEMPLATE_TASKS"
 require_file "$EXPERIMENT_REGIMES"
 require_file "$INVOKE_EXAMPLE_RUNNER_SKILL"
 require_file "$INVOKE_EXAMPLE_RUNNER_README"
+require_file "$MATERIAL_PACKAGE_RUNNER"
+require_file "$CAPABILITY_STATUS_RUNNER"
+require_file "$MATERIAL_PACKAGE_VALIDATOR"
+require_file "$REFRESH_MATERIAL_HANDOFF"
+require_file "$MATERIAL_PACKAGE_SCHEMA"
+require_file "$MATERIAL_RECEIPT_SCHEMA"
 require_pattern "$INVOKE_CONTRACT" 'Every invoke mode must record a Dispatch Spec technique trace' 'invoke dispatch technique discipline'
 require_pattern "$INVOKE_CONTRACT" 'Plan, full, and validate must run automatic Distill validation' 'invoke distill validation discipline'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'active native `invoke` skill package' 'invoke example runner native invoke default'
@@ -769,10 +821,17 @@ require_pattern "$REFRESH_CONTRACT" 'Every blocker must declare one lifecycle sc
 require_pattern "$REFRESH_CONTRACT" 'proposal-only.*apply-authorization.*must not lower a complete proposal from `pass`' 'refresh proposal handoff separation gate'
 require_pattern "$REFRESH_CONTRACT" 'No-op is a valid phase status' 'refresh no-op gate'
 require_pattern "$REFRESH_CONTRACT" 'Refresh must not execute target tasks' 'refresh no execution gate'
+require_pattern "$REFRESH_CONTRACT" 'scripts/material_package_validator.py' 'refresh material validator gate'
+require_pattern "$REFRESH_CONTRACT" 'scripts/refresh_material_handoff.py' 'refresh material handoff resolver gate'
+require_pattern "$REFRESH_CONTRACT" 'Approval never overrides an invalid, absent, stale, or mismatched material' 'refresh approval non-override gate'
+require_pattern "$REFRESH_CONTRACT" 'proposal-only.*does not require a material package' 'refresh proposal-only material compatibility'
+require_pattern "$REFRESH_CONTRACT" 'material_package.*mutation_ready' 'refresh material evidence capability'
 
 run_template_task_matrix "$TEMPLATE_TASKS"
 run_prompt_selector_checks
 run_example_output_checks
+run_material_package_checks
+run_capability_status_checks
 
 run_fixture \
 	"$FIXTURE_DIR/INV-DEFINE-PASS-001.md" \

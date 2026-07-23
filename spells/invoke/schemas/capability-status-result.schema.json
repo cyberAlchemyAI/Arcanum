@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/capability-status-result/1-0-0",
+  "title": "InvokeCapabilityStatusResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode",
+    "capability_sha256",
+    "artifact_authored",
+    "registry_released",
+    "mutation_runtime_ready"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.capability-status.result.v1"
+    },
+    "mode": {
+      "enum": [
+        "define",
+        "design",
+        "plan",
+        "handoff",
+        "refresh",
+        "full",
+        "validate"
+      ]
+    },
+    "capability_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "artifact_authored": {
+      "$ref": "#/$defs/artifact_axis"
+    },
+    "registry_released": {
+      "$ref": "#/$defs/boolean_axis"
+    },
+    "mutation_runtime_ready": {
+      "$ref": "#/$defs/boolean_axis"
+    }
+  },
+  "$defs": {
+    "common_axis": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence",
+        "diagnostics"
+      ],
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "artifact_axis": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common_axis"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "evidence",
+            "diagnostics"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "pass",
+                "flag",
+                "block",
+                "unsupported"
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "diagnostics": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "boolean_axis": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common_axis"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "evidence",
+            "diagnostics"
+          ],
+          "properties": {
+            "status": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "diagnostics": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

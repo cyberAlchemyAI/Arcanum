@@ -1,0 +1,55 @@
+{
+  "schema_version": "invoke.refresh-material-handoff-fixtures.v1",
+  "cases": [
+    {
+      "id": "valid-material-receipt-admits-ready",
+      "receipt_source": "valid",
+      "mutation_mode": "apply-approved",
+      "requested_handoff": "ready",
+      "expected_phase_status": "pass",
+      "expected_handoff_status": "ready",
+      "expected_mutation_ready": true,
+      "expected_blocker": null
+    },
+    {
+      "id": "approved-invalid-material-blocks",
+      "receipt_source": "invalid-stale-output",
+      "mutation_mode": "apply-approved",
+      "requested_handoff": "ready",
+      "expected_phase_status": "block",
+      "expected_handoff_status": "blocked",
+      "expected_mutation_ready": false,
+      "expected_blocker": "material patch verdict is not pass"
+    },
+    {
+      "id": "stale-passing-receipt-blocks",
+      "receipt_source": "stale-receipt-digest",
+      "mutation_mode": "apply-approved",
+      "requested_handoff": "ready",
+      "expected_phase_status": "block",
+      "expected_handoff_status": "blocked",
+      "expected_mutation_ready": false,
+      "expected_blocker": "material package digest mismatch"
+    },
+    {
+      "id": "missing-material-receipt-blocks",
+      "receipt_source": "missing",
+      "mutation_mode": "apply-approved",
+      "requested_handoff": "ready",
+      "expected_phase_status": "block",
+      "expected_handoff_status": "blocked",
+      "expected_mutation_ready": false,
+      "expected_blocker": "material receipt missing"
+    },
+    {
+      "id": "proposal-only-remains-non-mutation",
+      "receipt_source": "missing",
+      "mutation_mode": "proposal-only",
+      "requested_handoff": "deferred",
+      "expected_phase_status": "pass",
+      "expected_handoff_status": "deferred",
+      "expected_mutation_ready": false,
+      "expected_blocker": null
+    }
+  ]
+}

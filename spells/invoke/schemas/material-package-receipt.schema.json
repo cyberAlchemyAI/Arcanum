@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/material-package-receipt/1-0-0",
+  "title": "InvokeMaterialPackageReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "patchVerdict",
+    "mutationHandoff",
+    "packageDigest",
+    "validatedPaths",
+    "dependencyResult",
+    "ownerBoundaryResult",
+    "publicationBoundaryResult",
+    "validationCommands",
+    "lifecycleOwner",
+    "authorityClass",
+    "publicationClass",
+    "reasons"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "packageId": {"type": "string", "minLength": 1},
+    "patchVerdict": {"enum": ["pass", "reject", "not-applicable"]},
+    "mutationHandoff": {"enum": ["ready", "gated", "deferred", "blocked"]},
+    "packageDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "validatedPaths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "dependencyResult": {"enum": ["pass", "reject", "not-applicable"]},
+    "ownerBoundaryResult": {"enum": ["pass", "reject"]},
+    "publicationBoundaryResult": {"enum": ["pass", "reject"]},
+    "validationCommands": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "lifecycleOwner": {"type": ["string", "null"], "minLength": 1},
+    "authorityClass": {"enum": ["public", "private", null]},
+    "publicationClass": {"enum": ["public", "private", "internal", null]},
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

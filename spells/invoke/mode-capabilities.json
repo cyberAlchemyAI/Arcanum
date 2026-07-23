@@ -1,12 +1,27 @@
 {
   "schema_version": "1.0.0",
   "spell": "invoke",
+  "status_axes": {
+    "artifact_authored": {
+      "values": ["pass", "flag", "block", "unsupported"],
+      "evidence": "artifact receipt"
+    },
+    "registry_released": {
+      "values": [true, false],
+      "evidence": "registry owner receipt bound to this capability table"
+    },
+    "mutation_runtime_ready": {
+      "values": [true, false],
+      "evidence": "material-package receipt plus mode-specific runtime receipt"
+    }
+  },
   "modes": {
     "define": {
       "implementation_status": "active",
       "dispatch_trace": "required",
       "distill": "conditional",
       "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
       "evidence": {
         "required": ["execution_path", "dispatch_trace", "template_selection", "layering_or_gap", "result", "next_route"],
         "distill_skip_requires_rationale": true
@@ -17,6 +32,7 @@
       "dispatch_trace": "required",
       "distill": "conditional",
       "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
       "evidence": {
         "required": ["execution_path", "dispatch_trace", "source_contracts", "template_selection", "result", "next_route"],
         "distill_skip_requires_rationale": true
@@ -27,6 +43,7 @@
       "dispatch_trace": "required",
       "distill": "required",
       "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
       "evidence": {
         "required": ["execution_path", "dispatch_trace", "work_pack", "implementation_layering", "swu_manifest", "validation_strategy", "result", "next_route"],
         "distill_skip_requires_rationale": false
@@ -37,6 +54,7 @@
       "dispatch_trace": "required",
       "distill": "conditional",
       "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
       "evidence": {
         "required": ["execution_path", "dispatch_trace", "source_session", "context_builder", "obligation_coverage", "result", "next_route"],
         "distill_skip_requires_rationale": true
@@ -47,6 +65,7 @@
       "dispatch_trace": "required",
       "distill": "conditional",
       "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "refresh_handoff"],
       "evidence": {
         "required": ["execution_path", "dispatch_trace", "source_evidence", "target_inventory", "mutation_mode", "phase_status", "handoff_status", "blocker_scopes", "result", "next_route"],
         "distill_skip_requires_rationale": true
@@ -56,13 +75,15 @@
       "implementation_status": "deferred",
       "dispatch_trace": "not_evaluated",
       "distill": "unsupported",
-      "mutation_handoff_allowed": "never"
+      "mutation_handoff_allowed": "never",
+      "runtime_required_gates": []
     },
     "validate": {
       "implementation_status": "deferred",
       "dispatch_trace": "not_evaluated",
       "distill": "unsupported",
-      "mutation_handoff_allowed": "never"
+      "mutation_handoff_allowed": "never",
+      "runtime_required_gates": []
     }
   }
 }

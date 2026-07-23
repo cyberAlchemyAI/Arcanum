@@ -60,6 +60,12 @@ Refresh blocks when source evidence is missing, target artifact inventory is mis
 - known blocker IDs,
 - known task, SWU, wave, or route IDs,
 - optional expected next route.
+- for `apply-approved`, staged material-package path and staging root,
+- for `apply-approved`, expected material package ID and canonical digest,
+- for `apply-approved`, material-package receipt path produced by
+  `scripts/material_package_validator.py`,
+- material receipt schema at
+  `schemas/material-package-receipt.schema.json`.
 
 ## Refresh Signal Model
 
@@ -130,6 +136,26 @@ When mutation is approved:
   "proposedChanges": [],
   "appliedChanges": [],
   "skippedChanges": [],
+  "materialPackage": {
+    "required": true,
+    "receiptPresent": true,
+    "schemaValid": true,
+    "patchVerdict": "pass|reject|not-applicable",
+    "mutationHandoff": "ready|gated|deferred|blocked",
+    "packageId": "",
+    "packageDigest": "",
+    "expectedPackageId": "",
+    "expectedPackageDigest": "",
+    "validatedPaths": [],
+    "dependencyResult": "pass|reject|not-applicable",
+    "ownerBoundaryResult": "pass|reject",
+    "publicationBoundaryResult": "pass|reject",
+    "validationCommands": [],
+    "lifecycleOwner": "",
+    "authorityClass": "public|private",
+    "publicationClass": "public|private|internal"
+  },
+  "mutationReady": false,
   "blockers": [
     {
       "id": "<stable-id>",
@@ -150,6 +176,19 @@ When mutation is approved:
 - Refresh scope must be declared before proposal or apply output.
 - Mutation mode defaults to `proposal-only`.
 - `apply-approved` requires explicit approval, declared scope, and validation commands.
+- `apply-approved` must validate the staged material package with
+  `scripts/material_package_validator.py`, then resolve handoff readiness with
+  `scripts/refresh_material_handoff.py`.
+- `apply-approved` requires a schema-valid material receipt whose package ID
+  and canonical digest match the expected package, whose `patchVerdict` is
+  `pass`, whose `mutationHandoff` is `ready`, whose reasons are empty, and whose
+  dependency, owner, publication, path, and validation evidence all pass.
+- Approval never overrides an invalid, absent, stale, or mismatched material
+  package receipt. Such evidence returns `phaseStatus=block`,
+  `handoffStatus=blocked`, and `mutationReady=false`.
+- `proposal-only` does not require a material package or material receipt. Its
+  complete authored phase may pass with `handoffStatus=gated|deferred` and
+  always returns `mutationReady=false`.
 - Every proposed or applied change must map to at least one `RefreshSignal`.
 - Phase status must describe completion of the current Refresh artifact, not readiness of a later apply, target-lifecycle, or audit step.
 - Every blocker must declare one lifecycle scope: `refresh-authoring`, `apply-authorization`, `target-lifecycle`, or `audit`.
@@ -178,6 +217,7 @@ When mutation is approved:
 | `proposal-only` | Report is usable, but an exact safe proposal is still ambiguous | Refresh authoring decision remains | `flag` | `blocked` or `deferred` |
 | `proposal-only` | Mandatory source evidence, target inventory, or scope is missing | Refresh authoring cannot start safely | `block` | `blocked` |
 | `apply-approved` | Scoped changes applied and validated | None inside the approved apply scope | `pass` | `ready` |
+| `apply-approved` | Material receipt is absent, invalid, stale, mismatched, rejected, or not ready | Mutation evidence cannot admit the handoff | `block` | `blocked` |
 | `apply-approved` | Approval or another mandatory activation input is missing | Current apply mode is unauthorized | `block` | `blocked` |
 | either | Evidence is already represented and no drift exists | No mutation or handoff is required | `no-op` | `not-needed` |
 
@@ -240,6 +280,9 @@ Return:
 - Proposed changes: <summary>
 - Applied changes: <summary or n/a>
 - Skipped changes: <summary or none>
+- Material package: <required, verdict, handoff, package ID/digest, validated paths, dependency/owner/publication results, validation commands, receipt path>
+- Mutation ready: true | false
+- Capability ceilings: <capability-status result path or not evaluated>
 - Validation: <commands or review checks>
 - Decisions: <route decisions>
 - Blockers by scope: <refresh-authoring, apply-authorization, target-lifecycle, audit counts>
@@ -250,7 +293,13 @@ Return:
 ## Evidence Capability Contract
 
 Active refresh output must carry `execution_path`, `dispatch_trace`, `source_evidence`,
-`target_inventory`, `mutation_mode`, `phase_status`, `handoff_status`, `blocker_scopes`, `result`,
-and `next_route` evidence. A conditional Distill skip requires a rationale. Phase status never
-grants apply authority: the validator result, `apply-approved` mutation mode, explicit approval,
-and a ready handoff jointly control mutation readiness.
+`target_inventory`, `mutation_mode`, `phase_status`, `handoff_status`, `blocker_scopes`,
+`material_package`, `mutation_ready`, `result`, and `next_route` evidence. A conditional
+Distill skip requires a rationale. Phase status never grants apply authority: a current
+schema-valid material receipt, `apply-approved` mutation mode, explicit approval, exact
+package identity/digest binding, and a ready handoff jointly control mutation readiness.
+That run-level `mutation_ready` result does not itself set the durable
+`mutation_runtime_ready` capability axis. When capability status is requested,
+`scripts/capability_status_resolver.py` also requires a current mode-runtime
+receipt bound to the capability-table digest and all Refresh runtime gates.
+Artifact and registry axes remain independent.

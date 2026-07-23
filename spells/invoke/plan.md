@@ -383,6 +383,7 @@ Return:
 - Validation strategy: <summary>
 - Decisions: <summary>
 - Unresolved gaps: <summary>
+- Capability ceilings: <capability-status result path or not evaluated>
 - Next route: task-session | full | spellcraft | sigil-development | deferred
 ```
 
@@ -390,5 +391,10 @@ Return:
 
 Active plan output must carry `execution_path`, `dispatch_trace`, `work_pack`,
 `implementation_layering`, `swu_manifest`, `validation_strategy`, `result`, and `next_route`
-evidence. Plan Distill is required and must pass. The validator result, not an authored handoff
-label, controls mutation readiness.
+evidence. Plan Distill is required and must pass. When capability status is
+requested, pass the Plan artifact receipt to
+`scripts/capability_status_resolver.py`. A passing Plan artifact can set only
+`artifact_authored=pass`; it cannot set `registry_released` or
+`mutation_runtime_ready`. Those axes require their own current receipts. The
+active-mode validator result remains a run-level handoff decision and is not a
+collapsed capability label.

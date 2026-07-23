@@ -46,10 +46,28 @@ Invoke does not require deprecated command files, slash commands, or command-res
 ## Evidence Capability Contract
 
 The machine-readable capability table is [mode-capabilities.json](./mode-capabilities.json).
-The capability gate resolves mode readiness before lifecycle processing. Deferred `full` and
-`validate` return `unsupported` without evaluating Dispatch or Distill and never grant mutation
-handoff authority. Active modes expose evidence obligations; a later mode-composition phase must
-consume those obligations before routing.
+The production resolver is
+[scripts/capability_status_resolver.py](./scripts/capability_status_resolver.py).
+It returns three independent axes:
+
+- `artifact_authored.status`: `pass`, `flag`, `block`, or `unsupported`, based
+  only on the mode's artifact receipt;
+- `registry_released.status`: boolean, based only on a registry owner receipt
+  bound to the current capability-table digest;
+- `mutation_runtime_ready.status`: boolean, based only on a passing material
+  package receipt plus a current mode-runtime receipt containing every required
+  gate.
+
+An earlier axis never implies a later axis. In particular, a valid Plan may be
+authored while registry release and runtime readiness remain false. Deferred
+`full` and `validate` return `artifact_authored=unsupported`,
+`registry_released=false`, and `mutation_runtime_ready=false` even if a caller
+supplies receipts. The request schema rejects legacy collapsed fields such as a
+single capability `status` or `mutation_handoff_allowed`.
+
+This capability result is distinct from a mode run's `phase_status` and
+handoff decision. Active-mode validation may consume evidence before routing,
+but it cannot substitute its run verdict for any of the three capability axes.
 
 ## Core Required Sigils
 
@@ -252,6 +270,9 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Refresh mode must map every proposed or applied artifact update to a typed source signal and must default to proposal-only.
 - Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
 - Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
+- Capability reporting must use the three-axis resolver. An authored artifact,
+  registry release, or runtime-ready receipt opens only its matching axis; no
+  consumer may reconstruct a collapsed readiness label.
 
 ## Global Failure Policy
 

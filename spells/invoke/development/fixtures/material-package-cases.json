@@ -1,0 +1,96 @@
+{
+  "schema_version": "invoke.material-package-fixtures.v1",
+  "cases": [
+    {
+      "id": "valid-authorized-material-package",
+      "mutation": "none",
+      "expected_patch_verdict": "pass",
+      "expected_handoff": "ready",
+      "expected_reason": null
+    },
+    {
+      "id": "missing-material-output",
+      "mutation": "missing-output",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "missing output"
+    },
+    {
+      "id": "empty-declared-change",
+      "mutation": "empty-change",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "empty declared change"
+    },
+    {
+      "id": "stale-output-digest",
+      "mutation": "stale-output-digest",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "output digest mismatch"
+    },
+    {
+      "id": "staged-path-escape",
+      "mutation": "path-escape",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "path escape"
+    },
+    {
+      "id": "staged-symlink-escape",
+      "mutation": "symlink-escape",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "path escape"
+    },
+    {
+      "id": "lifecycle-owner-escape",
+      "mutation": "owner-escape",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "lifecycle owner mismatch"
+    },
+    {
+      "id": "missing-dependency-frontier",
+      "mutation": "missing-dependency",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "missing dependency"
+    },
+    {
+      "id": "private-source-publication-escape",
+      "mutation": "publication-boundary",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "publication boundary violation"
+    },
+    {
+      "id": "approval-scope-mismatch",
+      "mutation": "approval-scope",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "approval scope mismatch"
+    },
+    {
+      "id": "generated-mirror-drift",
+      "mutation": "mirror-drift",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "mirror parity mismatch"
+    },
+    {
+      "id": "structurally-invalid-package",
+      "mutation": "structural-invalid",
+      "expected_patch_verdict": "reject",
+      "expected_handoff": "blocked",
+      "expected_reason": "material package schema invalid"
+    },
+    {
+      "id": "valid-proposal-only-non-mutation",
+      "mutation": "proposal-only",
+      "expected_patch_verdict": "not-applicable",
+      "expected_handoff": "deferred",
+      "expected_reason": null
+    }
+  ]
+}
