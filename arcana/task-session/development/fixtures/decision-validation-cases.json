@@ -1,0 +1,237 @@
+{
+  "schema_version": "task-session.decision-validation-fixtures.v1",
+  "cases": [
+    {
+      "id": "auto-recommendation-is-not-classification",
+      "kind": "automatic-choice",
+      "input": {
+        "recommendation": "clearly-safe",
+        "reversibility": "reversible"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "auto-consequential-choice-blocks",
+      "kind": "automatic-choice",
+      "input": {
+        "consequence": "consequential",
+        "reversibility": "reversible"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "auto-irreversible-choice-blocks",
+      "kind": "automatic-choice",
+      "input": {
+        "consequence": "nonconsequential",
+        "reversibility": "irreversible"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "auto-explicit-low-impact-choice-proceeds",
+      "kind": "automatic-choice",
+      "input": {
+        "consequence": "nonconsequential",
+        "reversibility": "reversible"
+      },
+      "expected": "PROCEED"
+    },
+    {
+      "id": "critical-failure-blocks",
+      "kind": "validation",
+      "input": {
+        "criticality": "acceptance-critical",
+        "result": "failed"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "critical-unavailable-blocks",
+      "kind": "validation",
+      "input": {
+        "criticality": "acceptance-critical",
+        "result": "unavailable"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "unclassified-failure-fails-closed",
+      "kind": "validation",
+      "input": {
+        "result": "failed"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "critical-passing-equivalent-passes",
+      "kind": "validation",
+      "input": {
+        "criticality": "acceptance-critical",
+        "result": "unavailable",
+        "accepted_equivalent": {
+          "named": true,
+          "accepted": true,
+          "result": "passed"
+        }
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "critical-failing-equivalent-blocks",
+      "kind": "validation",
+      "input": {
+        "criticality": "acceptance-critical",
+        "result": "unavailable",
+        "accepted_equivalent": {
+          "named": true,
+          "accepted": true,
+          "result": "failed"
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "named-noncritical-residue-flags",
+      "kind": "validation",
+      "input": {
+        "criticality": "noncritical",
+        "result": "failed",
+        "residue": {
+          "named": true,
+          "can_falsify_done_criterion": false
+        }
+      },
+      "expected": "FLAG"
+    },
+    {
+      "id": "unnamed-noncritical-residue-blocks",
+      "kind": "validation",
+      "input": {
+        "criticality": "noncritical",
+        "result": "failed",
+        "residue": {
+          "named": false,
+          "can_falsify_done_criterion": false
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "done-criterion-threatening-residue-blocks",
+      "kind": "validation",
+      "input": {
+        "criticality": "noncritical",
+        "result": "failed",
+        "residue": {
+          "named": true,
+          "can_falsify_done_criterion": true
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "critical-passing-validation-passes",
+      "kind": "validation",
+      "input": {
+        "criticality": "acceptance-critical",
+        "result": "passed"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "bounded-closeout-sync-passes",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": true,
+        "route_tuple": "invoke:refresh:apply-approved",
+        "terminal_source_receipt": "receipt.json",
+        "declared_target_inventory": ["WORK-PACK.md", ".craft/ledger.yml"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one", ".craft/ledger.yml": "sha256:two"},
+        "validation_commands": ["validate-work-pack", "validate-craft-parity"],
+        "expected_owner_receipt": "refresh-report.json",
+        "delta_classes": ["evidence_added", "status_changed", "route_changed"],
+        "scopes": ["planning-status", "declared-projection"],
+        "successor_selection": {"requested": true, "declared": true, "dependency_ready": true, "candidate_count": 1},
+        "owner_receipt": {"joined": true, "result": "pass"}
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "closeout-no-op-passes-without-owner-hop",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": false
+      },
+      "expected": "NO_OP"
+    },
+    {
+      "id": "closeout-missing-inventory-blocks",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": true,
+        "route_tuple": "invoke:refresh:apply-approved",
+        "terminal_source_receipt": "receipt.json",
+        "baseline_state": {},
+        "validation_commands": ["validate"],
+        "expected_owner_receipt": "refresh-report.json",
+        "delta_classes": ["status_changed"],
+        "scopes": ["planning-status"],
+        "owner_receipt": {"joined": true, "result": "pass"}
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "closeout-implementation-scope-blocks",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": true,
+        "route_tuple": "invoke:refresh:apply-approved",
+        "terminal_source_receipt": "receipt.json",
+        "declared_target_inventory": ["src/app.ts"],
+        "baseline_state": {"src/app.ts": "sha256:one"},
+        "validation_commands": ["test"],
+        "expected_owner_receipt": "refresh-report.json",
+        "delta_classes": ["status_changed"],
+        "scopes": ["implementation"],
+        "owner_receipt": {"joined": true, "result": "pass"}
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "closeout-ambiguous-successor-blocks",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": true,
+        "route_tuple": "invoke:refresh:apply-approved",
+        "terminal_source_receipt": "receipt.json",
+        "declared_target_inventory": ["WORK-PACK.md"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json",
+        "delta_classes": ["route_changed"],
+        "scopes": ["planning-status"],
+        "successor_selection": {"requested": true, "declared": true, "dependency_ready": true, "candidate_count": 2},
+        "owner_receipt": {"joined": true, "result": "pass"}
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "closeout-unjoined-owner-blocks",
+      "kind": "closeout-sync",
+      "input": {
+        "sync_required": true,
+        "route_tuple": "invoke:refresh:apply-approved",
+        "terminal_source_receipt": "receipt.json",
+        "declared_target_inventory": ["WORK-PACK.md"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json",
+        "delta_classes": ["evidence_added"],
+        "scopes": ["planning-status"],
+        "owner_receipt": {"joined": false, "result": "pass"}
+      },
+      "expected": "BLOCK"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "task-session.decision-validation-policy.v2",
+  "zero_argument_resolution": {
+    "default_mode": "resume-nearest",
+    "execution_limit": 1,
+    "source_priority": [
+      "explicit-source",
+      "visible-session-context",
+      "exact-session-cursor",
+      "cwd-ancestor-work-pack",
+      "scope-matched-continuity"
+    ],
+    "live_revalidation_required": true,
+    "tie_outcome": "BLOCK",
+    "missing_outcome": "BLOCK",
+    "forbidden_sources": [
+      "global-latest-observability",
+      "unscoped-transcript-search",
+      "fuzzy-relevance"
+    ]
+  },
+  "automatic_choice": {
+    "required_classification": {
+      "consequence": "nonconsequential",
+      "reversibility": "reversible"
+    },
+    "admitted_outcome": "PROCEED",
+    "rejected_outcome": "BLOCK"
+  },
+  "validation": {
+    "criticality_values": [
+      "acceptance-critical",
+      "noncritical"
+    ],
+    "default_criticality": "acceptance-critical",
+    "passing_result": "passed",
+    "accepted_equivalent": {
+      "must_be_named_and_accepted": true,
+      "must_pass": true
+    },
+    "acceptance_critical_unmet_outcome": "BLOCK",
+    "noncritical_residue": {
+      "must_be_named": true,
+      "must_not_falsify_done_criterion": true,
+      "admitted_outcome": "FLAG",
+      "rejected_outcome": "BLOCK"
+    }
+  },
+  "closeout_sync": {
+    "automatic": true,
+    "route_tuple": "invoke:refresh:apply-approved",
+    "required_inputs": [
+      "terminal_source_receipt",
+      "declared_target_inventory",
+      "baseline_state",
+      "validation_commands",
+      "expected_owner_receipt"
+    ],
+    "allowed_delta_classes": [
+      "evidence_added",
+      "blocker_opened",
+      "blocker_resolved",
+      "status_changed",
+      "route_changed"
+    ],
+    "forbidden_scopes": [
+      "implementation",
+      "next-task-execution",
+      "authority",
+      "promotion",
+      "publication",
+      "deployment",
+      "destructive-cleanup",
+      "policy-acceptance",
+      "cost-risk-acceptance",
+      "unrelated-target"
+    ],
+    "unique_declared_successor_only": true,
+    "passing_owner_results": [
+      "pass",
+      "no-op"
+    ],
+    "admitted_outcome": "PASS",
+    "no_op_outcome": "NO_OP",
+    "rejected_outcome": "BLOCK"
+  }
+}

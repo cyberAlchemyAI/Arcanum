@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/schemas/task-session-continuity-v1.json",
+  "title": "Task Session Continuity Cursor",
+  "description": "Repository-local selector evidence for resuming one bounded Task Session. A cursor is never readiness authority; the live work pack must be revalidated.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "session_id",
+    "updated_at",
+    "scope_root",
+    "work_pack",
+    "source_result",
+    "source_receipt",
+    "next_route"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.continuity.v1"
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scope_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_pack": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_swu": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_result": {
+      "enum": [
+        "PASS",
+        "BLOCK",
+        "FLAG"
+      ]
+    },
+    "source_receipt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "closeout_owner_receipt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_swu": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_route": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "capability",
+            "mode",
+            "target"
+          ],
+          "properties": {
+            "capability": {
+              "type": "string",
+              "minLength": 1
+            },
+            "mode": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "work_pack": {
+              "type": "string"
+            },
+            "swu": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "blocker_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

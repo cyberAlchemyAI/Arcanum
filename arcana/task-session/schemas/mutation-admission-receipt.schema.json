@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-0-0",
+  "title": "TaskSessionMutationAdmissionReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "executionMode",
+    "admissionVerdict",
+    "mutationReady",
+    "taskId",
+    "swuId",
+    "requestDigest",
+    "producerSchemaDigest",
+    "materialReceiptDigest",
+    "materialPackageDigest",
+    "controllingPaths",
+    "dependencyIds",
+    "allowedWrites",
+    "validationCommands",
+    "lifecycleOwner",
+    "authorityClass",
+    "publicationClass",
+    "liveValidationRequired",
+    "reasons"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "executionMode": {
+      "enum": ["routed-mutation", "reusable-mutation", "standalone-nonmutating", "invalid"]
+    },
+    "admissionVerdict": {"enum": ["admit", "block", "not-applicable"]},
+    "mutationReady": {"type": "boolean"},
+    "taskId": {"type": ["string", "null"], "minLength": 1},
+    "swuId": {"type": ["string", "null"], "minLength": 1},
+    "requestDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "producerSchemaDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "materialReceiptDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "materialPackageDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "controllingPaths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "dependencyIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "allowedWrites": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "validationCommands": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "lifecycleOwner": {"type": ["string", "null"], "minLength": 1},
+    "authorityClass": {"enum": ["public", "private", null]},
+    "publicationClass": {"enum": ["public", "private", "internal", null]},
+    "liveValidationRequired": {"type": "boolean"},
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

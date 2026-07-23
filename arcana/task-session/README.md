@@ -1,6 +1,6 @@
 # Task Session
 
-Task Session is an Arcana sigil for executing one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, synchronization, and an optional one-hop continuation handoff.
+Task Session is an Arcana sigil for executing or resuming one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, synchronization, and an optional one-hop continuation handoff.
 
 It is the stable Arcanum execution surface. Runtime-specific systems, including Codex, are treated as adapters rather than as the task-session identity itself.
 
@@ -32,27 +32,120 @@ Refinement, discovery, and multi-pass planning should happen before Task Session
 
 ## Session Loop
 
-1. Resolve one task scope.
+1. Resolve one task scope explicitly or, with no arguments, from the nearest
+   evidence-backed current-session continuity source.
 2. Parse objective, dependencies, deliverables, and done criteria.
 3. Build a bounded context pack from source links, architecture/spec artifacts, constraints, write scope, and validation surface.
 4. Build option cards for unresolved implementation choices.
-5. Ask the user or auto-select only when explicitly allowed.
+5. Ask the user, or auto-select only an option explicitly classified both
+   nonconsequential and reversible.
 6. Evaluate blockers, dependency gates, context-pack obligations, write scope, and validation gates.
 7. Select the execution runtime for this repository and task.
 8. Execute directly or delegate through a runtime handoff adapter.
-9. Validate against done criteria and context-pack obligations.
-10. If the result is terminal, emit a normalized continuation handoff and probable owner routes.
-11. Optionally dispatch one exactly authorized route through Continuation Router and join its owner receipt.
-12. Synchronize task state and related records.
-13. Return a compact session report.
+9. Classify validation obligations, then validate against every done criterion
+   and context-pack obligation. Failed or unavailable acceptance-critical
+   validation blocks unless a named accepted equivalent passes; only named
+   noncritical residue that cannot falsify a done criterion may return `FLAG`.
+10. Build a typed closeout-sync record from the terminal receipt, declared
+    synchronization targets, baselines, delta classes, and validation.
+11. When synchronization is required and deterministic, derive the exact
+    closeout-only `invoke:refresh:apply-approved` authorization, dispatch it
+    through Continuation Router, and join the owner receipt without asking for
+    a second approval.
+12. Return the synchronized next route without executing the next task/SWU.
+13. Optionally dispatch one separately authorized non-closeout route through
+    Continuation Router.
+14. Persist a repository-local continuity cursor so a later no-argument call
+    can recover the returned route even after conversational context compacts.
+15. Return a compact session report with separate execution and closeout
+    outcomes.
+
+## Zero-Argument Resume
+
+Calling Task Session without parameters means `resume-nearest`. It executes at
+most one SWU and uses a fixed precedence order:
+
+1. an explicit selector present in visible current-session evidence,
+2. the exact current native session cursor, with `--session <id>` available as
+   an override,
+3. the nearest ancestor `WORK-PACK.md` from the current working directory,
+4. one uniquely scope-matched Task Session continuity cursor.
+
+The resolver never uses the globally latest telemetry row, fuzzy relevance, or
+unscoped transcript search. If the highest available tier contains multiple
+candidates, or if its evidence is stale or contradictory, Task Session blocks
+with the ranked candidates instead of switching projects or silently falling
+through.
+
+Conversational compaction is handled through durable evidence, not assumed
+access to discarded tokens. After closeout, Task Session writes a cursor under
+`.arcanum/task-session/continuity/` using the native runtime session id when
+available and a stable scope-derived id otherwise. This lets repeated calls in
+one work-pack scope update the same cursor rather than accumulating ambiguous
+receipt cursors. The cursor records where the session stopped and which route
+was returned. It is only a selector: Task Session must re-read the live work
+pack and prove that the selected SWU still exists, is incomplete,
+dependency-ready, unblocked, and has a declared write scope and validation
+surface.
+
+Useful forms:
+
+```text
+/task-session
+/task-session --list-nearest
+/task-session --session <session-id>
+/task-session --from path/to/WORK-PACK.md
+/task-session --from .arcanum/task-session/continuity/<cursor-id>.json
+```
+
+`scripts/resolve-nearest-swu.py` provides the deterministic filesystem portion
+of this resolution and emits a machine-readable ranked result.
+
+## Required Closeout Synchronization
+
+Task Session is not closed merely because implementation or validation
+finished. When a terminal receipt changes declared task, work-pack, blocker,
+route, Dispatch, registry, or Craft projection state, Task Session must
+synchronize that state before it returns.
+
+The synchronization still belongs to its lifecycle owner. Task Session creates
+one exact, receipt-bound closeout authorization and passes it through
+[Continuation Router](../continuation-router/) to
+`invoke:refresh:apply-approved`. Invoke validates the source receipt, target
+inventory, baselines, typed deltas, and validation commands, performs the
+bounded mutation, and returns a separate owner receipt.
+
+This derived authorization admits only evidence, blocker, status, and route
+bookkeeping over the declared synchronization inventory. It never authorizes
+implementation, another task, authority changes, promotion, publication,
+deployment, destructive cleanup, policy/cost/risk acceptance, or unrelated
+targets. A successor may be selected only when it is the unique,
+already-declared dependency-ready successor, and closeout returns that route
+without executing it.
+
+If current artifacts already represent the terminal receipt, closeout records
+`no-op`. If the inventory, baselines, validation, unique successor, owner
+receipt, or join is missing, the execution result remains preserved but Task
+Session closeout returns `BLOCK`.
 
 ## Terminal Continuation Boundary
 
-Task Session still owns exactly one task or SWU. When that task ends in `BLOCK`, `FLAG`, or a completed handoff, it can pass a normalized terminal receipt to [Continuation Router](../continuation-router/).
+Task Session still owns exactly one task or SWU. Required closeout
+synchronization happens first. When that task then needs a non-closeout owner
+route after `BLOCK`, `FLAG`, or a completed handoff, it can pass a normalized
+terminal receipt to [Continuation Router](../continuation-router/).
 
-The router exposes one to three probable routes before dispatch. With `--follow-next-route` and an exact `--authorize-route <capability>:<mode>[:<mutation-mode>]` grant, it may run one owner capability and return that owner's separate receipt and next route. It never recursively resumes Task Session.
+For optional non-closeout continuation, the router exposes one to three
+probable routes before dispatch. With `--follow-next-route` and an exact
+`--authorize-route <capability>:<mode>[:<mutation-mode>]` grant, it may run one
+owner capability and return that owner's separate receipt and next route. It
+never recursively resumes Task Session.
 
-For example, contradictory planning state can route to `invoke:refresh`. Task Session preserves its original block, Invoke owns any approved planning mutation, and the returned Invoke receipt may name a fresh Task Session SWU. A route string alone never grants apply authority.
+For example, contradictory planning state that is not mechanically determined
+by the terminal receipt remains optional continuation and can route to
+`invoke:refresh`. Task Session preserves its original block, Invoke owns any
+approved planning mutation, and the returned Invoke receipt may name a fresh
+Task Session SWU. A route string alone never grants apply authority.
 
 The blocker fingerprint prevents a fresh invocation from re-entering the same Task Session gate with unchanged controlling evidence. When evidence changed, a fresh Task Session must still rebuild its context pack.
 
@@ -86,6 +179,7 @@ When the input is a `WORK-PACK.md`, Task Session should treat the work-pack as t
 The intended shorthand is:
 
 ```text
+/task-session
 /task-session to <work-pack-path> [--task <TASK-ID>] [--swu <SWU-ID>] [--runtime <runtime>] [--via runtime]
 ```
 
@@ -94,6 +188,31 @@ Examples:
 ```text
 /task-session to ./arcana/distill/development/WORK-PACK.md --swu SWU-CLO-003-001 --via runtime
 ```
+
+## Routed Mutation Admission
+
+Routed or reusable mutation has one additional gate immediately before the
+first write. Task Session creates a machine request binding the live selected
+task/SWU, strict controlling artifacts and digests, dependency frontier,
+allowed writes, validation commands, lifecycle owner, authority class, and
+publication class. It then consumes the material package and Invoke receipt
+through the exact producer-owned receipt schema.
+
+The deterministic consumer is
+`scripts/verify-mutation-readiness.py`. Its request and receipt contracts are
+`schemas/mutation-admission-request.schema.json` and
+`schemas/mutation-admission-receipt.schema.json`.
+
+The Invoke receipt proves that the material package passed its producer
+validator. Task Session recomputes the package binding and compares its
+consumer-owned live controls; it does not copy Invoke package-validity logic.
+Missing evidence, schema failure, drift, task/SWU mismatch, changed
+dependencies, expanded writes, validation mismatch, or absent boundary class
+blocks before mutation.
+
+An admitted receipt is evidence, not authority. Task Session still performs
+the declared live validation after the mutation. Standalone non-mutating use
+returns `not-applicable` and does not require an Invoke receipt.
 
 ## Runtime Adapter Interface
 
@@ -125,6 +244,8 @@ The sigil produces:
 - files or artifacts updated,
 - validation results,
 - synchronized completion evidence,
+- closeout-sync source receipt, target inventory, authorization, owner receipt,
+  validation, and status,
 - follow-up items.
 - continuation handoff and blocker fingerprint for terminal results,
 - one to three probable routes,

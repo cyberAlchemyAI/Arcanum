@@ -1,0 +1,415 @@
+{
+  "schema_version": "task-session.nearest-resolution-fixtures.v1",
+  "cases": [
+    {
+      "id": "explicit-work-pack-wins",
+      "cwd": "projects/alpha",
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        }
+      ],
+      "args": [
+        "--from",
+        "projects/alpha/WORK-PACK.md"
+      ],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "source": "explicit-source",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": null
+      }
+    },
+    {
+      "id": "visible-context-wins-over-exact-cursor",
+      "cwd": "projects/alpha",
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": "visible.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-003",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-003",
+              "work_pack": "projects/alpha/WORK-PACK.md",
+              "swu": "SWU-ALPHA-003"
+            }
+          }
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T09:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/old.json",
+            "next_swu": "SWU-ALPHA-002",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-002",
+              "work_pack": "projects/alpha/WORK-PACK.md",
+              "swu": "SWU-ALPHA-002"
+            }
+          }
+        }
+      ],
+      "args": [
+        "--visible-context",
+        "visible.json",
+        "--session",
+        "session-a"
+      ],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "source": "visible-session-context",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": "SWU-ALPHA-003"
+      }
+    },
+    {
+      "id": "exact-session-cursor-recovers-compacted-context",
+      "cwd": ".",
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-004",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-004",
+              "work_pack": "projects/alpha/WORK-PACK.md",
+              "swu": "SWU-ALPHA-004"
+            }
+          }
+        }
+      ],
+      "args": [
+        "--session",
+        "session-a"
+      ],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "source": "exact-session-cursor",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": "SWU-ALPHA-004"
+      }
+    },
+    {
+      "id": "runtime-session-id-needs-no-flag",
+      "cwd": ".",
+      "env": {
+        "ARCANUM_TASK_SESSION_ID": "runtime-a"
+      },
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/runtime-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "runtime-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-004",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-004",
+              "work_pack": "projects/alpha/WORK-PACK.md",
+              "swu": "SWU-ALPHA-004"
+            }
+          }
+        }
+      ],
+      "args": [],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "session_id_source": "ARCANUM_TASK_SESSION_ID",
+        "source": "exact-session-cursor",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": "SWU-ALPHA-004"
+      }
+    },
+    {
+      "id": "cwd-ancestor-work-pack-is-nearest",
+      "cwd": "projects/alpha/src/deep",
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        }
+      ],
+      "args": [],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "source": "cwd-ancestor-work-pack",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": null
+      }
+    },
+    {
+      "id": "one-scope-matched-cursor-resolves",
+      "cwd": "projects/alpha/src",
+      "files": [
+        {
+          "path": "projects/alpha/planning/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/planning/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-005",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-005",
+              "work_pack": "projects/alpha/planning/WORK-PACK.md",
+              "swu": "SWU-ALPHA-005"
+            }
+          }
+        }
+      ],
+      "args": [],
+      "expected": {
+        "status": "RESOLVED",
+        "reason": "nearest-candidate-selected",
+        "source": "scope-matched-continuity",
+        "work_pack": "projects/alpha/planning/WORK-PACK.md",
+        "swu": "SWU-ALPHA-005"
+      }
+    },
+    {
+      "id": "equal-priority-scope-cursors-block",
+      "cwd": "projects/alpha/src",
+      "files": [
+        {
+          "path": "projects/alpha/planning/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/planning/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-005",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-005",
+              "work_pack": "projects/alpha/planning/WORK-PACK.md",
+              "swu": "SWU-ALPHA-005"
+            }
+          }
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-b.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-b",
+            "updated_at": "2026-07-23T11:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/planning/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/b.json",
+            "next_swu": "SWU-ALPHA-006",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-006",
+              "work_pack": "projects/alpha/planning/WORK-PACK.md",
+              "swu": "SWU-ALPHA-006"
+            }
+          }
+        }
+      ],
+      "args": [],
+      "expected": {
+        "status": "BLOCK",
+        "reason": "ambiguous-nearest-candidates",
+        "candidate_count": 2
+      }
+    },
+    {
+      "id": "cursor-outside-cwd-scope-is-rejected",
+      "cwd": "projects/alpha/src",
+      "files": [
+        {
+          "path": "projects/beta/WORK-PACK.md",
+          "content": "# Beta"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-b.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-b",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/beta",
+            "work_pack": "projects/beta/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/beta/receipts/b.json",
+            "next_swu": "SWU-BETA-002",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-BETA-002",
+              "work_pack": "projects/beta/WORK-PACK.md",
+              "swu": "SWU-BETA-002"
+            }
+          }
+        }
+      ],
+      "args": [],
+      "expected": {
+        "status": "BLOCK",
+        "reason": "no-nearest-candidate",
+        "rejection_reason": "cursor-outside-cwd-scope"
+      }
+    },
+    {
+      "id": "non-task-session-next-route-is-not-a-ready-swu",
+      "cwd": "projects/alpha/src",
+      "files": [
+        {
+          "path": "projects/alpha/planning/WORK-PACK.md",
+          "content": "# Alpha"
+        },
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/planning/WORK-PACK.md",
+            "source_result": "BLOCK",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": null,
+            "next_route": {
+              "capability": "invoke",
+              "mode": "refresh",
+              "target": "projects/alpha/WORK-PACK.md",
+              "work_pack": "projects/alpha/planning/WORK-PACK.md",
+              "swu": null
+            },
+            "blocker_fingerprint": "sha256:blocker"
+          }
+        }
+      ],
+      "args": [
+        "--session",
+        "session-a"
+      ],
+      "expected": {
+        "status": "BLOCK",
+        "reason": "no-nearest-candidate",
+        "rejection_reason": "next-route-owned-by-invoke"
+      }
+    },
+    {
+      "id": "missing-work-pack-makes-cursor-stale",
+      "cwd": ".",
+      "files": [
+        {
+          "path": ".arcanum/task-session/continuity/session-a.json",
+          "json": {
+            "schema_version": "task-session.continuity.v1",
+            "session_id": "session-a",
+            "updated_at": "2026-07-23T10:00:00Z",
+            "scope_root": "projects/alpha",
+            "work_pack": "projects/alpha/WORK-PACK.md",
+            "source_result": "PASS",
+            "source_receipt": "projects/alpha/receipts/a.json",
+            "next_swu": "SWU-ALPHA-009",
+            "next_route": {
+              "capability": "task-session",
+              "mode": "execute",
+              "target": "SWU-ALPHA-009",
+              "work_pack": "projects/alpha/WORK-PACK.md",
+              "swu": "SWU-ALPHA-009"
+            }
+          }
+        }
+      ],
+      "args": [
+        "--session",
+        "session-a"
+      ],
+      "expected": {
+        "status": "BLOCK",
+        "reason": "no-nearest-candidate",
+        "rejection_reason": "work-pack-missing"
+      }
+    },
+    {
+      "id": "list-nearest-previews-without-execution",
+      "cwd": "projects/alpha",
+      "files": [
+        {
+          "path": "projects/alpha/WORK-PACK.md",
+          "content": "# Alpha"
+        }
+      ],
+      "args": [
+        "--list-nearest"
+      ],
+      "expected": {
+        "status": "PREVIEW",
+        "reason": "nearest-candidate-preview",
+        "source": "cwd-ancestor-work-pack",
+        "work_pack": "projects/alpha/WORK-PACK.md",
+        "swu": null
+      }
+    }
+  ]
+}

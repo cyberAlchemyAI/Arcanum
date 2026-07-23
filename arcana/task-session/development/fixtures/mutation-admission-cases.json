@@ -1,0 +1,56 @@
+[
+  {
+    "id": "current-exact-receipt-admits",
+    "mutation": "none",
+    "expectedVerdict": "admit",
+    "expectedReason": null
+  },
+  {
+    "id": "absent-receipt-blocks",
+    "mutation": "remove-receipt",
+    "expectedVerdict": "block",
+    "expectedReason": "missing material receipt"
+  },
+  {
+    "id": "producer-schema-invalid-receipt-blocks",
+    "mutation": "invalidate-receipt-schema",
+    "expectedVerdict": "block",
+    "expectedReason": "material receipt schema invalid"
+  },
+  {
+    "id": "stale-controlling-source-blocks",
+    "mutation": "change-control",
+    "expectedVerdict": "block",
+    "expectedReason": "control artifact digest mismatch"
+  },
+  {
+    "id": "mismatched-task-blocks",
+    "mutation": "change-task-id",
+    "expectedVerdict": "block",
+    "expectedReason": "context pack task id mismatch"
+  },
+  {
+    "id": "changed-dependency-blocks",
+    "mutation": "change-dependency",
+    "expectedVerdict": "block",
+    "expectedReason": "dependency digest mismatch"
+  },
+  {
+    "id": "expanded-write-scope-blocks",
+    "mutation": "expand-request-write-scope",
+    "expectedVerdict": "block",
+    "expectedReason": "allowed write scope mismatch"
+  },
+  {
+    "id": "missing-authority-class-blocks",
+    "mutation": "remove-authority-class",
+    "expectedVerdict": "block",
+    "expectedReason": "admission request schema invalid"
+  },
+  {
+    "id": "standalone-nonmutating-is-unchanged",
+    "mutation": "standalone",
+    "expectedVerdict": "not-applicable",
+    "expectedReason": null
+  }
+]
