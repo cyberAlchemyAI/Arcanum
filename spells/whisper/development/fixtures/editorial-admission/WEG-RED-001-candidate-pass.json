@@ -1,0 +1,33 @@
+{
+  "schema_version": "whisper.editorial_admission_fixture.v0.1-candidate",
+  "fixture_id": "WEG-RED-001",
+  "title": "Candidate transport cannot claim pass",
+  "regime": "low",
+  "polarity": "red",
+  "scenario": "All required records are present, but the transport proof status is candidate while the requested final status is pass.",
+  "input": {
+    "intent_state": "frozen",
+    "requested_output": "bounded-trial",
+    "requested_status": "pass",
+    "audience_mode": "newcomer",
+    "transport": {"transport_id": "candidate-walkthrough", "proof_status": "candidate", "editorial_approval_required": true, "comprehension_required": true, "post_apply_review_required": true},
+    "artifact": {"auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "applied_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+    "surface": {"sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "approval_record": {"approval_kind": "editorial_audition", "decision": "approved", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "evidence_axes": {
+      "source_and_structure_validation": {"status": "pass"},
+      "editorial_language_audition": {"status": "pass", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+      "operator_or_reader_comprehension": {"status": "pass", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222", "question_ids": ["situation", "present", "missing", "human"]},
+      "implementation_render_validation": {"status": "pass"},
+      "post_apply_editorial_verification": {"status": "pass", "artifact_sha256": "3333333333333333333333333333333333333333333333333333333333333333"}
+    },
+    "change_manifest": {"status": "accounted", "audience_blocks": []}
+  },
+  "expected": {
+    "evidence_binding": {"verdict": "accept", "reasons": []},
+    "generation_admission": {"verdict": "allow", "reasons": []},
+    "status_evaluation": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["transport-proof-candidate"]}
+  },
+  "primary_expectation": {"verdict": "flag", "reason": "transport-proof-candidate"},
+  "baseline_observation": {"status": "not-enforced", "reason": "editorial-admission-evaluator-absent"}
+}

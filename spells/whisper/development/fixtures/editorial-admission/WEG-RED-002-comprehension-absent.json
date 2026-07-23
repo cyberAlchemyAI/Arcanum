@@ -1,0 +1,33 @@
+{
+  "schema_version": "whisper.editorial_admission_fixture.v0.1-candidate",
+  "fixture_id": "WEG-RED-002",
+  "title": "Machine checks cannot replace comprehension",
+  "regime": "medium",
+  "polarity": "red",
+  "scenario": "Structure, editorial audition, rendering, and post-apply review pass, but required newcomer comprehension is absent.",
+  "input": {
+    "intent_state": "frozen",
+    "requested_output": "full-derivative",
+    "requested_status": "pass",
+    "audience_mode": "newcomer",
+    "transport": {"transport_id": "plain-technical-guide", "proof_status": "proven", "editorial_approval_required": true, "comprehension_required": true, "post_apply_review_required": true},
+    "artifact": {"auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "applied_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+    "surface": {"sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "approval_record": {"approval_kind": "editorial_audition", "decision": "approved", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "evidence_axes": {
+      "source_and_structure_validation": {"status": "pass"},
+      "editorial_language_audition": {"status": "pass", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+      "operator_or_reader_comprehension": {"status": "absent", "surface_sha256": null, "question_ids": []},
+      "implementation_render_validation": {"status": "pass"},
+      "post_apply_editorial_verification": {"status": "pass", "artifact_sha256": "3333333333333333333333333333333333333333333333333333333333333333"}
+    },
+    "change_manifest": {"status": "accounted", "audience_blocks": []}
+  },
+  "expected": {
+    "evidence_binding": {"verdict": "accept-partial", "reasons": ["comprehension-record-absent"]},
+    "generation_admission": {"verdict": "allow", "reasons": []},
+    "status_evaluation": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["comprehension-required"]}
+  },
+  "primary_expectation": {"verdict": "flag", "reason": "comprehension-required"},
+  "baseline_observation": {"status": "not-enforced", "reason": "editorial-admission-evaluator-absent"}
+}

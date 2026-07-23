@@ -1,0 +1,193 @@
+{
+  "schema_version": "whisper.status_ceiling_fixture_manifest.v0.1",
+  "cases": [
+    {
+      "case_id": "status-green-proven-complete",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "pass", "final_status": "pass", "reasons": []}
+    },
+    {
+      "case_id": "status-candidate-all-human-pass",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/transport_profile/proof_status", "value": "candidate"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["transport-proof-candidate"]}
+    },
+    {
+      "case_id": "status-unproven-all-human-pass",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/transport_profile/proof_status", "value": "unproven"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["transport-proof-unproven"]}
+    },
+    {
+      "case_id": "status-editorial-audition-absent",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/approval_records", "value": []},
+        {"op": "replace", "path": "/selected_approval_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/editorial_language_audition", "value": {"status": "absent", "receipts": []}}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["editorial-audition-required"]}
+    },
+    {
+      "case_id": "status-comprehension-absent-machine-pass",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/comprehension_records", "value": []},
+        {"op": "replace", "path": "/selected_comprehension_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension", "value": {"status": "absent", "receipts": []}}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["comprehension-required"]}
+    },
+    {
+      "case_id": "status-post-apply-review-absent",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/post_apply_editorial_verification", "value": {"status": "absent"}}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["post-apply-review-required"]}
+    },
+    {
+      "case_id": "status-open-correction",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/correction_refs", "value": ["correction-001"]}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["open-correction-invalidates-receipt"]}
+    },
+    {
+      "case_id": "status-combined-flags-rule-order",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/transport_profile/proof_status", "value": "candidate"},
+        {"op": "replace", "path": "/approval_records", "value": []},
+        {"op": "replace", "path": "/selected_approval_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/editorial_language_audition", "value": {"status": "absent", "receipts": []}},
+        {"op": "replace", "path": "/comprehension_records", "value": []},
+        {"op": "replace", "path": "/selected_comprehension_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension", "value": {"status": "absent", "receipts": []}},
+        {"op": "replace", "path": "/post_apply_editorial_verification", "value": {"status": "absent"}},
+        {"op": "replace", "path": "/correction_refs", "value": ["correction-001"]}
+      ],
+      "schema_valid": true,
+      "expected": {
+        "status_ceiling": "flag",
+        "final_status": "flag",
+        "reasons": [
+          "transport-proof-candidate",
+          "editorial-audition-required",
+          "comprehension-required",
+          "post-apply-review-required",
+          "open-correction-invalidates-receipt"
+        ]
+      }
+    },
+    {
+      "case_id": "status-editorial-audition-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/editorial_language_audition/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["editorial-audition-blocked"]}
+    },
+    {
+      "case_id": "status-comprehension-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["comprehension-blocked"]}
+    },
+    {
+      "case_id": "status-post-apply-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/post_apply_editorial_verification/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["post-apply-review-blocked"]}
+    },
+    {
+      "case_id": "status-source-structure-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/source_and_structure_validation/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["source-structure-blocked"]}
+    },
+    {
+      "case_id": "status-implementation-render-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/implementation_render_validation/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["implementation-render-blocked"]}
+    },
+    {
+      "case_id": "status-generation-already-blocked",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/computed_decisions/generation/decision", "value": "block"},
+        {"op": "replace", "path": "/computed_decisions/generation/reasons", "value": ["upstream-admission-block"]}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["generation-admission-blocked"]}
+    },
+    {
+      "case_id": "status-requested-block-remains-block",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/requested/status", "value": "block"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "pass", "final_status": "block", "reasons": ["requested-status-block"]}
+    },
+    {
+      "case_id": "status-requested-flag-limits-pass",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/requested/status", "value": "flag"}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "pass", "final_status": "flag", "reasons": ["requested-status-flag"]}
+    },
+    {
+      "case_id": "status-experienced-comprehension-not-required",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/audience/mode", "value": "experienced"},
+        {"op": "replace", "path": "/transport_profile/comprehension_gate/required", "value": false},
+        {"op": "replace", "path": "/transport_profile/comprehension_gate/question_ids", "value": []},
+        {"op": "replace", "path": "/comprehension_records", "value": []},
+        {"op": "replace", "path": "/selected_comprehension_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension", "value": {"status": "not_required", "receipts": []}}
+      ],
+      "schema_valid": true,
+      "expected": {"status_ceiling": "pass", "final_status": "pass", "reasons": []}
+    },
+    {
+      "case_id": "status-invalid-envelope-unknown-status",
+      "base": "../../../../schemas/examples/editorial-admission/bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/source_and_structure_validation/status", "value": "complete"}
+      ],
+      "schema_valid": false,
+      "expected": {"status_ceiling": "block", "final_status": "block", "reasons": ["invalid-evidence-envelope"]}
+    }
+  ]
+}

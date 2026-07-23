@@ -1,0 +1,181 @@
+{
+  "schema_version": "whisper.editorial_schema_fixture_manifest.v0.1",
+  "cases": [
+    {
+      "case_id": "schema-run-good-complete-newcomer",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [],
+      "expected": "pass"
+    },
+    {
+      "case_id": "schema-run-good-experienced-not-required",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/audience/mode", "value": "experienced"},
+        {"op": "replace", "path": "/transport_profile/comprehension_gate/required", "value": false},
+        {"op": "replace", "path": "/transport_profile/comprehension_gate/question_ids", "value": []},
+        {"op": "replace", "path": "/comprehension_records", "value": []},
+        {"op": "replace", "path": "/selected_comprehension_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension", "value": {"status": "not_required", "receipts": []}}
+      ],
+      "expected": "pass"
+    },
+    {
+      "case_id": "schema-run-bad-cross-axis-substitution",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/evidence_axes/operator_or_reader_comprehension"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "required", "instance_path": "/evidence_axes", "message_contains": "operator_or_reader_comprehension"}
+    },
+    {
+      "case_id": "schema-run-bad-unknown-status",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/evidence_axes/source_and_structure_validation/status", "value": "complete"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "enum", "instance_path": "/evidence_axes/source_and_structure_validation/status", "message_contains": "not one of"}
+    },
+    {
+      "case_id": "schema-run-bad-malformed-digest",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/surface_manifest/surface_sha256", "value": "not-a-digest"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "pattern", "instance_path": "/surface_manifest/surface_sha256", "message_contains": "does not match"}
+    },
+    {
+      "case_id": "schema-run-bad-editorial-artifact-digest-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/evidence_axes/editorial_language_audition/artifact_sha256"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "oneOf", "instance_path": "/evidence_axes/editorial_language_audition", "message_contains": "not valid under any"}
+    },
+    {
+      "case_id": "schema-run-bad-approval-kind-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/approval_records/0/approval_kind"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "required", "instance_path": "/approval_records/0", "message_contains": "approval_kind"}
+    },
+    {
+      "case_id": "schema-run-bad-approval-prompt-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/approval_records/0/prompt_id"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "required", "instance_path": "/approval_records/0", "message_contains": "prompt_id"}
+    },
+    {
+      "case_id": "schema-run-bad-selected-approval-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {
+          "op": "add",
+          "path": "/approval_records/1",
+          "value": {
+            "approval_id": "approval-002",
+            "approval_kind": "editorial_audition",
+            "prompt_id": "prompt-editorial-002",
+            "approver_kind": "operator",
+            "transport_id": "plain-technical-guide",
+            "audience_id": "new-reader",
+            "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+            "decision": "approved",
+            "recorded_at": "2026-07-22T12:06:00Z"
+          }
+        },
+        {"op": "replace", "path": "/selected_approval_id", "value": null}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "type", "instance_path": "/selected_approval_id", "message_contains": "not of type"}
+    },
+    {
+      "case_id": "schema-run-bad-required-comprehension-not-required",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "replace", "path": "/comprehension_records", "value": []},
+        {"op": "replace", "path": "/selected_comprehension_id", "value": null},
+        {"op": "replace", "path": "/evidence_axes/operator_or_reader_comprehension", "value": {"status": "not_required", "receipts": []}}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "not", "instance_path": "/evidence_axes/operator_or_reader_comprehension", "message_contains": "should not be valid"}
+    },
+    {
+      "case_id": "schema-run-bad-comprehension-answers-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/comprehension_records/0/answers"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "required", "instance_path": "/comprehension_records/0", "message_contains": "answers"}
+    },
+    {
+      "case_id": "schema-run-bad-comprehension-semantic-score",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "add", "path": "/comprehension_records/0/semantic_score", "value": 0.95}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "additionalProperties", "instance_path": "/comprehension_records/0", "message_contains": "semantic_score"}
+    },
+    {
+      "case_id": "schema-run-bad-post-apply-review-stage-missing",
+      "schema": "../../editorial-run-receipt.schema.json",
+      "base": "bases/run-good-complete-newcomer.json",
+      "operations": [
+        {"op": "remove", "path": "/post_apply_editorial_verification/review_stage"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "oneOf", "instance_path": "/post_apply_editorial_verification", "message_contains": "not valid under any"}
+    },
+    {
+      "case_id": "schema-correction-good",
+      "schema": "../../editorial-correction-event.schema.json",
+      "base": "bases/correction-good.json",
+      "operations": [],
+      "expected": "pass"
+    },
+    {
+      "case_id": "schema-correction-bad-event-kind",
+      "schema": "../../editorial-correction-event.schema.json",
+      "base": "bases/correction-good.json",
+      "operations": [
+        {"op": "replace", "path": "/event_kind", "value": "silent_rewrite"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "enum", "instance_path": "/event_kind", "message_contains": "not one of"}
+    },
+    {
+      "case_id": "schema-correction-bad-malformed-digest",
+      "schema": "../../editorial-correction-event.schema.json",
+      "base": "bases/correction-good.json",
+      "operations": [
+        {"op": "replace", "path": "/affected_surface_sha256", "value": "bad-digest"}
+      ],
+      "expected": "fail",
+      "expected_error": {"validator": "pattern", "instance_path": "/affected_surface_sha256", "message_contains": "does not match"}
+    }
+  ]
+}

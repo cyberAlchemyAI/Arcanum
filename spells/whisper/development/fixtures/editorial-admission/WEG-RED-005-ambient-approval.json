@@ -1,0 +1,28 @@
+{
+  "schema_version": "whisper.editorial_admission_fixture.v0.1-candidate",
+  "fixture_id": "WEG-RED-005",
+  "title": "Ambient approval is not editorial approval",
+  "regime": "low",
+  "polarity": "red",
+  "scenario": "A conversational confirmation is present, but no typed approval kind identifies the decision being authorized.",
+  "input": {
+    "intent_state": "frozen",
+    "requested_output": "full-derivative",
+    "requested_status": "pass",
+    "audience_mode": "experienced",
+    "transport": {"transport_id": "plain-technical-guide", "proof_status": "proven", "editorial_approval_required": true, "comprehension_required": false, "post_apply_review_required": true},
+    "artifact": {"auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "applied_sha256": null},
+    "surface": {"sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "ambient_text": "approved",
+    "approval_record": {"approval_kind": null, "decision": "approved", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "evidence_axes": {"source_and_structure_validation": {"status": "pass"}, "editorial_language_audition": {"status": "absent"}, "operator_or_reader_comprehension": {"status": "absent"}, "implementation_render_validation": {"status": "absent"}, "post_apply_editorial_verification": {"status": "absent"}},
+    "change_manifest": {"status": "accounted", "audience_blocks": []}
+  },
+  "expected": {
+    "evidence_binding": {"verdict": "reject", "reasons": ["approval-kind-missing"]},
+    "generation_admission": {"verdict": "block", "reasons": ["unapproved-surface"]},
+    "status_evaluation": {"status_ceiling": "block", "final_status": "block", "reasons": ["evidence-integrity-failed"]}
+  },
+  "primary_expectation": {"verdict": "block", "reason": "approval-kind-missing"},
+  "baseline_observation": {"status": "not-enforced", "reason": "editorial-admission-evaluator-absent"}
+}

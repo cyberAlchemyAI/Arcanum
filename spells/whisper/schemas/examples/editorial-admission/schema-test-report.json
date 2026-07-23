@@ -1,0 +1,194 @@
+{
+  "schema_version": "whisper.editorial_schema_test_report.v0.1",
+  "manifest": "schema-fixture-manifest.json",
+  "engine": "jsonschema.Draft202012Validator",
+  "result": "pass",
+  "schema_count": 2,
+  "case_count": 16,
+  "expected_pass": 3,
+  "expected_fail": 13,
+  "passed": 16,
+  "failed": 0,
+  "cases": [
+    {
+      "case_id": "schema-run-good-complete-newcomer",
+      "expected": "pass",
+      "actual": "pass",
+      "result": "pass",
+      "error_count": 0,
+      "matched_error": null
+    },
+    {
+      "case_id": "schema-run-good-experienced-not-required",
+      "expected": "pass",
+      "actual": "pass",
+      "result": "pass",
+      "error_count": 0,
+      "matched_error": null
+    },
+    {
+      "case_id": "schema-run-bad-cross-axis-substitution",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "required",
+        "instance_path": "/evidence_axes",
+        "message_contains": "operator_or_reader_comprehension"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-unknown-status",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "enum",
+        "instance_path": "/evidence_axes/source_and_structure_validation/status",
+        "message_contains": "not one of"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-malformed-digest",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "pattern",
+        "instance_path": "/surface_manifest/surface_sha256",
+        "message_contains": "does not match"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-editorial-artifact-digest-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "oneOf",
+        "instance_path": "/evidence_axes/editorial_language_audition",
+        "message_contains": "not valid under any"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-approval-kind-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "required",
+        "instance_path": "/approval_records/0",
+        "message_contains": "approval_kind"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-approval-prompt-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "required",
+        "instance_path": "/approval_records/0",
+        "message_contains": "prompt_id"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-selected-approval-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 2,
+      "matched_error": {
+        "validator": "type",
+        "instance_path": "/selected_approval_id",
+        "message_contains": "not of type"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-required-comprehension-not-required",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "not",
+        "instance_path": "/evidence_axes/operator_or_reader_comprehension",
+        "message_contains": "should not be valid"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-comprehension-answers-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "required",
+        "instance_path": "/comprehension_records/0",
+        "message_contains": "answers"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-comprehension-semantic-score",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "additionalProperties",
+        "instance_path": "/comprehension_records/0",
+        "message_contains": "semantic_score"
+      }
+    },
+    {
+      "case_id": "schema-run-bad-post-apply-review-stage-missing",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "oneOf",
+        "instance_path": "/post_apply_editorial_verification",
+        "message_contains": "not valid under any"
+      }
+    },
+    {
+      "case_id": "schema-correction-good",
+      "expected": "pass",
+      "actual": "pass",
+      "result": "pass",
+      "error_count": 0,
+      "matched_error": null
+    },
+    {
+      "case_id": "schema-correction-bad-event-kind",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "enum",
+        "instance_path": "/event_kind",
+        "message_contains": "not one of"
+      }
+    },
+    {
+      "case_id": "schema-correction-bad-malformed-digest",
+      "expected": "fail",
+      "actual": "fail",
+      "result": "pass",
+      "error_count": 1,
+      "matched_error": {
+        "validator": "pattern",
+        "instance_path": "/affected_surface_sha256",
+        "message_contains": "does not match"
+      }
+    }
+  ]
+}

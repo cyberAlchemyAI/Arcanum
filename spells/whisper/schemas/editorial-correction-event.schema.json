@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/whisper/schemas/editorial-correction-event.schema.json",
+  "title": "Whisper Editorial Correction Event",
+  "description": "Append-only correction event shape. State reduction and replay policy are evaluated separately.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_kind",
+    "run_id",
+    "invalidates_receipt",
+    "meaning_core_changed",
+    "related_correction_count",
+    "affected_surface_sha256",
+    "new_intent_state",
+    "next_route",
+    "recorded_at",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {"const": "whisper.editorial_correction_event.v0.1"},
+    "event_id": {"$ref": "#/$defs/stableId"},
+    "event_kind": {"type": "string", "enum": ["operator_correction", "reader_correction", "false_positive_readiness"]},
+    "run_id": {"$ref": "#/$defs/stableId"},
+    "invalidates_receipt": {"$ref": "#/$defs/stableId"},
+    "meaning_core_changed": {"type": "boolean"},
+    "related_correction_count": {"type": "integer", "minimum": 0},
+    "affected_surface_sha256": {"$ref": "#/$defs/sha256"},
+    "new_intent_state": {"type": "string", "enum": ["volatile", "frozen"]},
+    "next_route": {"type": "string", "enum": ["re_audition", "workflow_reflect", "ordinary_revision"]},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "residue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {"$ref": "#/$defs/stableId"},
+          "message": {"type": "string", "minLength": 1},
+          "owner": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "$defs": {
+    "stableId": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

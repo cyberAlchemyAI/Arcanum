@@ -1,0 +1,27 @@
+{
+  "schema_version": "whisper.editorial_admission_fixture.v0.1-candidate",
+  "fixture_id": "WEG-RED-004",
+  "title": "Approval cannot transfer to another surface",
+  "regime": "medium",
+  "polarity": "red",
+  "scenario": "The approval record names a valid artifact but a different surface digest from the surface requested for generation.",
+  "input": {
+    "intent_state": "frozen",
+    "requested_output": "full-derivative",
+    "requested_status": "pass",
+    "audience_mode": "experienced",
+    "transport": {"transport_id": "plain-technical-guide", "proof_status": "proven", "editorial_approval_required": true, "comprehension_required": false, "post_apply_review_required": true},
+    "artifact": {"auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "applied_sha256": null},
+    "surface": {"sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "approval_record": {"approval_kind": "editorial_audition", "decision": "approved", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "surface_sha256": "9999999999999999999999999999999999999999999999999999999999999999"},
+    "evidence_axes": {"source_and_structure_validation": {"status": "pass"}, "editorial_language_audition": {"status": "pass", "surface_sha256": "9999999999999999999999999999999999999999999999999999999999999999"}, "operator_or_reader_comprehension": {"status": "absent"}, "implementation_render_validation": {"status": "absent"}, "post_apply_editorial_verification": {"status": "absent"}},
+    "change_manifest": {"status": "accounted", "audience_blocks": []}
+  },
+  "expected": {
+    "evidence_binding": {"verdict": "reject", "reasons": ["approval-surface-mismatch"]},
+    "generation_admission": {"verdict": "block", "reasons": ["unapproved-surface"]},
+    "status_evaluation": {"status_ceiling": "block", "final_status": "block", "reasons": ["evidence-integrity-failed"]}
+  },
+  "primary_expectation": {"verdict": "block", "reason": "approval-surface-mismatch"},
+  "baseline_observation": {"status": "not-enforced", "reason": "editorial-admission-evaluator-absent"}
+}

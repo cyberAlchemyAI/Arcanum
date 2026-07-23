@@ -1,0 +1,33 @@
+{
+  "schema_version": "whisper.editorial_admission_fixture.v0.1-candidate",
+  "fixture_id": "WEG-RED-007",
+  "title": "Post-apply review cannot bind the prior artifact",
+  "regime": "complex",
+  "polarity": "red",
+  "scenario": "Generation was admitted, but the post-apply review references the auditioned artifact instead of the applied artifact.",
+  "input": {
+    "intent_state": "frozen",
+    "requested_output": "full-derivative",
+    "requested_status": "pass",
+    "audience_mode": "newcomer",
+    "transport": {"transport_id": "plain-technical-guide", "proof_status": "proven", "editorial_approval_required": true, "comprehension_required": true, "post_apply_review_required": true},
+    "artifact": {"auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "applied_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+    "surface": {"sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "approval_record": {"approval_kind": "editorial_audition", "decision": "approved", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "evidence_axes": {
+      "source_and_structure_validation": {"status": "pass"},
+      "editorial_language_audition": {"status": "pass", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+      "operator_or_reader_comprehension": {"status": "pass", "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222", "question_ids": ["situation", "present", "missing", "human"]},
+      "implementation_render_validation": {"status": "pass"},
+      "post_apply_editorial_verification": {"status": "pass", "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111"}
+    },
+    "change_manifest": {"status": "accounted", "audience_blocks": []}
+  },
+  "expected": {
+    "evidence_binding": {"verdict": "reject-post-apply", "reasons": ["post-apply-artifact-mismatch"]},
+    "generation_admission": {"verdict": "allow", "reasons": []},
+    "status_evaluation": {"status_ceiling": "flag", "final_status": "flag", "reasons": ["post-apply-artifact-mismatch"]}
+  },
+  "primary_expectation": {"verdict": "flag", "reason": "post-apply-artifact-mismatch"},
+  "baseline_observation": {"status": "not-enforced", "reason": "editorial-admission-evaluator-absent"}
+}

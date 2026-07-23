@@ -1,0 +1,144 @@
+{
+  "schema_version": "whisper.editorial_run_receipt.v0.1",
+  "run_id": "whisper-run-001",
+  "target_id": "docs/example-guide",
+  "created_at": "2026-07-22T12:00:00Z",
+  "transport_profile": {
+    "transport_id": "plain-technical-guide",
+    "proof_status": "proven",
+    "editorial_approval_required": true,
+    "comprehension_gate": {
+      "required": true,
+      "question_ids": ["situation", "present", "missing", "human"]
+    },
+    "post_apply_review_required": true,
+    "derivative_policy": {
+      "full_generation_requires": ["intent_frozen", "editorial_audition_approved", "surface_accounted"]
+    }
+  },
+  "audience": {
+    "audience_id": "new-reader",
+    "mode": "newcomer"
+  },
+  "intent": {
+    "intent_id": "intent-001",
+    "state": "frozen",
+    "correction_refs": []
+  },
+  "composition_plan_ref": "plans/example-guide.json",
+  "change_manifest_ref": "manifests/example-guide.json",
+  "artifact_manifest": {
+    "artifact_ref": "docs/example-guide.md",
+    "auditioned_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "applied_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "surface_manifest": {
+    "surface_id": "first-surface",
+    "artifact_ref": "docs/example-guide.md",
+    "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "selection_kind": "source_order_role_set",
+    "items": [
+      {
+        "block_id": "opening-context",
+        "role": "context",
+        "source_selector": "#opening > p:first-of-type",
+        "text_sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+      }
+    ],
+    "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "approval_records": [
+    {
+      "approval_id": "approval-001",
+      "approval_kind": "editorial_audition",
+      "prompt_id": "prompt-editorial-001",
+      "approver_kind": "editor",
+      "transport_id": "plain-technical-guide",
+      "audience_id": "new-reader",
+      "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "decision": "approved",
+      "recorded_at": "2026-07-22T12:05:00Z"
+    }
+  ],
+  "selected_approval_id": "approval-001",
+  "comprehension_records": [
+    {
+      "comprehension_id": "comprehension-001",
+      "reviewer_kind": "intended_reader",
+      "transport_id": "plain-technical-guide",
+      "audience_id": "new-reader",
+      "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "question_ids": ["situation", "present", "missing", "human"],
+      "answers": [
+        {"question_id": "situation", "response_ref": "responses/001#situation"},
+        {"question_id": "present", "response_ref": "responses/001#present"},
+        {"question_id": "missing", "response_ref": "responses/001#missing"},
+        {"question_id": "human", "response_ref": "responses/001#human"}
+      ],
+      "outcome": "understood",
+      "recorded_at": "2026-07-22T12:10:00Z"
+    }
+  ],
+  "selected_comprehension_id": "comprehension-001",
+  "evidence_axes": {
+    "source_and_structure_validation": {
+      "status": "pass",
+      "receipts": ["receipts/structure-001.json"]
+    },
+    "editorial_language_audition": {
+      "status": "pass",
+      "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "approval_ref": "approval-001",
+      "receipts": ["receipts/approval-001.json"]
+    },
+    "operator_or_reader_comprehension": {
+      "status": "pass",
+      "artifact_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "comprehension_ref": "comprehension-001",
+      "receipts": ["receipts/comprehension-001.json"]
+    },
+    "implementation_render_validation": {
+      "status": "pass",
+      "receipts": ["receipts/render-001.json"]
+    }
+  },
+  "post_apply_editorial_verification": {
+    "review_id": "review-001",
+    "status": "pass",
+    "reviewer_kind": "editor",
+    "artifact_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "surface_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "producer_stage": "artifact_application",
+    "review_stage": "post_apply_editorial_verification",
+    "recorded_at": "2026-07-22T12:20:00Z"
+  },
+  "requested": {
+    "output_kind": "full-derivative",
+    "status": "pass"
+  },
+  "computed_decisions": {
+    "generation": {
+      "decision": "allow",
+      "reasons": []
+    },
+    "status": {
+      "status_ceiling": "pass",
+      "final_status": "pass",
+      "reasons": []
+    }
+  },
+  "correction_refs": [],
+  "observability_refs": ["signals/whisper-run-001.json"],
+  "residue": [
+    {
+      "code": "human-semantics",
+      "message": "Comprehension meaning was judged by the intended reader.",
+      "owner": "intended-reader",
+      "detail": {"kind": "human-review-boundary"}
+    }
+  ]
+}
