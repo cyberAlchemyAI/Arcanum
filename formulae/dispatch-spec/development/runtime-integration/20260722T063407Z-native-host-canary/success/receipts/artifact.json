@@ -1,0 +1,37 @@
+{
+  "dispatch_id": "native-host-canary-success",
+  "step_id": "s3",
+  "role_id": "artifact-repair",
+  "agent_id": "/root/canary_success_artifact",
+  "capability_ref": "task-session",
+  "capability_target": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/artifact/output.json",
+  "capability_mode": "execute",
+  "wave_id": "artifact-repair",
+  "write_scope": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/artifact/output.json",
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/receipts/artifact.json"
+  ],
+  "receipt_kind": "subagent",
+  "status": "pass",
+  "artifacts": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/receipts/artifact.json",
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/artifact/output.json"
+  ],
+  "consumed_receipts": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/receipts/xray.json",
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/success/receipts/whisper.json"
+  ],
+  "validation": [
+    "gate decision equals pass and downstream_action equals artifact_spawn_permitted",
+    "both required receipt files exist, parse as JSON, and match dispatch_id native-host-canary-success",
+    "X-Ray receipt status equals pass and capability_ref equals sigil-development",
+    "Whisper receipt status equals pass and capability_ref equals spellcraft",
+    "artifact output contains exactly the two required consumed receipt paths with their passing statuses and declared capabilities",
+    "both written files are within the artifact-repair role write_scope"
+  ],
+  "observer_status": "not_needed",
+  "blockers": [],
+  "residue": "none",
+  "reroute": "none",
+  "handoff_note": "Return this passing receipt to the parent for native lifecycle closeout and final Dispatch Spec validation."
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "arcanum.task-session.receipt.v0.1",
+  "session_id": "task-session-swu-ndr-010r-20260722",
+  "run_id": "swu-ndr-010r-local",
+  "dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "step_id": "S10R",
+  "capability_ref": "task-session",
+  "task_id": "TASK-NDR-004",
+  "swu_id": "SWU-NDR-010R",
+  "status": "pass",
+  "runtime": "local-deterministic",
+  "adapter": null,
+  "authorization_basis": "The user instructed Task Session to continue sequentially until the next genuine blocker.",
+  "context_pack": {"markdown": "work-pack/session-evidence/SWU-NDR-010R/context-pack.md", "json": "work-pack/session-evidence/SWU-NDR-010R/context-pack.json", "source_count": 14, "obligation_coverage": 100, "strict": true},
+  "decisions": [
+    "Track lifecycle state per persisted action and bind agent identities to successful host returns.",
+    "Treat wait_attempted as wave-level and timeout or interrupt evidence as per-action.",
+    "Require receipt_joined to follow a completed terminal-close or timeout-interrupt branch.",
+    "Preserve existing exact errors and add stable codes for each new illegal lifecycle order."
+  ],
+  "changed_paths": [
+    "runtime/orchestrate/schemas/run-event.schema.json",
+    "runtime/orchestrate/scripts/validate_run_evidence.py",
+    "runtime/orchestrate/tests/evidence-order/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/WORK-PACK.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/cross-task-gaps.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/waves/W2.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/waves/W3.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-010R/"
+  ],
+  "artifacts": [
+    "runtime/orchestrate/schemas/run-event.schema.json",
+    "runtime/orchestrate/scripts/validate_run_evidence.py",
+    "runtime/orchestrate/tests/evidence-order/fixture-matrix.json",
+    "work-pack/session-evidence/SWU-NDR-010R/preserved-failure-validation-receipt.json",
+    "work-pack/session-evidence/SWU-NDR-010R/validation.json"
+  ],
+  "validation_commands": [
+    "python3 runtime/orchestrate/tests/evidence-order/test_evidence_order.py -v",
+    "run every runtime/orchestrate test_*.py file",
+    "validate preserved failure run/events.jsonl through validate_run_evidence.py",
+    "parse scoped JSON and JSONL and scan public boundary and whitespace"
+  ],
+  "validation_result": "pass",
+  "validation": ["5 evidence-order tests pass", "16-case exact causal matrix passes", "45 combined runtime tests pass", "preserved eight-event stream passes unchanged", "public boundary passes"],
+  "content_hashes": {
+    "event_schema": "56b9c6728e85b5dd60c006d994bb3f720016a83ed119b3ba6bb702976f15cf85",
+    "validator": "f8215bb035a4deb148244685adae8069e6e18440349c74ed37c7c80165708443",
+    "fixture_matrix": "d6ae96e4deef36f218ddbf09061abe29a9d47b1a8fb5f68f5bd9c0a9073f2dca",
+    "tests": "53d340e8adbd8da9d9972fd00cfc98b5b04bac2559e6fedc1f039bedac978b87",
+    "terminal_fixture": "59e2169cfc07ab98d78b09dd2747e789b4b67c7c42741ea1f05254a35d12f170",
+    "timeout_fixture": "f79fa3c31c41cf08c6e24149f2bf066b69ca65a93943db90205afa27413dec67",
+    "preserved_stream": "51503cb5ba63d76796915d7b065fc29882d52e4c8874d634a5670e9dd75c23fd",
+    "preserved_validation": "4a08265b33ec8e6b1af95e41693e43d6f97f5f12e11ba0c55582ca43d5b53ce7"
+  },
+  "observer_status": "task-local-evidence",
+  "subagent_closeout": "n/a",
+  "blockers": [],
+  "residue": ["The append-only SWU-NDR-011 failure retry has not run.", "SWU-NDR-012 remains locked until that retry passes."],
+  "handoff_note": "Regenerate the isolated runtime from repaired canonical source and rerun failure withholding under failure/retry-001/ without altering attempt 1.",
+  "next_swu": "SWU-NDR-011",
+  "next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-005.md#SWU-NDR-011 retry-001", "authorization": "authorized-by-until-blocker"}
+}

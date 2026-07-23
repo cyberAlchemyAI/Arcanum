@@ -1,0 +1,38 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-005", "swu_id": "SWU-NDR-012", "mode": "standard", "strict": true, "evidence_class": "task-session-context", "built_at": "2026-07-22T23:54:59Z"},
+  "coverage": {"obligation_count": 12, "covered_count": 12, "blocked_count": 0, "percent": 100},
+  "runtime_write_scope": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/"],
+  "post_pass_sync_scope": ["formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json", "formulae/dispatch-spec/development/native-dispatch-runner/WORK-PACK.md", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/waves/W3.md"],
+  "obligations": [
+    {"id": "O1", "summary": "require passing SWU-NDR-011 retry", "status": "covered"},
+    {"id": "O2", "summary": "keep runtime writes inside success", "status": "covered"},
+    {"id": "O3", "summary": "record exact execute command", "status": "covered"},
+    {"id": "O4", "summary": "validate dispatch and generate isolated current package", "status": "covered"},
+    {"id": "O5", "summary": "persist and spawn one first-wave action", "status": "covered"},
+    {"id": "O6", "summary": "join first pass receipt through complete lifecycle", "status": "covered"},
+    {"id": "O7", "summary": "persist gate_pass before dependent action", "status": "covered"},
+    {"id": "O8", "summary": "consume only reducer-emitted dependent action", "status": "covered"},
+    {"id": "O9", "summary": "spawn dependent exactly once with native binding", "status": "covered"},
+    {"id": "O10", "summary": "persist dependent artifact and pass receipt", "status": "covered"},
+    {"id": "O11", "summary": "reduce to complete and validate full stream", "status": "covered"},
+    {"id": "O12", "summary": "preserve failure evidence and bound claims", "status": "covered"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md", "sha256": "8c159608f73176af3d617a8252bc42b202bb6e6a90a3018435ab1cc07a877674"},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json", "sha256": "4cb2e50b6c7eff696fe7f62dbddfc5d5ef89b6c8306abe6ee4d7129472df08b5"},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/waves/W3.md", "sha256": "9400ddf737b7c3e0029a88dbdd1808003ac26dba8eed7f4685c58257d3552dea"},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094"},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/EXECUTION-PACK.md", "sha256": "249fe36502160c6943808c8977effe8a57f7c294b204628224ef6f023fd8cd98"},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338"},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/receipt.json", "sha256": "71a37abb845c697607d17243c4998096d691f32076bee61b64eeee9114111ec6"},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/source.dispatch.json", "sha256": "0e5ebd51779e2f045cefddeae3bc593724ab41c40ff7a1eb051755c5373a0fb5"},
+    {"path": "runtime/orchestrate/SKILL.md", "sha256": "5ae21868ee0b2c446620ebeef5a87a0b951a8c096d15c242f84a2200152db3ad"},
+    {"path": "runtime/orchestrate/generation-manifest.json", "sha256": "1fb591812b2822aa7f1abd9a7e6c7ff088731d027dda99c624680477dd4de7e0"},
+    {"path": "runtime/orchestrate/scripts/native_dispatch_coordinator.py", "sha256": "3bfbcf1a947d45ac77c1b917f1fe8c26ca6419124f0fd549ebcca829accb2d70"},
+    {"path": "runtime/orchestrate/scripts/validate_run_evidence.py", "sha256": "f8215bb035a4deb148244685adae8069e6e18440349c74ed37c7c80165708443"}
+  ],
+  "decisions": ["use two sequential runtime-bound actions", "keep the first helper read-only", "limit dependent mutation to one output artifact", "derive the dependent run plan only from reducer output"],
+  "gate": {"result": "pass", "blockers": []},
+  "fallback_search": "none"
+}

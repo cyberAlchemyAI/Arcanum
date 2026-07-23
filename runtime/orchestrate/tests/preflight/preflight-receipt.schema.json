@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/tests/preflight/preflight-receipt.schema.json",
+  "title": "Native Orchestrate Preflight Receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "dispatch_id",
+    "run_id",
+    "status",
+    "state",
+    "validation_status",
+    "authorization_status",
+    "host_id",
+    "required_operations",
+    "available_operations",
+    "missing_operations",
+    "spawn_attempt_count",
+    "action_count",
+    "run_plan_emitted",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.preflight-receipt.v0.1"},
+    "command": {"const": "orchestrate execute <dispatch.json>"},
+    "dispatch_id": {"type": "string"},
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["pass", "block"]},
+    "state": {"enum": ["blocked", "authorization_pending", "wave_ready"]},
+    "validation_status": {"enum": ["pass", "flag", "block"]},
+    "authorization_status": {"type": "string"},
+    "host_id": {"const": "codex"},
+    "required_operations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "available_operations": {"type": "array", "items": {"type": "string"}},
+    "missing_operations": {"type": "array", "items": {"type": "string"}},
+    "spawn_attempt_count": {"const": 0},
+    "action_count": {"type": "integer", "minimum": 0},
+    "run_plan_emitted": {"type": "boolean"},
+    "blockers": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

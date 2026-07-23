@@ -1,0 +1,56 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {
+    "task_id": "TASK-NDR-002",
+    "swu_id": "SWU-NDR-003",
+    "mode": "standard",
+    "handoff": "none",
+    "evidence_class": "task-session-context",
+    "built_at": "2026-07-22T15:01:57Z"
+  },
+  "coverage": {
+    "strict": true,
+    "obligation_count": 8,
+    "covered_count": 8,
+    "blocked_count": 0,
+    "percent": 100
+  },
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "exact execute grammar"},
+    {"id": "O2", "status": "covered", "summary": "canonical validation pass required"},
+    {"id": "O3", "status": "covered", "summary": "execution authorization resolution"},
+    {"id": "O4", "status": "covered", "summary": "native host operation availability"},
+    {"id": "O5", "status": "covered", "summary": "blocked preflights emit zero spawn attempts"},
+    {"id": "O6", "status": "covered", "summary": "ready preflight reaches wave_ready"},
+    {"id": "O7", "status": "covered", "summary": "no shell or nested model fallback"},
+    {"id": "O8", "status": "covered", "summary": "bounded writes and evidence synchronization"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-002.md", "selector": "SWU-NDR-003", "sha256": "c318e3028749026a02d48041b21c643408d7958b06d2e51d1dbca624ecb80113", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/receipt.json", "selector": "status and next route", "sha256": "d017de41c4776398fe594cda5d6490900d21c7555f564ab0b43439055c2c4e8f", "obligations": ["O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "authority and invariants", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O2", "O3", "O4", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "entry points, modules, failure rule", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DEFINE.md", "selector": "NDR-R1, NDR-R2, NDR-R4", "sha256": "6e4ba1db9e59bb52b1bbc7bed588a4d0858861b0eb10be500d8fbdaa666fe61d", "obligations": ["O2", "O3", "O4", "O5", "O6"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "driver boundary and runtime sequence", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O4", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/SKILL.md", "selector": "validator and non-execution boundary", "sha256": "0aaf1750447ba9daf8b06ba5f2635c148e258ec8e983d5e82eb348fb657e8226", "obligations": ["O2", "O3", "O7"]},
+    {"path": "development/craft/ARCANUM-SKILL-RUNTIME-HANDOFF.md", "selector": "runtime adapter and parent orchestration constraints", "sha256": "111564e430262c1198c37f9cd4fcef1f35152a1c45fdd7058022cb4a2dbe8597", "obligations": ["O4", "O7"]},
+    {"path": ".arcanum/runtime/adapters/native-skill.json", "selector": "execution mode and limitations", "sha256": "8f4445fe182f2e639bf9f611216bdab2abf0e550e41b65f4995258f003c445b1", "obligations": ["O4", "O7"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Machine-readable execute contract in SKILL frontmatter."},
+    {"id": "D2", "classification": "assumption", "choice": "Active host tool catalog is the availability authority."},
+    {"id": "D3", "classification": "constraint", "choice": "Preflight spawn_attempt_count is always zero."},
+    {"id": "D4", "classification": "assumption", "choice": "Four Codex collaboration operations are required for execute mode."}
+  ],
+  "write_scope": [
+    "runtime/orchestrate/SKILL.md",
+    "runtime/orchestrate/hosts/codex-native.md",
+    "runtime/orchestrate/tests/preflight/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-003/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"
+  ],
+  "next_route": {
+    "on_pass": "task-session:execute SWU-NDR-004",
+    "on_fail": "task-session:execute SWU-NDR-003 with changed evidence"
+  }
+}

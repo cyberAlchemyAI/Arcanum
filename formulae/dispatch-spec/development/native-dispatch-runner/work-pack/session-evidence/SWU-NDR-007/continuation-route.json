@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-007-20260722",
+  "source": {"capability": "task-session", "mode": "execute", "result": "pass", "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-007/receipt.json", "blocker_fingerprint": "terminal-pass:generated-consumers-zero-drift", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "task-session:execute SWU-NDR-008", "evidence": "The user instructed Task Session to continue sequentially until the next genuine blocker."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "deterministic-receipt-admission",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-005 passes", "SWU-NDR-007 completes the selected generation lane", "SWU-NDR-008 depends on SWU-NDR-005"],
+      "required_inputs": ["TASK-NDR-004 SWU-NDR-008", "SWU-NDR-005 receipt", "fresh context pack", "receipt schema", "state reducer"],
+      "missing_inputs": [],
+      "mutation_risk": "low",
+      "approval_required": false,
+      "authorization_status": "matched",
+      "expected_receipt": "Task Session receipt with parameterized invalid-receipt gate-block matrix and zero dependent actions.",
+      "fallback": "Preserve reducer output and report any receipt class that cannot name its violated binding."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The route is dependency-ready and covered by the user's until-blocker instruction."},
+  "dispatch": {"status": "not-requested", "runtime": "local", "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-004.md#SWU-NDR-008"}
+}

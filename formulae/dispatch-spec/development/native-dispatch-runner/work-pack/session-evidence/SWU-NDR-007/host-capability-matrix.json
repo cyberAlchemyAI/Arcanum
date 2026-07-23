@@ -1,0 +1,34 @@
+{
+  "schema_version": "arcanum.orchestrate.host-capability-matrix.v0.1",
+  "checked_at": "2026-07-22T15:28:30Z",
+  "hosts": [
+    {
+      "surface": "repo-codex",
+      "generation_status": "pass",
+      "native_profile": "hosts/codex-native.md",
+      "native_execution_status": "partial",
+      "evidence": ["SWU-NDR-003 preflight availability pass", "SWU-NDR-004 one live native spawn pass", "SWU-NDR-005 deterministic join pass"],
+      "blocker": "Failure-withholding and success-progression end-to-end canaries have not passed yet.",
+      "claim": "Generated and implementation-tested; full native execute path is not yet proven."
+    },
+    {
+      "surface": "claude",
+      "generation_status": "pass",
+      "native_profile": null,
+      "native_execution_status": "unsupported_blocking",
+      "evidence": ["Generated package contains only the Codex native profile", "No Claude-native operation mapping or canary exists", "Preflight fail-closed policy rejects missing mapped operations"],
+      "blocker": "A Claude-native host profile and host-specific canary are absent.",
+      "claim": "Contract distribution only; native execute is unsupported and must block."
+    },
+    {
+      "surface": "repo-local",
+      "generation_status": "isolated-pass",
+      "native_profile": null,
+      "native_execution_status": "contract_only",
+      "evidence": ["SWU-NDR-006 temporary repo-local generation pass"],
+      "blocker": "Repo-local package is not itself a host-native agent API.",
+      "claim": "Runtime contract/support package only."
+    }
+  ],
+  "parity_claim": "No cross-host native parity claim."
+}

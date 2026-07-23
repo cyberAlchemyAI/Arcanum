@@ -1,0 +1,57 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {
+    "task_id": "TASK-NDR-002",
+    "swu_id": "SWU-NDR-004",
+    "mode": "standard",
+    "handoff": "none",
+    "evidence_class": "task-session-context",
+    "built_at": "2026-07-22T15:09:31Z"
+  },
+  "coverage": {
+    "strict": true,
+    "obligation_count": 9,
+    "covered_count": 9,
+    "blocked_count": 0,
+    "percent": 100
+  },
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "persisted schema-valid action only"},
+    {"id": "O2", "status": "covered", "summary": "unknown action rejected before host call"},
+    {"id": "O3", "status": "covered", "summary": "attempt event precedes native call"},
+    {"id": "O4", "status": "covered", "summary": "exactly one mapped host call"},
+    {"id": "O5", "status": "covered", "summary": "bounded child context"},
+    {"id": "O6", "status": "covered", "summary": "native agent id bound to action"},
+    {"id": "O7", "status": "covered", "summary": "replay and host-error block"},
+    {"id": "O8", "status": "covered", "summary": "proof helper joined as session hygiene only"},
+    {"id": "O9", "status": "covered", "summary": "bounded writes and evidence synchronization"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-002.md", "selector": "SWU-NDR-004", "sha256": "c318e3028749026a02d48041b21c643408d7958b06d2e51d1dbca624ecb80113", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-003/receipt.json", "selector": "pass dependency and handoff", "sha256": "5f389eda3ce527367a0aaf4e65edea7e41080358e2aff74b0679867aee190e7a", "obligations": ["O1", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-003/active-host-capability-check.json", "selector": "active native operation availability", "sha256": "2716ebfc27faaee951233760b407eeaf94af75bdd5fea186e689b3980e69c7de", "obligations": ["O3", "O4", "O6", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "actions, invariants, and non-goals", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "native driver, causal event, and risk controls", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md", "selector": "NDR-R4 and NDR-R7", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb", "obligations": ["O3", "O4", "O6"]},
+    {"path": "runtime/orchestrate/SKILL.md", "selector": "current execution boundary", "sha256": "3f1c8fd4c59feb8fa59a857319f8b9a8d6d8d0f2b6d8ea72537bd0597d3e141f", "obligations": ["O1", "O2", "O3", "O4", "O7"]},
+    {"path": "runtime/orchestrate/hosts/codex-native.md", "selector": "Codex native operation mapping", "sha256": "66b8939375437f99330b42e666ecc75d1c28b9fbffd39b221a2ef0438a5ad9b8", "obligations": ["O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/schemas/action.schema.json", "selector": "canonical action shape", "sha256": "43b52d8c0cec7b9bf10ad4c518801084e8c09e10bc74b1353f1c76f5c1ac4794", "obligations": ["O1", "O2", "O5"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Dedicated read-only fixture is the live proof action."},
+    {"id": "D2", "classification": "constraint", "choice": "Persist action_attempted before calling collaboration.spawn_agent."},
+    {"id": "D3", "classification": "constraint", "choice": "One action produces at most one host call; replay blocks."},
+    {"id": "D4", "classification": "assumption", "choice": "Join the proof helper only for Task Session lifecycle hygiene."}
+  ],
+  "write_scope": [
+    "runtime/orchestrate/SKILL.md",
+    "runtime/orchestrate/hosts/codex-native.md",
+    "runtime/orchestrate/tests/native-spawn/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-004/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"
+  ],
+  "next_route": {
+    "on_pass": "task-session:execute SWU-NDR-005",
+    "on_fail": "task-session:execute SWU-NDR-004 with changed evidence"
+  }
+}

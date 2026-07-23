@@ -13,6 +13,8 @@ It is inspired by Weaver's separation between routing, execution, safe result fr
 - what gates, stop conditions, and residue ledgers must exist,
 - whether the proposed order should be evaluated before execution,
 - which dispatch techniques justify the route shape.
+- which lifecycle or execution capability governs each delegated worker,
+- which worker waves may run concurrently and which receipts unlock later mutation.
 
 ## Purpose
 
@@ -128,6 +130,8 @@ knowledge.
 | [ARCANUM-DISPATCH-SYNTHESIS.md](ARCANUM-DISPATCH-SYNTHESIS.md) | Synthesis, taxonomy, sentence grammar, and example sigil sequences. |
 | [TECHNIQUE-CATALOG.md](TECHNIQUE-CATALOG.md) | Reusable dispatch, POLE-inspired standards, and boundary/evidence techniques. |
 | [scripts/validate-dispatch.py](scripts/validate-dispatch.py) | Deterministic schema, route-rule, and technique-catalog validator. |
+| [CAPABILITY-BOUND-DELEGATION.md](CAPABILITY-BOUND-DELEGATION.md) | Design decision, concrete three-worker route, runtime boundary, and validation proof. |
+| [examples/capability-bound-artifact-repair.json](examples/capability-bound-artifact-repair.json) | Complete capability-bound three-worker route and lifecycle closeout. |
 
 ## Validation
 
@@ -152,6 +156,23 @@ the strategy explicit before runtime execution. Dispatch Spec validates the
 strategy shape, roles, join policy, receipts, and authorization state; the
 orchestrating capability shows the strategy and asks permission before spawning
 subagents or running delegated stages.
+
+For executable delegation, set `subagent_strategy.binding_mode` to
+`capability-bound`. Bind each role to a `capability_ref`, target, mode, agent
+count, applied steps, inputs, outputs, and mutation scope. Put roles into
+ordered `execution_waves`; a non-final wave must join at a named gate, and a
+dependent role must consume upstream receipts from an earlier wave. This makes
+routes such as “Sigil Development for X-Ray and Spellcraft for Whisper, then
+Task Session for the artifact” inspectable without turning Dispatch Spec into
+an agent runtime.
+
+JSON Schema conditionals enforce the capability-bound field shape. The
+deterministic validator remains required for semantic checks such as exact
+receipt flow, gate-to-wave binding, normalized scope overlap, and completed
+runtime closeout.
+
+The complete contract example is
+[capability-bound-artifact-repair.json](examples/capability-bound-artifact-repair.json).
 
 ## First Integration Target
 

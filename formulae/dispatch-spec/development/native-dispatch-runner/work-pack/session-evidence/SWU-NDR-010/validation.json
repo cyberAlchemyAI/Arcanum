@@ -1,0 +1,28 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-004",
+  "swu_id": "SWU-NDR-010",
+  "validated_at": "2026-07-22T15:44:57Z",
+  "result": "pass",
+  "commands": [
+    {"command": "python3 runtime/orchestrate/tests/evidence-order/test_evidence_order.py -v", "result": "pass", "summary": "4 evidence-order tests passed"},
+    {"command": "partial-wave, receipt-admission, bootstrap-generation, native-join, native-spawn, compiler, reducer, and preflight suites", "result": "pass", "summary": "40 earlier runtime tests passed"},
+    {"command": "validate_run_evidence.py valid-ordered.jsonl", "result": "pass", "summary": "8-event ordered stream produced a schema-valid pass receipt"},
+    {"command": "compare canonical selected support with declared installed surfaces", "result": "expected-residue", "summary": "each surface lacks the two new schemas and validator script; isolated bootstrap generation includes them"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "new public runtime and evidence contain no private paths, private project names, or trailing whitespace"}
+  ],
+  "done_criteria": [
+    {"criterion": "valid ordered stream passes", "result": "pass", "evidence": "evidence-validator-receipt.json"},
+    {"criterion": "dependent spawn before gate fails", "result": "pass", "evidence": "dependent_action_before_gate"},
+    {"criterion": "missing attempt fails", "result": "pass", "evidence": "missing_action_attempt"},
+    {"criterion": "duplicated host result fails", "result": "pass", "evidence": "duplicate_host_result"},
+    {"criterion": "synthesized terminal-only stream fails", "result": "pass", "evidence": "terminal_without_host_result"},
+    {"criterion": "unknown event kinds fail closed", "result": "pass", "evidence": "event_schema_violation"},
+    {"criterion": "fixture matrix and receipts validate", "result": "pass", "evidence": "run-event and evidence-validation-receipt schemas"}
+  ],
+  "bounded_recovery": [],
+  "known_residue": [
+    "The three declared generated surfaces each lack validate_run_evidence.py and the two new schemas.",
+    "A mechanical canonical-source refresh is required before the live canary sessions."
+  ]
+}

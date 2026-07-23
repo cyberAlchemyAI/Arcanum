@@ -1,0 +1,137 @@
+{
+  "dispatch_id": "fixture-block-capability-bound-dependency-same-wave",
+  "intent": {
+    "raw": "Update X-Ray and immediately repair its example in one parallel wave.",
+    "objective": "Block an artifact worker that is scheduled concurrently with the lifecycle receipt it depends on."
+  },
+  "mode": "mixed",
+  "techniques": ["sequence", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "A lifecycle update and an artifact repair are assigned to delegated roles.",
+    "explanation": "The lifecycle owner and artifact worker are explicit, but the proposed wave order is unsafe.",
+    "binding_mode": "capability-bound",
+    "execution_owner": "parent-orchestrator",
+    "roles": [
+      {
+        "role_id": "xray-lifecycle",
+        "purpose": "Update X-Ray.",
+        "owns": "X-Ray receipt",
+        "capability_ref": "sigil-development",
+        "capability_target": "x-ray",
+        "capability_mode": "update",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": ["arcana/x-ray/"],
+        "depends_on_roles": [],
+        "input_refs": ["operator-intent"],
+        "output_refs": ["receipts/xray-iteration.json"],
+        "applies_to_steps": ["s1"]
+      },
+      {
+        "role_id": "artifact-repair",
+        "purpose": "Repair the X-Ray example.",
+        "owns": "Artifact receipt",
+        "capability_ref": "task-session",
+        "capability_target": "examples/architecture-explainer/index.html",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": ["examples/architecture-explainer/index.html"],
+        "depends_on_roles": ["xray-lifecycle"],
+        "input_refs": ["receipts/xray-iteration.json"],
+        "output_refs": ["receipts/artifact-repair.json"],
+        "applies_to_steps": ["s2"]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "unsafe-concurrent-wave",
+        "role_ids": ["xray-lifecycle", "artifact-repair"],
+        "parallel": true,
+        "join_policy": "all",
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Run the declared capability-bound roles?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Update X-Ray",
+      "capability_ref": "sigil-development",
+      "mode": "update",
+      "pattern": "sequential",
+      "parallel": true,
+      "inputs": [
+        {"kind": "external_context", "ref": "operator-intent"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/xray-iteration.json"}
+      ],
+      "join_policy": "all",
+      "stop_conditions": ["stop if lifecycle validation fails"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Repair the example",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": true,
+      "depends_on_steps": ["s1"],
+      "techniques": ["sequence"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/xray-iteration.json"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/artifact-repair.json"}
+      ],
+      "join_policy": "all",
+      "stop_conditions": ["stop if the lifecycle receipt is unavailable"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g1",
+      "kind": "validation",
+      "owner": "parent-orchestrator",
+      "condition": "Dependencies must complete before consumers start.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["subagent_spawned", "wave_joined"],
+    "signal_grouping": "dispatch_id and wave_id"
+  }
+}

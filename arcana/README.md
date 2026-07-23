@@ -89,6 +89,10 @@ It belongs here because the workflow is recursive and strategic: it requires sco
 
 It belongs here because it coordinates repository inspection, human discovery, evidence classification, decision capture, and readiness routing.
 
+[subagent-strategy](subagent-strategy/) decides when multi-agent work is justified and governs a real dispatch through tensioned proposal, explicit confirmation, registration, dependency-aware execution, closeout, and observation.
+
+It belongs here because it coordinates multiple agents across human gates, dependency state, partial failures, durable evidence, final approval, and repository-local authority bindings.
+
 [signal-observer](signal-observer/) derives post-run behavior signals from sigil invocation evidence and appends reusable telemetry.
 
 It belongs here because it coordinates evidence interpretation, quality assessment, telemetry mutation, and reflection routing.

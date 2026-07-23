@@ -1,0 +1,53 @@
+{
+  "schema_version": "arcanum.task-session.receipt.v0.1",
+  "session_id": "task-session-swu-ndr-006-20260722",
+  "run_id": "swu-ndr-006-local",
+  "dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "step_id": "S6",
+  "capability_ref": "task-session",
+  "task_id": "TASK-NDR-003",
+  "swu_id": "SWU-NDR-006",
+  "status": "pass",
+  "runtime": "local",
+  "adapter": null,
+  "authorization_basis": "The user instructed Task Session to continue sequentially until the next genuine blocker.",
+  "context_pack": {"markdown": "work-pack/session-evidence/SWU-NDR-006/context-pack.md", "json": "work-pack/session-evidence/SWU-NDR-006/context-pack.json", "source_count": 6, "obligation_coverage": 100, "strict": true},
+  "decisions": [
+    "Use a canonical generation manifest to select shipped runtime support.",
+    "Preserve canonical skill body and contracts while replacing only generated provenance/name fields.",
+    "Ship host profiles, schemas, and scripts; exclude authoring tests and caches.",
+    "Install the selected package under both native skill and repo-local runtime surfaces.",
+    "Supersede the overlapping hardcoded-heredoc edit with the stronger canonical skill."
+  ],
+  "changed_paths": [
+    "tools/bootstrap_arcanum.sh",
+    "runtime/orchestrate/generation-manifest.json",
+    "runtime/orchestrate/tests/bootstrap-generation/test_bootstrap_generation.py",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/context-pack.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/context-pack.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/temporary-install-manifest.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/validation.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/receipt.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/invocation-signal.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/continuation-route.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/TASK-SESSION-REPORT.md"
+  ],
+  "artifacts": ["tools/bootstrap_arcanum.sh", "runtime/orchestrate/generation-manifest.json", "runtime/orchestrate/tests/bootstrap-generation/", "work-pack/session-evidence/SWU-NDR-006/temporary-install-manifest.json"],
+  "validation_commands": ["bash -n tools/bootstrap_arcanum.sh", "python3 runtime/orchestrate/tests/bootstrap-generation/test_bootstrap_generation.py -v", "run 29 existing runtime regression tests"],
+  "validation_result": "pass",
+  "validation": ["34 combined tests pass", "three temporary generated packages pass semantic/byte comparison", "hardcoded Orchestrate body is absent", "current installed consumers were not refreshed"],
+  "content_hashes": {
+    "bootstrap": "eed93902a1941cb40eb0560de40e2361ad969cdc72388c0c471009a317f9d257",
+    "generation_manifest": "1fb591812b2822aa7f1abd9a7e6c7ff088731d027dda99c624680477dd4de7e0",
+    "bootstrap_tests": "7ebc84d396ee82171b5361a971e183c76f7d23b57b788376a610fe9aca413a40",
+    "temporary_install_manifest": "67190fea079aba85b787282e3ace3b7d150be9f30c37e8ac15e5a0bb3ba37d4f"
+  },
+  "observer_status": "task-local-evidence",
+  "subagent_closeout": "n/a",
+  "blockers": [],
+  "residue": ["The current repository's generated `.agents` and `.claude` Orchestrate packages remain unrefreshed until SWU-NDR-007.", "Host generation parity does not claim native execution parity."],
+  "handoff_note": "Bootstrap now derives Orchestrate packages from canonical runtime source and isolated repo-codex, repo-local, and Claude generation passes; SWU-NDR-007 is dependency-ready.",
+  "next_swu": "SWU-NDR-007",
+  "next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-003.md#SWU-NDR-007", "authorization": "authorized-by-until-blocker"}
+}

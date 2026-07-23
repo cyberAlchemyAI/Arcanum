@@ -1,0 +1,35 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-004", "swu_id": "SWU-NDR-010", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:41:18Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "strict contiguous event sequence"},
+    {"id": "O2", "status": "covered", "summary": "host result follows attempt"},
+    {"id": "O3", "status": "covered", "summary": "one host result per action"},
+    {"id": "O4", "status": "covered", "summary": "joined receipt follows successful host result"},
+    {"id": "O5", "status": "covered", "summary": "gate inputs have complete causal chains"},
+    {"id": "O6", "status": "covered", "summary": "dependent action follows gate pass"},
+    {"id": "O7", "status": "covered", "summary": "terminal-only evidence rejected"},
+    {"id": "O8", "status": "covered", "summary": "deterministic validator receipt"},
+    {"id": "O9", "status": "covered", "summary": "public boundary and generated drift made explicit"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md", "selector": "SWU-NDR-010", "sha256": "ae46ff5a880778f98aa48e619c11ed85e8e22851964f4ff664932c826514d49e", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-009/receipt.json", "selector": "dependency pass", "sha256": "0b6c14913ed3ab41856db307513ee429e69417353875e4d69ea3bf3cce3e581f", "obligations": ["O1"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "data and evidence view", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "live evidence invariant", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O2", "O3", "O4", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md", "selector": "NDR-R7", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb", "obligations": ["O8"]},
+    {"path": "runtime/orchestrate/tests/partial-wave/fixtures/expected-unresolved-trace.json", "selector": "spawn failure event vocabulary", "sha256": "f6302bb6ee1ddb4600719115be0273ad7e69170b00cd5b800e59feefc271bb8f", "obligations": ["O1", "O2", "O3", "O7"]},
+    {"path": "runtime/orchestrate/tests/native-join/fixtures/expected-all-pass-events.json", "selector": "join event vocabulary", "sha256": "10cde7111f126a1947755ccf2b1f5d9f9beda356a4521be4bdeb2da22b4baa84", "obligations": ["O4", "O5"]},
+    {"path": "runtime/orchestrate/generation-manifest.json", "selector": "selected support paths", "sha256": "1fb591812b2822aa7f1abd9a7e6c7ff088731d027dda99c624680477dd4de7e0", "obligations": ["O9"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "constraint", "choice": "Validate persisted JSONL, never infer missing causal events."},
+    {"id": "D2", "classification": "design", "choice": "Use explicit receipt_joined and gate_decided events."},
+    {"id": "D3", "classification": "design", "choice": "Gate events name required actions; dependent attempts name their gate."},
+    {"id": "D4", "classification": "constraint", "choice": "Return exact ordered violations in a validator receipt."},
+    {"id": "D5", "classification": "constraint", "choice": "Record generated drift now and refresh before live canaries."}
+  ],
+  "write_scope": ["runtime/orchestrate/scripts/validate_run_evidence.py", "runtime/orchestrate/schemas/", "runtime/orchestrate/tests/evidence-order/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-010/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-011", "on_fail": "task-session:execute SWU-NDR-010 with changed evidence"}
+}

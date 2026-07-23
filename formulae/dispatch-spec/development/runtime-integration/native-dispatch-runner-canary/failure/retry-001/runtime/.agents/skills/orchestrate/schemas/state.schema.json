@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/state.schema.json",
+  "title": "Native Dispatch Runner State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "dispatch_id",
+    "run_id",
+    "state",
+    "validation_status",
+    "authorization_status",
+    "selected_wave_id",
+    "eligible_action_ids",
+    "completed_wave_ids",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.state.v0.1"},
+    "dispatch_id": {"type": "string"},
+    "run_id": {"type": "string", "minLength": 1},
+    "state": {"enum": ["prepared", "authorization_pending", "ready", "wave_ready", "wave_running", "wave_joined", "gate_pass", "gate_block", "blocked", "complete"]},
+    "validation_status": {"enum": ["pass", "flag", "block"]},
+    "authorization_status": {"type": "string"},
+    "selected_wave_id": {"type": ["string", "null"]},
+    "eligible_action_ids": {"type": "array", "items": {"type": "string"}},
+    "completed_wave_ids": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

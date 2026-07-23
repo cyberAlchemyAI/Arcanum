@@ -1,0 +1,46 @@
+{
+  "schema_version": "arcanum.task-session.receipt.v0.1",
+  "session_id": "task-session-swu-ndr-011-20260722",
+  "run_id": "native-dispatch-runner-failure-20260722",
+  "dispatch_id": "native-dispatch-runner-failure-canary",
+  "step_id": "S11",
+  "capability_ref": "task-session",
+  "task_id": "TASK-NDR-005",
+  "swu_id": "SWU-NDR-011",
+  "status": "block",
+  "runtime": "codex-native-isolated-installed-package",
+  "adapter": null,
+  "authorization_basis": "The user instructed Task Session to continue until the next blocker and had already authorized the failure-first native canary.",
+  "context_pack": {"markdown": "context-pack.md", "json": "context-pack.json", "source_count": 9, "obligation_coverage": 100, "strict": true},
+  "decisions": [
+    "Generate a current isolated installed runtime inside the strict failure-folder boundary.",
+    "Use one read-only native helper, which is not a governed fan-out dispatch.",
+    "Persist the real installed-contract join lifecycle rather than validate a reduced projection.",
+    "Block the session when the canonical validator rejects required lifecycle events.",
+    "Forbid the success canary until the causal schema and validator are repaired and this failure run passes."
+  ],
+  "artifacts": ["source.dispatch.json", "command.json", "runtime-install-receipt.json", "run/events.jsonl", "run/native-binding.json", "run/agent-inventory.json", "receipts/nonpass-check.json", "run/reduced/gate-decision.json", "run/reduced/next-actions.json", "run/evidence-validation-receipt.json", "result.json"],
+  "validation_result": "block",
+  "validation": ["dispatch validation pass", "one native helper spawned and closed", "gate_block with zero dependents", "causal evidence validation block on three required lifecycle kinds"],
+  "content_hashes": {
+    "dispatch": "32e22bb972c2ae272b4255e3ebf9369dcf183c44ba879c480cc585ec7011d1f0",
+    "installed_skill": "92c187e6aca5c629c4010448570dc4671d5df4c652258021b2062d086a8cd1e3",
+    "events": "51503cb5ba63d76796915d7b065fc29882d52e4c8874d634a5670e9dd75c23fd",
+    "native_receipt": "a1b9298f138f65501711c39b3eec1589470369d2955958693ec15c2404d1ac0b",
+    "gate_decision": "0067d7e682c2aecb32fc269ac02cb5fbfcee9299dfcf17fe81e84fd56d43b660",
+    "next_actions": "0ddcf583aaa327b03f122a4d75d9745a310b6db1119303ee8f2b949e5e265277",
+    "evidence_validation": "0f249a72d34f00c3138c93b667892aa91e33dd85cf23ec5c091cef67dfb264ec"
+  },
+  "observer_status": "task-local-evidence",
+  "agents_spawned": {
+    "helpers": [
+      {"action_id": "spawn-0001", "agent_id": "/root/ndr011_failure_nonpass", "role": "nonpass-check", "status": "completed", "joined": true, "logically_closed": true, "interrupt_count": 0}
+    ]
+  },
+  "subagent_closeout": {"status": "pass", "spawned": 1, "joined": 1, "completed": 1, "closed": 1, "interrupted": 0, "blocked": 0, "timed_out": 0, "handed_off": 0, "open": 0},
+  "blockers": ["NDR-BLOCK-EVENT-VOCABULARY-MISMATCH: run-event.schema.json and validate_run_evidence.py omit five events required by the installed Orchestrate join contract. The live terminal path rejects agent_wait_registered, wait_attempted, and agent_closed; timeout paths would also reject wait_timed_out and agent_interrupted."],
+  "residue": ["The live failure run remains preserved as blocked evidence.", "The central SWU manifest remains untouched under the runtime-integration-only write boundary.", "SWU-NDR-012 is forbidden until SWU-NDR-011 reruns to pass."],
+  "handoff_note": "Repair all five missing canonical lifecycle event kinds and both terminal and timeout ordering rules, regenerate the isolated canary runtime, then rerun failure withholding before any success canary.",
+  "next_swu": null,
+  "next_route": {"capability": "task-session", "mode": "execute", "target": "SWU-NDR-010 causal-evidence repair followed by SWU-NDR-011 rerun", "authorization": "requires-user-direction-beyond-current-failure-folder"}
+}

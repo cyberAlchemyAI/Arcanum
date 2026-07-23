@@ -53,7 +53,7 @@ theme, present when ≥2 groups have `n≥2`) is free-text and never vocabulary-
 
 ## Tensioned-pairwise is stronger than the partition check
 
-The `domainspec-subagents-strategy` chain already checks the angle set is **non-overlapping**
+The `subagent-strategy` chain already checks the angle set is **non-overlapping**
 (no two agents cover the same concern) AND **covering** (together they span the goal). Those are
 *partition* conditions — which subset each angle covers. Tensioned-pairwise is a *direction*
 condition: a group can pass partition and fail tension (four explorers cleanly partitioning the

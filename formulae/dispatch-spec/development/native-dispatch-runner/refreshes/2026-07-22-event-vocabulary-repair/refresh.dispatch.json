@@ -1,0 +1,124 @@
+{
+  "dispatch_id": "refresh-native-dispatch-runner-event-vocabulary-20260722",
+  "parent_dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "intent": {
+    "raw": "Refresh the Native Dispatch Runner work pack from the blocked failure canary so Task Sessions can repair and continue safely.",
+    "objective": "Insert one contract-complete lifecycle-event repair SWU, preserve the failed attempt, and gate failure retry before success.",
+    "target_artifact": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"
+  },
+  "mode": "sequence",
+  "techniques": ["sequence", "scu_swu_reduction", "recomposition_proof", "validation_loop", "execution_receipt_handoff", "concrete_path_evidence", "residue_ledger", "owner_boundary_check", "approval_semantics_map"],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "Refresh authoring and repair execution are sequential owner-bound capability calls; no fan-out is justified.",
+    "binding_mode": "descriptive",
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Approve applying the proposed work-pack refresh before Task Session executes SWU-NDR-010R?"
+  },
+  "subagent_lifecycle": {"status": "none", "agents": []},
+  "steps": [
+    {
+      "step_id": "R1",
+      "name": "Validate proposal-only refresh",
+      "capability_ref": "dispatch-spec",
+      "mode": "validate",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": ["validation_loop", "owner_boundary_check", "concrete_path_evidence"],
+      "inputs": [{"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/refreshes/2026-07-22-event-vocabulary-repair/refresh.dispatch.json"}],
+      "outputs": [{"kind": "receipt", "ref": "R1.refresh-route-validation"}],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/native-dispatch-runner/refreshes/2026-07-22-event-vocabulary-repair/dispatch-validation.json",
+      "stop_conditions": ["block if the route skips apply approval", "block if success can precede failure retry"]
+    },
+    {
+      "step_id": "R2",
+      "name": "Apply approved work-pack refresh",
+      "capability_ref": "invoke",
+      "mode": "refresh",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["R1"],
+      "techniques": ["sequence", "approval_semantics_map", "owner_boundary_check", "residue_ledger"],
+      "inputs": [{"kind": "receipt", "ref": "R1.refresh-route-validation"}, {"kind": "decision", "ref": "R2.explicit-apply-approval"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/refreshes/2026-07-22-event-vocabulary-repair/REFRESH-PATCH-PROPOSAL.md"}],
+      "outputs": [{"kind": "receipt", "ref": "R2.applied-refresh-receipt"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"}],
+      "join_policy": "none",
+      "evidence_artifact": "R2.applied-refresh-receipt",
+      "stop_conditions": ["block without explicit apply approval", "block if the failed canary evidence is rewritten"]
+    },
+    {
+      "step_id": "R3",
+      "name": "Repair complete native join lifecycle evidence",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["R2"],
+      "techniques": ["sequence", "scu_swu_reduction", "recomposition_proof", "validation_loop", "execution_receipt_handoff"],
+      "inputs": [{"kind": "receipt", "ref": "R2.applied-refresh-receipt"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md#SWU-NDR-010R"}],
+      "outputs": [{"kind": "receipt", "ref": "R3.swu-ndr-010r-receipt"}, {"kind": "artifact", "ref": "runtime/orchestrate/schemas/run-event.schema.json"}, {"kind": "artifact", "ref": "runtime/orchestrate/scripts/validate_run_evidence.py"}],
+      "join_policy": "none",
+      "evidence_artifact": "R3.swu-ndr-010r-receipt",
+      "stop_conditions": ["block unless terminal-close and timeout-interrupt fixture branches both pass", "block if earlier evidence-order cases regress"]
+    },
+    {
+      "step_id": "R4",
+      "name": "Retry failure-withholding canary append-only",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "validation",
+      "parallel": false,
+      "depends_on_steps": ["R3"],
+      "techniques": ["sequence", "validation_loop", "execution_receipt_handoff", "concrete_path_evidence"],
+      "inputs": [{"kind": "receipt", "ref": "R3.swu-ndr-010r-receipt"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md#SWU-NDR-011"}],
+      "outputs": [{"kind": "receipt", "ref": "R4.swu-ndr-011-retry-receipt"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/result.json"}],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/result.json",
+      "stop_conditions": ["preserve the blocked root attempt byte-for-byte", "block success unless the full live lifecycle stream validates"]
+    },
+    {
+      "step_id": "R5",
+      "name": "Continue to success canary only after failure pass",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "validation",
+      "parallel": false,
+      "depends_on_steps": ["R4"],
+      "techniques": ["sequence", "validation_loop", "execution_receipt_handoff", "concrete_path_evidence"],
+      "inputs": [{"kind": "receipt", "ref": "R4.swu-ndr-011-retry-receipt"}, {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md#SWU-NDR-012"}],
+      "outputs": [{"kind": "receipt", "ref": "R5.swu-ndr-012-receipt"}],
+      "join_policy": "none",
+      "evidence_artifact": "R5.swu-ndr-012-receipt",
+      "stop_conditions": ["block if R4 is not pass", "preserve host-specific claim limits"]
+    }
+  ],
+  "gates": [
+    {"gate_id": "RG0-route", "kind": "validation", "owner": "dispatch-spec", "condition": "refresh.dispatch.json passes route and technique validation", "requires_role_receipts": ["R1.refresh-route-validation"], "on_fail": "block"},
+    {"gate_id": "RG1-apply", "kind": "human_approval", "owner": "human", "condition": "explicit apply approval exists before target artifact mutation", "requires_role_receipts": ["R2.applied-refresh-receipt"], "on_fail": "block"},
+    {"gate_id": "RG2-repair", "kind": "quality", "owner": "task-session", "condition": "all five join lifecycle kinds and both terminal branches validate without regression", "requires_role_receipts": ["R3.swu-ndr-010r-receipt"], "on_fail": "block"},
+    {"gate_id": "RG3-failure", "kind": "validation", "owner": "task-session", "condition": "append-only failure retry passes full causal validation with zero dependent spawns", "requires_role_receipts": ["R4.swu-ndr-011-retry-receipt"], "on_fail": "block"},
+    {"gate_id": "RG4-success", "kind": "validation", "owner": "task-session", "condition": "success canary starts only after RG3 passes", "requires_role_receipts": ["R5.swu-ndr-012-receipt"], "on_fail": "block"}
+  ],
+  "observability": {"dispatch_id_required": true, "parent_dispatch_id": "dispatch-native-dispatch-runner-v1", "trace_events": ["refresh_proposed", "refresh_applied", "repair_swu_closed", "failure_retry_closed", "success_canary_closed"], "signal_grouping": "dispatch_id + step_id + swu_id"},
+  "boundary_evidence": {
+    "boundaries": [
+      {"boundary_id": "RB1-proposal-to-apply", "kind": "human_approval", "from_owner": "invoke", "to_owner": "human", "applies_to_steps": ["R1", "R2"], "contract": "A complete proposal-only refresh grants no target mutation; R2 requires explicit apply approval.", "on_violation": "block"},
+      {"boundary_id": "RB2-authoring-to-execution", "kind": "capability_handoff", "from_owner": "invoke", "to_owner": "task-session", "applies_to_steps": ["R2", "R3"], "contract": "Invoke applies planning deltas only; Task Session owns the bounded runtime repair.", "on_violation": "block"},
+      {"boundary_id": "RB3-task-receipts", "kind": "evidence_return", "from_owner": "task-session", "to_owner": "work-pack gates", "applies_to_steps": ["R3", "R4", "R5"], "contract": "Each Task Session returns concrete paths, validator results, blockers, residue, and the next route before a dependent step begins.", "on_violation": "block"}
+    ],
+    "authority": {"lifecycle": "capability owner and human", "execution": "task-session for work-pack SWUs; orchestrate inside native canaries", "validation": "dispatch-spec for route shape and runtime validators for evidence", "evidence": "append-only Task Session and canary receipts", "memory": "no automatic promotion", "promotion": "outside this refresh"},
+    "receipts": [
+      {"receipt_id": "refresh-apply-receipt", "producer": "invoke", "required_fields": ["artifacts", "validation_result", "status", "approval_record", "blockers", "residue"], "stores": ["refresh report", "target work-pack"], "on_missing": "block"},
+      {"receipt_id": "task-session-swu-receipt", "producer": "task-session", "required_fields": ["run_id", "session_id", "artifacts", "validation_result", "dispatch_id", "step_id", "capability_ref", "status", "blockers", "residue"], "stores": ["work-pack session evidence", "runtime-integration evidence"], "on_missing": "block"}
+    ],
+    "state_namespaces": [
+      {"namespace": "refresh-proposal", "owner": "invoke", "write_policy": "Proposal-only writes stay under the refresh package."},
+      {"namespace": "canonical-runtime-source", "owner": "task-session selected repair SWU", "write_policy": "Only SWU-NDR-010R may edit the declared schema, validator, and tests."},
+      {"namespace": "runtime-integration-evidence", "owner": "task-session canary", "write_policy": "Retry evidence appends under failure/retry-001 and never rewrites the blocked root attempt."}
+    ],
+    "promotion_splits": [{"source": "repair or canary pass", "target": "capability lifecycle status", "rule": "Execution evidence supports a later owner decision and never self-promotes.", "on_violation": "block"}]
+  },
+  "promotion_guardrails": ["Proposal validation grants no apply authority.", "Repair or canary pass grants no lifecycle promotion or cross-host parity.", "Blocked and historical canary evidence remains immutable."]
+}

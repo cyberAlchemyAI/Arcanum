@@ -1,0 +1,40 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "invoke-refresh-native-dispatch-runner", "swu_id": null, "mode": "standard", "handoff": "refresh-proposal", "evidence_class": "invoke-refresh-context", "built_at": "2026-07-22T16:06:12Z"},
+  "coverage": {"strict": true, "obligation_count": 12, "covered_count": 12, "blocked_count": 0, "percent": 100},
+  "inventory_lookup": {"status": "no_inventory_match", "machine_index": ".arcanum/inventory/index.json", "entry_count": 202, "query_terms": ["native dispatch runner", "causal evidence", "event vocabulary", "failure canary", "orchestrate"], "selected_entry_ids": [], "authority": "non-authority read model"},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "preserve blocked live evidence"},
+    {"id": "O2", "status": "covered", "summary": "all five missing lifecycle events"},
+    {"id": "O3", "status": "covered", "summary": "one repair SWU"},
+    {"id": "O4", "status": "covered", "summary": "terminal and timeout ordering"},
+    {"id": "O5", "status": "covered", "summary": "blocked attempt in manifest"},
+    {"id": "O6", "status": "covered", "summary": "success remains locked"},
+    {"id": "O7", "status": "covered", "summary": "append-only retry"},
+    {"id": "O8", "status": "covered", "summary": "traceability and gap ledger"},
+    {"id": "O9", "status": "covered", "summary": "execution route repair dependency"},
+    {"id": "O10", "status": "covered", "summary": "authority boundaries"},
+    {"id": "O11", "status": "covered", "summary": "apply validation"},
+    {"id": "O12", "status": "covered", "summary": "gated Task Session route"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/result.json", "selector": "blocker and bounded claim", "sha256": "f6213c0f9027b2f3848ac0e594b827dc6d2f5e6cad0e4b70ac675aada99552f1", "obligations": ["O1", "O2", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/run/evidence-validation-receipt.json", "selector": "unsupported sequence errors", "sha256": "0f249a72d34f00c3138c93b667892aa91e33dd85cf23ec5c091cef67dfb264ec", "obligations": ["O2", "O4", "O11"]},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipt.json", "selector": "Task Session block and next route", "sha256": "e62120db1388b0f67757ca0c41453b9605dd637d24eb3650cb210923286071e1", "obligations": ["O1", "O3", "O5", "O6", "O12"]},
+    {"path": "runtime/orchestrate/SKILL.md", "selector": "native_join_contract", "sha256": "5ae21868ee0b2c446620ebeef5a87a0b951a8c096d15c242f84a2200152db3ad", "obligations": ["O2", "O4", "O10"]},
+    {"path": "runtime/orchestrate/schemas/run-event.schema.json", "selector": "event enum and conditional shapes", "sha256": "be1447c6bb280ca79e52548708bd61f41737aa088341c4d14a9d3ebd6256bdac", "obligations": ["O2", "O4", "O11"]},
+    {"path": "runtime/orchestrate/scripts/validate_run_evidence.py", "selector": "EVENT_KINDS and causal reducer", "sha256": "59b99a1a7a4b72e42b04ad1625a691aa926216d57008226c17d62166296f974c", "obligations": ["O2", "O4", "O11"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md", "selector": "SWU-NDR-010", "sha256": "ae46ff5a880778f98aa48e619c11ed85e8e22851964f4ff664932c826514d49e", "obligations": ["O3", "O4", "O11"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md", "selector": "SWU-NDR-011 and SWU-NDR-012", "sha256": "b2d288d73ad22826257864363e252b4bd2081e7c9ab2537df4d3f4eab9f3160f", "obligations": ["O5", "O6", "O7", "O12"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json", "selector": "SWU-NDR-010 through 012", "sha256": "24bcf8e54c4de3cba22b726f1bd1c30cace6081bc7740990c26ecb51f503c2c1", "obligations": ["O3", "O5", "O6", "O12"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md", "selector": "NDR-R7 and NDR-R8", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb", "obligations": ["O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/cross-task-gaps.md", "selector": "active gaps", "sha256": "5b674f72d592a1dd15227f9f9727a6de81d0e4ed799b417526802d56f7a92d1b", "obligations": ["O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/execution.dispatch.json", "selector": "S4/S5 and G3/G4", "sha256": "ceee9560b51ef7fb564e78455114314f1e388d3c599489e16259fb6ef4355a23", "obligations": ["O9", "O10", "O12"]}
+  ],
+  "excluded_candidates": [
+    {"path": ".arcanum/inventory/index.md", "reason": "human index contained no Native Dispatch Runner match"},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/", "reason": "historical manual canary does not explain the new schema contradiction"}
+  ],
+  "write_scope": ["formulae/dispatch-spec/development/native-dispatch-runner/refreshes/2026-07-22-event-vocabulary-repair/"],
+  "next_route": {"on_approval": "invoke refresh apply-approved", "after_apply": "task-session execute SWU-NDR-010R", "on_no_approval": "deferred"}
+}

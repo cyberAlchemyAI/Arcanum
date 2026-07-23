@@ -1,0 +1,137 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.contract.v0.1",
+  "status": "proposed",
+  "identity": {
+    "name": "Native Dispatch Runner",
+    "owner": "orchestrate",
+    "route_validator": "dispatch-spec",
+    "invocation": "orchestrate execute <dispatch.json>"
+  },
+  "purpose": "Execute an already-valid capability-bound dispatch through host-native subagents while preserving deterministic gates, receipts, and closeout evidence.",
+  "authority": {
+    "dispatch_spec": [
+      "schema validation",
+      "route-rule validation",
+      "technique validation"
+    ],
+    "orchestrate": [
+      "execution authorization check",
+      "action scheduling",
+      "host-native spawn and join",
+      "gate reduction",
+      "run closeout"
+    ],
+    "capability_owner": [
+      "bounded work",
+      "artifact validation",
+      "task receipt"
+    ],
+    "human": [
+      "authorization when required",
+      "lifecycle and promotion decisions"
+    ]
+  },
+  "invariants": [
+    "Dispatch Spec remains validation-only.",
+    "No action is emitted from an invalid dispatch.",
+    "No native subagent is spawned before execution authorization is satisfied.",
+    "A non-pass or missing required receipt withholds every dependent action.",
+    "The runner never substitutes a nested model-backed CLI for a missing host-native tool.",
+    "Every host action is recorded when it is attempted, not reconstructed after the run.",
+    "Historical evidence is not rewritten to manufacture integration proof.",
+    "Completion requires validator-backed closeout evidence."
+  ],
+  "components": [
+    {
+      "component_id": "dispatch-validator-adapter",
+      "kind": "deterministic",
+      "responsibility": "Invoke the canonical Dispatch Spec validator and normalize its receipt."
+    },
+    {
+      "component_id": "action-compiler",
+      "kind": "deterministic",
+      "responsibility": "Compile the next permitted actions from the dispatch and current state."
+    },
+    {
+      "component_id": "state-reducer",
+      "kind": "deterministic",
+      "responsibility": "Reduce native action receipts into the next state and gate decision."
+    },
+    {
+      "component_id": "native-host-driver",
+      "kind": "host-native",
+      "responsibility": "Perform only the spawn, join, message, and close actions emitted by the coordinator."
+    },
+    {
+      "component_id": "evidence-writer",
+      "kind": "deterministic",
+      "responsibility": "Append action events and materialize run, receipt, gate, and closeout artifacts."
+    }
+  ],
+  "states": [
+    "prepared",
+    "authorization_pending",
+    "ready",
+    "wave_ready",
+    "wave_running",
+    "wave_joined",
+    "gate_pass",
+    "gate_block",
+    "blocked",
+    "complete"
+  ],
+  "actions": {
+    "spawn": "Create exactly one native agent for an eligible role and record its host identifier.",
+    "wait": "Wait for the selected active agents without changing route authority.",
+    "join": "Collect a completed agent result and bind it to its declared role and step.",
+    "close": "Close or interrupt an agent under the dispatch join policy.",
+    "block": "Stop dependent execution and emit the blocking evidence.",
+    "complete": "Validate closeout and finish the run."
+  },
+  "receipt_requirements": [
+    "dispatch_id",
+    "run_id",
+    "wave_id",
+    "step_id",
+    "role",
+    "capability_ref",
+    "agent_id",
+    "status",
+    "artifacts",
+    "validation",
+    "blockers",
+    "started_at",
+    "finished_at"
+  ],
+  "run_artifacts": [
+    "source.dispatch.json",
+    "validation.json",
+    "run-plan.json",
+    "state.json",
+    "actions/*.json",
+    "events.jsonl",
+    "receipts/*.json",
+    "gate-decisions/*.json",
+    "closeout.dispatch.json",
+    "result.json"
+  ],
+  "acceptance_scenarios": [
+    {
+      "scenario_id": "failure-withholding",
+      "entrypoint": "orchestrate execute <dispatch.json>",
+      "expected": "A non-pass first-wave receipt produces a blocking gate and zero dependent spawns."
+    },
+    {
+      "scenario_id": "success-progression",
+      "entrypoint": "orchestrate execute <dispatch.json>",
+      "expected": "All passing first-wave receipts open the gate and each dependent role is spawned exactly once."
+    }
+  ],
+  "non_goals": [
+    "Changing Dispatch Spec into an execution engine.",
+    "Granting lifecycle or promotion authority.",
+    "Claiming native host parity before host-specific canaries pass.",
+    "Migrating every legacy model-backed CLI call in the same work pack.",
+    "Allowing arbitrary child-agent recursion."
+  ]
+}

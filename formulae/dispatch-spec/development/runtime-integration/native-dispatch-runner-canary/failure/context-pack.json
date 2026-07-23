@@ -1,0 +1,36 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-005", "swu_id": "SWU-NDR-011", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:48:42Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "failure-folder-only writes"},
+    {"id": "O2", "status": "covered", "summary": "fresh isolated installed runtime"},
+    {"id": "O3", "status": "covered", "summary": "exact command entry"},
+    {"id": "O4", "status": "covered", "summary": "dispatch validation before execution"},
+    {"id": "O5", "status": "covered", "summary": "one persisted first-wave action"},
+    {"id": "O6", "status": "covered", "summary": "live attempt and host-result events"},
+    {"id": "O7", "status": "covered", "summary": "bound non-pass receipt"},
+    {"id": "O8", "status": "covered", "summary": "blocking gate and zero dependents"},
+    {"id": "O9", "status": "covered", "summary": "causal validation and helper closeout"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md", "selector": "SWU-NDR-011", "sha256": "b2d288d73ad22826257864363e252b4bd2081e7c9ab2537df4d3f4eab9f3160f", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-007/receipt.json", "selector": "generation dependency", "sha256": "cfa5e2b0bd112dee9aa8a4552216b55cfa081835e063dd0f116c9f7832707c3b", "obligations": ["O2"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-008/receipt.json", "selector": "withholding dependency", "sha256": "31a42b3e4f7518e7a3ba1232eb963a2c72f75d3cb2687470868db781cd9ae424", "obligations": ["O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-010/receipt.json", "selector": "causal validator dependency", "sha256": "c79dfb37715edbaf01e71ec6654072d67b0d23e9602130f547c4c0c14a6ff690", "obligations": ["O6", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "failure-withholding scenario", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/EXECUTION-PACK.md", "selector": "G4 and evidence standard", "sha256": "249fe36502160c6943808c8977effe8a57f7c294b204628224ef6f023fd8cd98", "obligations": ["O3", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "failure sequence", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O6", "O7", "O8", "O9"]},
+    {"path": "runtime/orchestrate/generation-manifest.json", "selector": "selected runtime support", "sha256": "1fb591812b2822aa7f1abd9a7e6c7ff088731d027dda99c624680477dd4de7e0", "obligations": ["O2"]},
+    {"path": ".agents/skills/orchestrate/SKILL.md", "selector": "installed Codex execute protocol", "sha256": "92c187e6aca5c629c4010448570dc4671d5df4c652258021b2062d086a8cd1e3", "obligations": ["O3", "O4", "O5", "O6", "O7", "O8", "O9"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "constraint", "choice": "Generate a current installed package inside the failure folder rather than mutating root installed surfaces."},
+    {"id": "D2", "classification": "constraint", "choice": "Use one first-wave helper so this remains a helper invocation, not fan-out dispatch."},
+    {"id": "D3", "classification": "constraint", "choice": "The canary input intentionally requires a non-pass result."},
+    {"id": "D4", "classification": "constraint", "choice": "Persist live events around each host action and validate them after reduction."},
+    {"id": "D5", "classification": "constraint", "choice": "Do not synchronize central manifest or global telemetry from the bounded canary session."}
+  ],
+  "write_scope": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-012", "on_fail": "block success canary"}
+}

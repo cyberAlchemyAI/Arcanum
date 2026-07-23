@@ -1,0 +1,33 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-003", "swu_id": "SWU-NDR-006", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:21:27Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "remove hardcoded Orchestrate body"},
+    {"id": "O2", "status": "covered", "summary": "canonical skill rendering with provenance"},
+    {"id": "O3", "status": "covered", "summary": "declared runtime support copied"},
+    {"id": "O4", "status": "covered", "summary": "tests and caches excluded"},
+    {"id": "O5", "status": "covered", "summary": "repository Codex package generated"},
+    {"id": "O6", "status": "covered", "summary": "repo-local runtime package generated"},
+    {"id": "O7", "status": "covered", "summary": "isolated byte and semantic comparison"},
+    {"id": "O8", "status": "covered", "summary": "live consumers excluded from this SWU"},
+    {"id": "O9", "status": "covered", "summary": "overlapping dirty heredoc intent preserved"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-003.md", "selector": "SWU-NDR-006", "sha256": "e12a923dc7ed45358ff0a44af166f6abe9cb92e743d5f789a7e84a1d3418b7b3", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-005/receipt.json", "selector": "pass dependency and next route", "sha256": "021260618d3771322bbeb1d41905a79e4b279ed5a781d51c2fd0230adc1b3572", "obligations": ["O8"]},
+    {"path": "tools/bootstrap_arcanum.sh", "selector": "Orchestrate writer and install profiles", "sha256": "f28f2fe79aab24c853d96b7b79d0dc6c0ad621b46c473c139a4622ca82f9eae4", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O9"]},
+    {"path": "runtime/orchestrate/SKILL.md", "selector": "canonical runtime contract", "sha256": "5ae21868ee0b2c446620ebeef5a87a0b951a8c096d15c242f84a2200152db3ad", "obligations": ["O1", "O2", "O3", "O7", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "canonical source and generation rule", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "deployment and generation view", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Canonical generation manifest selects runtime files."},
+    {"id": "D2", "classification": "constraint", "choice": "Generated skill differs only by surface provenance and optional name."},
+    {"id": "D3", "classification": "constraint", "choice": "Ship hosts, schemas, and scripts; exclude tests and caches."},
+    {"id": "D4", "classification": "assumption", "choice": "Repo-local profile installs .arcanum/runtime/orchestrate."},
+    {"id": "D5", "classification": "adjudication", "choice": "Canonical skill supersedes overlapping dirty heredoc while preserving its intent."}
+  ],
+  "write_scope": ["tools/bootstrap_arcanum.sh", "runtime/orchestrate/", "runtime/orchestrate/tests/bootstrap-generation/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-007", "on_fail": "task-session:execute SWU-NDR-006 with changed evidence"}
+}

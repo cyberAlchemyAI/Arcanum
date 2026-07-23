@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/action-set.schema.json",
+  "title": "Native Dispatch Runner Next Action Set",
+  "type": "object",
+  "required": ["schema_version", "dispatch_id", "run_id", "source_wave_id", "source_gate_id", "decision", "next_wave_id", "actions"],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.action-set.v0.1"},
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "source_wave_id": {"type": "string", "minLength": 1},
+    "source_gate_id": {"type": ["string", "null"]},
+    "decision": {"enum": ["gate_pass", "gate_block"]},
+    "next_wave_id": {"type": ["string", "null"]},
+    "actions": {"type": "array", "items": {"$ref": "action.schema.json"}}
+  },
+  "additionalProperties": false
+}

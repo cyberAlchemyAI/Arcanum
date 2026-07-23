@@ -1,0 +1,362 @@
+{
+  "dispatch_id": "example-capability-bound-artifact-repair",
+  "intent": {
+    "raw": "Improve X-Ray and Whisper through their lifecycle owners, then repair one explainer artifact with both receipts.",
+    "objective": "Validate a two-wave dispatch contract with capability-owned lifecycle work followed by an artifact-only worker.",
+    "target_artifact": "examples/architecture-explainer/index.html"
+  },
+  "mode": "mixed",
+  "techniques": [
+    "sequence",
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "artifact_contract_bridge",
+    "observability_grouping"
+  ],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "Two independent lifecycle owners must produce receipts before a third worker may edit the consumer artifact.",
+    "explanation": "Sigil Development owns the X-Ray change, Spellcraft owns the Whisper change, and Task Session owns only the bounded artifact repair.",
+    "context": [
+      "The X-Ray and Whisper changes can run in parallel because their write scopes do not overlap.",
+      "The artifact worker must wait for and consume both lifecycle receipts."
+    ],
+    "binding_mode": "capability-bound",
+    "execution_owner": "parent-orchestrator",
+    "roles": [
+      {
+        "role_id": "xray-lifecycle",
+        "purpose": "Improve the X-Ray contract for concrete, readable architecture explanations.",
+        "owns": "X-Ray lifecycle receipt",
+        "capability_ref": "sigil-development",
+        "capability_target": "x-ray",
+        "capability_mode": "update",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": ["arcana/x-ray/"],
+        "forbidden_write_scopes": ["examples/architecture-explainer/"],
+        "depends_on_roles": [],
+        "input_refs": ["operator-language-reflection"],
+        "output_refs": ["receipts/xray-iteration.json"],
+        "applies_to_steps": ["s1"]
+      },
+      {
+        "role_id": "whisper-lifecycle",
+        "purpose": "Improve the Whisper spell's copy-review composition.",
+        "owns": "Whisper lifecycle receipt",
+        "capability_ref": "spellcraft",
+        "capability_target": "whisper",
+        "capability_mode": "reflect",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": ["spells/whisper/"],
+        "forbidden_write_scopes": ["examples/architecture-explainer/"],
+        "depends_on_roles": [],
+        "input_refs": ["operator-language-reflection"],
+        "output_refs": ["receipts/whisper-iteration.json"],
+        "applies_to_steps": ["s2"]
+      },
+      {
+        "role_id": "artifact-repair",
+        "purpose": "Apply the accepted X-Ray and Whisper guidance to one explainer artifact.",
+        "owns": "Artifact repair receipt",
+        "capability_ref": "task-session",
+        "capability_target": "examples/architecture-explainer/index.html",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": ["examples/architecture-explainer/index.html"],
+        "forbidden_write_scopes": ["arcana/x-ray/", "spells/whisper/"],
+        "depends_on_roles": ["xray-lifecycle", "whisper-lifecycle"],
+        "input_refs": ["receipts/xray-iteration.json", "receipts/whisper-iteration.json"],
+        "output_refs": ["receipts/artifact-repair.json"],
+        "applies_to_steps": ["s3"]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "lifecycle-updates",
+        "role_ids": ["xray-lifecycle", "whisper-lifecycle"],
+        "parallel": true,
+        "join_policy": "all",
+        "gate_after": "g-lifecycle-receipts",
+        "on_incomplete": "block"
+      },
+      {
+        "wave_id": "artifact-repair",
+        "role_ids": ["artifact-repair"],
+        "parallel": false,
+        "join_policy": "all",
+        "depends_on_waves": ["lifecycle-updates"],
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Run the two lifecycle workers, join both receipts, then permit one artifact-only repair worker?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "agent-xray-lifecycle-001",
+        "role_id": "xray-lifecycle",
+        "capability_ref": "sigil-development",
+        "capability_target": "x-ray",
+        "capability_mode": "update",
+        "wave_id": "lifecycle-updates",
+        "write_scope": ["arcana/x-ray/"],
+        "lane_name": "X-Ray lifecycle update",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "receipts/xray-iteration.json",
+        "close_status": "closed"
+      },
+      {
+        "agent_id": "agent-whisper-lifecycle-001",
+        "role_id": "whisper-lifecycle",
+        "capability_ref": "spellcraft",
+        "capability_target": "whisper",
+        "capability_mode": "reflect",
+        "wave_id": "lifecycle-updates",
+        "write_scope": ["spells/whisper/"],
+        "lane_name": "Whisper lifecycle update",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "receipts/whisper-iteration.json",
+        "close_status": "closed"
+      },
+      {
+        "agent_id": "agent-artifact-repair-001",
+        "role_id": "artifact-repair",
+        "capability_ref": "task-session",
+        "capability_target": "examples/architecture-explainer/index.html",
+        "capability_mode": "execute",
+        "wave_id": "artifact-repair",
+        "write_scope": ["examples/architecture-explainer/index.html"],
+        "lane_name": "Bounded explainer repair",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "receipts/artifact-repair.json",
+        "close_status": "closed"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Update X-Ray through Sigil Development",
+      "capability_ref": "sigil-development",
+      "mode": "update",
+      "pattern": "sequential",
+      "parallel": true,
+      "techniques": ["role_projection_boundary", "execution_receipt_handoff"],
+      "inputs": [
+        {"kind": "intent", "ref": "intent.raw"},
+        {"kind": "external_context", "ref": "operator-language-reflection"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/xray-iteration.json"}
+      ],
+      "join_policy": "all",
+      "stop_conditions": ["stop if Sigil Development cannot validate the X-Ray lifecycle update"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Update Whisper through Spellcraft",
+      "capability_ref": "spellcraft",
+      "mode": "reflect",
+      "pattern": "sequential",
+      "parallel": true,
+      "techniques": ["role_projection_boundary", "execution_receipt_handoff"],
+      "inputs": [
+        {"kind": "intent", "ref": "intent.raw"},
+        {"kind": "external_context", "ref": "operator-language-reflection"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/whisper-iteration.json"}
+      ],
+      "join_policy": "all",
+      "stop_conditions": ["stop if Spellcraft cannot validate the Whisper lifecycle update"]
+    },
+    {
+      "step_id": "s3",
+      "name": "Repair the explainer artifact",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["s1", "s2"],
+      "techniques": ["sequence", "execution_receipt_handoff", "artifact_contract_bridge"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/xray-iteration.json"},
+        {"kind": "receipt", "ref": "receipts/whisper-iteration.json"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/artifact-repair.json"}
+      ],
+      "stop_conditions": [
+        "stop unless both lifecycle receipts pass",
+        "stop if the requested repair exceeds the artifact-only write scope"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-lifecycle-receipts",
+      "kind": "validation",
+      "owner": "parent-orchestrator",
+      "condition": "Both lifecycle workers return passing receipts and are joined and closed before the artifact worker starts.",
+      "applies_after_wave": "lifecycle-updates",
+      "requires_role_receipts": ["receipts/xray-iteration.json", "receipts/whisper-iteration.json"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-artifact-scope",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "The final worker changes only the named artifact and validates the result against both receipts.",
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "example-capability-bound-artifact-repair",
+      "step_id": "s1",
+      "capability_ref": "sigil-development",
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": ["receipts/xray-iteration.json"],
+      "validation": ["X-Ray lifecycle checks pass"],
+      "observer_status": "not_needed",
+      "blockers": [],
+      "residue": "none",
+      "handoff_note": "Consume this receipt only after the lifecycle gate passes."
+    },
+    {
+      "dispatch_id": "example-capability-bound-artifact-repair",
+      "step_id": "s2",
+      "capability_ref": "spellcraft",
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": ["receipts/whisper-iteration.json"],
+      "validation": ["Whisper lifecycle checks pass"],
+      "observer_status": "not_needed",
+      "blockers": [],
+      "residue": "none",
+      "handoff_note": "Consume this receipt only after the lifecycle gate passes."
+    },
+    {
+      "dispatch_id": "example-capability-bound-artifact-repair",
+      "step_id": "s3",
+      "capability_ref": "task-session",
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": ["receipts/artifact-repair.json"],
+      "validation": ["Artifact-only scope and artifact checks pass"],
+      "observer_status": "not_needed",
+      "blockers": [],
+      "residue": "none",
+      "handoff_note": "The parent may synthesize the final result."
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "b-xray-owner",
+        "kind": "capability_handoff",
+        "from_owner": "parent-orchestrator",
+        "to_owner": "sigil-development",
+        "applies_to_steps": ["s1"],
+        "contract": "The worker may update only the X-Ray lifecycle surface and must return a receipt.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b-whisper-owner",
+        "kind": "capability_handoff",
+        "from_owner": "parent-orchestrator",
+        "to_owner": "spellcraft",
+        "applies_to_steps": ["s2"],
+        "contract": "The worker may update only the Whisper lifecycle surface and must return a receipt.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "b-artifact-owner",
+        "kind": "evidence_return",
+        "from_owner": "sigil-development and spellcraft",
+        "to_owner": "task-session",
+        "applies_to_steps": ["s3"],
+        "contract": "Task Session may edit the artifact only after it receives both lifecycle receipts.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "sigil-development and spellcraft",
+      "execution": "parent-orchestrator",
+      "validation": "dispatch-spec",
+      "evidence": "task-session",
+      "promotion": "owning lifecycle capability"
+    },
+    "receipts": [
+      {
+        "receipt_id": "r-xray",
+        "producer": "sigil-development",
+        "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation", "residue"],
+        "stores": ["receipts/xray-iteration.json"],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r-whisper",
+        "producer": "spellcraft",
+        "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation", "residue"],
+        "stores": ["receipts/whisper-iteration.json"],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "r-artifact",
+        "producer": "task-session",
+        "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation", "residue"],
+        "stores": ["receipts/artifact-repair.json"],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "subagent_spawned",
+      "wave_joined",
+      "lifecycle_gate_passed",
+      "artifact_repair_started",
+      "subagent_closed"
+    ],
+    "signal_grouping": "dispatch_id and wave_id"
+  },
+  "promotion_guardrails": [
+    "Lifecycle state changes remain owned by Sigil Development and Spellcraft.",
+    "The artifact receipt is execution evidence, not lifecycle authority."
+  ]
+}

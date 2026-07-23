@@ -1,0 +1,62 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {
+    "task_id": "TASK-NDR-001",
+    "swu_id": "SWU-NDR-001",
+    "mode": "lean",
+    "handoff": "none",
+    "evidence_class": "task-session-context",
+    "built_at": "2026-07-22T14:39:02Z",
+    "source_revision": "b652e06a1571da602691436766b6beedb073e887"
+  },
+  "coverage": {
+    "strict": true,
+    "obligation_count": 8,
+    "covered_count": 8,
+    "blocked_count": 0,
+    "percent": 100
+  },
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "canonical validation before compilation"},
+    {"id": "O2", "status": "covered", "summary": "earliest dependency-free first wave only"},
+    {"id": "O3", "status": "covered", "summary": "exact action bindings and stable order"},
+    {"id": "O4", "status": "covered", "summary": "deterministic initialized state and run plan"},
+    {"id": "O5", "status": "covered", "summary": "authorization and owner boundaries"},
+    {"id": "O6", "status": "covered", "summary": "invalid, dependency, cardinality, and ordering tests"},
+    {"id": "O7", "status": "covered", "summary": "declared code, schema, tests, and session evidence scope"},
+    {"id": "O8", "status": "covered", "summary": "machine receipt and SWU-NDR-002 handoff"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-001.md", "selector": "lines 7-18", "sha256": "1aa692133977d10bf315b224465ef3fff83ef16d12e83e15183c74a7bd9cc3c7", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "authority, invariants, components, states, actions", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O1", "O3", "O4", "O5"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "modules, dependency rule, failure rule, decisions", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O1", "O4", "O5"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/IMPLEMENTATION-LAYERING.md", "selector": "First Unit and L0", "sha256": "82864924dc5b5cfcd8dc0dcda5372810b88cc483fe701539490551d3aa6ca90d", "obligations": ["O2", "O4", "O5", "O6"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/WORK-PACK.md", "selector": "authority, rules, task row, first handoff", "sha256": "e7e8e0123f63df295762ff1f37b43670f3ffbb355b55988b5ec318078e0cf4ca", "obligations": ["O7", "O8"]},
+    {"path": "formulae/dispatch-spec/dispatch.schema.yml", "selector": "required dispatch, capability-bound roles and waves, steps", "sha256": "2875e8051838d6b498353129397af612c8f2829be3a71b36c53e465add245f67", "obligations": ["O1", "O2", "O3"]},
+    {"path": "formulae/dispatch-spec/scripts/validate-dispatch.py", "selector": "validate_capability_bound_strategy, validate, main", "sha256": "67bdb31067dfdad9f2dd065de9af9b632f45c10845e0d78bf60b6cfc57b3893f", "obligations": ["O1", "O2", "O3", "O6"]},
+    {"path": "formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/source.dispatch.json", "selector": "capability-bound roles and execution waves", "sha256": "6499d40eaeb71622a1ed89c6eda6a63924deda3c7e53eed3eaf77baed63ead4f", "obligations": ["O2", "O3", "O6"]}
+  ],
+  "constraints": [
+    "No host-native calls.",
+    "No time-dependent or random output.",
+    "No action unless canonical validation returns pass.",
+    "Caller supplies run_id.",
+    "Only the first declared dependency-free wave is compiled."
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "One spawn action per role instance, preserving agent_count cardinality."},
+    {"id": "D2", "classification": "assumption", "choice": "Use the first declared applied step as step_id and preserve the full applies_to_steps array."},
+    {"id": "D3", "classification": "assumption", "choice": "Require authorization approved or not_needed."}
+  ],
+  "write_scope": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/",
+    "runtime/orchestrate/tests/fixtures/compile/",
+    "runtime/orchestrate/tests/test_compile_actions.py",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/"
+  ],
+  "next_route": {
+    "on_pass": "task-session:execute SWU-NDR-002",
+    "on_fail": "task-session:execute SWU-NDR-001 with changed evidence"
+  }
+}

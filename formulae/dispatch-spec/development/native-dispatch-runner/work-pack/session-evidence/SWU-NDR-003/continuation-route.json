@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-003-20260722",
+  "source": {"capability": "task-session", "mode": "execute", "result": "pass", "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-003/receipt.json", "blocker_fingerprint": "terminal-pass:authorization-gated-native-spawn", "legacy_adaptation": false},
+  "authorization": {"requested": false, "exact_route": "task-session:execute:native-subagent-spawn", "evidence": "The until-blocker instruction authorizes sequential local SWUs, but repository policy requires confirmation of the concrete native subagent dispatch."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "native-subagent-spawn",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-003 passes", "SWU-NDR-004 depends only on SWU-NDR-003"],
+      "required_inputs": ["TASK-NDR-002 SWU-NDR-004", "SWU-NDR-003 receipt", "fresh context pack", "one persisted spawn action", "subagent strategy recommendation", "user dispatch confirmation"],
+      "missing_inputs": ["subagent strategy recommendation", "user dispatch confirmation"],
+      "mutation_risk": "medium",
+      "approval_required": true,
+      "authorization_status": "missing",
+      "expected_receipt": "Task Session receipt proving one coordinator action caused exactly one native spawn with live evidence.",
+      "fallback": "Stop before collaboration.spawn_agent and preserve SWU-NDR-003 pass evidence."
+    }
+  ],
+  "selection": {"status": "none", "candidate_rank": null, "reason": "The only dependency-ready route performs an actual native subagent dispatch and lacks the required concrete confirmation."},
+  "dispatch": {"status": "not-requested", "runtime": "codex-native", "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "domainspec-subagents-strategy", "mode": "recommend", "target": "SWU-NDR-004 native spawn canary"}
+}

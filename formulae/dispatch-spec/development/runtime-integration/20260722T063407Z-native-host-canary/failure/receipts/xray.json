@@ -1,0 +1,28 @@
+{
+  "dispatch_id": "native-host-canary-failure",
+  "step_id": "s1",
+  "role_id": "xray-lifecycle",
+  "agent_id": "/root/canary_failure_xray",
+  "capability_ref": "sigil-development",
+  "capability_target": "x-ray",
+  "capability_mode": "observe",
+  "wave_id": "lifecycle-checks",
+  "write_scope": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+  ],
+  "receipt_kind": "subagent",
+  "status": "block",
+  "artifacts": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+  ],
+  "validation": [
+    "test ! -e arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json => pass: sentinel absent"
+  ],
+  "observer_status": "not_needed",
+  "blockers": [
+    "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json"
+  ],
+  "residue": "The pre-registered X-Ray pass sentinel is absent, so this lane cannot produce a passing lifecycle receipt and downstream artifact spawning must remain withheld.",
+  "reroute": "parent-withhold-downstream",
+  "handoff_note": "Parent must block the lifecycle gate and withhold the downstream artifact worker."
+}

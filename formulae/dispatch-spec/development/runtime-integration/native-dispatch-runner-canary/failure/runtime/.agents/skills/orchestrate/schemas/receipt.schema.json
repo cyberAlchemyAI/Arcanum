@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/receipt.schema.json",
+  "title": "Native Dispatch Runner Action Receipt",
+  "type": "object",
+  "required": [
+    "schema_version", "action_id", "dispatch_id", "run_id", "wave_id", "step_id", "role",
+    "capability_ref", "agent_id", "status", "artifacts", "validation", "blockers", "started_at", "finished_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.receipt.v0.1"},
+    "action_id": {"type": "string", "pattern": "^spawn-[0-9]{4}$"},
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "wave_id": {"type": "string", "minLength": 1},
+    "step_id": {"type": "string", "minLength": 1},
+    "role": {"type": "string", "minLength": 1},
+    "capability_ref": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["pass", "fail", "block", "timed_out"]},
+    "artifacts": {"type": "array", "items": {"type": "string"}},
+    "validation": {"enum": ["pass", "fail", "block"]},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "started_at": {"type": "string", "minLength": 1},
+    "finished_at": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

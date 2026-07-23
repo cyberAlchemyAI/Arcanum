@@ -875,6 +875,156 @@ copy_generated_skill_support() {
   done
 }
 
+apply_declared_runtime_overlay() {
+  local runtime="$1"
+  local target_id="$2"
+  local package_dir="$3"
+  local manifest="$dest_root/runtime/overlays/$target_id/manifest.json"
+  local validator="$arcanum_root/runtime/overlays/scripts/validate_runtime_overlay.py"
+
+  [[ -f "$manifest" ]] || return 0
+  case "$package_dir" in
+    "$target_root"/*) ;;
+    *) return 0 ;;
+  esac
+
+  if [[ "$dry_run" == "true" ]]; then
+    echo "[dry-run] apply admitted runtime overlay $manifest -> $package_dir"
+    return 0
+  fi
+
+  python3 "$validator" \
+    --manifest "$manifest" \
+    --target "$target_id" \
+    --repo-root "$target_root"
+
+  python3 - "$target_root" "$manifest" "$runtime" "$package_dir" <<'PY'
+import hashlib
+import json
+import re
+import shutil
+import sys
+from pathlib import Path, PurePosixPath
+
+repo_root = Path(sys.argv[1]).resolve()
+manifest_path = Path(sys.argv[2]).resolve()
+runtime = sys.argv[3]
+package_dir = Path(sys.argv[4]).resolve()
+manifest = json.loads(manifest_path.read_text("utf-8"))
+
+def fail(message):
+    raise SystemExit(f"runtime overlay apply failed: {message}")
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def normalized(value):
+    return re.sub(r"\s+", " ", value).strip()
+
+def contained(raw, *, must_exist=True):
+    portable = str(raw).replace("\\", "/")
+    parts = PurePosixPath(portable)
+    if parts.is_absolute() or ".." in parts.parts:
+        fail(f"path escapes repository: {raw}")
+    candidate = repo_root.joinpath(*parts.parts)
+    existing = candidate
+    while not existing.exists() and existing != repo_root:
+        existing = existing.parent
+    try:
+        existing.resolve().relative_to(repo_root)
+    except ValueError:
+        fail(f"path parent escapes repository: {raw}")
+    if must_exist and not candidate.exists():
+        fail(f"missing path: {raw}")
+    if candidate.exists():
+        try:
+            candidate.resolve().relative_to(repo_root)
+        except ValueError:
+            fail(f"resolved path escapes repository: {raw}")
+    return candidate
+
+targets = [
+    item for item in manifest["runtime_targets"]
+    if item["id"] == runtime
+]
+if len(targets) != 1:
+    fail(f"expected one manifest target for runtime {runtime}")
+target = targets[0]
+declared_package = contained(target["package_root"], must_exist=False).resolve()
+if declared_package != package_dir:
+    fail(
+        f"generated package {package_dir} does not match declared target "
+        f"{declared_package}"
+    )
+
+skill_path = contained(target["skill_path"])
+if skill_path.resolve() != (package_dir / "SKILL.md").resolve():
+    fail("declared skill_path does not match generated package")
+skill_text = skill_path.read_text("utf-8").replace("\r\n", "\n")
+if not skill_text.startswith("---\n") or "\n---\n" not in skill_text[4:]:
+    fail("generated skill has invalid frontmatter")
+frontmatter_end = skill_text.find("\n---\n", 4)
+frontmatter = skill_text[: frontmatter_end + 5]
+generated_body = skill_text[frontmatter_end + 5 :]
+
+canonical_path = contained(manifest["canonical"]["source"])
+canonical_body = canonical_path.read_text("utf-8").replace("\r\n", "\n")
+if normalized(generated_body) != normalized(canonical_body):
+    fail("generated base differs from canonical before overlay")
+
+composed = canonical_body
+for fragment in manifest["fragments"]:
+    if fragment["mode"] != "insert_after_exact":
+        fail(f"non-additive fragment mode: {fragment['id']}")
+    source = contained(fragment["source"])
+    if digest(source) != fragment["sha256"]:
+        fail(f"fragment digest mismatch: {fragment['id']}")
+    anchor = fragment["anchor"]
+    if composed.count(anchor) != 1:
+        fail(f"fragment anchor is not unique: {fragment['id']}")
+    payload = source.read_text("utf-8").rstrip("\n")
+    composed = composed.replace(anchor, f"{anchor}\n{payload}", 1)
+
+skill_path.write_text(frontmatter + "\n" + composed, encoding="utf-8")
+
+for preset in manifest["presets"]:
+    for copied_file in preset["copied_files"]:
+        source = contained(copied_file["source"])
+        if digest(source) != copied_file["sha256"]:
+            fail(f"payload digest mismatch: {copied_file['source']}")
+        destination_parts = PurePosixPath(
+            copied_file["destination"].replace("\\", "/")
+        )
+        if destination_parts.is_absolute() or ".." in destination_parts.parts:
+            fail(f"unsafe payload destination: {copied_file['destination']}")
+        destination = package_dir.joinpath(*destination_parts.parts)
+        try:
+            destination.resolve().relative_to(package_dir)
+        except ValueError:
+            fail(f"payload destination escapes package: {copied_file['destination']}")
+        if destination.exists():
+            fail(f"overlay would replace generated file: {copied_file['destination']}")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+
+final_text = skill_path.read_text("utf-8")
+for control in manifest["protected_controls"]:
+    if normalized(control["text"]) not in normalized(final_text):
+        fail(f"missing protected {control['class']}: {control['id']}")
+for preset in manifest["presets"]:
+    for copied_file in preset["copied_files"]:
+        destination = package_dir / PurePosixPath(copied_file["destination"])
+        if digest(destination) != copied_file["sha256"]:
+            fail(f"copied payload mismatch: {copied_file['destination']}")
+
+print(
+    f"applied runtime overlay {manifest['target']} to {runtime}: "
+    f"{len(manifest['fragments'])} fragments, "
+    f"{sum(len(item['copied_files']) for item in manifest['presets'])} files"
+)
+PY
+}
+
 # Emit a source SKILL.md frontmatter+body to stdout, skipping the leading `---`.
 # Replaces the `name:` line when name_override is given, and for runtime=claude
 # maps Codex-flavored tool tokens in `allowed-tools` to their real Claude names
@@ -885,8 +1035,9 @@ emit_generated_skill_stream() {
   local source_file="$1"
   local runtime="$2"
   local name_override="${3:-}"
+  local strip_generated_fields="${4:-false}"
 
-  tail -n +2 "$source_file" | awk -v name="$name_override" -v runtime="$runtime" '
+  tail -n +2 "$source_file" | awk -v name="$name_override" -v runtime="$runtime" -v strip_generated_fields="$strip_generated_fields" '
     BEGIN { in_fm=1; replaced=0 }
     in_fm && $0 == "---" {
       if (name != "" && !replaced) { print "name: " name; replaced=1 }
@@ -900,6 +1051,9 @@ emit_generated_skill_stream() {
         next
       }
       print
+      next
+    }
+    in_fm && strip_generated_fields == "true" && $0 ~ /^(surface_kind|runtime|canonical_source|alias_of|generated_by|mutation_policy):/ {
       next
     }
     in_fm && runtime == "claude" && $0 ~ /^allowed-tools:/ {
@@ -923,6 +1077,39 @@ emit_generated_skill_stream() {
     }
     { print }
   '
+}
+
+copy_orchestrate_runtime_support() {
+  local package_dir="$1"
+  local source_dir="$arcanum_root/runtime/orchestrate"
+  local support_path src dst
+  local -a support_paths=("generation-manifest.json" "hosts" "schemas" "scripts")
+
+  for support_path in "${support_paths[@]}"; do
+    src="$source_dir/$support_path"
+    dst="$package_dir/$support_path"
+    if [[ -d "$src" ]]; then
+      if [[ -e "$dst" && "$force" == "true" ]]; then
+        run rm -rf "$dst"
+      fi
+      ensure_clean_destination "$dst"
+      run mkdir -p "$package_dir"
+      if [[ "$dry_run" == "true" ]]; then
+        echo "[dry-run] copy orchestrate runtime support $src -> $dst"
+      else
+        tar \
+          --exclude='*/__pycache__' \
+          --exclude='*.pyc' \
+          --exclude='.DS_Store' \
+          -C "$source_dir" -cf - "$support_path" | tar -C "$package_dir" -xf -
+      fi
+    elif [[ -f "$src" ]]; then
+      copy_file "$src" "$dst"
+    else
+      echo "Missing canonical Orchestrate support path: $src" >&2
+      exit 1
+    fi
+  done
 }
 
 write_generated_skill_file() {
@@ -1002,6 +1189,7 @@ EOF
 write_orchestrate_skill_file() {
   local runtime="$1"
   local package_dir="$2"
+  local source_file="$arcanum_root/runtime/orchestrate/SKILL.md"
   local dst="$package_dir/SKILL.md"
 
   ensure_clean_destination "$dst"
@@ -1012,35 +1200,16 @@ write_orchestrate_skill_file() {
   fi
 
   {
-    cat <<EOF
----
-name: $(basename "$package_dir")
-description: "Route repository work through installed Arcanum capabilities."
-$(generated_skill_provenance_fields "$runtime" "arcanum/runtime/orchestrate" "null")
----
-
-EOF
-    cat <<EOF
-# Skill: Arcanum Orchestrate
-
-<objective>
-Route repository work through installed Arcanum sigils and spells while preserving dispatch-spec, task-session, and observability boundaries.
-</objective>
-
-<installed-capabilities>
-$(installed_capability_list_markdown)
-</installed-capabilities>
-
-<process>
-1. Classify the request as authoring, refinement, task execution, observability, install/setup, validation, or help.
-2. Prefer the host runtime's native skill, agent, or instruction execution for model-backed work.
-3. Use native skills, subagents, and dispatch-spec validators for active execution evidence.
-4. Treat \`tools/arcanum\` helpers as deterministic handoff preparation or explicit legacy compatibility only.
-5. Do not spawn nested model-backed CLIs for the same stage.
-6. Return capability, mode, receipt kind, execution surface, status, artifacts, validation, observer status, blockers, and handoff note.
-</process>
-EOF
+    printf '%s\n' '---'
+    generated_skill_provenance_fields "$runtime" "runtime/orchestrate/SKILL.md" "null"
+    emit_generated_skill_stream "$source_file" "$runtime" "$(basename "$package_dir")" "true"
   } > "$dst"
+  copy_orchestrate_runtime_support "$package_dir"
+}
+
+install_repo_local_orchestrate_package() {
+  profile_enabled "repo-local" || return 0
+  write_orchestrate_skill_file "local" "$dest_root/runtime/orchestrate"
 }
 
 write_runtime_skill_packages() {
@@ -1079,6 +1248,7 @@ write_runtime_skill_packages() {
     canonical_source="$(spell_source_path_for "$spell")" || continue
     package_name="$prefix_name$spell"
     write_generated_skill_file "$runtime" "$root/$spell" "$canonical_source" "$source_file" "null" "$spell"
+    apply_declared_runtime_overlay "$runtime" "$spell" "$root/$spell"
     if [[ "$prefixed_skill_packages" == "true" && -n "$prefix_name" ]]; then
       write_generated_alias_skill "$runtime" "$root/$package_name" "$canonical_source" "$spell" "$spell"
     fi
@@ -1895,6 +2065,7 @@ if profile_enabled "observability"; then
 fi
 if profile_enabled "repo-local"; then
   install_runtime_config
+  install_repo_local_orchestrate_package
 fi
 if [[ "$legacy_codex_commands" == "true" ]]; then
   write_necronomicon_harness_state

@@ -1,0 +1,29 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-002",
+  "swu_id": "SWU-NDR-003",
+  "validated_at": "2026-07-22T15:04:59Z",
+  "result": "pass",
+  "commands": [
+    {"command": "python3 runtime/orchestrate/tests/preflight/test_preflight_contract.py -v", "result": "pass", "summary": "6 preflight contract tests passed"},
+    {"command": "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py runtime/orchestrate/tests/test_reduce_receipts.py", "result": "pass", "summary": "12 existing compiler and reducer tests passed"},
+    {"command": "python3 -m json.tool <preflight fixtures and schema>", "result": "pass", "summary": "all preflight JSON parses"},
+    {"command": "YAML frontmatter parse for SKILL.md and hosts/codex-native.md", "result": "pass", "summary": "execute and native host contracts parse"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "no private paths/project names and no trailing whitespace found"}
+  ],
+  "done_criteria": [
+    {"criterion": "exact execute grammar", "result": "pass", "evidence": "test_execute_grammar_is_exact_and_preflight_cannot_spawn"},
+    {"criterion": "invalid dispatch blocks", "result": "pass", "evidence": "invalid-dispatch.receipt.json"},
+    {"criterion": "authorization pending blocks", "result": "pass", "evidence": "authorization-pending.receipt.json"},
+    {"criterion": "missing host operation blocks", "result": "pass", "evidence": "missing-host-operation.receipt.json"},
+    {"criterion": "authorized host-complete input reaches wave_ready", "result": "pass", "evidence": "ready.receipt.json"},
+    {"criterion": "every preflight has zero spawn attempts", "result": "pass", "evidence": "preflight-receipt.schema.json"},
+    {"criterion": "current host exposes required operations", "result": "pass", "evidence": "active-host-capability-check.json"}
+  ],
+  "bounded_recovery": [
+    {"attempt": 1, "result": "fail", "cause": "Python receipt constructor used JSON boolean spelling", "repair": "replaced false with False in the test evaluator"},
+    {"attempt": 2, "result": "pass", "cause": "none", "repair": "none"},
+    {"attempt": 3, "result": "fail", "cause": "continuation schema check used an unresolved relative repository path", "repair": "resolved the Arcanum root before locating the parent schema"},
+    {"attempt": 4, "result": "pass", "cause": "none", "repair": "none"}
+  ]
+}

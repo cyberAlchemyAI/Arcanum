@@ -1,0 +1,86 @@
+{
+  "schema_version": "arcanum.task-session.receipt.v0.1",
+  "session_id": "task-session-swu-ndr-001-20260722",
+  "run_id": "swu-ndr-001-local",
+  "dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "step_id": "S2",
+  "capability_ref": "task-session",
+  "task_id": "TASK-NDR-001",
+  "swu_id": "SWU-NDR-001",
+  "status": "pass",
+  "runtime": "local",
+  "adapter": null,
+  "authorization_basis": "The user explicitly invoked Task Session after Invoke named SWU-NDR-001 as the next ready unit.",
+  "context_pack": {
+    "markdown": "work-pack/session-evidence/SWU-NDR-001/context-pack.md",
+    "json": "work-pack/session-evidence/SWU-NDR-001/context-pack.json",
+    "source_count": 8,
+    "obligation_coverage": 100,
+    "strict": true
+  },
+  "decisions": [
+    "One spawn action represents one role instance, so agent_count expands deterministically.",
+    "Declared role order and zero-based agent ordinal control stable action ordering.",
+    "The first applied step is the primary step_id while applies_to_steps preserves the full binding."
+  ],
+  "changed_paths": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/action.schema.json",
+    "runtime/orchestrate/schemas/state.schema.json",
+    "runtime/orchestrate/schemas/run-plan.schema.json",
+    "runtime/orchestrate/tests/fixtures/compile/valid-two-wave.json",
+    "runtime/orchestrate/tests/fixtures/compile/invalid-dispatch.json",
+    "runtime/orchestrate/tests/fixtures/compile/expected-run-plan.json",
+    "runtime/orchestrate/tests/fixtures/compile/expected-state.json",
+    "runtime/orchestrate/tests/test_compile_actions.py",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/context-pack.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/context-pack.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/validation.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/invocation-signal.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/TASK-SESSION-REPORT.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/continuation-route.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/receipt.json"
+  ],
+  "artifacts": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/",
+    "runtime/orchestrate/tests/fixtures/compile/expected-run-plan.json",
+    "runtime/orchestrate/tests/fixtures/compile/expected-state.json"
+  ],
+  "validation_commands": [
+    "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py",
+    "python3 formulae/dispatch-spec/scripts/validate-dispatch.py runtime/orchestrate/tests/fixtures/compile/valid-two-wave.json --json",
+    "python3 runtime/orchestrate/scripts/native_dispatch_coordinator.py compile <fixture> --run-id <id> --output-dir <temporary-dir>"
+  ],
+  "validation_result": "pass",
+  "validation": [
+    "5 deterministic tests pass",
+    "canonical fixture validation has no blocks or flags",
+    "valid CLI path emits three actions",
+    "invalid CLI path exits 2 and emits no actions",
+    "JSON, whitespace, and public-boundary checks pass"
+  ],
+  "content_hashes": {
+    "coordinator": "7108ac9d2dd5d27dcec92020cc9c26899a4d4301284c8dd6d85e67f534a66ccb",
+    "action_schema": "43b52d8c0cec7b9bf10ad4c518801084e8c09e10bc74b1353f1c76f5c1ac4794",
+    "state_schema": "516256e46f3009b7fa4ee00e77a6c36321dfa34ad56ad987d3e6fe07581e633c",
+    "run_plan_schema": "dabbdb4bee5e4cc2e515b716972d9730b57e40095fd6909fcf78c15313f63bf3",
+    "tests": "6cb3e31415ed318df0512a5e5c293d4c506ed52813fff55ba6d81112969c7b12"
+  },
+  "observer_status": "task-local-evidence",
+  "subagent_closeout": "n/a",
+  "blockers": [],
+  "residue": [
+    "Receipt reduction and gate decisions remain SWU-NDR-002.",
+    "Host-native operations remain outside L0."
+  ],
+  "handoff_note": "SWU-NDR-001 passes and unlocks SWU-NDR-002. No continuation was dispatched.",
+  "next_swu": "SWU-NDR-002",
+  "next_route": {
+    "capability": "task-session",
+    "mode": "execute",
+    "target": "work-pack/tasks/TASK-NDR-001.md#SWU-NDR-002",
+    "authorization": "required"
+  }
+}

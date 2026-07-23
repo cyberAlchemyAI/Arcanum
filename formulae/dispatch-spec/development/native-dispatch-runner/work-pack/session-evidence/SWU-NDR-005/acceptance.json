@@ -1,0 +1,46 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.native-join-acceptance.v0.1",
+  "task_id": "TASK-NDR-002",
+  "swu_id": "SWU-NDR-005",
+  "result": "pass",
+  "scenarios": [
+    {
+      "scenario": "all-pass",
+      "wait_registration_count": 3,
+      "mailbox_wait_call_count": 1,
+      "logical_close_count": 3,
+      "interrupt_count": 0,
+      "normalized_receipt_count": 3,
+      "gate": "gate_pass",
+      "next_action_ids": ["spawn-0004"],
+      "event_evidence": "runtime/orchestrate/tests/native-join/fixtures/expected-all-pass-events.json",
+      "reducer_input": "runtime/orchestrate/tests/fixtures/reduce/pass/",
+      "gate_evidence": "runtime/orchestrate/tests/fixtures/reduce/expected-pass-gate.json"
+    },
+    {
+      "scenario": "one-agent-failure",
+      "normalized_receipt_count": 3,
+      "gate": "gate_block",
+      "next_action_ids": [],
+      "test": "test_one_agent_failure_reaches_reducer_and_blocks"
+    },
+    {
+      "scenario": "missing-result",
+      "normalized_receipt_count": 3,
+      "timed_out_receipt_count": 1,
+      "interrupt_count": 1,
+      "gate": "gate_block",
+      "next_action_ids": [],
+      "test": "test_missing_result_interrupts_once_and_emits_explicit_timed_out_receipt"
+    },
+    {
+      "scenario": "identity-mismatch",
+      "normalized_receipt_count": 3,
+      "blocking_receipt_count": 1,
+      "gate": "gate_block",
+      "next_action_ids": [],
+      "test": "test_identity_mismatch_is_bound_to_expected_action_and_blocks"
+    }
+  ],
+  "claim_limit": "Deterministic host-stub proof of one wave join; live multi-wave canaries remain later SWUs."
+}

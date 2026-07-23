@@ -4,7 +4,7 @@ description: "Use when: validating or designing an Arcanum dispatch route that c
 argument-hint: "<dispatch.json|route intent> [--validate] [--fixtures]"
 tier: formulae
 domain: dispatch-governance
-version: 0.2.0
+version: 0.3.0
 origin: Formulae package for Arcanum route-shape validation and boundary/evidence contracts
 allowed-tools: Read, Write, Glob, Grep, Bash
 ---
@@ -34,6 +34,7 @@ This skill does not decide which sigils should be used. It checks whether a prop
 - A route needs to cite reusable techniques from [TECHNIQUE-CATALOG.md](TECHNIQUE-CATALOG.md), including Arcanum composition techniques or POLE-inspired standards-catalog techniques.
 - Refine needs a route artifact for its canonical ten-stage loop without making the Refine process itself the orchestrator.
 - Refine or another orchestrating capability needs a visible subagent strategy before asking permission to run delegated or parallel stage work.
+- An orchestrator needs to bind each delegated role to one lifecycle or execution capability, order roles into waves, and prevent downstream mutation before upstream receipts pass.
 - A route needs optional `boundary_evidence` for cross-capability handoffs, authority owners, receipts, state namespaces, or promotion splits.
 
 ## Do Not Use When
@@ -66,7 +67,7 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 1. The document must include `dispatch_id`, `intent`, `mode`, `steps`, and `gates`.
 2. Each step must reference a known or candidate `capability_ref`.
 3. Each step must declare a `pattern`: `route`, `sequential`, `fanout`, `dialectic`, `tournament`, `distill`, `xray`, `decision`, `validation`, `toy_game`, `synthesis`, or `handoff`.
-4. Non-first steps must name at least one input source: prior `frame`, `handle`, `decision`, `ledger`, `human_answer`, or `external_context`.
+4. Non-first steps must name at least one input source: prior `frame`, `handle`, `decision`, `ledger`, `receipt`, `artifact`, `human_answer`, or `external_context`.
 5. Any step with `parallel: true` must declare `join_policy`.
 6. Tournament and dialectic steps must declare proposal roles and convergence criteria.
 7. Validation and toy-game steps must declare an expected evidence artifact.
@@ -88,6 +89,16 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 23. Recommended or required subagent execution must include lifecycle receipt fields: `agent_id`, `role_id`, `spawn_status`, `join_status`, `close_status`, `residue`, and `reroute`.
 24. A `subagent_lifecycle.status=pass` ledger must prove every spawned agent reached a terminal join state and terminal close state.
 25. Blocked spawn, timed-out join, blocked join, or thread-cap failure only passes as named residue with a reroute or handoff.
+26. `binding_mode=capability-bound` requires an `execution_owner`, capability-bound roles, and ordered `execution_waves`.
+27. Every capability-bound role must name its `capability_ref`, `capability_target`, `capability_mode`, `agent_count`, mutation policy, applied steps, and output receipts.
+28. A role's capability must match the capability of every step it owns; its input and output refs must be present on those steps.
+29. `lifecycle-owned` and `artifact-only` roles require explicit write scopes; read-only roles cannot declare a write scope.
+30. Write scopes must be normalized repository-relative paths. Concurrent roles cannot have overlapping write scopes, and a role's write scope cannot overlap its forbidden scopes.
+31. Role dependencies must be in earlier execution waves, be mirrored by `depends_on_waves`, and consume at least one receipt from each dependency.
+32. Every non-final wave requires a named `gate_after` that identifies the wave and its required role receipts; later waves cannot start until their declared joins and gate pass.
+33. A capability-bound lifecycle closeout requires prior authorization and must identify each agent's capability, target, mode, wave, and effective write scope.
+34. A passing capability-bound closeout must contain exactly the declared number of agent records for every role.
+35. Every agent in a passing capability-bound closeout must have spawned, completed its join, closed, and returned its declared receipt; every applied step must also have a passing native-stage receipt containing the role output.
 
 ## Subagent Strategy
 
@@ -111,6 +122,32 @@ Minimum fields:
 - `authorization`: `not_needed`, `requires_user_permission`, `approved`, or `blocked`.
 - `permission_prompt`: the prompt the orchestrator should show before execution.
 - `receipt_requirements`: evidence each subagent must return.
+
+### Capability-Bound Delegation
+
+Use `binding_mode: capability-bound` when the dispatch must be executable by a
+parent orchestrator rather than merely describe useful roles. Each role names
+one governing capability and target. `execution_waves` then define which roles
+may run together, where the parent must join them, and which gate unlocks the
+next wave.
+
+The parent orchestrator owns spawning, joining, gating, and synthesis.
+Dispatch Spec validates that contract but does not spawn agents itself. A
+typical route is:
+
+```text
+wave 1 (parallel)
+  sigil-development -> x-ray receipt
+  spellcraft         -> whisper receipt
+  join all -> lifecycle gate
+
+wave 2
+  task-session -> artifact-only repair consuming both receipts
+```
+
+See
+[capability-bound-artifact-repair.json](examples/capability-bound-artifact-repair.json)
+for a complete executable-shape instance.
 
 ## Subagent Lifecycle
 
@@ -149,6 +186,7 @@ states return `block`.
 - Gates: <pass | flag | block with reasons>
 - Handoffs: <frame/handle/decision/ledger summary>
 - Subagent strategy: <none | recommended | required | blocked, roles, join policy, authorization>
+- Capability bindings: <descriptive | capability-bound, execution owner, waves, dependencies, write scopes>
 - Subagent lifecycle: <n/a | pass | flag | block, open agents, residue, reroute>
 - Observability: <dispatch_id coverage and trace events>
 - Promotion guardrail: pass | flag | block

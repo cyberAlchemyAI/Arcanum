@@ -1,0 +1,28 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.architecture.v0.1",
+  "status": "proposed",
+  "source_contract": "native-dispatch-runner.contract.json",
+  "canonical_runtime_source": "runtime/orchestrate",
+  "entrypoints": {
+    "validate": "dispatch-spec <dispatch.json>",
+    "execute": "orchestrate execute <dispatch.json>"
+  },
+  "modules": [
+    {"id": "validator-adapter", "owner": "dispatch-spec", "runtime": "deterministic"},
+    {"id": "coordinator", "owner": "orchestrate", "runtime": "deterministic"},
+    {"id": "host-driver", "owner": "orchestrate", "runtime": "host-native"},
+    {"id": "evidence-store", "owner": "orchestrate", "runtime": "deterministic"},
+    {"id": "generated-surfaces", "owner": "bootstrap-arcanum", "runtime": "generated"}
+  ],
+  "dependency_rule": "host-driver -> coordinator -> dispatch-validator; generated-surfaces -> canonical-runtime-source",
+  "run_namespace": "<runtime-root>/runs/<dispatch-id>/<run-id>/",
+  "gate_expression": "all(required_receipts.status == 'pass') && all(required_receipts.validation == 'pass')",
+  "failure_rule": "Any missing, malformed, mismatched, timed-out, or non-pass required receipt blocks dependent actions.",
+  "generation_rule": "Installed host surfaces are generated from runtime/orchestrate and must not be edited as canonical source.",
+  "decisions": [
+    {"id": "ADR-NDR-001", "decision": "Dispatch Spec remains validation-only.", "status": "accepted-for-plan"},
+    {"id": "ADR-NDR-002", "decision": "Use a deterministic coordinator plus a host-native driver.", "status": "accepted-for-plan"},
+    {"id": "ADR-NDR-003", "decision": "Start with one proven host; defer parity claims.", "status": "accepted-for-plan"},
+    {"id": "ADR-NDR-004", "decision": "Treat historical manually driven canaries as host-tool evidence, not automatic integration proof.", "status": "accepted-for-plan"}
+  ]
+}

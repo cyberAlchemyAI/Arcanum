@@ -61,7 +61,7 @@ A dispatch (v0.5.2) is organized into **groups**, each with a group `role ∈ {i
 - **`synthesize` group (writer).** Single agent by construction; nothing to tension against.
 - **`meta-evaluate` group (auditor).** Single check, run after the other groups; the auditor's role is to enforce this principle, not to be subject to it.
 
-The principle is *additional* to the existing `domainspec-subagents-strategy` partition check ("angles non-overlapping AND covering"). Non-overlapping-and-covering is a partition condition on the angle set; tensioned-pairwise is a *direction* condition on the partition. A group can pass the partition check and fail the tension check; the gate runs both.
+The principle is *additional* to the existing `subagent-strategy` partition check ("angles non-overlapping AND covering"). Non-overlapping-and-covering is a partition condition on the angle set; tensioned-pairwise is a *direction* condition on the partition. A group can pass the partition check and fail the tension check; the gate runs both.
 
 ---
 

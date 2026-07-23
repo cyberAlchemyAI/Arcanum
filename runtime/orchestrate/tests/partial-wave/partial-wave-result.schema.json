@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/tests/partial-wave/partial-wave-result.schema.json",
+  "title": "Partial Wave Recovery Result",
+  "type": "object",
+  "required": ["status", "state", "spawn_attempt_count", "spawned_action_ids", "failed_action_id", "unattempted_action_ids", "known_agents", "dependent_action_ids", "dependent_actions", "blockers", "residue", "events", "host_calls"],
+  "properties": {
+    "status": {"const": "block"},
+    "state": {"const": "blocked"},
+    "spawn_attempt_count": {"type": "integer", "minimum": 1},
+    "spawned_action_ids": {"type": "array", "items": {"type": "string"}},
+    "failed_action_id": {"type": "string"},
+    "unattempted_action_ids": {"type": "array", "items": {"type": "string"}},
+    "known_agents": {"type": "array", "items": {"type": "object", "required": ["action_id", "agent_id", "terminal_state"], "properties": {"action_id": {"type": "string"}, "agent_id": {"type": "string"}, "terminal_state": {"enum": ["completed", "interrupted"]}}, "additionalProperties": false}},
+    "dependent_action_ids": {"type": "array", "maxItems": 0},
+    "dependent_actions": {"type": "array", "maxItems": 0},
+    "blockers": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "residue": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "events": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "host_calls": {"type": "array", "minItems": 1, "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

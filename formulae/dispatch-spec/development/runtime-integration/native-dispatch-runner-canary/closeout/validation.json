@@ -1,0 +1,18 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.closeout-validation.v0.1",
+  "task_id": "TASK-NDR-VERIFY",
+  "status": "pass",
+  "checks": [
+    {"check": "canonical closeout dispatch validation", "result": "pass", "evidence": "validate-dispatch.py closeout.dispatch.json --json returned zero blocks and zero flags"},
+    {"check": "Dispatch Spec fixture suite", "result": "pass", "evidence": "run-validation-fixtures.sh returned DISPATCH_SPEC_VALIDATION=pass"},
+    {"check": "Orchestrate runtime suite", "result": "pass", "evidence": "nine test files ran 45 tests with zero failures"},
+    {"check": "failure run-evidence validation", "result": "pass", "evidence": "canonical validator accepted all 8 events with zero errors"},
+    {"check": "success run-evidence validation", "result": "pass", "evidence": "canonical validator accepted all 15 events with zero errors"},
+    {"check": "implementation receipt recomposition", "result": "pass", "evidence": "all 13 SWUs have concrete passing receipts and passing validation results"},
+    {"check": "contract traceability", "result": "pass", "evidence": "NDR-R1 through NDR-R9 each resolve to concrete passing paths in receipt.json"},
+    {"check": "failure-before-success ordering", "result": "pass", "evidence": "failure retry completed before the success command began; success receipt join precedes gate_pass and dependent attempt"},
+    {"check": "public boundary and claim boundary", "result": "pass", "evidence": "no private identifiers appear; cross-host parity and lifecycle promotion remain explicitly unproven"}
+  ],
+  "blockers": [],
+  "validated_at": "2026-07-23T00:12:00Z"
+}

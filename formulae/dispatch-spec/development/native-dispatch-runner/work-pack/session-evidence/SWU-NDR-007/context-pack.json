@@ -1,0 +1,34 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-003", "swu_id": "SWU-NDR-007", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:27:16Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "pre-refresh local deviation audit"},
+    {"id": "O2", "status": "covered", "summary": "generated edits adjudicated"},
+    {"id": "O3", "status": "covered", "summary": "only two consumers regenerated"},
+    {"id": "O4", "status": "covered", "summary": "execute mode and support installed"},
+    {"id": "O5", "status": "covered", "summary": "semantic and byte drift check"},
+    {"id": "O6", "status": "covered", "summary": "before and after manifests"},
+    {"id": "O7", "status": "covered", "summary": "Codex proof limit explicit"},
+    {"id": "O8", "status": "covered", "summary": "Claude unsupported execution explicit"},
+    {"id": "O9", "status": "covered", "summary": "no runtime behavior or live dispatch"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-003.md", "selector": "SWU-NDR-007", "sha256": "e12a923dc7ed45358ff0a44af166f6abe9cb92e743d5f789a7e84a1d3418b7b3", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/receipt.json", "selector": "generation pass dependency", "sha256": "085c3615a0d367912f825fd6f95856b49d6281652dd01f0aee957d465a6e7710", "obligations": ["O3", "O4", "O5", "O6"]},
+    {"path": "runtime/orchestrate/generation-manifest.json", "selector": "selected files and parity rule", "sha256": "1fb591812b2822aa7f1abd9a7e6c7ff088731d027dda99c624680477dd4de7e0", "obligations": ["O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/cross-task-gaps.md", "selector": "cross-host parity limitation", "sha256": "5b674f72d592a1dd15227f9f9727a6de81d0e4ed799b417526802d56f7a92d1b", "obligations": ["O7", "O8"]},
+    {"path": ".agents/skills/orchestrate/SKILL.md", "selector": "pre-refresh generated Codex consumer", "sha256": "aad1cc60bf54198ad9c53c582d85a423c82139dd783b89b593a45994024fdf1c", "obligations": ["O1", "O2", "O6", "O7"]},
+    {"path": ".claude/skills/orchestrate/SKILL.md", "selector": "pre-refresh generated Claude consumer", "sha256": "277eac7bd8f5c0bf6ac9fef3c247cc1857eaf589bc4f071c767f708adea12f83", "obligations": ["O1", "O2", "O6", "O8"]},
+    {"path": "tools/bootstrap_arcanum.sh", "selector": "isolated deterministic generator", "sha256": "eed93902a1941cb40eb0560de40e2361ad969cdc72388c0c471009a317f9d257", "obligations": ["O3", "O4", "O5", "O6"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "adjudication", "choice": "Existing generated edits contain no local-only authority and may be replaced."},
+    {"id": "D2", "classification": "constraint", "choice": "Use isolated generation and copy only Orchestrate packages."},
+    {"id": "D3", "classification": "constraint", "choice": "Zero drift requires normalized skill and byte-equal support."},
+    {"id": "D4", "classification": "constraint", "choice": "Codex native status stays partial pending canaries."},
+    {"id": "D5", "classification": "constraint", "choice": "Claude native execution is unsupported/blocking pending profile and canary."}
+  ],
+  "write_scope": [".agents/skills/orchestrate/", ".claude/skills/orchestrate/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-007/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-008", "on_fail": "task-session:execute SWU-NDR-007 with changed evidence"}
+}

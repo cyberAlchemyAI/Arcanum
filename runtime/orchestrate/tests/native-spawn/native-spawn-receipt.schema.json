@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/tests/native-spawn/native-spawn-receipt.schema.json",
+  "title": "Native Spawn Receipt",
+  "type": "object",
+  "required": ["schema_version", "dispatch_id", "run_id", "action_id", "operation", "status", "host_call_count", "agent_id", "blockers"],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.native-spawn-receipt.v0.1"},
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "action_id": {"type": "string", "pattern": "^spawn-[0-9]{4}$"},
+    "operation": {"const": "collaboration.spawn_agent"},
+    "status": {"enum": ["spawned", "block"]},
+    "host_call_count": {"type": "integer", "minimum": 0, "maximum": 1},
+    "agent_id": {"type": ["string", "null"]},
+    "blockers": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "spawned"}}},
+      "then": {"properties": {"host_call_count": {"const": 1}, "agent_id": {"type": "string", "minLength": 1}, "blockers": {"maxItems": 0}}}
+    }
+  ],
+  "additionalProperties": false
+}

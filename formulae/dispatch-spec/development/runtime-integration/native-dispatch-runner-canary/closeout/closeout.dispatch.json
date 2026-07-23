@@ -1,0 +1,163 @@
+{
+  "dispatch_id": "native-dispatch-runner-success-canary",
+  "intent": {
+    "raw": "Execute the success-progression native canary through the installed Orchestrate entrypoint.",
+    "objective": "Prove a real bound pass first-wave receipt opens its gate and causes exactly one dependent native spawn.",
+    "target_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/result.json"
+  },
+  "mode": "mixed",
+  "techniques": ["sequence", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "Two sequential native roles prove pass-gated progression from a first-wave receipt to one dependent spawn.",
+    "explanation": "The first helper returns a bound pass receipt; only Orchestrate may open the gate and emit the dependent action.",
+    "context": ["The first wave has exactly one read-only pass helper.", "The dependent role may spawn exactly once and only after gate_pass."],
+    "binding_mode": "capability-bound",
+    "execution_owner": "orchestrate",
+    "roles": [
+      {
+        "role_id": "pass-check",
+        "purpose": "Read the intentional pass sentinel and return a passing canary result.",
+        "owns": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/inputs/pass-sentinel.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/", "arcana/", "spells/"],
+        "depends_on_roles": [],
+        "input_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/inputs/pass-sentinel.json"],
+        "output_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"],
+        "applies_to_steps": ["s-pass"]
+      },
+      {
+        "role_id": "dependent-proof",
+        "purpose": "Write the dependent proof artifact after the first-wave gate passes.",
+        "owns": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json"],
+        "forbidden_write_scopes": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/", "arcana/", "spells/"],
+        "depends_on_roles": ["pass-check"],
+        "input_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"],
+        "output_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/dependent-proof.json"],
+        "applies_to_steps": ["s-dependent"]
+      }
+    ],
+    "execution_waves": [
+      {"wave_id": "checks", "role_ids": ["pass-check"], "parallel": false, "join_policy": "all", "gate_after": "g-checks", "on_incomplete": "block"},
+      {"wave_id": "dependent", "role_ids": ["dependent-proof"], "parallel": false, "join_policy": "all", "depends_on_waves": ["checks"], "on_incomplete": "block"}
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Execute the failure-gated, user-authorized success canary?",
+    "receipt_requirements": ["agent_id", "role_id", "spawn_status", "join_status", "close_status", "dispatch_id", "step_id", "capability_ref", "capability_target", "capability_mode", "wave_id", "write_scope", "status", "artifacts", "validation", "observer_status", "blockers", "residue", "reroute", "handoff_note"]
+  },
+  "subagent_lifecycle": {
+    "status": "pass",
+    "agents": [
+      {
+        "agent_id": "/root/ndr012_success_pass_check",
+        "role_id": "pass-check",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/inputs/pass-sentinel.json",
+        "capability_mode": "execute",
+        "wave_id": "checks",
+        "write_scope": [],
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json",
+        "close_status": "closed",
+        "residue": "none",
+        "reroute": "none"
+      },
+      {
+        "agent_id": "/root/ndr012_success_dependent",
+        "role_id": "dependent-proof",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json",
+        "capability_mode": "execute",
+        "wave_id": "dependent",
+        "write_scope": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json"],
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/dependent-proof.json",
+        "close_status": "closed",
+        "residue": "none",
+        "reroute": "none"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s-pass",
+      "name": "Run intentional pass check",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [{"kind": "external_context", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/inputs/pass-sentinel.json"}],
+      "outputs": [{"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"}],
+      "join_policy": "all",
+      "stop_conditions": ["return pass only when the intentional pass sentinel is present"]
+    },
+    {
+      "step_id": "s-dependent",
+      "name": "Write dependent proof",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["s-pass"],
+      "techniques": ["sequence", "observability_grouping"],
+      "inputs": [{"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"}],
+      "outputs": [{"kind": "artifact", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/dependent/output.json"}, {"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/dependent-proof.json"}],
+      "join_policy": "all",
+      "stop_conditions": ["write the dependent proof only after the first-wave gate passes"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-checks",
+      "kind": "validation",
+      "owner": "orchestrate",
+      "condition": "The pass-check receipt must pass before the dependent wave starts.",
+      "applies_after_wave": "checks",
+      "requires_role_receipts": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"],
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "native-dispatch-runner-success-canary",
+      "step_id": "s-pass",
+      "capability_ref": "task-session",
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/pass-check.json"],
+      "validation": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/run/evidence-validation-receipt.json"],
+      "observer_status": "task-local-evidence",
+      "blockers": [],
+      "residue": "none"
+    },
+    {
+      "dispatch_id": "native-dispatch-runner-success-canary",
+      "step_id": "s-dependent",
+      "capability_ref": "task-session",
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipts/dependent-proof.json"],
+      "validation": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/run/evidence-validation-receipt.json"],
+      "observer_status": "task-local-evidence",
+      "blockers": [],
+      "residue": "none"
+    }
+  ],
+  "observability": {"dispatch_id_required": true, "trace_events": ["dispatch_validated", "action_attempted", "host_spawn_returned", "agent_wait_registered", "wait_attempted", "agent_terminal", "agent_closed", "receipt_joined", "gate_decided"], "signal_grouping": "dispatch_id and run_id"},
+  "promotion_guardrails": ["The canary is host-specific execution evidence, not lifecycle authority.", "No canary runtime write may escape the success folder."]
+}

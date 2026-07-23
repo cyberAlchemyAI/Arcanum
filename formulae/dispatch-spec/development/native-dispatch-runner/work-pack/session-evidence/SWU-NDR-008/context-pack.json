@@ -1,0 +1,36 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-004", "swu_id": "SWU-NDR-008", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:31:55Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "missing required receipt"},
+    {"id": "O2", "status": "covered", "summary": "malformed shape and schema"},
+    {"id": "O3", "status": "covered", "summary": "stable identity bindings"},
+    {"id": "O4", "status": "covered", "summary": "agent identity at join boundary"},
+    {"id": "O5", "status": "covered", "summary": "timed-out and non-pass classes"},
+    {"id": "O6", "status": "covered", "summary": "gate_block for every invalid class"},
+    {"id": "O7", "status": "covered", "summary": "zero dependent actions"},
+    {"id": "O8", "status": "covered", "summary": "exact blocker named"},
+    {"id": "O9", "status": "covered", "summary": "tests only preserve generated drift"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md", "selector": "SWU-NDR-008", "sha256": "ae46ff5a880778f98aa48e619c11ed85e8e22851964f4ff664932c826514d49e", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-005/receipt.json", "selector": "join normalization pass", "sha256": "021260618d3771322bbeb1d41905a79e4b279ed5a781d51c2fd0230adc1b3572", "obligations": ["O4", "O5"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "invariants and receipt requirements", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "failure rule and gate expression", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md", "selector": "NDR-R5 and NDR-R6", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/scripts/native_dispatch_coordinator.py", "selector": "receipt admission and reducer", "sha256": "3bfbcf1a947d45ac77c1b917f1fe8c26ca6419124f0fd549ebcca829accb2d70", "obligations": ["O1", "O2", "O3", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/schemas/receipt.schema.json", "selector": "canonical receipt shape", "sha256": "8eeb4acb6274a7343aa4ad3d89f1705af660dc8b82883028927eb15198e694e4", "obligations": ["O2", "O5"]},
+    {"path": "runtime/orchestrate/tests/test_reduce_receipts.py", "selector": "baseline invalid cases", "sha256": "91c11f854949dc352082484f2f0093b46f716c1995de3d2672647461db874cb5", "obligations": ["O1", "O2", "O3", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/tests/native-join/test_native_join_contract.py", "selector": "agent identity normalization", "sha256": "1c5b640aec0ce0ec3d563dd235f96fe1ace793de4fdca1e593c00ebf22b06580", "obligations": ["O4"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Existing reducer behavior needs proof, not rewrite."},
+    {"id": "D2", "classification": "constraint", "choice": "Agent ID binding remains at join normalization."},
+    {"id": "D3", "classification": "constraint", "choice": "Every rejection has two zero-action assertions."},
+    {"id": "D4", "classification": "constraint", "choice": "Exact blocker text or field must match."},
+    {"id": "D5", "classification": "constraint", "choice": "Add excluded tests only; preserve generated zero drift."}
+  ],
+  "write_scope": ["runtime/orchestrate/tests/receipt-admission/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-008/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-009", "on_fail": "task-session:execute SWU-NDR-008 with changed evidence"}
+}

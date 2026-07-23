@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/tests/native-join/native-join-event.schema.json",
+  "title": "Native Join Event",
+  "type": "object",
+  "required": ["sequence", "event", "action_id", "agent_id", "operation"],
+  "properties": {
+    "sequence": {"type": "integer", "minimum": 1},
+    "event": {"enum": ["agent_wait_registered", "wait_attempted", "agent_terminal", "agent_closed", "wait_timed_out", "agent_interrupted"]},
+    "action_id": {"type": ["string", "null"]},
+    "agent_id": {"type": ["string", "null"]},
+    "operation": {"enum": ["logical-register", "collaboration.wait_agent", "collaboration.list_agents", "logical-close", "collaboration.interrupt_agent"]}
+  },
+  "additionalProperties": false
+}

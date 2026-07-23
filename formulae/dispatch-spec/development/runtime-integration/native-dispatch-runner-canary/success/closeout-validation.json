@@ -1,0 +1,30 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-005",
+  "swu_id": "SWU-NDR-012",
+  "validated_at": "2026-07-23T00:05:08Z",
+  "result": "pass",
+  "commands": [
+    {"command": "validate-dispatch.py source.dispatch.json --json", "result": "pass", "summary": "canonical Dispatch Spec validation returned zero blocks and flags"},
+    {"command": "isolated bootstrap generation and semantic package comparison", "result": "pass", "summary": "installed Orchestrate entrypoint matches canonical semantic content and support files"},
+    {"command": "installed native_dispatch_coordinator.py compile", "result": "pass", "summary": "exactly one first-wave action was persisted"},
+    {"command": "first native collaboration.spawn_agent plus lifecycle join", "result": "pass", "summary": "one first-wave native identifier returned and its passing receipt was joined before gate evaluation"},
+    {"command": "installed native_dispatch_coordinator.py reduce checks", "result": "pass", "summary": "gate_pass emitted exactly one dependent action"},
+    {"command": "second native collaboration.spawn_agent plus lifecycle join", "result": "pass", "summary": "the reducer-emitted dependent action spawned exactly once under a distinct native identifier and returned one terminal pass receipt"},
+    {"command": "installed native_dispatch_coordinator.py reduce dependent", "result": "pass", "summary": "run reached complete with zero next actions"},
+    {"command": "installed validate_run_evidence.py run/events.jsonl", "result": "pass", "summary": "all 15 causal lifecycle events validate with zero errors"},
+    {"command": "failure retry and attempt-1 hash comparison", "result": "pass", "summary": "the passing failure retry receipt and four original attempt artifacts are byte-preserved"},
+    {"command": "structured-data, public-boundary, and whitespace scans", "result": "pass", "summary": "all success artifacts parse and remain public-safe"}
+  ],
+  "done_criteria": [
+    {"criterion": "first-wave pass receipt precedes gate_pass", "result": "pass", "evidence": "run/events.jsonl sequences 7 and 8"},
+    {"criterion": "dependent action is compiled after gate_pass", "result": "pass", "evidence": "run/events.jsonl sequence 9 and run/checks-reduced/actions/spawn-0002.json"},
+    {"criterion": "dependent role has one native agent identifier", "result": "pass", "evidence": "run/native-bindings/spawn-0002.json"},
+    {"criterion": "dependent role has one terminal receipt", "result": "pass", "evidence": "receipts/dependent-proof.json"},
+    {"criterion": "run completes without further actions", "result": "pass", "evidence": "run/dependent/reduced/state.json and next-actions.json"},
+    {"criterion": "full causal lifecycle validates", "result": "pass", "evidence": "run/evidence-validation-receipt.json"},
+    {"criterion": "failure evidence remains immutable", "result": "pass", "evidence": "receipt.json preserved_failure_hashes"}
+  ],
+  "subagent_closeout": {"status": "pass", "spawned": 2, "joined": 2, "completed": 2, "closed": 2, "interrupted": 0, "blocked": 0, "timed_out": 0, "handed_off": 0, "open": 0},
+  "historical_adjudication_allowed": true
+}

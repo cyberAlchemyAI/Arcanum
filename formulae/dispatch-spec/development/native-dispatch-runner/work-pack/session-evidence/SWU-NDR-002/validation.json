@@ -1,0 +1,39 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-001",
+  "swu_id": "SWU-NDR-002",
+  "validated_at": "2026-07-22T14:58:55Z",
+  "result": "pass",
+  "commands": [
+    {
+      "command": "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py runtime/orchestrate/tests/test_reduce_receipts.py",
+      "result": "pass",
+      "summary": "12 tests passed"
+    },
+    {
+      "command": "native_dispatch_coordinator.py reduce <dispatch> --state <state> --run-plan <plan> --receipts-dir <passing> --output-dir <temporary>",
+      "result": "pass",
+      "summary": "decision=gate_pass; next_action_count=1; next action=spawn-0004"
+    },
+    {
+      "command": "native_dispatch_coordinator.py reduce <dispatch> --state <state> --run-plan <plan> --receipts-dir <missing> --output-dir <temporary>",
+      "result": "pass",
+      "summary": "decision=gate_block; next_action_count=0"
+    },
+    {
+      "command": "python3 -m json.tool <runtime/orchestrate JSON artifacts>",
+      "result": "pass",
+      "summary": "all schemas and fixtures parse"
+    }
+  ],
+  "done_criteria": [
+    {"criterion": "all required passing receipts open the next wave", "result": "pass", "evidence": "expected-pass-gate.json"},
+    {"criterion": "next wave contains only the eligible dependent role", "result": "pass", "evidence": "expected-pass-actions.json"},
+    {"criterion": "non-pass receipt blocks", "result": "pass", "evidence": "expected-block-gate.json"},
+    {"criterion": "missing receipt blocks", "result": "pass", "evidence": "test_missing_receipt_blocks_and_emits_no_actions"},
+    {"criterion": "identity mismatch blocks", "result": "pass", "evidence": "test_identity_mismatch_blocks_and_emits_no_actions"},
+    {"criterion": "malformed receipt blocks", "result": "pass", "evidence": "test_malformed_receipt_blocks_and_emits_no_actions"},
+    {"criterion": "identical inputs are byte-stable", "result": "pass", "evidence": "test_reduction_is_byte_stable_for_same_inputs"}
+  ],
+  "bounded_recovery": []
+}

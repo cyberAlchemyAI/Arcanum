@@ -1,0 +1,171 @@
+{
+  "dispatch_id": "fixture-native-dispatch-two-wave",
+  "intent": {
+    "raw": "Compile the first wave of a deterministic two-wave fixture.",
+    "objective": "Prove dependency filtering, declared role order, and agent cardinality."
+  },
+  "mode": "mixed",
+  "techniques": ["sequence", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "Two independent checks gate one dependent artifact role.",
+    "explanation": "The parent owns ordered spawn, join, gate, and synthesis.",
+    "binding_mode": "capability-bound",
+    "execution_owner": "orchestrate",
+    "roles": [
+      {
+        "role_id": "beta-check",
+        "purpose": "Produce the beta check receipt.",
+        "owns": "tmp/native-dispatch/receipts/beta.json",
+        "capability_ref": "sigil-development",
+        "capability_target": "beta-check",
+        "capability_mode": "observe",
+        "agent_count": 2,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": ["tmp/native-dispatch/receipts/beta.json"],
+        "forbidden_write_scopes": ["arcana/"],
+        "depends_on_roles": [],
+        "input_refs": ["tmp/native-dispatch/inputs/beta.json"],
+        "output_refs": ["tmp/native-dispatch/receipts/beta.json"],
+        "applies_to_steps": ["s-beta"]
+      },
+      {
+        "role_id": "alpha-check",
+        "purpose": "Produce the alpha check receipt.",
+        "owns": "tmp/native-dispatch/receipts/alpha.json",
+        "capability_ref": "spellcraft",
+        "capability_target": "alpha-check",
+        "capability_mode": "reflect",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": ["tmp/native-dispatch/receipts/alpha.json"],
+        "forbidden_write_scopes": ["spells/"],
+        "depends_on_roles": [],
+        "input_refs": ["tmp/native-dispatch/inputs/alpha.json"],
+        "output_refs": ["tmp/native-dispatch/receipts/alpha.json"],
+        "applies_to_steps": ["s-alpha"]
+      },
+      {
+        "role_id": "artifact-writer",
+        "purpose": "Consume passing check receipts and write one artifact receipt.",
+        "owns": "tmp/native-dispatch/receipts/artifact.json",
+        "capability_ref": "task-session",
+        "capability_target": "tmp/native-dispatch/artifact.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"],
+        "forbidden_write_scopes": ["arcana/", "spells/"],
+        "depends_on_roles": ["beta-check", "alpha-check"],
+        "input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
+        "output_refs": ["tmp/native-dispatch/receipts/artifact.json"],
+        "applies_to_steps": ["s-artifact"]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "checks",
+        "role_ids": ["beta-check", "alpha-check"],
+        "parallel": true,
+        "join_policy": "all",
+        "gate_after": "g-checks",
+        "on_incomplete": "block"
+      },
+      {
+        "wave_id": "artifact",
+        "role_ids": ["artifact-writer"],
+        "parallel": false,
+        "join_policy": "all",
+        "depends_on_waves": ["checks"],
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Run the deterministic compile fixture?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ]
+  },
+  "subagent_lifecycle": {"status": "none", "agents": []},
+  "steps": [
+    {
+      "step_id": "s-beta",
+      "name": "Run beta check",
+      "capability_ref": "sigil-development",
+      "mode": "observe",
+      "pattern": "sequential",
+      "parallel": true,
+      "inputs": [{"kind": "external_context", "ref": "tmp/native-dispatch/inputs/beta.json"}],
+      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/beta.json"}],
+      "join_policy": "all",
+      "stop_conditions": ["stop when beta input is invalid"]
+    },
+    {
+      "step_id": "s-alpha",
+      "name": "Run alpha check",
+      "capability_ref": "spellcraft",
+      "mode": "reflect",
+      "pattern": "sequential",
+      "parallel": true,
+      "inputs": [{"kind": "external_context", "ref": "tmp/native-dispatch/inputs/alpha.json"}],
+      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/alpha.json"}],
+      "join_policy": "all",
+      "stop_conditions": ["stop when alpha input is invalid"]
+    },
+    {
+      "step_id": "s-artifact",
+      "name": "Write dependent artifact",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["s-beta", "s-alpha"],
+      "techniques": ["sequence", "observability_grouping"],
+      "inputs": [
+        {"kind": "receipt", "ref": "tmp/native-dispatch/receipts/beta.json"},
+        {"kind": "receipt", "ref": "tmp/native-dispatch/receipts/alpha.json"}
+      ],
+      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/artifact.json"}],
+      "stop_conditions": ["stop unless both receipts pass"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-checks",
+      "kind": "validation",
+      "owner": "orchestrate",
+      "condition": "Both check receipts pass before the artifact wave starts.",
+      "applies_after_wave": "checks",
+      "requires_role_receipts": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["dispatch_validated", "first_wave_compiled"],
+    "signal_grouping": "dispatch_id and run_id"
+  },
+  "promotion_guardrails": ["Fixture execution evidence grants no lifecycle authority."]
+}

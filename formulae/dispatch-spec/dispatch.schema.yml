@@ -1,7 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: https://arcanum.local/formulae/dispatch-spec/dispatch.schema.yml
 title: Arcanum Dispatch Spec
-description: Draft schema for describing a governed Arcanum sigil/spell dispatch route.
+description: Draft schema for describing governed Arcanum routes, including capability-bound delegated execution waves.
 type: object
 required:
 - dispatch_id
@@ -151,6 +151,15 @@ properties:
         type: array
         items:
           type: string
+      binding_mode:
+        type: string
+        description: Use capability-bound when each delegated role must be executable through one named owner capability.
+        enum:
+        - descriptive
+        - capability-bound
+      execution_owner:
+        type: string
+        description: Parent capability that owns spawn, join, gates, and final synthesis.
       roles:
         type: array
         items:
@@ -169,10 +178,95 @@ properties:
             owns:
               type: string
               minLength: 1
+            capability_ref:
+              type: string
+              description: Lifecycle or execution capability governing this worker.
+            capability_target:
+              type: string
+              description: Sigil, spell, artifact, or bounded task operated on by the capability.
+            capability_mode:
+              type: string
+              description: Mode passed to the governing capability, such as update, reflect, validate, or execute.
+            agent_count:
+              type: integer
+              minimum: 1
+              maximum: 16
+            mutation_policy:
+              type: string
+              enum:
+              - read-only
+              - proposal-only
+              - lifecycle-owned
+              - artifact-only
+            write_scope:
+              type: array
+              items:
+                type: string
+            forbidden_write_scopes:
+              type: array
+              items:
+                type: string
+            depends_on_roles:
+              type: array
+              items:
+                type: string
+            input_refs:
+              type: array
+              items:
+                type: string
+            output_refs:
+              type: array
+              items:
+                type: string
             applies_to_steps:
               type: array
               items:
                 type: string
+          additionalProperties: true
+      execution_waves:
+        type: array
+        description: Ordered worker waves. Roles within one parallel wave may run together; later waves wait for declared joins and gates.
+        items:
+          type: object
+          required:
+          - wave_id
+          - role_ids
+          - parallel
+          - join_policy
+          - on_incomplete
+          properties:
+            wave_id:
+              type: string
+              minLength: 1
+            role_ids:
+              type: array
+              minItems: 1
+              items:
+                type: string
+            parallel:
+              type: boolean
+            join_policy:
+              type: string
+              enum:
+              - all
+              - quorum
+              - ranked
+              - pareto
+              - parent_synthesis
+              - human_gate
+            depends_on_waves:
+              type: array
+              items:
+                type: string
+            gate_after:
+              type: string
+            on_incomplete:
+              type: string
+              enum:
+              - block
+              - flag
+              - defer
+              - reroute
           additionalProperties: true
       parallelism:
         type: string
@@ -205,6 +299,40 @@ properties:
         type: array
         items:
           type: string
+    allOf:
+    - if:
+        required:
+        - binding_mode
+        properties:
+          binding_mode:
+            const: capability-bound
+      then:
+        required:
+        - execution_owner
+        - roles
+        - execution_waves
+        - receipt_requirements
+        properties:
+          execution_owner:
+            minLength: 1
+          roles:
+            minItems: 1
+            items:
+              required:
+              - role_id
+              - purpose
+              - owns
+              - capability_ref
+              - capability_target
+              - capability_mode
+              - agent_count
+              - mutation_policy
+              - applies_to_steps
+              - output_refs
+          execution_waves:
+            minItems: 1
+          receipt_requirements:
+            minItems: 1
     additionalProperties: true
   subagent_lifecycle:
     type: object
@@ -235,6 +363,18 @@ properties:
             role_id:
               type: string
               minLength: 1
+            capability_ref:
+              type: string
+            capability_target:
+              type: string
+            capability_mode:
+              type: string
+            wave_id:
+              type: string
+            write_scope:
+              type: array
+              items:
+                type: string
             lane_name:
               type: string
             spawn_status:
@@ -369,6 +509,10 @@ properties:
           - handoff
         parallel:
           type: boolean
+        depends_on_steps:
+          type: array
+          items:
+            type: string
         techniques:
           type: array
           description: Technique ids used by this step. Use catalog ids where possible;
@@ -399,6 +543,7 @@ properties:
                 - human_answer
                 - external_context
                 - artifact
+                - receipt
               ref:
                 type: string
                 minLength: 1
@@ -423,6 +568,7 @@ properties:
                 - route_menu
                 - handoff
                 - trace_event
+                - receipt
               ref:
                 type: string
                 minLength: 1
@@ -477,6 +623,14 @@ properties:
         condition:
           type: string
           minLength: 1
+        applies_after_wave:
+          type: string
+          description: Capability-bound execution wave whose join this gate evaluates.
+        requires_role_receipts:
+          type: array
+          description: Exact role output refs that must pass before a dependent wave starts.
+          items:
+            type: string
         on_fail:
           type: string
           enum:

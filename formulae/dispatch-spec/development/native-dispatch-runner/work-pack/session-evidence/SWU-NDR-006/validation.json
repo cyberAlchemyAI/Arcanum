@@ -1,0 +1,30 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-003",
+  "swu_id": "SWU-NDR-006",
+  "validated_at": "2026-07-22T15:25:23Z",
+  "result": "pass",
+  "commands": [
+    {"command": "bash -n tools/bootstrap_arcanum.sh", "result": "pass", "summary": "bootstrap shell syntax is valid"},
+    {"command": "python3 runtime/orchestrate/tests/bootstrap-generation/test_bootstrap_generation.py -v", "result": "pass", "summary": "5 isolated generation tests passed across repo-codex, repo-local, and Claude"},
+    {"command": "native join, native spawn, compiler, reducer, and preflight regressions", "result": "pass", "summary": "29 runtime regression tests passed"},
+    {"command": "parse generation manifest, temporary install manifest, and canonical skill YAML", "result": "pass", "summary": "generation source artifacts parse"},
+    {"command": "changed-line public-boundary and trailing-whitespace scans", "result": "pass", "summary": "no private project paths/names and no trailing whitespace in this SWU"}
+  ],
+  "done_criteria": [
+    {"criterion": "hardcoded canonical skill content removed", "result": "pass", "evidence": "bootstrap writer reads runtime/orchestrate/SKILL.md and no longer contains the prior skill body"},
+    {"criterion": "temporary Codex install contains canonical package", "result": "pass", "evidence": "temporary-install-manifest.json repo-codex, 10 files"},
+    {"criterion": "temporary repo-local install contains canonical package", "result": "pass", "evidence": "temporary-install-manifest.json repo-local, 10 files"},
+    {"criterion": "declared Claude generation also passes", "result": "pass", "evidence": "temporary-install-manifest.json claude, 10 files"},
+    {"criterion": "support files byte-equal canonical source", "result": "pass", "evidence": "manifest-selected host, six schemas, coordinator, and manifest hashes match across packages"},
+    {"criterion": "generated skill preserves canonical contract/body", "result": "pass", "evidence": "semantic frontmatter and exact body comparison"},
+    {"criterion": "tests and caches excluded", "result": "pass", "evidence": "isolated package exclusion assertions"},
+    {"criterion": "current installed consumers unchanged", "result": "pass", "evidence": "bootstrap targets were temporary roots only"}
+  ],
+  "bounded_recovery": [
+    {"attempt": 1, "result": "fail", "cause": "bootstrap test resolved one parent above the Arcanum root", "repair": "changed the test root from parents[5] to parents[4]"},
+    {"attempt": 2, "result": "pass", "cause": "none", "repair": "all isolated generation assertions passed"},
+    {"attempt": 3, "result": "fail", "cause": "broad public scan matched the existing public organization URL in bootstrap", "repair": "scanned only changed bootstrap lines and private-boundary terms"},
+    {"attempt": 4, "result": "pass", "cause": "none", "repair": "bounded public-boundary scan passed"}
+  ]
+}

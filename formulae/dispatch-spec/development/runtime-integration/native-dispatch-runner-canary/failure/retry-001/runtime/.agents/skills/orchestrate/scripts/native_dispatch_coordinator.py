@@ -1,0 +1,650 @@
+#!/usr/bin/env python3
+"""Compile the first executable wave of a validated Arcanum dispatch.
+
+This module is deliberately deterministic. It validates and compiles actions; it
+does not call any host-native agent operation.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+AUTHORIZED_STATES = {"approved", "not_needed"}
+STATE_SCHEMA_VERSION = "arcanum.native-dispatch-runner.state.v0.1"
+RUN_PLAN_SCHEMA_VERSION = "arcanum.native-dispatch-runner.run-plan.v0.1"
+ACTION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action.v0.1"
+RECEIPT_SCHEMA_VERSION = "arcanum.native-dispatch-runner.receipt.v0.1"
+GATE_DECISION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.gate-decision.v0.1"
+ACTION_SET_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action-set.v0.1"
+
+RECEIPT_REQUIRED_FIELDS = {
+    "schema_version",
+    "action_id",
+    "dispatch_id",
+    "run_id",
+    "wave_id",
+    "step_id",
+    "role",
+    "capability_ref",
+    "agent_id",
+    "status",
+    "artifacts",
+    "validation",
+    "blockers",
+    "started_at",
+    "finished_at",
+}
+
+
+class CompileBlocked(RuntimeError):
+    """Raised when compilation must stop without emitting executable actions."""
+
+    def __init__(self, blockers: list[str]) -> None:
+        super().__init__("; ".join(blockers))
+        self.blockers = blockers
+
+
+def _write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CompileBlocked([f"cannot load dispatch JSON: {exc}"]) from exc
+    if not isinstance(value, dict):
+        raise CompileBlocked(["dispatch JSON root must be an object"])
+    return value
+
+
+def discover_validator() -> Path:
+    """Find the canonical validator from a canonical or generated package path."""
+
+    relative_candidates = (
+        Path("formulae/dispatch-spec/scripts/validate-dispatch.py"),
+        Path("dispatch-spec/scripts/validate-dispatch.py"),
+    )
+    for parent in Path(__file__).resolve().parents:
+        for relative in relative_candidates:
+            candidate = parent / relative
+            if candidate.is_file():
+                return candidate
+    raise CompileBlocked(["canonical Dispatch Spec validator was not found"])
+
+
+def validate_dispatch(dispatch_path: Path, validator_path: Path | None = None) -> dict[str, Any]:
+    validator = validator_path or discover_validator()
+    completed = subprocess.run(
+        [sys.executable, str(validator), str(dispatch_path), "--json"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        receipt = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        detail = completed.stderr.strip() or completed.stdout.strip() or "validator emitted no JSON"
+        return {
+            "validation": "block",
+            "blocks": [f"validator invocation failed: {detail}"],
+            "flags": [],
+        }
+    if not isinstance(receipt, dict):
+        return {
+            "validation": "block",
+            "blocks": ["validator receipt root must be an object"],
+            "flags": [],
+        }
+    if completed.returncode != 0 and receipt.get("validation") != "block":
+        receipt = {
+            "validation": "block",
+            "blocks": [f"validator exited with status {completed.returncode}"],
+            "flags": list(receipt.get("flags", [])),
+        }
+    return receipt
+
+
+def _prepare_output_directory(output_dir: Path) -> None:
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise CompileBlocked([f"output directory must be empty: {output_dir}"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+
+def _blocked_state(
+    dispatch_id: str,
+    run_id: str,
+    state: str,
+    authorization: str,
+    blockers: list[str],
+) -> dict[str, Any]:
+    return {
+        "schema_version": STATE_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "state": state,
+        "validation_status": "pass",
+        "authorization_status": authorization,
+        "selected_wave_id": None,
+        "eligible_action_ids": [],
+        "completed_wave_ids": [],
+        "blockers": blockers,
+    }
+
+
+def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Return deterministic state and run plan for the first eligible wave."""
+
+    dispatch_id = str(dispatch.get("dispatch_id", ""))
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict) or strategy.get("binding_mode") != "capability-bound":
+        raise CompileBlocked(["dispatch must declare a capability-bound subagent_strategy"])
+
+    authorization = str(strategy.get("authorization", ""))
+    if authorization not in AUTHORIZED_STATES:
+        raise CompileBlocked([f"execution authorization is not satisfied: {authorization or '<missing>'}"])
+
+    roles = strategy.get("roles")
+    waves = strategy.get("execution_waves")
+    if not isinstance(roles, list) or not isinstance(waves, list) or not waves:
+        raise CompileBlocked(["capability-bound strategy requires roles and execution_waves"])
+
+    role_by_id = {
+        str(role.get("role_id")): role
+        for role in roles
+        if isinstance(role, dict) and role.get("role_id")
+    }
+    selected_wave: dict[str, Any] | None = None
+    for candidate in waves:
+        if isinstance(candidate, dict) and not (candidate.get("depends_on_waves") or []):
+            selected_wave = candidate
+            break
+    if selected_wave is None:
+        raise CompileBlocked(["no dependency-free initial execution wave exists"])
+
+    wave_id = str(selected_wave.get("wave_id", ""))
+    actions: list[dict[str, Any]] = []
+    for role_id_value in selected_wave.get("role_ids", []) or []:
+        role_id = str(role_id_value)
+        role = role_by_id.get(role_id)
+        if role is None:
+            raise CompileBlocked([f"selected wave references unknown role: {role_id}"])
+        if role.get("depends_on_roles"):
+            raise CompileBlocked([f"initial-wave role has unmet role dependencies: {role_id}"])
+
+        applies_to_steps = [str(item) for item in role.get("applies_to_steps", []) or []]
+        if not applies_to_steps:
+            raise CompileBlocked([f"role has no applied step: {role_id}"])
+        agent_count = role.get("agent_count")
+        if not isinstance(agent_count, int) or isinstance(agent_count, bool) or agent_count < 1:
+            raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
+
+        for agent_ordinal in range(agent_count):
+            action_number = len(actions) + 1
+            action = {
+                "schema_version": ACTION_SCHEMA_VERSION,
+                "action_id": f"spawn-{action_number:04d}",
+                "action": "spawn",
+                "dispatch_id": dispatch_id,
+                "run_id": run_id,
+                "wave_id": wave_id,
+                "step_id": applies_to_steps[0],
+                "applies_to_steps": applies_to_steps,
+                "role": role_id,
+                "agent_ordinal": agent_ordinal,
+                "agent_count": agent_count,
+                "capability_ref": str(role.get("capability_ref")),
+                "target": str(role.get("capability_target")),
+                "mode": str(role.get("capability_mode")),
+                "mutation_policy": str(role.get("mutation_policy")),
+                "write_scope": list(role.get("write_scope", []) or []),
+                "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+                "input_refs": list(role.get("input_refs", []) or []),
+                "output_refs": list(role.get("output_refs", []) or []),
+            }
+            actions.append(action)
+
+    if not actions:
+        raise CompileBlocked([f"selected wave has no executable role instances: {wave_id}"])
+
+    action_ids = [action["action_id"] for action in actions]
+    state = {
+        "schema_version": STATE_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "state": "wave_ready",
+        "validation_status": "pass",
+        "authorization_status": authorization,
+        "selected_wave_id": wave_id,
+        "eligible_action_ids": action_ids,
+        "completed_wave_ids": [],
+        "blockers": [],
+    }
+    wave_plan = {
+        "wave_id": wave_id,
+        "role_ids": [str(item) for item in selected_wave.get("role_ids", []) or []],
+        "parallel": bool(selected_wave.get("parallel", False)),
+        "join_policy": str(selected_wave.get("join_policy", "all")),
+        "depends_on_waves": list(selected_wave.get("depends_on_waves", []) or []),
+        "gate_after": selected_wave.get("gate_after"),
+        "on_incomplete": str(selected_wave.get("on_incomplete", "block")),
+    }
+    run_plan = {
+        "schema_version": RUN_PLAN_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "state": "wave_ready",
+        "validation_status": "pass",
+        "selected_wave": wave_plan,
+        "action_artifacts": [f"actions/{action_id}.json" for action_id in action_ids],
+        "actions": actions,
+    }
+    return state, run_plan
+
+
+def compile_to_directory(
+    dispatch_path: Path,
+    run_id: str,
+    output_dir: Path,
+    validator_path: Path | None = None,
+) -> dict[str, Any]:
+    """Validate, compile, and persist one first-wave run plan."""
+
+    if not run_id.strip():
+        raise CompileBlocked(["run_id must be non-empty"])
+    _prepare_output_directory(output_dir)
+    validation = validate_dispatch(dispatch_path, validator_path)
+    _write_json(output_dir / "validation.json", validation)
+    if validation.get("validation") != "pass":
+        blockers = list(validation.get("blocks", []) or [])
+        flags = list(validation.get("flags", []) or [])
+        raise CompileBlocked(blockers + [f"validator flag: {flag}" for flag in flags] or ["dispatch did not validate"])
+
+    dispatch = _load_json(dispatch_path)
+    try:
+        state, run_plan = compile_first_wave(dispatch, run_id)
+    except CompileBlocked as exc:
+        strategy = dispatch.get("subagent_strategy") if isinstance(dispatch.get("subagent_strategy"), dict) else {}
+        authorization = str(strategy.get("authorization", ""))
+        state_name = "authorization_pending" if authorization not in AUTHORIZED_STATES else "blocked"
+        _write_json(
+            output_dir / "state.json",
+            _blocked_state(str(dispatch.get("dispatch_id", "")), run_id, state_name, authorization, exc.blockers),
+        )
+        raise
+
+    _write_json(output_dir / "state.json", state)
+    _write_json(output_dir / "run-plan.json", run_plan)
+    for action in run_plan["actions"]:
+        _write_json(output_dir / "actions" / f"{action['action_id']}.json", action)
+    return {"status": "pass", "state": state, "run_plan": run_plan}
+
+
+def _compile_named_wave_actions(
+    dispatch: dict[str, Any],
+    run_id: str,
+    wave_id: str,
+    start_action_number: int,
+) -> list[dict[str, Any]]:
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict) or strategy.get("binding_mode") != "capability-bound":
+        raise CompileBlocked(["dispatch must declare a capability-bound subagent_strategy"])
+    authorization = str(strategy.get("authorization", ""))
+    if authorization not in AUTHORIZED_STATES:
+        raise CompileBlocked([f"execution authorization is not satisfied: {authorization or '<missing>'}"])
+
+    roles = strategy.get("roles", []) or []
+    waves = strategy.get("execution_waves", []) or []
+    role_by_id = {
+        str(role.get("role_id")): role
+        for role in roles
+        if isinstance(role, dict) and role.get("role_id")
+    }
+    wave = next(
+        (
+            candidate
+            for candidate in waves
+            if isinstance(candidate, dict) and str(candidate.get("wave_id")) == wave_id
+        ),
+        None,
+    )
+    if wave is None:
+        raise CompileBlocked([f"unknown execution wave: {wave_id}"])
+
+    actions: list[dict[str, Any]] = []
+    for role_id_value in wave.get("role_ids", []) or []:
+        role_id = str(role_id_value)
+        role = role_by_id.get(role_id)
+        if role is None:
+            raise CompileBlocked([f"selected wave references unknown role: {role_id}"])
+        applies_to_steps = [str(item) for item in role.get("applies_to_steps", []) or []]
+        if not applies_to_steps:
+            raise CompileBlocked([f"role has no applied step: {role_id}"])
+        agent_count = role.get("agent_count")
+        if not isinstance(agent_count, int) or isinstance(agent_count, bool) or agent_count < 1:
+            raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
+
+        for agent_ordinal in range(agent_count):
+            action_number = start_action_number + len(actions)
+            actions.append(
+                {
+                    "schema_version": ACTION_SCHEMA_VERSION,
+                    "action_id": f"spawn-{action_number:04d}",
+                    "action": "spawn",
+                    "dispatch_id": str(dispatch.get("dispatch_id", "")),
+                    "run_id": run_id,
+                    "wave_id": wave_id,
+                    "step_id": applies_to_steps[0],
+                    "applies_to_steps": applies_to_steps,
+                    "role": role_id,
+                    "agent_ordinal": agent_ordinal,
+                    "agent_count": agent_count,
+                    "capability_ref": str(role.get("capability_ref")),
+                    "target": str(role.get("capability_target")),
+                    "mode": str(role.get("capability_mode")),
+                    "mutation_policy": str(role.get("mutation_policy")),
+                    "write_scope": list(role.get("write_scope", []) or []),
+                    "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+                    "input_refs": list(role.get("input_refs", []) or []),
+                    "output_refs": list(role.get("output_refs", []) or []),
+                }
+            )
+    if not actions:
+        raise CompileBlocked([f"selected wave has no executable role instances: {wave_id}"])
+    return actions
+
+
+def _receipt_shape_blockers(receipt: Any, index: int) -> list[str]:
+    prefix = f"receipt[{index}]"
+    if not isinstance(receipt, dict):
+        return [f"{prefix}: receipt must be an object"]
+    missing = sorted(RECEIPT_REQUIRED_FIELDS - set(receipt))
+    blockers = [f"{prefix}: missing required field '{field}'" for field in missing]
+    if receipt.get("schema_version") != RECEIPT_SCHEMA_VERSION:
+        blockers.append(f"{prefix}: unsupported schema_version")
+    for field in (
+        "action_id",
+        "dispatch_id",
+        "run_id",
+        "wave_id",
+        "step_id",
+        "role",
+        "capability_ref",
+        "agent_id",
+        "started_at",
+        "finished_at",
+    ):
+        if field in receipt and (not isinstance(receipt[field], str) or not receipt[field]):
+            blockers.append(f"{prefix}: field '{field}' must be a non-empty string")
+    if "status" in receipt and receipt.get("status") not in {"pass", "fail", "block", "timed_out"}:
+        blockers.append(f"{prefix}: invalid status '{receipt.get('status')}'")
+    if "validation" in receipt and receipt.get("validation") not in {"pass", "fail", "block"}:
+        blockers.append(f"{prefix}: invalid validation '{receipt.get('validation')}'")
+    for field in ("artifacts", "blockers"):
+        if field in receipt and (
+            not isinstance(receipt[field], list)
+            or any(not isinstance(item, str) for item in receipt[field])
+        ):
+            blockers.append(f"{prefix}: field '{field}' must be an array of strings")
+    return blockers
+
+
+def _admit_receipts(
+    expected_actions: list[dict[str, Any]], receipts: list[Any]
+) -> tuple[list[dict[str, Any]], list[str]]:
+    expected_by_id = {str(action["action_id"]): action for action in expected_actions}
+    receipt_by_id: dict[str, dict[str, Any]] = {}
+    blockers: list[str] = []
+
+    for index, receipt in enumerate(receipts):
+        blockers.extend(_receipt_shape_blockers(receipt, index))
+        if not isinstance(receipt, dict) or not isinstance(receipt.get("action_id"), str):
+            continue
+        action_id = receipt["action_id"]
+        if action_id in receipt_by_id:
+            blockers.append(f"duplicate receipt for action '{action_id}'")
+            continue
+        receipt_by_id[action_id] = receipt
+        if action_id not in expected_by_id:
+            blockers.append(f"unexpected receipt for action '{action_id}'")
+
+    admitted: list[dict[str, Any]] = []
+    identity_fields = (
+        "dispatch_id",
+        "run_id",
+        "wave_id",
+        "step_id",
+        "role",
+        "capability_ref",
+    )
+    for action in expected_actions:
+        action_id = str(action["action_id"])
+        receipt = receipt_by_id.get(action_id)
+        if receipt is None:
+            blockers.append(f"missing receipt for action '{action_id}'")
+            continue
+        for field in identity_fields:
+            if receipt.get(field) != action.get(field):
+                blockers.append(
+                    f"action '{action_id}': receipt {field} '{receipt.get(field)}' does not match '{action.get(field)}'"
+                )
+        if receipt.get("status") != "pass":
+            blockers.append(f"action '{action_id}': non-pass status '{receipt.get('status')}'")
+        if receipt.get("validation") != "pass":
+            blockers.append(f"action '{action_id}': non-pass validation '{receipt.get('validation')}'")
+        if receipt.get("blockers"):
+            blockers.append(f"action '{action_id}': receipt declares blockers")
+        admitted.append(receipt)
+
+    return admitted, sorted(set(blockers))
+
+
+def _next_eligible_wave(
+    dispatch: dict[str, Any], completed_wave_ids: list[str]
+) -> dict[str, Any] | None:
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict):
+        return None
+    completed = set(completed_wave_ids)
+    for wave in strategy.get("execution_waves", []) or []:
+        if not isinstance(wave, dict):
+            continue
+        wave_id = str(wave.get("wave_id", ""))
+        if wave_id in completed:
+            continue
+        dependencies = {str(item) for item in wave.get("depends_on_waves", []) or []}
+        if dependencies <= completed:
+            return wave
+    return None
+
+
+def reduce_wave_receipts(
+    dispatch: dict[str, Any],
+    state: dict[str, Any],
+    run_plan: dict[str, Any],
+    receipts: list[Any],
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Reduce one wave's receipts into a gate decision and next action set."""
+
+    dispatch_id = str(dispatch.get("dispatch_id", ""))
+    run_id = str(state.get("run_id", ""))
+    if state.get("dispatch_id") != dispatch_id or run_plan.get("dispatch_id") != dispatch_id:
+        raise CompileBlocked(["state/run-plan dispatch identity mismatch"])
+    if run_plan.get("run_id") != run_id:
+        raise CompileBlocked(["state/run-plan run identity mismatch"])
+    selected_wave = run_plan.get("selected_wave")
+    actions = run_plan.get("actions")
+    if not isinstance(selected_wave, dict) or not isinstance(actions, list) or not actions:
+        raise CompileBlocked(["run plan must contain one selected wave and executable actions"])
+    current_wave_id = str(selected_wave.get("wave_id", ""))
+    if state.get("selected_wave_id") != current_wave_id:
+        raise CompileBlocked(["state/run-plan selected wave mismatch"])
+
+    admitted, blockers = _admit_receipts(actions, receipts)
+    strategy = dispatch.get("subagent_strategy") if isinstance(dispatch.get("subagent_strategy"), dict) else {}
+    authorization = str(strategy.get("authorization", ""))
+    previous_completed = [str(item) for item in state.get("completed_wave_ids", []) or []]
+    gate_id = selected_wave.get("gate_after")
+
+    next_actions: list[dict[str, Any]] = []
+    next_wave_id: str | None = None
+    if not blockers:
+        completed_wave_ids = previous_completed + [current_wave_id]
+        next_wave = _next_eligible_wave(dispatch, completed_wave_ids)
+        if next_wave is not None:
+            next_wave_id = str(next_wave.get("wave_id", ""))
+            next_actions = _compile_named_wave_actions(
+                dispatch,
+                run_id,
+                next_wave_id,
+                start_action_number=len(actions) + 1,
+            )
+        decision = "gate_pass"
+        next_state_name = "gate_pass" if next_wave_id else "complete"
+        completed_for_state = completed_wave_ids
+        selected_for_state = next_wave_id
+    else:
+        decision = "gate_block"
+        next_state_name = "gate_block"
+        completed_for_state = previous_completed
+        selected_for_state = current_wave_id
+
+    next_action_ids = [str(action["action_id"]) for action in next_actions]
+    next_state = {
+        "schema_version": STATE_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "state": next_state_name,
+        "validation_status": "pass",
+        "authorization_status": authorization,
+        "selected_wave_id": selected_for_state,
+        "eligible_action_ids": next_action_ids,
+        "completed_wave_ids": completed_for_state,
+        "blockers": blockers,
+    }
+    gate_decision = {
+        "schema_version": GATE_DECISION_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "wave_id": current_wave_id,
+        "gate_id": gate_id,
+        "decision": decision,
+        "required_action_ids": [str(action["action_id"]) for action in actions],
+        "admitted_receipt_action_ids": [
+            str(receipt["action_id"])
+            for receipt in admitted
+            if isinstance(receipt, dict) and receipt.get("action_id")
+        ],
+        "next_wave_id": next_wave_id,
+        "next_action_ids": next_action_ids,
+        "blockers": blockers,
+    }
+    action_set = {
+        "schema_version": ACTION_SET_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "source_wave_id": current_wave_id,
+        "source_gate_id": gate_id,
+        "decision": decision,
+        "next_wave_id": next_wave_id,
+        "actions": next_actions,
+    }
+    return next_state, gate_decision, action_set
+
+
+def _load_receipts_directory(receipts_dir: Path) -> list[Any]:
+    if not receipts_dir.is_dir():
+        return []
+    receipts: list[Any] = []
+    for receipt_path in sorted(receipts_dir.glob("*.json")):
+        try:
+            receipts.append(json.loads(receipt_path.read_text(encoding="utf-8")))
+        except (OSError, json.JSONDecodeError) as exc:
+            receipts.append({"parse_error": f"{receipt_path.name}: {exc}"})
+    return receipts
+
+
+def reduce_to_directory(
+    dispatch_path: Path,
+    state_path: Path,
+    run_plan_path: Path,
+    receipts_dir: Path,
+    output_dir: Path,
+) -> dict[str, Any]:
+    _prepare_output_directory(output_dir)
+    dispatch = _load_json(dispatch_path)
+    state = _load_json(state_path)
+    run_plan = _load_json(run_plan_path)
+    receipts = _load_receipts_directory(receipts_dir)
+    next_state, gate_decision, action_set = reduce_wave_receipts(dispatch, state, run_plan, receipts)
+    _write_json(output_dir / "state.json", next_state)
+    _write_json(output_dir / "gate-decision.json", gate_decision)
+    _write_json(output_dir / "next-actions.json", action_set)
+    for action in action_set["actions"]:
+        _write_json(output_dir / "actions" / f"{action['action_id']}.json", action)
+    return {
+        "status": "pass",
+        "state": next_state,
+        "gate_decision": gate_decision,
+        "action_set": action_set,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Compile the first eligible native dispatch wave.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    compile_parser = subparsers.add_parser("compile", help="Validate and compile first-wave actions")
+    compile_parser.add_argument("dispatch", type=Path)
+    compile_parser.add_argument("--run-id", required=True)
+    compile_parser.add_argument("--output-dir", required=True, type=Path)
+    compile_parser.add_argument("--validator", type=Path)
+    reduce_parser = subparsers.add_parser("reduce", help="Reduce bound wave receipts into one gate decision")
+    reduce_parser.add_argument("dispatch", type=Path)
+    reduce_parser.add_argument("--state", required=True, type=Path)
+    reduce_parser.add_argument("--run-plan", required=True, type=Path)
+    reduce_parser.add_argument("--receipts-dir", required=True, type=Path)
+    reduce_parser.add_argument("--output-dir", required=True, type=Path)
+    args = parser.parse_args()
+
+    try:
+        if args.command == "compile":
+            result = compile_to_directory(args.dispatch, args.run_id, args.output_dir, args.validator)
+        else:
+            result = reduce_to_directory(
+                args.dispatch,
+                args.state,
+                args.run_plan,
+                args.receipts_dir,
+                args.output_dir,
+            )
+    except CompileBlocked as exc:
+        print(json.dumps({"status": "block", "blockers": exc.blockers}, indent=2, sort_keys=True))
+        return 2
+    if args.command == "compile":
+        summary = {
+            "status": result["status"],
+            "state": result["state"]["state"],
+            "run_plan": str(args.output_dir / "run-plan.json"),
+            "action_count": len(result["run_plan"]["actions"]),
+        }
+    else:
+        summary = {
+            "status": result["status"],
+            "state": result["state"]["state"],
+            "decision": result["gate_decision"]["decision"],
+            "next_action_count": len(result["action_set"]["actions"]),
+            "gate_decision": str(args.output_dir / "gate-decision.json"),
+        }
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

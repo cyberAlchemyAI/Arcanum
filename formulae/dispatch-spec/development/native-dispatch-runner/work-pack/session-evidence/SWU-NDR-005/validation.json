@@ -1,0 +1,23 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-002",
+  "swu_id": "SWU-NDR-005",
+  "validated_at": "2026-07-22T15:19:11Z",
+  "result": "pass",
+  "commands": [
+    {"command": "python3 runtime/orchestrate/tests/native-join/test_native_join_contract.py -v", "result": "pass", "summary": "6 native join contract tests passed"},
+    {"command": "python3 runtime/orchestrate/tests/native-spawn/test_native_spawn_contract.py -v", "result": "pass", "summary": "5 native spawn regression tests passed"},
+    {"command": "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py runtime/orchestrate/tests/test_reduce_receipts.py runtime/orchestrate/tests/preflight/test_preflight_contract.py", "result": "pass", "summary": "18 compiler, reducer, and preflight regression tests passed"},
+    {"command": "parse native-join JSON and Orchestrate YAML frontmatter", "result": "pass", "summary": "all new fixtures, schemas, evidence, and contracts parse"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "no private paths/project names and no trailing whitespace found"}
+  ],
+  "done_criteria": [
+    {"criterion": "every known agent registered and closed exactly once", "result": "pass", "evidence": "expected-all-pass-events.json has one registration and one logical close per binding"},
+    {"criterion": "results bound to declared identities", "result": "pass", "evidence": "identity mismatch normalizes to blocking receipt"},
+    {"criterion": "reducer receives complete receipt set or explicit missing receipt", "result": "pass", "evidence": "all scenarios produce three schema-valid receipts; missing result becomes timed_out"},
+    {"criterion": "returned gate matches reducer output", "result": "pass", "evidence": "all-pass state, gate, and action set equal existing reducer fixtures"},
+    {"criterion": "unresolved known agent interrupted once", "result": "pass", "evidence": "missing-result scenario asserts one interrupt for the missing native ID"},
+    {"criterion": "Codex mailbox-wide wait modeled accurately", "result": "pass", "evidence": "host profile and test use pending-set reconciliation rather than targeted wait"}
+  ],
+  "bounded_recovery": []
+}

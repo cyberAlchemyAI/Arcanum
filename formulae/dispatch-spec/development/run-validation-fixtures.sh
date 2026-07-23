@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-root="/home/vrondelli/projects/domainspec-core/arcanum"
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd -- "$script_dir/../../.." && pwd)"
 validator="$root/formulae/dispatch-spec/scripts/validate-dispatch.py"
 fixtures="$root/formulae/dispatch-spec/development/fixtures"
 
@@ -39,7 +40,13 @@ run_case block "$fixtures/block-boundary-unknown-step.json"
 run_case block "$fixtures/block-promotion-split-violation.json"
 run_case pass "$fixtures/pass-native-stage-receipts.json"
 run_case block "$fixtures/block-command-interface-active-proof.json"
+run_case pass "$root/formulae/dispatch-spec/examples/capability-bound-artifact-repair.json"
+run_case block "$fixtures/block-capability-bound-dependency-same-wave.json"
 run_case pass "$root/arcana/refine/templates/refine-dispatch.json"
+
+if ! python3 "$root/formulae/dispatch-spec/development/run-capability-bound-mutation-tests.py"; then
+	overall="block"
+fi
 
 printf 'DISPATCH_SPEC_VALIDATION=%s\n' "$overall"
 printf 'VALIDATION=%s\n' "$overall"

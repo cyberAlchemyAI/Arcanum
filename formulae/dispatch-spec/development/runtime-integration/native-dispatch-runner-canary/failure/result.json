@@ -1,0 +1,29 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.canary-result.v0.1",
+  "scenario": "failure-withholding",
+  "run_id": "native-dispatch-runner-failure-20260722",
+  "status": "blocked",
+  "command": "orchestrate execute formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/source.dispatch.json",
+  "installed_entrypoint": "runtime/.agents/skills/orchestrate/SKILL.md",
+  "assertions": {
+    "source_dispatch_validation_pass": true,
+    "first_wave_action_count": 1,
+    "first_wave_native_agent_identifier_exists": true,
+    "nonpass_receipt_exists": true,
+    "gate_decision": "gate_block",
+    "dependent_action_count": 0,
+    "dependent_native_spawn_count": 0,
+    "run_evidence_validator_pass": false,
+    "known_agent_open_count": 0
+  },
+  "blocker": {
+    "blocker_id": "NDR-BLOCK-EVENT-VOCABULARY-MISMATCH",
+    "summary": "The canonical causal event schema omits lifecycle events required by the installed Orchestrate join contract.",
+    "contract_required_events_absent_from_schema": ["agent_wait_registered", "wait_attempted", "agent_closed", "wait_timed_out", "agent_interrupted"],
+    "live_events_rejected": ["agent_wait_registered", "wait_attempted", "agent_closed"],
+    "evidence": ["run/events.jsonl", "run/evidence-validation-receipt.json", "runtime/.agents/skills/orchestrate/SKILL.md", "runtime/.agents/skills/orchestrate/schemas/run-event.schema.json"],
+    "repair_boundary": "runtime/orchestrate/schemas/run-event.schema.json, runtime/orchestrate/scripts/validate_run_evidence.py, and evidence-order fixtures/tests; cover successful close and timeout/interrupt branches together",
+    "success_canary_allowed": false
+  },
+  "bounded_claim": "The live non-pass receipt blocked the gate and produced zero dependent actions, but the run cannot satisfy G4 because canonical evidence validation rejects required join lifecycle events."
+}

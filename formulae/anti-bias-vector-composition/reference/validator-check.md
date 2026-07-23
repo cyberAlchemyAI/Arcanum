@@ -134,7 +134,7 @@ A sheet that passes Items 4–8 PASSES — no residual judgment call beyond the 
 
 ## Relationship to the partition check
 
-The `domainspec-subagents-strategy` chain already checks two conditions on a group's angle set:
+The `subagent-strategy` chain already checks two conditions on a group's angle set:
 
 - **Non-overlapping.** No two agents investigate the same *concern*.
 - **Covering.** Together the angles span the macro goal — no part is unaddressed.

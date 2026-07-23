@@ -1,0 +1,29 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-005",
+  "swu_id": "SWU-NDR-011",
+  "attempt": "retry-001",
+  "validated_at": "2026-07-22T23:52:15Z",
+  "result": "pass",
+  "commands": [
+    {"command": "validate-dispatch.py source.dispatch.json --json", "result": "pass", "summary": "canonical Dispatch Spec validation returned zero blocks and flags"},
+    {"command": "isolated bootstrap generation and semantic package comparison", "result": "pass", "summary": "repaired event schema and evidence validator are byte-equal to canonical source"},
+    {"command": "installed native_dispatch_coordinator.py compile", "result": "pass", "summary": "exactly one first-wave action was persisted"},
+    {"command": "one collaboration.spawn_agent plus wait and inventory reconciliation", "result": "pass", "summary": "one native identifier returned; helper completed read-only, joined, and closed with zero open residue"},
+    {"command": "installed native_dispatch_coordinator.py reduce", "result": "pass", "summary": "bound non-pass receipt produced gate_block and zero next actions"},
+    {"command": "installed validate_run_evidence.py run/events.jsonl", "result": "pass", "summary": "all eight live lifecycle events validate with zero errors"},
+    {"command": "attempt-1 hash comparison", "result": "pass", "summary": "source dispatch, result, original validator receipt, and Task Session receipt are byte-preserved"},
+    {"command": "structured-data, public-boundary, and whitespace scans", "result": "pass", "summary": "all retry artifacts parse and remain public-safe"}
+  ],
+  "done_criteria": [
+    {"criterion": "command entry recorded", "result": "pass", "evidence": "command.json"},
+    {"criterion": "first-wave native agent identifier exists", "result": "pass", "evidence": "run/native-binding.json"},
+    {"criterion": "non-pass receipt exists", "result": "pass", "evidence": "receipts/nonpass-check.json"},
+    {"criterion": "gate blocks", "result": "pass", "evidence": "run/reduced/gate-decision.json"},
+    {"criterion": "dependent native spawn count is zero", "result": "pass", "evidence": "run/reduced/next-actions.json and one compiled action"},
+    {"criterion": "full terminal lifecycle validates", "result": "pass", "evidence": "run/evidence-validation-receipt.json"},
+    {"criterion": "retry links immutable attempt 1", "result": "pass", "evidence": "attempt-link.json"}
+  ],
+  "subagent_closeout": {"status": "pass", "spawned": 1, "joined": 1, "completed": 1, "closed": 1, "interrupted": 0, "blocked": 0, "timed_out": 0, "handed_off": 0, "open": 0},
+  "success_canary_allowed": true
+}

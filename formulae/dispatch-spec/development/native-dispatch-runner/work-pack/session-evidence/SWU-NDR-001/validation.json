@@ -1,0 +1,67 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-001",
+  "swu_id": "SWU-NDR-001",
+  "validated_at": "2026-07-22T14:45:20Z",
+  "result": "pass",
+  "commands": [
+    {
+      "command": "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py",
+      "result": "pass",
+      "summary": "5 tests passed"
+    },
+    {
+      "command": "python3 formulae/dispatch-spec/scripts/validate-dispatch.py runtime/orchestrate/tests/fixtures/compile/valid-two-wave.json --json",
+      "result": "pass",
+      "summary": "validation=pass; blocks=0; flags=0"
+    },
+    {
+      "command": "python3 runtime/orchestrate/scripts/native_dispatch_coordinator.py compile <valid-fixture> --run-id run-cli-001 --output-dir <temporary-dir>",
+      "result": "pass",
+      "summary": "state=wave_ready; action_count=3"
+    },
+    {
+      "command": "python3 runtime/orchestrate/scripts/native_dispatch_coordinator.py compile <invalid-fixture> --run-id run-cli-invalid --output-dir <temporary-dir>",
+      "result": "pass",
+      "summary": "exit=2; validation=block; no state.json, run-plan.json, or actions directory"
+    },
+    {
+      "command": "python3 -m json.tool <every runtime/orchestrate JSON artifact>",
+      "result": "pass",
+      "summary": "all schemas and fixtures parse"
+    },
+    {
+      "command": "public-boundary and trailing-whitespace scans",
+      "result": "pass",
+      "summary": "no private paths/project names and no trailing whitespace found"
+    }
+  ],
+  "done_criteria": [
+    {"criterion": "invalid input emits no actions", "result": "pass", "evidence": "test_invalid_dispatch_emits_validation_only"},
+    {"criterion": "first dependency-free wave only", "result": "pass", "evidence": "artifact-writer absent from expected-run-plan.json"},
+    {"criterion": "exact action bindings", "result": "pass", "evidence": "action.schema.json and expected-run-plan.json"},
+    {"criterion": "exact agent cardinality", "result": "pass", "evidence": "beta-check ordinals 0/1 and alpha-check ordinal 0"},
+    {"criterion": "stable output", "result": "pass", "evidence": "test_output_is_byte_stable_for_same_dispatch_and_run_id"},
+    {"criterion": "no host-native side effects", "result": "pass", "evidence": "coordinator imports only deterministic process/file primitives and emits action documents"}
+  ],
+  "bounded_recovery": [
+    {
+      "attempt": 1,
+      "result": "fail",
+      "cause": "fixture cited sequence only at dispatch level",
+      "repair": "bound sequence and observability_grouping to the dependent step"
+    },
+    {
+      "attempt": 2,
+      "result": "fail",
+      "cause": "test resolver attempted the schema $id network location",
+      "repair": "registered action.schema.json in the offline reference store"
+    },
+    {
+      "attempt": 3,
+      "result": "pass",
+      "cause": "none",
+      "repair": "none"
+    }
+  ]
+}

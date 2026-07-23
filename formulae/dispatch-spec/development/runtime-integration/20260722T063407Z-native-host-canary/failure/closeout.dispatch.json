@@ -1,0 +1,385 @@
+{
+  "dispatch_id": "native-host-canary-failure",
+  "intent": {
+    "raw": "Execute the failure half of the native Dispatch Spec canary.",
+    "objective": "Test native host receipt joining and downstream spawn gating.",
+    "target_artifact": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/artifact/output.json"
+  },
+  "mode": "mixed",
+  "techniques": [
+    "sequence",
+    "observability_grouping"
+  ],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "Two independent capability receipts gate one downstream artifact worker.",
+    "explanation": "The parent owns spawn, join, gate evaluation, and closeout.",
+    "context": [
+      "Wave one has disjoint receipt write scopes.",
+      "Wave two must not start until both wave-one receipts pass."
+    ],
+    "binding_mode": "capability-bound",
+    "execution_owner": "parent-orchestrator",
+    "roles": [
+      {
+        "role_id": "xray-lifecycle",
+        "purpose": "Run the failure canary lane for x-ray.",
+        "owns": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json",
+        "capability_ref": "sigil-development",
+        "capability_target": "x-ray",
+        "capability_mode": "observe",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcanum/arcana/x-ray/"
+        ],
+        "depends_on_roles": [],
+        "input_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json"
+        ],
+        "output_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+        ],
+        "applies_to_steps": [
+          "s1"
+        ]
+      },
+      {
+        "role_id": "whisper-lifecycle",
+        "purpose": "Run the failure canary lane for whisper.",
+        "owns": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json",
+        "capability_ref": "spellcraft",
+        "capability_target": "whisper",
+        "capability_mode": "reflect",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcanum/spells/whisper/"
+        ],
+        "depends_on_roles": [],
+        "input_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/whisper-pass.json"
+        ],
+        "output_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        ],
+        "applies_to_steps": [
+          "s2"
+        ]
+      },
+      {
+        "role_id": "artifact-repair",
+        "purpose": "Run the failure canary lane for arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/artifact/output.json.",
+        "owns": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/artifact.json",
+        "capability_ref": "task-session",
+        "capability_target": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/artifact/output.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/artifact/output.json",
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/artifact.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcanum/arcana/x-ray/",
+          "arcanum/spells/whisper/"
+        ],
+        "depends_on_roles": [
+          "xray-lifecycle",
+          "whisper-lifecycle"
+        ],
+        "input_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json",
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        ],
+        "output_refs": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/artifact.json"
+        ],
+        "applies_to_steps": [
+          "s3"
+        ]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "lifecycle-checks",
+        "role_ids": [
+          "xray-lifecycle",
+          "whisper-lifecycle"
+        ],
+        "parallel": true,
+        "join_policy": "all",
+        "gate_after": "g-lifecycle-receipts",
+        "on_incomplete": "block"
+      },
+      {
+        "wave_id": "artifact-repair",
+        "role_ids": [
+          "artifact-repair"
+        ],
+        "parallel": false,
+        "join_policy": "all",
+        "depends_on_waves": [
+          "lifecycle-checks"
+        ],
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Execute the user-approved failure-first native canary?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ]
+  },
+  "subagent_lifecycle": {
+    "status": "block",
+    "agents": [
+      {
+        "agent_id": "/root/canary_failure_xray",
+        "role_id": "xray-lifecycle",
+        "capability_ref": "sigil-development",
+        "capability_target": "x-ray",
+        "capability_mode": "observe",
+        "wave_id": "lifecycle-checks",
+        "write_scope": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+        ],
+        "lane_name": "Failure X-Ray lifecycle observation",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json",
+        "close_status": "closed",
+        "residue": "The pre-registered X-Ray pass sentinel is absent, so this lane cannot produce a passing lifecycle receipt and downstream artifact spawning must remain withheld.",
+        "reroute": "parent-withhold-downstream"
+      },
+      {
+        "agent_id": "/root/canary_failure_whisper",
+        "role_id": "whisper-lifecycle",
+        "capability_ref": "spellcraft",
+        "capability_target": "whisper",
+        "capability_mode": "reflect",
+        "wave_id": "lifecycle-checks",
+        "write_scope": [
+          "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        ],
+        "lane_name": "Failure Whisper lifecycle reflection",
+        "spawn_status": "spawned",
+        "join_status": "completed",
+        "receipt_artifact": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json",
+        "close_status": "closed",
+        "residue": "none",
+        "reroute": "none"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Run X-Ray lifecycle canary lane",
+      "capability_ref": "sigil-development",
+      "mode": "observe",
+      "pattern": "sequential",
+      "parallel": true,
+      "inputs": [
+        {
+          "kind": "external_context",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+        }
+      ],
+      "join_policy": "all",
+      "stop_conditions": [
+        "stop when the deterministic sentinel is absent or invalid"
+      ]
+    },
+    {
+      "step_id": "s2",
+      "name": "Run Whisper lifecycle canary lane",
+      "capability_ref": "spellcraft",
+      "mode": "reflect",
+      "pattern": "sequential",
+      "parallel": true,
+      "inputs": [
+        {
+          "kind": "external_context",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/whisper-pass.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        }
+      ],
+      "join_policy": "all",
+      "stop_conditions": [
+        "stop when the deterministic sentinel is absent or invalid"
+      ]
+    },
+    {
+      "step_id": "s3",
+      "name": "Run bounded artifact worker",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": [
+        "s1",
+        "s2"
+      ],
+      "techniques": [
+        "sequence",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/artifact.json"
+        }
+      ],
+      "stop_conditions": [
+        "stop unless both required receipts pass",
+        "stop if a write would escape the declared run folder"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-lifecycle-receipts",
+      "kind": "validation",
+      "owner": "parent-orchestrator",
+      "condition": "Both required lifecycle receipts pass and their workers are joined and closed before the artifact worker starts.",
+      "applies_after_wave": "lifecycle-checks",
+      "requires_role_receipts": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json",
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+      ],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-artifact-scope",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "The artifact worker consumes both passing receipts and writes only within the scenario folder.",
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [
+    {
+      "dispatch_id": "native-host-canary-failure",
+      "step_id": "s1",
+      "role_id": "xray-lifecycle",
+      "agent_id": "/root/canary_failure_xray",
+      "capability_ref": "sigil-development",
+      "capability_target": "x-ray",
+      "capability_mode": "observe",
+      "wave_id": "lifecycle-checks",
+      "write_scope": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+      ],
+      "receipt_kind": "subagent",
+      "status": "block",
+      "artifacts": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/xray.json"
+      ],
+      "validation": [
+        "test ! -e arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json => pass: sentinel absent"
+      ],
+      "observer_status": "not_needed",
+      "blockers": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/inputs/xray-pass.json"
+      ],
+      "residue": "The pre-registered X-Ray pass sentinel is absent, so this lane cannot produce a passing lifecycle receipt and downstream artifact spawning must remain withheld.",
+      "reroute": "parent-withhold-downstream",
+      "handoff_note": "Parent must block the lifecycle gate and withhold the downstream artifact worker."
+    },
+    {
+      "dispatch_id": "native-host-canary-failure",
+      "step_id": "s2",
+      "role_id": "whisper-lifecycle",
+      "agent_id": "/root/canary_failure_whisper",
+      "capability_ref": "spellcraft",
+      "capability_target": "whisper",
+      "capability_mode": "reflect",
+      "wave_id": "lifecycle-checks",
+      "write_scope": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+      ],
+      "receipt_kind": "subagent",
+      "status": "pass",
+      "artifacts": [
+        "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/failure/receipts/whisper.json"
+      ],
+      "validation": [
+        "sentinel file is present at failure/inputs/whisper-pass.json",
+        "sentinel parses as a JSON object with exactly four fields",
+        "scenario equals failure",
+        "capability_target equals whisper",
+        "expected_status equals pass",
+        "sentinel equals present"
+      ],
+      "observer_status": "not_needed",
+      "blockers": [],
+      "residue": "none",
+      "reroute": "none",
+      "handoff_note": "Whisper passed its independent lifecycle check; this pass cannot mask or override a non-pass receipt from the sibling X-Ray lane."
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "subagent_spawned",
+      "wave_joined",
+      "lifecycle_gate_passed_or_blocked",
+      "artifact_spawned_or_withheld",
+      "subagent_closed"
+    ],
+    "signal_grouping": "dispatch_id and wave_id"
+  },
+  "promotion_guardrails": [
+    "The canary receipt is execution evidence, not lifecycle authority.",
+    "No canary worker may write outside the declared runtime-integration run folder."
+  ]
+}

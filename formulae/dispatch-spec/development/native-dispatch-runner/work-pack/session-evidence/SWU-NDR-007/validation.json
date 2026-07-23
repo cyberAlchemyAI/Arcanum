@@ -1,0 +1,29 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-003",
+  "swu_id": "SWU-NDR-007",
+  "validated_at": "2026-07-22T15:29:46Z",
+  "result": "pass",
+  "commands": [
+    {"command": "manifest-based current-package drift check", "result": "pass", "summary": "both packages have exact 10-file sets, zero semantic drift, and zero support drift"},
+    {"command": "validate isolated generated Claude skill root", "result": "pass", "summary": "the exact generated Claude package passes the canonical Claude skill validator"},
+    {"command": "bootstrap generation plus native join/spawn/compiler/reducer/preflight regressions", "result": "pass", "summary": "34 runtime tests passed"},
+    {"command": "parse SWU-NDR-007 evidence JSON", "result": "pass", "summary": "before/after, drift, refresh, and host-capability artifacts parse"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "generated packages and public evidence contain no private paths/names or trailing whitespace"}
+  ],
+  "done_criteria": [
+    {"criterion": "supported generated surfaces contain execute mode", "result": "pass", "evidence": "both package frontmatters contain orchestrate execute <dispatch.json>"},
+    {"criterion": "drift check passes", "result": "pass", "evidence": "drift-check.json semantic_drift=0 and empty support/missing/extra lists"},
+    {"criterion": "local deviations preserved or adjudicated", "result": "pass", "evidence": "before-manifest and refresh-receipt classify both prior edits as stale generated content with no local-only authority"},
+    {"criterion": "unsupported hosts are not presented as equivalent", "result": "pass", "evidence": "host-capability-matrix marks Claude unsupported_blocking and Codex partial"},
+    {"criterion": "only Orchestrate consumers refreshed", "result": "pass", "evidence": "refresh-receipt other_packages_changed=false"},
+    {"criterion": "no live dispatch", "result": "pass", "evidence": "validation used isolated generation and deterministic checks only"}
+  ],
+  "bounded_recovery": [
+    {"attempt": 1, "result": "fail", "cause": "combined generation/copy command included destructive temporary cleanup and was rejected before execution", "repair": "created an explicit host-temporary directory and performed no destructive cleanup"},
+    {"attempt": 2, "result": "pass", "cause": "none", "repair": "isolated output copied only into the two declared package roots"},
+    {"attempt": 3, "result": "fail", "cause": "Claude validator was called with the package directory instead of its skills root", "repair": "validated the isolated skills root containing the exact generated package"},
+    {"attempt": 4, "result": "flag", "cause": "full current .claude/skills validation sees an unrelated pre-existing custom directory without SKILL.md", "repair": "kept it out of scope and used exact package hash equality with the passing isolated validation"},
+    {"attempt": 5, "result": "pass", "cause": "none", "repair": "target package validation and drift checks pass"}
+  ]
+}

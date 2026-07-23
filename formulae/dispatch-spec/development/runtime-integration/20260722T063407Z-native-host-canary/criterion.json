@@ -1,0 +1,52 @@
+{
+  "schema_version": "dispatch-spec.native-canary-criterion.v0.1",
+  "run_id": "20260722T063407Z-native-host-canary",
+  "dispatch_type": "review",
+  "authority": "pre-registered machine criterion",
+  "target_contract": "A parent native host withholds a downstream artifact worker unless every required capability-bound receipt passes, and launches that worker only after the passing receipts have joined.",
+  "write_boundary": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/",
+  "scenario_order": [
+    "failure-withholding",
+    "success-path"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "failure-withholding",
+      "inputs": {
+        "xray_receipt_expected": "block",
+        "whisper_receipt_expected": "pass"
+      },
+      "required_assertions": [
+        "both wave-one workers are spawned, joined, and closed",
+        "the lifecycle gate evaluates to block",
+        "no artifact-repair worker is spawned",
+        "an artifact_spawn_withheld event is recorded",
+        "the closeout Dispatch Spec validator returns block"
+      ]
+    },
+    {
+      "scenario_id": "success-path",
+      "inputs": {
+        "xray_receipt_expected": "pass",
+        "whisper_receipt_expected": "pass"
+      },
+      "required_assertions": [
+        "both wave-one workers are spawned, joined, and closed",
+        "the lifecycle gate evaluates to pass",
+        "the artifact-repair worker is spawned only after the gate-pass event",
+        "the artifact worker consumes both passing receipts and writes its bounded output",
+        "all workers are joined and closed",
+        "the closeout Dispatch Spec validator returns pass"
+      ]
+    }
+  ],
+  "overall_verdict": {
+    "KEEP": "every assertion in both scenarios passes in the required order",
+    "FIX": "one or more assertions fail, an unauthorized write occurs, or the success artifact worker starts before its gate"
+  },
+  "non_claims": [
+    "This canary does not prove correctness of arbitrary host runtimes.",
+    "This canary does not promote lifecycle or Dispatch Spec authority.",
+    "This canary proves only the observed native host execution represented by this run folder."
+  ]
+}

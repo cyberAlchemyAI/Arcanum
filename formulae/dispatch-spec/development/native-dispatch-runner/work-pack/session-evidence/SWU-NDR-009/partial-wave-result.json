@@ -1,0 +1,26 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.partial-wave-acceptance.v0.1",
+  "status": "block",
+  "state": "blocked",
+  "spawn_attempt_count": 2,
+  "spawned_action_ids": ["spawn-0001"],
+  "failed_action_id": "spawn-0002",
+  "unattempted_action_ids": ["spawn-0003"],
+  "known_agents": [
+    {"action_id": "spawn-0001", "agent_id": "native-agent-partial-001", "terminal_state": "interrupted"}
+  ],
+  "dependent_action_ids": [],
+  "dependent_actions": [],
+  "blockers": ["partial_wave_spawn_failure:spawn-0002"],
+  "residue": [
+    {"action_id": "spawn-0001", "agent_id": "native-agent-partial-001", "terminal_state": "interrupted"}
+  ],
+  "event_evidence": "runtime/orchestrate/tests/partial-wave/fixtures/expected-unresolved-trace.json",
+  "host_calls": [
+    {"operation": "collaboration.spawn_agent", "action_id": "spawn-0001"},
+    {"operation": "collaboration.spawn_agent", "action_id": "spawn-0002"},
+    {"operation": "collaboration.wait_agent", "action_id": null},
+    {"operation": "collaboration.interrupt_agent", "agent_id": "native-agent-partial-001"}
+  ],
+  "claim_limit": "Deterministic host-stub recovery proof; live host failure canary remains SWU-NDR-011."
+}

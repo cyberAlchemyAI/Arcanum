@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-010-20260722",
+  "source": {"capability": "task-session", "mode": "execute", "result": "pass", "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-010/receipt.json", "blocker_fingerprint": "terminal-pass:causal-evidence-valid", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "task-session:execute SWU-NDR-011", "evidence": "The user instructed Task Session to continue sequentially until the next genuine blocker."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "native-failure-withholding-canary",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-010 passes", "the failure canary dependencies are complete after generated-surface refresh"],
+      "required_inputs": ["TASK-NDR-005 SWU-NDR-011", "SWU-NDR-007 receipt", "SWU-NDR-008 receipt", "SWU-NDR-010 receipt", "fresh context pack", "mechanically refreshed installed Orchestrate package", "native host operations"],
+      "missing_inputs": [],
+      "mutation_risk": "high",
+      "approval_required": false,
+      "authorization_status": "matched",
+      "expected_receipt": "Task Session receipt proving a real non-pass first-wave result blocks the gate and withholds every dependent spawn.",
+      "fallback": "Block before native execution if the host profile, generated runtime, authorization, or write boundary cannot be proven current."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The route is dependency-ready and covered by the user's until-blocker instruction; generated support refresh is a deterministic precondition."},
+  "dispatch": {"status": "not-requested", "runtime": "local", "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-005.md#SWU-NDR-011"}
+}

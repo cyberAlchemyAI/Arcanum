@@ -1,0 +1,112 @@
+{
+  "schema_version": "subagents.dispatch-sheet.v0.6-local",
+  "dispatch_id": "20260722T063407Z-native-host-canary",
+  "dispatch_type": "review",
+  "status": "confirmed",
+  "confirmation_basis": "The user explicitly requested execution of the two-scenario native canary.",
+  "p1_trigger": "parallelism, isolation, and context protection",
+  "goal": "Attack the native capability-bound runtime contract with a deterministic failed receipt, then demonstrate the passing ordered-launch control.",
+  "working_folder": "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/",
+  "write_boundary": "All parent and worker writes stay inside working_folder; root telemetry and Inventory remain unchanged.",
+  "scenario_order": [
+    "failure-withholding",
+    "success-path"
+  ],
+  "anti_bias_global": "attack-vector specialization over fail-closed withholding and ordered downstream launch",
+  "groups": [
+    {
+      "group_id": "failure-wave-one",
+      "subject_role": "evaluate",
+      "n": 2,
+      "anti_bias": "attack-vector",
+      "agents": [
+        {
+          "lane_id": "failure-xray",
+          "role": "skeptic",
+          "capability_ref": "sigil-development",
+          "angle": "counter-example attack using a deterministic missing X-Ray sentinel to force a non-pass receipt"
+        },
+        {
+          "lane_id": "failure-whisper",
+          "role": "skeptic",
+          "capability_ref": "spellcraft",
+          "angle": "scope attack using an independent passing Whisper sentinel to test whether a sibling pass masks the X-Ray failure"
+        }
+      ],
+      "predicted_disagreements": [
+        "failure-xray runs a counter-example failure, failure-whisper runs a scope-isolation pass on the attack-vector axis; a bias in failure-xray would be exposed by failure-whisper if the parent incorrectly treated one failure as universal worker failure, while a bias in failure-whisper would be exposed if its pass incorrectly masked the blocking receipt."
+      ],
+      "expected_join": "both receipts join; parent blocks because one required receipt is non-pass"
+    },
+    {
+      "group_id": "success-wave-one",
+      "subject_role": "evaluate",
+      "n": 2,
+      "anti_bias": "attack-vector",
+      "agents": [
+        {
+          "lane_id": "success-xray",
+          "role": "skeptic",
+          "capability_ref": "sigil-development",
+          "angle": "definitional attack on the X-Ray capability, mode, wave, write-scope, and receipt binding"
+        },
+        {
+          "lane_id": "success-whisper",
+          "role": "skeptic",
+          "capability_ref": "spellcraft",
+          "angle": "vacuity attack requiring an independently materialized Whisper receipt rather than parent-asserted success"
+        }
+      ],
+      "predicted_disagreements": [
+        "success-xray runs a definitional binding check, success-whisper runs a vacuity check on the attack-vector axis; a bias in success-xray would be exposed by success-whisper if structurally valid metadata lacked worker evidence, while a bias in success-whisper would be exposed if evidence existed under the wrong capability binding."
+      ],
+      "expected_join": "both receipts pass; parent records gate pass before downstream spawn"
+    },
+    {
+      "group_id": "success-artifact-repair",
+      "subject_role": "execute",
+      "n": 1,
+      "agents": [
+        {
+          "lane_id": "success-artifact",
+          "role": "writer",
+          "capability_ref": "task-session",
+          "angle": "consume exactly two passing receipts and write one bounded canary artifact plus receipt"
+        }
+      ],
+      "depends_on": [
+        "success-wave-one"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "failure-wave-one",
+      "to": "success-wave-one",
+      "kind": "sequential",
+      "reason": "the user required the withholding failure to run first"
+    },
+    {
+      "from": "success-wave-one",
+      "to": "success-artifact-repair",
+      "kind": "gate",
+      "condition": "both success-wave-one receipts pass and are joined and closed"
+    }
+  ],
+  "parent_responsibilities": [
+    "freeze criteria and inputs before workers start",
+    "spawn native workers in the declared order",
+    "join and inspect receipts",
+    "withhold the failure artifact worker",
+    "evaluate the success gate before spawning its artifact worker",
+    "run deterministic assertions and the Dispatch Spec validator",
+    "close the local dispatch ledger"
+  ],
+  "max_loops": 1,
+  "final_approver": "parent-orchestrator",
+  "gate_state": {
+    "check_tension": "double-pass",
+    "human_confirmation": "confirmed",
+    "registration": "pending-local"
+  }
+}

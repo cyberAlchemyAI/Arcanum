@@ -1,0 +1,38 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-002-20260722",
+  "source": {
+    "capability": "task-session",
+    "mode": "execute",
+    "result": "pass",
+    "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/receipt.json",
+    "blocker_fingerprint": "terminal-pass:e28e01cb3c43ee16da2d5d932ed10ed1b8b6d0a960f5e6d115d5e9734955d533",
+    "legacy_adaptation": false
+  },
+  "authorization": {
+    "requested": true,
+    "exact_route": "task-session:execute:local",
+    "evidence": "The user instructed Task Session to continue until the next blocker."
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "local",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-002 passes", "SWU-NDR-003 depends only on SWU-NDR-002"],
+      "required_inputs": ["TASK-NDR-002 SWU-NDR-003", "SWU-NDR-002 receipt", "fresh context pack"],
+      "missing_inputs": [],
+      "mutation_risk": "medium",
+      "approval_required": true,
+      "authorization_status": "matched",
+      "expected_receipt": "Task Session receipt proving execute grammar and fail-closed preflight.",
+      "fallback": "Stop if preflight context or host capability contract is missing."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The next dependency-ready SWU is unambiguous and the user's until-blocker instruction authorizes a fresh bounded session."},
+  "dispatch": {"status": "not-requested", "runtime": null, "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-002.md#SWU-NDR-003"}
+}

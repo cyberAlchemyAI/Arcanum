@@ -1,0 +1,77 @@
+{
+  "schema_version": "arcanum.context-pack.v0.1",
+  "target": "native-dispatch-runner",
+  "selection_policy": "Smallest source set that covers the executor gap without importing unrelated runtime migration work.",
+  "obligations": [
+    {"id": "O1", "text": "Preserve Dispatch Spec as validation-only.", "status": "covered"},
+    {"id": "O2", "text": "Provide one explicit native execution entry point.", "status": "covered"},
+    {"id": "O3", "text": "Separate deterministic coordination from host-native operations.", "status": "covered"},
+    {"id": "O4", "text": "Make spawn, join, and gate causality observable.", "status": "covered"},
+    {"id": "O5", "text": "Fail closed on missing authorization, tools, or passing receipts.", "status": "covered"},
+    {"id": "O6", "text": "Require exact receipts and validator-backed closeout.", "status": "covered"},
+    {"id": "O7", "text": "Generate installed Orchestrate surfaces from canonical source.", "status": "covered"},
+    {"id": "O8", "text": "Require truthful failure-first and success canaries.", "status": "covered"},
+    {"id": "O9", "text": "Keep this package generic and public-safe.", "status": "covered"}
+  ],
+  "selected_sources": [
+    {
+      "path": "formulae/dispatch-spec/SKILL.md",
+      "selector": "validation and execution-boundary sections",
+      "covers": ["O1", "O6"]
+    },
+    {
+      "path": "formulae/dispatch-spec/CAPABILITY-BOUND-DELEGATION.md",
+      "selector": "runtime boundary and proof status",
+      "covers": ["O1", "O4", "O8"]
+    },
+    {
+      "path": "formulae/dispatch-spec/development/ORCHESTRATION-RUNTIME-ARCHITECTURE.md",
+      "selector": "parent authority, receipt, and native runtime views",
+      "covers": ["O2", "O3", "O4", "O6"]
+    },
+    {
+      "path": "formulae/dispatch-spec/development/ORCHESTRATION-RUNTIME-PLAN.md",
+      "selector": "existing runtime tasks and implementation gap",
+      "covers": ["O2", "O7"]
+    },
+    {
+      "path": "tools/bootstrap_arcanum.sh",
+      "selector": "write_orchestrate_skill_file",
+      "covers": ["O7"]
+    },
+    {
+      "path": "development/craft/ARCANUM-SKILL-RUNTIME-HANDOFF.md",
+      "selector": "native-skill adapter limits and parent-owned spawn",
+      "covers": ["O3", "O5"]
+    },
+    {
+      "path": "formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/result.json",
+      "selector": "claim, entry path, and evidence class",
+      "covers": ["O4", "O8"]
+    },
+    {
+      "path": "formulae/dispatch-spec/TECHNIQUE-CATALOG.md",
+      "selector": "sequence, reduction, boundary, receipt, validation, and observability techniques",
+      "covers": ["O1", "O4", "O6"]
+    }
+  ],
+  "excluded_context": [
+    {
+      "scope": "repo-wide model-backed CLI migration",
+      "reason": "Related but not required to deliver the first native runner."
+    },
+    {
+      "scope": "private consumer projects",
+      "reason": "The canonical capability contract must remain generic and public-safe."
+    },
+    {
+      "scope": "historical generated skill mirrors",
+      "reason": "Useful as validation targets, not architecture authority."
+    }
+  ],
+  "inventory_lookup": {
+    "surface": ".arcanum/inventory/index.json",
+    "result": "No exact native dispatch runner implementation proof was indexed.",
+    "action": "Record the gap here; do not promote a new inventory claim before implementation evidence exists."
+  }
+}

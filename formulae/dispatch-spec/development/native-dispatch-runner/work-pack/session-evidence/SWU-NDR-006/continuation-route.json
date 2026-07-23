@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-006-20260722",
+  "source": {"capability": "task-session", "mode": "execute", "result": "pass", "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-006/receipt.json", "blocker_fingerprint": "terminal-pass:canonical-generation-proven", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "task-session:execute SWU-NDR-007", "evidence": "The user instructed Task Session to continue sequentially until the next genuine blocker."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "generated-consumer-refresh",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-006 passes", "SWU-NDR-007 depends only on SWU-NDR-006"],
+      "required_inputs": ["TASK-NDR-003 SWU-NDR-007", "SWU-NDR-006 receipt", "fresh context pack", "generation manifest", "current installed Orchestrate surfaces", "local deviation audit"],
+      "missing_inputs": [],
+      "mutation_risk": "medium",
+      "approval_required": false,
+      "authorization_status": "matched",
+      "expected_receipt": "Task Session receipt proving refreshed consumers match canonical generation and unsupported hosts are marked truthfully.",
+      "fallback": "Stop before overwriting an unadjudicated local deviation and return its exact diff as blocker evidence."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The route is dependency-ready and covered by the user's until-blocker instruction."},
+  "dispatch": {"status": "not-requested", "runtime": "local", "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-003.md#SWU-NDR-007"}
+}

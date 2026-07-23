@@ -1,0 +1,44 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {
+    "task_id": "TASK-NDR-001",
+    "swu_id": "SWU-NDR-002",
+    "mode": "lean",
+    "handoff": "none",
+    "evidence_class": "task-session-context",
+    "built_at": "2026-07-22T14:54:18Z"
+  },
+  "coverage": {"strict": true, "obligation_count": 8, "covered_count": 8, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "consume exact compiled state and plan"},
+    {"id": "O2", "status": "covered", "summary": "one valid receipt per current action"},
+    {"id": "O3", "status": "covered", "summary": "exact receipt identity binding"},
+    {"id": "O4", "status": "covered", "summary": "all-pass gate expression"},
+    {"id": "O5", "status": "covered", "summary": "compile earliest newly eligible wave"},
+    {"id": "O6", "status": "covered", "summary": "all invalid receipt classes block dependents"},
+    {"id": "O7", "status": "covered", "summary": "idempotent byte-stable reduction"},
+    {"id": "O8", "status": "covered", "summary": "bounded writes and synchronized evidence"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-001.md", "selector": "lines 20-31", "sha256": "1aa692133977d10bf315b224465ef3fff83ef16d12e83e15183c74a7bd9cc3c7", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "states, actions, receipt requirements", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O2", "O3", "O4", "O6"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "gate expression and failure rule", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O4", "O5", "O6"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md", "selector": "NDR-R5 and NDR-R6", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb", "obligations": ["O2", "O3", "O6"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/receipt.json", "selector": "status, validation, next route", "sha256": "b4ab773d86634a4bddc8de92352d626f9404b0216f465c584f26f4e8bf4cb002", "obligations": ["O1", "O8"]},
+    {"path": "runtime/orchestrate/scripts/native_dispatch_coordinator.py", "selector": "compiled action, state, and run-plan construction", "sha256": "7108ac9d2dd5d27dcec92020cc9c26899a4d4301284c8dd6d85e67f534a66ccb", "obligations": ["O1", "O3", "O5", "O7"]},
+    {"path": "runtime/orchestrate/tests/fixtures/compile/valid-two-wave.json", "selector": "roles, waves, dependencies, gate", "sha256": "a750db2b8ef6d332077b216ce422e974ba6348a2d37614d1c66c42d89af137d8", "obligations": ["O3", "O4", "O5", "O6"]},
+    {"path": "runtime/orchestrate/tests/fixtures/compile/expected-run-plan.json", "selector": "first-wave actions", "sha256": "a2ed87de39d9600cf17980b978e9c46ab57206c8bb5b62a5bd2d3809e84a017e", "obligations": ["O1", "O2", "O3", "O7"]}
+  ],
+  "write_scope": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/",
+    "runtime/orchestrate/tests/fixtures/reduce/",
+    "runtime/orchestrate/tests/test_reduce_receipts.py",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"
+  ],
+  "next_route": {
+    "on_pass": "task-session:execute SWU-NDR-003",
+    "on_fail": "task-session:execute SWU-NDR-002 with changed evidence"
+  }
+}

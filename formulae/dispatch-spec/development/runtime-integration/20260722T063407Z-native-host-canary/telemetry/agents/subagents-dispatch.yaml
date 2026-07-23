@@ -1,0 +1,24 @@
+# subagents-dispatch.yaml — registry of subagent dispatches (one row per dispatch,
+# plus one close row per dispatch — append-only, never edited in place).
+# Written by the register-dispatch skill. `groups`/`connections` (dispatch rows) and
+# `agents_spawned`/`feedback_prompts` (close rows) are JSON columns.
+dispatches:
+  - dispatch_id: "2026-07-22-native-host-canary"
+    schema_version: "0.6.0"
+    created: "2026-07-22T06:38:20.660Z"
+    invoked_by: "local-operator"
+    dispatch_type: "review"
+    goal: "Attack native capability-bound receipt gating with failure withholding first, then prove the ordered passing control."
+    context: "The Dispatch Spec validator already accepts capability-bound route shape, but native host spawning and failed-receipt withholding lack an end-to-end witness. The run uses deterministic sentinels and native subagents, preserves every receipt and event locally, and forbids writes outside the runtime-integration run folder."
+    max_loops: 1
+    final_approver: "parent"
+    anti_bias_global: "attack-vector specialization over fail-closed withholding and ordered downstream launch"
+    working_folder: "arcanum/formulae/dispatch-spec/development/runtime-integration/20260722T063407Z-native-host-canary/"
+    groups: [{"group_id":"failure-wave-one","n":2,"anti_bias":"attack-vector","agents":[{"agent_name":null,"role":"skeptic","model":"gpt-5.6-sol","token_budget":900,"angle":"counter-example attack using a missing X-Ray sentinel","initial_prompt":"Run only the failure X-Ray canary lane through Sigil Development observe mode. Materialize a blocking receipt when the pre-registered sentinel is absent. Write only the assigned receipt inside the run folder."},{"agent_name":null,"role":"skeptic","model":"gpt-5.6-sol","token_budget":900,"angle":"scope attack using an independent passing Whisper sentinel","initial_prompt":"Run only the failure Whisper canary lane through Spellcraft reflect mode. Materialize a passing sibling receipt from its present sentinel and do not mask the X-Ray outcome. Write only the assigned receipt inside the run folder."}]},{"group_id":"success-wave-one","n":2,"anti_bias":"attack-vector","agents":[{"agent_name":null,"role":"skeptic","model":"gpt-5.6-sol","token_budget":900,"angle":"definitional attack on X-Ray capability and receipt binding","initial_prompt":"Run only the success X-Ray canary lane through Sigil Development observe mode. Validate the deterministic sentinel and materialize the exact capability-bound receipt. Write only the assigned receipt inside the run folder."},{"agent_name":null,"role":"skeptic","model":"gpt-5.6-sol","token_budget":900,"angle":"vacuity attack requiring an independently materialized Whisper receipt","initial_prompt":"Run only the success Whisper canary lane through Spellcraft reflect mode. Validate the deterministic sentinel and materialize independent worker evidence. Write only the assigned receipt inside the run folder."}]},{"group_id":"success-artifact-repair","n":1,"agents":[{"agent_name":null,"role":"writer","model":"gpt-5.6-sol","token_budget":1000,"initial_prompt":"Only after the parent passes the success gate, consume the two passing receipts through Task Session execute mode and write the bounded artifact plus artifact receipt inside the run folder."}]}]
+    connections: [{"from":"failure-wave-one","to":"success-wave-one","type":"sequential"},{"from":"success-wave-one","to":"success-artifact-repair","type":"sequential"}]
+  - close_of: "2026-07-22-native-host-canary"
+    closed: "2026-07-22T06:46:25.608Z"
+    invoked_by: "local-operator"
+    exit_reason: "resolved"
+    agents_spawned: {"total":5,"tree":{"explorer":0,"synthesizer":0,"skeptic":4,"writer":1,"auditor":0,"helpers":0},"loops_used":1}
+    feedback_prompts: []

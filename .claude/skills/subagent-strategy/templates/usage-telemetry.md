@@ -1,0 +1,50 @@
+# Subagent Strategy Usage Telemetry
+
+Record one compact JSON object for each meaningful strategy execution.
+
+```json
+{
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "sigil": "subagent-strategy",
+  "tier": "arcana",
+  "mode": "inline | propose | run | close",
+  "meaningful_execution": true,
+  "profile_id": "<id-or-unavailable>",
+  "dispatch_type": "<type-or-none>",
+  "trigger_decision": "inline | dispatch | blocked",
+  "triggers": ["synthesis | context-protection | isolation | parallelism"],
+  "group_count": 0,
+  "agent_count": 0,
+  "preflight_status": "pass | flag | block | not_configured",
+  "preflight_design_consequence": "<summary-or-none>",
+  "tension_gate": "pass-pass | revision | unavailable | not_applicable",
+  "confirmation_state": "awaiting | confirmed-frozen | not_applicable",
+  "registration_state": "unregistered | registered | blocked | not_applicable",
+  "execution_state": "not_started | completed | partial | failed | not_applicable",
+  "agents": {
+    "open": 0,
+    "joined": 0,
+    "failed": 0,
+    "closed": 0
+  },
+  "ledger_pair_state": "paired | pending | blocked | not_applicable",
+  "generated_output_count": 0,
+  "quality_bar_status": "pass | partial | fail | not_checked",
+  "anti_pattern_hits": [],
+  "workflow_gaps": [
+    {
+      "category": "trigger | profile | preflight | tension | confirmation | registration | dependency | approval | closeout | publication | observability",
+      "severity": "low | medium | high | severe",
+      "summary": "<gap>",
+      "evidence": "<artifact-or-observation>"
+    }
+  ],
+  "output_contract_drift": false,
+  "observer_recommendation": "none | targeted-update | reflect-now",
+  "reflection_trigger": "none | manual | usage-threshold | output-threshold | gap-threshold | severe-gap"
+}
+```
+
+Severe gaps include execution without confirmation or registration, unpaired
+dispatch/close events, unsafe scope expansion, private evidence leakage, and
+agents left open after the parent returns.

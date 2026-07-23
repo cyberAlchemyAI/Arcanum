@@ -1,0 +1,21 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.evidence-order-matrix.v0.2",
+  "cases": [
+    {"case_id": "valid-terminal-close", "source": "fixtures/valid-ordered.jsonl", "valid": true, "expected_error_codes": []},
+    {"case_id": "valid-timeout-interrupt", "source": "fixtures/valid-timeout.jsonl", "valid": true, "expected_error_codes": []},
+    {"case_id": "dependent-before-gate", "source": "fixtures/dependent-before-gate.jsonl", "valid": false, "expected_error_codes": ["dependent_action_before_gate"]},
+    {"case_id": "missing-attempt", "source": "fixtures/missing-attempt.jsonl", "valid": false, "expected_error_codes": ["missing_action_attempt"]},
+    {"case_id": "duplicate-host-result", "source": "fixtures/duplicate-host-result.jsonl", "valid": false, "expected_error_codes": ["duplicate_host_result"]},
+    {"case_id": "synthesized-terminal-only", "source": "fixtures/synthesized-terminal-only.jsonl", "valid": false, "expected_error_codes": ["terminal_without_host_result"]},
+    {"case_id": "registration-before-host-return", "source": "fixtures/registration-before-host-return.jsonl", "valid": false, "expected_error_codes": ["registration_without_host_result"]},
+    {"case_id": "duplicate-registration", "source": "fixtures/duplicate-registration.jsonl", "valid": false, "expected_error_codes": ["duplicate_wait_registration"]},
+    {"case_id": "wait-before-full-registration", "source": "fixtures/wait-before-full-registration.jsonl", "valid": false, "expected_error_codes": ["wait_before_full_registration"]},
+    {"case_id": "terminal-without-wait", "source": "fixtures/terminal-without-wait.jsonl", "valid": false, "expected_error_codes": ["terminal_without_wait"]},
+    {"case_id": "close-before-terminal", "source": "fixtures/close-before-terminal.jsonl", "valid": false, "expected_error_codes": ["close_before_terminal"]},
+    {"case_id": "duplicate-close", "source": "fixtures/duplicate-close.jsonl", "valid": false, "expected_error_codes": ["duplicate_agent_close"]},
+    {"case_id": "interrupt-without-timeout", "source": "fixtures/interrupt-without-timeout.jsonl", "valid": false, "expected_error_codes": ["interrupt_without_timeout"]},
+    {"case_id": "duplicate-interrupt", "source": "fixtures/duplicate-interrupt.jsonl", "valid": false, "expected_error_codes": ["duplicate_agent_interrupt"]},
+    {"case_id": "joined-before-cleanup", "source": "fixtures/joined-before-cleanup.jsonl", "valid": false, "expected_error_codes": ["join_before_terminal_cleanup"]},
+    {"case_id": "gate-before-required-join", "source": "fixtures/gate-before-required-join.jsonl", "valid": false, "expected_error_codes": ["gate_missing_joined_receipt"]}
+  ]
+}

@@ -1,0 +1,373 @@
+{
+  "dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Implement the missing native Dispatch Spec execution path without making Dispatch Spec the executor.",
+    "objective": "Deliver a deterministic coordinator and host-native Orchestrate driver that prove failure withholding and successful dependent progression from one execution entry point.",
+    "target_artifact": "formulae/dispatch-spec/development/native-dispatch-runner/WORK-PACK.md",
+    "arcanum_vocabulary": [
+      "dispatch-spec",
+      "orchestrate",
+      "task-session",
+      "native subagent",
+      "execution receipt",
+      "validation gate"
+    ],
+    "operator_sentence": "Use Task Session to implement the Native Dispatch Runner by layer, validate each receipt gate, run failure withholding before success, and preserve validator and executor authority boundaries."
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "execution_receipt_handoff",
+    "observability_grouping",
+    "concrete_path_evidence",
+    "artifact_contract_bridge",
+    "residue_ledger"
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "The implementation route uses one bounded Task Session SWU at a time. Using the runner-under-construction to execute its own work pack would be circular.",
+    "binding_mode": "descriptive",
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Approve starting the work pack with SWU-NDR-001."
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Validate implementation route",
+      "capability_ref": "dispatch-spec",
+      "mode": "validate",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": [
+        "validation_loop",
+        "owner_boundary_check",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/execution.dispatch.json"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S1.route-validation-receipt"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/native-dispatch-runner/dispatch-validation.json",
+      "stop_conditions": [
+        "block if schema or semantic route validation fails",
+        "block if the route grants Dispatch Spec execution authority"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Implement deterministic coordination",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S1"],
+      "techniques": [
+        "sequence",
+        "scu_swu_reduction",
+        "execution_receipt_handoff",
+        "recomposition_proof"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S1.route-validation-receipt"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-001.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S2.l0-task-receipts"},
+        {"kind": "artifact", "ref": "runtime/orchestrate/scripts/native_dispatch_coordinator.py"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S2.l0-task-receipts",
+      "stop_conditions": [
+        "block if any L0 SWU does not pass independently",
+        "block native driver work until deterministic gates pass"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Implement native driver and canonical generation",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S2"],
+      "techniques": [
+        "sequence",
+        "execution_receipt_handoff",
+        "owner_boundary_check",
+        "artifact_contract_bridge"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S2.l0-task-receipts"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-002.md"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-003.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S3.l1-task-receipts"},
+        {"kind": "artifact", "ref": "runtime/orchestrate/SKILL.md"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S3.l1-task-receipts",
+      "stop_conditions": [
+        "block if native host operations are unavailable",
+        "block if installed surfaces do not derive from canonical source",
+        "block if any path uses nested model-backed CLI fallback"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Harden failure and evidence behavior",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S3"],
+      "techniques": [
+        "sequence",
+        "validation_loop",
+        "execution_receipt_handoff",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S3.l1-task-receipts"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md"},
+        {"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipt.json"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S4.l2-task-receipts"},
+        {"kind": "receipt", "ref": "S4.swu-ndr-010r-receipt"},
+        {"kind": "artifact", "ref": "runtime/orchestrate/scripts/validate_run_evidence.py"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S4.l2-task-receipts",
+      "stop_conditions": [
+        "block if any invalid required receipt releases dependent work",
+        "block if event ordering cannot reject post-hoc evidence",
+        "block unless all five declared join lifecycle kinds and both terminal branches validate"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Run causal integration canaries",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "validation",
+      "parallel": false,
+      "depends_on_steps": ["S4"],
+      "techniques": [
+        "sequence",
+        "validation_loop",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S4.l2-task-receipts"},
+        {"kind": "receipt", "ref": "S4.swu-ndr-010r-receipt"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-005.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S5.integration-canary-receipts"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/result.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/result.json",
+      "stop_conditions": [
+        "block unless SWU-NDR-010R passes",
+        "block success canary unless failure-withholding canary passes",
+        "block if either canary requires bespoke parent spawn instructions",
+        "block if historical evidence is overwritten"
+      ]
+    },
+    {
+      "step_id": "S6",
+      "name": "Verify recomposition and closeout",
+      "capability_ref": "task-session",
+      "mode": "verify",
+      "pattern": "synthesis",
+      "parallel": false,
+      "depends_on_steps": ["S5"],
+      "techniques": [
+        "recomposition_proof",
+        "validation_loop",
+        "concrete_path_evidence",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S5.integration-canary-receipts"},
+        {"kind": "artifact", "ref": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/traceability.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S6.closeout-receipt"},
+        {"kind": "ledger", "ref": "S6.residue-ledger"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S6.closeout-receipt",
+      "stop_conditions": [
+        "block if any contract requirement lacks concrete evidence",
+        "do not claim lifecycle promotion or cross-host parity"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G0-route",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "execution.dispatch.json passes schema, route, technique, and boundary validation",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G1-l0",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "SWU-NDR-001 and SWU-NDR-002 independently pass deterministic acceptance",
+      "requires_role_receipts": ["S2.l0-task-receipts"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-l1",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "Native action mapping, join, canonical generation, and drift validation pass",
+      "requires_role_receipts": ["S3.l1-task-receipts"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-l2",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "Receipt admission, partial-wave recovery, original event-order cases, and complete terminal-close and timeout-interrupt lifecycle cases pass",
+      "requires_role_receipts": ["S4.l2-task-receipts", "S4.swu-ndr-010r-receipt"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-integration",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "The append-only failure canary retry passes full lifecycle validation before success and both begin at orchestrate execute",
+      "requires_role_receipts": ["S5.integration-canary-receipts"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5-promotion-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "capability owner",
+      "condition": "Implementation closeout does not imply lifecycle promotion or untested host parity",
+      "requires_role_receipts": ["S6.closeout-receipt"],
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch_validated",
+      "swu_started",
+      "swu_closed",
+      "layer_gate_evaluated",
+      "integration_canary_started",
+      "integration_canary_closed",
+      "dispatch_closed"
+    ],
+    "signal_grouping": "dispatch_id + step_id + task_id + swu_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-validation-to-execution",
+        "kind": "capability_handoff",
+        "from_owner": "dispatch-spec",
+        "to_owner": "task-session",
+        "applies_to_steps": ["S1", "S2"],
+        "contract": "Dispatch Spec returns route validation only; Task Session performs bounded implementation after user permission.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-task-receipt",
+        "kind": "evidence_return",
+        "from_owner": "task-session",
+        "to_owner": "work-pack gate",
+        "applies_to_steps": ["S2", "S3", "S4", "S5", "S6"],
+        "contract": "Each independently selected SWU returns concrete changed paths, validation results, evidence, residue, and next route.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "capability owner and human",
+      "execution": "task-session during implementation; orchestrate at product runtime",
+      "validation": "dispatch-spec for routes and task-local validators for artifacts",
+      "evidence": "task-session receipts and run-local native evidence",
+      "memory": "no automatic promotion",
+      "promotion": "outside this dispatch"
+    },
+    "receipts": [
+      {
+        "receipt_id": "swu-receipt",
+        "producer": "task-session",
+        "required_fields": [
+          "run_id",
+          "session_id",
+          "artifacts",
+          "validation_result",
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "blockers",
+          "residue"
+        ],
+        "stores": [
+          "selected task evidence folder",
+          "parent execution ledger"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "canonical-runtime-source",
+        "owner": "runtime/orchestrate",
+        "write_policy": "Only the selected SWU may mutate its declared paths."
+      },
+      {
+        "namespace": "generated-installed-surfaces",
+        "owner": "bootstrap-arcanum",
+        "write_policy": "Generate from canonical source; never edit as authority."
+      },
+      {
+        "namespace": "runtime-integration-evidence",
+        "owner": "task-session canary run",
+        "write_policy": "Append new runs and adjudications; preserve historical evidence."
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "implementation closeout",
+        "target": "capability lifecycle status",
+        "rule": "A passing work pack is evidence for a separate owner decision and does not self-promote.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Do not execute without user permission.",
+    "Do not use the runner-under-construction to claim its own proof.",
+    "Do not claim automatic integration from manual native spawns.",
+    "Do not claim cross-host parity from one host canary.",
+    "Do not infer lifecycle promotion from implementation completion."
+  ]
+}

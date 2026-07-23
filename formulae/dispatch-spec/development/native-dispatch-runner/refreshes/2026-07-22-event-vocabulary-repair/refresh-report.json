@@ -1,0 +1,94 @@
+{
+  "schema_version": "arcanum.invoke.refresh-report.v0.1",
+  "mode": "refresh",
+  "phaseStatus": "pass",
+  "phaseStatusBasis": {"artifactComplete": true, "refreshAuthoringBlockerCount": 0},
+  "mutationMode": "apply-approved",
+  "handoffStatus": "ready",
+  "execution_path": "invoke refresh apply-approved -> task-session SWU-NDR-010R -> task-session SWU-NDR-011 retry -> task-session SWU-NDR-012",
+  "dispatch_trace": {"path": "DISPATCH-TECHNIQUE-TRACE.json", "dispatch": "refresh.dispatch.json", "validation": "dispatch-validation.json", "result": "pass"},
+  "source_evidence": {"context_pack": ["context-pack.md", "context-pack.json"], "source_count": 12, "obligation_coverage": 100, "inventory_lookup": "no_inventory_match"},
+  "target_inventory": {
+    "root": "formulae/dispatch-spec/development/native-dispatch-runner/",
+    "artifacts": [
+      {"path": "work-pack/tasks/TASK-NDR-004.md", "sha256": "ae46ff5a880778f98aa48e619c11ed85e8e22851964f4ff664932c826514d49e"},
+      {"path": "work-pack/tasks/TASK-NDR-005.md", "sha256": "b2d288d73ad22826257864363e252b4bd2081e7c9ab2537df4d3f4eab9f3160f"},
+      {"path": "work-pack/swu-manifest.json", "sha256": "24bcf8e54c4de3cba22b726f1bd1c30cace6081bc7740990c26ecb51f503c2c1"},
+      {"path": "work-pack/shared/traceability.md", "sha256": "8bd16a8f5e5c1b36c0bb8d8cd2b37066d100e08eceaef149d1aff46b5e633abb"},
+      {"path": "work-pack/shared/cross-task-gaps.md", "sha256": "5b674f72d592a1dd15227f9f9727a6de81d0e4ed799b417526802d56f7a92d1b"},
+      {"path": "work-pack/waves/W2.md", "sha256": "2be1b42a964af1ff829e925a985be212c8f6f9cb27aa31f17fb9e4ae717ee729"},
+      {"path": "work-pack/waves/W3.md", "sha256": "754fb732f5a856507fd41725f0da02dd1851852bdbb1d35800e0036b7480d8ae"},
+      {"path": "WORK-PACK.md", "sha256": "e7e8e0123f63df295762ff1f37b43670f3ffbb355b55988b5ec318078e0cf4ca"},
+      {"path": "execution.dispatch.json", "sha256": "ceee9560b51ef7fb564e78455114314f1e388d3c599489e16259fb6ef4355a23"}
+    ]
+  },
+  "sourceSignals": [
+    {"id": "RS-NDR-001", "source_path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/result.json", "signal_type": "blocker_opened", "target_artifacts": ["work-pack/tasks/TASK-NDR-004.md", "work-pack/swu-manifest.json", "work-pack/shared/cross-task-gaps.md"], "claim": "The canonical event model omits five lifecycle kinds required by Orchestrate.", "evidence": "The live terminal branch rejects three; contract comparison identifies timeout and interrupt as two additional omissions.", "confidence": "high", "mutation_safety": "safe"},
+    {"id": "RS-NDR-002", "source_path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/run/evidence-validation-receipt.json", "signal_type": "artifact_drift", "target_artifacts": ["work-pack/shared/traceability.md", "execution.dispatch.json"], "claim": "SWU-NDR-010 is historically PASS for its written cases but is insufficient for the declared native join contract.", "evidence": "Sequences 3, 4, and 6 are unsupported while SKILL.md requires them.", "confidence": "high", "mutation_safety": "safe"},
+    {"id": "RS-NDR-003", "source_path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipt.json", "signal_type": "route_changed", "target_artifacts": ["work-pack/tasks/TASK-NDR-005.md", "work-pack/swu-manifest.json", "work-pack/waves/W2.md", "work-pack/waves/W3.md"], "claim": "The next executable route is repair, then append-only failure retry; success remains forbidden.", "evidence": "SWU-NDR-011 closed block with zero open helpers and explicitly forbids SWU-NDR-012.", "confidence": "high", "mutation_safety": "safe"},
+    {"id": "RS-NDR-004", "source_path": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/run/reduced/gate-decision.json", "signal_type": "evidence_added", "target_artifacts": ["work-pack/tasks/TASK-NDR-005.md", "WORK-PACK.md"], "claim": "Failure withholding occurred but is not yet accepted as causal integration proof.", "evidence": "gate_block and zero next actions pass; causal validator remains block.", "confidence": "high", "mutation_safety": "safe"}
+  ],
+  "deltaSummary": [
+    {"class": "blocker_opened", "count": 1},
+    {"class": "artifact_drift", "count": 1},
+    {"class": "route_changed", "count": 1},
+    {"class": "evidence_added", "count": 1}
+  ],
+  "proposedChanges": [
+    {"target": "work-pack/tasks/TASK-NDR-004.md", "signals": ["RS-NDR-001", "RS-NDR-002"], "change": "add SWU-NDR-010R with full five-event terminal and timeout lifecycle acceptance"},
+    {"target": "work-pack/tasks/TASK-NDR-005.md", "signals": ["RS-NDR-003", "RS-NDR-004"], "change": "depend on repair and make failure retry append-only under failure/retry-001"},
+    {"target": "work-pack/swu-manifest.json", "signals": ["RS-NDR-001", "RS-NDR-003"], "change": "insert repair SWU and record SWU-NDR-011 attempt 1 as block with retry scope"},
+    {"target": "work-pack/shared/traceability.md", "signals": ["RS-NDR-002"], "change": "map NDR-R7/R8 to repair and retry evidence"},
+    {"target": "work-pack/shared/cross-task-gaps.md", "signals": ["RS-NDR-001"], "change": "open contract/schema vocabulary blocker"},
+    {"target": "work-pack/waves/W2.md", "signals": ["RS-NDR-003"], "change": "add repair and contract-complete exit gate"},
+    {"target": "work-pack/waves/W3.md", "signals": ["RS-NDR-003"], "change": "require repair pass and append-only failure retry before success"},
+    {"target": "WORK-PACK.md", "signals": ["RS-NDR-003", "RS-NDR-004"], "change": "refresh task coverage and W2/W3 gates"},
+    {"target": "execution.dispatch.json", "signals": ["RS-NDR-002", "RS-NDR-003"], "change": "add repair evidence to S4/G3 and preserve S5/G4 lock"}
+  ],
+  "appliedChanges": [
+    {"target": "work-pack/tasks/TASK-NDR-004.md", "signals": ["RS-NDR-001", "RS-NDR-002"], "sha256": "b58a83b272588255021d153af6e9bd5234b865ed6285eafddf68ddb21ed8481f", "change": "added SWU-NDR-010R with complete terminal and timeout lifecycle acceptance"},
+    {"target": "work-pack/tasks/TASK-NDR-005.md", "signals": ["RS-NDR-003", "RS-NDR-004"], "sha256": "8c159608f73176af3d617a8252bc42b202bb6e6a90a3018435ab1cc07a877674", "change": "made failure retry append-only and dependent on SWU-NDR-010R"},
+    {"target": "work-pack/swu-manifest.json", "signals": ["RS-NDR-001", "RS-NDR-003"], "sha256": "acca6ac1e0b49fec700563131f6dfc44499168a5332246e68be55e6987cacdce", "change": "inserted repair SWU and recorded SWU-NDR-011 attempt 1 as block"},
+    {"target": "work-pack/shared/traceability.md", "signals": ["RS-NDR-002"], "sha256": "e6b83ff296acb997575482647c8cd4cefe00172e6bba290102c107012c99dc77", "change": "mapped NDR-R7/R8 to repair and retry evidence"},
+    {"target": "work-pack/shared/cross-task-gaps.md", "signals": ["RS-NDR-001"], "sha256": "3bd31550a66709da0f7a00cac103d14e39c88edb44abb84655470514756df0f5", "change": "opened the contract/schema vocabulary blocker"},
+    {"target": "work-pack/waves/W2.md", "signals": ["RS-NDR-003"], "sha256": "73d4759afe72dad8b306628d9505c3b9afd939b7aedd5b3b1d3b548ae01a3645", "change": "added SWU-NDR-010R and contract-complete exit gate"},
+    {"target": "work-pack/waves/W3.md", "signals": ["RS-NDR-003"], "sha256": "ce933ae90a64a6a1e98e277576eae710e6ce94b75093c8cf72c8753167525e93", "change": "gated entry on repair and append-only failure retry"},
+    {"target": "WORK-PACK.md", "signals": ["RS-NDR-003", "RS-NDR-004"], "sha256": "957e2ddb468a2c9c81582d7b7e6cdeb76016b6d86b2cdede40851d59d8c1c6a0", "change": "refreshed task coverage, wave gates, status, and first handoff"},
+    {"target": "execution.dispatch.json", "signals": ["RS-NDR-002", "RS-NDR-003"], "sha256": "cf233ae200c2eaa75c52c20f0acad33e5f3c487ec824d8ae10f0d9af5ebe15f4", "change": "added repair evidence to S4/G3 and preserved S5/G4 lock"}
+  ],
+  "skippedChanges": [
+    {"target": "SWU-NDR-010 receipt", "reason": "historical receipt remains immutable; a new repair SWU carries changed evidence"},
+    {"target": "blocked failure attempt", "reason": "preserve byte-for-byte; retry appends under failure/retry-001"},
+    {"target": "canonical runtime implementation", "reason": "Task Session owns execution after refresh apply"},
+    {"target": ".arcanum/inventory", "reason": "lookup-only mode found no matching entry; refresh does not ingest or sync"}
+  ],
+  "mutation_mode": "apply-approved",
+  "phase_status": "pass",
+  "handoff_status": "ready",
+  "blocker_scopes": {"refresh-authoring": 0, "apply-authorization": 0, "target-lifecycle": 3, "audit": 1},
+  "blockers": [
+    {"id": "RB-APPLY-001", "scope": "apply-authorization", "owner": "human", "status": "resolved", "claim": "Explicit apply approval was received and recorded in apply-authorization.json."},
+    {"id": "RB-TARGET-001", "scope": "target-lifecycle", "owner": "task-session", "status": "open", "claim": "SWU-NDR-010R must repair and validate the complete join lifecycle."},
+    {"id": "RB-TARGET-002", "scope": "target-lifecycle", "owner": "task-session", "status": "open", "claim": "SWU-NDR-011 must rerun append-only and pass before success."},
+    {"id": "RB-TARGET-003", "scope": "target-lifecycle", "owner": "task-session", "status": "open", "claim": "SWU-NDR-012 and later closeout work remain gated."},
+    {"id": "RB-AUDIT-001", "scope": "audit", "owner": "TASK-NDR-VERIFY", "status": "deferred", "claim": "Final recomposition remains after canaries and historical adjudication."}
+  ],
+  "distill": {"result": "skipped", "rationale": "one indivisible contract-completion behavior covers both declared join terminal branches and prevents another partial repair loop"},
+  "result": "pass",
+  "nextRoute": "task-session execute TASK-NDR-004/SWU-NDR-010R",
+  "next_route": "task-session execute TASK-NDR-004/SWU-NDR-010R",
+  "validation": [
+    {"check": "context coverage", "result": "pass", "evidence": "12/12 obligations covered"},
+    {"check": "inventory lookup", "result": "pass-with-no-match", "evidence": "parseable index.json, 202 entries, no selected matches"},
+    {"check": "dispatch validation", "result": "pass", "evidence": "dispatch-validation.json has zero blocks and flags"},
+    {"check": "mutation boundary", "result": "pass", "evidence": "nine approved targets changed; runtime and canary evidence untouched"},
+    {"check": "manifest dependency graph", "result": "pass", "evidence": "all dependency IDs resolve and SWU-NDR-010R is next"},
+    {"check": "execution dispatch validation", "result": "pass", "evidence": "zero blocks and flags"},
+    {"check": "blocked evidence immutability", "result": "pass", "evidence": "three anchor hashes unchanged"},
+    {"check": "public boundary", "result": "pass", "evidence": "apply scope contains no private names or paths"}
+  ],
+  "apply_approval": "apply-authorization.json",
+  "apply_validation": "apply-validation.json",
+  "apply_receipt": "apply-receipt.json",
+  "applied_at": "2026-07-22T16:20:19Z"
+}

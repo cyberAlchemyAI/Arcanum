@@ -1,0 +1,103 @@
+{
+  "dispatch_id": "native-dispatch-runner-failure-canary",
+  "intent": {
+    "raw": "Execute the failure-withholding native canary through the installed Orchestrate entrypoint.",
+    "objective": "Prove a real bound non-pass first-wave receipt blocks the gate and withholds the dependent native spawn.",
+    "target_artifact": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/result.json"
+  },
+  "mode": "mixed",
+  "techniques": ["sequence", "observability_grouping"],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "A native helper isolates the host-bound failure result from parent-owned gate reduction.",
+    "explanation": "One bounded helper returns the intentional non-pass receipt; Orchestrate alone owns the gate and dependent withholding.",
+    "context": ["The first wave has exactly one read-only native helper.", "The dependent role must never be spawned."],
+    "binding_mode": "capability-bound",
+    "execution_owner": "orchestrate",
+    "roles": [
+      {
+        "role_id": "nonpass-check",
+        "purpose": "Read the intentional failure sentinel and return a non-pass canary result.",
+        "owns": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/inputs/nonpass-sentinel.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/", "arcana/", "spells/"],
+        "depends_on_roles": [],
+        "input_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/inputs/nonpass-sentinel.json"],
+        "output_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json"],
+        "applies_to_steps": ["s-nonpass"]
+      },
+      {
+        "role_id": "dependent-proof",
+        "purpose": "Write a proof artifact only if the first-wave receipt passes.",
+        "owns": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/dependent-proof.json",
+        "capability_ref": "task-session",
+        "capability_target": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/dependent/output.json",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "artifact-only",
+        "write_scope": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/dependent/output.json", "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/dependent-proof.json"],
+        "forbidden_write_scopes": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/", "arcana/", "spells/"],
+        "depends_on_roles": ["nonpass-check"],
+        "input_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json"],
+        "output_refs": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/dependent-proof.json"],
+        "applies_to_steps": ["s-dependent"]
+      }
+    ],
+    "execution_waves": [
+      {"wave_id": "checks", "role_ids": ["nonpass-check"], "parallel": false, "join_policy": "all", "gate_after": "g-checks", "on_incomplete": "block"},
+      {"wave_id": "dependent", "role_ids": ["dependent-proof"], "parallel": false, "join_policy": "all", "depends_on_waves": ["checks"], "on_incomplete": "block"}
+    ],
+    "parallelism": "mixed",
+    "join_policy": "parent_synthesis",
+    "authorization": "approved",
+    "permission_prompt": "Execute the user-authorized failure-first native canary?",
+    "receipt_requirements": ["agent_id", "role_id", "spawn_status", "join_status", "close_status", "dispatch_id", "step_id", "capability_ref", "capability_target", "capability_mode", "wave_id", "write_scope", "status", "artifacts", "validation", "observer_status", "blockers", "residue", "reroute", "handoff_note"]
+  },
+  "subagent_lifecycle": {"status": "none", "agents": []},
+  "steps": [
+    {
+      "step_id": "s-nonpass",
+      "name": "Run intentional non-pass check",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "inputs": [{"kind": "external_context", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/inputs/nonpass-sentinel.json"}],
+      "outputs": [{"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json"}],
+      "join_policy": "all",
+      "stop_conditions": ["return non-pass when the intentional sentinel is present"]
+    },
+    {
+      "step_id": "s-dependent",
+      "name": "Write dependent proof",
+      "capability_ref": "task-session",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["s-nonpass"],
+      "techniques": ["sequence", "observability_grouping"],
+      "inputs": [{"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json"}],
+      "outputs": [{"kind": "receipt", "ref": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/dependent-proof.json"}],
+      "stop_conditions": ["stop unless the required receipt passes"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-checks",
+      "kind": "validation",
+      "owner": "orchestrate",
+      "condition": "The non-pass check receipt must pass before the dependent wave starts.",
+      "applies_after_wave": "checks",
+      "requires_role_receipts": ["formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipts/nonpass-check.json"],
+      "on_fail": "block"
+    }
+  ],
+  "native_stage_receipts": [],
+  "observability": {"dispatch_id_required": true, "trace_events": ["dispatch_validated", "action_attempted", "host_spawn_returned", "receipt_joined", "gate_decided"], "signal_grouping": "dispatch_id and run_id"},
+  "promotion_guardrails": ["The canary is host-specific execution evidence, not lifecycle authority.", "No canary write may escape the failure folder."]
+}

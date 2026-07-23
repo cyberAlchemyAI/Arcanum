@@ -1,0 +1,36 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-004", "swu_id": "SWU-NDR-009", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:35:44Z"},
+  "coverage": {"strict": true, "obligation_count": 9, "covered_count": 9, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "compiled order"},
+    {"id": "O2", "status": "covered", "summary": "stop all further spawns"},
+    {"id": "O3", "status": "covered", "summary": "preserve known native ids"},
+    {"id": "O4", "status": "covered", "summary": "register and reconcile once"},
+    {"id": "O5", "status": "covered", "summary": "bounded interrupt and terminal event"},
+    {"id": "O6", "status": "covered", "summary": "blocked result with residue"},
+    {"id": "O7", "status": "covered", "summary": "zero dependents"},
+    {"id": "O8", "status": "covered", "summary": "causal event order"},
+    {"id": "O9", "status": "covered", "summary": "tests only preserve generated drift"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-004.md", "selector": "SWU-NDR-009", "sha256": "ae46ff5a880778f98aa48e619c11ed85e8e22851964f4ff664932c826514d49e", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-008/receipt.json", "selector": "dependency pass and no-dependent invariant", "sha256": "31a42b3e4f7518e7a3ba1232eb963a2c72f75d3cb2687470868db781cd9ae424", "obligations": ["O2", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/EXECUTION-PACK.md", "selector": "recovery rule", "sha256": "249fe36502160c6943808c8977effe8a57f7c294b204628224ef6f023fd8cd98", "obligations": ["O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "partial-spawn risk and control", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/SKILL.md", "selector": "spawn failure and join recovery contracts", "sha256": "5ae21868ee0b2c446620ebeef5a87a0b951a8c096d15c242f84a2200152db3ad", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8"]},
+    {"path": "runtime/orchestrate/hosts/codex-native.md", "selector": "native operation mappings", "sha256": "62e9bb15378f5e15282a209324187d18d5ea1843f887468c2e38a166836d4a4f", "obligations": ["O3", "O4", "O5", "O8"]},
+    {"path": "runtime/orchestrate/tests/fixtures/compile/expected-run-plan.json", "selector": "three compiled actions", "sha256": "a2ed87de39d9600cf17980b978e9c46ab57206c8bb5b62a5bd2d3809e84a017e", "obligations": ["O1", "O2", "O7"]},
+    {"path": "runtime/orchestrate/tests/native-spawn/test_native_spawn_contract.py", "selector": "one-call and host-error semantics", "sha256": "2df3659e7d9338f46c745c7cf6d0d0c9aa3c5c9524b8280cde56e97d5c0a1391", "obligations": ["O1", "O2", "O3", "O8"]},
+    {"path": "runtime/orchestrate/tests/native-join/test_native_join_contract.py", "selector": "pending-set and interrupt semantics", "sha256": "1c5b640aec0ce0ec3d563dd235f96fe1ace793de4fdca1e593c00ebf22b06580", "obligations": ["O3", "O4", "O5", "O8"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Compose existing spawn and join contracts in a host stub."},
+    {"id": "D2", "classification": "constraint", "choice": "Second of three actions fails; third cannot be attempted."},
+    {"id": "D3", "classification": "assumption", "choice": "Successful sibling remains unresolved and exercises interrupt cleanup."},
+    {"id": "D4", "classification": "constraint", "choice": "Residue binds every known agent to its action and terminal state."},
+    {"id": "D5", "classification": "constraint", "choice": "Add excluded tests only; preserve generated zero drift."}
+  ],
+  "write_scope": ["runtime/orchestrate/tests/partial-wave/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-009/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-010", "on_fail": "task-session:execute SWU-NDR-009 with changed evidence"}
+}

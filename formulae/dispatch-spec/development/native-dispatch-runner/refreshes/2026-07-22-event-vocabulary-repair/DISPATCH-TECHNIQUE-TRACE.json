@@ -1,0 +1,23 @@
+{
+  "schema_version": "arcanum.invoke.dispatch-technique-trace.v0.1",
+  "mode": "refresh",
+  "dispatch_required": true,
+  "dispatch_path": "refresh.dispatch.json",
+  "selected": [
+    {"technique_id": "sequence", "trigger": "repair must precede failure retry and failure pass must precede success", "affected": ["refresh.dispatch.json steps R2-R5"], "validation": "every dependent step consumes an earlier receipt"},
+    {"technique_id": "scu_swu_reduction", "trigger": "the blocker needs one independently acceptable repair unit", "affected": ["proposed SWU-NDR-010R"], "validation": "one primary behavior and one fixture-matrix acceptance boundary"},
+    {"technique_id": "recomposition_proof", "trigger": "repair must restore rather than replace the existing causal model", "affected": ["SWU-NDR-010R handoff", "NDR-R7"], "validation": "existing event-order cases and both join lifecycle branches pass together"},
+    {"technique_id": "validation_loop", "trigger": "the first native attempt exposed a deterministic schema failure", "affected": ["repair tests", "SWU-NDR-011 retry"], "validation": "fixture matrix first, live failure canary second"},
+    {"technique_id": "execution_receipt_handoff", "trigger": "Invoke hands applied planning state to Task Session", "affected": ["R2-R5 receipts"], "validation": "each route transition requires a concrete pass receipt"},
+    {"technique_id": "concrete_path_evidence", "trigger": "the blocker and retry must cite immutable artifacts", "affected": ["refresh report", "manifest", "canary retry"], "validation": "no glob-only or prose-only proof"},
+    {"technique_id": "residue_ledger", "trigger": "blocked attempt and unexercised timeout branch must remain visible", "affected": ["cross-task-gaps.md", "manifest"], "validation": "owner and repair route are named"},
+    {"technique_id": "owner_boundary_check", "trigger": "Invoke authors the route while Task Session owns implementation", "affected": ["refresh report", "dispatch gates"], "validation": "proposal grants no implementation or promotion authority"},
+    {"technique_id": "approval_semantics_map", "trigger": "proposal-only refresh needs explicit apply authorization", "affected": ["R1/R2 gate"], "validation": "apply approval is separate from Task Session execution authorization"}
+  ],
+  "skipped": [
+    {"technique_id": "frame_handoff", "reason": "concrete artifact handles and receipts are sufficient; no protected narrative context crosses owners"},
+    {"technique_id": "authority_split_gate", "reason": "the existing Invoke/Task Session/Orchestrate authority split is already explicit; owner_boundary_check validates it without a new unresolved owner decision"},
+    {"technique_id": "observability_grouping", "reason": "no execution occurs in proposal-only mode; apply and Task Session receipts already carry stable task/SWU/run identities"}
+  ],
+  "validation_result": "pass"
+}

@@ -1,0 +1,92 @@
+{
+  "schema_version": "arcanum.task-session.receipt.v0.1",
+  "session_id": "task-session-swu-ndr-002-20260722",
+  "run_id": "swu-ndr-002-local",
+  "dispatch_id": "dispatch-native-dispatch-runner-v1",
+  "step_id": "S2",
+  "capability_ref": "task-session",
+  "task_id": "TASK-NDR-001",
+  "swu_id": "SWU-NDR-002",
+  "status": "pass",
+  "runtime": "local",
+  "adapter": null,
+  "authorization_basis": "The user instructed Task Session to continue until the next blocker.",
+  "context_pack": {
+    "markdown": "work-pack/session-evidence/SWU-NDR-002/context-pack.md",
+    "json": "work-pack/session-evidence/SWU-NDR-002/context-pack.json",
+    "source_count": 8,
+    "obligation_coverage": 100,
+    "strict": true
+  },
+  "decisions": [
+    "Use action_id as the primary receipt join key.",
+    "Use scalar receipt validation status for deterministic gating.",
+    "Treat gate_block as a valid reducer result rather than a process failure.",
+    "Continue action numbering across waves."
+  ],
+  "changed_paths": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/receipt.schema.json",
+    "runtime/orchestrate/schemas/gate-decision.schema.json",
+    "runtime/orchestrate/schemas/action-set.schema.json",
+    "runtime/orchestrate/tests/fixtures/reduce/pass/spawn-0001.json",
+    "runtime/orchestrate/tests/fixtures/reduce/pass/spawn-0002.json",
+    "runtime/orchestrate/tests/fixtures/reduce/pass/spawn-0003.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-pass-gate.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-pass-state.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-pass-actions.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-block-gate.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-block-state.json",
+    "runtime/orchestrate/tests/fixtures/reduce/expected-block-actions.json",
+    "runtime/orchestrate/tests/test_reduce_receipts.py",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/context-pack.md",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/context-pack.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/validation.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/receipt.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/invocation-signal.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/continuation-route.json",
+    "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-002/TASK-SESSION-REPORT.md"
+  ],
+  "artifacts": [
+    "runtime/orchestrate/scripts/native_dispatch_coordinator.py",
+    "runtime/orchestrate/schemas/receipt.schema.json",
+    "runtime/orchestrate/schemas/gate-decision.schema.json",
+    "runtime/orchestrate/schemas/action-set.schema.json",
+    "runtime/orchestrate/tests/test_reduce_receipts.py"
+  ],
+  "validation_commands": [
+    "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py runtime/orchestrate/tests/test_reduce_receipts.py",
+    "native_dispatch_coordinator.py reduce <dispatch> --state <state> --run-plan <plan> --receipts-dir <dir> --output-dir <dir>"
+  ],
+  "validation_result": "pass",
+  "validation": [
+    "12 deterministic tests pass",
+    "passing receipts produce gate_pass and exactly spawn-0004",
+    "non-pass, missing, mismatched, and malformed receipts produce gate_block and zero actions",
+    "replayed reduction is byte-stable",
+    "runtime JSON schemas and fixtures parse"
+  ],
+  "content_hashes": {
+    "coordinator": "3bfbcf1a947d45ac77c1b917f1fe8c26ca6419124f0fd549ebcca829accb2d70",
+    "receipt_schema": "8eeb4acb6274a7343aa4ad3d89f1705af660dc8b82883028927eb15198e694e4",
+    "gate_decision_schema": "ba2faf6fa7211f907d22c83dc3614f1e7e4b525dd4a340b08bf306b6e53b5453",
+    "action_set_schema": "b0dcac1c11e4e5653c2623aec09d79cb83d476a406c1e6aece7a029f9d175780",
+    "tests": "91c11f854949dc352082484f2f0093b46f716c1995de3d2672647461db874cb5"
+  },
+  "observer_status": "task-local-evidence",
+  "subagent_closeout": "n/a",
+  "blockers": [],
+  "residue": [
+    "Native host preflight remains SWU-NDR-003.",
+    "Host joining remains SWU-NDR-005."
+  ],
+  "handoff_note": "L0 deterministic coordination passes and unlocks TASK-NDR-002 / SWU-NDR-003.",
+  "next_swu": "SWU-NDR-003",
+  "next_route": {
+    "capability": "task-session",
+    "mode": "execute",
+    "target": "work-pack/tasks/TASK-NDR-002.md#SWU-NDR-003",
+    "authorization": "matched-by-until-blocker-instruction"
+  }
+}

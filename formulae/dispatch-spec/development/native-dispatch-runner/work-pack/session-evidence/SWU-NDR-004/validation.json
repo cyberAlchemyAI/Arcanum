@@ -1,0 +1,26 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-002",
+  "swu_id": "SWU-NDR-004",
+  "validated_at": "2026-07-22T15:13:38Z",
+  "result": "pass",
+  "commands": [
+    {"command": "python3 runtime/orchestrate/tests/native-spawn/test_native_spawn_contract.py -v", "result": "pass", "summary": "5 native spawn contract tests passed"},
+    {"command": "python3 -m unittest runtime/orchestrate/tests/test_compile_actions.py runtime/orchestrate/tests/test_reduce_receipts.py runtime/orchestrate/tests/preflight/test_preflight_contract.py", "result": "pass", "summary": "18 compiler, reducer, and preflight regression tests passed"},
+    {"command": "validate native-run action, request, ordered JSONL events, receipt, and inventory", "result": "pass", "summary": "live event order is attempt, host return, proof-helper join; one host call and one bound native identifier"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "no private paths/project names and no trailing whitespace found"}
+  ],
+  "done_criteria": [
+    {"criterion": "spawn event persisted at attempt time", "result": "pass", "evidence": "native-run/events.jsonl sequence 1 predates host return"},
+    {"criterion": "host called exactly once with bounded role context", "result": "pass", "evidence": "native-run/host-request.json and native-spawn-receipt.json host_call_count=1"},
+    {"criterion": "returned agent identifier bound to action", "result": "pass", "evidence": "spawn-0001 -> /root/ndr004_native_spawn_proof_spawn_0001"},
+    {"criterion": "no uncompiled action can run", "result": "pass", "evidence": "unknown-action and replay tests block before host call"},
+    {"criterion": "host error blocks without retry", "result": "pass", "evidence": "test_host_error_records_attempt_and_blocks_without_retry"},
+    {"criterion": "all spawned helpers joined or closed", "result": "pass", "evidence": "native-run/agent-inventory.json open_from_swu=0"}
+  ],
+  "bounded_recovery": [
+    {"attempt": 1, "result": "fail", "cause": "continuation schema lookup used an unresolved relative root", "repair": "resolved the Arcanum root before locating the parent schema"},
+    {"attempt": 2, "result": "fail", "cause": "continuation candidate and dispatch used descriptive values outside the canonical enums", "repair": "normalized authorization_status to matched, dispatch status to not-requested, and helper closeout to pass"},
+    {"attempt": 3, "result": "pass", "cause": "none", "repair": "canonical continuation schema accepted the normalized route"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "arcanum.task-session.validation.v0.1",
+  "task_id": "TASK-NDR-004",
+  "swu_id": "SWU-NDR-009",
+  "validated_at": "2026-07-22T15:38:33Z",
+  "result": "pass",
+  "commands": [
+    {"command": "python3 runtime/orchestrate/tests/partial-wave/test_partial_wave_recovery.py -v", "result": "pass", "summary": "3 partial-wave recovery tests passed"},
+    {"command": "receipt admission, bootstrap generation, native join/spawn, compiler/reducer/preflight regressions", "result": "pass", "summary": "37 earlier tests passed"},
+    {"command": "compare canonical coordinator with installed packages", "result": "pass", "summary": "generated selected-support drift remains zero"},
+    {"command": "public-boundary and trailing-whitespace scans", "result": "pass", "summary": "new public tests/evidence contain no private paths/names or trailing whitespace"}
+  ],
+  "done_criteria": [
+    {"criterion": "no additional role spawned after failure", "result": "pass", "evidence": "three-action wave has two spawn attempts and spawn-0003 remains unattempted"},
+    {"criterion": "every known agent terminal", "result": "pass", "evidence": "unresolved path interrupts once; completed path closes without interrupt"},
+    {"criterion": "ordered host-call trace", "result": "pass", "evidence": "expected-unresolved-trace.json"},
+    {"criterion": "blocked result with residue", "result": "pass", "evidence": "partial-wave-result.json binds spawn-0001/native-agent-partial-001/interrupted"},
+    {"criterion": "no dependent actions", "result": "pass", "evidence": "dependent_action_ids and dependent_actions are empty"},
+    {"criterion": "existing contracts compose without rewrite", "result": "pass", "evidence": "frontmatter operation/failure assertions pass"}
+  ],
+  "bounded_recovery": [
+    {"attempt": 1, "result": "fail", "cause": "partial-wave result schema missed the closing brace for the known_agents array property", "repair": "closed the array property after its item schema"},
+    {"attempt": 2, "result": "pass", "cause": "none", "repair": "all partial-wave scenarios validated"}
+  ]
+}

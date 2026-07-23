@@ -1,0 +1,52 @@
+{
+  "schema_version": "dispatch-spec.native-canary-result.v0.1",
+  "run_id": "20260722T063407Z-native-host-canary",
+  "criterion": "criterion.json",
+  "scenario_order": [
+    "failure-withholding",
+    "success-path"
+  ],
+  "native_agents": {
+    "tension_gate_infrastructure": 2,
+    "canary_workers": 5,
+    "dispatch_ledger_worker_total": 5,
+    "note": "Gate infrastructure is intentionally excluded from the dispatch ledger worker count."
+  },
+  "assertions": {
+    "tension_gate_double_pass": true,
+    "failure_scenario_passed_all_assertions": true,
+    "success_scenario_passed_all_assertions": true,
+    "failure_completed_before_success_workers_returned": true,
+    "success_gate_persisted_before_artifact_output": true,
+    "failure_artifact_worker_spawn_count_is_zero": true,
+    "success_artifact_worker_spawn_count_is_one": true,
+    "all_canary_artifact_scopes_are_inside_run_root": true,
+    "local_dispatch_ledger_has_dispatch_and_close_rows": true,
+    "publication_boundary_scan_is_clean": true
+  },
+  "ordering_evidence": {
+    "failure_result_mtime_ns": 1784702486852495182,
+    "success_first_worker_receipt_mtime_ns": 1784702541083902788,
+    "success_gate_decision_mtime_ns": 1784702589122016875,
+    "success_artifact_output_mtime_ns": 1784702649894157988
+  },
+  "validator_evidence": {
+    "failure": {
+      "expected": "block",
+      "observed": "block",
+      "reason": "subagent lifecycle block plus native s1 block receipt"
+    },
+    "success": {
+      "expected": "pass",
+      "observed": "pass"
+    }
+  },
+  "evidence_hashes_sha256": {
+    "failure/result.json": "5998710d56ad43423528a0422b21cd890a2ba971e41f81e7ca73343b67b9c7ad",
+    "success/result.json": "577a42e07fa431953ef93e1946a0d962356b03553ad9d6e4c5e3d7424cead5db",
+    "failure/closeout.dispatch.json": "0978a9f996a4891e738ed7e0d36b4a9f132a921800e0e0675bb11c9605bb92b9",
+    "success/closeout.dispatch.json": "594e1e1b09df6196a9ff96d06415f43da66f844b0c449e58d4f8ab7f3e13c1a8"
+  },
+  "verdict": "KEEP",
+  "bounded_claim": "This native host run withheld the downstream worker after a required non-pass receipt and spawned it only after both required receipts passed and the parent persisted the passing gate decision."
+}

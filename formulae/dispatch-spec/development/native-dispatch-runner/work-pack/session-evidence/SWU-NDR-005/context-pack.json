@@ -1,0 +1,38 @@
+{
+  "schema_version": "arcanum.context-pack.v0.2",
+  "identity": {"task_id": "TASK-NDR-002", "swu_id": "SWU-NDR-005", "mode": "standard", "handoff": "none", "evidence_class": "task-session-context", "built_at": "2026-07-22T15:16:20Z"},
+  "coverage": {"strict": true, "obligation_count": 10, "covered_count": 10, "blocked_count": 0, "percent": 100},
+  "obligations": [
+    {"id": "O1", "status": "covered", "summary": "complete persisted action-to-agent bindings"},
+    {"id": "O2", "status": "covered", "summary": "exactly-once wait per known agent"},
+    {"id": "O3", "status": "covered", "summary": "declared identity binding"},
+    {"id": "O4", "status": "covered", "summary": "terminal close or bounded interrupt"},
+    {"id": "O5", "status": "covered", "summary": "complete canonical receipt set"},
+    {"id": "O6", "status": "covered", "summary": "exact reducer output returned"},
+    {"id": "O7", "status": "covered", "summary": "non-pass, missing, and mismatch block"},
+    {"id": "O8", "status": "covered", "summary": "causal wait and close events"},
+    {"id": "O9", "status": "covered", "summary": "multi-wave and canary behavior excluded"},
+    {"id": "O10", "status": "covered", "summary": "bounded writes and evidence synchronization"}
+  ],
+  "selected_sources": [
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-002.md", "selector": "SWU-NDR-005", "sha256": "c318e3028749026a02d48041b21c643408d7958b06d2e51d1dbca624ecb80113", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-004/receipt.json", "selector": "pass dependency and native identifier binding", "sha256": "81f8ef53021b1c594d2538c079255ed82ed44532a4971df0bac8001a14b0d831", "obligations": ["O1", "O2", "O10"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/native-dispatch-runner.contract.json", "selector": "actions, receipt requirements, invariants", "sha256": "b59bf91da2cd63f7ed1bf0a67bf3377ea873931645017dea0dcba39120199094", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/ARCHITECTURE.json", "selector": "reducer boundary and failure rule", "sha256": "08e7ed6be1796f1003e5b8d306a823b0f4e5f47795c0acd58b0fa04670427285", "obligations": ["O3", "O4", "O5", "O6", "O7"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/DESIGN.md", "selector": "join sequence, evidence view, partial-spawn control", "sha256": "cbbbbb22a9ba383fadfdee3f7c6045bc192c37b0edfbbfd5ee3efef1eea1e338", "obligations": ["O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9"]},
+    {"path": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/shared/context.md", "selector": "shared execution constraints", "sha256": "9a96c26a6f1f54a0d6b065be7029458d5f649167bfcacb5d030b0585f89283b7", "obligations": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10"]},
+    {"path": "runtime/orchestrate/SKILL.md", "selector": "current native execution contract", "sha256": "0360daeb15a808c069a288e9bda584fe08d9f6f08cb4747387a5d5ba8e659541", "obligations": ["O1", "O2", "O3", "O4", "O8", "O9"]},
+    {"path": "runtime/orchestrate/hosts/codex-native.md", "selector": "wait, interrupt, and inventory mappings", "sha256": "bdfa9254a12c4b951bd78371ec949b205eecc47a1e8741e66412c4556e6f4f72", "obligations": ["O2", "O4", "O8"]},
+    {"path": "runtime/orchestrate/schemas/receipt.schema.json", "selector": "canonical normalized receipt", "sha256": "8eeb4acb6274a7343aa4ad3d89f1705af660dc8b82883028927eb15198e694e4", "obligations": ["O3", "O5", "O7"]},
+    {"path": "runtime/orchestrate/scripts/native_dispatch_coordinator.py", "selector": "reduce_wave_receipts", "sha256": "3bfbcf1a947d45ac77c1b917f1fe8c26ca6419124f0fd549ebcca829accb2d70", "obligations": ["O5", "O6", "O7"]},
+    {"path": "runtime/orchestrate/tests/test_reduce_receipts.py", "selector": "gate acceptance cases", "sha256": "91c11f854949dc352082484f2f0093b46f716c1995de3d2672647461db874cb5", "obligations": ["O5", "O6", "O7"]}
+  ],
+  "decisions": [
+    {"id": "D1", "classification": "assumption", "choice": "Use deterministic host stubs for join edge cases."},
+    {"id": "D2", "classification": "constraint", "choice": "Completed is logically closed; unresolved is interrupted once."},
+    {"id": "D3", "classification": "constraint", "choice": "Identity mismatch becomes a blocking expected-action receipt."},
+    {"id": "D4", "classification": "constraint", "choice": "Return the existing reducer output without reinterpretation."}
+  ],
+  "write_scope": ["runtime/orchestrate/SKILL.md", "runtime/orchestrate/hosts/codex-native.md", "runtime/orchestrate/tests/native-join/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-005/", "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/swu-manifest.json"],
+  "next_route": {"on_pass": "task-session:execute SWU-NDR-006", "on_fail": "task-session:execute SWU-NDR-005 with changed evidence"}
+}

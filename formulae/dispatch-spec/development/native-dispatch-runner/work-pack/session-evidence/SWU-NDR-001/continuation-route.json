@@ -1,0 +1,60 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-001-20260722",
+  "source": {
+    "capability": "task-session",
+    "mode": "execute",
+    "result": "pass",
+    "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-001/receipt.json",
+    "blocker_fingerprint": "terminal-pass:ae040d21191b637216b84eb388c38f91abc551fbce4ed91f025c802c8f1ea25c",
+    "legacy_adaptation": false
+  },
+  "authorization": {
+    "requested": false,
+    "exact_route": null,
+    "evidence": null
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "local",
+      "owner": "Task Session",
+      "evidence": [
+        "SWU-NDR-001 receipt status is pass",
+        "TASK-NDR-001 declares SWU-NDR-002 depends on SWU-NDR-001",
+        "swu-manifest.json names SWU-NDR-002 as the next unit"
+      ],
+      "required_inputs": [
+        "work-pack/tasks/TASK-NDR-001.md#SWU-NDR-002",
+        "work-pack/session-evidence/SWU-NDR-001/receipt.json",
+        "fresh SWU-NDR-002 context pack",
+        "explicit Task Session execution authorization"
+      ],
+      "missing_inputs": ["explicit Task Session execution authorization for SWU-NDR-002"],
+      "mutation_risk": "medium",
+      "approval_required": true,
+      "authorization_status": "missing",
+      "expected_receipt": "A Task Session receipt proving deterministic receipt reduction and gate output.",
+      "fallback": "Stop after exposing the route; do not re-enter Task Session automatically."
+    }
+  ],
+  "selection": {
+    "status": "not-authorized",
+    "candidate_rank": 1,
+    "reason": "The next unit is unambiguous, but --follow-next-route and exact execution authorization were not provided."
+  },
+  "dispatch": {
+    "status": "not-requested",
+    "runtime": null,
+    "owner_receipt": null,
+    "helper_closeout": "n/a"
+  },
+  "owner_boundary": "pass",
+  "returned_next_route": {
+    "capability": "task-session",
+    "mode": "execute",
+    "target": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/tasks/TASK-NDR-001.md#SWU-NDR-002"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "continuation-swu-ndr-008-20260722",
+  "source": {"capability": "task-session", "mode": "execute", "result": "pass", "receipt": "formulae/dispatch-spec/development/native-dispatch-runner/work-pack/session-evidence/SWU-NDR-008/receipt.json", "blocker_fingerprint": "terminal-pass:invalid-receipts-withhold", "legacy_adaptation": false},
+  "authorization": {"requested": true, "exact_route": "task-session:execute SWU-NDR-009", "evidence": "The user instructed Task Session to continue sequentially until the next genuine blocker."},
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "task-session",
+      "mode": "execute",
+      "mutation_mode": "partial-wave-reconciliation",
+      "owner": "Task Session",
+      "evidence": ["SWU-NDR-008 passes", "SWU-NDR-009 depends only on SWU-NDR-008"],
+      "required_inputs": ["TASK-NDR-004 SWU-NDR-009", "SWU-NDR-008 receipt", "fresh context pack", "native spawn/join contracts", "partial-wave host stub"],
+      "missing_inputs": [],
+      "mutation_risk": "medium",
+      "approval_required": false,
+      "authorization_status": "matched",
+      "expected_receipt": "Task Session receipt proving partial spawn cleanup, zero further spawns, blocked result, and residue.",
+      "fallback": "Block with every known live agent and cleanup attempt named explicitly."
+    }
+  ],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The route is dependency-ready and covered by the user's until-blocker instruction."},
+  "dispatch": {"status": "not-requested", "runtime": "local-host-stub", "owner_receipt": null, "helper_closeout": "n/a"},
+  "owner_boundary": "pass",
+  "returned_next_route": {"capability": "task-session", "mode": "execute", "target": "work-pack/tasks/TASK-NDR-004.md#SWU-NDR-009"}
+}

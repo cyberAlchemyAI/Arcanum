@@ -1,0 +1,53 @@
+{
+  "schema_version": "arcanum.work-pack.swu-manifest.v0.1",
+  "work_pack": "native-dispatch-runner",
+  "execution_policy": "one-swu-per-task-session",
+  "first_swu": "SWU-NDR-001",
+  "swus": [
+    {
+      "id": "SWU-NDR-001",
+      "task": "TASK-NDR-001",
+      "wave": "W0",
+      "depends_on": [],
+      "behavior": "compile first eligible action set",
+      "status": "pass",
+      "receipt": "work-pack/session-evidence/SWU-NDR-001/receipt.json",
+      "validation_result": "pass"
+    },
+    {
+      "id": "SWU-NDR-002",
+      "task": "TASK-NDR-001",
+      "wave": "W0",
+      "depends_on": ["SWU-NDR-001"],
+      "behavior": "reduce wave receipts into one gate decision",
+      "status": "pass",
+      "receipt": "work-pack/session-evidence/SWU-NDR-002/receipt.json",
+      "validation_result": "pass"
+    },
+    {
+      "id": "SWU-NDR-003",
+      "task": "TASK-NDR-002",
+      "wave": "W1",
+      "depends_on": ["SWU-NDR-002"],
+      "behavior": "execute grammar and preflight",
+      "status": "pass",
+      "receipt": "work-pack/session-evidence/SWU-NDR-003/receipt.json",
+      "validation_result": "pass"
+    },
+    {"id": "SWU-NDR-004", "task": "TASK-NDR-002", "wave": "W1", "depends_on": ["SWU-NDR-003"], "behavior": "execute one native spawn action", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-004/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-005", "task": "TASK-NDR-002", "wave": "W1", "depends_on": ["SWU-NDR-004"], "behavior": "join one wave and return receipts", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-005/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-006", "task": "TASK-NDR-003", "wave": "W1", "depends_on": ["SWU-NDR-005"], "behavior": "generate Orchestrate from canonical source", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-006/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-007", "task": "TASK-NDR-003", "wave": "W1", "depends_on": ["SWU-NDR-006"], "behavior": "refresh and drift-check installed surfaces", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-007/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-008", "task": "TASK-NDR-004", "wave": "W2", "depends_on": ["SWU-NDR-005"], "behavior": "withhold dependents on invalid required receipts", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-008/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-009", "task": "TASK-NDR-004", "wave": "W2", "depends_on": ["SWU-NDR-008"], "behavior": "reconcile a partially spawned wave", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-009/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-010", "task": "TASK-NDR-004", "wave": "W2", "depends_on": ["SWU-NDR-009"], "behavior": "validate causal event ordering", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-010/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-010R", "task": "TASK-NDR-004", "wave": "W2", "depends_on": ["SWU-NDR-010"], "behavior": "validate the complete native join lifecycle event vocabulary", "status": "pass", "receipt": "work-pack/session-evidence/SWU-NDR-010R/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-011", "task": "TASK-NDR-005", "wave": "W3", "depends_on": ["SWU-NDR-007", "SWU-NDR-008", "SWU-NDR-010", "SWU-NDR-010R"], "behavior": "run failure-withholding canary", "status": "pass", "receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/receipt.json", "validation_result": "pass", "retry_scope": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/", "attempts": [{"attempt": "attempt-001", "status": "block", "receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/receipt.json"}, {"attempt": "retry-001", "status": "pass", "receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/failure/retry-001/receipt.json"}]},
+    {"id": "SWU-NDR-012", "task": "TASK-NDR-005", "wave": "W3", "depends_on": ["SWU-NDR-011"], "behavior": "run success-progression canary", "status": "pass", "receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/success/receipt.json", "validation_result": "pass"},
+    {"id": "SWU-NDR-013", "task": "TASK-NDR-005", "wave": "W3", "depends_on": ["SWU-NDR-012"], "behavior": "adjudicate historical canary proof", "status": "pass", "receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/summary.json", "validation_result": "pass"}
+  ],
+  "closure_task": "TASK-NDR-VERIFY",
+  "closure_exemption": "Verification recomposes existing receipts and adds no implementation behavior.",
+  "closure_status": "pass",
+  "closure_receipt": "formulae/dispatch-spec/development/runtime-integration/native-dispatch-runner-canary/closeout/receipt.json"
+}
