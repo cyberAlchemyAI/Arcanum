@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/decision-gate/option-admissibility-receipt/1-0-0",
+  "title": "DecisionGateOptionAdmissibilityReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionId",
+    "requestDigest",
+    "routeOutcome",
+    "decisionGateRequired",
+    "admissibleOptionIds",
+    "presentedOptionIds",
+    "directOptionId",
+    "ownerGate",
+    "rejectedOptions",
+    "reasons"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "decisionId": {"type": ["string", "null"], "minLength": 1},
+    "requestDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "routeOutcome": {"enum": ["block", "direct", "gate"]},
+    "decisionGateRequired": {"type": "boolean"},
+    "admissibleOptionIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "presentedOptionIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "directOptionId": {"type": ["string", "null"], "minLength": 1},
+    "ownerGate": {"type": ["string", "null"], "minLength": 1},
+    "rejectedOptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["optionId", "reasons"],
+        "properties": {
+          "optionId": {"type": "string", "minLength": 1},
+          "reasons": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

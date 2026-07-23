@@ -4,7 +4,7 @@ description: "Use when: resolving blocker-level multi-option decisions before pl
 argument-hint: "<target-scope> [--profile generic|pilot|release|custom] [--output <path>]"
 tier: arcana
 domain: decision-governance
-version: 0.1.0
+version: 0.3.0
 origin: generalized from recurring pre-mutation decision governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions
 ---
@@ -51,25 +51,45 @@ If the user does not provide `--output`, write or update the decision record at 
 <process>
 1. Identify the target scope and the consequential work that is blocked by unresolved decisions.
 2. Gather only relevant context: user request, current plan, requirements, architecture notes, related docs, implementation files, tests, and known constraints.
-3. Enumerate unresolved decisions with more than one viable option.
-4. Classify each decision:
+3. Before asking a preference question, represent every candidate with a stable
+   option ID, option kind (`action`, `defer`, or `stop`), owner-supplied
+   structural status and evidence, reversibility, hazard class, rejection
+   reasons, and owning gate when one applies.
+4. Run `scripts/prefilter-options.py` with the canonical request and receipt
+   schemas. Decision Gate consumes structural verdicts from the caller or
+   owning validator; it does not manufacture application-specific validity.
+5. Route the admissible cardinality exactly:
+   - zero: return structural `BLOCK` with rejected options and reasons; ask no
+     preference question,
+   - one: return `direct` with the sole option and its owner gate; do not
+     manufacture consent or execute the route,
+   - two or more: continue through Decision Gate with only those admissible
+     options.
+6. Treat destructive, authority, promotion, publication, and spend hazards,
+   plus every irreversible candidate, as inadmissible unless a named owner gate
+   is present. The prefilter does not satisfy or bypass that gate.
+7. Persist the option-admissibility receipt with its request digest. Duplicate
+   option IDs, malformed evidence/status combinations, and invalid schema block
+   before human presentation.
+8. Enumerate unresolved decisions with two or more admissible options.
+9. Classify each decision:
    - blocker: must be resolved before consequential mutation,
    - deferrable: can be recorded and revisited later,
    - assumption: can proceed if clearly labeled.
-5. For each blocker decision, prepare concrete options with concise trade-offs:
+10. For each blocker decision, prepare concrete options with concise trade-offs:
    - option name,
    - benefit,
    - cost or risk,
    - when to choose it,
    - downstream impact.
-6. Ask the user each blocker decision:
+11. Ask the user each blocker decision:
    - prefer an ask-questions interface when available,
    - otherwise use plain conversation with numbered options,
    - always present a standing "Explain / more context" choice alongside the real
      options (see <context-option>); it is never one of the decision answers.
-7. Continue until all blocker decisions are resolved or the user explicitly defers/stops.
-8. If any blocker decision remains unresolved, return `BLOCK` and do not proceed with consequential mutation.
-9. Persist the decision record with:
+12. Continue until all blocker decisions are resolved or the user explicitly defers/stops.
+13. If any blocker decision remains unresolved, return `BLOCK` and do not proceed with consequential mutation.
+14. Persist the decision record with:
    - decision question,
    - considered options,
    - selected option,
@@ -78,7 +98,7 @@ If the user does not provide `--output`, write or update the decision record at 
    - timestamp,
    - remaining blockers,
    - deferred decisions or assumptions.
-10. Return a decision-gate summary with `PASS` or `BLOCK`, resolved decisions, remaining blockers, and the decision artifact path.
+15. Return a decision-gate summary with `PASS` or `BLOCK`, resolved decisions, remaining blockers, the option-admissibility receipt, and the decision artifact path.
 </process>
 
 <context-option>
@@ -101,8 +121,39 @@ option or explicitly defers or stops. The explain choice never counts as consent
 </context-option>
 
 <authority-rule>
-When this sigil returns `BLOCK`, consequential mutation should not proceed until the blocker decisions are resolved or the user explicitly overrides the gate.
+When this sigil returns `BLOCK`, consequential mutation must not proceed until
+the blocker decisions are resolved or a typed, matching, current, unconsumed
+non-protected override is consumed by `scripts/consume-override.py`. Ambient
+assent and free-form approval are not overrides. Destructive, authority,
+promotion, publication, and spend hazards always remain with their owning gate;
+the generic override consumer cannot admit them.
 </authority-rule>
+
+<override-consumption>
+An override is a durable one-use artifact conforming to
+`schemas/override.schema.json`. The live consumption request binds one run,
+target, normalized scope, and hazard class through
+`schemas/override-consumption-request.schema.json`.
+
+Before relying on an override:
+
+1. Run `scripts/consume-override.py` with the override artifact, live request,
+   and canonical schemas.
+2. Require exact target, scope, and hazard equality; valid issuance/expiry
+   timestamps; and `consumed_by=null`.
+3. For a non-protected override, the consumer acquires an exclusive lock,
+   re-reads the current artifact, persists the consuming run, and emits a
+   schema-valid consumption receipt.
+4. On every rejection, preserve the override bytes. A replay retains the first
+   consumer and returns `block`.
+5. For a protected hazard, return `owner_route_required=true` and route to the
+   owning gate. A free-form `owner_gate_receipt` path is not producer-owned
+   typed evidence and cannot make the generic override valid.
+
+The consumption receipt authorizes only the exact decision override it names.
+It is not reusable authority and does not satisfy another lifecycle,
+publication, promotion, destructive-action, or spend gate.
+</override-consumption>
 
 <observability>
 For reusable use, emit a post-run invocation signal using the repository-local observability package when available.
@@ -122,6 +173,16 @@ Recommended signals:
 A successful execution of this sigil must:
 
 - identify every visible blocker-level multi-option decision,
+- prefilter structurally inadmissible and unsafe-unowned candidates before
+  asking the user,
+- route zero/one/two-plus admissible candidates to block/direct/gate exactly,
+- preserve defer and stop as legitimate typed options,
+- never treat a direct route as consent, execution, or owner-gate satisfaction,
+- require exact target/scope/hazard/time bindings before consuming an override,
+- persist one-use consumption before returning an admitted override receipt,
+- preserve the first consumer on replay and leave rejected override bytes
+  unchanged,
+- route every protected hazard to its owning gate,
 - separate blocker decisions from deferrable decisions and assumptions,
 - present options with meaningful trade-offs,
 - offer a non-committal explain / more-context choice on every blocker decision and expand on request before asking again,
@@ -135,6 +196,17 @@ A successful execution of this sigil must:
 Avoid:
 
 - asking the user to decide trivial or fully reversible details,
+- presenting structurally inadmissible options to the user,
+- invoking Decision Gate when zero or one admissible option remains,
+- treating owner-supplied structural status as permission to bypass a protected
+  owner gate,
+- treating ambient assent, a path string, or an untyped approval note as an
+  override,
+- accepting stale, mismatched, already consumed, or scope-expanding override
+  evidence,
+- admitting a protected hazard through the generic override consumer,
+- returning override success before `consumed_by` is durably persisted,
+- silently dropping defer or stop from the candidate set,
 - bundling multiple independent decisions into one vague question,
 - presenting options without trade-offs,
 - forcing a choice when the user is unsure instead of offering deeper explanation,
@@ -154,6 +226,10 @@ Return:
 - Result: PASS | BLOCK
 - Decisions resolved: <count>
 - Blockers remaining: <count>
+- Admissibility receipt: <path>
+- Admissible routing: block | direct | gate
+- Override receipt: <path or none>
+- Override verdict: consumed | block | not-requested
 - Decision artifact: <path>
 - Deferred decisions: <summary or none>
 - Assumptions recorded: <summary or none>

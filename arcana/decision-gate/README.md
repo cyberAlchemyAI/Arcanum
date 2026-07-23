@@ -35,6 +35,42 @@ Decision Gate uses a simple pass/block model:
 
 Non-blocking choices can be recorded as assumptions or deferred decisions, but they must not be mixed with blocker decisions.
 
+## Option Admissibility
+
+Decision Gate asks for preference only after a deterministic prefilter. The
+caller or owning validator supplies typed structural evidence for each action,
+defer, or stop candidate. `scripts/prefilter-options.py` rejects structurally
+inadmissible options and protected or irreversible options that lack a named
+owner gate.
+
+The remaining cardinality controls the route:
+
+- zero admissible options returns structural `block`;
+- one admissible option returns `direct` to that route or its owner gate;
+- two or more admissible options returns `gate` and presents only those options.
+
+`direct` is not consent or execution, and the prefilter never satisfies a
+protected owner gate. Its machine contracts are
+`schemas/option-admissibility-request.schema.json` and
+`schemas/option-admissibility-receipt.schema.json`.
+
+## Typed One-Use Overrides
+
+Free-form approval is not an override. A reusable caller must supply a typed
+artifact conforming to `schemas/override.schema.json`, then consume it for one
+exact run with `scripts/consume-override.py`.
+
+Consumption checks target, normalized scope, hazard, issuance, expiry, and
+prior use. A valid non-protected override is updated under an exclusive lock so
+`consumed_by` names the first consuming run before success returns. Stale,
+mismatched, malformed, or replayed inputs block without rewriting the
+artifact.
+
+The generic consumer never admits destructive, authority, promotion,
+publication, or spend hazards. Those always route to their owning gate. A
+free-form owner-receipt path is not sufficient proof because Decision Gate
+cannot invent another owner's receipt contract.
+
 ## Output
 
 The sigil produces a decision record with:

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "zero-admissible-blocks",
+    "candidates": ["invalid-a", "invalid-b"],
+    "expectedOutcome": "block",
+    "expectedAdmissible": [],
+    "expectedPresented": []
+  },
+  {
+    "id": "one-safe-routes-directly",
+    "candidates": ["safe-action"],
+    "expectedOutcome": "direct",
+    "expectedAdmissible": ["safe-action"],
+    "expectedPresented": []
+  },
+  {
+    "id": "one-protected-with-owner-routes-owner-gate",
+    "candidates": ["protected-owned"],
+    "expectedOutcome": "direct",
+    "expectedAdmissible": ["protected-owned"],
+    "expectedPresented": []
+  },
+  {
+    "id": "two-admissible-require-gate",
+    "candidates": ["safe-action", "defer"],
+    "expectedOutcome": "gate",
+    "expectedAdmissible": ["defer", "safe-action"],
+    "expectedPresented": ["defer", "safe-action"]
+  },
+  {
+    "id": "defer-and-stop-remain-real-options",
+    "candidates": ["defer", "stop"],
+    "expectedOutcome": "gate",
+    "expectedAdmissible": ["defer", "stop"],
+    "expectedPresented": ["defer", "stop"]
+  },
+  {
+    "id": "invalid-option-never-reaches-human-gate",
+    "candidates": ["safe-action", "defer", "invalid-a"],
+    "expectedOutcome": "gate",
+    "expectedAdmissible": ["defer", "safe-action"],
+    "expectedPresented": ["defer", "safe-action"]
+  },
+  {
+    "id": "protected-without-owner-blocks",
+    "candidates": ["protected-unowned"],
+    "expectedOutcome": "block",
+    "expectedAdmissible": [],
+    "expectedPresented": []
+  },
+  {
+    "id": "irreversible-without-owner-blocks",
+    "candidates": ["irreversible-unowned"],
+    "expectedOutcome": "block",
+    "expectedAdmissible": [],
+    "expectedPresented": []
+  },
+  {
+    "id": "duplicate-option-id-blocks",
+    "candidates": ["safe-action", "safe-action"],
+    "expectedOutcome": "block",
+    "expectedAdmissible": [],
+    "expectedPresented": []
+  },
+  {
+    "id": "invalid-admissible-evidence-shape-blocks",
+    "candidates": ["admissible-without-evidence"],
+    "expectedOutcome": "block",
+    "expectedAdmissible": [],
+    "expectedPresented": []
+  }
+]

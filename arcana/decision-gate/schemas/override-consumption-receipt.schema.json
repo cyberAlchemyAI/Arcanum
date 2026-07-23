@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/decision-gate/override-consumption-receipt/1-0-0",
+  "title": "DecisionGateOverrideConsumptionReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "override_id",
+    "verdict",
+    "consumed_by",
+    "target",
+    "scope",
+    "hazard_class",
+    "owner_gate_receipt",
+    "owner_route_required",
+    "override_digest_before",
+    "override_digest_after",
+    "consumed_at",
+    "reasons"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "override_id": {"type": ["string", "null"], "minLength": 1},
+    "verdict": {"enum": ["consumed", "block"]},
+    "consumed_by": {"type": ["string", "null"], "minLength": 1},
+    "target": {"type": ["string", "null"], "minLength": 1},
+    "scope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "hazard_class": {
+      "enum": [
+        "reversible",
+        "destructive",
+        "authority",
+        "promotion",
+        "publication",
+        "spend",
+        "other",
+        null
+      ]
+    },
+    "owner_gate_receipt": {"type": ["string", "null"], "minLength": 1},
+    "owner_route_required": {"type": "boolean"},
+    "override_digest_before": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "override_digest_after": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "consumed_at": {"type": ["string", "null"], "minLength": 1},
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

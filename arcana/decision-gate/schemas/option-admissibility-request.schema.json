@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/decision-gate/option-admissibility-request/1-0-0",
+  "title": "DecisionGateOptionAdmissibilityRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "decisionId", "candidates"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "decisionId": {"type": "string", "minLength": 1},
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/candidate"}
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "optionId",
+        "label",
+        "optionKind",
+        "structuralStatus",
+        "reversibility",
+        "hazardClass",
+        "ownerGate",
+        "evidence",
+        "rejectionReasons"
+      ],
+      "properties": {
+        "optionId": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "optionKind": {"enum": ["action", "defer", "stop"]},
+        "structuralStatus": {"enum": ["admissible", "inadmissible"]},
+        "reversibility": {"enum": ["reversible", "irreversible"]},
+        "hazardClass": {
+          "enum": [
+            "reversible",
+            "destructive",
+            "authority",
+            "promotion",
+            "publication",
+            "spend",
+            "other"
+          ]
+        },
+        "ownerGate": {"type": ["string", "null"], "minLength": 1},
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "rejectionReasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"structuralStatus": {"const": "admissible"}},
+            "required": ["structuralStatus"]
+          },
+          "then": {
+            "properties": {
+              "evidence": {"minItems": 1},
+              "rejectionReasons": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"structuralStatus": {"const": "inadmissible"}},
+            "required": ["structuralStatus"]
+          },
+          "then": {
+            "properties": {"rejectionReasons": {"minItems": 1}}
+          }
+        }
+      ]
+    }
+  }
+}
