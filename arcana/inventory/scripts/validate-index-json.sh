@@ -96,6 +96,13 @@ run_jq_check "validation boundary is inventory read model only" '
   .validation.validation_boundary == "inventory-read-model-only"
 ' "$index_file"
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if python3 "$script_dir/validate_projection_conformance.py" "$index_file"; then
+  pass "source/projection conformance"
+else
+  fail "source/projection conformance"
+fi
+
 if [[ "$failures" -eq 0 ]]; then
   printf 'RESULT: pass\n'
   exit 0

@@ -115,6 +115,15 @@ Ontology Vault and Definitions Governance may consume evidence-card handoff pack
 
 CSV files may be emitted under `projections/` for spreadsheet or shell-table use, but they are projections from `index.json`, not authority. A CSV projection must declare its JSON source, purpose, and freshness.
 
+Before claiming a lookup is ready, run
+`scripts/validate-index-json.sh <inventory-root>/index.json`. The validator
+checks configured source coverage, stable ID/path identity, indexed-path
+existence, all exact derived maps, represented human rows, and enabled
+projection digests/timestamps. A lookup packet carries the resulting
+`lookup_readiness`; JSON parseability alone is insufficient. Historical tags
+outside the local controlled list warn without blocking unless that repository
+governs a closed vocabulary.
+
 ## Why This Is Arcana
 
 Inventory coordinates installation, local schema design, source ingestion, cross-page maintenance, lookup contracts, linting, and integration with other sigils. It is a long-lived repository knowledge system, not a one-time synthesis artifact.

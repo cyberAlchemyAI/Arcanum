@@ -111,14 +111,15 @@ Default layout:
 
 <lookup-process>
 1. Read `index.json` first when present for machine lookup; fall back to `index.md` only when no machine view exists, and report that fallback as a validation gap.
-2. Read `index.md` for human orientation, summaries, and nearby gaps.
-3. Search entries by type, tag, source, title, summary, selector, status, and query text.
-4. Include matching evidence-cards when they provide better selector-level evidence than a broad page.
-5. Include candidate EvidenceSets when a stable group of card IDs answers the task faster than independent card matches.
-6. Return selector-level matches suitable for downstream sigils.
-7. Include why each match is relevant and which task or obligation it can satisfy.
-8. Include excluded matches when they clarify why nearby evidence was not selected.
-9. Report gaps when inventory does not cover the requested topic.
+2. Run `scripts/validate-index-json.sh` against that machine view and carry its current projection-conformance verdict in the lookup packet. Parseability alone is not lookup readiness: any failed source-coverage, identity, existence, derived-map, human-view, or freshness subcheck makes the packet `lookup_readiness: blocked`.
+3. Read `index.md` for human orientation, summaries, and nearby gaps.
+4. Search entries by type, tag, source, title, summary, selector, status, and query text.
+5. Include matching evidence-cards when they provide better selector-level evidence than a broad page.
+6. Include candidate EvidenceSets when a stable group of card IDs answers the task faster than independent card matches.
+7. Return selector-level matches suitable for downstream sigils.
+8. Include why each match is relevant and which task or obligation it can satisfy.
+9. Include excluded matches when they clarify why nearby evidence was not selected.
+10. Report gaps when inventory does not cover the requested topic.
 </lookup-process>
 
 <query-process>
@@ -143,6 +144,8 @@ Check for:
 - generated pages without source coverage,
 - log entries that do not match the configured heading pattern,
 - missing, stale, or unparsable `index.json`,
+- failed projection conformance between configured sources, `index.json`, exact
+  derived maps, `index.md`, and enabled projections,
 - machine index rows that lack source path, projection source, freshness, validation boundary, or residue fields when required by the local schema,
 - CSV projections that do not declare their `index.json` source or are treated as authoritative,
 - evidence-cards missing `source_refs`,
@@ -200,21 +203,42 @@ Minimum `index.json` shape:
   "projections": [
     {
       "path": "projections/index.csv",
+      "metadata": "projections/index.meta.json",
       "format": "csv",
       "source": "index.json",
       "purpose": "flat table export",
-      "freshness": "generated-from-current-index"
+      "freshness": "generated-from-current-index",
+      "enabled": true
     }
   ],
   "validation": {
     "parseable": true,
     "source_coverage": "complete | partial | unknown",
-    "validation_boundary": "inventory-read-model-only"
+    "validation_boundary": "inventory-read-model-only",
+    "projection_conformance": {
+      "schema_version": "inventory.projection-conformance.config.v1",
+      "governed_sources": [
+        {"root": "entries", "patterns": ["**/*.md"]}
+      ],
+      "human_indexed_prefixes": ["entries/"],
+      "uncontrolled_tags": "warn"
+    }
   }
 }
 ```
 
 Optional indexes under `indexes/*.json` may specialize selector, link, backlink, tag, traceability, query-pattern, gap/risk, or projection lookup. They must declare their source index and remain Inventory read models, not Ontology Vault relations or Definitions Governance authority.
+
+`scripts/validate-index-json.sh` is the lookup-readiness gate. Its projection
+conformance stage enumerates configured source roots, proves one-to-one source
+path and stable machine ID bindings, checks every indexed path, rebuilds all
+required maps in memory for exact comparison, compares human path/type columns
+where represented, and validates every enabled projection. Each enabled
+projection needs a JSON metadata file whose `source_sha256` equals the current
+`index.json`, whose `source_generated_at` equals the current machine-index
+timestamp, and whose `projection_sha256` equals the projection artifact.
+Uncontrolled historical tags are warnings unless a separately governed closed
+vocabulary says otherwise.
 </machine-index-contract>
 
 <evidence-card-contract>

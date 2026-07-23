@@ -85,6 +85,15 @@ Custom entry types must define purpose, required fields, evidence rules, tag rul
 - Optional CSV files under `projections/` are flat read-model projections from
   `index.json`; they must declare their source, purpose, and freshness and must
   not replace `index.json`.
+- Configure governed source roots and human-indexed prefixes under
+  `validation.projection_conformance`. Run
+  `scripts/validate-index-json.sh` before lookup-ready output. Its result is
+  blocking when source coverage, stable identity, path existence, exact derived
+  maps, represented human rows, or enabled projection freshness fail.
+- Every enabled projection declares a metadata JSON path. That metadata binds
+  the current `index.json` SHA-256 and `generated_at` value plus the projection
+  artifact SHA-256. Historical uncontrolled tags remain warnings unless a
+  separately governed closed vocabulary makes them errors.
 
 ## Log Heading Pattern
 
