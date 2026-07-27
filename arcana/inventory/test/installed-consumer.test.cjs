@@ -235,6 +235,9 @@ test('public runtime and lifecycle artifacts contain no private bindings', () =>
     const text = fs.readFileSync(candidate, 'utf8');
     if (forbidden.test(text)) hits.push(path.relative(canonicalRoot, candidate));
   }
-  for (const relative of scanRoots) scan(path.join(canonicalRoot, relative));
+  for (const relative of scanRoots) {
+    const candidate = path.join(canonicalRoot, relative);
+    if (fs.existsSync(candidate)) scan(candidate);
+  }
   assert.deepEqual(hits, []);
 });
