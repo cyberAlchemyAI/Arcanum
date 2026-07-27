@@ -24,6 +24,13 @@ CSV files, when used, belong under `projections/` and are derived from
 | decision | 0 | Durable decisions and rationale. |
 | synthesis | 0 | Filed answers and cross-source analysis. |
 
+## Facet Views
+
+`index.json` derives exact read-model maps for `by_namespace`,
+`by_record_class`, and `by_concept`. Legacy records remain absent from these
+maps. Facet maps aid lookup only; they do not define ontology relations,
+canonical meaning, or promotion state.
+
 ## Evidence-Card Index Families
 
 | Index | Key | Purpose |

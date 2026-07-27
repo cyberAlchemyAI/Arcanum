@@ -1,26 +1,39 @@
 ---
-module: inventory-interface-link-index
+module: inventory-lifecycle
 version: current
-status: ready-for-interface-task-session
-updatedAt: 2026-06-05
+status: runtime-faceted-layout-verified-complete
+updatedAt: 2026-07-26
 docType: readiness
 ---
 
-# Readiness: Inventory Interface, Linking, And Indexing
+# Readiness: Inventory Selected Runtime Lane
 
 ## Status
 
-Design readiness: pass.
+Lifecycle acceptance: pass.
 
-Implementation readiness: ready for first bounded task-session.
+Bounded implementation verification: pass.
 
-The active package is not claiming feature completion. It is ready to implement
-the interface/link/index MVP.
+Terminal closure and reflection: pass. No Task Session unit is selected.
 
 ## Acceptance Checklist
 
 | Gate | Evidence | Status |
 | --- | --- | --- |
+| Sigil Development owner acceptance | `runtime-faceted-layout/OWNER-ACCEPTANCE.md` | pass |
+| Runtime work pack | `runtime-faceted-layout/WORK-PACK.md` | pass |
+| First SWU is pure and non-overlapping | `runtime-faceted-layout/tasks/SWU-IFR-001.md` | pass |
+| Canonical receipt kernel | `runtime-faceted-layout/session-evidence/SWU-IFR-001/receipt.json` | pass |
+| No-write append transition | `runtime-faceted-layout/session-evidence/SWU-IFR-002/receipt.json` | pass |
+| Sequential apply observation | `runtime-faceted-layout/session-evidence/SWU-IFR-003/receipt.json` | pass |
+| Faceted new-record admission | `runtime-faceted-layout/session-evidence/SWU-IFR-004/receipt.json` | pass |
+| Exact facet projections | `runtime-faceted-layout/session-evidence/SWU-IFR-005/receipt.json` | pass |
+| Manifest-bound runtime sync | `runtime-faceted-layout/session-evidence/SWU-IFR-006/receipt.json` | pass |
+| Isolated installed-consumer proof | `runtime-faceted-layout/session-evidence/SWU-IFR-007/receipt.json` | pass |
+| Recomposition and closure | `runtime-faceted-layout/session-evidence/TASK-IFR-VERIFY/receipt.json` | pass |
+| Phase-accurate receipt decision | `runtime-faceted-layout/session-evidence/SWU-IFR-002/decision-gate.md` | resolved-option-a |
+| Phase-accurate receipt repair | `runtime-faceted-layout/session-evidence/SWU-IFR-001R/receipt.json` | pass |
+| Dispatch and plan validation | owner acceptance receipt | pass |
 | Interface architecture exists | `INTERFACE-ARCHITECTURE.md` | pass |
 | Index technique research exists | `INDEX-TECHNIQUE-RESEARCH.md` | pass |
 | Linking discipline exists | `LINKING-DISCIPLINE.md` | pass |
@@ -36,16 +49,15 @@ the interface/link/index MVP.
 
 ## Current Next Route
 
-Run `task-session` for:
-
-```text
-SWU-INT-001: update Inventory SKILL/README with auto interface, target inference, and confirmation behavior.
-```
+None selected. Ordinary bounded Inventory use may exercise the runtime. Any
+release decision, live consumer synchronization, or resumption of the
+interface/link/index lane requires separate authorization and owner selection.
 
 ## Deferred Or Archived Work
 
 | Work | Status | Reason |
 | --- | --- | --- |
+| interface/link/index lane (`SWU-INT-001` onward) | deferred | preserved; superseded only as the current selection |
 | whole-Arcanum inventorization | archived | useful evidence, not active interface MVP |
 | whole-`domainspec-core` tagging strategy | archived | useful evidence, not active interface MVP |
 | human web UI | deferred | chat-first interface should prove behavior first |
@@ -54,11 +66,9 @@ SWU-INT-001: update Inventory SKILL/README with auto interface, target inference
 
 ## Readiness Boundary
 
-This package is ready for implementation of the interface/link/index MVP only.
-It is not ready to resume broad inventorization until the interface can:
+This package proves the bounded receipt kernel, dry-run append transition,
+sequential apply observation, new-record facets, exact facet projections,
+manifest-bound runtime sync, and isolated installed-consumer proof.
 
-1. infer a target,
-2. ask for confirmation,
-3. write a bounded slice,
-4. update selector/link/tag/gap indexes,
-5. show lookup/status/explain output.
+It is not evidence of atomicity, currentness, live legacy migration,
+promotion, release, publication, production authorization, commit, or push.

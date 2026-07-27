@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-07-26T18:01:05Z",
+  "run_id": "task-session-swu-ifr-002-20260726t180105z",
+  "session_id": "inventory-runtime-faceted-layout",
+  "capability": {
+    "id": "task-session",
+    "kind": "sigil",
+    "tier": "installed",
+    "mode": "execute"
+  },
+  "request": {
+    "summary": "Execute SWU-IFR-002 and continue one Task Session at a time until a blocker."
+  },
+  "execution": {
+    "status": "blocked",
+    "outputs": [
+      "SWU-IFR-002 context pack",
+      "phase-accurate receipt decision gate"
+    ],
+    "files_changed": [
+      "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-002/context-pack.md",
+      "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-002/decision-gate.md"
+    ],
+    "validation": [
+      "L1 terminal states checked against the accepted L0 receipt schema and kernel"
+    ],
+    "notes": "Implementation stopped before mutation because required causal fields are unavailable in preflight block states."
+  },
+  "observer": {
+    "quality_bar_status": "blocked",
+    "anti_pattern_hits": [
+      "sentinel-digest-would-fabricate-evidence"
+    ],
+    "workflow_gaps": [
+      {
+        "id": "receipt-phase-availability-unmodeled",
+        "summary": "The receipt schema requires post-phase evidence for states that stop before those phases."
+      }
+    ],
+    "output_contract_drift": true,
+    "reflection_trigger": "blocker",
+    "recommendation": "Route a phase-aware L0 receipt repair through Sigil Development before reselecting SWU-IFR-002."
+  },
+  "evidence": {
+    "context_pack": "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-002/context-pack.md",
+    "decision_gate": "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-002/decision-gate.md",
+    "task": "arcana/inventory/development/runtime-faceted-layout/tasks/SWU-IFR-002.md"
+  },
+  "target_artifact": "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-002/receipt.json"
+}

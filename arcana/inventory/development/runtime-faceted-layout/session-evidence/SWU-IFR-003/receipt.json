@@ -1,0 +1,37 @@
+{
+  "schema_version": "inventory.task-session-receipt.v1",
+  "run_id": "task-session-swu-ifr-003-20260726t190836z",
+  "swu_id": "SWU-IFR-003",
+  "status": "pass",
+  "files_touched": [
+    "arcana/inventory/bin/inventory",
+    "arcana/inventory/lib/inventory-update.cjs",
+    "arcana/inventory/test/append-apply.test.cjs",
+    "arcana/inventory/test/fixtures/append-apply/",
+    "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-003/"
+  ],
+  "validations": [
+    {
+      "command": "node --test arcana/inventory/test/operation-receipt.test.cjs arcana/inventory/test/append-dry-run.test.cjs arcana/inventory/test/append-apply.test.cjs",
+      "status": "pass",
+      "summary": "22 tests passed, 0 failed; 5 apply-specific regimes"
+    }
+  ],
+  "experiment_harness": {
+    "status": "not-configured",
+    "preservation": "pass",
+    "note": "Failure injection is isolated in the focused Node fixture suite."
+  },
+  "observer_status": {
+    "status": "recorded",
+    "central_ledger_line": 410,
+    "reflection_trigger": "output-threshold"
+  },
+  "blockers": [],
+  "residue": [
+    "Writes remain sequential and explicitly non-atomic.",
+    "Repair remains operator-owned after partial mutation."
+  ],
+  "handoff_note": "Sequential apply observation passed; select faceted admission.",
+  "selected_successor": "SWU-IFR-004"
+}

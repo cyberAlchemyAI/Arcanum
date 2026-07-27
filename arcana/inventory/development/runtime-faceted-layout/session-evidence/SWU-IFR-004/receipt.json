@@ -1,0 +1,43 @@
+{
+  "schema_version": "inventory.task-session-receipt.v1",
+  "run_id": "task-session-swu-ifr-004-20260726t191159z",
+  "swu_id": "SWU-IFR-004",
+  "status": "pass",
+  "files_touched": [
+    "arcana/inventory/templates/index.schema.yml",
+    "arcana/inventory/templates/entry.md",
+    "arcana/inventory/templates/schema.md",
+    "arcana/inventory/lib/inventory-update.cjs",
+    "arcana/inventory/test/facet-admission.test.cjs",
+    "arcana/inventory/test/fixtures/facet-admission/",
+    "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-004/"
+  ],
+  "validations": [
+    {
+      "command": "node --test receipt,dry-run,apply,facet-admission suites",
+      "status": "pass",
+      "summary": "29 tests passed, 0 failed; 7 facet regimes"
+    },
+    {
+      "command": "yaml.safe_load index.schema.yml",
+      "status": "pass",
+      "summary": "Template schema parses"
+    }
+  ],
+  "experiment_harness": {
+    "status": "not-configured",
+    "preservation": "pass"
+  },
+  "observer_status": {
+    "status": "recorded",
+    "central_ledger_line": 411,
+    "reflection_trigger": "output-threshold"
+  },
+  "blockers": [],
+  "residue": [
+    "Facet maps remain unimplemented until SWU-IFR-005.",
+    "Legacy paths are admitted, not migrated."
+  ],
+  "handoff_note": "Faceted admission passed; select exact facet projections.",
+  "selected_successor": "SWU-IFR-005"
+}

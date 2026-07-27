@@ -20,7 +20,17 @@ ARRAY_MAP_FIELDS = {
     "by_status": "status",
     "by_evidence_card": "evidence_card_ids",
     "by_evidence_set": "evidence_set_ids",
+    "by_namespace": "namespace",
+    "by_record_class": "record_class",
+    "by_concept": "concepts",
 }
+
+FACET_MAP_NAMES = {"by_namespace", "by_record_class", "by_concept"}
+DEFAULT_RECORD_CLASSES = {
+    "research", "review", "invoke", "task-session", "maintenance", "runtime",
+    "decision", "evidence", "synthesis",
+}
+FACET_TOKEN_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 DEFAULT_CONFIG = {
     "schema_version": "inventory.projection-conformance.config.v1",
@@ -140,6 +150,63 @@ def expected_maps(entries: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return maps
 
 
+def validate_facets(
+    entries: list[dict[str, Any]],
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    errors: list[str] = []
+    facet_config = config.get("facets", {})
+    allowed_namespaces = set(facet_config.get("namespaces", []))
+    allowed_classes = set(
+        facet_config.get("record_classes", sorted(DEFAULT_RECORD_CLASSES))
+    )
+    faceted_count = 0
+    for entry in entries:
+        present = [
+            field for field in ("namespace", "record_class", "concepts")
+            if field in entry
+        ]
+        if not present:
+            continue
+        faceted_count += 1
+        entry_id = entry.get("id")
+        if len(present) != 3:
+            errors.append(f"partial facet metadata: {entry_id}")
+            continue
+        namespace = entry.get("namespace")
+        record_class = entry.get("record_class")
+        concepts = entry.get("concepts")
+        if not isinstance(namespace, str) or not FACET_TOKEN_RE.fullmatch(namespace):
+            errors.append(f"invalid facet namespace: {entry_id}")
+        elif allowed_namespaces and namespace not in allowed_namespaces:
+            errors.append(f"unconfigured facet namespace: {entry_id}: {namespace}")
+        if not isinstance(record_class, str) or not FACET_TOKEN_RE.fullmatch(record_class):
+            errors.append(f"invalid facet record class: {entry_id}")
+        elif record_class not in allowed_classes:
+            errors.append(f"uncontrolled facet record class: {entry_id}: {record_class}")
+        if (
+            not isinstance(concepts, list)
+            or not concepts
+            or any(not isinstance(value, str) or not FACET_TOKEN_RE.fullmatch(value)
+                   for value in concepts)
+        ):
+            errors.append(f"invalid facet concepts: {entry_id}")
+        elif concepts != sorted(set(concepts)):
+            errors.append(f"facet concepts are not unique and byte-sorted: {entry_id}")
+        expected_path = f"entries/{namespace}/{record_class}/{entry_id}.md"
+        if entry.get("path") != expected_path:
+            errors.append(
+                f"faceted path mismatch: {entry_id}: "
+                f"{entry.get('path')} != {expected_path}"
+            )
+    return result(
+        fail_or_pass(errors),
+        errors,
+        [],
+        faceted_entry_count=faceted_count,
+    )
+
+
 def parse_human_rows(path: Path) -> tuple[dict[str, str], list[str]]:
     rows: dict[str, str] = {}
     errors: list[str] = []
@@ -233,6 +300,8 @@ def validate(index_path: Path) -> dict[str, Any]:
         embedded_source_ids_checked=embedded_checked,
     )
 
+    facet_check = validate_facets(entries, config)
+
     existence_errors: list[str] = []
     for relative in entry_paths:
         if not isinstance(relative, str):
@@ -252,7 +321,13 @@ def validate(index_path: Path) -> dict[str, Any]:
 
     map_errors: list[str] = []
     actual_maps = index.get("indexes", {})
+    facet_maps_active = (
+        facet_check["faceted_entry_count"] > 0
+        or any(name in actual_maps for name in FACET_MAP_NAMES)
+    )
     for map_name, expected_map in expected.items():
+        if map_name in FACET_MAP_NAMES and not facet_maps_active:
+            continue
         if actual_maps.get(map_name) != expected_map:
             map_errors.append(f"derived map is not exact: {map_name}")
     map_check = result(
@@ -383,6 +458,7 @@ def validate(index_path: Path) -> dict[str, Any]:
     checks = {
         "source_coverage": source_check,
         "identity": identity_check,
+        "facet_admission": facet_check,
         "existence": existence_check,
         "derived_maps": map_check,
         "human_view": human_check,

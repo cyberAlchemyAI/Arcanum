@@ -12,6 +12,8 @@ This file defines the local conventions for the inventory package.
 - Raw sources: `raw/`
 - Generated wiki pages: `wiki/`
 - Typed entries: `entries/`
+- New faceted entries:
+  `entries/<namespace>/<record-class>/<stable-id>.md`
 - Query syntheses: `queries/`
 - Lint reports: `lint/`
 - Machine index: `index.json`
@@ -61,6 +63,28 @@ Default entry types:
 - synthesis
 
 Custom entry types must define purpose, required fields, evidence rules, tag rules, and update behavior.
+
+## Faceted New Records
+
+Legacy records without facet fields remain valid and unmoved. A new faceted
+record supplies all three fields:
+
+```yaml
+namespace: example-space
+record_class: research
+concepts:
+  - append-runtime
+  - test-generation
+```
+
+- `namespace` is a configured, path-safe owner or project scope.
+- `record_class` comes from the controlled local class list. The initial public
+  list is `research`, `review`, `invoke`, `task-session`, `maintenance`,
+  `runtime`, `decision`, `evidence`, and `synthesis`.
+- `concepts` is non-empty, normalized, duplicate-free, and byte-sorted.
+- The physical path depends only on namespace, record class, and stable ID.
+  Tags and concepts never create directories.
+- Facets are Inventory read-model labels, not ontology or promotion authority.
 
 ## Link Policy
 

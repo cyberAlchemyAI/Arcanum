@@ -1,29 +1,30 @@
-# Execution Pack: Inventory Interface, Linking, And Indexing
+# Execution Pack: Inventory Current Lifecycle Selection
 
 ## Planning Control Fields
 
 | Field | Value | Notes |
 | --- | --- | --- |
-| planningGateStatus | pass | Design refresh complete; first implementation unit is ready. |
-| complexity | medium | Skill contract, templates, validators, pilot slice. |
-| baselineWave | W-INT-0 | Interface contract first. |
-| activePlanRef | `IMPLEMENTATION-PLAN.md` | Current implementation plan. |
-| workPackManifest | `WORK-PACK.md` | Canonical executable manifest. |
-| layeringArtifact | `IMPLEMENTATION-LAYERING.md` | Layer governance. |
-| activeLayerWindow | L0-L3 | Interface contract through readiness sync. |
-| lastPlannedAt | 2026-06-05 | Invoke refresh pivoted active pack to interface/link/index. |
-| readinessProfile | interface-link-index-ready-for-task-session | Ready for bounded task-session. |
+| planningGateStatus | pass | All selected runtime units and terminal closure passed. |
+| complexity | medium | Seven sequential implementation SWUs plus closure verification. |
+| baselineWave | complete | L0 through L3 and recomposition passed. |
+| activePlanRef | `runtime-faceted-layout/WORK-PACK.md` | Current implementation plan. |
+| workPackManifest | `WORK-PACK.md` | Root lifecycle selection plus preserved prior lane. |
+| layeringArtifact | `runtime-faceted-layout/IMPLEMENTATION-LAYERING.md` | Current layer governance. |
+| activeLayerWindow | closed | No Task Session unit is selected. |
+| lastPlannedAt | 2026-07-26 | Task Session closed the bounded runtime lane. |
+| readinessProfile | runtime-faceted-layout-verified | Bounded implementation proof, not release authorization. |
 
 ## Wave Status Board
 
 | Wave | Objective | Entry Gate | Exit Gate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| W-INT-0 | Add default interface contract. | active design exists | SKILL/README describe auto flow and confirmation | ready | TASK-INT-001 |
-| W-INT-1 | Add interface and index templates. | W-INT-0 pass | templates exist and examples parse | blocked | TASK-INT-002, TASK-INT-003 |
-| W-INT-2 | Add validator and pilot slice. | W-INT-1 pass | validator and pilot pass | blocked | TASK-INT-004, TASK-INT-005 |
-| W-INT-3 | Sync docs/readiness. | W-INT-2 pass | readiness and next route updated | blocked | TASK-INT-006 |
+| W-IFR-1 | Add canonical receipt kernel. | owner acceptance | byte-stable schema-valid receipt fixtures | complete | `runtime-faceted-layout/session-evidence/SWU-IFR-001/receipt.json` |
+| W-IFR-2 | Add no-write append transition. | phase-accurate L0 repair | complete zero-mutation receipt | complete | `runtime-faceted-layout/session-evidence/SWU-IFR-002/receipt.json` |
+| W-IFR-3 | Add apply observation and facets. | W-IFR-2 pass | partial writes visible; facet conformance passes | complete | `runtime-faceted-layout/session-evidence/SWU-IFR-003/` through `SWU-IFR-005/` |
+| W-IFR-4 | Add generated sync, installed proof, and closure. | W-IFR-3 pass | managed-set, isolated proof, and recomposition pass | complete | `runtime-faceted-layout/session-evidence/SWU-IFR-006/` through `TASK-IFR-VERIFY/` |
+| W-INT-0..3 | Preserved interface/link/index lane. | new lifecycle selection | original lane gates | deferred | `IMPLEMENTATION-PLAN.md` |
 
-## Delivery Stage Coverage
+## Preserved Interface-Lane Delivery Stage Coverage
 
 | Stage | Required | Wave Mapping | Status | Evidence | Skip Reason |
 | --- | --- | --- | --- | --- | --- |
@@ -38,7 +39,9 @@
 ## Task-Session Continuation Boundaries
 
 - Execute one SWU at a time.
-- Start with `SWU-INT-001`.
-- Do not begin pilot slice mutation until interface and index templates exist.
+- No Task Session unit is currently selected.
+- Do not execute the preserved interface lane without a new lifecycle
+  selection receipt.
+- Do not begin live consumer mutation in the receipt-kernel SWU.
 - Keep archived research folders as evidence only.
 - At the first blocker-level decision, stop and route to `decision-gate`.

@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+'use strict';
+
+const path = require('node:path');
+const {
+  runAppendApply,
+  runAppendDryRun,
+} = require('../lib/inventory-update.cjs');
+
+function parseArgs(argv) {
+  const parsed = {
+    command: argv[0] || null,
+    record: null,
+    timestamp: null,
+    mode: null,
+    json: false,
+  };
+  for (let index = 1; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === '--record') parsed.record = argv[++index] || null;
+    else if (argument === '--timestamp') parsed.timestamp = argv[++index] || null;
+    else if (argument === '--dry-run') parsed.mode = parsed.mode ? 'invalid' : 'dry-run';
+    else if (argument === '--apply') parsed.mode = parsed.mode ? 'invalid' : 'apply';
+    else if (argument === '--json') parsed.json = true;
+    else parsed.invalid = argument;
+  }
+  return parsed;
+}
+
+function usage() {
+  return [
+    'usage: inventory append --record <record.json> --timestamp <ISO-8601>',
+    '       (--dry-run | --apply) --json',
+  ].join('\n');
+}
+
+function main(argv) {
+  const args = parseArgs(argv);
+  if (
+    args.command !== 'append' || !args.record || !args.timestamp ||
+    !args.mode || args.mode === 'invalid' || !args.json || args.invalid
+  ) {
+    process.stderr.write(`${usage()}\n`);
+    return 2;
+  }
+  const inventoryRoot = path.resolve(__dirname, '..');
+  try {
+    const runner = args.mode === 'apply' ? runAppendApply : runAppendDryRun;
+    const result = runner({
+      inventoryRoot,
+      recordPath: path.resolve(args.record),
+      timestampInput: args.timestamp,
+    });
+    process.stdout.write(result.bytes);
+    return result.exitCode;
+  } catch (error) {
+    process.stderr.write(`inventory append failed: ${error.message}\n`);
+    return 1;
+  }
+}
+
+if (require.main === module) process.exit(main(process.argv.slice(2)));
+
+module.exports = { main, parseArgs };

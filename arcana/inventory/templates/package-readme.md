@@ -30,3 +30,8 @@ Raw sources are read-only inputs. Generated inventory pages are maintained by th
 - Register new tags in [tags.md](tags.md) before using them repeatedly.
 - Mark generated claims as evidence-backed, inference, synthesis, contradiction, or open question.
 - Keep optional CSV projections under `projections/` secondary to `index.json` and record their source and freshness.
+- Treat `runtime-manifest.json` as the complete generated-runtime allowlist.
+  `scripts/sync-runtime.sh --check --target .arcanum/inventory --json` is
+  read-only; `--apply` may change only manifest-managed members.
+- Never include entries, queries, raw material, receipts, `index.json`,
+  `index.md`, local schema, tags, or logs in the runtime managed set.

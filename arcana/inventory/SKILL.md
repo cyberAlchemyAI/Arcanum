@@ -83,6 +83,23 @@ Default layout:
 6. Return the package path, selected conventions, and next recommended ingest.
 </install-process>
 
+<runtime-sync-process>
+Runtime synchronization is manifest-bound and separate from consumer Inventory
+maintenance.
+
+1. Run `scripts/sync-runtime.sh --check --target <inventory-root> --json`.
+2. Review exact `missing`, `drifted`, and `extra_managed` paths.
+3. Apply only when requested with
+   `scripts/sync-runtime.sh --apply --target <inventory-root> --json`.
+4. Re-run check and require a clean managed set.
+5. Prove consumer-owned entries, queries, raw material, receipts, indexes,
+   local schema, tags, and logs remain byte-identical.
+
+The managed set is declared by `runtime-manifest.json`. Never broaden it from
+the target repository contents, and never treat runtime synchronization as
+permission to rewrite consumer knowledge state.
+</runtime-sync-process>
+
 <ingest-process>
 1. Resolve source path or source set.
 2. Confirm raw sources are read-only inputs.

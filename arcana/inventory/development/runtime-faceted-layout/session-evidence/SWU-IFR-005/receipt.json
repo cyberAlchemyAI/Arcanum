@@ -1,0 +1,43 @@
+{
+  "schema_version": "inventory.task-session-receipt.v1",
+  "run_id": "task-session-swu-ifr-005-20260726t191520z",
+  "swu_id": "SWU-IFR-005",
+  "status": "pass",
+  "files_touched": [
+    "arcana/inventory/lib/inventory-update.cjs",
+    "arcana/inventory/scripts/validate-index-json.sh",
+    "arcana/inventory/scripts/validate_projection_conformance.py",
+    "arcana/inventory/templates/index.json",
+    "arcana/inventory/templates/index.md",
+    "arcana/inventory/test/facet-projection.test.cjs",
+    "arcana/inventory/test/fixtures/facet-projection/",
+    "arcana/inventory/development/runtime-faceted-layout/session-evidence/SWU-IFR-005/"
+  ],
+  "validations": [
+    {
+      "command": "node --test receipt,dry-run,apply,facet-admission,facet-projection suites",
+      "status": "pass",
+      "summary": "35 tests passed, 0 failed"
+    },
+    {
+      "command": "bash arcana/inventory/scripts/validate-index-json.sh arcana/inventory/test/fixtures/facet-projection/index.json",
+      "status": "pass",
+      "summary": "All machine, facet, human, and conformance checks passed"
+    }
+  ],
+  "experiment_harness": {
+    "status": "not-configured",
+    "preservation": "pass"
+  },
+  "observer_status": {
+    "status": "recorded",
+    "central_ledger_line": 412,
+    "reflection_trigger": "output-threshold"
+  },
+  "blockers": [],
+  "residue": [
+    "Facet projections remain Inventory read models only."
+  ],
+  "handoff_note": "Exact facet projections passed; select manifest-bound runtime sync.",
+  "selected_successor": "SWU-IFR-006"
+}

@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/schemas/inventory.operation-receipt.v1.schema.json",
+  "title": "Inventory operation receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "operation",
+    "mode",
+    "status",
+    "reason_code",
+    "operation_fingerprint",
+    "timestamp_input",
+    "inventory_root",
+    "runtime",
+    "inputs",
+    "baseline",
+    "candidate",
+    "warning_delta",
+    "write",
+    "authority_boundary",
+    "residue",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "inventory.operation-receipt.v1"
+    },
+    "operation": {
+      "const": "append"
+    },
+    "mode": {
+      "enum": [
+        "dry-run",
+        "apply"
+      ]
+    },
+    "status": {
+      "enum": [
+        "dry-run-ready",
+        "applied",
+        "identical-no-op",
+        "invalid-request",
+        "id-conflict",
+        "tooling-unavailable",
+        "baseline-blocked",
+        "candidate-blocked",
+        "write-failed",
+        "postwrite-digest-mismatch"
+      ]
+    },
+    "reason_code": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      ]
+    },
+    "operation_fingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "timestamp_input": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?(?:Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "inventory_root": {
+      "const": ".arcanum/inventory"
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtimeEvidence"
+    },
+    "inputs": {
+      "$ref": "#/$defs/inputEvidence"
+    },
+    "baseline": {
+      "$ref": "#/$defs/baselineEvidence"
+    },
+    "candidate": {
+      "$ref": "#/$defs/candidateEvidence"
+    },
+    "warning_delta": {
+      "$ref": "#/$defs/warningEvidence"
+    },
+    "write": {
+      "$ref": "#/$defs/writeEvidence"
+    },
+    "authority_boundary": {
+      "const": "inventory-read-model-only"
+    },
+    "residue": {
+      "$ref": "#/$defs/stringSet"
+    },
+    "receipt_sha256": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "tooling-unavailable"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "runtime": {
+            "properties": {
+              "evidence_state": {
+                "enum": [
+                  "partial",
+                  "unavailable"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "baseline-blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "baseline": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              },
+              "lookup_readiness": {
+                "const": "blocked"
+              }
+            }
+          },
+          "candidate": {
+            "properties": {
+              "evidence_state": {
+                "const": "not-reached"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "dry-run-ready"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "mode": {
+            "const": "dry-run"
+          },
+          "runtime": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "inputs": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "baseline": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "candidate": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "warning_delta": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "write": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableSha256": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evidenceState": {
+      "enum": [
+        "observed",
+        "partial",
+        "unavailable",
+        "not-reached"
+      ]
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "readiness": {
+      "enum": [
+        "ready",
+        "blocked",
+        null
+      ]
+    },
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "digestMap": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/relativePath"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "runtimeEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "bundle_sha256",
+        "helpers"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "bundle_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "helpers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "evidence_state",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/relativePath"
+              },
+              "evidence_state": {
+                "$ref": "#/$defs/evidenceState"
+              },
+              "sha256": {
+                "$ref": "#/$defs/nullableSha256"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_state": {
+                "const": "observed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "bundle_sha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "helpers": {
+                "minItems": 1,
+                "items": {
+                  "properties": {
+                    "evidence_state": {
+                      "const": "observed"
+                    },
+                    "sha256": {
+                      "$ref": "#/$defs/sha256"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "inputEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "baseline_index_sha256",
+        "baseline_human_index_sha256",
+        "record_sha256",
+        "normalized_record_sha256"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "baseline_index_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "baseline_human_index_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "record_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "normalized_record_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        }
+      }
+    },
+    "baselineEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "report_sha256",
+        "lookup_readiness",
+        "failure_count",
+        "warning_count"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "report_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "lookup_readiness": {
+          "$ref": "#/$defs/readiness"
+        },
+        "failure_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "warning_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "candidateEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "disposition",
+        "index_sha256",
+        "human_index_sha256",
+        "report_sha256",
+        "lookup_readiness"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "disposition": {
+          "enum": [
+            "added",
+            "identical-no-op",
+            "id-conflict",
+            null
+          ]
+        },
+        "index_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "human_index_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "report_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "lookup_readiness": {
+          "$ref": "#/$defs/readiness"
+        }
+      }
+    },
+    "warningEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "introduced",
+        "resolved",
+        "inherited_count",
+        "inherited_set_sha256"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "introduced": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "resolved": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "inherited_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "inherited_set_sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        }
+      }
+    },
+    "writeEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_state",
+        "attempted",
+        "committed",
+        "observed_changed_paths",
+        "expected_postwrite_digests",
+        "actual_postwrite_digests",
+        "possible_partial_mutation",
+        "repair_required"
+      ],
+      "properties": {
+        "evidence_state": {
+          "$ref": "#/$defs/evidenceState"
+        },
+        "attempted": {
+          "type": "boolean"
+        },
+        "committed": {
+          "type": "boolean"
+        },
+        "observed_changed_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          }
+        },
+        "expected_postwrite_digests": {
+          "$ref": "#/$defs/digestMap"
+        },
+        "actual_postwrite_digests": {
+          "$ref": "#/$defs/digestMap"
+        },
+        "possible_partial_mutation": {
+          "type": "boolean"
+        },
+        "repair_required": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

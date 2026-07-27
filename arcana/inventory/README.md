@@ -97,7 +97,22 @@ Install mode may adapt to an existing docs, wiki, notes, or architecture package
 - `lint`: find contradictions, stale claims, orphan pages, missing backlinks, untagged pages, source coverage gaps, stale or unparsable machine indexes, invalid evidence-card enums, unsafe owner/status pairs, missing `source_refs`, missing `trace`, and unresolved `residue`.
 - `validate`: check package structure, `index.md` and `index.json` coverage, log parseability, tag consistency, evidence links, evidence-card schema fields, EvidenceSet references, and downstream non-authority packet language.
 - `backfill`: build entries from existing docs, architecture packages, context packs, decisions, or generated artifacts.
-- `sync`: update package conventions after schema changes.
+- `sync`: check or apply the `runtime-manifest.json` generated payload without
+  changing consumer-owned Inventory state.
+
+Runtime check:
+
+```sh
+arcana/inventory/scripts/sync-runtime.sh \
+  --check \
+  --target .arcanum/inventory \
+  --json
+```
+
+Use `--apply` only after reviewing the exact missing, drifted, and
+extra-managed paths. The manifest owns `bin/`, `lib/`, `schemas/`, the two
+validator scripts, and the manifest itself. It does not own entries, queries,
+raw material, receipts, indexes, local schema, tags, or logs.
 
 ## Integration
 

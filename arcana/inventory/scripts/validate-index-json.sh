@@ -75,6 +75,18 @@ run_jq_check "required derived indexes exist" '
   (.indexes.by_status | type == "object")
 ' "$index_file"
 
+run_jq_check "facet maps are exact-shape when faceted entries exist" '
+  ([.entries[] | select(
+    (has("namespace") or has("record_class") or has("concepts"))
+  )] | length) as $faceted |
+  if $faceted == 0 then true
+  else
+    (.indexes.by_namespace | type == "object") and
+    (.indexes.by_record_class | type == "object") and
+    (.indexes.by_concept | type == "object")
+  end
+' "$index_file"
+
 run_jq_check "by_id references only entry ids" '
   [.entries[].id] as $ids |
   (.indexes.by_id | keys | all(. as $id | $ids | index($id) != null))

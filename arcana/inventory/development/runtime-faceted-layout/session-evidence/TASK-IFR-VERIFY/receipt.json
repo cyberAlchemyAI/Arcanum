@@ -1,0 +1,55 @@
+{
+  "schema_version": "inventory.task-session-receipt.v1",
+  "run_id": "task-session-task-ifr-verify-20260726t192914z",
+  "swu_id": "TASK-IFR-VERIFY",
+  "status": "pass",
+  "files_touched": [
+    "arcana/inventory/development/runtime-faceted-layout/TRACEABILITY.md",
+    "arcana/inventory/development/runtime-faceted-layout/session-evidence/TASK-IFR-VERIFY/",
+    "arcana/inventory/development/runtime-faceted-layout/WORK-PACK.md",
+    "arcana/inventory/development/runtime-faceted-layout/README.md",
+    "arcana/inventory/development/runtime-faceted-layout/VALIDATION.md",
+    "arcana/inventory/development/runtime-faceted-layout/IMPLEMENTATION-LAYERING.md",
+    "arcana/inventory/development/runtime-faceted-layout/OBSERVATION.md",
+    "arcana/inventory/development/WORK-PACK.md",
+    "arcana/inventory/development/READINESS.md",
+    "arcana/inventory/development/EXECUTION-PACK.md"
+  ],
+  "validations": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 node --test arcana/inventory/test/*.test.cjs",
+      "status": "pass",
+      "summary": "47 tests passed, 0 failed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 bash arcana/inventory/scripts/validate-index-json.sh arcana/inventory/test/fixtures/installed-consumer/index.json",
+      "status": "pass",
+      "summary": "All installed-consumer conformance checks passed"
+    },
+    {
+      "command": "closure audit checks",
+      "status": "pass",
+      "summary": "Traceability, scope, manifest digests, links, public boundary, observability, and residue agree"
+    }
+  ],
+  "experiment_harness": {
+    "status": "pass",
+    "report": "arcana/inventory/test/installed-consumer.test.cjs",
+    "note": "The installed-consumer matrix remains the reusable end-to-end behavior harness."
+  },
+  "observer_status": {
+    "status": "recorded",
+    "central_ledger_line": 415,
+    "reflection_trigger": "output-threshold",
+    "reflection_report": "arcana/inventory/development/runtime-faceted-layout/session-evidence/TASK-IFR-VERIFY/reflection-report.md"
+  },
+  "blockers": [],
+  "residue": [
+    "Apply remains sequential and non-atomic.",
+    "Currentness verification remains owner unresolved.",
+    "Legacy migration and the interface/link/index lane remain deferred.",
+    "Release, promotion, publication, commit, and push are not authorized."
+  ],
+  "handoff_note": "Runtime/faceted-layout implementation and closure verification passed; clear the selected Task Session unit.",
+  "selected_successor": null
+}

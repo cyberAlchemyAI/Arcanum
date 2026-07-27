@@ -10,6 +10,9 @@
 | Sources | {source-list} |
 | Updated | YYYY-MM-DD |
 | Confidence | high \/ moderate \/ low |
+| Namespace | {namespace-or-legacy} |
+| Record class | {record-class-or-legacy} |
+| Concepts | {concept-list-or-legacy} |
 
 ## Summary
 
