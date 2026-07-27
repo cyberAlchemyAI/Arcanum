@@ -1,0 +1,90 @@
+{
+  "schema_version": "task-session-until-blocker.chain-fixtures.v1",
+  "cases": [
+    {
+      "id": "linear-frontier-completes-in-order",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B", "SWU-C"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}},
+        {"swu_id": "SWU-B", "execution": "FLAG", "closeout": "NO_OP", "no_op_evidence": true, "cursor": "cursor-b", "next": {"swu_id": "SWU-C", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}},
+        {"swu_id": "SWU-C", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-c", "next": null}
+      ],
+      "expected_result": "COMPLETE",
+      "expected_invoked": ["SWU-A", "SWU-B", "SWU-C"]
+    },
+    {
+      "id": "later-task-session-blocks-chain",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B", "SWU-C"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}},
+        {"swu_id": "SWU-B", "execution": "BLOCK", "closeout": "NO_OP", "no_op_evidence": true, "cursor": "cursor-b", "next": null}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A", "SWU-B"]
+    },
+    {
+      "id": "passing-implementation-with-failed-closeout-blocks",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "BLOCK", "owner_joined": false, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A"]
+    },
+    {
+      "id": "repeated-cursor-blocks",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B", "SWU-C"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}},
+        {"swu_id": "SWU-B", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-C", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A", "SWU-B"]
+    },
+    {
+      "id": "cross-scope-successor-blocks",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-b", "declared": true, "dependency_ready": true, "candidate_count": 1}}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A"]
+    },
+    {
+      "id": "frontier-expansion-blocks",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-D", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A"]
+    },
+    {
+      "id": "ambiguous-successor-blocks",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "PASS", "owner_joined": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 2}}
+      ],
+      "expected_result": "BLOCK",
+      "expected_invoked": ["SWU-A"]
+    },
+    {
+      "id": "validated-no-op-closeout-can-continue",
+      "scope": "work-pack-a",
+      "captured_frontier": ["SWU-A", "SWU-B"],
+      "steps": [
+        {"swu_id": "SWU-A", "execution": "PASS", "closeout": "NO_OP", "no_op_evidence": true, "cursor": "cursor-a", "next": {"swu_id": "SWU-B", "scope": "work-pack-a", "declared": true, "dependency_ready": true, "candidate_count": 1}},
+        {"swu_id": "SWU-B", "execution": "PASS", "closeout": "NO_OP", "no_op_evidence": true, "cursor": "cursor-b", "next": null}
+      ],
+      "expected_result": "COMPLETE",
+      "expected_invoked": ["SWU-A", "SWU-B"]
+    }
+  ]
+}

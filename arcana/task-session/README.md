@@ -1,6 +1,10 @@
 # Task Session
 
-Task Session is an Arcana sigil for executing or resuming one bounded task end to end with explicit decisions, gate checks, completion criteria, validation, synchronization, and an optional one-hop continuation handoff.
+Task Session is an Arcana sigil for executing or resuming one bounded task end
+to end with explicit decisions, gate checks, completion criteria, validation,
+synchronization, and an optional one-hop continuation handoff. Ordered
+multi-SWU intent is routed to the `task-session-until-blocker` spell, which
+opens a fresh Task Session for each bounded unit.
 
 It is the stable Arcanum execution surface. Runtime-specific systems, including Codex, are treated as adapters rather than as the task-session identity itself.
 
@@ -29,36 +33,57 @@ Refinement, discovery, and multi-pass planning should happen before Task Session
 - unresolved blocker decisions should be handled by [decision-gate](../decision-gate/),
 - the task belongs to an existing project-specific execution workflow,
 - validation cannot be run or meaningfully substituted.
+- the requested unit is an ordered stream of SWUs; use
+  `task-session-until-blocker` instead.
 
 ## Session Loop
 
-1. Resolve one task scope explicitly or, with no arguments, from the nearest
+1. Detect ordered-series intent before resolving an implementation unit. Route
+   it to `task-session-until-blocker` and stop direct execution.
+2. Resolve one task scope explicitly or, with no arguments, from the nearest
    evidence-backed current-session continuity source.
-2. Parse objective, dependencies, deliverables, and done criteria.
-3. Build a bounded context pack from source links, architecture/spec artifacts, constraints, write scope, and validation surface.
-4. Build option cards for unresolved implementation choices.
-5. Ask the user, or auto-select only an option explicitly classified both
+3. Parse objective, dependencies, deliverables, and done criteria.
+4. Build a bounded context pack from source links, architecture/spec artifacts, constraints, write scope, and validation surface.
+5. Complete closeout prerequisite preflight before mutation admission.
+6. Build option cards for unresolved implementation choices.
+7. Ask the user, or auto-select only an option explicitly classified both
    nonconsequential and reversible.
-6. Evaluate blockers, dependency gates, context-pack obligations, write scope, and validation gates.
-7. Select the execution runtime for this repository and task.
-8. Execute directly or delegate through a runtime handoff adapter.
-9. Classify validation obligations, then validate against every done criterion
+8. Evaluate blockers, dependency gates, context-pack obligations, write scope, and validation gates.
+9. Select the execution runtime for this repository and task.
+10. Execute directly or delegate through a runtime handoff adapter.
+11. Classify validation obligations, then validate against every done criterion
    and context-pack obligation. Failed or unavailable acceptance-critical
    validation blocks unless a named accepted equivalent passes; only named
    noncritical residue that cannot falsify a done criterion may return `FLAG`.
-10. Build a typed closeout-sync record from the terminal receipt, declared
+12. Revalidate the closeout preflight and build a typed closeout-sync record from the terminal receipt, declared
     synchronization targets, baselines, delta classes, and validation.
-11. When synchronization is required and deterministic, derive the exact
+13. When synchronization is required and deterministic, derive the exact
     closeout-only `invoke:refresh:apply-approved` authorization, dispatch it
     through Continuation Router, and join the owner receipt without asking for
     a second approval.
-12. Return the synchronized next route without executing the next task/SWU.
-13. Optionally dispatch one separately authorized non-closeout route through
+14. Return the synchronized next route without executing the next task/SWU.
+15. Optionally dispatch one separately authorized non-closeout route through
     Continuation Router.
-14. Persist a repository-local continuity cursor so a later no-argument call
+16. Persist a repository-local continuity cursor so a later no-argument call
     can recover the returned route even after conversational context compacts.
-15. Return a compact session report with separate execution and closeout
+17. Return a compact session report with separate execution and closeout
     outcomes.
+
+## Series Intent
+
+Explicit requests such as `--until-blocker`, `all until blocker`, `all SWUs`, or
+`one go` do not expand a Task Session beyond one bounded unit. They route to the
+installed `task-session-until-blocker` spell. The spell captures the initial
+same-work-pack frontier and invokes a distinct Task Session for each eligible
+successor:
+
+```text
+task-session-until-blocker <work-pack-or-selector>
+```
+
+Each inner Task Session retains its own approval, validation, closeout, and
+terminal receipt. The spell stops at the first genuine blocker or when the
+captured frontier is complete.
 
 ## Zero-Argument Resume
 
@@ -127,6 +152,13 @@ If current artifacts already represent the terminal receipt, closeout records
 `no-op`. If the inventory, baselines, validation, unique successor, owner
 receipt, or join is missing, the execution result remains preserved but Task
 Session closeout returns `BLOCK`.
+
+The same information is a pre-mutation admission prerequisite whenever closeout
+synchronization is expected. Task Session must not begin implementation and
+discover only afterward that the owner route cannot be joined. The preflight
+must bind the terminal source receipt contract, declared target inventory,
+baseline state, admitted delta classes, owner validation commands, expected
+owner receipt, and any declared successor rule.
 
 ## Terminal Continuation Boundary
 

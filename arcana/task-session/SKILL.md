@@ -1,10 +1,10 @@
 ---
 name: task-session
-description: "Use when: executing or resuming the nearest evidence-backed bounded work-pack task or SWU end to end with explicit trade-offs, context building, gate checks, validation, owner-joined closeout synchronization, optional runtime handoff, and an optional non-closeout continuation route."
-argument-hint: "[<task-reference|to <target>>] [--task <TASK-ID>] [--swu <SWU-ID>] [--list-nearest] [--from <path>] [--session <id>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
+description: "Use when: executing or resuming one nearest evidence-backed bounded work-pack task or SWU end to end, or routing explicit until-blocker series intent to its owning spell."
+argument-hint: "[<task-reference|to <target>>] [--task <TASK-ID>] [--swu <SWU-ID>] [--until-blocker] [--list-nearest] [--from <path>] [--session <id>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.7.0
+version: 0.8.0
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -30,6 +30,10 @@ Arcana: guided execution loop with human decision points, hard gates, and comple
 </required-sigils>
 
 <flags>
+- `--until-blocker`: declare series intent. Task Session must route the request
+  to the installed `task-session-until-blocker` spell with the exact work-pack,
+  stop condition, runtime, and caller scope. It must not execute multiple SWUs
+  inside one Task Session receipt.
 - With no positional target or selector, resolve the nearest evidence-backed
   work pack or returned Task Session SWU, revalidate it live, and execute at
   most one SWU.
@@ -83,11 +87,29 @@ Expected inputs, if available:
 - optional previous terminal receipt and continuation receipt for repeated-block and cycle detection.
 - optional exact continuation authorization evidence from the current user request or a durable approval artifact.
 - closeout synchronization target inventory, baseline identities or digests, and validation commands when the task or work-pack already declares them.
+- closeout source-receipt contract and expected owner-receipt contract when
+  execution will require evidence, status, route, work-pack, checklist,
+  Dispatch, registry, or declared Craft projection synchronization.
+- optional explicit series intent such as `--until-blocker`, `all until
+  blocker`, `all SWUs`, `one go`, or an equivalent request to traverse one
+  ordered work-pack stream.
 - optional native runtime session id, visible-session selector, or
   repository-local Task Session continuity cursor.
 </inputs>
 
 <process>
+## Step 0 - Route Multi-Session Intent
+
+0a. Before selecting one task/SWU, detect explicit series intent from the
+`--until-blocker` flag or equivalent current user wording.
+0b. Resolve the exact work-pack scope and route it to the installed
+`task-session-until-blocker` spell. Pass the stop condition, captured
+work-pack identity, runtime selector, and current approval boundary.
+0c. Stop direct Task Session execution after the handoff. If the spell is
+missing or the work-pack scope is ambiguous, return `BLOCK` with that exact
+gap. Never silently narrow series intent to one SWU and never place several
+SWUs in one Task Session receipt.
+
 ## Step 1 - Resolve Task Scope
 
 1. Resolve exactly one target task. Explicit user selectors, `--from`, `to
@@ -160,6 +182,18 @@ Expected inputs, if available:
 23. If a blocker exists because a human approval, policy choice, destructive cleanup, irreversible mutation, cost/risk acceptance, or rollout option is unresolved, run `decision-gate` for that blocker before continuing to Step 4A or returning `BLOCK`.
 24. If a blocker exists for missing evidence, missing files, unavailable tools, or contradictory context with no meaningful user option, preserve `BLOCK`, record exact unblock actions, and continue only to Step 4A when a terminal owner handoff can be formed. Stop mutation inside the selected task, then continue to Step 8 for required closeout synchronization.
 25. If the task can proceed with assumptions, record those assumptions before mutation.
+25a. When a passing terminal receipt would require closeout synchronization,
+run the closeout prerequisite preflight before mutation admission. Require the
+declared target inventory, live baseline identities or exact digests,
+source-receipt contract, owner validation commands, expected owner-receipt
+contract, admitted delta classes, and unique-successor policy.
+25b. Persist the preflight result with the controlling work-pack identity and
+current target baselines. Missing, ambiguous, stale, expanded, or forbidden
+closeout inputs return `BLOCK` before implementation writes and before owner
+dispatch.
+25c. This preflight proves only that a later terminal result can be synchronized
+within declared bounds. The actual typed deltas, source receipt, owner
+dispatch, joined receipt, and cursor remain Step 8 obligations.
 
 ## Step 4A - Resolve One Terminal Continuation
 
@@ -237,6 +271,8 @@ validation in Step 7 remain mandatory.
     source result and receipt, declared target inventory, baseline identities or
     digests, typed deltas, validation commands, expected owner receipt, and the
     mechanically determined next route when one exists.
+    Revalidate the Step 4 closeout preflight against the live targets; target
+    drift invalidates the preflight and returns `BLOCK`.
 51. Treat synchronization as required when the terminal receipt changes
     evidence, blocker, status, route, work-pack, checklist, traceability,
     Dispatch, registry, or declared Craft projection state. Treat it as
@@ -340,6 +376,8 @@ Recommended signals:
 <quality-bar>
 A successful execution of this sigil must:
 
+- route explicit series intent to `task-session-until-blocker` without
+  executing more than one SWU inside Task Session,
 - resolve exactly one task scope,
 - make a no-argument invocation resume at most one uniquely nearest,
   evidence-backed SWU,
@@ -373,6 +411,8 @@ A successful execution of this sigil must:
 - reserve `FLAG` for named noncritical residue that cannot falsify a done criterion,
 - distinguish task/SWU execution evidence from reusable-behavior experiment evidence,
 - synchronize required completion and blocker evidence before returning,
+- fail before implementation mutation when required closeout inputs are absent,
+  ambiguous, stale, expanded, or forbidden,
 - derive closeout authorization only for the exact receipt-bound target
   inventory, admitted delta classes, and validation surface,
 - join a validated owner receipt for required closeout synchronization,
@@ -388,6 +428,9 @@ A successful execution of this sigil must:
 Avoid:
 
 - using the sigil for many unrelated tasks at once,
+- silently narrowing explicit `all`, `one go`, or `until blocker` series intent
+  to one SWU instead of routing to the outer-loop owner,
+- emitting one Task Session receipt that claims execution of several SWUs,
 - choosing the globally latest work pack, telemetry row, or cursor,
 - treating fuzzy relevance or cross-project recency as “nearest,”
 - assuming compacted conversational tokens remain readable,
@@ -408,6 +451,8 @@ Avoid:
 - treating a recommendation, confidence judgment, or “clearly safe” label as an automatic-choice classification,
 - changing files outside the task scope without recording why,
 - marking completion without evidence,
+- discovering a predictable missing closeout inventory, baseline, validation,
+  or expected owner receipt only after implementation writes,
 - skipping validation because the edit looks small,
 - hiding failed checks inside a success report,
 - returning `FLAG` for failed or unavailable acceptance-critical validation,
@@ -436,6 +481,7 @@ Return:
 ## Task Session Result
 
 - Task: <task-reference>
+- Series intent: none | routed to task-session-until-blocker | blocked, <handoff path or reason>
 - Resolution mode: explicit | resume-nearest | list-nearest
 - Resolution source: explicit-source | visible-session-context | exact-session-cursor | cwd-ancestor-work-pack | scope-matched-continuity
 - Session recovery: visible | durable-cursor | cwd-work-pack | scoped-continuity | unavailable

@@ -23,6 +23,48 @@ def evaluate_automatic_choice(
     return str(policy["automatic_choice"][outcome_key])
 
 
+def evaluate_series_intent(
+    policy: dict[str, Any], fixture_input: dict[str, Any]
+) -> str:
+    series = policy["series_intent"]
+    request = str(fixture_input.get("request", "")).casefold()
+    detected = any(term.casefold() in request for term in series["explicit_terms"])
+    outcome_key = "detected_outcome" if detected else "not_detected_outcome"
+    return str(series[outcome_key])
+
+
+def evaluate_closeout_preflight(
+    policy: dict[str, Any], fixture_input: dict[str, Any]
+) -> str:
+    preflight = policy["closeout_preflight"]
+    if fixture_input.get("sync_expected") is False:
+        return str(preflight["no_sync_outcome"])
+
+    for field in preflight["required_inputs"]:
+        value = fixture_input.get(field)
+        if value is None or value == "" or value == [] or value == {}:
+            return str(preflight["rejected_outcome"])
+
+    delta_classes = fixture_input.get("allowed_delta_classes")
+    if not isinstance(delta_classes, list) or not delta_classes:
+        return str(preflight["rejected_outcome"])
+    if any(item not in preflight["admitted_delta_classes"] for item in delta_classes):
+        return str(preflight["rejected_outcome"])
+
+    successor = fixture_input.get("successor_selection", {})
+    if successor.get("requested") is True and preflight[
+        "unique_declared_successor_only"
+    ]:
+        if not (
+            successor.get("declared") is True
+            and successor.get("dependency_ready") is True
+            and successor.get("candidate_count") == 1
+        ):
+            return str(preflight["rejected_outcome"])
+
+    return str(preflight["admitted_outcome"])
+
+
 def accepted_equivalent_passes(
     policy: dict[str, Any], fixture_input: dict[str, Any]
 ) -> bool:
@@ -140,6 +182,8 @@ def validate_contracts(repo_root: Path, canonical_dir: Path) -> list[str]:
         "do not ask for a",
         "second user approval",
         "return but never execute the next task/SWU selected by closeout",
+        "`task-session-until-blocker` spell",
+        "closeout prerequisite preflight before mutation admission",
         "## Step 5A - Verify Routed Mutation Admission",
         "`scripts/verify-mutation-readiness.py`",
         "`not-applicable` is valid only for `standalone-nonmutating`",
@@ -154,8 +198,8 @@ def validate_contracts(repo_root: Path, canonical_dir: Path) -> list[str]:
     for clause in forbidden_clauses:
         if clause in canonical_body:
             errors.append(f"canonical contract retains forbidden clause: {clause}")
-    if "version: 0.7.0" not in canonical_frontmatter:
-        errors.append("canonical contract version is not 0.7.0")
+    if "version: 0.8.0" not in canonical_frontmatter:
+        errors.append("canonical contract version is not 0.8.0")
 
     support_paths = (
         Path("README.md"),
@@ -230,7 +274,11 @@ def main() -> int:
 
     for case in fixtures["cases"]:
         kind = case["kind"]
-        if kind == "automatic-choice":
+        if kind == "series-intent":
+            actual = evaluate_series_intent(policy, case["input"])
+        elif kind == "closeout-preflight":
+            actual = evaluate_closeout_preflight(policy, case["input"])
+        elif kind == "automatic-choice":
             actual = evaluate_automatic_choice(policy, case["input"])
         elif kind == "validation":
             actual = evaluate_validation(policy, case["input"])

@@ -2,6 +2,89 @@
   "schema_version": "task-session.decision-validation-fixtures.v1",
   "cases": [
     {
+      "id": "explicit-until-blocker-routes-to-spell",
+      "kind": "series-intent",
+      "input": {
+        "request": "all SWUs until blocker"
+      },
+      "expected": "ROUTE_TASK_SESSION_UNTIL_BLOCKER"
+    },
+    {
+      "id": "single-swu-stays-in-task-session",
+      "kind": "series-intent",
+      "input": {
+        "request": "execute SWU-001"
+      },
+      "expected": "CONTINUE_SINGLE_TASK_SESSION"
+    },
+    {
+      "id": "complete-closeout-preflight-proceeds",
+      "kind": "closeout-preflight",
+      "input": {
+        "sync_expected": true,
+        "terminal_source_receipt_contract": "terminal-receipt.schema.json",
+        "declared_target_inventory": ["WORK-PACK.md"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "allowed_delta_classes": ["evidence_added", "status_changed"],
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json",
+        "successor_selection": {
+          "requested": true,
+          "declared": true,
+          "dependency_ready": true,
+          "candidate_count": 1
+        }
+      },
+      "expected": "PROCEED"
+    },
+    {
+      "id": "closeout-preflight-missing-inventory-blocks",
+      "kind": "closeout-preflight",
+      "input": {
+        "sync_expected": true,
+        "terminal_source_receipt_contract": "terminal-receipt.schema.json",
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "allowed_delta_classes": ["status_changed"],
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "closeout-preflight-ambiguous-successor-blocks",
+      "kind": "closeout-preflight",
+      "input": {
+        "sync_expected": true,
+        "terminal_source_receipt_contract": "terminal-receipt.schema.json",
+        "declared_target_inventory": ["WORK-PACK.md"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "allowed_delta_classes": ["route_changed"],
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json",
+        "successor_selection": {
+          "requested": true,
+          "declared": true,
+          "dependency_ready": true,
+          "candidate_count": 2
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "closeout-preflight-forbidden-delta-blocks",
+      "kind": "closeout-preflight",
+      "input": {
+        "sync_expected": true,
+        "terminal_source_receipt_contract": "terminal-receipt.schema.json",
+        "declared_target_inventory": ["WORK-PACK.md"],
+        "baseline_state": {"WORK-PACK.md": "sha256:one"},
+        "allowed_delta_classes": ["implementation"],
+        "validation_commands": ["validate-work-pack"],
+        "expected_owner_receipt": "refresh-report.json"
+      },
+      "expected": "BLOCK"
+    },
+    {
       "id": "auto-recommendation-is-not-classification",
       "kind": "automatic-choice",
       "input": {
