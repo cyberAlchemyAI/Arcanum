@@ -77,3 +77,21 @@ Reason: all implementation tasks and SWUs through registry candidate preparation
 ## Next Action
 
 Observe first meaningful registry-era usage and compare runtime behavior against [examples/standard-pass.md](examples/standard-pass.md).
+
+## 2026-07-24 Runtime-Emission Maintenance Gate
+
+Scoped status: **pass**.
+
+| Surface | Status | Evidence |
+| --- | --- | --- |
+| Distill-owned runtime emitter | canonical pass | 14/14 focused producer checks |
+| true-subagent path | pass | producer-created ledger resolves with distinct stable role IDs |
+| role-simulation path | pass | producer-created ledger resolves with null native IDs |
+| direct Distill telemetry | pass | 7/7 append, dedupe, and misuse checks |
+| evidence-emission status | pass | 13/13 status, authority, and semantic non-regression checks |
+| generated Codex/Claude profiles | pass | 37 exact bootstrap-projection checks |
+| integrated closeout | pass | complete DEE and DRE suites plus artifact/boundary checks |
+
+These additions do not change the existing registry decision, Distill modes,
+budgets, role policy, technique pack, verdicts, or output meanings.
+`GAP-DEE-002` is resolved.

@@ -29,9 +29,25 @@ The hook receives a Sigil Invocation Envelope:
 ```json
 {
   "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "run_id": "<unique capability run id>",
+  "session_id": "<session id or null>",
   "sigil": "<sigil-name>",
   "tier": "formulae | transmutations | arcana",
   "mode": "new | update | observe | reflect | execute",
+  "lineage": {
+    "parent_run_id": "<parent capability run id>",
+    "relation": "invoked-by",
+    "caller": {
+      "id": "<caller capability id>",
+      "kind": "sigil | spell",
+      "tier": "<caller tier>",
+      "mode": "<caller mode>"
+    }
+  },
+  "evidence": {
+    "status": "complete | partial | unavailable",
+    "refs": []
+  },
   "request": {
     "raw": "<last user request, if available>",
     "summary": "<one sentence summary>",
@@ -61,6 +77,11 @@ The hook receives a Sigil Invocation Envelope:
   }
 }
 ```
+
+`lineage` and `evidence` are optional for direct invocations. They are required
+when one capability invokes another and the child execution is meaningful. The
+child `run_id` is the observer dedupe identity; `parent_run_id` links it to the
+caller without folding both executions into one telemetry row.
 
 ## Storage Pattern
 
@@ -104,6 +125,24 @@ Use `hooks/failures.jsonl` for hook failures and `hooks/dedupe.jsonl` for observ
 8. Main agent reports whether reflection is now required.
 
 If no subagent mechanism exists, the main agent runs a clearly labeled local observer pass and writes the same JSON shape.
+
+### Nested Capability Invocations
+
+When one capability invokes another:
+
+1. keep the parent and child run IDs distinct;
+2. append the parent's telemetry under the parent capability;
+3. append exactly one child telemetry row after the child completes partially or
+   fully, blocks, or fails;
+4. set `lineage.relation` to `invoked-by` and identify the caller;
+5. preserve available request, receipt, runtime-event, and validator references
+   under `evidence`;
+6. do not emit a child row when the child was skipped or not required; and
+7. treat telemetry failure as visible observability residue, not as authority to
+   rewrite the child verdict or the parent result.
+
+The central ledger remains the source of truth. Per-capability indexes point to
+the two distinct central rows rather than duplicating either event.
 
 ## Minimal Hook Prompt
 

@@ -26,6 +26,11 @@ Do not emit full telemetry for casual mentions, abandoned setup, or a request th
 | `capability_id` | yes | `distill` |
 | `capability_kind` | yes | `sigil` |
 | `tier` | yes | `arcana` |
+| `run_id` | yes | Unique Distill child or direct run identifier and observer dedupe identity. |
+| `invocation_source` | yes | `direct` or `invoked-by`. |
+| `parent_run_id` | when invoked | Caller run identifier. |
+| `caller_capability_id` | when invoked | Capability that invoked Distill, such as `invoke`. |
+| `caller_mode` | when invoked | Caller mode that selected Distill. |
 | `mode` | yes | `compact`, `standard`, `tournament`, `deep`, or `validate` |
 | `target_context` | yes | Summary of context size and purpose. |
 | `objective` | yes | Problem the run is solving. |
@@ -42,8 +47,51 @@ Do not emit full telemetry for casual mentions, abandoned setup, or a request th
 | `cycle_guard_triggered` | yes | True when a cycle/infinite-reduction guard fired. |
 | `objective_output_drift` | yes | True when artifact drift occurred. |
 | `navigation_closeout` | yes | `pass`, `flag`, or `block`. |
+| `execution_evidence_status` | yes | `complete`, `partial`, or `unavailable`. |
+| `execution_evidence_refs` | yes | Available request, runtime-event, execution-receipt, and validator-result references. |
+| `evidence_emission_status` | yes | `complete`, `partial`, `failed`, `not-required`, or `not-configured`; stored as `evidence.emission_status` in the invocation envelope. |
+| `telemetry_status` | yes | `recorded`, `failed`, or `not-configured`. |
 | `next_route` | yes | Recommended lifecycle route. |
 | `reflection_hint` | no | Optional reason a maintainer should inspect the run. |
+
+## Invoked-By Telemetry
+
+When Invoke or another capability runs Distill:
+
+- Distill receives a distinct child `run_id`;
+- the child row carries `parent_run_id`, caller capability, caller mode, and
+  `invocation_source: invoked-by`;
+- completed, partial, blocked, and failed meaningful child runs are observed;
+- skipped or not-required routes are recorded only in caller telemetry;
+- Signal Observer appends exactly one child row, deduped by the child run ID;
+- the caller and child rows remain separate central-ledger events; and
+- telemetry failure is reported as residue without changing either capability's
+  substantive result.
+
+## Direct Telemetry
+
+For a meaningful direct Distill run:
+
+- Distill owns the post-run append through
+  `scripts/observe-direct-invocation.sh`;
+- the envelope uses `invocation_source: direct` and has no caller lineage;
+- Signal Observer deduplicates by the direct Distill run ID; and
+- a skipped or abandoned setup emits no signal.
+
+Direct and invoked routes must never both append the same run.
+
+## Evidence-Emission Status
+
+| Status | Meaning | Handoff Effect |
+| --- | --- | --- |
+| `complete` | The full accepted role/process event sequence resolves. | Evidence validation may continue; no authority is implied. |
+| `partial` | At least one event exists, but the accepted sequence does not resolve. | Evidence-gated handoff blocks. |
+| `failed` | Emission was configured but produced no usable event evidence. | Evidence-gated handoff blocks. |
+| `not-required` | No downstream evidence gate applied to the run. | No evidence claim is made. |
+| `not-configured` | Evidence was required but no usable event context was available. | Evidence-gated handoff blocks. |
+
+This field reports producer state. It cannot change the Distill verdict,
+validator result, or mutation authority.
 
 ## Invoke-Owned Versus Target-Owned Gaps
 
@@ -68,6 +116,7 @@ Trigger manual reflection when any threshold appears:
 | missing evolution profile | 2 in 5 future-scale runs | Is the complexity balance rule too implicit? |
 | technique overuse | one conditional technique appears in every run | Has a technique become hidden mandatory structure? |
 | role trace mismatch | any true-subagent run differs from role-simulation trace shape | Does runtime policy need repair? |
+| evidence emission `partial`, `failed`, or `not-configured` | any evidence-gated run | Is the runtime producer or evidence context incomplete? |
 
 ## Reflection Route
 

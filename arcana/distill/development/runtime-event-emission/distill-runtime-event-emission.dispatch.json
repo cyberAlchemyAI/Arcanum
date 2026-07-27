@@ -1,0 +1,201 @@
+{
+  "dispatch_id": "invoke-distill-runtime-event-emission-v1",
+  "intent": {
+    "raw": "Define, design, and plan closure of GAP-DEE-002 through Sigil Development.",
+    "objective": "Add Distill-owned runtime-event emission and direct telemetry, prove both execution paths, update readiness from evidence, and regenerate runtime profiles.",
+    "target_artifact": "arcanum/arcana/distill/development/runtime-event-emission/WORK-PACK.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "handle_handoff",
+    "residue_ledger",
+    "execution_receipt_handoff",
+    "artifact_contract_bridge",
+    "concrete_path_evidence",
+    "observability_grouping"
+  ],
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Accept the Distill producer ownership and implement canonical runtime emission",
+      "capability_ref": "sigil-development",
+      "pattern": "sequential",
+      "techniques": ["owner_boundary_check", "scu_swu_reduction", "artifact_contract_bridge", "validation_loop"],
+      "inputs": [
+        {"kind": "artifact", "ref": "arcanum/arcana/distill/development/runtime-event-emission/DESIGN.md"},
+        {"kind": "artifact", "ref": "arcanum/arcana/distill/development/runtime-event-emission/WORK-PACK.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "Distill-owned runtime emitter and path fixtures"},
+        {"kind": "receipt", "ref": "SWU-DRE-001 through SWU-DRE-003 results"}
+      ],
+      "evidence_artifact": "focused emitter and cross-path validation",
+      "stop_conditions": [
+        "block if DEC-DRE-001 is not accepted",
+        "block if emitted events do not resolve through the accepted Invoke consumer"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Add direct telemetry and evidence-emission status",
+      "capability_ref": "sigil-development",
+      "pattern": "sequential",
+      "techniques": ["observability_grouping", "owner_boundary_check", "validation_loop"],
+      "inputs": [
+        {"kind": "receipt", "ref": "S1 complete runtime-path evidence"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "direct Distill observer and status contracts"},
+        {"kind": "receipt", "ref": "SWU-DRE-004 and SWU-DRE-005 results"}
+      ],
+      "evidence_artifact": "direct telemetry and evidence-status fixture results",
+      "stop_conditions": [
+        "block duplicate or invoked-route direct append",
+        "block status semantics that imply verdict or mutation authority"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Update readiness and close runtime residue from integrated evidence",
+      "capability_ref": "sigil-development",
+      "pattern": "validation",
+      "techniques": ["residue_ledger", "concrete_path_evidence", "recomposition_proof"],
+      "inputs": [
+        {"kind": "receipt", "ref": "S2 telemetry and status evidence"},
+        {"kind": "ledger", "ref": "arcanum/spells/invoke/development/distill-execution-evidence/GAP-LEDGER.md"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "Distill validation and readiness update"},
+        {"kind": "ledger", "ref": "evidence-backed GAP-DEE-002 resolution"}
+      ],
+      "evidence_artifact": "SWU-DRE-006 result",
+      "stop_conditions": [
+        "keep GAP-DEE-002 open until both paths, telemetry, and canonical validation pass"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Regenerate and verify runtime profiles",
+      "capability_ref": "sigil-development",
+      "pattern": "validation",
+      "techniques": ["handle_handoff", "validation_loop", "concrete_path_evidence"],
+      "inputs": [
+        {"kind": "receipt", "ref": "S3 accepted canonical validation"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "Codex and Claude Distill runtime mirrors"},
+        {"kind": "receipt", "ref": "SWU-DRE-007 parity result"}
+      ],
+      "evidence_artifact": "isolated bootstrap and exact parity output",
+      "stop_conditions": [
+        "block on generated drift",
+        "block direct generated edits"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Run integrated closeout",
+      "capability_ref": "sigil-development",
+      "pattern": "validation",
+      "techniques": ["validation_loop", "recomposition_proof", "residue_ledger", "owner_boundary_check"],
+      "inputs": [
+        {"kind": "receipt", "ref": "S4 generated parity result"}
+      ],
+      "outputs": [
+        {"kind": "artifact", "ref": "integrated Distill runtime-emission closeout"},
+        {"kind": "ledger", "ref": "remaining owned residue"}
+      ],
+      "evidence_artifact": "TASK-DRE-VERIFY result",
+      "stop_conditions": [
+        "block closeout on event, telemetry, semantic, parity, link, boundary, or diff failure"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-sigil-lifecycle",
+      "kind": "human_approval",
+      "owner": "sigil-development",
+      "condition": "Sigil Development accepts or narrows DEC-DRE-001 before canonical mutation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-runtime-evidence",
+      "kind": "validation",
+      "owner": "sigil-development",
+      "condition": "True-subagent and role-simulation producer paths resolve through the accepted Invoke consumer.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-observability-authority",
+      "kind": "validation",
+      "owner": "signal-observer",
+      "condition": "Direct and invoked telemetry remain exactly-once, separately owned, and non-authoritative.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-generated-parity",
+      "kind": "validation",
+      "owner": "arcanum-bootstrap",
+      "condition": "Selected Codex and Claude Distill files match isolated canonical bootstrap output.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-invoke-to-sigil-development",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "sigil-development",
+        "applies_to_steps": ["S1", "S2", "S3", "S5"],
+        "contract": "Invoke authors the package; Sigil Development accepts, mutates, validates, and closes the Distill lifecycle.",
+        "on_violation": "block",
+        "delegation_target": "sigil-development",
+        "input_contract": "define, design, plan, work-pack, dispatch, and Distill validation artifacts",
+        "owner_boundary": "Invoke cannot claim Distill lifecycle completion.",
+        "blocked_fallback": "preserve GAP-DEE-002 and the authoring package without canonical mutation"
+      },
+      {
+        "boundary_id": "B2-distill-to-invoke-evidence",
+        "kind": "capability_handoff",
+        "from_owner": "distill",
+        "to_owner": "invoke",
+        "applies_to_steps": ["S1", "S3"],
+        "contract": "Distill emits runtime evidence; Invoke retains schema, resolver, validator, and handoff authority.",
+        "on_violation": "block",
+        "delegation_target": "invoke evidence backend",
+        "input_contract": "schema-valid append-only runtime event ledger",
+        "owner_boundary": "Producer evidence cannot self-authorize handoff.",
+        "blocked_fallback": "record emission failure and keep evidence-gated handoff blocked"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "distill-runtime-emission-stage-receipt",
+        "producer": "sigil-development, bootstrap, or deterministic validator",
+        "required_fields": ["run_id", "capability_ref", "status", "artifacts", "validation", "blockers", "residue", "handoff_note"],
+        "stores": ["work-pack/results", ".arcanum/observability when configured"],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "producer_proven",
+      "true_subagent_path_validated",
+      "role_simulation_path_validated",
+      "direct_telemetry_validated",
+      "readiness_closed",
+      "mirrors_regenerated",
+      "closeout_verified"
+    ],
+    "signal_grouping": "dispatch_id"
+  }
+}

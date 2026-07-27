@@ -109,6 +109,7 @@ def array_field: type == "array";
 (. as $e
 | ($e.capability.id // $e.sigil // "") as $capability_id
 | ($e.capability.kind // "sigil") as $capability_kind
+| ($e.lineage // null) as $lineage
 | [
 	(if ($e.timestamp | non_empty_string) then empty else "missing timestamp" end),
 	(if ($capability_id | non_empty_string) then empty else "missing capability.id or sigil" end),
@@ -123,7 +124,18 @@ def array_field: type == "array";
 	(if (($e.observer.anti_pattern_hits // []) | array_field) then empty else "observer.anti_pattern_hits must be an array" end),
 	(if (($e.observer.workflow_gaps // []) | array_field) then empty else "observer.workflow_gaps must be an array" end),
 	(if (($e.observer.reflection_trigger // "") | non_empty_string) then empty else "missing observer.reflection_trigger" end),
-	(if (($e.observer.recommendation // "") | non_empty_string) then empty else "missing observer.recommendation" end)
+	(if (($e.observer.recommendation // "") | non_empty_string) then empty else "missing observer.recommendation" end),
+	(if $lineage == null then empty
+	 elif ($lineage | type) != "object" then "lineage must be an object"
+	 elif ((($lineage.parent_run_id // "") | non_empty_string) | not) then "lineage.parent_run_id must be a non-empty string"
+	 elif $lineage.relation != "invoked-by" then "lineage.relation must be invoked-by"
+	 elif (($lineage.caller // null) | type) != "object" then "lineage.caller must be an object"
+	 elif ((($lineage.caller.id // "") | non_empty_string) | not) then "lineage.caller.id must be a non-empty string"
+	 elif ((($lineage.caller.kind // "") | non_empty_string) | not) then "lineage.caller.kind must be a non-empty string"
+	 elif ((($lineage.caller.mode // "") | non_empty_string) | not) then "lineage.caller.mode must be a non-empty string"
+	 else empty end),
+	(if (($e.evidence // null) == null or (($e.evidence | type) == "object"))
+	 then empty else "evidence must be an object" end)
 ])
 '
 
@@ -174,6 +186,21 @@ event="$(
 				alias: (.capability.alias // null)
 			},
 			command: (.command // null),
+			lineage: (
+				if (.lineage // null) == null then null
+				else {
+					parent_run_id: .lineage.parent_run_id,
+					relation: .lineage.relation,
+					caller: {
+						id: .lineage.caller.id,
+						kind: .lineage.caller.kind,
+						tier: (.lineage.caller.tier // "unknown"),
+						mode: .lineage.caller.mode
+					}
+				}
+				end
+			),
+			evidence: (.evidence // null),
 			request: {
 				raw: (.request.raw // null),
 				summary: (.request.summary // .request.intent),
@@ -287,6 +314,7 @@ index_event="$(
 			execution_status: .execution.status,
 			reflection_trigger: .observer.reflection_trigger,
 			recommendation: .observer.recommendation,
+			lineage,
 			target_artifact
 		}'
 )"
@@ -349,6 +377,7 @@ printf 'BY_SIGIL=%s\n' "$observability_dir/by-sigil/$safe_sigil.jsonl"
 printf 'INDEX_MODEL=central-ledger-reference\n'
 printf 'CAPABILITY=%s\n' "$capability_id"
 printf 'CAPABILITY_KIND=%s\n' "$capability_kind"
+printf 'PARENT_RUN_ID=%s\n' "$(printf '%s\n' "$event" | jq -r '.lineage.parent_run_id // "none"')"
 printf 'DEDUPE_KEY=%s\n' "$dedupe_key"
 printf 'REFLECTION_TRIGGER=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.reflection_trigger')"
 printf 'RECOMMENDATION=%s\n' "$(printf '%s\n' "$event" | jq -r '.observer.recommendation')"

@@ -94,3 +94,38 @@ Proceed to:
 
 - TASK-CLO-005: define observability and reflection artifacts,
 - TASK-CLO-006: add runtime command adapter and representative runtime validation.
+
+## 2026-07-24 Maintenance Validation
+
+Invoke-owned child telemetry now covers nested Distill execution without
+changing the optimization contract:
+
+- completed and blocked child runs append distinct Distill rows;
+- parent Invoke and child Distill run IDs remain linked but separate;
+- duplicate child emissions dedupe by child run ID;
+- skipped or not-required routes cannot emit child telemetry; and
+- telemetry remains non-authoritative and non-blocking.
+
+Deterministic coverage lives in
+`spells/invoke/development/run-invoke-distill-telemetry-fixtures.sh`. The
+runtime-owned Distill role/process emitter is validated in the closeout below.
+
+## 2026-07-24 Runtime-Emission Validation
+
+Canonical producer and direct-observability behavior pass:
+
+- `run-distill-runtime-emission-fixtures.sh`: 14/14, covering one-event append,
+  full true-subagent and role-simulation sequences, identity policy,
+  schema/digest/order/run/path failures, missing boundaries, and cross-path
+  shape parity;
+- `run-distill-direct-telemetry-fixtures.sh`: 7/7, covering direct append,
+  run-ID dedupe, no-lineage storage, and misuse rejection;
+- `run-distill-evidence-emission-status-fixtures.sh`: 13/13, covering all five
+  producer statuses, authority rejection, and mode/budget/role/output
+  non-regression; and
+- the accepted runtime-event, semantic, provenance, active-mode, positive,
+  missing, and fabricated-evidence suites remain green.
+
+Generated profile parity passes 37 checks, and the independent integrated
+closeout passes the complete DEE and DRE suites plus artifact, public-boundary,
+and scoped-diff checks. `GAP-DEE-002` is resolved.
