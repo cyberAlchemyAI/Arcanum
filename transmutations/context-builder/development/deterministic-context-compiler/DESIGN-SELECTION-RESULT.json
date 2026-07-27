@@ -1,0 +1,202 @@
+{
+  "concerns": [
+    {
+      "concern_id": "concern:persistence",
+      "disposition": "required",
+      "output_id": "architecture:persistence-concurrency",
+      "ownership": {
+        "accountable_owner": "persistence-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "persistence",
+      "rationale": "persistence disposition follows normalized extracted signals",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "signal:store:excerpt-cache",
+        "signal:writer:compiler-writer"
+      ]
+    },
+    {
+      "concern_id": "concern:integration",
+      "disposition": "required",
+      "output_id": "architecture:integration-versioning",
+      "ownership": {
+        "accountable_owner": "interface-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+          "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "integration",
+      "rationale": "integration disposition follows normalized extracted signals",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "signal:compatibility:context-builder-output-contract",
+        "signal:interface:compiler-cli"
+      ]
+    },
+    {
+      "concern_id": "concern:privacy-data",
+      "disposition": "required",
+      "output_id": "architecture:data-lifecycle",
+      "ownership": {
+        "accountable_owner": "data-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "privacy-data",
+      "rationale": "privacy-data disposition follows normalized extracted signals",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "signal:data-log-sink:compile-usage-receipt"
+      ]
+    },
+    {
+      "concern_id": "concern:performance",
+      "disposition": "recommended",
+      "output_id": "architecture:quality",
+      "ownership": {
+        "accountable_owner": "service-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+          "transmutations/context-builder/development/deterministic-context-compiler/WITNESS-CONTRACTS.md"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "performance",
+      "rationale": "Token reduction is the motivating bounded hypothesis, but no actual runtime usage baseline exists yet.",
+      "revisit_condition": "Require the quality extension only after paired live runs establish a stable runtime token or latency threshold.",
+      "selected": false,
+      "signal_ids": [
+        "authored:performance",
+        "signal:quality-claim:token-reduction-hypothesis"
+      ]
+    },
+    {
+      "concern_id": "concern:ux",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "ux-plan-owner",
+        "artifact_owner": "ux-plan-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+          "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "ux",
+      "rationale": "The bounded compiler adds no rendered semantic contract or natural-person interaction surface.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:ux"
+      ]
+    },
+    {
+      "concern_id": "concern:validation",
+      "disposition": "required",
+      "output_id": "validation-contracts",
+      "ownership": {
+        "accountable_owner": "design-owner",
+        "artifact_owner": "plan-work-pack-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+          "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+          "transmutations/context-builder/development/deterministic-context-compiler/WITNESS-CONTRACTS.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "validation",
+      "rationale": "validation disposition follows normalized extracted signals",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "signal:acceptance-readiness-claim:deterministic-replay-contract",
+        "signal:effect:effect-local-cache-write",
+        "signal:normative-rule:rule-cache-non-authority",
+        "signal:normative-rule:rule-stale-source",
+        "signal:normative-rule:rule-total-coverage"
+      ]
+    }
+  ],
+  "denominator_receipt_digest": "d36b40b24b0a8b98c8b78d03b722757177e8c9fa614eb62e4c692760a43d0168",
+  "diagnostics": [],
+  "evidence_state": "design-validator-pass",
+  "fixed_point": true,
+  "manifest_id": "manifest:deterministic-context-compiler-v1",
+  "manifest_input_digest": "414222b2d0e5f227cc5d2d41ee8c09449f71ec156ea864c400ee06ff12692a33",
+  "pass_1_digest": "ed7686812e887c61253c1778d6e07069fb5b16dff7a2b506cc65f74857c67ccb",
+  "pass_2_digest": "ed7686812e887c61253c1778d6e07069fb5b16dff7a2b506cc65f74857c67ccb",
+  "result_digest": "9f40868ef79b6fb16ef737c07fad313e17b37eb91d0be6c24de7c2a8e8858561",
+  "schema_version": "1.0.0",
+  "selected_outputs": [
+    "architecture",
+    "architecture:data-lifecycle",
+    "architecture:integration-versioning",
+    "architecture:persistence-concurrency",
+    "validation-contracts"
+  ],
+  "verdict": "pass"
+}

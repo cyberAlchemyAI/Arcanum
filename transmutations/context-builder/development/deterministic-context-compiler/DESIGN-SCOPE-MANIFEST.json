@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "manifest:deterministic-context-compiler-v1",
+  "target_id": "target:context-builder-deterministic-compiler",
+  "target_footprint": {
+    "roots": [
+      {
+        "path": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+        "digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+      }
+    ],
+    "inclusions": [
+      {
+        "selector": "local glossary",
+        "path": "transmutations/context-builder/development/deterministic-context-compiler/GLOSSARY.md",
+        "digest": "dcedd8871179d7eb243577257b596841db4ab5eeca6c0a3518b11fc54eeb8957"
+      },
+      {
+        "selector": "sigil handoff",
+        "path": "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+        "digest": "8f5d108b131027712242ca73fd3641e2a11d9f7b288de66192f24bcf9bbb16a7"
+      },
+      {
+        "selector": "planned witness contracts",
+        "path": "transmutations/context-builder/development/deterministic-context-compiler/WITNESS-CONTRACTS.md",
+        "digest": "22f7373f1ef4bc66244da1244f7624490a6919ce26853a93280610a9dd6ec96b"
+      }
+    ],
+    "exclusions": [
+      {
+        "selector": "consumer-private telemetry and Inventory",
+        "reason": "public Arcanum design admits no consumer-private paths or prose",
+        "evidence_ref": "CONTEXT-PACK.md#Excluded-Candidates"
+      },
+      {
+        "selector": "provider-specific prompt caching",
+        "reason": "the compiler contract is runtime-neutral",
+        "evidence_ref": "SPEC.md#Scope"
+      }
+    ]
+  },
+  "source_contracts": [
+    {
+      "source_id": "context-builder-skill",
+      "selector": "flags, handoff contract, process, quality bar",
+      "path": "transmutations/context-builder/SKILL.md",
+      "digest": "d37a7c938f8e190d5c8c4f9bbb1796d8122346a90144ebfeb64cd77ee1c1c1b4"
+    },
+    {
+      "source_id": "context-builder-readme",
+      "selector": "problem, output, handoff schema",
+      "path": "transmutations/context-builder/README.md",
+      "digest": "39968ff5bd317126663df69f1add94a2d1cbda0d5a25173376ec257763e6e460"
+    },
+    {
+      "source_id": "runtime-handoff-pack-template",
+      "selector": "obligations, selected sources, provenance",
+      "path": "transmutations/context-builder/templates/runtime-handoff-pack.md",
+      "digest": "4b6befbb4c8edd69ec400ba0aac23d39b90d41b2d24d303f18c20816fc1adbe9"
+    },
+    {
+      "source_id": "runtime-handoff-index-template",
+      "selector": "identity, obligations, selected sources, blockers",
+      "path": "transmutations/context-builder/templates/runtime-handoff-index.json",
+      "digest": "03be2b2c2e933c9235b8eaa5c4522ef92577730dfe6e1bde1f60e63b1b392dd3"
+    },
+    {
+      "source_id": "benchmark-context-index-1",
+      "selector": "identity, obligations, selected sources",
+      "path": "benchmark/development/refinement-runs/20260527T085305Z-benchmark/context-builder/context-index.json",
+      "digest": "f1427aba76339b5697793d1457e58227a84d107cc05ccc5faa9cbd91ff707c1f"
+    },
+    {
+      "source_id": "benchmark-context-index-2",
+      "selector": "identity, obligations, selected sources",
+      "path": "benchmark/development/refinement-runs/20260527T091133Z-benchmark/context-builder/context-index.json",
+      "digest": "7c38d803968990734fc9252620e8ceb01ee15cb8d0f2247b0ce9c56e555c6dc4"
+    },
+    {
+      "source_id": "benchmark-context-index-3",
+      "selector": "identity, obligations, selected sources",
+      "path": "benchmark/development/refinement-runs/20260527T093001Z-benchmark/context-builder/context-index.json",
+      "digest": "4849c1591b73bfa8293c1d462c47d8f09622d1f4ba78f5f298f5d3c02c128aa2"
+    }
+  ],
+  "human_actors": [],
+  "rendered_surfaces": [],
+  "interfaces": [
+    {
+      "interface_id": "compiler-cli",
+      "kind": "local-cli",
+      "peer": "context-builder-runtime-adapter",
+      "direction": "bidirectional",
+      "contract_ref": "SPEC.md#Functional-Requirements",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    }
+  ],
+  "stores": [
+    {
+      "store_id": "excerpt-cache",
+      "authority": "none-generated-read-model",
+      "data_classes": ["excerpt-object", "selection-manifest", "compile-receipt"],
+      "writers": ["compiler-writer"],
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    }
+  ],
+  "queues": [],
+  "writers": [
+    {
+      "writer_id": "compiler-writer",
+      "targets": ["excerpt-cache", "session-evidence-output"],
+      "concurrency": "single-process-atomic-file-replacement",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    }
+  ],
+  "normative_rules": [
+    {
+      "rule_id": "rule-total-coverage",
+      "verb": "must",
+      "subject": "compiler",
+      "object": "cover every required obligation or block",
+      "enforcement_hint": "coverage validator",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    },
+    {
+      "rule_id": "rule-stale-source",
+      "verb": "must",
+      "subject": "compiler",
+      "object": "reject stale selected source bindings",
+      "enforcement_hint": "snapshot validator",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    },
+    {
+      "rule_id": "rule-cache-non-authority",
+      "verb": "must",
+      "subject": "cache",
+      "object": "remain a non-authority generated read model",
+      "enforcement_hint": "receipt and public-boundary validation",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+      "source_digest": "8f5d108b131027712242ca73fd3641e2a11d9f7b288de66192f24bcf9bbb16a7"
+    }
+  ],
+  "effects": [
+    {
+      "effect_id": "effect-local-cache-write",
+      "reversible": true,
+      "external": false,
+      "privileged": false,
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SPEC.md",
+      "source_digest": "c412439fdffa176b50697576252d04d8240cc839a6362374ef8201ac4af76dc6"
+    }
+  ],
+  "data_and_log_sinks": [
+    {
+      "sink_id": "compile-usage-receipt",
+      "data_classes": ["hashes", "byte-counts", "token-counts", "cache-counts", "runtime-usage"],
+      "retention_hint": "session evidence or consumer-local bounded policy",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+      "source_digest": "8f5d108b131027712242ca73fd3641e2a11d9f7b288de66192f24bcf9bbb16a7"
+    }
+  ],
+  "deployment_targets": [],
+  "compatibility_boundaries": [
+    {
+      "boundary_id": "context-builder-output-contract",
+      "old_contract": "context-builder-v0.2-manual-assembly",
+      "new_contract": "context-builder-v0.2-plus-optional-deterministic-compiler",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/SIGIL-HANDOFF.md",
+      "source_digest": "8f5d108b131027712242ca73fd3641e2a11d9f7b288de66192f24bcf9bbb16a7"
+    }
+  ],
+  "quality_claims": [
+    {
+      "claim_id": "token-reduction-hypothesis",
+      "source_kind": "bounded-hypothesis",
+      "threshold_or_tradeoff": "measure paired actual runtime prompt usage before selecting a threshold",
+      "required": false,
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/WITNESS-CONTRACTS.md",
+      "source_digest": "22f7373f1ef4bc66244da1244f7624490a6919ce26853a93280610a9dd6ec96b"
+    }
+  ],
+  "acceptance_and_readiness_claims": [
+    {
+      "claim_id": "deterministic-replay-contract",
+      "selector": "WITNESS-CONTRACTS.md#Fixture-Matrix",
+      "evidence_state": "authored-complete",
+      "source_selector": "transmutations/context-builder/development/deterministic-context-compiler/WITNESS-CONTRACTS.md",
+      "source_digest": "22f7373f1ef4bc66244da1244f7624490a6919ce26853a93280610a9dd6ec96b"
+    }
+  ],
+  "unknowns": [],
+  "input_digest": "414222b2d0e5f227cc5d2d41ee8c09449f71ec156ea864c400ee06ff12692a33",
+  "authored_by": "invoke-design-author"
+}
