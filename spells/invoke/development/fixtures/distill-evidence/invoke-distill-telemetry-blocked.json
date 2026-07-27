@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-07-24T12:01:00Z",
+  "run_id": "distill-child-blocked-001",
+  "session_id": "invoke-distill-telemetry-fixture",
+  "sigil": "distill",
+  "tier": "arcana",
+  "mode": "validate",
+  "capability": {
+    "id": "distill",
+    "kind": "sigil",
+    "tier": "arcana",
+    "mode": "validate",
+    "alias": null
+  },
+  "lineage": {
+    "parent_run_id": "invoke-parent-plan-002",
+    "relation": "invoked-by",
+    "caller": {
+      "id": "invoke",
+      "kind": "spell",
+      "tier": "spells",
+      "mode": "plan"
+    }
+  },
+  "evidence": {
+    "status": "partial",
+    "distill_run_request_ref": {
+      "path": "runs/invoke-parent-plan-002/distill-request.json",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "size_bytes": 256
+    },
+    "runtime_event_refs": [],
+    "execution_receipt_ref": null,
+    "validation_result_ref": null
+  },
+  "request": {
+    "raw": null,
+    "summary": "Validate a plan whose first unit does not close.",
+    "intent": "Record a blocked Distill child run under Invoke plan."
+  },
+  "execution": {
+    "status": "blocked",
+    "outputs": ["Distill blocked on an incoherent first unit."],
+    "files_changed": [],
+    "validation": ["Execution evidence remained partial."],
+    "notes": "Blocked child executions still produce telemetry."
+  },
+  "observer": {
+    "quality_bar_status": "partial",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [
+      {
+        "category": "process",
+        "severity": "high",
+        "summary": "The selected unit failed closure.",
+        "evidence": "Distill returned block before a validation receipt existed."
+      }
+    ],
+    "output_contract_drift": false,
+    "reflection_trigger": "severe-gap",
+    "recommendation": "reflect-now"
+  },
+  "target_artifact": "work-pack/WORK-PACK.md"
+}

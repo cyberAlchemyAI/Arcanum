@@ -27,8 +27,9 @@ Validation protocol: [VALIDATION-EXPERIMENT.md](VALIDATION-EXPERIMENT.md)
 | Design gate coverage | pass | [../design.md](../design.md) requires six views, source-contract gating, glossary consistency, non-mutating upstream behavior, and design transport. |
 | Plan gate coverage | pass | [../plan.md](../plan.md) requires approved design refs, implementation-layering, canonical work-pack, validation strategy, complexity-based output mode, layer-mapped waves for medium/high complexity, implementation-detail specs, SWU decomposition for execution tasks, navigable work-pack tables, artifact-boundary clarity, and subagent/local-fallback-ready SWU handoff fields. |
 | Handoff gate coverage | pass | [../handoff.md](../handoff.md) requires a new-session prompt, source session reference, handoff type, Context Builder selection, selected/excluded context, and explicit next route. |
-| Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, proposal-only default, apply-approved approval, pass/flag/block/no-op statuses, phase-local completion, scoped blockers, and separate handoff readiness. |
+| Refresh gate coverage | pass | [../refresh.md](../refresh.md) requires source evidence, target artifact inventory, refresh scope, typed source signals, direct-user apply-approved default, non-user proposal-only default, scoped apply approval, pass/flag/block/no-op statuses, phase-local completion, scoped blockers, and separate handoff readiness. |
 | Refresh evidence relationships | pass | `run-distill-active-mode-evidence-fixtures.sh` proves apply-approved pass can authorize mutation, proposal-only pass cannot authorize mutation, and a proposal-only flag with only apply/downstream blockers is rejected. |
+| Invoke-to-Distill telemetry | pass | `run-invoke-distill-telemetry-fixtures.sh` proves completed and blocked child runs append distinct linked Distill rows, duplicate child runs dedupe, and missing parent, wrong caller, and skipped-child cases block. |
 | Capability status ceilings | pass | `run-capability-status-fixtures.sh` proves artifact-authored, registry-released, and mutation-runtime-ready are independently receipt-bound for all five active modes; `full` and `validate` remain unsupported and false on later axes. |
 | Registry gate | pass | [../../../registry/SPELLS.md](../../../registry/SPELLS.md) does not yet register `invoke`; release remains blocked until validation passes. |
 | Native authoring readiness | pass | `README.md`, `define.md`, `design.md`, and `plan.md` do not require deprecated command files as readiness evidence; plan SWUs include native receipt/subagent result shape. |
@@ -105,7 +106,7 @@ or `validate`; their registry axis therefore remains false. `full` and
 | [INV-REFRESH-FLAG-001](fixtures/INV-REFRESH-FLAG-001.md) | pass | Dry-run flags artifact drift only because unresolved artifact authority prevents an exact safe proposal. |
 | [INV-REFRESH-BLOCK-001](fixtures/INV-REFRESH-BLOCK-001.md) | pass | Dry-run blocks when target artifact inventory is missing. |
 | [INV-REFRESH-NOOP-001](fixtures/INV-REFRESH-NOOP-001.md) | pass | Dry-run records no-op when latest evidence is already represented. |
-| [INV-REFRESH-APPLY-PASS-001](fixtures/INV-REFRESH-APPLY-PASS-001.md) | pass | Dry-run applies an explicitly approved scoped delta, validates it, and reports a ready handoff. |
+| [INV-REFRESH-APPLY-PASS-001](fixtures/INV-REFRESH-APPLY-PASS-001.md) | pass | Dry-run resolves an omitted mode on a direct user request to apply-approved, applies the scoped delta, validates it, and reports a ready handoff. |
 | [INV-INTEGRATION-DEFINE-DESIGN-PLAN-001](fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001.md) | pass | Integration dry-run chains define and design artifacts into plan, preserves glossary terms, emits plan artifacts and transport, and keeps execution deferred. |
 
 ## Runner Output

@@ -52,7 +52,7 @@ The legacy runner calls `codex exec`, writes the last Codex message to `example-
 If `codex` is not on `PATH`, the runner tries common VS Code extension install paths. You can also set `CODEX_BIN` explicitly:
 
 ```bash
-CODEX_BIN=/home/vrondelli/.vscode-server/extensions/openai.chatgpt-26.513.21555-linux-x64/bin/linux-x86_64/codex \
+CODEX_BIN=/absolute/path/to/codex \
   arcanum/spells/invoke/development/run-template-example-with-codex.sh next
 ```
 

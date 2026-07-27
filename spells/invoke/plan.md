@@ -22,6 +22,13 @@ Plan mode also owns the execution contract for those SWUs. If later execution us
 
 Plan mode should make future Task Session runs context-builder-ready. It should include source anchors, validation surfaces, write scope, and handoff notes, but it must not pre-generate task context packs. Context packs and runtime handoff packs are generated at execution time as session evidence.
 
+Plan mode also makes Task Session closeout executable before implementation
+begins. Every mutation-capable SWU must declare the terminal source receipt
+contract, exact synchronization target inventory, baseline binding, admitted
+delta classes, lifecycle-owner validation, expected owner receipt, and
+deterministic successor policy. Task Session must be able to preflight this
+contract without inferring targets after code mutation.
+
 Plan mode also performs automatic Distill validation before mutation-capable handoff. The validation checks whether the draft implementation plan, layering artifact, work-pack, and handoff route identify the smallest coherent executable unit, preserve recomposition into the approved design, expose hidden gaps, and avoid overbuilt or vague task/SWU structure.
 
 ## Implementation Coverage
@@ -83,6 +90,8 @@ Plan mode blocks when approved design references are missing, required standalon
 - validation strategy requirements,
 - implementation detail requirements for algorithmic or domain-logic tasks,
 - SWU requirements for medium/high work-packs,
+- Task Session closeout synchronization contract for every mutation-capable
+  SWU,
 - target artifact type (`spell`, `sigil`, or neutral),
 - Dispatch Spec technique trace requirements,
 - Distill validation target and gap ownership rules,
@@ -156,6 +165,10 @@ Detailed boundary contract: [development/PLAN-ARTIFACT-BOUNDARIES.md](developmen
 Split task files must be useful. If they only repeat task titles while the work-pack carries all execution detail, the work-pack is not execution-ready.
 
 Work-pack tables must be navigable. Task-board task IDs should link to task contracts when task files exist, and SWU manifest rows should link to the parent task contract plus source contract or local context needed to execute the SWU.
+
+Work-packs must carry a Task Session closeout synchronization contract for every
+mutation-capable SWU. The contract binds exact owner targets and receipts; it is
+not deferred implementation detail.
 
 ## Implementation Detail Policy
 
@@ -298,6 +311,10 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - A Distill flag must add named gaps, owners, and repair paths; a Distill block prevents `task-session`, runtime-goal, or other mutation-capable next routes.
 - SWUs must each include one parent task, write scope, acceptance evidence, and verification command or reviewable check.
 - SWUs must each include dependencies, done criteria, execution-owner recommendation, and subagent/local fallback handoff context.
+- Mutation-capable SWUs must each include a complete Task Session closeout
+  synchronization contract. Missing target inventory, baseline binding,
+  admitted delta classes, owner validation, expected owner receipt, or
+  deterministic successor policy blocks handoff before source mutation.
 - SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
 - SWUs intended for runtime-goal handoff must include source anchors, validation surface, write scope, and handoff notes; Invoke must not pre-generate context packs during planning.
 - Split task files must contain useful task-local SWU execution contracts, not just task titles.
@@ -322,6 +339,7 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - implementation-detail specs for medium/high execution tasks,
 - SWU manifest and task-local SWU lists for medium/high work-packs,
 - subagent/local fallback handoff contract for each non-exempt SWU,
+- Task Session closeout synchronization contract coverage,
 - validation strategy,
 - dependency plan,
 - blocker and unresolved gap ledger entries,
@@ -339,12 +357,14 @@ When `.arcanum/observability/` exists, record:
 - complexity and output mode,
 - selected Dispatch Spec techniques and full dispatch validation status,
 - Distill validation verdict and gap count,
+- Distill child run ID and telemetry append status,
 - layer coverage status,
 - layer-mapped wave status for medium/high complexity,
 - implementation-detail coverage status,
 - SWU coverage status,
 - SWU atomicity status and task-shaped SWU count,
 - first-unit narrowness status,
+- Task Session closeout synchronization coverage,
 - gates passed, flagged, or blocked,
 - artifact-redundancy gaps,
 - navigation-efficiency gaps,
@@ -371,6 +391,7 @@ Return:
 - Glossary consistency: <pass | flag | block | n/a>
 - Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
 - Distill validation: <pass | flag | block, recomposition status, gap count>
+- Distill telemetry: <recorded child run id | failed with residue | not configured>
 - Implementation layering: <artifact path and layer coverage summary>
 - Work-pack: <artifact path and single-file | split>
 - Complexity: low | medium | high
@@ -379,6 +400,7 @@ Return:
 - Smallest working units: n/a | complete | gaps recorded | blocked
 - SWU atomicity: n/a | pass | flag | block, task-shaped count <n>
 - First-unit narrowness: n/a | pass | flag | block
+- Task Session closeout sync: pass | block
 - Template/profile selection: <selected templates and eligibility evidence>
 - Validation strategy: <summary>
 - Decisions: <summary>

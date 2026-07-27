@@ -4,7 +4,7 @@ description: "Use when: turning development intent into governed define, design,
 argument-hint: "<define|design|plan|handoff|refresh|full|validate> <target-or-intent> [--output <path>] [--dry-run]"
 tier: spells
 domain: lifecycle-authoring
-version: 0.2.0
+version: 0.3.0
 origin: canonical Arcanum spell for intent-to-artifact authoring
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -36,7 +36,7 @@ Invoke does not require deprecated command files, slash commands, or command-res
 | Mode       | Status           | Contract File                              | Notes                                                  |
 | ---------- | ---------------- | ------------------------------------------ | ------------------------------------------------------ |
 | `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with the DomainSpec template (`templates/domainspec-spec/`), standalone companions, and dedicated candidate family scaffolds. |
-| `design`   | implemented (L1 contract) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts; validation examples still gate promotion. |
+| `design`   | implemented (L1 contract with deterministic selection validation) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts through a closed scope manifest, extracted denominator, total two-pass selection result, and separate Plan evidence. |
 | `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
 | `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
 | `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas while separating phase completion from handoff readiness. |
@@ -68,6 +68,12 @@ single capability `status` or `mutation_handoff_allowed`.
 This capability result is distinct from a mode run's `phase_status` and
 handoff decision. Active-mode validation may consume evidence before routing,
 but it cannot substitute its run verdict for any of the three capability axes.
+
+Design selection adds another independent evidence family. Its
+`DesignScopeManifest`, `DesignDenominatorReceipt`, and
+`DesignSelectionResult` establish only the selected Design contract and its
+evidence ceiling. They do not imply that the artifact is registry-released or
+runtime-ready, and they never count planned witnesses as Plan evidence.
 
 ## Core Required Sigils
 
@@ -129,7 +135,9 @@ invoke handoff -> workflow-reflect | invoke define/design/full | research | task
 For artifact refresh after a session result:
 
 ```text
-invoke refresh -> proposal-only refresh report -> task-session | workflow-reflect | deferred
+direct-user invoke refresh -> apply-approved when material gates pass
+delegated/continuation invoke refresh -> proposal-only refresh report
+either -> task-session | workflow-reflect | deferred
 ```
 
 When a target is already clearly a sigil or spell, Invoke should produce a compact handoff packet and route early instead of expanding into lifecycle execution.
@@ -169,6 +177,22 @@ Distill verdict handling:
 
 Define, design, handoff, and refresh should run Distill when the requested output is broad, ambiguous, overbuilt, or likely to hide lifecycle gaps, but they may record a skipped reason when the output is already narrow and locally bounded.
 
+### Invoke-To-Distill Telemetry
+
+When Invoke actually runs Distill and a repository observability package exists,
+Invoke must append exactly one linked Distill child signal in addition to its own
+Invoke signal. The child envelope uses the Distill run ID from the run request,
+sets `lineage.parent_run_id` to the Invoke run ID, identifies Invoke and its mode
+as the caller, and preserves available request, runtime-event, execution-receipt,
+and validator-result references.
+
+Completed, partial, blocked, and failed meaningful Distill executions are
+observed. A skipped or not-required Distill route does not create child
+telemetry; Invoke records the skip rationale in its own row. Signal Observer
+deduplicates the child append by Distill run ID. Telemetry failure is visible
+observability residue and must not change the Distill verdict, the validator
+result, or mutation authority.
+
 ## Prerequisites
 
 - Repository root is known.
@@ -189,6 +213,9 @@ Define, design, handoff, and refresh should run Distill when the requested outpu
 | spec artifact               | spell | `invoke define`                                 | downstream design or plan routing     |
 | glossary artifact           | spell | `invoke define`                                 | downstream design or plan routing     |
 | design artifact             | spell | `invoke design`                                 | downstream plan routing and validation |
+| Design scope manifest       | spell | `invoke design`                                 | denominator extraction and exact source closure |
+| Design denominator receipt  | spell | Design scope extractor                          | total Design selection and stale-input diagnostics |
+| Design selection receipt    | spell | Design selection validator                      | evidence-state reporting and handoff routing |
 | glossary consistency report | spell | `invoke design`                                 | design validation and gap routing     |
 | implementation layering artifact | spell | `invoke design`, `invoke plan`, and `invoke full` | plan validation, execution handoff, and release checks |
 | implementation plan artifact | spell | `invoke plan` and `invoke full` | work-pack mapping, validation strategy, and execution handoff |
@@ -206,7 +233,8 @@ Define, design, handoff, and refresh should run Distill when the requested outpu
 2. Select a Dispatch Spec technique trace for the mode route and determine whether a full dispatch document is required.
 3. Execute the mode contract phases and collect mode outputs.
 4. Run automatic Distill validation when required by mode or triggered by broad/ambiguous output shape.
-5. Apply global gates, observability, and handoff policy from this root contract.
+5. When Distill ran, append one linked child Distill signal through Signal Observer.
+6. Apply global gates, observability, and handoff policy from this root contract.
 
 ## Target Artifact Provenance
 
@@ -234,6 +262,8 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - source signals, target artifact inventory, mutation mode, and delta summary when mode is `refresh`
 - mode artifact paths
 - design artifact paths and six-view coverage
+- Design selection receipt, Design evidence state, and exact evidence ceiling
+- exact target-artifact gaps that remain outside the Design evidence ceiling
 - glossary consistency report
 - mode selection evidence
 - implementation plan artifact path
@@ -244,6 +274,7 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Distill validation verdict, gap summary, and recomposition proof status when run
 - unresolved gaps and blocker decisions
 - Necronomicon transport report
+- explicit Spellcraft handoff when the target artifact is a spell
 - recommended next route (`task-session`, `full`, `spellcraft`, `sigil-development`, or deferred follow-up)
 
 ## Global Gates
@@ -262,12 +293,20 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Vague task labels such as "implement this bundle" are not execution-ready unless backed by implementation-detail specs.
 - Layer promotion requires evidence from the previous layer, not preference alone.
 - Candidate glossary or registry promotion is never automatic.
+- Normal Plan handoff requires `design-validator-pass`; `authored-complete`
+  may route only to a bounded remediation Plan for the missing Design
+  validator or witness.
+- Planned fixture and validator contracts begin Plan at
+  `plan-evidence-pending`; they are not executed Plan evidence.
 - No silent upstream mutation; direct upstream edits require explicit approval.
 - Stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
 - Reflection provenance must distinguish invoke telemetry ownership from target artifact ownership.
 - Session/thread handoffs must select context from the referenced session through Context Builder and must not substitute a whole-session transcript for obligation-linked context.
 - Handoff mode must preserve the user's split reason: workflow gap, new lifecycle idea, research direction, execution continuation, or generic continuation.
-- Refresh mode must map every proposed or applied artifact update to a typed source signal and must default to proposal-only.
+- Refresh mode must map every proposed or applied artifact update to a typed
+  source signal. A direct user invocation defaults to `apply-approved`;
+  delegated or continuation activation defaults to `proposal-only`; an explicit
+  mutation mode overrides either default.
 - Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
 - Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
 - Capability reporting must use the three-axis resolver. An authored artifact,
@@ -300,14 +339,20 @@ When `.arcanum/observability/` exists, record:
 - unresolved gaps and blocker decisions,
 - handoff target recommendation,
 - handoff type and source session reference when mode is `handoff`,
-- refresh source signal count, delta classes, mutation mode, and no-op rationale when mode is `refresh`,
+- refresh source signal count, delta classes, activation source, resolved
+  mutation mode, mutation-mode source, and no-op rationale when mode is
+  `refresh`,
 - authored phase status, phase-status basis, handoff status, and blocker counts by lifecycle scope when mode is `refresh`,
 - target artifact name, type, owner, and lifecycle cycle,
 - gap ownership split between invoke-specific gaps and target-artifact gaps,
 - referenced mode contract,
 - selected Dispatch Spec techniques and dispatch validation status,
 - Distill validation verdict and gap count,
+- Distill child run ID, caller linkage, telemetry append status, and evidence-reference status when Distill ran,
+- Distill skip rationale and no child signal when Distill was not required,
 - design view coverage and glossary consistency status,
+- Design selection receipt, Design evidence state, exact evidence ceiling, and
+  separate Plan evidence state,
 - plan complexity and output mode,
 - implementation layer coverage and per-layer planning slice status,
 - implementation-detail coverage status,
@@ -329,9 +374,14 @@ Return:
 - Mode contract: <path>
 - Outputs: <mode output paths>
 - Design views: <coverage summary | n/a>
+- Design selection receipt: <DesignSelectionResult path | blocked reason | n/a>
+- Design evidence state: <authored-complete | design-validator-pass | n/a>
+- Design evidence ceiling: <exact proven scope and target-artifact gaps | n/a>
+- Plan evidence: <plan-evidence-pending | pass | fail | n/a>
 - Glossary consistency: <pass | flag | block | n/a>
 - Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
 - Distill validation: <pass | flag | block | skipped with reason | n/a>
+- Distill telemetry: <recorded child run id | failed with residue | not configured | not emitted because skipped>
 - Implementation layering: <artifact path | seed emitted | gap recorded>
 - Work-pack: <artifact path | single-file | split>
 - Complexity: <low | medium | high | n/a>

@@ -204,7 +204,7 @@ def run_handoff_cases(
         receipt: dict[str, Any] | None = None
         expected_package_id: str | None = None
         expected_package_digest: str | None = None
-        if fixture["mutation_mode"] == "apply-approved":
+        if fixture["expected_mutation_mode"] == "apply-approved":
             with tempfile.TemporaryDirectory() as temporary_directory:
                 root = Path(temporary_directory)
                 write_files(root)
@@ -225,20 +225,23 @@ def run_handoff_cases(
                 elif fixture["receipt_source"] == "missing":
                     receipt = None
 
-        result = resolve_refresh_handoff(
-            {
-                "mutationMode": fixture["mutation_mode"],
-                "authoredPhaseStatus": "pass",
-                "requestedHandoff": fixture["requested_handoff"],
-                "materialReceipt": receipt,
-                "expectedPackageId": expected_package_id,
-                "expectedPackageDigest": expected_package_digest,
-            },
-            receipt_schema,
-        )
+        request = {
+            "activationSource": fixture["activation_source"],
+            "authoredPhaseStatus": "pass",
+            "requestedHandoff": fixture["requested_handoff"],
+            "materialReceipt": receipt,
+            "expectedPackageId": expected_package_id,
+            "expectedPackageDigest": expected_package_digest,
+        }
+        if fixture["mutation_mode"] is not None:
+            request["mutationMode"] = fixture["mutation_mode"]
+        result = resolve_refresh_handoff(request, receipt_schema)
         expected_blocker = fixture["expected_blocker"]
         matches = (
-            result["phaseStatus"] == fixture["expected_phase_status"]
+            result["activationSource"] == fixture["activation_source"]
+            and result["mutationMode"] == fixture["expected_mutation_mode"]
+            and result["mutationModeSource"] == fixture["expected_mode_source"]
+            and result["phaseStatus"] == fixture["expected_phase_status"]
             and result["handoffStatus"] == fixture["expected_handoff_status"]
             and result["mutationReady"] == fixture["expected_mutation_ready"]
             and (
@@ -386,8 +389,8 @@ def main() -> int:
         f"cases={total_cases}"
     )
     print(
-        "AUTHORITY approval never overrides invalid material; "
-        "proposal-only is not a mutation package"
+        "AUTHORITY direct-user defaults apply-approved; non-user defaults "
+        "proposal-only; approval never overrides invalid material"
     )
     return 0
 

@@ -29,6 +29,7 @@ This template is standalone at invoke scope and is composed by the DomainSpec im
 | distillValidationStatus | pass, flag, block, or skipped | Required for Invoke plan/full/validate before mutation-capable handoff. |
 | swuAtomicityStatus | pass, flag, block, or n/a | Required for medium/high plans; task-shaped SWUs block handoff. |
 | firstUnitNarrownessStatus | pass, flag, block, or n/a | Required before selecting the first mutation-capable SWU. |
+| closeoutSyncStatus | pass or block | Pass only when every mutation-capable SWU has a complete Task Session closeout contract. |
 | activeLayerWindow | L0, L1, L2, L3, or n/a | Primary layer focus for current execution slice. |
 | lastUpdatedAt | {iso-timestamp} | Last update time for this work-pack. |
 | readinessProfile | pilot, release-candidate, production | Completion target profile. |
@@ -54,6 +55,24 @@ This template is standalone at invoke scope and is composed by the DomainSpec im
 | SWU Manifest | Task files and traceability | Every non-exempt SWU keeps dependencies, write scope, done criteria, validation, and execution-owner recommendation. |
 | Source Contracts | Task board, SWU manifest, and task files | Link existing source context so workers can navigate without repository search. |
 | Context Builder Readiness | SWU handoff notes | Preserve source anchors, validation surfaces, and write scope so Context Builder can generate execution-time packs. Do not pre-generate context packs in Invoke planning. |
+| Task Session Closeout | Task Session Closeout Sync Contract | Declare exact post-execution targets, baselines, admitted deltas, validation, owner receipt, and successor policy before mutation handoff. |
+
+## Task Session Closeout Sync Contract
+
+Every mutation-capable SWU must have one complete closeout row before Task
+Session admission. Shared values may be referenced from a stable common
+contract, but target inventory and successor policy must remain exact.
+
+| SWU ID | Lifecycle Owner Route | Terminal Source Receipt Contract | Declared Target Inventory | Baseline Binding | Allowed Delta Classes | Owner Validation | Expected Owner Receipt | Successor Policy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SWU-{FEATURE-CODE}-001 | `invoke:refresh:apply-approved` | {receipt schema or exact result shape} | {exact planning/evidence paths} | {live digest or deterministic baseline rule} | {evidence_added, blocker_opened, blocker_resolved, status_changed, route_changed} | {commands or review checks} | {exact receipt path and schema} | {unique declared dependency-ready same-work-pack successor or none} |
+
+The contract is closeout-only. It cannot admit implementation, another SWU,
+authority changes, promotion, publication, deployment, destructive cleanup,
+policy or cost/risk acceptance, or unrelated targets. Missing inventory,
+baseline binding, owner validation, expected receipt, or deterministic
+successor policy sets `closeoutSyncStatus = block`. Invoke Refresh must not
+infer undeclared targets after implementation.
 
 ## Delivery Slices
 
@@ -170,6 +189,9 @@ Split mode:
 10. Parallel SWUs must have disjoint write scopes or an explicit merge plan.
 11. Medium/high SWUs must own one primary behavior, have an independently reviewable acceptance boundary, and include split analysis; task-shaped SWUs keep the gate blocked.
 12. The first selected SWU must pass the narrow-first-unit gate.
+13. Every mutation-capable SWU must have a complete Task Session Closeout Sync
+    Contract and `closeoutSyncStatus = pass`; missing closeout prerequisites
+    block execution before source mutation.
 
 ## Handoff To Execution Pack
 

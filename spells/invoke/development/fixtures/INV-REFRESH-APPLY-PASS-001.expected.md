@@ -1,7 +1,7 @@
 ## Invoke Validation Fixture Result
 
 - Fixture: INV-REFRESH-APPLY-PASS-001
-- User request: Apply the approved task-status refresh and validate the changed work-pack row against its task receipt.
+- User request: Refresh the task status from its approved receipt and validate the changed work-pack row.
 - Mode: refresh
 - Spell: invoke
 - Canonical ID: invoke
@@ -11,14 +11,16 @@
 - Handoff readiness: ready
 - Mode contract: arcanum/spells/invoke/refresh.md
 - Outputs: artifacts/refresh/REFRESH-REPORT.md, WORK-PACK.md
+- Activation source: direct-user
 - Mutation mode: apply-approved
+- Mutation mode source: default-direct-user
 - Source signals: 2; evidence_added, status_changed
 - Target artifacts: WORK-PACK.md, work-pack/tasks/TASK-READY.md
 - Proposed changes: update one task-status row and evidence link
 - Applied changes: updated one task-status row and evidence link
 - Skipped changes: none
 - Validation: compare changed task status and receipt selector
-- Decisions: apply only the explicitly approved delta
+- Decisions: resolve the direct-user default to apply-approved and apply only the declared scoped delta
 - Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0
 - Unresolved gaps: none
 - Next route: task-session

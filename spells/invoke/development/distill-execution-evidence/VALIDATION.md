@@ -29,14 +29,27 @@ Authoring package: **pass**. Integrated execution-evidence closeout: **pass**.
 ## Integrated Closeout
 
 - Active/deferred mode composition: pass.
-- Generated Codex/Claude parity: pass, 27 checks.
+- Invoke-to-Distill child telemetry: pass; completed and blocked child runs
+  append exactly once with parent/caller lineage, while skipped routes emit no
+  child signal.
+- Generated Codex/Claude parity: pass, 37 checks, including Distill runtime
+  emission and direct telemetry projections.
 - Current Workbench replay: pass, eleven SWUs and preserved MSB-011 predecessor digest.
 - Append-only Craft continuation: pass, next route `task-session SWU-WUI-001`.
 - Public boundary: pass.
-- Remaining residue: `GAP-DEE-002`, runtime-owned event emission, owned by Sigil Development
-  plus runtime integration.
+- Remaining DEE residue: none.
+
+### Runtime-Emission Continuation
+
+The Distill-owned producer passes canonical focused validation for one-event
+append, both execution paths, direct telemetry, and evidence-emission status.
+The accepted Invoke-side resolver and semantic/provenance gates remain green,
+generated profile parity passes, and the independent integrated closeout passes.
 
 ## Remaining Residue
 
-The accepted evidence backend is closed. Future runtime-owned event emission remains outside this
-closeout and must be selected through its own lifecycle receipt.
+The accepted evidence backend is closed. Invoke-owned child telemetry preserves
+Distill invocation lineage and evidence references. The runtime-owned
+role/process producer is implemented under a Sigil Development lifecycle
+receipt, selected generated profiles match the canonical projection, and
+`GAP-DEE-002` is resolved.

@@ -278,7 +278,8 @@ Inputs:
 
 Expected outputs:
 
-- pass when evidence-backed proposal-only deltas exist,
+- pass when evidence-backed deltas resolve through the declared activation and
+  mutation mode,
 - flag when artifact drift exists and safe correction needs owner review,
 - block when source evidence or target artifact inventory is missing,
 - no-op when latest evidence is already represented.
@@ -286,15 +287,18 @@ Expected outputs:
 Pass criteria:
 
 - every proposed or applied change maps to a refresh signal,
-- proposal-only is the default mutation mode,
-- apply-approved requires explicit approval,
+- direct user activation defaults to apply-approved,
+- delegated or continuation activation defaults to proposal-only,
+- explicit mutation mode overrides the activation default,
+- apply-approved requires scoped approval evidence and passing material gates,
 - setup proof is not promoted into completion proof,
 - no-op is a first-class phase status,
 - next route is explicit.
 
 Failure examples:
 
-- refresh applies changes without approval,
+- delegated or continuation refresh applies changes without explicit approval,
+- direct user refresh expands beyond its declared scope,
 - refresh infers completion from weak evidence,
 - missing target inventory proceeds,
 - no-op reruns cause artifact churn,

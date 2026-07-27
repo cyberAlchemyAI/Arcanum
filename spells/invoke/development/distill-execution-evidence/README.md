@@ -1,7 +1,8 @@
 # Invoke Distill Execution Evidence
 
-Governed Define, Design, and Plan package for the accepted change requests in
-`ops/development/2026-07-17-invoke-distill-enforcement-review/`.
+Governed Define, Design, and Plan package derived from an accepted
+consumer-owned Invoke/Distill enforcement review. The private review evidence
+is not vendored in public Arcanum.
 
 This package proposes an enforcement architecture; it does not revise Invoke or Distill,
 approve the architecture, or make the Workbench mutation-ready.

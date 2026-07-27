@@ -26,11 +26,12 @@ Normal refresh mode requires:
 - target workflow root or target artifact inventory,
 - intended refresh scope,
 - evidence date,
-- mutation mode: `proposal-only` or `apply-approved`,
+- activation source: `direct-user`, `delegated`, or `continuation`,
+- optional explicit mutation mode: `proposal-only` or `apply-approved`,
 - Context Builder-selected source context when the source session is broad,
-- explicit approval when mutation mode is `apply-approved`.
+- approval evidence when the resolved mutation mode is `apply-approved`.
 
-Refresh blocks when source evidence is missing, target artifact inventory is missing, mutation scope is ambiguous, or a proposed status change lacks evidence. Missing apply approval blocks `apply-approved`; it does not block or flag a complete `proposal-only` artifact.
+Refresh blocks when source evidence is missing, target artifact inventory is missing, mutation scope is ambiguous, or a proposed status change lacks evidence. A direct user invocation supplies approval evidence for the exact declared refresh scope; it does not approve discovered or unrelated paths. Missing apply approval blocks `apply-approved`; it does not block or flag a complete `proposal-only` artifact.
 
 ## Required Sigils
 
@@ -56,7 +57,8 @@ Refresh blocks when source evidence is missing, target artifact inventory is mis
 - target artifact inventory,
 - refresh scope,
 - evidence date,
-- mutation mode,
+- activation source,
+- optional explicit mutation mode,
 - known blocker IDs,
 - known task, SWU, wave, or route IDs,
 - optional expected next route.
@@ -99,8 +101,16 @@ mutation_safety: safe | needs_review | blocked
 
 | Mode | Behavior |
 | --- | --- |
-| `proposal-only` | Default. Emit `REFRESH-REPORT.md` and, when useful, `REFRESH-PATCH-PROPOSAL.md`; do not edit target artifacts. |
-| `apply-approved` | Apply scoped changes only when explicit approval, target inventory, and validation commands are present. |
+| `apply-approved` | Default for a direct user invocation. Apply scoped changes only when approval evidence, target inventory, a valid material package, and validation commands are present. |
+| `proposal-only` | Explicit opt-out and default for delegated or continuation activation. Emit `REFRESH-REPORT.md` and, when useful, `REFRESH-PATCH-PROPOSAL.md`; do not edit target artifacts. |
+
+Resolution precedence is deterministic:
+
+1. An explicitly supplied mutation mode wins.
+2. An omitted mode with `activationSource=direct-user` resolves to `apply-approved`.
+3. An omitted mode with `activationSource=delegated|continuation` resolves to
+   `proposal-only`.
+4. An omitted mode without a valid activation source blocks before mutation.
 
 ## Output Artifacts
 
@@ -128,7 +138,9 @@ When mutation is approved:
     "artifactComplete": true,
     "refreshAuthoringBlockerCount": 0
   },
+  "activationSource": "direct-user|delegated|continuation",
   "mutationMode": "proposal-only|apply-approved",
+  "mutationModeSource": "explicit|default-direct-user|default-non-user",
   "handoffStatus": "ready|gated|deferred|blocked|not-needed",
   "sourceSignals": [],
   "targetArtifacts": [],
@@ -174,8 +186,15 @@ When mutation is approved:
 
 - Source evidence and target artifact inventory are mandatory.
 - Refresh scope must be declared before proposal or apply output.
-- Mutation mode defaults to `proposal-only`.
-- `apply-approved` requires explicit approval, declared scope, and validation commands.
+- A direct user invocation with no explicit mutation mode defaults to
+  `apply-approved`; the direct request is approval evidence for the exact
+  declared scope.
+- Delegated or continuation activation with no explicit mutation mode defaults
+  to `proposal-only`.
+- An explicit `proposal-only` or `apply-approved` mode overrides the activation
+  default.
+- `apply-approved` requires approval evidence, declared scope, and validation
+  commands.
 - `apply-approved` must validate the staged material package with
   `scripts/material_package_validator.py`, then resolve handoff readiness with
   `scripts/refresh_material_handoff.py`.
@@ -293,11 +312,12 @@ Return:
 ## Evidence Capability Contract
 
 Active refresh output must carry `execution_path`, `dispatch_trace`, `source_evidence`,
-`target_inventory`, `mutation_mode`, `phase_status`, `handoff_status`, `blocker_scopes`,
-`material_package`, `mutation_ready`, `result`, and `next_route` evidence. A conditional
-Distill skip requires a rationale. Phase status never grants apply authority: a current
-schema-valid material receipt, `apply-approved` mutation mode, explicit approval, exact
-package identity/digest binding, and a ready handoff jointly control mutation readiness.
+`target_inventory`, `activation_source`, `mutation_mode`, `mutation_mode_source`,
+`phase_status`, `handoff_status`, `blocker_scopes`, `material_package`,
+`mutation_ready`, `result`, and `next_route` evidence. A conditional Distill skip
+requires a rationale. Phase status never grants apply authority: a current schema-valid
+material receipt, `apply-approved` mutation mode, scoped approval evidence, exact package
+identity/digest binding, and a ready handoff jointly control mutation readiness.
 That run-level `mutation_ready` result does not itself set the durable
 `mutation_runtime_ready` capability axis. When capability status is requested,
 `scripts/capability_status_resolver.py` also requires a current mode-runtime

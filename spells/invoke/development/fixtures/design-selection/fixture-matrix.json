@@ -1,0 +1,625 @@
+{
+  "schema_version": "invoke.design-selection-fixtures.v1",
+  "digest_basis": "RFC 8785-style sorted compact JSON of this document",
+  "field_classes": [
+    "target_footprint",
+    "source_contracts",
+    "human_actors",
+    "rendered_surfaces",
+    "interfaces",
+    "stores",
+    "queues",
+    "writers",
+    "normative_rules",
+    "effects",
+    "data_and_log_sinks",
+    "deployment_targets",
+    "compatibility_boundaries",
+    "quality_claims",
+    "acceptance_and_readiness_claims",
+    "unknowns"
+  ],
+  "profiles": {
+    "pure-local-function": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "none",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 0,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "static-deterministic-artifact": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "none",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 1,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "semantics-preserving-style-token": {
+      "human_actor": true,
+      "semantic_surface_change": false,
+      "interface": "none",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 0,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "backend-protocol": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "evolving-protocol",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 0,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": true,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": true,
+      "quality_hypothesis": false
+    },
+    "authenticated-crud": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "authenticated-api",
+      "durable_state": true,
+      "queue": false,
+      "writer_count": 1,
+      "normative_claim": true,
+      "privileged_effect": true,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "operator-governed-state": {
+      "human_actor": true,
+      "semantic_surface_change": true,
+      "interface": "operator-contract",
+      "durable_state": true,
+      "queue": true,
+      "writer_count": 2,
+      "normative_claim": true,
+      "privileged_effect": true,
+      "external_effect": true,
+      "data_sink": true,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "lifecycle-admission": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "admission-protocol",
+      "durable_state": true,
+      "queue": false,
+      "writer_count": 1,
+      "normative_claim": true,
+      "privileged_effect": true,
+      "external_effect": true,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": true,
+      "quality_hypothesis": false
+    },
+    "stored-version-conversion": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "none",
+      "durable_state": true,
+      "queue": false,
+      "writer_count": 1,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": true,
+      "compatibility_change": true,
+      "quality_hypothesis": false
+    },
+    "human-semantic-change": {
+      "human_actor": true,
+      "semantic_surface_change": true,
+      "interface": "none",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 0,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": false
+    },
+    "bounded-performance-hypothesis": {
+      "human_actor": false,
+      "semantic_surface_change": false,
+      "interface": "none",
+      "durable_state": false,
+      "queue": false,
+      "writer_count": 0,
+      "normative_claim": true,
+      "privileged_effect": false,
+      "external_effect": false,
+      "data_sink": false,
+      "deployment_transition": false,
+      "compatibility_change": false,
+      "quality_hypothesis": true
+    }
+  },
+  "cases": [
+    {
+      "fixture_id": "DESIGN-BOUND-001",
+      "title": "pure local function",
+      "group": "bounded",
+      "profile": "pure-local-function",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["validation"],
+        "dispositions": {"validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-002",
+      "title": "static deterministic artifact",
+      "group": "bounded",
+      "profile": "static-deterministic-artifact",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["validation"],
+        "dispositions": {"validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-003",
+      "title": "semantics preserving style token",
+      "group": "bounded",
+      "profile": "semantics-preserving-style-token",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["validation"],
+        "dispositions": {"validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-004",
+      "title": "backend protocol without human effect",
+      "group": "bounded",
+      "profile": "backend-protocol",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["failure", "integration", "validation"],
+        "dispositions": {"failure": "required", "integration": "required", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "architecture:failure-compensation", "architecture:integration-versioning", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-005",
+      "title": "ordinary authenticated CRUD",
+      "group": "bounded",
+      "profile": "authenticated-crud",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["authority", "persistence", "security", "validation"],
+        "dispositions": {"authority": "required", "persistence": "required", "security": "required", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "architecture:authority-trust", "architecture:persistence-concurrency", "architecture:security-abuse", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-006",
+      "title": "operator governed state workflow",
+      "group": "bounded",
+      "profile": "operator-governed-state",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["authority", "failure", "persistence", "privacy-data", "state-event", "ux", "validation"],
+        "dispositions": {"authority": "required", "failure": "required", "persistence": "required", "privacy-data": "required", "state-event": "required", "ux": "required", "validation": "required"},
+        "selected_outputs": ["architecture", "architecture:authority-trust", "architecture:data-lifecycle", "architecture:failure-compensation", "architecture:persistence-concurrency", "architecture:state-event", "ux-plan", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-007",
+      "title": "lifecycle admission system",
+      "group": "bounded",
+      "profile": "lifecycle-admission",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["authority", "failure", "integration", "persistence", "security", "state-event", "validation"],
+        "dispositions": {"authority": "required", "failure": "required", "integration": "required", "persistence": "required", "security": "required", "state-event": "required", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "architecture:authority-trust", "architecture:failure-compensation", "architecture:integration-versioning", "architecture:persistence-concurrency", "architecture:security-abuse", "architecture:state-event", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-008",
+      "title": "stored version conversion",
+      "group": "bounded",
+      "profile": "stored-version-conversion",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["migration", "persistence", "rollout", "validation"],
+        "dispositions": {"migration": "required", "persistence": "required", "rollout": "required", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "architecture:migration-rollout", "architecture:persistence-concurrency", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-UX-001",
+      "title": "changed focus semantics",
+      "group": "ux",
+      "profile": "human-semantic-change",
+      "faults": ["changed-focus"],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["ux", "validation"],
+        "dispositions": {"ux": "required", "validation": "required"},
+        "selected_outputs": ["architecture", "ux-plan", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-UX-002",
+      "title": "changed reflow semantics",
+      "group": "ux",
+      "profile": "human-semantic-change",
+      "faults": ["changed-reflow"],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["ux", "validation"],
+        "dispositions": {"ux": "required", "validation": "required"},
+        "selected_outputs": ["architecture", "ux-plan", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-UX-003",
+      "title": "changed accessible name semantics",
+      "group": "ux",
+      "profile": "human-semantic-change",
+      "faults": ["changed-accessible-name"],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["ux", "validation"],
+        "dispositions": {"ux": "required", "validation": "required"},
+        "selected_outputs": ["architecture", "ux-plan", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-001",
+      "title": "omitted queue",
+      "group": "negative",
+      "profile": "operator-governed-state",
+      "faults": ["omit-field-class:queues"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["MISSING_DETECTOR_INPUT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-002",
+      "title": "omitted store",
+      "group": "negative",
+      "profile": "authenticated-crud",
+      "faults": ["omit-field-class:stores"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["MISSING_DETECTOR_INPUT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-003",
+      "title": "omitted external API",
+      "group": "negative",
+      "profile": "backend-protocol",
+      "faults": ["omit-field-class:interfaces"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["MISSING_DETECTOR_INPUT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-004",
+      "title": "omitted log sink",
+      "group": "negative",
+      "profile": "operator-governed-state",
+      "faults": ["omit-field-class:data_and_log_sinks"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["MISSING_DETECTOR_INPUT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-005",
+      "title": "omitted second writer",
+      "group": "negative",
+      "profile": "operator-governed-state",
+      "faults": ["omit-second-writer"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["persistence"],
+        "dispositions": {"persistence": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["UNBOUND_SIGNAL"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-006",
+      "title": "omitted operator visible evidence",
+      "group": "negative",
+      "profile": "operator-governed-state",
+      "faults": ["omit-required-surface"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["ux"],
+        "dispositions": {"ux": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["MISSING_DETECTOR_INPUT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-007",
+      "title": "false no durable data rationale",
+      "group": "negative",
+      "profile": "authenticated-crud",
+      "faults": ["false-na:persistence"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["persistence"],
+        "dispositions": {"persistence": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["FALSE_NA"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-008",
+      "title": "stale denominator receipt",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["stale-denominator"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["STALE_DENOMINATOR_RECEIPT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-009",
+      "title": "fabricated self issued receipt",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["self-issued-receipt"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["SELF_ISSUED_RECEIPT"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-010",
+      "title": "N A without extraction",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["na-without-negative-extraction:ux"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["ux"],
+        "dispositions": {"ux": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["FALSE_NA"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-011",
+      "title": "unbound extracted signal",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["unbound-signal"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": [],
+        "dispositions": {},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["UNBOUND_SIGNAL"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-012",
+      "title": "changed pass two output",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["changed-pass-two"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["validation"],
+        "dispositions": {"validation": "required"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["CHANGED_PASS_TWO"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-013",
+      "title": "missing exact owner",
+      "group": "negative",
+      "profile": "authenticated-crud",
+      "faults": ["missing-owner:persistence"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["persistence"],
+        "dispositions": {"persistence": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["OWNER_UNRESOLVED"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-014",
+      "title": "planned fixture mislabeled as executed",
+      "group": "negative",
+      "profile": "pure-local-function",
+      "faults": ["illegal-plan-evidence-state"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["validation"],
+        "dispositions": {"validation": "block"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["ILLEGAL_EVIDENCE_STATE"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-NEG-015",
+      "title": "recommended performance output promoted to selected",
+      "group": "negative",
+      "profile": "bounded-performance-hypothesis",
+      "faults": ["select-recommended-output:performance"],
+      "expected": {
+        "verdict": "block",
+        "primary_concerns": ["performance", "validation"],
+        "dispositions": {"performance": "recommended", "validation": "required"},
+        "selected_outputs": [],
+        "evidence_state": "authored-complete",
+        "diagnostic_codes": ["ILLEGAL_SELECTION"]
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-009",
+      "title": "bounded performance hypothesis remains advisory",
+      "group": "bounded",
+      "profile": "bounded-performance-hypothesis",
+      "faults": [],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["performance", "validation"],
+        "dispositions": {"performance": "recommended", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    },
+    {
+      "fixture_id": "DESIGN-BOUND-010",
+      "title": "backend only UX negative control",
+      "group": "bounded",
+      "profile": "backend-protocol",
+      "faults": ["assert-ux-negative-control"],
+      "expected": {
+        "verdict": "pass",
+        "primary_concerns": ["failure", "integration", "validation"],
+        "dispositions": {"failure": "required", "integration": "required", "validation": "required", "ux": "not-applicable-with-rationale"},
+        "selected_outputs": ["architecture", "architecture:failure-compensation", "architecture:integration-versioning", "validation-contracts"],
+        "evidence_state": "design-validator-pass",
+        "diagnostic_codes": []
+      }
+    }
+  ],
+  "mutations": [
+    {"mutation_id": "MUT-PRED-UX-ACTOR", "operation": "invert-predicate", "target": "human_actor", "expected_diagnostic": "ILLEGAL_SELECTION"},
+    {"mutation_id": "MUT-PRED-UX-SEMANTICS", "operation": "invert-predicate", "target": "semantic_surface_change", "expected_diagnostic": "ILLEGAL_SELECTION"},
+    {"mutation_id": "MUT-PRED-PERSISTENCE", "operation": "invert-predicate", "target": "durable_state", "expected_diagnostic": "FALSE_NA"},
+    {"mutation_id": "MUT-PRED-INTEGRATION", "operation": "invert-predicate", "target": "compatibility_change", "expected_diagnostic": "ILLEGAL_SELECTION"},
+    {"mutation_id": "MUT-PRED-AUTHORITY", "operation": "invert-predicate", "target": "privileged_effect", "expected_diagnostic": "ILLEGAL_SELECTION"},
+    {"mutation_id": "MUT-PRED-FAILURE", "operation": "invert-predicate", "target": "external_effect", "expected_diagnostic": "ILLEGAL_SELECTION"},
+    {"mutation_id": "MUT-FIELD-TARGET", "operation": "drop-field-class", "target": "target_footprint", "expected_diagnostic": "MANIFEST_NOT_CLOSED"},
+    {"mutation_id": "MUT-FIELD-SOURCES", "operation": "drop-field-class", "target": "source_contracts", "expected_diagnostic": "MANIFEST_NOT_CLOSED"},
+    {"mutation_id": "MUT-FIELD-ACTORS", "operation": "drop-field-class", "target": "human_actors", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-SURFACES", "operation": "drop-field-class", "target": "rendered_surfaces", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-INTERFACES", "operation": "drop-field-class", "target": "interfaces", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-STORES", "operation": "drop-field-class", "target": "stores", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-QUEUES", "operation": "drop-field-class", "target": "queues", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-WRITERS", "operation": "drop-field-class", "target": "writers", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-RULES", "operation": "drop-field-class", "target": "normative_rules", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-EFFECTS", "operation": "drop-field-class", "target": "effects", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-SINKS", "operation": "drop-field-class", "target": "data_and_log_sinks", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-DEPLOYMENT", "operation": "drop-field-class", "target": "deployment_targets", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-COMPATIBILITY", "operation": "drop-field-class", "target": "compatibility_boundaries", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-QUALITY", "operation": "drop-field-class", "target": "quality_claims", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-ACCEPTANCE", "operation": "drop-field-class", "target": "acceptance_and_readiness_claims", "expected_diagnostic": "MISSING_DETECTOR_INPUT"},
+    {"mutation_id": "MUT-FIELD-UNKNOWNS", "operation": "drop-field-class", "target": "unknowns", "expected_diagnostic": "MANIFEST_NOT_CLOSED"},
+    {"mutation_id": "MUT-OWNER-NULL", "operation": "replace-owner", "target": "null", "expected_diagnostic": "OWNER_UNRESOLVED"},
+    {"mutation_id": "MUT-OWNER-SELF", "operation": "replace-owner", "target": "self", "expected_diagnostic": "SELF_ISSUED_RECEIPT"},
+    {"mutation_id": "MUT-DIGEST", "operation": "alter-digest", "target": "manifest_input_digest", "expected_diagnostic": "STALE_DENOMINATOR_RECEIPT"},
+    {"mutation_id": "MUT-PASS-TWO", "operation": "alter-pass-two", "target": "selected_outputs", "expected_diagnostic": "CHANGED_PASS_TWO"},
+    {"mutation_id": "MUT-RECOMMENDED", "operation": "promote-recommended", "target": "performance", "expected_diagnostic": "ILLEGAL_SELECTION"}
+  ]
+}

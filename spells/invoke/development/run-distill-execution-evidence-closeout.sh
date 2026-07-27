@@ -3,6 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/../../../../" && pwd)"
+distill_development="$repo_root/arcanum/arcana/distill/development"
 
 echo "== existing Invoke fixture suite =="
 "$script_dir/run-validation-fixtures.sh"
@@ -11,6 +12,7 @@ echo "== DEE focused suites =="
 for runner in \
   run-distill-evidence-schema-fixtures.sh \
   run-distill-runtime-event-fixtures.sh \
+  run-invoke-distill-telemetry-fixtures.sh \
   run-distill-semantic-fixtures.sh \
   run-distill-provenance-fixtures.sh \
   run-distill-mode-capability-fixtures.sh \
@@ -23,6 +25,15 @@ for runner in \
   run-distill-workbench-route-fixture.sh; do
   echo "-- $runner"
   "$script_dir/$runner"
+done
+
+echo "== Distill runtime-emission suites =="
+for runner in \
+  run-distill-runtime-emission-fixtures.sh \
+  run-distill-direct-telemetry-fixtures.sh \
+  run-distill-evidence-emission-status-fixtures.sh; do
+  echo "-- $runner"
+  "$distill_development/$runner"
 done
 
 echo "== artifact and boundary checks =="
@@ -75,9 +86,13 @@ if rg -n '/(home|Users)/[^/]+/' "$repo_root/arcanum/spells/invoke/development/di
   echo "FAIL public boundary scan found an absolute local user path" >&2
   exit 1
 fi
+if rg -n '/(home|Users)/[^/]+/' "$repo_root/arcanum/arcana/distill"; then
+  echo "FAIL public boundary scan found an absolute local user path in Distill" >&2
+  exit 1
+fi
 echo "PASS public boundary scan"
 
-(cd "$repo_root/arcanum" && git diff --check -- spells/invoke tools/bootstrap_arcanum.sh)
-(cd "$repo_root" && git diff --check -- .agents/skills/invoke .claude/skills/invoke projects/ide-extension .arcanum/observability/by-sigil/invoke.jsonl)
+(cd "$repo_root/arcanum" && git diff --check -- arcana/distill spells/invoke tools/bootstrap_arcanum.sh)
+(cd "$repo_root" && git diff --check -- .agents/skills/distill .claude/skills/distill .agents/skills/invoke .claude/skills/invoke projects/ide-extension .arcanum/observability/by-sigil/invoke.jsonl)
 echo "PASS scoped git diff --check"
 echo "SUMMARY: PASS integrated Distill execution-evidence closeout"

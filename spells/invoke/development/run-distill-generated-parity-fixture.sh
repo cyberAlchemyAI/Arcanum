@@ -25,6 +25,7 @@ projection_files = [
     "handoff.md",
     "mode-capabilities.json",
     "refresh.md",
+    "scripts/observe-distill-invocation.sh",
     "validate.md",
     "schemas/distill-execution-receipt.schema.json",
     "schemas/distill-run-request.schema.json",
@@ -40,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix="invoke-parity-") as temporary_directory
             "--target",
             str(stage),
             "--sigils",
-            "",
+            "distill",
             "--spells",
             "invoke",
             "--profiles",
@@ -57,6 +58,23 @@ with tempfile.TemporaryDirectory(prefix="invoke-parity-") as temporary_directory
     for mirror in mirrors:
         staged_mirror = stage / mirror.relative_to(repo_root)
         for relative_path in projection_files:
+            expected = staged_mirror / relative_path
+            actual = mirror / relative_path
+            if not actual.is_file() or actual.read_bytes() != expected.read_bytes():
+                failures.append(f"{mirror.relative_to(repo_root)}/{relative_path}")
+
+    distill_projection_files = [
+        "SKILL.md",
+        "scripts/emit-runtime-event.py",
+        "scripts/observe-direct-invocation.sh",
+        "templates/usage-telemetry.md",
+    ]
+    for mirror in [
+        repo_root / ".agents/skills/distill",
+        repo_root / ".claude/skills/distill",
+    ]:
+        staged_mirror = stage / mirror.relative_to(repo_root)
+        for relative_path in distill_projection_files:
             expected = staged_mirror / relative_path
             actual = mirror / relative_path
             if not actual.is_file() or actual.read_bytes() != expected.read_bytes():
@@ -81,7 +99,12 @@ if failures:
 
 print("PASS bootstrap projection regenerated in an isolated target")
 print("PASS repo-local Codex and Claude Invoke mirrors match canonical support files")
+print("PASS repo-local Codex and Claude Distill mirrors carry runtime emission and direct telemetry")
 print("PASS user-owned atomicity overlays retain the DEE evidence contract")
-print(f"SUMMARY: PASS ({len(projection_files) * len(mirrors) + 3} checks satisfied expectations)")
+print(
+    "SUMMARY: PASS "
+    f"({len(projection_files) * len(mirrors) + len(distill_projection_files) * 2 + 3} "
+    "checks satisfied expectations)"
+)
 print("AUTHORITY: generated parity is derived from bootstrap output; overlays remain explicitly bounded")
 PY

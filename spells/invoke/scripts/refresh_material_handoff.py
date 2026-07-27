@@ -10,6 +10,9 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+MUTATION_MODES = ("proposal-only", "apply-approved")
+ACTIVATION_SOURCES = ("direct-user", "delegated", "continuation")
+
 
 def load_json(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
@@ -85,18 +88,43 @@ def material_binding(
     }
 
 
+def resolve_mutation_mode(
+    request: dict[str, Any],
+) -> tuple[str, str | None, str]:
+    explicit_mode = request.get("mutationMode")
+    activation_source = request.get("activationSource")
+
+    if activation_source is not None and activation_source not in ACTIVATION_SOURCES:
+        raise ValueError(
+            "activationSource must be direct-user, delegated, or continuation"
+        )
+    if explicit_mode is not None:
+        if explicit_mode not in MUTATION_MODES:
+            raise ValueError(
+                "mutationMode must be proposal-only or apply-approved"
+            )
+        return explicit_mode, activation_source, "explicit"
+    if activation_source == "direct-user":
+        return "apply-approved", activation_source, "default-direct-user"
+    if activation_source in ("delegated", "continuation"):
+        return "proposal-only", activation_source, "default-non-user"
+    raise ValueError(
+        "activationSource is required when mutationMode is omitted"
+    )
+
+
 def resolve_refresh_handoff(
     request: dict[str, Any], receipt_schema: dict[str, Any]
 ) -> dict[str, Any]:
-    mutation_mode = request.get("mutationMode")
+    mutation_mode, activation_source, mutation_mode_source = (
+        resolve_mutation_mode(request)
+    )
     authored_phase_status = request.get("authoredPhaseStatus")
     requested_handoff = request.get("requestedHandoff")
     receipt = request.get("materialReceipt")
     expected_package_id = request.get("expectedPackageId")
     expected_package_digest = request.get("expectedPackageDigest")
 
-    if mutation_mode not in ("proposal-only", "apply-approved"):
-        raise ValueError("mutationMode must be proposal-only or apply-approved")
     if authored_phase_status not in ("pass", "flag", "block", "no-op"):
         raise ValueError("authoredPhaseStatus is invalid")
     if requested_handoff not in (
@@ -118,7 +146,9 @@ def resolve_refresh_handoff(
         )
         return {
             "schemaVersion": "1.0.0",
+            "activationSource": activation_source,
             "mutationMode": mutation_mode,
+            "mutationModeSource": mutation_mode_source,
             "phaseStatus": authored_phase_status,
             "handoffStatus": handoff_status,
             "mutationReady": False,
@@ -176,7 +206,9 @@ def resolve_refresh_handoff(
     mutation_ready = not blockers
     return {
         "schemaVersion": "1.0.0",
+        "activationSource": activation_source,
         "mutationMode": mutation_mode,
+        "mutationModeSource": mutation_mode_source,
         "phaseStatus": "pass" if mutation_ready else "block",
         "handoffStatus": "ready" if mutation_ready else "blocked",
         "mutationReady": mutation_ready,

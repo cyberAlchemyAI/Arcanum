@@ -21,6 +21,8 @@ CODEX_EXAMPLE_RUNNER="$INVOKE_DIR/development/run-template-example-with-codex.sh
 EXPERIMENT_CODEX_RUNNER="$ROOT_DIR/arcanum/arcana/experiment-harness/scripts/run-with-codex.sh"
 MATERIAL_PACKAGE_RUNNER="$INVOKE_DIR/development/run-material-package-fixtures.sh"
 CAPABILITY_STATUS_RUNNER="$INVOKE_DIR/development/run-capability-status-fixtures.sh"
+DESIGN_SELECTION_RUNNER="$INVOKE_DIR/development/run-design-selection-fixtures.sh"
+DESIGN_SELECTION_REPORT="$INVOKE_DIR/development/fixtures/design-selection/results/latest-summary.json"
 MATERIAL_PACKAGE_VALIDATOR="$INVOKE_DIR/scripts/material_package_validator.py"
 REFRESH_MATERIAL_HANDOFF="$INVOKE_DIR/scripts/refresh_material_handoff.py"
 MATERIAL_PACKAGE_SCHEMA="$INVOKE_DIR/schemas/material-package.schema.json"
@@ -128,6 +130,8 @@ write_report() {
 		printf -- '- Validation: %s\n' "$verdict"
 		printf -- '- Quality Bar: `%s`\n' "$quality_bar_status"
 		printf -- '- Anti-Pattern hits: `%s`\n' "${#anti_pattern_hits[@]}"
+		printf -- '- Profile ID: invoke-live\n'
+		printf -- '- Lifecycle owner: invoke\n'
 		printf -- '- Runner: `arcanum/spells/invoke/development/run-validation-fixtures.sh`\n'
 		printf -- '- Fixture directory: `arcanum/spells/invoke/development/fixtures/`\n'
 		printf -- '- Invoke contract: `arcanum/spells/invoke/README.md`\n'
@@ -353,6 +357,40 @@ run_material_package_checks() {
 	else
 		record 'FAIL: INV-MATERIAL-PACKAGE'
 		failed_checks+=('material package fixture suite failed')
+		failures=$((failures + 1))
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	fi
+}
+
+run_design_selection_checks() {
+	local output
+	if [[ ! -x "$DESIGN_SELECTION_RUNNER" ]]; then
+		record "FAIL: INV-DESIGN-SELECTION missing executable $DESIGN_SELECTION_RUNNER"
+		failed_checks+=("missing Design-selection runner $DESIGN_SELECTION_RUNNER")
+		failures=$((failures + 1))
+		return
+	fi
+
+	if output="$("$DESIGN_SELECTION_RUNNER" 2>&1)"; then
+		if [[ ! -f "$DESIGN_SELECTION_REPORT" ]]; then
+			record "FAIL: INV-DESIGN-SELECTION missing report $DESIGN_SELECTION_REPORT"
+			failed_checks+=("missing Design-selection report $DESIGN_SELECTION_REPORT")
+			failures=$((failures + 1))
+		else
+			passed_fixtures+=('INV-DESIGN-SELECTION')
+			output_artifacts+=("${DESIGN_SELECTION_RUNNER#$ROOT_DIR/}")
+			output_artifacts+=("${DESIGN_SELECTION_REPORT#$ROOT_DIR/}")
+			record 'PASS: INV-DESIGN-SELECTION'
+			record "REPORT: ${DESIGN_SELECTION_REPORT#$ROOT_DIR/}"
+		fi
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	else
+		record 'FAIL: INV-DESIGN-SELECTION'
+		failed_checks+=('Design-selection fixture suite failed')
 		failures=$((failures + 1))
 		while IFS= read -r line; do
 			record "  $line"
@@ -781,12 +819,19 @@ require_file "$MATERIAL_PACKAGE_SCHEMA"
 require_file "$MATERIAL_RECEIPT_SCHEMA"
 require_pattern "$INVOKE_CONTRACT" 'Every invoke mode must record a Dispatch Spec technique trace' 'invoke dispatch technique discipline'
 require_pattern "$INVOKE_CONTRACT" 'Plan, full, and validate must run automatic Distill validation' 'invoke distill validation discipline'
+require_pattern "$INVOKE_CONTRACT" 'append exactly one linked Distill child signal' 'invoke nested Distill telemetry discipline'
+require_pattern "$INVOKE_CONTRACT" 'skipped or not-required Distill route does not create child' 'invoke Distill skip telemetry boundary'
+require_pattern "$INVOKE_CONTRACT" 'telemetry; Invoke records the skip rationale' 'invoke Distill skip telemetry ownership'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'active native `invoke` skill package' 'invoke example runner native invoke default'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Dispatch Spec technique trace' 'invoke example runner dispatch trace validation'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Distill validation status' 'invoke example runner distill validation output'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_SKILL" 'Task Session handoff readiness' 'invoke example runner task-session handoff output'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_README" 'Legacy command files remain compatibility adapters only' 'invoke example runner legacy adapter boundary'
 require_pattern "$INVOKE_EXAMPLE_RUNNER_README" 'Validation Expectations' 'invoke example runner validation expectations'
+require_pattern "$INVOKE_CONTRACT" 'Design selection receipt' 'invoke Design selection receipt output'
+require_pattern "$INVOKE_CONTRACT" 'Design evidence state' 'invoke Design evidence state output'
+require_pattern "$INVOKE_CONTRACT" 'Design evidence ceiling' 'invoke Design evidence ceiling output'
+require_pattern "$INVOKE_CONTRACT" 'Plan evidence' 'invoke separate Plan evidence output'
 require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 contract, candidate template-family scaffold coverage\)' 'define contract status'
 require_pattern "$DEFINE_CONTRACT" 'block on missing core goal or contradictory scope' 'define missing-goal block'
 require_pattern "$DEFINE_CONTRACT" 'flag when no eligible template exists and candidate creation is unapproved' 'define candidate-template flag'
@@ -794,7 +839,7 @@ require_pattern "$DEFINE_CONTRACT" 'Candidate glossary promotion is never automa
 require_pattern "$DEFINE_CONTRACT" 'Define-stage transport appends stage reports' 'define transport coverage'
 require_pattern "$DEFINE_CONTRACT" 'Define mode must record a Dispatch Spec technique trace' 'define dispatch technique trace'
 require_pattern "$DEFINE_CONTRACT" 'Define mode runs a Distill sanity check' 'define distill sanity check'
-require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract, validation examples pending\)' 'design contract status'
+require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract with deterministic selection validation\)' 'design contract status'
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
 require_pattern "$DESIGN_CONTRACT" 'Design-stage transport' 'design transport coverage'
@@ -815,7 +860,9 @@ require_pattern "$HANDOFF_CONTRACT" 'Context Builder must select from the whole 
 require_pattern "$HANDOFF_CONTRACT" 'workflow-reflection' 'handoff type coverage'
 require_pattern "$REFRESH_CONTRACT" 'Status: implemented \(L2 refresh contract\)' 'refresh contract status'
 require_pattern "$REFRESH_CONTRACT" 'Source evidence and target artifact inventory are mandatory' 'refresh source inventory gate'
-require_pattern "$REFRESH_CONTRACT" 'Mutation mode defaults to `proposal-only`' 'refresh proposal-only default'
+require_pattern "$REFRESH_CONTRACT" 'direct user invocation with no explicit mutation mode defaults to' 'refresh direct-user apply default'
+require_pattern "$REFRESH_CONTRACT" 'Delegated or continuation activation with no explicit mutation mode defaults' 'refresh non-user proposal-only default'
+require_pattern "$REFRESH_CONTRACT" 'mutation_mode_source' 'refresh mutation-mode source evidence'
 require_pattern "$REFRESH_CONTRACT" 'Phase status must describe completion of the current Refresh artifact' 'refresh phase-local status gate'
 require_pattern "$REFRESH_CONTRACT" 'Every blocker must declare one lifecycle scope' 'refresh blocker scope gate'
 require_pattern "$REFRESH_CONTRACT" 'proposal-only.*apply-authorization.*must not lower a complete proposal from `pass`' 'refresh proposal handoff separation gate'
@@ -825,11 +872,13 @@ require_pattern "$REFRESH_CONTRACT" 'scripts/material_package_validator.py' 'ref
 require_pattern "$REFRESH_CONTRACT" 'scripts/refresh_material_handoff.py' 'refresh material handoff resolver gate'
 require_pattern "$REFRESH_CONTRACT" 'Approval never overrides an invalid, absent, stale, or mismatched material' 'refresh approval non-override gate'
 require_pattern "$REFRESH_CONTRACT" 'proposal-only.*does not require a material package' 'refresh proposal-only material compatibility'
-require_pattern "$REFRESH_CONTRACT" 'material_package.*mutation_ready' 'refresh material evidence capability'
+require_pattern "$REFRESH_CONTRACT" '`material_package`' 'refresh material-package evidence capability'
+require_pattern "$REFRESH_CONTRACT" '`mutation_ready`' 'refresh mutation-ready evidence capability'
 
 run_template_task_matrix "$TEMPLATE_TASKS"
 run_prompt_selector_checks
 run_example_output_checks
+run_design_selection_checks
 run_material_package_checks
 run_capability_status_checks
 
@@ -1008,7 +1057,7 @@ run_refresh_fixture \
 	"$FIXTURE_DIR/INV-REFRESH-APPLY-PASS-001.expected.md" \
 	'Phase status: `pass`' \
 	'Phase status: pass' \
-	'`apply-approved` requires explicit approval, declared scope, and validation commands' \
+	'direct user invocation with no explicit mutation mode defaults to' \
 	'INV-REFRESH-APPLY-PASS-001' \
 	'Handoff readiness: ready' \
 	'Blockers by scope: refresh-authoring 0; apply-authorization 0; target-lifecycle 0; audit 0'

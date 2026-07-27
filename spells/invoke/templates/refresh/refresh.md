@@ -8,11 +8,12 @@ required_inputs:
   - target_artifact_inventory
   - refresh_scope
   - evidence_date
-  - mutation_mode
+  - activation_source
 optional_inputs:
   - source_session_reference
   - known_blocker_ids
   - expected_next_route
+  - mutation_mode
   - apply_approval
 output_files:
   - REFRESH-REPORT.md
@@ -26,7 +27,9 @@ validation_rules:
   - source evidence present
   - target artifact inventory present
   - every delta maps to a refresh signal
-  - apply-approved requires explicit approval
+  - direct-user activation defaults to apply-approved
+  - delegated or continuation activation defaults to proposal-only
+  - apply-approved requires scoped approval evidence
   - phase status describes current refresh artifact completeness
   - blockers declare lifecycle scope
   - handoff readiness is separate from phase status
@@ -45,7 +48,9 @@ updated_at: 2026-07-20
 - Source session reference: `{source-session-reference-or-none}`
 - Evidence date: `{yyyy-mm-dd}`
 - Refresh scope: `{scope}`
+- Activation source: `{direct-user | delegated | continuation}`
 - Mutation mode: `{proposal-only | apply-approved}`
+- Mutation mode source: `{explicit | default-direct-user | default-non-user}`
 - Target lifecycle owner: `{owner}`
 
 ## Phase And Handoff Status

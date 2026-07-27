@@ -1,7 +1,7 @@
 # Shared Context
 
-- Accepted review: `ops/development/2026-07-17-invoke-distill-enforcement-review/findings.md`
-- Attack/verifier record: `ops/development/2026-07-17-invoke-distill-enforcement-review/attacks.md`
+- Accepted review: consumer-owned findings evidence; private source path not vendored
+- Attack/verifier record: consumer-owned adversarial evidence; private source path not vendored
 - Invoke root: `arcanum/spells/invoke/README.md`
 - Invoke modes: `arcanum/spells/invoke/{define,design,plan,handoff,refresh,full,validate}.md`
 - Distill contract: `arcanum/arcana/distill/SKILL.md`
