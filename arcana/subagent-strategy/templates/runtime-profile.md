@@ -21,7 +21,10 @@ dispatch_types:
 form_owner:
   capability: <skill-or-file>
   schema: <path>
-  validator: <command>
+  schema_version_source: <canonical field, schema, or executable>
+  confirmation_readiness_validator: <non-mutating command>
+  registration_validator: <command>
+  version_drift_policy: warn-rematerialize-and-revalidate-before-confirmation
 
 tension_gate:
   capability: <skill-or-file>
@@ -63,6 +66,12 @@ publication:
 - The ledger is append-only and receives exactly one dispatch event and one
   paired close event per dispatch.
 - The tension gate can run two independent checks.
+- The confirmation-readiness validator accepts the exact persisted sheet without
+  confirmation evidence, returns its current schema version and digest, performs
+  no registration or ledger write, and blocks invalid sheets.
+- A stale runtime or candidate form version is a visible warning followed by
+  rematerialization and revalidation before the human gate; it is never an
+  admission bypass.
 - The agent pool or runtime provider is resolvable before confirmation.
 - Post-result hooks are explicitly configured or explicitly absent.
 - Publication rules prevent private evidence from crossing into public paths.

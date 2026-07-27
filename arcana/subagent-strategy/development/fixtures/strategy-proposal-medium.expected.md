@@ -8,6 +8,7 @@
 - Trigger decision: dispatch
 - Trigger evidence: synthesis across four artifacts and independent checking
 - Preflight: flag; machine index unavailable; direct artifact verification remains required and each reviewer receives only its relevant selectors
+- Confirmation readiness: pass with the current profile schema and exact candidate digest; no ledger mutation
 - Groups / lanes: one parallel review group; charitable versus adversarial interpretation; predicted disagreement is whether the strongest claim survives its stated evidence
 - Subagents: two reviewers with differentiated angles and cited change-request outputs
 - Dependency flow: parallel review group to parent final approval

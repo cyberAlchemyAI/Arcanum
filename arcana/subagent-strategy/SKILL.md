@@ -49,8 +49,9 @@ Expected inputs, when available:
 - proposed dispatch type,
 - candidate groups, roles, and angles,
 - runtime profile following `templates/runtime-profile.md`,
-- type-owner contracts and preflight requirements,
+- type-owner contracts, preflight requirements, and stage-handoff readiness criteria,
 - strategy-sheet schema and validator,
+- non-mutating confirmation-readiness validation mode,
 - callable subagent mechanism,
 - tension-check, registration, ledger, inventory, and observability bindings.
 </inputs>
@@ -83,18 +84,19 @@ A single helper spawned inside one agent's bounded scope is not a dispatch. Repo
 1. Resolve the active repository and the nearest applicable runtime profile. Treat generated adapters as non-authoritative when a canonical local owner exists.
 2. Make the preliminary trigger decision before designing groups. If no trigger holds, work inline and return the reason.
 3. Resolve the dispatch type. Read only its named owner contract and run only its configured read-only preflights. Preflight evidence informs strategy design but never authorizes the dispatch.
-4. Draft the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema.
-5. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Reject redundant angles or nominal disagreement.
-6. Run the configured tension gate with two independent checkers. Both must pass the same sheet. If a checker flags it, revise and rerun both. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
-7. Present the complete strategy in chat, including the trigger decision, lanes, agents, dependency flow, preflight consequences, artifact destination, gate state, ledger state, and next human action.
-8. Wait for explicit human confirmation. Silence, discussion, or a question is not confirmation. Confirmation freezes the sheet; any material edit re-enters Step 6.
-9. Validate and append the dispatch event through the profile's deterministic registrar before launching working agents. Never hand-edit an append-only ledger when a registrar exists.
-10. Launch groups by dependency. A group is ready only when every incoming blocking edge has produced what it must answer. `sequential` and forward `zig-zag` edges block by default; `feedback` edges do not. Agents within a ready group run in parallel.
-11. Preserve partial results. If an agent fails, downstream groups and the final approver receive the failure, available evidence, and resulting confidence limit.
-12. Enforce final approval. The parent approves by default; a dedicated one-agent auditor may approve when the frozen sheet names it. Working-group members do not self-approve their collective result.
-13. Join and close every spawned agent. Report open, joined, failed, and closed counts plus the configured exit reason. Append exactly one close event paired to the dispatch event.
-14. Run configured post-result hooks. Inventory and other read models record the strategy result and evidence links, not merely the dispatch machinery. Observability records behavior without becoming dispatch authority.
-15. Return the result using the output contract and name any unresolved residue.
+4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema.
+5. Run the form owner's non-mutating confirmation-readiness validator against the exact persisted sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
+6. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Reject redundant angles or nominal disagreement.
+7. Run the configured tension gate with two independent checkers. Both must pass the same admitted sheet digest. If a checker flags it, revise the persisted sheet and return to Step 5 before rerunning both. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
+8. Present the complete admitted strategy in chat, including the trigger decision, lanes, agents, dependency flow, preflight consequences, artifact destination, readiness state, gate state, ledger state, and next human action.
+9. Wait for explicit human confirmation. Silence, discussion, or a question is not confirmation. Confirmation freezes the exact admitted sheet bytes. Any later byte change returns to Step 5, reruns both tension checks, and requires new confirmation.
+10. Validate and append the dispatch event through the profile's deterministic registrar before launching working agents. Never hand-edit an append-only ledger when a registrar exists.
+11. Launch groups by dependency. A group is ready only when every incoming blocking edge has produced what the target must answer **and** the dispatch type owner's declared stage-handoff gate returns `ready` for those exact upstream artifacts. Output existence alone is not readiness. A gate may return `needs_feedback` only with a typed defect, repair-owner stage, eligible already-confirmed edge, and remaining loop capacity; otherwise it returns `blocked`. `sequential` and forward `zig-zag` edges block by default; `feedback` edges do not. On `needs_feedback`, traverse only the named declared feedback or revision edge and keep the consumer blocked. On `blocked`, propagate the gap and confidence limit to the final approver without inventing a new edge or exceeding a loop ceiling. Agents within a ready group run in parallel.
+12. Preserve partial results. If an agent fails or a stage-handoff gate blocks, downstream groups and the final approver receive the failure or typed gap, available evidence, and resulting confidence limit.
+13. Enforce final approval. The parent approves by default; a dedicated one-agent auditor may approve when the frozen sheet names it. Working-group members do not self-approve their collective result.
+14. Join and close every spawned agent. Report open, joined, failed, and closed counts plus the configured exit reason. Append exactly one close event paired to the dispatch event.
+15. Run configured post-result hooks. Inventory and other read models record the strategy result and evidence links, not merely the dispatch machinery. Observability records behavior without becoming dispatch authority.
+16. Return the result using the output contract and name any unresolved residue.
 </process>
 
 <dependency-semantics>
@@ -102,6 +104,11 @@ A single helper spawned inside one agent's bounded scope is not a dispatch. Repo
 - `zig-zag`: the target waits for the source to open the exchange; bounded returns follow the declared loop cap.
 - `feedback`: advisory return edge that never makes a group unready.
 - no connections: groups are independent and may start together after registration.
+
+Dependency completion and stage readiness are separate checks. The source group
+finishing satisfies the edge only provisionally; the target still waits for the
+dispatch type owner's declared handoff criteria. This sigil routes that verdict
+but never invents type-specific evidence rules.
 
 Keep scopes distinct: layers belong to groups, edge loop caps belong to zig-zag or feedback edges, and the global maximum loop count belongs to the whole dispatch.
 </dependency-semantics>
@@ -115,9 +122,11 @@ Emit or preserve:
 - trigger decision and matching triggers,
 - group, agent, role, angle, and dependency counts,
 - preflight status and its concrete design consequence,
+- confirmation-readiness status, expected and observed form versions, projection-drift warnings, and pre-confirmation revision count,
 - tension-check results and revision count,
-- confirmation and freeze state,
+- confirmation request count and freeze state,
 - registration and close event identifiers,
+- stage-handoff readiness verdicts, typed gaps, feedback or revision routes used, and remaining loop capacity,
 - agent lifecycle counts and partial failures,
 - final approver and approval status,
 - result artifacts and validation,
@@ -132,12 +141,16 @@ A successful execution must:
 - decide and explain whether a dispatch trigger holds before fan-out,
 - keep a bounded one-helper case outside the dispatch lifecycle,
 - resolve a live type owner and valid runtime profile before registration,
+- persist and pass the exact sheet through the live form owner's non-mutating confirmation-readiness validator before tension or confirmation,
+- treat stale runtime or schema projections as visible pre-confirmation warnings that still fail closed until rematerialized,
 - expose the full strategy and artifact destination to the human,
 - define real anti-bias tension for every multi-agent group,
 - receive two independent PASS results before confirmation,
 - require explicit confirmation and freeze the confirmed sheet,
 - register before spawning working groups,
 - honor blocking and non-blocking dependency semantics,
+- require the type owner's stage-handoff readiness verdict before launching a consuming group,
+- route correctable handoff gaps only through declared edges and remaining loop capacity,
 - propagate partial failures and confidence limits,
 - use an independent final approver,
 - join and close every agent,
@@ -155,9 +168,14 @@ Avoid:
 - inventing sheet fields or type-specific judgment inside this router,
 - using duplicated roles as fake tension,
 - presenting a sheet before its tension checks pass,
+- asking for confirmation before the exact persisted sheet passes the live form owner,
+- treating a form-version warning as permission to admit a stale sheet,
 - treating silence or continued discussion as confirmation,
-- editing the frozen sheet without rerunning the tension gate,
+- editing the frozen sheet without rerunning readiness, both tension checks, and confirmation,
 - spawning working agents before deterministic registration,
+- treating an upstream file or return as stage-ready merely because it exists,
+- spending a downstream approval or revision loop on an upstream evidence gap when the declared feedback route can still repair it,
+- inventing a feedback edge or exceeding a loop ceiling to repair a handoff,
 - treating read-model or Inventory evidence as authority,
 - hiding agent failures from downstream groups,
 - letting working agents approve their own collective result,
@@ -178,6 +196,7 @@ Return:
 - Trigger decision: inline | dispatch | blocked
 - Trigger evidence: <matching triggers or reason none apply>
 - Preflight: <status, selected evidence, exclusions, gaps, design consequence | not configured>
+- Confirmation readiness: <pass with schema and digest | warning and rematerialization required | blocked | not configured>
 - Groups / lanes: <purpose, role, anti-bias axis, parallel or dependent>
 - Subagents: <names or handles, roles, angles, expected outputs>
 - Dependency flow: <sequential, zig-zag, feedback, final approval>
@@ -185,6 +204,7 @@ Return:
 - Human gate: <awaiting confirmation | confirmed/frozen | not applicable>
 - Registration: <unregistered | registered with evidence | blocked | not applicable>
 - Execution: <not started | completed | partial | failed | not applicable>
+- Stage handoffs: <ready | needs_feedback with typed gaps, repair owner, edge, and loops remaining | blocked | not applicable>
 - Agent closeout: <open/joined/failed/closed counts and residue>
 - Ledger closeout: <paired | pending | blocked | not applicable>
 - Result artifacts: <paths or inline>

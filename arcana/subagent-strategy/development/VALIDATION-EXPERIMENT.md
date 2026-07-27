@@ -25,6 +25,11 @@ This artifact is not promotion-ready until validation passes, expected outputs a
 - `strategy-inline-low`: no trigger, no dispatch, no ledger mutation.
 - `strategy-proposal-medium`: degraded preflight, genuine tension, explicit
   confirmation stop.
+- `strategy-form-version-drift-medium`: stale profile warning, non-mutating
+  current-form admission, and exactly one confirmation request.
+- `strategy-handoff-gap-complex`: an existing upstream artifact fails the
+  type-owner handoff gate, so the consumer stays blocked and a declared
+  feedback edge is used without spending final-approval revision capacity.
 - `strategy-close-complex`: dependency graph, partial failure, final approval,
   complete closeout, and exactly two lifecycle events.
 

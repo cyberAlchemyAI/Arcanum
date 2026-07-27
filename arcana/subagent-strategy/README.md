@@ -22,10 +22,13 @@ This sigil supplies the portable lifecycle:
 ```text
 trigger decision
   -> type-owner and preflight resolution
-  -> tensioned strategy sheet
+  -> persisted strategy sheet
+  -> deterministic confirmation readiness
+  -> tension checks on the admitted digest
   -> explicit human confirmation
   -> registration
-  -> dependency-aware execution
+  -> dependency and type-owner handoff readiness
+  -> execution
   -> final approval and closeout
   -> result hooks and observability
 ```
@@ -55,6 +58,7 @@ The sigil owns universal behavior:
 - tension and anti-bias requirements,
 - proposal, confirmation, freeze, registration, execution, and closeout order,
 - dependency semantics,
+- type-owner stage-handoff readiness before consuming groups launch,
 - partial-result propagation,
 - final approval,
 - paired dispatch and close events,
@@ -79,17 +83,25 @@ or a proposed strategy, but it blocks registration and execution.
 
 1. Decide whether a dispatch trigger holds.
 2. Resolve the dispatch type, local owner, and configured preflights.
-3. Draft groups, agents, angles, expected outputs, dependencies, and final
-   approval.
-4. Run two independent tension checks for every multi-agent group.
-5. Present the complete sheet and artifact destination to the human.
-6. Freeze only after explicit confirmation.
-7. Register before spawning any working group.
-8. Run groups when their blocking dependencies are satisfied.
-9. Propagate partial and failed results downstream.
-10. Join and close every agent, report the exit reason, and append the close
+3. Draft and persist groups, agents, angles, expected outputs, dependencies,
+   final approval, and every field required by the current local form owner.
+4. Run the form owner's non-mutating confirmation-readiness validator against
+   the exact persisted sheet.
+5. Warn and rematerialize before confirmation when a runtime or schema
+   projection is stale; block all other form-admission errors.
+6. Run two independent tension checks against the admitted sheet digest.
+7. Present the complete admitted sheet and artifact destination to the human.
+8. Freeze only after explicit confirmation.
+9. Register before spawning any working group.
+10. Run a consuming group only when blocking dependencies are complete and the
+    type owner's declared handoff-readiness criteria pass for the exact upstream
+    artifacts.
+11. Route `needs_feedback` gaps through declared feedback or revision edges
+    while loop capacity remains; preserve `blocked` gaps for final approval.
+12. Propagate partial and failed results downstream.
+13. Join and close every agent, report the exit reason, and append the close
     event.
-11. Update configured result and observability hooks.
+14. Update configured result and observability hooks.
 
 ## Artifacts
 

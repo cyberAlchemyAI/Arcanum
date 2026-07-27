@@ -8,6 +8,7 @@
 - Trigger decision: inline
 - Trigger evidence: no synthesis, context-protection, isolation, or parallelism trigger holds
 - Preflight: not configured
+- Confirmation readiness: not applicable
 - Groups / lanes: not applicable
 - Subagents: none
 - Dependency flow: not applicable

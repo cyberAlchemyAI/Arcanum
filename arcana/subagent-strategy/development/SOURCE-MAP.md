@@ -13,6 +13,8 @@
 - one-helper exception,
 - router-versus-type-owner boundary,
 - pairwise anti-bias and dual tension checks,
+- deterministic confirmation readiness against the exact persisted sheet,
+- type-owner stage-handoff readiness before a consuming group launches,
 - explicit confirmation and frozen-sheet rule,
 - register-before-run sequencing,
 - dependency-aware group scheduling,

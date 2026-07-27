@@ -8,6 +8,7 @@
 - Trigger decision: dispatch
 - Trigger evidence: synthesis, isolation, and parallelism
 - Preflight: pass; selected evidence shaped explorer inputs
+- Confirmation readiness: pass on the frozen sheet digest
 - Groups / lanes: explorers in parallel, then synthesis, then bounded skeptic exchange
 - Subagents: four planned; one explorer failed with partial evidence; downstream agents received the failure and confidence limit
 - Dependency flow: explorer sequential edges to synthesis; one bounded zig-zag to skeptic; feedback to parent; parent final approval
