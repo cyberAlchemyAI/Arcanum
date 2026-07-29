@@ -226,9 +226,10 @@ Examples:
 Routed or reusable mutation has one additional gate immediately before the
 first write. Task Session creates a machine request binding the live selected
 task/SWU, strict controlling artifacts and digests, dependency frontier,
-allowed writes, validation commands, lifecycle owner, authority class, and
-publication class. It then consumes the material package and Invoke receipt
-through the exact producer-owned receipt schema.
+material writes, validation-owned execution outputs, their complete
+allowed-write union, validation commands, lifecycle owner, authority class,
+and publication class. It then consumes the material package and Invoke
+receipt through the exact producer-owned receipt schema.
 
 The deterministic consumer is
 `scripts/verify-mutation-readiness.py`. Its request and receipt contracts are
@@ -243,8 +244,13 @@ dependencies, expanded writes, validation mismatch, or absent boundary class
 blocks before mutation.
 
 An admitted receipt is evidence, not authority. Task Session still performs
-the declared live validation after the mutation. Standalone non-mutating use
-returns `not-applicable` and does not require an Invoke receipt.
+the declared live validation after the mutation. Material writes and execution
+outputs must be normalized, disjoint, and exactly recompose allowed writes.
+The material package and producer receipt cover only material writes.
+Validation may create only the predeclared execution outputs; Task Session
+verifies all of them and writes its terminal receipt last. Standalone
+non-mutating use returns `not-applicable` and does not require an Invoke
+receipt.
 
 ## Runtime Adapter Interface
 

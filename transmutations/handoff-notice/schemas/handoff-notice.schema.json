@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:arcanum:handoff-notice:0.1.0",
+  "title": "Handoff Notice Publish Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "notice_type",
+    "to",
+    "from",
+    "subject",
+    "project_scope",
+    "status",
+    "why_now",
+    "key_points",
+    "open_calls",
+    "boundaries",
+    "next_actions",
+    "source_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "notice_type": {
+      "enum": [
+        "incoming",
+        "outgoing",
+        "session-handoff",
+        "discussion-draft",
+        "resolution"
+      ]
+    },
+    "to": {
+      "$ref": "#/$defs/party"
+    },
+    "from": {
+      "$ref": "#/$defs/party"
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "open",
+        "flag",
+        "blocked",
+        "consumed",
+        "resolved",
+        "superseded"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "why_now": {
+      "type": "string",
+      "minLength": 1
+    },
+    "key_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "open_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner",
+          "question",
+          "status"
+        ],
+        "properties": {
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "open",
+              "blocked",
+              "resolved"
+            ]
+          }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner",
+          "action"
+        ],
+        "properties": {
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ref",
+          "label"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "next_route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "mode",
+        "target",
+        "authorization"
+      ],
+      "properties": {
+        "capability": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorization": {
+          "const": "not-granted"
+        }
+      }
+    },
+    "terminal_receipt_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "supersedes": {
+      "type": "string",
+      "pattern": "^HN-[0-9A-F]{12,64}$"
+    },
+    "resolution_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "party": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "label"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "person",
+            "role",
+            "future-session",
+            "agent",
+            "agent-lane",
+            "team",
+            "owner-route",
+            "any"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

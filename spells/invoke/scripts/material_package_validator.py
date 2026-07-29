@@ -243,11 +243,24 @@ def validate_material_package(
         inventory_by_target[target] = entry
 
     approval = document["approval"]
-    approved_scope = {
-        normalized
-        for raw_path in approval["scope_paths"]
-        if (normalized := normalized_relative_path(raw_path)[0]) is not None
-    }
+    approved_scope: set[str] = set()
+    for raw_path in approval["scope_paths"]:
+        normalized, approval_path_error = normalized_relative_path(raw_path)
+        if approval_path_error:
+            owner_reasons.append(
+                f"approval scope {approval_path_error}"
+            )
+            continue
+        assert normalized is not None
+        if normalized != raw_path:
+            owner_reasons.append(
+                f"non-canonical approval scope path: {raw_path}"
+            )
+        if normalized in approved_scope:
+            owner_reasons.append(
+                f"duplicate normalized approval scope path: {raw_path}"
+            )
+        approved_scope.add(normalized)
     if approval["owner"] != document["lifecycle_owner"]:
         owner_reasons.append(
             "approval owner mismatch: approval owner does not equal lifecycle owner"
@@ -290,14 +303,24 @@ def validate_material_package(
             publication_reasons.append(
                 f"approval publication scope mismatch: {target}"
             )
-        if target not in approved_scope:
-            owner_reasons.append(f"approval scope mismatch: {target}")
-
         for dependency_id in inventory["dependency_ids"]:
             if dependency_id not in dependency_by_id:
                 dependency_reasons.append(
                     f"missing dependency: {dependency_id} required by {target}"
                 )
+
+    material_targets = set(normalized_targets)
+    inventory_targets = set(inventory_by_target)
+    if material_targets != inventory_targets:
+        reasons.append(
+            "material target inventory mismatch: changes and target inventory "
+            "must contain exactly the same paths"
+        )
+    if not approved_scope == material_targets == inventory_targets:
+        owner_reasons.append(
+            "approval scope mismatch: approval scope, changes, and target "
+            "inventory must contain exactly the same paths"
+        )
 
     for mirror_group in document["mirror_groups"]:
         canonical_target, canonical_error = normalized_relative_path(

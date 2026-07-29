@@ -141,6 +141,7 @@ evidence was requested, and what may improve the next guide run.
 | `ARCANUM-DEVELOPMENT-USAGE-GUIDE.md` | Main guide for turning an idea into a governed Arcanum development route. |
 | `arcanum-development-loop.html` | Visual explanation of the broader Arcanum development loop. |
 | `guide-user-translate-overview.html` | Visual overview of the User / Translate / Guide relationship. |
+| `craft-augmented-physics.html` | Semantic HTML and inline-SVG guide to Craft's system atlas, layer-relative SCU model, formal topology, and research horizon. |
 | `packages/user-ledger/` | Candidate sigil package for protected user learning/profile handles. |
 | `packages/translate/` | Candidate sigil package for meaning bridges and mapping limits. |
 | `packages/guide/` | Candidate spell/orchestrator package for guided explanation routes. |

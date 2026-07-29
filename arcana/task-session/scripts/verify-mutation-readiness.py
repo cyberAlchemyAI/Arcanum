@@ -63,6 +63,27 @@ def normalized_relative_path(raw_path: str) -> tuple[str | None, str | None]:
     return cleaned, None
 
 
+def normalized_write_set(
+    request: dict[str, Any],
+    key: str,
+    label: str,
+) -> tuple[set[str], list[str]]:
+    normalized_paths: set[str] = set()
+    errors: list[str] = []
+    for raw_path in request.get(key, []):
+        normalized, path_error = normalized_relative_path(raw_path)
+        if path_error:
+            errors.append(f"{label} {path_error}")
+            continue
+        assert normalized is not None
+        if normalized in normalized_paths:
+            errors.append(f"duplicate normalized {label} path: {raw_path}")
+        if normalized != raw_path:
+            errors.append(f"non-canonical {label} path: {raw_path}")
+        normalized_paths.add(normalized)
+    return normalized_paths, errors
+
+
 def read_exact_artifact(
     repository_root: Path,
     reference: dict[str, Any],
@@ -145,7 +166,7 @@ def base_receipt(
     if execution_mode not in MUTATION_MODES | {"standalone-nonmutating"}:
         execution_mode = "invalid"
     return {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.1.0",
         "executionMode": execution_mode,
         "admissionVerdict": "block",
         "mutationReady": False,
@@ -171,6 +192,20 @@ def base_receipt(
                 if isinstance(item, dict)
                 and isinstance(item.get("dependencyId"), str)
                 and item["dependencyId"]
+            }
+        ),
+        "materialWrites": sorted(
+            {
+                item
+                for item in request.get("materialWrites", [])
+                if isinstance(item, str) and item
+            }
+        ),
+        "executionOutputs": sorted(
+            {
+                item
+                for item in request.get("executionOutputs", [])
+                if isinstance(item, str) and item
             }
         ),
         "allowedWrites": sorted(
@@ -210,6 +245,23 @@ def resolve_mutation_admission(
         result["admissionVerdict"] = "not-applicable"
         result["liveValidationRequired"] = False
         return result
+
+    material_writes, material_write_errors = normalized_write_set(
+        request, "materialWrites", "material write"
+    )
+    execution_outputs, execution_output_errors = normalized_write_set(
+        request, "executionOutputs", "execution output"
+    )
+    allowed_writes, allowed_write_errors = normalized_write_set(
+        request, "allowedWrites", "allowed write"
+    )
+    failures.extend(material_write_errors)
+    failures.extend(execution_output_errors)
+    failures.extend(allowed_write_errors)
+    if material_writes & execution_outputs:
+        failures.append("material and execution write scopes overlap")
+    if material_writes | execution_outputs != allowed_writes:
+        failures.append("allowed write scope partition mismatch")
 
     artifacts: dict[str, tuple[bytes | None, dict[str, Any] | None]] = {}
     for key, label in (
@@ -324,11 +376,13 @@ def resolve_mutation_admission(
             if isinstance(item, dict) and isinstance(item.get("target_path"), str)
         }
         receipt_targets = set(material_receipt.get("validatedPaths", []))
-        allowed_writes = set(request["allowedWrites"])
         if not (
-            allowed_writes == change_targets == inventory_targets == receipt_targets
+            material_writes
+            == change_targets
+            == inventory_targets
+            == receipt_targets
         ):
-            failures.append("allowed write scope mismatch")
+            failures.append("material write scope mismatch")
 
         request_commands = set(request["validationCommands"])
         package_commands = set(material_package.get("validation_commands", []))

@@ -157,6 +157,10 @@ def apply_mutation(
         package["source_artifacts"][0]["authority_class"] = "private"
     elif mutation == "approval-scope":
         package["approval"]["scope_paths"].remove(TARGETS[2])
+    elif mutation == "approval-scope-extra":
+        package["approval"]["scope_paths"].append(
+            "arcanum/spells/invoke/README.md"
+        )
     elif mutation == "mirror-drift":
         output_path = root / package["changes"][1]["output_ref"]["path"]
         output_path.write_bytes(b"undeclared runtime drift\n")

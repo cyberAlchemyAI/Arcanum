@@ -37,6 +37,10 @@ It belongs here because the procedure transforms scattered project evidence into
 
 It belongs here because it synthesizes terminology from source material into an evidence-linked glossary while avoiding global definition authority.
 
+[handoff-notice](handoff-notice/) turns bounded work evidence into a durable repository-local handoff message with a short content-derived locator.
+
+It belongs here because the agent synthesizes a concise continuation artifact while deterministic persistence and resolution preserve scope, integrity, and authority boundaries without owning delivery or execution.
+
 [implementation-layering](implementation-layering/) turns a rough capability, feature, workflow, or system improvement into a layered implementation plan that starts with the smallest useful proof and grows through evidence-based hardening.
 
 It belongs here because the procedure is bounded and structured, but still depends on judgment: the agent must identify the smallest useful proof, distinguish deferrals from requirements, and balance value against cost for each layer.

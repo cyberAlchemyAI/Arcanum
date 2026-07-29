@@ -27,6 +27,9 @@ This artifact is not promotion-ready until validation passes, expected outputs a
   confirmation stop.
 - `strategy-form-version-drift-medium`: stale profile warning, non-mutating
   current-form admission, and exactly one confirmation request.
+- `strategy-single-confirmation-readiness-medium`: unpooled approver and
+  companion-only disagreement evidence block before the human gate; the
+  repaired digest-owned sheet reaches exactly one confirmation request.
 - `strategy-handoff-gap-complex`: an existing upstream artifact fails the
   type-owner handoff gate, so the consumer stays blocked and a declared
   feedback edge is used without spending final-approval revision capacity.

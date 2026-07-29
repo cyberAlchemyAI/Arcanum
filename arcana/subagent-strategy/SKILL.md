@@ -4,7 +4,7 @@ description: "Use when deciding whether work merits a governed multi-agent dispa
 argument-hint: "<goal> [--type <dispatch-type>] [--profile <path>] [--propose | --run | --close]"
 tier: arcana
 domain: multi-agent-governance
-version: 0.1.0
+version: 0.2.0
 origin: extracted from a governed repository-local subagent dispatch router and generalized for public reuse
 allowed-tools: Read, Write, Glob, Grep, Task, Bash
 ---
@@ -52,6 +52,8 @@ Expected inputs, when available:
 - type-owner contracts, preflight requirements, and stage-handoff readiness criteria,
 - strategy-sheet schema and validator,
 - non-mutating confirmation-readiness validation mode,
+- deterministic agent-eligibility and final-approver admission rules,
+- digest-owned tension-evidence representation,
 - callable subagent mechanism,
 - tension-check, registration, ledger, inventory, and observability bindings.
 </inputs>
@@ -84,16 +86,16 @@ A single helper spawned inside one agent's bounded scope is not a dispatch. Repo
 1. Resolve the active repository and the nearest applicable runtime profile. Treat generated adapters as non-authoritative when a canonical local owner exists.
 2. Make the preliminary trigger decision before designing groups. If no trigger holds, work inline and return the reason.
 3. Resolve the dispatch type. Read only its named owner contract and run only its configured read-only preflights. Preflight evidence informs strategy design but never authorizes the dispatch.
-4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema.
-5. Run the form owner's non-mutating confirmation-readiness validator against the exact persisted sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
-6. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Reject redundant angles or nominal disagreement.
-7. Run the configured tension gate with two independent checkers. Both must pass the same admitted sheet digest. If a checker flags it, revise the persisted sheet and return to Step 5 before rerunning both. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
+4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema. Every load-bearing tension claim, including each predicted pairwise disagreement, must live inside the digest-bound sheet rather than companion prose.
+5. Run the form owner's non-mutating confirmation-readiness validator against the exact persisted sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. Confirmation readiness is one composite checkpoint: form and version, live type-owner prerequisites, agent eligibility and identity uniqueness, final-approver admission, complete digest-owned tension evidence, and configured publication boundaries must all close before the human gate. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
+6. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Persist one predicted-disagreement record for every unordered pair in the sheet representation owned by the local schema. Reject redundant angles, nominal disagreement, incomplete pair coverage, or companion-only evidence.
+7. Run the configured tension gate against only the admitted sheet bytes and the gate rubric; companion files, parent summaries, and unstored chat context cannot satisfy the gate. Phase 1 launches two independent checkers in parallel and preserves each independent verdict bound to the same sheet digest. If either reports defects, Phase 2 may give the frozen checker report to the reviewer solely to compare the apontamentos; the reviewer must not revise its independent verdict. Both independent verdicts must pass. Any revision returns to Step 5 before both checks rerun. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
 8. Present the complete admitted strategy in chat, including the trigger decision, lanes, agents, dependency flow, preflight consequences, artifact destination, readiness state, gate state, ledger state, and next human action.
-9. Wait for explicit human confirmation. Silence, discussion, or a question is not confirmation. Confirmation freezes the exact admitted sheet bytes. Any later byte change returns to Step 5, reruns both tension checks, and requires new confirmation.
+9. Wait for explicit human confirmation. Silence, discussion, a question, or authorization to revise the draft is not dispatch confirmation. Ask only after composite readiness and both independent tension verdicts pass, so a normal run presents exactly one confirmation request. Confirmation freezes the exact admitted sheet bytes. Any later byte change returns to Step 5, reruns both tension checks, and requires new confirmation.
 10. Validate and append the dispatch event through the profile's deterministic registrar before launching working agents. Never hand-edit an append-only ledger when a registrar exists.
 11. Launch groups by dependency. A group is ready only when every incoming blocking edge has produced what the target must answer **and** the dispatch type owner's declared stage-handoff gate returns `ready` for those exact upstream artifacts. Output existence alone is not readiness. A gate may return `needs_feedback` only with a typed defect, repair-owner stage, eligible already-confirmed edge, and remaining loop capacity; otherwise it returns `blocked`. `sequential` and forward `zig-zag` edges block by default; `feedback` edges do not. On `needs_feedback`, traverse only the named declared feedback or revision edge and keep the consumer blocked. On `blocked`, propagate the gap and confidence limit to the final approver without inventing a new edge or exceeding a loop ceiling. Agents within a ready group run in parallel.
 12. Preserve partial results. If an agent fails or a stage-handoff gate blocks, downstream groups and the final approver receive the failure or typed gap, available evidence, and resulting confidence limit.
-13. Enforce final approval. The parent approves by default; a dedicated one-agent auditor may approve when the frozen sheet names it. Working-group members do not self-approve their collective result.
+13. Enforce final approval. The parent approves by default; a dedicated one-agent auditor may approve only when the local profile and deterministic registrar admit that exact shape. Working-group members do not self-approve their collective result.
 14. Join and close every spawned agent. Report open, joined, failed, and closed counts plus the configured exit reason. Append exactly one close event paired to the dispatch event.
 15. Run configured post-result hooks. Inventory and other read models record the strategy result and evidence links, not merely the dispatch machinery. Observability records behavior without becoming dispatch authority.
 16. Return the result using the output contract and name any unresolved residue.
@@ -122,9 +124,9 @@ Emit or preserve:
 - trigger decision and matching triggers,
 - group, agent, role, angle, and dependency counts,
 - preflight status and its concrete design consequence,
-- confirmation-readiness status, expected and observed form versions, projection-drift warnings, and pre-confirmation revision count,
+- confirmation-readiness status and obligations closed, expected and observed form versions, projection-drift warnings, and pre-confirmation revision count,
 - tension-check results and revision count,
-- confirmation request count and freeze state,
+- confirmation request count, avoidable confirmation request count, preventable post-confirmation revision count, and freeze state,
 - registration and close event identifiers,
 - stage-handoff readiness verdicts, typed gaps, feedback or revision routes used, and remaining loop capacity,
 - agent lifecycle counts and partial failures,
@@ -132,7 +134,7 @@ Emit or preserve:
 - result artifacts and validation,
 - Quality Bar status, Anti-Pattern hits, workflow gaps, output-contract drift, and reflection trigger.
 
-Use `templates/usage-telemetry.md`. Reflect after five meaningful executions, ten generated artifacts, three related workflow gaps, or one severe gap. Missing confirmation, unregistered execution, unpaired ledger events, unsafe scope expansion, private evidence leakage, or unclosed agents are severe gaps.
+Use `templates/usage-telemetry.md`. Reflect after five meaningful executions, ten generated artifacts, three related workflow gaps, or one severe gap. Missing confirmation, unregistered execution, unpaired ledger events, unsafe scope expansion, private evidence leakage, unclosed agents, companion-only gate evidence, or a repeated confirmation caused by a deterministically discoverable pre-confirmation defect are severe gaps.
 </observability>
 
 <quality-bar>
@@ -142,11 +144,13 @@ A successful execution must:
 - keep a bounded one-helper case outside the dispatch lifecycle,
 - resolve a live type owner and valid runtime profile before registration,
 - persist and pass the exact sheet through the live form owner's non-mutating confirmation-readiness validator before tension or confirmation,
+- close every configured deterministic admission obligation at one composite readiness point,
 - treat stale runtime or schema projections as visible pre-confirmation warnings that still fail closed until rematerialized,
 - expose the full strategy and artifact destination to the human,
 - define real anti-bias tension for every multi-agent group,
+- keep all load-bearing tension evidence inside the admitted sheet bytes,
 - receive two independent PASS results before confirmation,
-- require explicit confirmation and freeze the confirmed sheet,
+- require exactly one explicit confirmation request on a normal ready proposal and freeze the confirmed sheet,
 - register before spawning working groups,
 - honor blocking and non-blocking dependency semantics,
 - require the type owner's stage-handoff readiness verdict before launching a consuming group,
@@ -169,8 +173,11 @@ Avoid:
 - using duplicated roles as fake tension,
 - presenting a sheet before its tension checks pass,
 - asking for confirmation before the exact persisted sheet passes the live form owner,
+- treating syntactic form validation as complete when agent eligibility, approver admission, tension-evidence coverage, type-owner prerequisites, or publication checks are still unresolved,
+- satisfying a tension gate with companion prose, parent summaries, or evidence not included in the admitted sheet digest,
 - treating a form-version warning as permission to admit a stale sheet,
-- treating silence or continued discussion as confirmation,
+- treating silence, continued discussion, or draft-revision authorization as dispatch confirmation,
+- making a reviewer react to checker findings before preserving the reviewer's independent verdict,
 - editing the frozen sheet without rerunning readiness, both tension checks, and confirmation,
 - spawning working agents before deterministic registration,
 - treating an upstream file or return as stage-ready merely because it exists,
@@ -197,6 +204,7 @@ Return:
 - Trigger evidence: <matching triggers or reason none apply>
 - Preflight: <status, selected evidence, exclusions, gaps, design consequence | not configured>
 - Confirmation readiness: <pass with schema and digest | warning and rematerialization required | blocked | not configured>
+- Confirmation requests: <total, avoidable, and preventable post-confirmation revisions>
 - Groups / lanes: <purpose, role, anti-bias axis, parallel or dependent>
 - Subagents: <names or handles, roles, angles, expected outputs>
 - Dependency flow: <sequential, zig-zag, feedback, final approval>

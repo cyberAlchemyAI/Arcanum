@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-request/1-0-0",
+  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-request/1-1-0",
   "title": "TaskSessionMutationAdmissionRequest",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "executionMode"],
   "properties": {
-    "schemaVersion": {"const": "1.0.0"},
+    "schemaVersion": {"const": "1.1.0"},
     "executionMode": {
       "enum": ["routed-mutation", "reusable-mutation", "standalone-nonmutating"]
     },
@@ -24,6 +24,17 @@
     "materialPackage": {"$ref": "#/$defs/exactArtifactRef"},
     "materialReceipt": {"$ref": "#/$defs/exactArtifactRef"},
     "producerReceiptSchema": {"$ref": "#/$defs/exactArtifactRef"},
+    "materialWrites": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "executionOutputs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
     "allowedWrites": {
       "type": "array",
       "minItems": 1,
@@ -59,6 +70,8 @@
           "materialPackage",
           "materialReceipt",
           "producerReceiptSchema",
+          "materialWrites",
+          "executionOutputs",
           "allowedWrites",
           "validationCommands",
           "lifecycleOwner",

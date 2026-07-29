@@ -195,6 +195,9 @@ When mutation is approved:
   default.
 - `apply-approved` requires approval evidence, declared scope, and validation
   commands.
+- The normalized approval scope, material-package change targets, and target
+  inventory must contain exactly the same paths. Missing or extra approved
+  paths block; approval is never a broader ambient write ceiling.
 - `apply-approved` must validate the staged material package with
   `scripts/material_package_validator.py`, then resolve handoff readiness with
   `scripts/refresh_material_handoff.py`.

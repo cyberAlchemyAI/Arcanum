@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-0-0",
+  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-1-0",
   "title": "TaskSessionMutationAdmissionReceipt",
   "type": "object",
   "additionalProperties": false,
@@ -17,6 +17,8 @@
     "materialPackageDigest",
     "controllingPaths",
     "dependencyIds",
+    "materialWrites",
+    "executionOutputs",
     "allowedWrites",
     "validationCommands",
     "lifecycleOwner",
@@ -26,7 +28,7 @@
     "reasons"
   ],
   "properties": {
-    "schemaVersion": {"const": "1.0.0"},
+    "schemaVersion": {"const": "1.1.0"},
     "executionMode": {
       "enum": ["routed-mutation", "reusable-mutation", "standalone-nonmutating", "invalid"]
     },
@@ -56,6 +58,16 @@
       "items": {"type": "string", "minLength": 1}
     },
     "dependencyIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "materialWrites": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "executionOutputs": {
       "type": "array",
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}

@@ -307,6 +307,9 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   source signal. A direct user invocation defaults to `apply-approved`;
   delegated or continuation activation defaults to `proposal-only`; an explicit
   mutation mode overrides either default.
+- Refresh apply approval is exact-scope evidence: after path normalization, its
+  scope must equal both material-package change targets and target inventory.
+  A missing or extra approval path blocks the material handoff.
 - Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
 - Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
 - Capability reporting must use the three-axis resolver. An authored artifact,

@@ -217,7 +217,8 @@ dispatch, joined receipt, and cursor remain Step 8 obligations.
 
 37a. When the selected path claims routed or reusable mutation readiness,
 assemble a mutation-admission request that binds the live task/SWU, exact
-controlling artifact references, dependency frontier, allowed writes,
+controlling artifact references, dependency frontier, material writes,
+validation-owned execution outputs, their complete allowed-write union,
 validation commands, lifecycle owner, authority class, and publication class.
 Standalone non-mutating execution does not require this request.
 37b. Include the material package and its producer receipt plus an exact
@@ -229,6 +230,10 @@ immediately before the first local write or mutating runtime handoff. It must
 re-read every exact controlling artifact and dependency, bind the material
 package to the producer receipt digest, and compare declared targets,
 validation, ownership, authority, and publication against the live request.
+Normalize and validate all three write lists, require material writes and
+execution outputs to be disjoint, require their union to equal allowed writes,
+and require package changes, target inventory, and producer validated paths to
+equal only the material-write set.
 37d. An absent, schema-invalid, stale, mismatched, expanded, or unclassified
 input returns `BLOCK` before mutation. Rebuild the bounded context/material
 handoff only through its owner; approval does not repair a failed binding.
@@ -238,6 +243,11 @@ handoff only through its owner; approval does not repair a failed binding.
 37f. The admission receipt is execution evidence, not mutation, lifecycle,
 promotion, or publication authority. Live done-criterion and post-mutation
 validation in Step 7 remain mandatory.
+37g. Mutation admission authorizes the ordered lifecycle only: apply admitted
+material writes, run the declared validation that may create only predeclared
+execution outputs, verify every declared output, then persist the terminal Task
+Session receipt as the final write. Execution outputs are not required to exist
+at admission time and may not expand the admitted union.
 
 ## Step 6 - Execute Task
 
@@ -261,6 +271,10 @@ validation in Step 7 remain mandatory.
     recovery or a named accepted equivalent. Until the original validation or
     accepted equivalent passes, return `BLOCK`; recording a substitute does not
     itself satisfy the obligation.
+48a. For routed or reusable mutation, reconcile paths created or modified by
+     validation against `executionOutputs`. Block on an undeclared output, a
+     missing declared output, or any write outside `allowedWrites`. Write the
+     terminal Task Session receipt only after this reconciliation passes.
 49. Return `FLAG` only for named noncritical residue that cannot falsify any
     done criterion. Unnamed residue or residue that can falsify a done criterion
     returns `BLOCK`.

@@ -3,8 +3,8 @@
 ## Request
 
 Propose a governed review using a repository-local runtime profile. A selected
-personal runtime says the dispatch form is version `0.6.0`, while the
-repository's canonical form owner and non-mutating validator require `0.7.0`.
+personal runtime says the dispatch form is version `0.7.0`, while the
+repository's canonical form owner and non-mutating validator require `0.8.0`.
 No human confirmation has been requested yet.
 
 ## Inputs

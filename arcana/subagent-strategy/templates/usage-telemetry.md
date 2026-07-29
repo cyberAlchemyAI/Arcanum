@@ -18,12 +18,21 @@ Record one compact JSON object for each meaningful strategy execution.
   "preflight_status": "pass | flag | block | not_configured",
   "preflight_design_consequence": "<summary-or-none>",
   "confirmation_readiness": "pass | warning | block | not_configured",
+  "confirmation_readiness_obligations": {
+    "form_and_version": "pass | block | not_configured",
+    "type_owner_prerequisites": "pass | block | not_configured",
+    "agent_and_approver_eligibility": "pass | block | not_configured",
+    "digest_owned_tension_evidence": "pass | block | not_configured",
+    "publication_boundary": "pass | block | not_configured"
+  },
   "form_schema_expected": "<version-or-unknown>",
   "form_schema_observed": "<version-or-unknown>",
   "projection_drift_warning": "<summary-or-none>",
   "preconfirm_revision_count": 0,
   "tension_gate": "pass-pass | revision | unavailable | not_applicable",
   "confirmation_request_count": 0,
+  "avoidable_confirmation_request_count": 0,
+  "preventable_post_confirmation_revision_count": 0,
   "confirmation_state": "awaiting | confirmed-frozen | not_applicable",
   "registration_state": "unregistered | registered | blocked | not_applicable",
   "execution_state": "not_started | completed | partial | failed | not_applicable",
@@ -52,5 +61,7 @@ Record one compact JSON object for each meaningful strategy execution.
 ```
 
 Severe gaps include execution without confirmation or registration, unpaired
-dispatch/close events, unsafe scope expansion, private evidence leakage, and
-agents left open after the parent returns.
+dispatch/close events, unsafe scope expansion, private evidence leakage,
+companion-only gate evidence, a repeated confirmation caused by a
+deterministically discoverable pre-confirmation defect, and agents left open
+after the parent returns.

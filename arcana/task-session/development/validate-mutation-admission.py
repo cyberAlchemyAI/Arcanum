@@ -182,7 +182,7 @@ def build_valid_case(
     write_json(case_root / "material-receipt.json", receipt)
 
     return {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.1.0",
         "executionMode": "routed-mutation",
         "taskId": "TASK-WFE-005",
         "swuId": "SWU-WFE-005",
@@ -193,7 +193,12 @@ def build_valid_case(
         "producerReceiptSchema": exact_ref(
             case_root, "schemas/material-package-receipt.schema.json"
         ),
-        "allowedWrites": ["runtime/generated.txt"],
+        "materialWrites": ["runtime/generated.txt"],
+        "executionOutputs": ["runtime/validation-report.json"],
+        "allowedWrites": [
+            "runtime/generated.txt",
+            "runtime/validation-report.json",
+        ],
         "validationCommands": ["bash verify-generated-runtime.sh"],
         "lifecycleOwner": "sigil-development",
         "authorityClass": "public",
@@ -201,7 +206,58 @@ def build_valid_case(
     }
 
 
-def apply_mutation(case_root: Path, request: dict[str, Any], mutation: str) -> None:
+def add_package_target(
+    case_root: Path,
+    request: dict[str, Any],
+    target_path: str,
+    producer: Any,
+    package_schema: dict[str, Any],
+    producer_receipt_schema: dict[str, Any],
+) -> None:
+    package = load_json(case_root / "material-package.json")
+    staged_path = f"staged/{Path(target_path).name}"
+    (case_root / staged_path).write_text(
+        f"fixture output for {target_path}\n", encoding="utf-8"
+    )
+    package["changes"].append(
+        {
+            "target_path": target_path,
+            "operation": "create",
+            "output_ref": producer_ref(case_root, staged_path),
+        }
+    )
+    package["target_inventory"].append(
+        {
+            "target_path": target_path,
+            "lifecycle_owner": "sigil-development",
+            "authority_class": "public",
+            "publication_class": "public",
+            "dependency_ids": ["invoke-material-receipt"],
+        }
+    )
+    package["approval"]["scope_paths"].append(target_path)
+    receipt = producer.validate_material_package(
+        package,
+        case_root,
+        package_schema,
+        producer_receipt_schema,
+    )
+    if receipt["patchVerdict"] != "pass":
+        raise RuntimeError(f"producer fixture mutation failed: {receipt['reasons']}")
+    write_json(case_root / "material-package.json", package)
+    write_json(case_root / "material-receipt.json", receipt)
+    request["materialPackage"] = exact_ref(case_root, "material-package.json")
+    request["materialReceipt"] = exact_ref(case_root, "material-receipt.json")
+
+
+def apply_mutation(
+    case_root: Path,
+    request: dict[str, Any],
+    mutation: str,
+    producer: Any,
+    package_schema: dict[str, Any],
+    producer_receipt_schema: dict[str, Any],
+) -> None:
     if mutation == "none":
         return
     if mutation == "remove-receipt":
@@ -231,6 +287,43 @@ def apply_mutation(case_root: Path, request: dict[str, Any], mutation: str) -> N
     if mutation == "expand-request-write-scope":
         request["allowedWrites"].append("runtime/extra.txt")
         return
+    if mutation == "overlap-write-partitions":
+        request["executionOutputs"].append("runtime/generated.txt")
+        return
+    if mutation == "material-write-not-packaged":
+        request["materialWrites"].append("runtime/unpackaged.txt")
+        request["allowedWrites"].append("runtime/unpackaged.txt")
+        return
+    if mutation == "execution-output-in-material-package":
+        add_package_target(
+            case_root,
+            request,
+            "runtime/validation-report.json",
+            producer,
+            package_schema,
+            producer_receipt_schema,
+        )
+        return
+    if mutation == "undeclared-material-target":
+        add_package_target(
+            case_root,
+            request,
+            "runtime/undeclared.txt",
+            producer,
+            package_schema,
+            producer_receipt_schema,
+        )
+        return
+    if mutation == "noncanonical-material-write":
+        request["materialWrites"][0] = "runtime//generated.txt"
+        return
+    if mutation == "normalized-duplicate-material-write":
+        request["materialWrites"].append("runtime//generated.txt")
+        return
+    if mutation == "empty-execution-outputs":
+        request["executionOutputs"] = []
+        request["allowedWrites"] = ["runtime/generated.txt"]
+        return
     if mutation == "remove-authority-class":
         del request["authorityClass"]
         return
@@ -238,7 +331,7 @@ def apply_mutation(case_root: Path, request: dict[str, Any], mutation: str) -> N
         request.clear()
         request.update(
             {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "1.1.0",
                 "executionMode": "standalone-nonmutating",
             }
         )
@@ -291,7 +384,14 @@ def main() -> int:
                 producer_receipt_schema,
                 producer_receipt_schema_path,
             )
-            apply_mutation(case_root, request, fixture["mutation"])
+            apply_mutation(
+                case_root,
+                request,
+                fixture["mutation"],
+                producer,
+                package_schema,
+                producer_receipt_schema,
+            )
             result = consumer.resolve_mutation_admission(
                 copy.deepcopy(request), case_root, request_schema
             )
@@ -312,12 +412,27 @@ def main() -> int:
                 )
             )
             if fixture["expectedVerdict"] == "admit":
+                expected_execution_outputs = fixture.get(
+                    "expectedExecutionOutputs",
+                    ["runtime/validation-report.json"],
+                )
                 ok = (
                     ok
                     and result["mutationReady"] is True
                     and result["liveValidationRequired"] is True
                     and result["validationCommands"]
                     == ["bash verify-generated-runtime.sh"]
+                    and result["materialWrites"]
+                    == ["runtime/generated.txt"]
+                    and result["executionOutputs"]
+                    == expected_execution_outputs
+                    and result["allowedWrites"]
+                    == sorted(
+                        ["runtime/generated.txt", *expected_execution_outputs]
+                    )
+                    and not (
+                        case_root / "runtime/validation-report.json"
+                    ).exists()
                 )
             if fixture["expectedVerdict"] == "not-applicable":
                 ok = (

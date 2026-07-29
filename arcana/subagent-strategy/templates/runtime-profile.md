@@ -25,10 +25,19 @@ form_owner:
   confirmation_readiness_validator: <non-mutating command>
   registration_validator: <command>
   version_drift_policy: warn-rematerialize-and-revalidate-before-confirmation
+  composite_admission:
+    - form-and-version
+    - live-type-owner-prerequisites
+    - agent-eligibility-and-identity-uniqueness
+    - final-approver-admission
+    - digest-owned-tension-evidence
+    - publication-boundary
 
 tension_gate:
   capability: <skill-or-file>
   independent_checks: 2
+  input_boundary: exact-sheet-bytes-and-rubric-only
+  protocol: parallel-independent-verdicts-then-optional-frozen-report-comparison
 
 agent_pool:
   source: <path-or-runtime-provider>
@@ -47,6 +56,11 @@ dependency_semantics:
 final_approval:
   default_owner: parent
   dedicated_auditor_allowed: true
+  eligibility_validator: <deterministic-rule-or-command>
+
+human_gate:
+  revision_authorization_is_confirmation: false
+  normal_confirmation_request_count: 1
 
 result_hooks:
   inventory: <capability-and-mode | none>
@@ -69,9 +83,20 @@ publication:
 - The confirmation-readiness validator accepts the exact persisted sheet without
   confirmation evidence, returns its current schema version and digest, performs
   no registration or ledger write, and blocks invalid sheets.
+- Confirmation readiness is composite: every configured form, type-owner,
+  identity, approver, tension-evidence, and publication obligation closes
+  before a confirmation request is made.
+- Every load-bearing tension input is present in the exact sheet bytes.
+- Tension agents receive only the exact sheet bytes and rubric. Their
+  independent verdicts are preserved before any comparison of apontamentos.
 - A stale runtime or candidate form version is a visible warning followed by
   rematerialization and revalidation before the human gate; it is never an
   admission bypass.
-- The agent pool or runtime provider is resolvable before confirmation.
+- The agent pool or runtime provider is resolvable and every non-null identity
+  is eligible and unique before confirmation.
+- Final-approver eligibility is deterministic and consistent with the local
+  sheet schema and registrar.
+- Draft revision authorization is not dispatch confirmation; a normal ready
+  proposal asks once.
 - Post-result hooks are explicitly configured or explicitly absent.
 - Publication rules prevent private evidence from crossing into public paths.

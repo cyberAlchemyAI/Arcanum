@@ -37,11 +37,18 @@ A Formulae sigil is ready when:
 - its output contract is stable enough for another agent or script to consume,
 - its anti-patterns prevent accidental use for interpretive work.
 
-## Example Sigil
+## Example Sigils
 
 [observability-setup](observability-setup/) installs or verifies the standard repository-local observability package for sigil telemetry.
 
 It belongs here because the procedure is deterministic: create or verify a known folder structure, preserve existing telemetry, and validate known JSON files.
+
+[html-preview-server](html-preview-server/) starts, reuses, verifies, opens, checks,
+and stops one exact local HTML artifact through a managed loopback-only server.
+
+It belongs here because target resolution, containment, port binding, readiness,
+reuse, and cleanup are explicit operations with fixed receipts and fail-closed
+boundaries.
 
 ## Relationship To Other Tiers
 

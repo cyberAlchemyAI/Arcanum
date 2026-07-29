@@ -23,9 +23,9 @@ This sigil supplies the portable lifecycle:
 trigger decision
   -> type-owner and preflight resolution
   -> persisted strategy sheet
-  -> deterministic confirmation readiness
-  -> tension checks on the admitted digest
-  -> explicit human confirmation
+  -> composite deterministic confirmation readiness
+  -> sheet-only independent tension checks on the admitted digest
+  -> one explicit human confirmation
   -> registration
   -> dependency and type-owner handoff readiness
   -> execution
@@ -84,14 +84,22 @@ or a proposed strategy, but it blocks registration and execution.
 1. Decide whether a dispatch trigger holds.
 2. Resolve the dispatch type, local owner, and configured preflights.
 3. Draft and persist groups, agents, angles, expected outputs, dependencies,
-   final approval, and every field required by the current local form owner.
-4. Run the form owner's non-mutating confirmation-readiness validator against
-   the exact persisted sheet.
+   final approval, pairwise predicted disagreements, and every field required
+   by the current local form owner. Load-bearing gate evidence belongs in the
+   sheet, not a companion file.
+4. Run the form owner's non-mutating composite confirmation-readiness validator
+   against the exact persisted sheet. Form/version, live type prerequisites,
+   agent and approver eligibility, tension-evidence completeness, and
+   publication boundaries all close here.
 5. Warn and rematerialize before confirmation when a runtime or schema
    projection is stale; block all other form-admission errors.
-6. Run two independent tension checks against the admitted sheet digest.
+6. Run two independent tension checks against only the admitted sheet bytes
+   and rubric. Preserve both independent verdicts before any checker/reviewer
+   comparison.
 7. Present the complete admitted sheet and artifact destination to the human.
-8. Freeze only after explicit confirmation.
+8. Treat draft-revision authorization as discussion, not confirmation. Ask once
+   after readiness and PASS/PASS, then freeze only after explicit dispatch
+   confirmation.
 9. Register before spawning any working group.
 10. Run a consuming group only when blocking dependencies are complete and the
     type owner's declared handoff-readiness criteria pass for the exact upstream

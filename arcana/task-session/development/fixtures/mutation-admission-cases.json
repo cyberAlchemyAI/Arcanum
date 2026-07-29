@@ -39,7 +39,50 @@
     "id": "expanded-write-scope-blocks",
     "mutation": "expand-request-write-scope",
     "expectedVerdict": "block",
-    "expectedReason": "allowed write scope mismatch"
+    "expectedReason": "allowed write scope partition mismatch"
+  },
+  {
+    "id": "overlapping-write-partitions-block",
+    "mutation": "overlap-write-partitions",
+    "expectedVerdict": "block",
+    "expectedReason": "material and execution write scopes overlap"
+  },
+  {
+    "id": "material-write-not-packaged-blocks",
+    "mutation": "material-write-not-packaged",
+    "expectedVerdict": "block",
+    "expectedReason": "material write scope mismatch"
+  },
+  {
+    "id": "execution-output-in-material-package-blocks",
+    "mutation": "execution-output-in-material-package",
+    "expectedVerdict": "block",
+    "expectedReason": "material write scope mismatch"
+  },
+  {
+    "id": "undeclared-material-target-blocks",
+    "mutation": "undeclared-material-target",
+    "expectedVerdict": "block",
+    "expectedReason": "material write scope mismatch"
+  },
+  {
+    "id": "noncanonical-material-write-blocks",
+    "mutation": "noncanonical-material-write",
+    "expectedVerdict": "block",
+    "expectedReason": "non-canonical material write path"
+  },
+  {
+    "id": "normalized-duplicate-material-write-blocks",
+    "mutation": "normalized-duplicate-material-write",
+    "expectedVerdict": "block",
+    "expectedReason": "duplicate normalized material write path"
+  },
+  {
+    "id": "empty-execution-output-scope-admits",
+    "mutation": "empty-execution-outputs",
+    "expectedVerdict": "admit",
+    "expectedReason": null,
+    "expectedExecutionOutputs": []
   },
   {
     "id": "missing-authority-class-blocks",

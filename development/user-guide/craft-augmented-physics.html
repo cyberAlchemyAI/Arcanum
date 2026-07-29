@@ -1,0 +1,2318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Craft — Toward an Augmented Physics of Making</title>
+  <style>
+    :root {
+      --paper: #f6f0e5;
+      --paper-bright: #fffdf8;
+      --paper-blue: #eaf2f0;
+      --paper-amber: #f7ead5;
+      --ink: #17272a;
+      --muted: #586665;
+      --teal: #126573;
+      --teal-dark: #0b4954;
+      --teal-soft: #d8e8e7;
+      --amber: #a95f06;
+      --amber-dark: #814501;
+      --amber-soft: #f2d7ad;
+      --line: #cbc5b8;
+      --line-strong: #9ba8a5;
+      --danger: #9c4638;
+      --shadow: 0 18px 54px rgba(44, 39, 29, 0.1);
+      --radius: 8px;
+      --content: 1240px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font: 15px/1.58 var(--sans);
+      background:
+        linear-gradient(rgba(23, 39, 42, 0.025) 1px, transparent 1px),
+        var(--paper);
+      background-size: 100% 34px, auto;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 100;
+      padding: 10px 13px;
+      border: 2px solid var(--teal);
+      border-radius: 4px;
+      color: var(--teal-dark);
+      background: var(--paper-bright);
+      font-weight: 800;
+      text-decoration: none;
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .svg-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      min-height: 58px;
+      padding: 9px clamp(16px, 4vw, 54px);
+      border-bottom: 1px solid rgba(155, 168, 165, 0.65);
+      background: rgba(255, 253, 248, 0.93);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      min-width: max-content;
+      color: var(--teal-dark);
+      font-weight: 820;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .brand svg {
+      width: 30px;
+      height: 30px;
+      color: var(--teal);
+    }
+
+    .topbar nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 2px;
+    }
+
+    .topbar nav a {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      padding: 6px 9px;
+      border-radius: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 730;
+      text-decoration: none;
+    }
+
+    .topbar nav a:hover,
+    .topbar nav a:focus-visible {
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    main,
+    section {
+      scroll-margin-top: 72px;
+    }
+
+    .section {
+      padding: clamp(54px, 8vw, 96px) clamp(16px, 5vw, 72px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section.white {
+      background: rgba(255, 253, 248, 0.78);
+    }
+
+    .inner {
+      width: min(100%, var(--content));
+      margin: 0 auto;
+    }
+
+    .eyebrow,
+    .vision-label,
+    .micro-label,
+    .pill-label {
+      color: var(--teal);
+      font: 800 0.71rem/1.3 var(--mono);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2 {
+      font-family: var(--serif);
+      font-weight: 500;
+      letter-spacing: -0.045em;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin-bottom: 22px;
+      font-size: clamp(3rem, 7.5vw, 7.4rem);
+      line-height: 0.91;
+    }
+
+    h2 {
+      max-width: 850px;
+      margin-bottom: 16px;
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      line-height: 0.98;
+    }
+
+    h3 {
+      margin-bottom: 9px;
+      font-size: 1.14rem;
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+    }
+
+    h4 {
+      margin-bottom: 7px;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    p {
+      color: var(--muted);
+    }
+
+    .lead {
+      max-width: 790px;
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+      color: #3f5050;
+    }
+
+    .hero {
+      min-height: calc(100vh - 58px);
+      display: grid;
+      align-items: center;
+      background:
+        radial-gradient(circle at 80% 18%, rgba(18, 101, 115, 0.12), transparent 34rem),
+        radial-gradient(circle at 8% 84%, rgba(169, 95, 6, 0.1), transparent 30rem),
+        rgba(255, 253, 248, 0.72);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(480px, 1.18fr);
+      gap: clamp(36px, 7vw, 92px);
+      align-items: center;
+    }
+
+    .horizon-note {
+      max-width: 710px;
+      margin: 25px 0 0;
+      padding: 15px 17px;
+      border: 1px solid #d4b780;
+      border-left: 5px solid var(--amber);
+      border-radius: 5px;
+      color: #54462f;
+      background: rgba(247, 234, 213, 0.72);
+    }
+
+    .hero-diagram {
+      padding: clamp(12px, 2vw, 22px);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.9);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-diagram svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .figure-caption {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.52fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-head p {
+      margin-bottom: 0;
+    }
+
+    .vision-label {
+      display: block;
+      margin-bottom: 13px;
+      color: var(--amber);
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper-bright);
+      box-shadow: 0 9px 28px rgba(44, 39, 29, 0.06);
+    }
+
+    .card.teal {
+      border-color: #a6c4c4;
+      background: #f9fcfb;
+    }
+
+    .card.amber {
+      border-color: #dec295;
+      background: #fffaf1;
+    }
+
+    .card-head {
+      padding: 14px 17px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-body {
+      padding: 17px;
+    }
+
+    .card-body > :last-child,
+    .card-head > :last-child {
+      margin-bottom: 0;
+    }
+
+    .atlas-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(230px, 0.58fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .atlas-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .atlas-spine {
+      display: grid;
+      align-content: center;
+      min-height: 100%;
+      padding: 16px 13px;
+      border: 1px solid #9bbebf;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(216, 232, 231, 0.45), rgba(255, 253, 248, 0.95));
+    }
+
+    .spine-node {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 72px;
+      padding: 10px;
+      border: 1.5px solid var(--teal);
+      border-radius: 6px;
+      background: var(--paper-bright);
+      color: var(--ink);
+      text-align: center;
+      font-weight: 820;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .spine-node svg {
+      width: 26px;
+      height: 26px;
+      margin-bottom: 5px;
+      color: var(--teal);
+    }
+
+    .spine-node.pcra {
+      border-color: var(--amber);
+      color: var(--amber-dark);
+      background: #fffaf1;
+    }
+
+    .spine-node.pcra svg {
+      color: var(--amber);
+    }
+
+    .spine-arrow {
+      display: grid;
+      height: 38px;
+      place-items: center;
+    }
+
+    .spine-arrow svg {
+      width: 24px;
+      height: 38px;
+      color: var(--teal);
+    }
+
+    .term-list,
+    .plain-list,
+    .constraint-list,
+    .route-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .term-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .term-list li {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      line-height: 1.42;
+    }
+
+    .term-list svg {
+      width: 24px;
+      height: 24px;
+      color: var(--teal);
+    }
+
+    .term-list strong {
+      color: var(--amber-dark);
+    }
+
+    .pcra-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pcra-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .pcra-item b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--amber-dark);
+    }
+
+    .pcra-item span {
+      color: var(--muted);
+      font-size: 0.89rem;
+      line-height: 1.4;
+    }
+
+    .entropy-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .entropy-pair div {
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 0.83rem;
+      line-height: 1.4;
+    }
+
+    .entropy-pair div:first-child {
+      border: 1px solid #9ec4c4;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+    }
+
+    .entropy-pair div:last-child {
+      border: 1px solid #ddbd85;
+      color: var(--amber-dark);
+      background: var(--paper-amber);
+    }
+
+    .scu-scale {
+      margin: 8px 0 14px;
+    }
+
+    .scu-scale svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px 12px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 19px 1fr;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .check svg {
+      width: 18px;
+      height: 18px;
+      color: var(--teal);
+    }
+
+    .lifecycle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .phase {
+      padding: 7px 9px;
+      border: 1px solid var(--teal);
+      border-radius: 4px;
+      color: var(--teal-dark);
+      background: #fff;
+      font: 790 0.72rem/1 var(--mono);
+      text-transform: uppercase;
+    }
+
+    .phase-arrow {
+      width: 18px;
+      height: 12px;
+      color: var(--amber);
+    }
+
+    .plan-chain {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 13px 0;
+    }
+
+    .plan-chain span {
+      padding: 7px 5px;
+      border: 1px solid #a8c5c4;
+      border-radius: 4px;
+      color: var(--teal-dark);
+      background: var(--paper-blue);
+      font: 780 0.7rem/1 var(--mono);
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .local-loop {
+      padding: 11px;
+      border: 1px solid #d4ae70;
+      border-radius: 5px;
+      color: var(--amber-dark);
+      background: var(--paper-amber);
+      font: 790 0.76rem/1.5 var(--mono);
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .route-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .route-list li {
+      display: grid;
+      grid-template-columns: minmax(98px, auto) 1fr;
+      gap: 9px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.87rem;
+      line-height: 1.4;
+    }
+
+    .route-list li:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .route-list strong {
+      color: var(--amber-dark);
+    }
+
+    .decision-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .decision-strip div {
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .decision-strip b {
+      display: block;
+      color: var(--ink);
+      font: 790 0.67rem/1.2 var(--mono);
+      text-transform: uppercase;
+    }
+
+    .horizon-band {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: center;
+      margin-top: 2px;
+      padding: 17px 20px;
+      border: 1px solid #8eb6b7;
+      border-radius: var(--radius);
+      background: var(--paper-blue);
+    }
+
+    .horizon-band svg {
+      width: 54px;
+      height: 54px;
+      color: var(--teal);
+    }
+
+    .horizon-band strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--teal-dark);
+      font: 850 0.8rem/1.2 var(--mono);
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .horizon-band p {
+      margin: 0;
+      color: #3e5555;
+    }
+
+    .lens {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
+      gap: 18px;
+      margin-bottom: 22px;
+      padding: clamp(20px, 4vw, 40px);
+      border: 1px solid #9ebcba;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(120deg, rgba(216, 232, 231, 0.7), rgba(255, 253, 248, 0.92));
+    }
+
+    .lens h3 {
+      font-family: var(--serif);
+      font-size: clamp(1.7rem, 3vw, 2.7rem);
+      font-weight: 500;
+    }
+
+    .lens-criteria {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .criterion {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(18, 101, 115, 0.25);
+      border-radius: 4px;
+      color: var(--teal-dark);
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 0.84rem;
+      font-weight: 680;
+    }
+
+    .criterion svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      color: var(--teal);
+    }
+
+    .layers-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.33fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .layer-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .layer-card {
+      display: grid;
+      grid-template-columns: 126px 1fr;
+      border: 1px solid #9ab8b8;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--paper-bright);
+      box-shadow: 0 9px 28px rgba(44, 39, 29, 0.05);
+    }
+
+    .layer-index {
+      padding: 18px 15px;
+      border-right: 1px solid #9ab8b8;
+      color: var(--teal-dark);
+      background: var(--paper-blue);
+    }
+
+    .layer-index span {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 14px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--teal);
+      font-weight: 850;
+    }
+
+    .layer-index strong {
+      display: block;
+      font: 820 0.76rem/1.35 var(--mono);
+      text-transform: uppercase;
+    }
+
+    .layer-content {
+      padding: 18px;
+    }
+
+    .layer-content > :last-child {
+      margin-bottom: 0;
+    }
+
+    .model-interaction {
+      display: grid;
+      grid-template-columns: minmax(0, 0.7fr) minmax(310px, 1.3fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .interaction-svg {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .interaction-svg svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .object-key {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .object-key li {
+      color: var(--muted);
+      font-size: 0.87rem;
+    }
+
+    .object-key strong {
+      color: var(--ink);
+    }
+
+    .icon-ribbon {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 7px;
+      margin: 10px 0 14px;
+    }
+
+    .icon-item {
+      padding: 8px 4px;
+      color: var(--muted);
+      text-align: center;
+      font: 690 0.61rem/1.25 var(--mono);
+      text-transform: uppercase;
+    }
+
+    .icon-item svg {
+      display: block;
+      width: 25px;
+      height: 25px;
+      margin: 0 auto 6px;
+      color: var(--teal-dark);
+    }
+
+    .boundary-diagram {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .boundary-diagram svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .readiness-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    .readiness-grid span {
+      padding: 8px;
+      border: 1px solid #d0c5b3;
+      border-radius: 4px;
+      color: #4b5553;
+      background: #fff;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    .execution-map {
+      margin: 12px 0;
+      padding: 12px;
+      border: 1px solid #d6b278;
+      border-radius: 5px;
+      background: #fffaf1;
+    }
+
+    .execution-map svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .layers-rail {
+      position: sticky;
+      top: 76px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .tower-svg,
+    .topology-svg {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .tower-svg svg,
+    .topology-svg svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .formal-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .formal-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .equation {
+      display: block;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid #9bbdbc;
+      border-radius: 5px;
+      color: var(--ink);
+      background: #fff;
+      font: 710 clamp(0.85rem, 1.4vw, 1.06rem)/1.55 var(--mono);
+      white-space: nowrap;
+    }
+
+    .tuple {
+      padding: clamp(20px, 4vw, 38px);
+      text-align: center;
+      font-size: clamp(1.25rem, 3vw, 2.2rem);
+    }
+
+    .variable-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .variable {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .variable b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--teal-dark);
+      font: 850 1rem/1 var(--mono);
+    }
+
+    .variable span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.3;
+    }
+
+    .constraint-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .constraint-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+
+    .constraint-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .constraint-list svg {
+      width: 17px;
+      height: 17px;
+      color: var(--teal);
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .evidence-route {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.42;
+    }
+
+    .evidence-route:last-child {
+      border-left-color: var(--amber);
+    }
+
+    .evidence-route code {
+      color: var(--teal-dark);
+      font-weight: 800;
+    }
+
+    .residue-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .residue-chips span {
+      padding: 7px 10px;
+      border: 1px solid #b6c4c1;
+      border-radius: 999px;
+      color: var(--teal-dark);
+      background: var(--paper-blue);
+      font: 720 0.72rem/1 var(--mono);
+      text-transform: lowercase;
+    }
+
+    .governance-grid,
+    .stop-grid {
+      display: grid;
+      gap: 9px;
+    }
+
+    .governance-item,
+    .stop-item {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .governance-item svg,
+    .stop-item svg {
+      width: 28px;
+      height: 28px;
+      color: var(--amber);
+    }
+
+    .governance-item p,
+    .stop-item p {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .horizon-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .primitive-flow {
+      padding: clamp(18px, 3vw, 30px);
+      border: 1px solid #a6bdbc;
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.86);
+    }
+
+    .primitive-flow svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .honesty {
+      padding: clamp(20px, 3vw, 32px);
+      border: 1px solid #d3b174;
+      border-radius: var(--radius);
+      background: var(--paper-amber);
+    }
+
+    .honesty h3 {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 500;
+    }
+
+    .honesty ol {
+      margin: 15px 0 0;
+      padding-left: 20px;
+      color: #514733;
+    }
+
+    .honesty li {
+      margin: 7px 0;
+    }
+
+    .evidence-boundary {
+      margin-top: 22px;
+      padding: 14px 17px;
+      border: 1px solid #a7b8b4;
+      border-left: 5px solid var(--teal);
+      border-radius: 5px;
+      background: var(--paper-blue);
+      color: #3b5050;
+    }
+
+    footer {
+      padding: 28px clamp(16px, 5vw, 72px) 42px;
+      color: var(--muted);
+      background: var(--paper-bright);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      width: min(100%, var(--content));
+      margin: 0 auto;
+    }
+
+    footer p {
+      max-width: 780px;
+      margin: 0;
+      font-size: 0.82rem;
+    }
+
+    footer a {
+      color: var(--teal-dark);
+      font-weight: 760;
+    }
+
+    .source-link {
+      min-width: max-content;
+    }
+
+    .diagram-text {
+      fill: var(--ink);
+      font-family: var(--sans);
+    }
+
+    .diagram-mono {
+      fill: var(--ink);
+      font-family: var(--mono);
+    }
+
+    .diagram-muted {
+      fill: var(--muted);
+    }
+
+    .diagram-teal {
+      fill: var(--teal);
+    }
+
+    .diagram-amber {
+      fill: var(--amber);
+    }
+
+    .diagram-line {
+      fill: none;
+      stroke: var(--teal);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .diagram-line.amber {
+      stroke: var(--amber);
+    }
+
+    .diagram-line.dashed {
+      stroke-dasharray: 6 5;
+    }
+
+    .diagram-panel {
+      fill: #fffdf8;
+      stroke: var(--teal);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .diagram-panel.soft {
+      fill: var(--paper-blue);
+    }
+
+    .diagram-panel.amber {
+      fill: var(--paper-amber);
+      stroke: var(--amber);
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 1040px) {
+      .hero-grid,
+      .section-head,
+      .formal-grid,
+      .horizon-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .atlas-grid {
+        grid-template-columns: 1fr 0.7fr;
+      }
+
+      .atlas-stack.right {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .horizon-band {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .topbar nav {
+        display: none;
+      }
+
+      .hero-grid,
+      .atlas-grid,
+      .layers-layout,
+      .lens,
+      .model-interaction {
+        grid-template-columns: 1fr;
+      }
+
+      .atlas-stack.right {
+        grid-template-columns: 1fr;
+      }
+
+      .atlas-spine {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .spine-arrow {
+        width: 24px;
+        height: auto;
+        transform: rotate(-90deg);
+      }
+
+      .spine-arrow:nth-of-type(n + 8) {
+        display: none;
+      }
+
+      .layers-rail {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .layer-card {
+        grid-template-columns: 96px 1fr;
+      }
+
+      .variable-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 590px) {
+      .section {
+        padding-right: 14px;
+        padding-left: 14px;
+      }
+
+      .hero {
+        padding-top: 46px;
+      }
+
+      .atlas-spine {
+        grid-template-columns: 1fr;
+      }
+
+      .spine-arrow {
+        width: auto;
+        height: 32px;
+        transform: none;
+      }
+
+      .spine-arrow:nth-of-type(n + 8) {
+        display: grid;
+      }
+
+      .pcra-grid,
+      .check-grid,
+      .decision-strip,
+      .lens-criteria,
+      .readiness-grid,
+      .evidence-grid,
+      .layers-rail {
+        grid-template-columns: 1fr;
+      }
+
+      .layer-card {
+        grid-template-columns: 1fr;
+      }
+
+      .layer-index {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 15px;
+        border-right: 0;
+        border-bottom: 1px solid #9ab8b8;
+      }
+
+      .layer-index span {
+        margin: 0;
+        flex: 0 0 34px;
+      }
+
+      .icon-ribbon {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .plan-chain {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .horizon-band {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        display: block;
+      }
+
+      .source-link {
+        display: inline-block;
+        margin-top: 12px;
+      }
+    }
+
+    @media print {
+      .topbar {
+        position: static;
+      }
+
+      .section {
+        break-inside: avoid;
+      }
+
+      .card,
+      .layer-card,
+      .hero-diagram {
+        box-shadow: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to Craft guide</a>
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#126573"></path>
+      </marker>
+      <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#a95f06"></path>
+      </marker>
+      <symbol id="icon-target" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <circle cx="16" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <circle cx="16" cy="16" r="2.5" fill="currentColor"></circle>
+        <path d="M18 14 29 3M23 3h6v6" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-cube" viewBox="0 0 32 32">
+        <path d="m16 3 11 6.5v13L16 29 5 22.5v-13L16 3Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="m5 9.5 11 6.4 11-6.4M16 15.9V29" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-network" viewBox="0 0 32 32">
+        <circle cx="7" cy="16" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <circle cx="25" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <circle cx="25" cy="25" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="m10.5 14 11-5M10.5 18l11 5" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 32 32">
+        <path d="M16 3 27 7v8c0 7-4.4 11.5-11 14C9.4 26.5 5 22 5 15V7l11-4Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="m10.5 16 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-loop" viewBox="0 0 32 32">
+        <path d="M25 11a10 10 0 1 0 1 9" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="M20 5h7v7" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="m9.5 16 4.3 4.3 8.8-9" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-puzzle" viewBox="0 0 32 32">
+        <path d="M5 6h8a4 4 0 1 1 6 0h8v8a4 4 0 1 0 0 6v7h-8a4 4 0 1 1-6 0H5v-7a4 4 0 1 0 0-6V6Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-balance" viewBox="0 0 32 32">
+        <path d="M16 4v24M8 28h16M7 8h18" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="m7 8-5 9h10L7 8Zm18 0-5 9h10l-5-9Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="M2 17c1 3 3 4 5 4s4-1 5-4M20 17c1 3 3 4 5 4s4-1 5-4" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-tower" viewBox="0 0 32 32">
+        <path d="M9 29h14L20 8h-8L9 29ZM13 8l3-5 3 5M11 18h10M10 24h12" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-globe" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M3 16h26M16 3c4 4 6 8 6 13s-2 9-6 13c-4-4-6-8-6-13s2-9 6-13Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-person" viewBox="0 0 32 32">
+        <circle cx="16" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M6 29c0-7 4-12 10-12s10 5 10 12" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 32 32">
+        <path d="M16 4 29 28H3L16 4Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="M16 11v9M16 24v1" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+      <symbol id="icon-document" viewBox="0 0 32 32">
+        <path d="M7 3h12l6 6v20H7V3Z" fill="none" stroke="currentColor" stroke-width="2"></path>
+        <path d="M19 3v7h6M11 15h10M11 20h10M11 25h7" fill="none" stroke="currentColor" stroke-width="2"></path>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <svg aria-hidden="true"><use href="#icon-loop"></use></svg>
+      <span>Craft · augmented making</span>
+    </a>
+    <nav aria-label="Page sections">
+      <a href="#atlas">System atlas</a>
+      <a href="#layers">SCU layers</a>
+      <a href="#formal">Formal topology</a>
+      <a href="#horizon">Research horizon</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="section hero" aria-labelledby="hero-title">
+      <div class="inner hero-grid">
+        <div>
+          <p class="eyebrow">Craft · explanatory development artifact</p>
+          <h1 id="hero-title">Toward an augmented physics of making.</h1>
+          <p class="lead">
+            Craft studies how intention becomes a stable artifact through chosen
+            structure, attention-bounded translation, local validation, residue,
+            reflection, and recomposition.
+          </p>
+          <p class="horizon-note">
+            An evolving research horizon for understanding how intent becomes form.
+            Operational claims remain local, inspectable, and governed.
+          </p>
+        </div>
+
+        <figure class="hero-diagram">
+          <svg viewBox="0 0 720 660" role="img" aria-labelledby="hero-map-title hero-map-desc">
+            <title id="hero-map-title">Craft translation and reflection map</title>
+            <desc id="hero-map-desc">
+              Difference becomes intention, intention selects a schema, a PCRA translator
+              produces an artifact, validation exposes residue, and structural residue can
+              seed a new layer before recomposition.
+            </desc>
+            <path class="diagram-line" marker-end="url(#arrow-teal)" d="M360 80V118"></path>
+            <path class="diagram-line" marker-end="url(#arrow-teal)" d="M360 182V220"></path>
+            <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M360 284V322"></path>
+            <path class="diagram-line" marker-end="url(#arrow-teal)" d="M360 386V424"></path>
+            <path class="diagram-line" marker-end="url(#arrow-teal)" d="M360 488V526"></path>
+            <path class="diagram-line dashed" marker-end="url(#arrow-teal)" d="M468 558C630 558 634 220 500 220"></path>
+
+            <rect class="diagram-panel soft" x="245" y="18" width="230" height="62" rx="8"></rect>
+            <text class="diagram-teal" x="360" y="45" text-anchor="middle" font-size="13" font-family="var(--mono)" font-weight="800">DIFFERENCE</text>
+            <text class="diagram-muted" x="360" y="64" text-anchor="middle" font-size="12">something is not yet in the form it could take</text>
+
+            <rect class="diagram-panel" x="245" y="118" width="230" height="64" rx="8"></rect>
+            <text class="diagram-text" x="360" y="146" text-anchor="middle" font-size="16" font-weight="800">INTENTION</text>
+            <text class="diagram-muted" x="360" y="166" text-anchor="middle" font-size="12">the desired change or attractor</text>
+
+            <rect class="diagram-panel" x="245" y="220" width="230" height="64" rx="8"></rect>
+            <text class="diagram-text" x="360" y="248" text-anchor="middle" font-size="16" font-weight="800">SCHEMA</text>
+            <text class="diagram-muted" x="360" y="268" text-anchor="middle" font-size="12">chosen structure, constraints, and method</text>
+
+            <rect class="diagram-panel amber" x="220" y="322" width="280" height="64" rx="8"></rect>
+            <text class="diagram-amber" x="360" y="350" text-anchor="middle" font-size="16" font-weight="800">PCRA TRANSLATION</text>
+            <text class="diagram-muted" x="360" y="370" text-anchor="middle" font-size="12">people + AI + context + tools + feedback</text>
+
+            <rect class="diagram-panel" x="245" y="424" width="230" height="64" rx="8"></rect>
+            <text class="diagram-text" x="360" y="452" text-anchor="middle" font-size="16" font-weight="800">DATA / ARTIFACT</text>
+            <text class="diagram-muted" x="360" y="472" text-anchor="middle" font-size="12">the produced, observed, or executed instance</text>
+
+            <rect class="diagram-panel soft" x="245" y="526" width="230" height="64" rx="8"></rect>
+            <text class="diagram-teal" x="360" y="554" text-anchor="middle" font-size="16" font-weight="800">VALIDATION → RESIDUE</text>
+            <text class="diagram-muted" x="360" y="574" text-anchor="middle" font-size="12">compare artifact back to schema</text>
+
+            <rect class="diagram-panel amber" x="505" y="180" width="185" height="94" rx="8"></rect>
+            <text class="diagram-amber" x="597" y="208" text-anchor="middle" font-size="13" font-weight="800">REFLECTION TOWER</text>
+            <text class="diagram-muted" x="597" y="230" text-anchor="middle" font-size="11">when local repair cannot close</text>
+            <text class="diagram-muted" x="597" y="247" text-anchor="middle" font-size="11">residue becomes intent for a new layer</text>
+
+            <path class="diagram-line dashed" marker-end="url(#arrow-teal)" d="M245 558C85 558 80 458 202 458"></path>
+            <rect class="diagram-panel" x="28" y="405" width="174" height="102" rx="8"></rect>
+            <text class="diagram-teal" x="115" y="432" text-anchor="middle" font-size="13" font-weight="800">RECOMPOSITION</text>
+            <text class="diagram-muted" x="115" y="455" text-anchor="middle" font-size="11">validated unit returns</text>
+            <text class="diagram-muted" x="115" y="472" text-anchor="middle" font-size="11">to task, wave, plan,</text>
+            <text class="diagram-muted" x="115" y="489" text-anchor="middle" font-size="11">and larger artifact</text>
+
+            <text class="diagram-mono diagram-muted" x="360" y="628" text-anchor="middle" font-size="12">
+              DEFINE → DESIGN → PLAN → EXECUTE → VALIDATE → REFLECT
+            </text>
+          </svg>
+          <figcaption class="figure-caption">
+            Craft converts difference into a governed schema/data translation and
+            returns validated units to the larger system.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section white" id="atlas" aria-labelledby="atlas-title">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <span class="vision-label">Vision 01 · System Atlas</span>
+            <h2 id="atlas-title">The complete operational model.</h2>
+          </div>
+          <p>
+            The atlas follows one craft operation from intent to artifact, then
+            classifies the residue and decides whether to close, repair, route, or
+            open a new layer.
+          </p>
+        </div>
+
+        <div class="atlas-grid">
+          <div class="atlas-stack">
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">01 · Core operation</span>
+                <h3>Intent becomes artifact through a governed relation.</h3>
+              </div>
+              <div class="card-body">
+                <ul class="term-list">
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-target"></use></svg>
+                    <span><strong>Intent</strong> names the desired change.</span>
+                  </li>
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-cube"></use></svg>
+                    <span><strong>Schema</strong> is the chosen representation of structure, constraints, and method.</span>
+                  </li>
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-network"></use></svg>
+                    <span><strong>Translator</strong> combines human intention, AI behavior, context, tools, vocabulary, validation, and feedback.</span>
+                  </li>
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-cube"></use></svg>
+                    <span><strong>Data / Artifact</strong> is the produced, observed, or executed instance.</span>
+                  </li>
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-shield"></use></svg>
+                    <span><strong>Validation</strong> compares artifact back to schema under closure criteria.</span>
+                  </li>
+                  <li>
+                    <svg aria-hidden="true"><use href="#icon-alert"></use></svg>
+                    <span><strong>Residue</strong> is meaningful mismatch, loss, ambiguity, drift, or unexpressed structure.</span>
+                  </li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">03 · SCU: local low entropy</span>
+                <h3>Small enough for attention. Large enough for meaning.</h3>
+              </div>
+              <div class="card-body">
+                <figure class="scu-scale">
+                  <svg viewBox="0 0 480 104" role="img" aria-labelledby="scu-scale-title scu-scale-desc">
+                    <title id="scu-scale-title">SCU size and entropy scale</title>
+                    <desc id="scu-scale-desc">
+                      Units that are too small lose semantic relations. The SCU has
+                      bounded relation load and local validation. Units that are too
+                      large increase attention loss and residue.
+                    </desc>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M38 48H442"></path>
+                    <circle cx="90" cy="48" r="16" fill="#f7ead5" stroke="#a95f06" stroke-width="2"></circle>
+                    <circle cx="240" cy="48" r="22" fill="#d8e8e7" stroke="#126573" stroke-width="3"></circle>
+                    <circle cx="390" cy="48" r="28" fill="#f7ead5" stroke="#a95f06" stroke-width="2"></circle>
+                    <text class="diagram-mono diagram-amber" x="90" y="86" text-anchor="middle" font-size="11">TOO SMALL</text>
+                    <text class="diagram-mono diagram-teal" x="240" y="88" text-anchor="middle" font-size="12" font-weight="800">SCU</text>
+                    <text class="diagram-mono diagram-amber" x="390" y="86" text-anchor="middle" font-size="11">TOO LARGE</text>
+                  </svg>
+                  <figcaption class="figure-caption">
+                    SCU balances semantic sufficiency against relation and attention load.
+                  </figcaption>
+                </figure>
+                <div class="check-grid">
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>meaning in the current space</span></div>
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>one primary responsibility</span></div>
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>explicit inputs and outputs</span></div>
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>local validation surface</span></div>
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>known failure behavior</span></div>
+                  <div class="check"><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>explicit recomposition path</span></div>
+                </div>
+                <p>
+                  SCU selection controls entropy before translation. Residue shows
+                  where entropy appeared after the artifact exists.
+                </p>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">05 · Residue routing</span>
+                <h3>Name the mismatch before selecting a response.</h3>
+              </div>
+              <div class="card-body">
+                <ul class="route-list">
+                  <li><strong>Translation</strong><span>intended structure was not preserved</span></li>
+                  <li><strong>Domain</strong><span>terms, relations, constraints, or behavior are missing</span></li>
+                  <li><strong>Structural</strong><span>artifact shape cannot hold the required relations</span></li>
+                  <li><strong>Attention / Entropy</strong><span>scope, context, or relation load exceeded fidelity</span></li>
+                  <li><strong>Recomposition</strong><span>the unit works locally but does not return cleanly to the whole</span></li>
+                  <li><strong>Governance</strong><span>authority, ownership, validation, or promotion is unclear</span></li>
+                </ul>
+                <div class="decision-strip">
+                  <div><b>Acceptable</b>close the layer</div>
+                  <div><b>Repairable</b>revise schema, context, translator, or artifact</div>
+                  <div><b>Structural</b>R<sub>n</sub> becomes intent I<sub>n+1</sub></div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="atlas-spine" aria-label="Core translation spine">
+            <div class="spine-node">
+              <svg aria-hidden="true"><use href="#icon-target"></use></svg>
+              Intent
+            </div>
+            <div class="spine-arrow"><svg aria-hidden="true" viewBox="0 0 24 38"><path d="M12 2v28m-6-7 6 7 6-7" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+            <div class="spine-node">
+              <svg aria-hidden="true"><use href="#icon-cube"></use></svg>
+              Schema
+            </div>
+            <div class="spine-arrow"><svg aria-hidden="true" viewBox="0 0 24 38"><path d="M12 2v28m-6-7 6 7 6-7" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+            <div class="spine-node pcra">
+              <svg aria-hidden="true"><use href="#icon-network"></use></svg>
+              PCRA translator
+            </div>
+            <div class="spine-arrow"><svg aria-hidden="true" viewBox="0 0 24 38"><path d="M12 2v28m-6-7 6 7 6-7" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+            <div class="spine-node">
+              <svg aria-hidden="true"><use href="#icon-cube"></use></svg>
+              Artifact
+            </div>
+            <div class="spine-arrow"><svg aria-hidden="true" viewBox="0 0 24 38"><path d="M12 2v28m-6-7 6 7 6-7" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+            <div class="spine-node">
+              <svg aria-hidden="true"><use href="#icon-shield"></use></svg>
+              Validation
+            </div>
+            <div class="spine-arrow"><svg aria-hidden="true" viewBox="0 0 24 38"><path d="M12 2v28m-6-7 6 7 6-7" fill="none" stroke="currentColor" stroke-width="2"></path></svg></div>
+            <div class="spine-node">
+              <svg aria-hidden="true"><use href="#icon-alert"></use></svg>
+              Residue
+            </div>
+          </div>
+
+          <div class="atlas-stack right">
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">02 · PCRA translation</span>
+                <h3>Translation is not a deterministic compiler.</h3>
+              </div>
+              <div class="card-body">
+                <div class="pcra-grid">
+                  <div class="pcra-item"><b>Probabilistic</b><span>Many plausible outputs can follow the same schema.</span></div>
+                  <div class="pcra-item"><b>Contextual</b><span>Selected context and history change the output.</span></div>
+                  <div class="pcra-item"><b>Relational</b><span>Fidelity depends on preserving concepts, constraints, roles, and links.</span></div>
+                  <div class="pcra-item"><b>Attentive</b><span>Salience, context size, and time limit what remains active.</span></div>
+                </div>
+                <div class="entropy-pair">
+                  <div><strong>Entropy</strong><br>uncertainty pressure before and during translation</div>
+                  <div><strong>Residue</strong><br>observable trace after the artifact exists</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">04 · Lifecycle and plan</span>
+                <h3>The outer cycle and local SWU loop are different scales.</h3>
+              </div>
+              <div class="card-body">
+                <div class="lifecycle" aria-label="Craft lifecycle">
+                  <span class="phase">Define</span><svg class="phase-arrow" aria-hidden="true"><path d="M1 6h15m-5-4 5 4-5 4" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+                  <span class="phase">Design</span><svg class="phase-arrow" aria-hidden="true"><path d="M1 6h15m-5-4 5 4-5 4" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+                  <span class="phase">Plan</span><svg class="phase-arrow" aria-hidden="true"><path d="M1 6h15m-5-4 5 4-5 4" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+                  <span class="phase">Execute</span><svg class="phase-arrow" aria-hidden="true"><path d="M1 6h15m-5-4 5 4-5 4" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+                  <span class="phase">Validate</span><svg class="phase-arrow" aria-hidden="true"><path d="M1 6h15m-5-4 5 4-5 4" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+                  <span class="phase">Reflect</span>
+                </div>
+                <p>The lifecycle governs the current objective or craft layer.</p>
+                <div class="plan-chain" aria-label="Plan decomposition">
+                  <span>Plan</span><span>Waves</span><span>Tasks</span><span>SWUs</span>
+                </div>
+                <p>
+                  An SWU is an executable SCU. The plan closes when the next SWU has
+                  clear inputs, outputs, completion criteria, validation, failure
+                  behavior, and recomposition.
+                </p>
+                <div class="local-loop">selected SWU: execute → validate locally → recompose</div>
+                <p>
+                  The local sequence does not restart the complete lifecycle.
+                  Evidence reopens only the responsible earlier phase.
+                </p>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">06 · Governance, reflection, stop</span>
+                <h3>Escalate only when local repair cannot close the residue.</h3>
+              </div>
+              <div class="card-body">
+                <ul class="term-list">
+                  <li><svg aria-hidden="true"><use href="#icon-document"></use></svg><span><strong>Constitutions</strong> govern required form, lifecycle boundaries, sources of truth, gates, and composition.</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-balance"></use></svg><span><strong>Axioms</strong> govern load-bearing behavior that must remain invariant.</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-tower"></use></svg><span><strong>Reflection Tower</strong> creates a new schema/data layer only when local repair cannot close.</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-loop"></use></svg><span><strong>Stop</strong> when residue is acceptable, another owner must decide, or more splitting removes meaning.</span></li>
+                </ul>
+              </div>
+            </article>
+          </div>
+
+          <aside class="horizon-band">
+            <svg aria-hidden="true"><use href="#icon-globe"></use></svg>
+            <div>
+              <strong>Horizon</strong>
+              <p>
+                Operational claims stay local and validated. The wider research
+                program asks whether making across domains shares a recursive pattern:
+                difference → intention → schema → translation → manifestation →
+                residue → reflection → recomposition.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="layers" aria-labelledby="layers-title">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <span class="vision-label">Vision 02 · Layered SCU Map</span>
+            <h2 id="layers-title">Coherence changes with abstraction level.</h2>
+          </div>
+          <p>
+            SCU is not one fixed object type. It is a layer-relative test for the
+            smallest unit that keeps enough meaning to translate, validate, and return
+            to its upper context.
+          </p>
+        </div>
+
+        <article class="lens">
+          <div>
+            <span class="micro-label">The coherence lens</span>
+            <h3>Smallest coherent unit, not smallest possible fragment.</h3>
+            <p>
+              Too small loses semantic relations and creates recomposition ambiguity.
+              Too large mixes responsibilities and increases attention loss, relation
+              drift, and residue.
+            </p>
+          </div>
+          <div class="lens-criteria" aria-label="SCU criteria">
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>meaning is sufficient</div>
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>responsibility is singular</div>
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>relation load is bounded</div>
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>validation is local</div>
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>failure behavior is explicit</div>
+            <div class="criterion"><svg aria-hidden="true"><use href="#icon-check"></use></svg>return path is explicit</div>
+          </div>
+        </article>
+
+        <div class="layers-layout">
+          <div class="layer-stack">
+            <article class="layer-card">
+              <div class="layer-index">
+                <span>1</span>
+                <strong>Modeling objects and interactions</strong>
+              </div>
+              <div class="layer-content">
+                <div class="model-interaction">
+                  <ul class="object-key">
+                    <li><strong>Objects</strong> carry identity and state.</li>
+                    <li><strong>Relationships</strong> declare structural connections.</li>
+                    <li><strong>Interactions</strong> change state or produce events.</li>
+                    <li><strong>Rules</strong> constrain valid transitions.</li>
+                  </ul>
+                  <figure class="interaction-svg">
+                    <svg viewBox="0 0 620 230" role="img" aria-labelledby="object-map-title object-map-desc">
+                      <title id="object-map-title">Member, loan, and book interaction model</title>
+                      <desc id="object-map-desc">
+                        A member requests a loan that references a book. The request,
+                        eligibility rule, book state transition, and observable result form
+                        one coherent modeling slice.
+                      </desc>
+                      <rect class="diagram-panel" x="22" y="35" width="142" height="54" rx="6"></rect>
+                      <rect class="diagram-panel amber" x="238" y="35" width="142" height="54" rx="6"></rect>
+                      <rect class="diagram-panel" x="456" y="35" width="142" height="54" rx="6"></rect>
+                      <text class="diagram-mono diagram-text" x="93" y="68" text-anchor="middle" font-size="17" font-weight="800">MEMBER</text>
+                      <text class="diagram-mono diagram-amber" x="309" y="68" text-anchor="middle" font-size="17" font-weight="800">LOAN</text>
+                      <text class="diagram-mono diagram-text" x="527" y="68" text-anchor="middle" font-size="17" font-weight="800">BOOK</text>
+                      <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M164 62H238"></path>
+                      <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M380 62H456"></path>
+                      <text class="diagram-amber" x="201" y="51" text-anchor="middle" font-size="11">requests</text>
+                      <text class="diagram-amber" x="418" y="51" text-anchor="middle" font-size="11">references</text>
+                      <path class="diagram-line" marker-end="url(#arrow-teal)" d="M527 89V135"></path>
+                      <rect class="diagram-panel soft" x="355" y="135" width="243" height="48" rx="6"></rect>
+                      <text class="diagram-mono diagram-teal" x="476" y="165" text-anchor="middle" font-size="15" font-weight="800">AVAILABLE → ON LOAN</text>
+                      <path class="diagram-line dashed" d="M309 89V206H476V183"></path>
+                      <text class="diagram-muted" x="22" y="216" font-size="12">Rule: one active loan per book.</text>
+                    </svg>
+                    <figcaption class="figure-caption">
+                      One modeling SCU preserves objects, relationships, interaction,
+                      transition rules, and an observable result.
+                    </figcaption>
+                  </figure>
+                </div>
+                <p>
+                  Coherent slice: request + eligibility rule + state transition +
+                  observable outcome. The model SCU must preserve the behavior and its
+                  recomposition into the larger domain model.
+                </p>
+              </div>
+            </article>
+
+            <article class="layer-card">
+              <div class="layer-index">
+                <span>2</span>
+                <strong>Design</strong>
+              </div>
+              <div class="layer-content">
+                <div class="icon-ribbon" aria-label="Design SCU elements">
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-person"></use></svg>actors</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-target"></use></svg>trigger</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-cube"></use></svg>response</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-loop"></use></svg>state</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-network"></use></svg>feedback</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-alert"></use></svg>edge cases</div>
+                  <div class="icon-item"><svg aria-hidden="true"><use href="#icon-puzzle"></use></svg>return</div>
+                </div>
+                <p>
+                  A design SCU is one coherent experience or behavior with actors,
+                  trigger, response, state, feedback, edge cases, and return to the
+                  broader journey. It is not only a screen; it is the smallest behavior
+                  that can be reviewed without hidden interaction glue.
+                </p>
+              </div>
+            </article>
+
+            <article class="layer-card">
+              <div class="layer-index">
+                <span>3</span>
+                <strong>Architecture</strong>
+              </div>
+              <div class="layer-content">
+                <p>
+                  An architecture SCU is one coherent system boundary with
+                  responsibility, interfaces, invariants, dependencies, failure
+                  behavior, validation surface, and integration path.
+                </p>
+                <figure class="boundary-diagram">
+                  <svg viewBox="0 0 720 180" role="img" aria-labelledby="boundary-title boundary-desc">
+                    <title id="boundary-title">Architecture coherence boundary</title>
+                    <desc id="boundary-desc">
+                      One boundary contains a primary responsibility, interfaces,
+                      invariants, dependencies, failure behavior, validation, and an
+                      integration path to the larger system.
+                    </desc>
+                    <rect class="diagram-panel soft" x="16" y="15" width="688" height="150" rx="10"></rect>
+                    <text class="diagram-teal" x="36" y="42" font-size="13" font-weight="800">COHERENT SYSTEM BOUNDARY</text>
+                    <rect class="diagram-panel" x="42" y="62" width="180" height="68" rx="6"></rect>
+                    <text class="diagram-text" x="132" y="91" text-anchor="middle" font-size="14" font-weight="800">RESPONSIBILITY</text>
+                    <text class="diagram-muted" x="132" y="111" text-anchor="middle" font-size="11">one reason to change</text>
+                    <rect class="diagram-panel" x="270" y="62" width="180" height="68" rx="6"></rect>
+                    <text class="diagram-text" x="360" y="91" text-anchor="middle" font-size="14" font-weight="800">INVARIANTS</text>
+                    <text class="diagram-muted" x="360" y="111" text-anchor="middle" font-size="11">behavior that must hold</text>
+                    <rect class="diagram-panel amber" x="498" y="62" width="180" height="68" rx="6"></rect>
+                    <text class="diagram-amber" x="588" y="91" text-anchor="middle" font-size="14" font-weight="800">VALIDATION</text>
+                    <text class="diagram-muted" x="588" y="111" text-anchor="middle" font-size="11">failure + integration surface</text>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M222 96H270"></path>
+                    <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M450 96H498"></path>
+                  </svg>
+                  <figcaption class="figure-caption">
+                    An architecture SCU keeps responsibility, invariants, validation,
+                    and integration inside one explainable boundary.
+                  </figcaption>
+                </figure>
+                <p>
+                  A component is too small when its contract depends on invisible
+                  behavior. It is too large when it owns unrelated change reasons.
+                </p>
+              </div>
+            </article>
+
+            <article class="layer-card">
+              <div class="layer-index">
+                <span>4</span>
+                <strong>Planning</strong>
+              </div>
+              <div class="layer-content">
+                <div class="plan-chain" aria-label="Planning hierarchy">
+                  <span>Plan</span><span>Waves</span><span>Tasks</span><span>SWUs</span>
+                </div>
+                <p>
+                  The plan exposes the route. An SWU is the executable planning form
+                  of an SCU.
+                </p>
+                <div class="readiness-grid" aria-label="Next SWU readiness">
+                  <span>inputs</span><span>outputs</span><span>completion criteria</span>
+                  <span>validation</span><span>failure behavior</span><span>recomposition</span>
+                </div>
+                <p>
+                  This is rolling-wave readiness. It does not claim that every future
+                  SWU is fully specified before implementation begins.
+                </p>
+              </div>
+            </article>
+
+            <article class="layer-card">
+              <div class="layer-index">
+                <span>5</span>
+                <strong>Execution and recomposition</strong>
+              </div>
+              <div class="layer-content">
+                <figure class="execution-map">
+                  <svg viewBox="0 0 760 210" role="img" aria-labelledby="execution-title execution-desc">
+                    <title id="execution-title">Local SWU execution and recomposition</title>
+                    <desc id="execution-desc">
+                      A selected SWU is executed, validated at its boundary, and
+                      recomposed into a task, wave, plan, and larger artifact. Residue
+                      reopens only the responsible earlier phase.
+                    </desc>
+                    <rect class="diagram-panel amber" x="18" y="22" width="180" height="54" rx="6"></rect>
+                    <rect class="diagram-panel amber" x="290" y="22" width="180" height="54" rx="6"></rect>
+                    <rect class="diagram-panel amber" x="562" y="22" width="180" height="54" rx="6"></rect>
+                    <text class="diagram-mono diagram-amber" x="108" y="55" text-anchor="middle" font-size="15" font-weight="800">EXECUTE</text>
+                    <text class="diagram-mono diagram-amber" x="380" y="48" text-anchor="middle" font-size="13" font-weight="800">VALIDATE AT</text>
+                    <text class="diagram-mono diagram-amber" x="380" y="64" text-anchor="middle" font-size="13" font-weight="800">UNIT BOUNDARY</text>
+                    <text class="diagram-mono diagram-amber" x="652" y="55" text-anchor="middle" font-size="15" font-weight="800">RECOMPOSE</text>
+                    <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M198 49H290"></path>
+                    <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M470 49H562"></path>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M55 133H700"></path>
+                    <text class="diagram-mono diagram-teal" x="55" y="119" font-size="11">SWU RESULT</text>
+                    <text class="diagram-mono diagram-teal" x="205" y="119" font-size="11">TASK</text>
+                    <text class="diagram-mono diagram-teal" x="340" y="119" font-size="11">WAVE</text>
+                    <text class="diagram-mono diagram-teal" x="470" y="119" font-size="11">PLAN</text>
+                    <text class="diagram-mono diagram-teal" x="620" y="119" font-size="11">LARGER ARTIFACT</text>
+                    <path class="diagram-line dashed" marker-end="url(#arrow-teal)" d="M380 76V173H100V148"></path>
+                    <text class="diagram-muted" x="393" y="189" font-size="11">validation residue routes to the responsible phase</text>
+                  </svg>
+                  <figcaption class="figure-caption">
+                    A selected SWU executes, validates locally, and recomposes upward
+                    without restarting the outer lifecycle.
+                  </figcaption>
+                </figure>
+                <p>
+                  Local execution does not repeat Define, Design, and Plan for every
+                  unit. Wrong objective returns to Define; wrong structure to Design;
+                  wrong route or decomposition to Plan; wrong realization to Execute.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <aside class="layers-rail">
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">PCRA translation</span>
+                <h3>Intent + schema + context + tools → artifact</h3>
+              </div>
+              <div class="card-body">
+                <ul class="route-list">
+                  <li><strong>P</strong><span>outputs vary</span></li>
+                  <li><strong>C</strong><span>context changes outputs</span></li>
+                  <li><strong>R</strong><span>meaning depends on preserved connections</span></li>
+                  <li><strong>A</strong><span>limited attention loses details</span></li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Reflection Tower</span>
+                <h3>Promote residue only after local repair fails.</h3>
+              </div>
+              <div class="card-body">
+                <figure class="tower-svg">
+                  <svg viewBox="0 0 320 430" role="img" aria-labelledby="layers-tower-title layers-tower-desc">
+                    <title id="layers-tower-title">Reflection Tower between two layers</title>
+                    <desc id="layers-tower-desc">
+                      Schema N produces Artifact N and Residue N. If local repair cannot
+                      close the residue, it becomes Intent N plus one and seeds Schema N
+                      plus one.
+                    </desc>
+                    <rect class="diagram-panel" x="66" y="22" width="188" height="52" rx="6"></rect>
+                    <rect class="diagram-panel" x="66" y="102" width="188" height="52" rx="6"></rect>
+                    <rect class="diagram-panel amber" x="66" y="182" width="188" height="52" rx="6"></rect>
+                    <rect class="diagram-panel amber" x="66" y="278" width="188" height="52" rx="6"></rect>
+                    <rect class="diagram-panel" x="66" y="358" width="188" height="52" rx="6"></rect>
+                    <text class="diagram-mono diagram-text" x="160" y="54" text-anchor="middle" font-size="15" font-weight="800">SCHEMAₙ</text>
+                    <text class="diagram-mono diagram-text" x="160" y="134" text-anchor="middle" font-size="15" font-weight="800">ARTIFACTₙ</text>
+                    <text class="diagram-mono diagram-amber" x="160" y="214" text-anchor="middle" font-size="15" font-weight="800">RESIDUEₙ</text>
+                    <text class="diagram-mono diagram-amber" x="160" y="310" text-anchor="middle" font-size="15" font-weight="800">INTENTₙ₊₁</text>
+                    <text class="diagram-mono diagram-text" x="160" y="390" text-anchor="middle" font-size="15" font-weight="800">SCHEMAₙ₊₁</text>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M160 74V102"></path>
+                    <path class="diagram-line amber" marker-end="url(#arrow-amber)" d="M160 154V182"></path>
+                    <path class="diagram-line amber dashed" marker-end="url(#arrow-amber)" d="M160 234V278"></path>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M160 330V358"></path>
+                    <path class="diagram-line dashed" marker-end="url(#arrow-teal)" d="M254 384H298V48H254"></path>
+                  </svg>
+                  <figcaption class="figure-caption">
+                    Reflection Tower opens a new layer only when local repair cannot
+                    close the current residue.
+                  </figcaption>
+                </figure>
+                <p>
+                  Stop when residue is acceptable or further splitting removes
+                  meaning.
+                </p>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section white" id="formal" aria-labelledby="formal-title">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <span class="vision-label">Vision 03 · Formal Craft Topology</span>
+            <h2 id="formal-title">Compress the model without losing its decisions.</h2>
+          </div>
+          <p>
+            The formal view names the operation, models translation entropy, constrains
+            SCU selection, and routes residue after validation.
+          </p>
+        </div>
+
+        <div class="formal-grid">
+          <div class="formal-stack">
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Craft operation</span>
+                <h3>One tuple binds intention, translation, evidence, and governance.</h3>
+              </div>
+              <div class="card-body">
+                <code class="equation tuple">C = (I, S, F, E, D, R, G, V)</code>
+                <div class="variable-grid">
+                  <div class="variable"><b>I</b><span>intention</span></div>
+                  <div class="variable"><b>S</b><span>chosen schema</span></div>
+                  <div class="variable"><b>F</b><span>functor-like translator</span></div>
+                  <div class="variable"><b>E</b><span>translation entropy</span></div>
+                  <div class="variable"><b>D</b><span>data / artifact</span></div>
+                  <div class="variable"><b>R</b><span>residue</span></div>
+                  <div class="variable"><b>G</b><span>governance</span></div>
+                  <div class="variable"><b>V</b><span>validation</span></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">Translation</span>
+                <h3>PCRA makes uncertainty explicit.</h3>
+              </div>
+              <div class="card-body">
+                <code class="equation">F<sub>PCRA</sub>(I, S, context, tools) → D</code>
+                <code class="equation">E = entropy(F<sub>PCRA</sub>, S, context, relation_load, unit_size)</code>
+                <code class="equation">V(S, D, G) → R</code>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Execution topology</span>
+                <h3>The outer lifecycle contains a local selected-SWU loop.</h3>
+              </div>
+              <div class="card-body">
+                <figure class="topology-svg">
+                  <svg viewBox="0 0 920 310" role="img" aria-labelledby="topology-title topology-desc">
+                    <title id="topology-title">Craft execution topology</title>
+                    <desc id="topology-desc">
+                      Define, Design, Plan, Execute, Validate, and Reflect form the
+                      outer lifecycle. Plan decomposes into waves, tasks, and SWUs.
+                      Each selected SWU executes, validates locally, and recomposes
+                      without restarting the outer lifecycle.
+                    </desc>
+                    <path class="diagram-line" marker-end="url(#arrow-teal)" d="M90 72H830"></path>
+                    <g class="diagram-text" text-anchor="middle" font-size="12" font-weight="800">
+                      <circle cx="90" cy="72" r="31" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                      <circle cx="238" cy="72" r="31" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                      <circle cx="386" cy="72" r="31" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                      <circle cx="534" cy="72" r="31" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                      <circle cx="682" cy="72" r="31" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                      <circle cx="830" cy="72" r="31" fill="#fffdf8" stroke="#a95f06" stroke-width="2"></circle>
+                      <text x="90" y="126">DEFINE</text>
+                      <text x="238" y="126">DESIGN</text>
+                      <text x="386" y="126">PLAN</text>
+                      <text x="534" y="126">EXECUTE</text>
+                      <text x="682" y="126">VALIDATE</text>
+                      <text class="diagram-amber" x="830" y="126">REFLECT</text>
+                    </g>
+                    <rect class="diagram-panel soft" x="220" y="160" width="480" height="48" rx="6"></rect>
+                    <text class="diagram-mono diagram-teal" x="460" y="190" text-anchor="middle" font-size="15" font-weight="800">PLAN → WAVES → TASKS → SWUs</text>
+                    <path class="diagram-line dashed" d="M386 103V160"></path>
+                    <rect class="diagram-panel amber" x="154" y="236" width="612" height="52" rx="6"></rect>
+                    <text class="diagram-mono diagram-amber" x="460" y="268" text-anchor="middle" font-size="15" font-weight="800">SELECTED SWU: EXECUTE → VALIDATE LOCALLY → RECOMPOSE</text>
+                    <path class="diagram-line amber dashed" d="M600 208V236"></path>
+                  </svg>
+                  <figcaption class="figure-caption">
+                    Planning decomposition and the local SWU sequence remain nested
+                    inside the outer Craft lifecycle.
+                  </figcaption>
+                </figure>
+                <p>
+                  The outer lifecycle governs the craft layer. The SWU loop does not
+                  restart it.
+                </p>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Reflection Tower</span>
+                <h3>Structural residue becomes the seed of a new layer.</h3>
+              </div>
+              <div class="card-body">
+                <code class="equation">Layer N: S<sub>n</sub> → F<sub>n</sub> → D<sub>n</sub> → V<sub>n</sub> → R<sub>n</sub></code>
+                <code class="equation">if local repair cannot close R<sub>n</sub>: R<sub>n</sub> → I<sub>n+1</sub> → S<sub>n+1</sub></code>
+                <p>
+                  The new layer must define its data target, validation, governance,
+                  and return path.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <aside class="formal-stack">
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Control before translation</span>
+                <h3>Choose an SCU under six constraints.</h3>
+              </div>
+              <div class="card-body">
+                <ul class="constraint-list">
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>meaning(SCU) is sufficient</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>responsibility(SCU) is singular</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>relation_load(SCU) is bounded</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>validation(SCU) is local</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>failure_behavior(SCU) is explicit</span></li>
+                  <li><svg aria-hidden="true"><use href="#icon-check"></use></svg><span>recomposition(SCU → upper_schema) is explicit</span></li>
+                </ul>
+                <p>
+                  Too small → semantic underdetermination.<br>
+                  Too large → attentional decay and relation drift.<br>
+                  SWU → executable SCU in planning and execution.
+                </p>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">Evidence after translation</span>
+                <h3>Route what validation reveals.</h3>
+              </div>
+              <div class="card-body">
+                <div class="evidence-grid">
+                  <div class="evidence-route"><code>R acceptable</code><br>close the layer</div>
+                  <div class="evidence-route"><code>R missing details</code><br>repair schema or context</div>
+                  <div class="evidence-route"><code>R attention loss</code><br>reduce unit or improve context selection</div>
+                  <div class="evidence-route"><code>R relation drift</code><br>declare relations or split responsibilities</div>
+                  <div class="evidence-route"><code>R recomposition failure</code><br>widen the unit or add a bridge schema</div>
+                  <div class="evidence-route"><code>R governance gap</code><br>resolve owner, route, gate, or authority</div>
+                  <div class="evidence-route"><code>R persists at SCU</code><br>climb the Reflection Tower</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card teal">
+              <div class="card-head">
+                <span class="micro-label">Residue classes</span>
+                <h3>Classification keeps response proportional.</h3>
+              </div>
+              <div class="card-body">
+                <div class="residue-chips" aria-label="Residue classes">
+                  <span>translation</span><span>domain</span><span>structural</span>
+                  <span>attention</span><span>entropy</span><span>recomposition</span>
+                  <span>governance</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">Governance</span>
+                <h3>Form and behavior have different rule owners.</h3>
+              </div>
+              <div class="card-body governance-grid">
+                <div class="governance-item">
+                  <svg aria-hidden="true"><use href="#icon-document"></use></svg>
+                  <p><strong>Constitution</strong><br>required form, boundaries, source, gates, and composition</p>
+                </div>
+                <div class="governance-item">
+                  <svg aria-hidden="true"><use href="#icon-balance"></use></svg>
+                  <p><strong>Axiom</strong><br>load-bearing behavior that remains invariant</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="card amber">
+              <div class="card-head">
+                <span class="micro-label">Stop condition</span>
+                <h3>Closure is bounded, not universal.</h3>
+              </div>
+              <div class="card-body stop-grid">
+                <div class="stop-item"><svg aria-hidden="true"><use href="#icon-check"></use></svg><p>Close when residue is acceptable.</p></div>
+                <div class="stop-item"><svg aria-hidden="true"><use href="#icon-person"></use></svg><p>Route when a human or different owner must decide.</p></div>
+                <div class="stop-item"><svg aria-hidden="true"><use href="#icon-alert"></use></svg><p>Stop splitting when decomposition removes meaning or increases residue.</p></div>
+                <div class="stop-item"><svg aria-hidden="true"><use href="#icon-loop"></use></svg><p>Continue only while residue decreases and recomposition remains explicit.</p></div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="horizon" aria-labelledby="horizon-title">
+      <div class="inner">
+        <div class="section-head">
+          <div>
+            <span class="vision-label">Research horizon</span>
+            <h2 id="horizon-title">A disciplined question about making.</h2>
+          </div>
+          <p>
+            Craft can pursue a broad philosophy only by preserving the local evidence
+            boundary that makes each operation inspectable.
+          </p>
+        </div>
+
+        <div class="horizon-grid">
+          <figure class="primitive-flow">
+            <svg viewBox="0 0 900 440" role="img" aria-labelledby="primitive-title primitive-desc">
+              <title id="primitive-title">Candidate primitives of making</title>
+              <desc id="primitive-desc">
+                Difference leads to intention, schema, translation, manifestation,
+                residue, reflection, and recomposition, which changes the whole.
+              </desc>
+              <path class="diagram-line" marker-end="url(#arrow-teal)" d="M90 220H810"></path>
+              <g text-anchor="middle">
+                <circle cx="90" cy="220" r="40" fill="#f7ead5" stroke="#a95f06" stroke-width="2"></circle>
+                <circle cx="193" cy="220" r="40" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                <circle cx="296" cy="220" r="40" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                <circle cx="399" cy="220" r="40" fill="#f7ead5" stroke="#a95f06" stroke-width="2"></circle>
+                <circle cx="502" cy="220" r="40" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                <circle cx="605" cy="220" r="40" fill="#f7ead5" stroke="#a95f06" stroke-width="2"></circle>
+                <circle cx="708" cy="220" r="40" fill="#fffdf8" stroke="#126573" stroke-width="2"></circle>
+                <circle cx="810" cy="220" r="40" fill="#eaf2f0" stroke="#126573" stroke-width="2"></circle>
+                <text class="diagram-mono diagram-amber" x="90" y="284" font-size="11">DIFFERENCE</text>
+                <text class="diagram-mono diagram-teal" x="193" y="284" font-size="11">INTENTION</text>
+                <text class="diagram-mono diagram-teal" x="296" y="284" font-size="11">SCHEMA</text>
+                <text class="diagram-mono diagram-amber" x="399" y="284" font-size="11">TRANSLATION</text>
+                <text class="diagram-mono diagram-teal" x="502" y="284" font-size="11">MANIFESTATION</text>
+                <text class="diagram-mono diagram-amber" x="605" y="284" font-size="11">RESIDUE</text>
+                <text class="diagram-mono diagram-teal" x="708" y="284" font-size="11">REFLECTION</text>
+                <text class="diagram-mono diagram-teal" x="810" y="284" font-size="11">RECOMPOSITION</text>
+              </g>
+              <path class="diagram-line dashed" marker-end="url(#arrow-teal)" d="M810 180C810 54 90 54 90 180"></path>
+              <text class="diagram-muted" x="450" y="83" text-anchor="middle" font-size="13">the return path changes the whole and begins the next responsible layer</text>
+              <text class="diagram-text" x="450" y="376" text-anchor="middle" font-size="18" font-family="var(--serif)">
+                Can coherent making across domains share this recursive structure?
+              </text>
+            </svg>
+            <figcaption class="figure-caption">
+              The philosophical horizon asks whether these primitives recur across
+              domains; each operational use must still prove its local transformation.
+            </figcaption>
+          </figure>
+
+          <article class="honesty">
+            <span class="micro-label">Honesty boundary</span>
+            <h3>Every local use must still answer:</h3>
+            <ol>
+              <li>What was the chosen schema?</li>
+              <li>What data or artifact did it produce?</li>
+              <li>What validation compared artifact back to schema?</li>
+              <li>What residue remained?</li>
+              <li>What repair, route, new layer, or stop criterion follows?</li>
+            </ol>
+            <p>
+              Without these questions, “physics of making” becomes aesthetic
+              language. With them, it remains a research direction whose operational
+              claims can earn or lose force.
+            </p>
+          </article>
+        </div>
+
+        <aside class="evidence-boundary">
+          <strong>Evidence boundary.</strong>
+          This page is an explanatory development artifact derived from the initial
+          Craft research product. It does not promote Craft, establish a universal
+          law, replace existing Arcanum capabilities, or authorize runtime execution.
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>
+        Semantic HTML and inline SVG only. No raster poster, external font, framework,
+        package, or network dependency. All meaningful diagrams have accessible names
+        and adjacent textual equivalents.
+      </p>
+      <a class="source-link" href="../craft/CRAFT-INITIAL-DEFINITION.md">Source definition →</a>
+    </div>
+  </footer>
+</body>
+</html>
