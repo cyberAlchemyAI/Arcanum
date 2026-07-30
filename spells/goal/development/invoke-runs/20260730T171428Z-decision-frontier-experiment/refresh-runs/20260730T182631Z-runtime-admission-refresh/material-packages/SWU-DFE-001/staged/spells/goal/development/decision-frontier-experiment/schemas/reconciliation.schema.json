@@ -1,0 +1,44 @@
+{
+  "$id": "https://arcanum.dev/experiments/reconciliation/1-0-0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "type": "array"
+    },
+    "authority": {
+      "const": "proposal"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "kind": {
+      "const": "reconciliation"
+    },
+    "proposed_map_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "resolution_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "authority",
+    "source_digest",
+    "claim_id",
+    "resolution_id",
+    "actions",
+    "proposed_map_digest"
+  ],
+  "type": "object"
+}

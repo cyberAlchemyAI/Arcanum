@@ -1,0 +1,154 @@
+{
+  "$id": "https://arcanum.dev/experiments/goal-decision-frontier/closeout-receipt/1-0-0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "validation_result": {
+            "const": "pass"
+          }
+        },
+        "required": [
+          "validation_result"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "authority_effect": {
+      "const": "none"
+    },
+    "blockers": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "delta_classes": {
+      "items": {
+        "enum": [
+          "evidence_added",
+          "blocker_opened",
+          "blocker_resolved",
+          "status_changed",
+          "route_changed"
+        ]
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "evidence": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "lifecycle_effect": {
+      "const": "none"
+    },
+    "lifecycle_owner": {
+      "const": "spellcraft"
+    },
+    "owner": {
+      "const": "invoke:refresh:apply-approved"
+    },
+    "schema_version": {
+      "const": "invoke-refresh-closeout-receipt.v1"
+    },
+    "source_receipt": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "type": "object"
+    },
+    "successor": {
+      "additionalProperties": false,
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "selected": {
+          "const": false
+        },
+        "unit_id": {
+          "minLength": 1,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "unit_id",
+        "eligible",
+        "selected"
+      ],
+      "type": "object"
+    },
+    "unit_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "validated_targets": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "validation_result": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "unit_id",
+    "owner",
+    "lifecycle_owner",
+    "source_receipt",
+    "validation_result",
+    "validated_targets",
+    "evidence",
+    "delta_classes",
+    "blockers",
+    "successor",
+    "lifecycle_effect",
+    "authority_effect"
+  ],
+  "type": "object"
+}

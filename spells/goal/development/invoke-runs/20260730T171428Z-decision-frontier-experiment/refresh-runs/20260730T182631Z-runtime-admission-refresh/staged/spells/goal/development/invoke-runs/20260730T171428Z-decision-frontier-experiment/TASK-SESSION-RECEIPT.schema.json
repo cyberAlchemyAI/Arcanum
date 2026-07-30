@@ -1,0 +1,235 @@
+{
+  "$id": "https://arcanum.dev/experiments/goal-decision-frontier/task-session-receipt/1-0-0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "pass"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifacts": {
+            "minItems": 1
+          },
+          "blockers": {
+            "maxItems": 0
+          },
+          "undeclared_writes": {
+            "maxItems": 0
+          },
+          "validation": {
+            "minItems": 1
+          },
+          "validation_result": {
+            "const": "pass"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "allowed_writes": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "artifacts": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "delta": {
+            "enum": [
+              "added",
+              "changed",
+              "unchanged"
+            ]
+          },
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "size_bytes": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size_bytes",
+          "delta"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "baseline_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "blockers": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "execution_outputs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "experiment_harness": {
+      "enum": [
+        "updated",
+        "pending",
+        "blocked",
+        "not_applicable"
+      ]
+    },
+    "material_writes": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": "task-session-terminal-receipt.v1"
+    },
+    "session_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    },
+    "step_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "successor": {
+      "additionalProperties": false,
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "selected": {
+          "const": false
+        },
+        "unit_id": {
+          "minLength": 1,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "unit_id",
+        "eligible",
+        "selected"
+      ],
+      "type": "object"
+    },
+    "undeclared_writes": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "unit_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "validation": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "argv": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "evidence_path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "exit_code": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "argv",
+          "exit_code",
+          "evidence_path"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "validation_result": {
+      "enum": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    },
+    "work_pack_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "unit_id",
+    "step_id",
+    "session_id",
+    "status",
+    "validation_result",
+    "work_pack_sha256",
+    "baseline_digest",
+    "artifacts",
+    "validation",
+    "blockers",
+    "material_writes",
+    "execution_outputs",
+    "allowed_writes",
+    "undeclared_writes",
+    "authority_effect",
+    "successor",
+    "experiment_harness"
+  ],
+  "type": "object"
+}
