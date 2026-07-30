@@ -11,4 +11,6 @@ commit, and crash/restart evidence.
 Progress:
 
 - TSGR-003: completed with passing deterministic prepare and read-only status evidence;
-- TSGR-004: selected as the unique dependency-ready successor.
+- TSGR-004: completed with passing structured launch/join, idempotent replay, and
+  failure-class separation evidence;
+- TSGR-005: selected as the unique dependency-ready successor.

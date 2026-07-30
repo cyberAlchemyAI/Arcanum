@@ -44,6 +44,14 @@ Validation:
 python3 arcana/task-session/development/validate-governance-runner.py --family executor-join
 ```
 
+Execution status: completed by
+`work-pack/results/SWU-TSGR-004-RESULT.json` with result `pass`. The live
+executor-join family reported `positive=6/6`, `negative=13/13`, and zero
+undeclared outputs. Structured launch, existing receipt join, and idempotent replay
+passed; shell-vector and cwd escapes blocked; timeout and nonzero exit remained
+execution failures; identity, nonterminal receipt, and final-write drift remained
+governance failures. Reconciliation and live apply were not executed.
+
 ## SWU-TSGR-005 — reconcile and classify
 
 Objective: verify received executor evidence, declared writes/outputs/validations,

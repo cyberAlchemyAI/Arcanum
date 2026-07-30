@@ -4,8 +4,8 @@
 
 | Field | Value |
 | --- | --- |
-| workPackGateStatus | pass through completed `SWU-TSGR-003` receipt |
-| implementationGateStatus | `SWU-TSGR-004` dependency-ready; fresh Task Session gates still required |
+| workPackGateStatus | pass through completed `SWU-TSGR-004` receipt |
+| implementationGateStatus | `SWU-TSGR-005` dependency-ready; fresh Task Session gates still required |
 | complexity | high |
 | outputMode | split |
 | executionPackRef | [EXECUTION-PACK.md](EXECUTION-PACK.md) |
@@ -13,7 +13,7 @@
 | executionControlRef | [work-pack/shared/EXECUTION-CONTROL.md](work-pack/shared/EXECUTION-CONTROL.md) |
 | activeLayerWindow | L1 |
 | readinessProfile | proposal-to-opt-in-pilot |
-| selectedSWU | `SWU-TSGR-004` |
+| selectedSWU | `SWU-TSGR-005` |
 
 ## Objective
 
@@ -40,8 +40,8 @@ authority.
 | `SWU-TSGR-001` | [TASK-TSGR-01](work-pack/tasks/TASK-TSGR-01-CONTRACTS.md) | productionize the pure governance evaluator with golden parity | TSGR-000 accepted | new evaluator, two schemas, fixture corpus, fixture validator | policy parity and negative schemas | task-session | completed |
 | `SWU-TSGR-002` | [TASK-TSGR-01](work-pack/tasks/TASK-TSGR-01-CONTRACTS.md) | define the closed runner envelope family | TSGR-001 | new run, ticket, phase, executor, terminal schemas plus fixtures | schema positive/negative matrix | task-session | completed |
 | `SWU-TSGR-003` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | implement deterministic `prepare` and read-only `status` | TSGR-002 | new runner script and runner fixtures/validator | repeatability, stale/tied scope, phase-order cases | task-session | completed |
-| `SWU-TSGR-004` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | launch or join one structured executor and emit `execution-received` | TSGR-003 | runner script and runner fixtures/validator | argv/path/timeout/receipt-order cases | task-session | selected |
-| `SWU-TSGR-005` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | reconcile writes, outputs, validation, and target classification without applying | TSGR-004 | runner script and runner fixtures/validator | target/write/output/validation matrix | task-session | blocked |
+| `SWU-TSGR-004` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | launch or join one structured executor and emit `execution-received` | TSGR-003 | runner script and runner fixtures/validator | argv/path/timeout/receipt-order cases | task-session | completed |
+| `SWU-TSGR-005` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | reconcile writes, outputs, validation, and target classification without applying | TSGR-004 | runner script and runner fixtures/validator | target/write/output/validation matrix | task-session | selected |
 | `SWU-TSGR-006` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | atomically commit admitted staged outputs and enforce terminal-final-write/resume | TSGR-005 | runner script and runner fixtures/validator | apply/idempotent-adoption and interruption matrix | task-session | blocked |
 | `SWU-TSGR-007` | [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | add the generic owner side-job protocol and versioned adapter manifest | TSGR-006 | hook manifest, two hook schemas, adapter, fixtures/validator | manifest digest, timeout, malformed receipt, bounded output, owner mismatch | task-session | blocked |
 | `SWU-TSGR-008` | [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | invoke Continuation Router and validate its joined Invoke receipt before emitting a cursor | TSGR-007 plus external owner-readiness receipt | cursor schema, runner/hook integration, route fixtures | pass/no-op/block/unjoined and unique/ambiguous successor | task-session | blocked |
@@ -70,7 +70,14 @@ Exact path inventories and closeout contracts are in each task contract and
   `pass`, with prepare/status validation `positive=3/3`, `negative=6/6`, and
   zero undeclared outputs. Repeated prepare was byte-stable, status was read-only,
   and missing, tied, stale, skipped, and predecessor-drift cases blocked.
-- Returned successor: `SWU-TSGR-004`; this selection does not authorize or execute
+- `SWU-TSGR-004`: terminal Task Session receipt
+  [SWU-TSGR-004-RESULT.json](work-pack/results/SWU-TSGR-004-RESULT.json), result
+  `pass`, with executor-join validation `positive=6/6`, `negative=13/13`, and
+  zero undeclared outputs. Structured launch, existing-receipt join, and idempotent
+  replay passed; shell-vector and cwd escapes blocked; timeout and nonzero exit
+  remained execution failures; identity, nonterminal receipt, and final-write drift
+  remained governance failures.
+- Returned successor: `SWU-TSGR-005`; this selection does not authorize or execute
   implementation.
 
 ## Atomicity review
