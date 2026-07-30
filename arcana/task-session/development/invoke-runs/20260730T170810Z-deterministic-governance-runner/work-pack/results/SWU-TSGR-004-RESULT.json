@@ -1,0 +1,49 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T204300Z-swu-tsgr-004-task-session",
+  "swu_id": "SWU-TSGR-004",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+    "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+    "arcanum/arcana/task-session/development/validate-governance-runner.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-runner.py --family executor-join",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+        "sha256": "40a359d9e69245a336623d2d99d2504aaeec978632ae4a4afdeca9c8aa716249"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T204300Z-swu-tsgr-004-producer/producer/material-producer-receipt.json",
+      "sha256": "783d8db193e88912db41772238daf85c8c9e929834880cb7c447e6997d7d8316"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T204300Z-swu-tsgr-004-producer/task-session-apply/refresh-material-handoff.json",
+      "sha256": "bce0489c2f5f380c64334bf5f5725c891fa7ad413687726d3df4bfcc33537f5d"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T204300Z-swu-tsgr-004-producer/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "1fa0341599f9d67086e17e5a8bedc73bcb7cfc952d0cdfe5ecf456c6fb947ca0"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+      "sha256": "40a359d9e69245a336623d2d99d2504aaeec978632ae4a4afdeca9c8aa716249"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "SWU-TSGR-004 ends at execution-received; reconciliation and live application remain owned by SWU-TSGR-005 and SWU-TSGR-006.",
+    "Structured executor timeout and nonzero exit are preserved as execution failures while receipt, identity, path, and final-write violations remain governance failures.",
+    "The user-approved regenerability criterion is a run-local decision-cost heuristic only: deterministic exact-scope regeneration may reduce handholding, but it does not change authority, publication, or owner gates.",
+    "Experiment Harness remains not run because paired prototype evidence is owned by SWU-TSGR-010."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-004 completion through invoke:refresh:apply-approved, then return the unique dependency-ready successor SWU-TSGR-005 without executing it in this Task Session.",
+  "final_write": true,
+  "receipt_digest": "e2bea82110dd282b5446a7d317d3c2c2977badc452918fc6eecc2072e60e2b8d"
+}
