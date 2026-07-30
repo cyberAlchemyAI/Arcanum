@@ -1,0 +1,102 @@
+{
+  "$id": "https://arcanum.dev/experiments/decision-map/1-0-0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "destination": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "edges": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "blocked_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "blocker_id": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocker_id",
+          "blocked_id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "kind": {
+      "const": "decision_map"
+    },
+    "nodes": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "owner": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "route": {
+            "enum": [
+              "HITL",
+              "AFK"
+            ]
+          },
+          "scope": {
+            "enum": [
+              "in_scope",
+              "out_of_scope"
+            ]
+          },
+          "state": {
+            "enum": [
+              "open",
+              "resolved",
+              "fog",
+              "out_of_scope",
+              "invalidated",
+              "superseded"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "state",
+          "route",
+          "scope",
+          "owner"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "destination",
+    "source_digest",
+    "nodes",
+    "edges"
+  ],
+  "type": "object"
+}
