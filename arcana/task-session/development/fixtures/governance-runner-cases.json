@@ -2,7 +2,8 @@
   "schema_version": "task-session.governance-runner-cases.v1",
   "families": [
     "prepare",
-    "executor-join"
+    "executor-join",
+    "reconcile"
   ],
   "owned_outputs": [
     "scripts/task-session-governance-runner.py",
@@ -142,6 +143,89 @@
     {
       "case_id": "executor-final-write-order-drift-blocks",
       "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-classifies-apply-without-live-write",
+      "family": "reconcile",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "reconciled",
+      "expected_classification": "apply",
+      "expected_writes": 2
+    },
+    {
+      "case_id": "reconcile-classifies-exact-present-without-live-write",
+      "family": "reconcile",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "reconciled",
+      "expected_classification": "already-present-exact-output",
+      "expected_writes": 2
+    },
+    {
+      "case_id": "reconcile-idempotent-replay-byte-stable",
+      "family": "reconcile",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "reconciled",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-status-read-only",
+      "family": "reconcile",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "reconciled",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-missing-output-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-undeclared-output-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-target-conflict-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-critical-validation-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-output-only-readmission-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-target-output-cardinality-blocks",
+      "family": "reconcile",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "reconcile-evidence-drift-blocks-replay",
+      "family": "reconcile",
       "kind": "negative",
       "expected_result": "block",
       "expected_writes": 0

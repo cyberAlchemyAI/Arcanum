@@ -68,6 +68,13 @@ def tree_manifest(root: Path) -> dict[str, str]:
     }
 
 
+def file_identity(path: Path) -> tuple[str, str | None, int | None]:
+    if not path.exists():
+        return ("absent", None, None)
+    data = path.read_bytes()
+    return ("present", hashlib.sha256(data).hexdigest(), len(data))
+
+
 def runner_command(
     repo: Path, command: str, *, request: str | None = None
 ) -> list[str]:
@@ -329,6 +336,78 @@ receipt_path.write_text(
 '''
 
 
+RECONCILE_EXECUTOR_HELPER = r'''#!/usr/bin/env python3
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--repo-root", required=True)
+parser.add_argument("--run-dir", required=True)
+parser.add_argument("--behavior", choices=("pass",), required=True)
+args = parser.parse_args()
+root = Path(args.repo_root).resolve()
+run_dir = (root / args.run_dir).resolve()
+ticket_path = run_dir / "execution-ticket.json"
+ticket_data = ticket_path.read_bytes()
+ticket = json.loads(ticket_data)
+output_refs = []
+for raw in ticket["declared_outputs"]:
+    output = root / raw
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("staged-postimage\n", encoding="utf-8")
+    output_data = output.read_bytes()
+    output_refs.append({
+        "path": raw,
+        "sha256": hashlib.sha256(output_data).hexdigest(),
+        "size_bytes": len(output_data),
+    })
+receipt_path = run_dir / "terminal-executor-receipt.json"
+validation_results = []
+for contract in ticket["validation_contracts"]:
+    validation_results.append({
+        **contract,
+        "exit_code": 0,
+        "result": "pass",
+    })
+receipt = {
+    "schema_version": "task-session.executor-receipt.v1",
+    "receipt_id": "executor-receipt-reconcile",
+    "run_id": ticket["run_id"],
+    "task_id": ticket["task_id"],
+    "swu_id": ticket["swu_id"],
+    "ticket_ref": {
+        "path": ticket_path.relative_to(root).as_posix(),
+        "sha256": hashlib.sha256(ticket_data).hexdigest(),
+        "size_bytes": len(ticket_data),
+    },
+    "owner_identity": ticket["executor_contract"]["owner_identity"],
+    "idempotency_key": ticket["idempotency_key"],
+    "result": "pass",
+    "touched_files": list(ticket["declared_outputs"]),
+    "outputs": output_refs,
+    "validation_results": validation_results,
+    "bounded_capture": {
+        "max_output_bytes": ticket["executor_contract"]["max_output_bytes"],
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "stdout_truncated": False,
+        "stderr_truncated": False,
+    },
+    "terminal_sequence": {
+        "sequence_number": 2,
+        "receipt_path": receipt_path.relative_to(root).as_posix(),
+        "final_executor_write": True,
+    },
+    "residue": [],
+}
+receipt_path.write_text(
+    json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+)
+'''
+
+
 def executor_scenario(
     root: Path,
     source_task_session: Path,
@@ -380,6 +459,84 @@ def executor_scenario(
     return repo
 
 
+def reconcile_scenario(
+    root: Path,
+    source_task_session: Path,
+    canonical_task_session: Path,
+    name: str,
+    *,
+    target_count: int = 1,
+) -> Path:
+    repo = executor_scenario(
+        root,
+        source_task_session,
+        canonical_task_session,
+        name,
+    )
+    (repo / "scenario/executor.py").write_text(
+        RECONCILE_EXECUTOR_HELPER, encoding="utf-8"
+    )
+    request_path = repo / "scenario/request.json"
+    request = load_json(request_path)
+    targets = [
+        f"targets/artifact-{index}.txt"
+        for index in range(1, target_count + 1)
+    ]
+    request["execution_contract"] = {
+        "allowed_writes": targets,
+        "declared_outputs": ["staging/artifact-1.txt"],
+        "validation_commands": [
+            {
+                "command_id": "validate-staged-artifact",
+                "argv": ["python3", "scenario/validate-staged.py"],
+                "cwd": ".",
+                "timeout_seconds": 30,
+                "max_output_bytes": 4096,
+            }
+        ],
+        "timeout_seconds": 60,
+        "max_output_bytes": 8192,
+    }
+    write_json(request_path, request)
+    return repo
+
+
+def write_output_only_admission(repo: Path, *, valid: bool = True) -> Path:
+    request = load_json(repo / "scenario/request.json")
+    outputs = request["execution_contract"]["declared_outputs"]
+    admission = {
+        "schemaVersion": "1.2.0",
+        "executionMode": "reusable-mutation",
+        "writeProfile": "execution-output-only",
+        "admissionVerdict": "admit",
+        "mutationReady": True,
+        "taskId": request["task_id"],
+        "swuId": request["swu_id"],
+        "materialWrites": [],
+        "executionOutputs": outputs,
+        "allowedWrites": outputs,
+        "reasons": [],
+    }
+    if not valid:
+        admission["admissionVerdict"] = "block"
+        admission["mutationReady"] = False
+        admission["reasons"] = ["synthetic rejection"]
+    path = repo / "scenario/controls/output-only-admission.json"
+    write_json(path, admission)
+    return path
+
+
+def reconcile_command(repo: Path) -> list[str]:
+    argv = runner_command(repo, "reconcile")
+    argv.extend(
+        [
+            "--output-only-admission",
+            "scenario/controls/output-only-admission.json",
+        ]
+    )
+    return argv
+
+
 def run_executor_helper(repo: Path, behavior: str = "pass") -> int:
     completed = subprocess.run(
         [
@@ -402,7 +559,7 @@ def run_executor_helper(repo: Path, behavior: str = "pass") -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--family", choices=("prepare", "executor-join"), required=True
+        "--family", choices=("prepare", "executor-join", "reconcile"), required=True
     )
     parser.add_argument("--task-session-dir")
     parser.add_argument("--material-inventory-manifest")
@@ -418,11 +575,15 @@ def main() -> int:
         source_task_session / "development/fixtures/governance-runner-cases.json"
     )
     fixtures = load_json(fixtures_path)
+    active_families = {"prepare"}
+    if args.family in ("executor-join", "reconcile"):
+        active_families.add("executor-join")
+    if args.family == "reconcile":
+        active_families.add("reconcile")
     expected_ids = {
         case["case_id"]
         for case in fixtures["cases"]
-        if args.family == "executor-join"
-        or case.get("family", "prepare") == "prepare"
+        if case.get("family", "prepare") in active_families
     }
     results: list[tuple[str, bool, str]] = []
 
@@ -549,7 +710,7 @@ def main() -> int:
             )
         )
 
-        if args.family == "executor-join":
+        if args.family in ("executor-join", "reconcile"):
             launched = executor_scenario(
                 temporary,
                 source_task_session,
@@ -723,6 +884,384 @@ def main() -> int:
                         f"code={code} stable={before == after}",
                     )
                 )
+
+        if args.family == "reconcile":
+            apply_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-apply",
+            )
+            write_output_only_admission(apply_repo)
+            invoke(
+                runner_command(
+                    apply_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(apply_repo, "executor-join"))
+            apply_target = apply_repo / "targets/artifact-1.txt"
+            apply_before = file_identity(apply_target)
+            code, payload, stderr = invoke(reconcile_command(apply_repo))
+            apply_after = file_identity(apply_target)
+            results.append(
+                (
+                    "reconcile-classifies-apply-without-live-write",
+                    code == 0
+                    and payload.get("current_phase") == "reconciled"
+                    and payload.get("phase_index") == 6
+                    and payload.get("writes_performed") == 2
+                    and payload.get("classifications")
+                    == {"targets/artifact-1.txt": "apply"}
+                    and payload.get("live_apply_performed") is False
+                    and apply_before == apply_after == ("absent", None, None)
+                    and not stderr,
+                    f"code={code} unchanged={apply_before == apply_after}",
+                )
+            )
+
+            exact_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-exact-present",
+            )
+            write_output_only_admission(exact_repo)
+            invoke(
+                runner_command(
+                    exact_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(exact_repo, "executor-join"))
+            exact_target = exact_repo / "targets/artifact-1.txt"
+            exact_target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(
+                exact_repo / "staging/artifact-1.txt",
+                exact_target,
+            )
+            exact_before = file_identity(exact_target)
+            code, payload, stderr = invoke(reconcile_command(exact_repo))
+            exact_after = file_identity(exact_target)
+            results.append(
+                (
+                    "reconcile-classifies-exact-present-without-live-write",
+                    code == 0
+                    and payload.get("classifications")
+                    == {
+                        "targets/artifact-1.txt": (
+                            "already-present-exact-output"
+                        )
+                    }
+                    and payload.get("live_apply_performed") is False
+                    and exact_before == exact_after
+                    and not stderr,
+                    f"code={code} unchanged={exact_before == exact_after}",
+                )
+            )
+
+            before_replay = tree_manifest(apply_repo / "runs/run-1")
+            target_before_replay = file_identity(apply_target)
+            code, payload, stderr = invoke(reconcile_command(apply_repo))
+            after_replay = tree_manifest(apply_repo / "runs/run-1")
+            target_after_replay = file_identity(apply_target)
+            results.append(
+                (
+                    "reconcile-idempotent-replay-byte-stable",
+                    code == 0
+                    and payload.get("idempotent_replay") is True
+                    and payload.get("writes_performed") == 0
+                    and before_replay == after_replay
+                    and target_before_replay == target_after_replay
+                    and not stderr,
+                    f"code={code} stable={before_replay == after_replay}",
+                )
+            )
+
+            before_status = tree_manifest(apply_repo / "runs/run-1")
+            target_before_status = file_identity(apply_target)
+            code, payload, stderr = invoke(
+                runner_command(apply_repo, "status")
+            )
+            after_status = tree_manifest(apply_repo / "runs/run-1")
+            target_after_status = file_identity(apply_target)
+            results.append(
+                (
+                    "reconcile-status-read-only",
+                    code == 0
+                    and payload.get("current_phase") == "reconciled"
+                    and payload.get("writes_performed") == 0
+                    and before_status == after_status
+                    and target_before_status == target_after_status
+                    and not stderr,
+                    f"code={code} stable={before_status == after_status}",
+                )
+            )
+
+            missing_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-missing-output",
+            )
+            write_output_only_admission(missing_repo)
+            invoke(
+                runner_command(
+                    missing_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(missing_repo, "executor-join"))
+            (missing_repo / "staging/artifact-1.txt").unlink()
+            before = tree_manifest(missing_repo / "runs/run-1")
+            target_before = file_identity(
+                missing_repo / "targets/artifact-1.txt"
+            )
+            code, payload, stderr = invoke(reconcile_command(missing_repo))
+            after = tree_manifest(missing_repo / "runs/run-1")
+            target_after = file_identity(
+                missing_repo / "targets/artifact-1.txt"
+            )
+            results.append(
+                (
+                    "reconcile-missing-output-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and payload.get("writes_performed") == 0
+                    and before == after
+                    and target_before == target_after
+                    and not (
+                        missing_repo
+                        / "runs/run-1/checkpoints/06-reconciled.json"
+                    ).exists()
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            undeclared_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-undeclared-output",
+            )
+            write_output_only_admission(undeclared_repo)
+            invoke(
+                runner_command(
+                    undeclared_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            run_executor_helper(undeclared_repo)
+            extra = undeclared_repo / "staging/undeclared.txt"
+            extra.write_text("undeclared\n", encoding="utf-8")
+            receipt_path = (
+                undeclared_repo
+                / "runs/run-1/terminal-executor-receipt.json"
+            )
+            receipt = load_json(receipt_path)
+            receipt["touched_files"].append("staging/undeclared.txt")
+            receipt["outputs"].append(exact_ref(undeclared_repo, extra))
+            write_json(receipt_path, receipt)
+            join_argv = runner_command(undeclared_repo, "executor-join")
+            join_argv.extend(
+                ["--receipt", "runs/run-1/terminal-executor-receipt.json"]
+            )
+            invoke(join_argv)
+            before = tree_manifest(undeclared_repo / "runs/run-1")
+            target_before = file_identity(
+                undeclared_repo / "targets/artifact-1.txt"
+            )
+            code, payload, stderr = invoke(
+                reconcile_command(undeclared_repo)
+            )
+            after = tree_manifest(undeclared_repo / "runs/run-1")
+            target_after = file_identity(
+                undeclared_repo / "targets/artifact-1.txt"
+            )
+            results.append(
+                (
+                    "reconcile-undeclared-output-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            conflict_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-conflict",
+            )
+            write_output_only_admission(conflict_repo)
+            invoke(
+                runner_command(
+                    conflict_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(conflict_repo, "executor-join"))
+            conflict_target = conflict_repo / "targets/artifact-1.txt"
+            conflict_target.parent.mkdir(parents=True, exist_ok=True)
+            conflict_target.write_text("drift\n", encoding="utf-8")
+            target_before = file_identity(conflict_target)
+            before = tree_manifest(conflict_repo / "runs/run-1")
+            code, payload, stderr = invoke(reconcile_command(conflict_repo))
+            after = tree_manifest(conflict_repo / "runs/run-1")
+            target_after = file_identity(conflict_target)
+            results.append(
+                (
+                    "reconcile-target-conflict-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            critical_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-critical-validation",
+            )
+            write_output_only_admission(critical_repo)
+            invoke(
+                runner_command(
+                    critical_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            run_executor_helper(critical_repo)
+            receipt_path = (
+                critical_repo / "runs/run-1/terminal-executor-receipt.json"
+            )
+            receipt = load_json(receipt_path)
+            receipt["validation_results"][0]["exit_code"] = 1
+            receipt["validation_results"][0]["result"] = "block"
+            write_json(receipt_path, receipt)
+            join_argv = runner_command(critical_repo, "executor-join")
+            join_argv.extend(
+                ["--receipt", "runs/run-1/terminal-executor-receipt.json"]
+            )
+            invoke(join_argv)
+            before = tree_manifest(critical_repo / "runs/run-1")
+            target_before = file_identity(
+                critical_repo / "targets/artifact-1.txt"
+            )
+            code, payload, stderr = invoke(reconcile_command(critical_repo))
+            after = tree_manifest(critical_repo / "runs/run-1")
+            target_after = file_identity(
+                critical_repo / "targets/artifact-1.txt"
+            )
+            results.append(
+                (
+                    "reconcile-critical-validation-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            readmission_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-readmission",
+            )
+            write_output_only_admission(readmission_repo, valid=False)
+            invoke(
+                runner_command(
+                    readmission_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(readmission_repo, "executor-join"))
+            before = tree_manifest(readmission_repo / "runs/run-1")
+            target_before = file_identity(
+                readmission_repo / "targets/artifact-1.txt"
+            )
+            code, payload, stderr = invoke(
+                reconcile_command(readmission_repo)
+            )
+            after = tree_manifest(readmission_repo / "runs/run-1")
+            target_after = file_identity(
+                readmission_repo / "targets/artifact-1.txt"
+            )
+            results.append(
+                (
+                    "reconcile-output-only-readmission-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            cardinality_repo = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "reconcile-cardinality",
+                target_count=2,
+            )
+            write_output_only_admission(cardinality_repo)
+            invoke(
+                runner_command(
+                    cardinality_repo, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(cardinality_repo, "executor-join"))
+            before = tree_manifest(cardinality_repo / "runs/run-1")
+            target_before = [
+                file_identity(cardinality_repo / f"targets/artifact-{index}.txt")
+                for index in (1, 2)
+            ]
+            code, payload, stderr = invoke(
+                reconcile_command(cardinality_repo)
+            )
+            after = tree_manifest(cardinality_repo / "runs/run-1")
+            target_after = [
+                file_identity(cardinality_repo / f"targets/artifact-{index}.txt")
+                for index in (1, 2)
+            ]
+            results.append(
+                (
+                    "reconcile-target-output-cardinality-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            drift_path = apply_repo / "runs/run-1/reconciliation.json"
+            drift = load_json(drift_path)
+            drift["mapping_policy"] = "tampered-policy"
+            write_json(drift_path, drift)
+            before = tree_manifest(apply_repo / "runs/run-1")
+            target_before = file_identity(apply_target)
+            code, payload, stderr = invoke(reconcile_command(apply_repo))
+            after = tree_manifest(apply_repo / "runs/run-1")
+            target_after = file_identity(apply_target)
+            results.append(
+                (
+                    "reconcile-evidence-drift-blocks-replay",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and payload.get("writes_performed") == 0
+                    and before == after
+                    and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
 
     observed_ids = {case_id for case_id, _, _ in results}
     inventory_errors: list[str] = []

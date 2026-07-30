@@ -1,0 +1,49 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T211000Z-swu-tsgr-005-task-session",
+  "swu_id": "SWU-TSGR-005",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+    "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+    "arcanum/arcana/task-session/development/validate-governance-runner.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-runner.py --family reconcile",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+        "sha256": "52456a262faeb43646b7c4cf6e93aa476c7232cc62536b0ea76c147f3d16e83d"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T211000Z-swu-tsgr-005-producer/producer/material-producer-receipt.json",
+      "sha256": "72c883aa3497d7b0ccf7a5f2059c7eaae17ed99be8b170889621f44571823406"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T211000Z-swu-tsgr-005-producer/task-session-apply/refresh-material-handoff.json",
+      "sha256": "deb6ce1f5ad5029f706b3b93f38af6b686522552edd8054ee2ccf03c0e12737c"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T211000Z-swu-tsgr-005-producer/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "a17e6d822cff8550e85d566f97424b53ab8700b721d703c3b4d0c1ac1076e6d6"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+      "sha256": "52456a262faeb43646b7c4cf6e93aa476c7232cc62536b0ea76c147f3d16e83d"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "SWU-TSGR-005 records the explicit positional-target-to-output-v1 mapping policy in reconciliation evidence because the existing envelope schemas do not carry a separate target-to-staged-output mapping object.",
+    "Reconciliation is read-only for live targets; atomic commit, terminal-final-write, and crash-safe resume remain owned by SWU-TSGR-006.",
+    "The helper final summary named a pre-final receipt hash; Task Session ignored that prose hash and bound the later live receipt only after its schema and fourteen exact references passed.",
+    "Experiment Harness remains not run because paired prototype evidence is owned by SWU-TSGR-010."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-005 completion through invoke:refresh:apply-approved, then return the unique dependency-ready successor SWU-TSGR-006 without executing it in this Task Session.",
+  "final_write": true,
+  "receipt_digest": "2fccee4aa4251d69154b7d8be353a6ab2aa7a0a65e7bd6f826b19b7d2af57996"
+}

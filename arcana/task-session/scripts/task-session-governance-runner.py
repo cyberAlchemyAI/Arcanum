@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Deterministic, one-SWU Task Session governance runner.
 
-SWU-TSGR-003 owns only ``prepare`` and read-only ``status``.  Later phases are
-intentionally absent.  Prepare joins already-produced owner receipts, validates
-their exact byte identities, and emits a digest-chained execution ticket without
-launching an executor.
+The runner prepares a digest-chained ticket, joins one structured executor, and
+reconciles its staged evidence without applying live target bytes.  Commit,
+terminal-write, owner-hook, continuation, and observation behavior remain
+intentionally absent.
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ PHASES = (
     "admitted",
     "ticketed",
     "execution-received",
+    "reconciled",
 )
 SELECTED_SWU = re.compile(
     r"^\|\s*`(?P<swu>SWU-[A-Z0-9-]+)`\s*\|.*\|\s*selected\s*\|\s*$",
@@ -401,7 +402,7 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
         previous_ref = exact_ref(repo_root, path)
 
     assert current is not None
-    if current["phase"] in ("ticketed", "execution-received"):
+    if current["phase"] in ("ticketed", "execution-received", "reconciled"):
         ticket_path = run_dir / "execution-ticket.json"
         if not ticket_path.is_file():
             raise RunnerBlock("ticketed checkpoint is missing execution ticket")
@@ -411,10 +412,18 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
             load_object(schema_dir() / "execution-ticket.schema.json", "ticket schema"),
             "execution ticket",
         )
+    if current["phase"] == "reconciled":
+        reconciliation_path = run_dir / "reconciliation.json"
+        if not reconciliation_path.is_file():
+            raise RunnerBlock("reconciled checkpoint is missing reconciliation evidence")
+        if current["output_refs"] != [exact_ref(repo_root, reconciliation_path)]:
+            raise RunnerBlock("reconciled checkpoint output identity is stale")
     if current["phase"] == "ticketed":
         next_action = "executor-join"
     elif current["phase"] == "execution-received":
-        next_action = "reconcile-not-implemented"
+        next_action = "reconcile"
+    elif current["phase"] == "reconciled":
+        next_action = "commit-resume-not-implemented"
     else:
         next_action = f"resume-{PHASES[len(observed)]}"
     return {
@@ -789,6 +798,269 @@ def executor_join(
     return result
 
 
+def require_closed_keys(
+    value: dict[str, Any], expected: set[str], label: str
+) -> None:
+    if set(value) != expected:
+        missing = sorted(expected - set(value))
+        extra = sorted(set(value) - expected)
+        raise RunnerBlock(f"{label} is not closed: missing={missing} extra={extra}")
+
+
+def validate_output_only_admission(
+    repo_root: Path,
+    reference: dict[str, Any],
+    ticket: dict[str, Any],
+) -> None:
+    _, admission = read_exact_ref(
+        repo_root, reference, "output-only mutation admission receipt"
+    )
+    expected_outputs = sorted(ticket["declared_outputs"])
+    if not (
+        admission.get("schemaVersion") == "1.2.0"
+        and admission.get("executionMode") in ("routed-mutation", "reusable-mutation")
+        and admission.get("writeProfile") == "execution-output-only"
+        and admission.get("admissionVerdict") == "admit"
+        and admission.get("mutationReady") is True
+        and admission.get("taskId") == ticket["task_id"]
+        and admission.get("swuId") == ticket["swu_id"]
+        and admission.get("materialWrites") == []
+        and sorted(admission.get("executionOutputs", [])) == expected_outputs
+        and sorted(admission.get("allowedWrites", [])) == expected_outputs
+        and admission.get("reasons") == []
+    ):
+        raise RunnerBlock(
+            "explicit output-only re-admission does not admit the declared outputs"
+        )
+
+
+def validate_critical_results(
+    ticket: dict[str, Any], executor_receipt: dict[str, Any]
+) -> None:
+    expected = {
+        item["command_id"]: item for item in ticket["validation_contracts"]
+    }
+    if len(expected) != len(ticket["validation_contracts"]):
+        raise RunnerBlock("validation contract contains duplicate command ids")
+    received = {
+        item["command_id"]: item for item in executor_receipt["validation_results"]
+    }
+    if len(received) != len(executor_receipt["validation_results"]):
+        raise RunnerBlock("executor validation results contain duplicate command ids")
+    if set(received) != set(expected):
+        raise RunnerBlock("executor validation result inventory is missing or undeclared")
+    for command_id, contract in expected.items():
+        result = received[command_id]
+        for key in ("argv", "cwd", "timeout_seconds", "max_output_bytes"):
+            if result[key] != contract[key]:
+                raise RunnerBlock(
+                    f"critical validation {command_id} contract identity mismatch"
+                )
+        if result["exit_code"] != 0 or result["result"] != "pass":
+            raise RunnerBlock(f"critical validation {command_id} did not pass")
+
+
+def classify_candidate(
+    repo_root: Path,
+    target_path: str,
+    output_ref: dict[str, Any],
+    baseline: dict[str, Any],
+) -> dict[str, Any]:
+    staged_path, staged_bytes = read_exact_bytes(
+        repo_root, output_ref, f"staged output for {target_path}"
+    )
+    live_path = resolve_repo_path(repo_root, target_path, "reconciliation target")
+    if live_path.is_file():
+        live_bytes = live_path.read_bytes()
+        live_identity = {
+            "state": "present",
+            "sha256": sha256(live_bytes),
+            "size_bytes": len(live_bytes),
+        }
+    elif live_path.exists():
+        raise RunnerBlock(f"reconciliation target is not a regular file: {target_path}")
+    else:
+        live_identity = {"state": "absent", "sha256": None, "size_bytes": None}
+
+    staged_identity = {
+        "sha256": sha256(staged_bytes),
+        "size_bytes": len(staged_bytes),
+    }
+    if (
+        live_identity["state"] == "present"
+        and live_identity["sha256"] == staged_identity["sha256"]
+        and live_identity["size_bytes"] == staged_identity["size_bytes"]
+    ):
+        classification = "already-present-exact-output"
+    elif (
+        live_identity["state"] == baseline["state"]
+        and live_identity["sha256"] == baseline["sha256"]
+        and live_identity["size_bytes"] == baseline["size_bytes"]
+    ):
+        classification = "apply"
+    else:
+        classification = "conflict"
+    return {
+        "target_path": target_path,
+        "output_ref": output_ref,
+        "baseline": {
+            "state": baseline["state"],
+            "sha256": baseline["sha256"],
+            "size_bytes": baseline["size_bytes"],
+        },
+        "live": live_identity,
+        "classification": classification,
+    }
+
+
+def reconcile(
+    repo_root: Path,
+    run_dir: Path,
+    output_only_admission_path: Path,
+) -> dict[str, Any]:
+    current = status_document(repo_root, run_dir)
+    if current["current_phase"] == "reconciled":
+        evidence = load_object(run_dir / "reconciliation.json", "reconciliation evidence")
+        if evidence.get("output_only_admission_ref") != exact_ref(
+            repo_root, output_only_admission_path
+        ):
+            raise RunnerBlock(
+                "existing reconciliation conflicts with output-only admission"
+            )
+        current["idempotent_replay"] = True
+        return current
+    if current["current_phase"] != "execution-received":
+        raise RunnerBlock("reconcile requires an execution-received checkpoint")
+
+    ticket_path = run_dir / "execution-ticket.json"
+    ticket = load_object(ticket_path, "execution ticket")
+    ticket_ref = exact_ref(repo_root, ticket_path)
+
+    expected_receipt_path = resolve_repo_path(
+        repo_root,
+        ticket["executor_contract"]["expected_receipt_path"],
+        "expected executor receipt",
+    )
+    executor_receipt = validate_executor_receipt(
+        repo_root, run_dir, ticket, expected_receipt_path
+    )
+    executor_receipt_ref = exact_ref(repo_root, expected_receipt_path)
+    execution_received = load_object(
+        checkpoint_paths(run_dir)[4], "execution-received checkpoint"
+    )
+    if execution_received["output_refs"] != [executor_receipt_ref]:
+        raise RunnerBlock("execution-received checkpoint output identity is stale")
+    if executor_receipt["result"] != "pass":
+        raise RunnerBlock("executor receipt is not a passing reconciliation input")
+
+    admission_ref = exact_ref(repo_root, output_only_admission_path)
+    validate_output_only_admission(
+        repo_root, admission_ref, ticket
+    )
+    validate_critical_results(ticket, executor_receipt)
+
+    allowed_targets = ticket["allowed_writes"]
+    declared_outputs = ticket["declared_outputs"]
+    received_touches = executor_receipt["touched_files"]
+    received_outputs = executor_receipt["outputs"]
+    if received_touches != declared_outputs:
+        raise RunnerBlock("executor touched inventory is missing, reordered, or undeclared")
+    if [item["path"] for item in received_outputs] != declared_outputs:
+        raise RunnerBlock("executor output inventory is missing, reordered, or undeclared")
+    if len(allowed_targets) != len(received_outputs):
+        raise RunnerBlock("executor target/output mapping cardinality mismatch")
+
+    baseline_by_target = {
+        item["path"]: item for item in ticket["baseline_inventory"]
+    }
+    if set(baseline_by_target) != set(allowed_targets):
+        raise RunnerBlock("ticket baseline inventory does not cover every target")
+
+    classifications = [
+        classify_candidate(
+            repo_root,
+            target,
+            output_ref,
+            baseline_by_target[target],
+        )
+        for target, output_ref in zip(
+            allowed_targets, received_outputs, strict=True
+        )
+    ]
+    conflicts = [
+        item["target_path"]
+        for item in classifications
+        if item["classification"] == "conflict"
+    ]
+    if conflicts:
+        raise RunnerBlock(
+            "reconciliation target conflict: " + ", ".join(conflicts)
+        )
+
+    evidence = {
+        "schema_version": "task-session.reconciliation-evidence.v1",
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "ticket_ref": ticket_ref,
+        "executor_receipt_ref": executor_receipt_ref,
+        "output_only_admission_ref": admission_ref,
+        "mapping_policy": "positional-target-to-output-v1",
+        "classifications": classifications,
+        "critical_validation_ids": sorted(
+            item["command_id"] for item in ticket["validation_contracts"]
+        ),
+        "live_apply_performed": False,
+        "result": "pass",
+    }
+    evidence_bytes = rendered_bytes(evidence)
+    evidence_path = run_dir / "reconciliation.json"
+    evidence_ref = {
+        "path": relative_path(repo_root, evidence_path),
+        "sha256": sha256(evidence_bytes),
+        "size_bytes": len(evidence_bytes),
+    }
+    execution_received_path = checkpoint_paths(run_dir)[4]
+    execution_received_ref = exact_ref(repo_root, execution_received_path)
+    phase = phase_receipt(
+        request={
+            "run_id": ticket["run_id"],
+            "task_id": ticket["task_id"],
+            "swu_id": ticket["swu_id"],
+            "owner_identity": ticket["owner_identity"],
+            "idempotency_key": ticket["idempotency_key"],
+        },
+        phase="reconciled",
+        index=6,
+        predecessor_phase="execution-received",
+        predecessor_ref=execution_received_ref,
+        input_refs=[
+            execution_received_ref,
+            ticket_ref,
+            executor_receipt_ref,
+            admission_ref,
+        ],
+        output_refs=[evidence_ref],
+    )
+    validate_schema(
+        phase,
+        load_object(
+            schema_dir() / "governance-phase-receipt.schema.json",
+            "phase receipt schema",
+        ),
+        "reconciled phase receipt",
+    )
+    atomic_write(evidence_path, evidence_bytes)
+    atomic_write(checkpoint_paths(run_dir)[5], rendered_bytes(phase))
+    result = status_document(repo_root, run_dir)
+    result["writes_performed"] = 2
+    result["classifications"] = {
+        item["target_path"]: item["classification"] for item in classifications
+    }
+    result["live_apply_performed"] = False
+    return result
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -803,6 +1075,10 @@ def parse_args() -> argparse.Namespace:
     executor_parser.add_argument("--repo-root", required=True)
     executor_parser.add_argument("--run-dir", required=True)
     executor_parser.add_argument("--receipt")
+    reconcile_parser = subparsers.add_parser("reconcile")
+    reconcile_parser.add_argument("--repo-root", required=True)
+    reconcile_parser.add_argument("--run-dir", required=True)
+    reconcile_parser.add_argument("--output-only-admission", required=True)
     return parser.parse_args()
 
 
@@ -823,6 +1099,15 @@ def main() -> int:
                 else None
             )
             result = executor_join(repo_root, run_dir, receipt_path)
+        elif args.command == "reconcile":
+            output_only_admission_path = resolve_repo_path(
+                repo_root,
+                args.output_only_admission,
+                "output-only mutation admission receipt",
+            )
+            result = reconcile(
+                repo_root, run_dir, output_only_admission_path
+            )
         else:
             result = status_document(repo_root, run_dir)
     except (RunnerBlock, OSError, UnicodeError) as error:
