@@ -80,6 +80,19 @@ def build_valid_case(
             "task_id": "TASK-WFE-005",
             "swu_id": "SWU-WFE-005",
             "strict_coverage": True,
+            "execution_contract": {
+                "writeProfile": "material-bound",
+                "materialWrites": ["runtime/generated.txt"],
+                "executionOutputs": ["runtime/validation-report.json"],
+                "allowedWrites": [
+                    "runtime/generated.txt",
+                    "runtime/validation-report.json",
+                ],
+                "validationCommands": ["bash verify-generated-runtime.sh"],
+                "lifecycleOwner": "sigil-development",
+                "authorityClass": "public",
+                "publicationClass": "public",
+            },
         },
     )
     (case_root / "dependencies/invoke-receipt.json").write_text(
@@ -182,7 +195,7 @@ def build_valid_case(
     write_json(case_root / "material-receipt.json", receipt)
 
     return {
-        "schemaVersion": "1.1.0",
+        "schemaVersion": "1.2.0",
         "executionMode": "routed-mutation",
         "taskId": "TASK-WFE-005",
         "swuId": "SWU-WFE-005",
@@ -204,6 +217,51 @@ def build_valid_case(
         "authorityClass": "public",
         "publicationClass": "public",
     }
+
+
+def update_context_contract(
+    case_root: Path,
+    request: dict[str, Any],
+    *,
+    write_profile: str,
+) -> None:
+    context_path = case_root / "controls/context-pack.json"
+    context = load_json(context_path)
+    context["execution_contract"] = {
+        "writeProfile": write_profile,
+        "materialWrites": request["materialWrites"],
+        "executionOutputs": request["executionOutputs"],
+        "allowedWrites": request["allowedWrites"],
+        "validationCommands": request["validationCommands"],
+        "lifecycleOwner": request["lifecycleOwner"],
+        "authorityClass": request["authorityClass"],
+        "publicationClass": request["publicationClass"],
+    }
+    write_json(context_path, context)
+    for control in request["controlArtifacts"]:
+        if control["role"] == "context-pack":
+            control.update(exact_ref(case_root, "controls/context-pack.json"))
+
+
+def convert_to_output_only(
+    case_root: Path,
+    request: dict[str, Any],
+    *,
+    reusable: bool = False,
+) -> None:
+    request["executionMode"] = (
+        "reusable-mutation" if reusable else "routed-mutation"
+    )
+    request["materialWrites"] = []
+    request["executionOutputs"] = ["runtime/validation-report.json"]
+    request["allowedWrites"] = ["runtime/validation-report.json"]
+    for key in ("materialPackage", "materialReceipt", "producerReceiptSchema"):
+        request.pop(key, None)
+    update_context_contract(
+        case_root,
+        request,
+        write_profile="execution-output-only",
+    )
 
 
 def add_package_target(
@@ -248,6 +306,43 @@ def add_package_target(
     write_json(case_root / "material-receipt.json", receipt)
     request["materialPackage"] = exact_ref(case_root, "material-package.json")
     request["materialReceipt"] = exact_ref(case_root, "material-receipt.json")
+
+
+def refresh_material_package_sources(
+    case_root: Path,
+    request: dict[str, Any],
+    producer: Any,
+    package_schema: dict[str, Any],
+    producer_receipt_schema: dict[str, Any],
+) -> None:
+    package = load_json(case_root / "material-package.json")
+    package["source_artifacts"] = [
+        {
+            "path": item["path"],
+            "sha256": item["sha256"],
+            "size_bytes": item["sizeBytes"],
+            "authority_class": item["authorityClass"],
+        }
+        for item in request["controlArtifacts"]
+    ]
+    receipt = producer.validate_material_package(
+        package,
+        case_root,
+        package_schema,
+        producer_receipt_schema,
+    )
+    if receipt["patchVerdict"] != "pass":
+        raise RuntimeError(
+            f"producer source refresh failed: {receipt['reasons']}"
+        )
+    write_json(case_root / "material-package.json", package)
+    write_json(case_root / "material-receipt.json", receipt)
+    request["materialPackage"] = exact_ref(
+        case_root, "material-package.json"
+    )
+    request["materialReceipt"] = exact_ref(
+        case_root, "material-receipt.json"
+    )
 
 
 def apply_mutation(
@@ -323,6 +418,64 @@ def apply_mutation(
     if mutation == "empty-execution-outputs":
         request["executionOutputs"] = []
         request["allowedWrites"] = ["runtime/generated.txt"]
+        update_context_contract(
+            case_root,
+            request,
+            write_profile="material-bound",
+        )
+        refresh_material_package_sources(
+            case_root,
+            request,
+            producer,
+            package_schema,
+            producer_receipt_schema,
+        )
+        return
+    if mutation == "routed-output-only":
+        convert_to_output_only(case_root, request)
+        return
+    if mutation == "reusable-audit-output-only":
+        convert_to_output_only(case_root, request, reusable=True)
+        return
+    if mutation == "output-with-material-evidence":
+        package_ref = request["materialPackage"]
+        convert_to_output_only(case_root, request)
+        request["materialPackage"] = package_ref
+        return
+    if mutation == "output-empty-partitions":
+        convert_to_output_only(case_root, request)
+        request["executionOutputs"] = []
+        request["allowedWrites"] = []
+        update_context_contract(
+            case_root,
+            request,
+            write_profile="invalid",
+        )
+        return
+    if mutation == "output-expanded-write-scope":
+        convert_to_output_only(case_root, request)
+        request["allowedWrites"].append("runtime/extra.txt")
+        return
+    if mutation == "output-stale-control":
+        convert_to_output_only(case_root, request)
+        with (case_root / "controls/task.md").open(
+            "a", encoding="utf-8"
+        ) as handle:
+            handle.write("changed\n")
+        return
+    if mutation == "relabel-material-as-output":
+        for key in (
+            "materialPackage",
+            "materialReceipt",
+            "producerReceiptSchema",
+        ):
+            request.pop(key, None)
+        request["materialWrites"] = []
+        request["executionOutputs"] = [
+            "runtime/generated.txt",
+            "runtime/validation-report.json",
+        ]
+        request["allowedWrites"] = list(request["executionOutputs"])
         return
     if mutation == "remove-authority-class":
         del request["authorityClass"]
@@ -331,7 +484,7 @@ def apply_mutation(
         request.clear()
         request.update(
             {
-                "schemaVersion": "1.1.0",
+                "schemaVersion": "1.2.0",
                 "executionMode": "standalone-nonmutating",
             }
         )
@@ -406,6 +559,20 @@ def main() -> int:
                 not errors
                 and result["admissionVerdict"]
                 == fixture["expectedVerdict"]
+                and result["writeProfile"]
+                == fixture.get(
+                    "expectedWriteProfile",
+                    (
+                        "nonmutating"
+                        if fixture["expectedVerdict"] == "not-applicable"
+                        else (
+                            "invalid"
+                            if fixture["expectedVerdict"] == "block"
+                            and fixture.get("expectInvalidProfile", False)
+                            else "material-bound"
+                        )
+                    ),
+                )
                 and (
                     expected_reason is None
                     or expected_reason in reason_text
@@ -416,6 +583,10 @@ def main() -> int:
                     "expectedExecutionOutputs",
                     ["runtime/validation-report.json"],
                 )
+                expected_material_writes = fixture.get(
+                    "expectedMaterialWrites",
+                    ["runtime/generated.txt"],
+                )
                 ok = (
                     ok
                     and result["mutationReady"] is True
@@ -423,23 +594,39 @@ def main() -> int:
                     and result["validationCommands"]
                     == ["bash verify-generated-runtime.sh"]
                     and result["materialWrites"]
-                    == ["runtime/generated.txt"]
+                    == expected_material_writes
                     and result["executionOutputs"]
                     == expected_execution_outputs
                     and result["allowedWrites"]
                     == sorted(
-                        ["runtime/generated.txt", *expected_execution_outputs]
+                        [*expected_material_writes, *expected_execution_outputs]
                     )
                     and not (
                         case_root / "runtime/validation-report.json"
                     ).exists()
                 )
+                if result["writeProfile"] == "execution-output-only":
+                    ok = (
+                        ok
+                        and result["producerSchemaDigest"] is None
+                        and result["materialReceiptDigest"] is None
+                        and result["materialPackageDigest"] is None
+                    )
+                else:
+                    ok = (
+                        ok
+                        and result["producerSchemaDigest"] is not None
+                        and result["materialReceiptDigest"] is not None
+                        and result["materialPackageDigest"] is not None
+                    )
             if fixture["expectedVerdict"] == "not-applicable":
                 ok = (
                     ok
                     and result["mutationReady"] is False
                     and result["liveValidationRequired"] is False
                 )
+            if fixture["expectedVerdict"] == "block":
+                ok = ok and result["mutationReady"] is False
             if not ok:
                 print(
                     f"FAIL {fixture['id']}: "

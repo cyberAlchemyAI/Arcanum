@@ -221,27 +221,39 @@ Examples:
 /task-session to ./arcana/distill/development/WORK-PACK.md --swu SWU-CLO-003-001 --via runtime
 ```
 
-## Routed Mutation Admission
+## Routed Write Admission
 
 Routed or reusable mutation has one additional gate immediately before the
 first write. Task Session creates a machine request binding the live selected
 task/SWU, strict controlling artifacts and digests, dependency frontier,
 material writes, validation-owned execution outputs, their complete
 allowed-write union, validation commands, lifecycle owner, authority class,
-and publication class. It then consumes the material package and Invoke
-receipt through the exact producer-owned receipt schema.
+and publication class. It consumes the material package and Invoke receipt
+through the exact producer-owned receipt schema only when material writes
+exist.
 
 The deterministic consumer is
 `scripts/verify-mutation-readiness.py`. Its request and receipt contracts are
 `schemas/mutation-admission-request.schema.json` and
 `schemas/mutation-admission-receipt.schema.json`.
 
-The Invoke receipt proves that the material package passed its producer
-validator. Task Session recomputes the package binding and compares its
-consumer-owned live controls; it does not copy Invoke package-validity logic.
-Missing evidence, schema failure, drift, task/SWU mismatch, changed
-dependencies, expanded writes, validation mismatch, or absent boundary class
-blocks before mutation.
+The verifier derives one of two profiles from the normalized write partitions:
+
+- `material-bound`: at least one material write. The Invoke material package,
+  receipt, and exact producer-owned receipt schema are mandatory.
+- `execution-output-only`: no material writes and at least one declared
+  execution output. Material package evidence is forbidden because no material
+  change exists to package.
+
+The strict context pack repeats the exact write partitions, validation surface,
+lifecycle owner, and authority/publication classes. This prevents a material
+target from being relabeled as an execution output to bypass the producer
+package. For `material-bound`, the Invoke receipt proves that the package
+passed its producer validator, and Task Session recomputes the package binding
+against its consumer-owned live controls without copying Invoke validity
+logic. Missing evidence, schema failure, drift, task/SWU mismatch, changed
+dependencies, expanded writes, context-contract mismatch, validation mismatch,
+or absent boundary class blocks before mutation.
 
 An admitted receipt is evidence, not authority. Task Session still performs
 the declared live validation after the mutation. Material writes and execution
@@ -251,6 +263,12 @@ Validation may create only the predeclared execution outputs; Task Session
 verifies all of them and writes its terminal receipt last. Standalone
 non-mutating use returns `not-applicable` and does not require an Invoke
 receipt.
+
+An admitted `execution-output-only` receipt permits only the declared output
+writes and still requires live validation plus post-run write reconciliation.
+It grants no material mutation, lifecycle, promotion, publication, deployment,
+or release authority. Task Session must never invent a placeholder material
+write for an output-only or audit-only task.
 
 ## Runtime Adapter Interface
 

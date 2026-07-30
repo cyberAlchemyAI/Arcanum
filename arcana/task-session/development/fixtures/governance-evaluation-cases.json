@@ -1,0 +1,41 @@
+{
+  "schema_version": "task-session.governance-evaluation-fixtures.v1",
+  "golden_source": {
+    "path": "arcana/task-session/development/fixtures/decision-validation-cases.json",
+    "sha256": "e1a2b64c97726bfe1a145aa67b32e81166b3ae19b963e7973ebf2f94b758dbf5",
+    "size_bytes": 10043,
+    "expected_case_count": 25
+  },
+  "negative_cases": [
+    {
+      "id": "malformed-request-blocks",
+      "mutation": "remove-output-path",
+      "expected": "BLOCK"
+    },
+    {
+      "id": "stale-policy-digest-blocks",
+      "mutation": "replace-policy-digest",
+      "expected": "BLOCK"
+    },
+    {
+      "id": "unknown-kind-blocks",
+      "mutation": "replace-evaluation-kind",
+      "expected": "BLOCK"
+    },
+    {
+      "id": "invalid-policy-outcome-blocks",
+      "mutation": "replace-policy-outcome",
+      "expected": "BLOCK"
+    },
+    {
+      "id": "input-overwrite-blocks",
+      "mutation": "output-equals-request-path",
+      "expected": "BLOCK"
+    }
+  ],
+  "residue": {
+    "duplicate_source": "arcana/task-session/development/validate-decision-validation-policy.py",
+    "future_action": "delegate development validation to scripts/evaluate-governance.py after the production evaluator is accepted",
+    "authority": "The staged production evaluator is the proposed runtime owner; the existing development validator remains current authority until canonical apply and Task Session acceptance."
+  }
+}

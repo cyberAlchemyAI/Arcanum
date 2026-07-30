@@ -1,0 +1,74 @@
+{
+  "schema_version": "task-session.governance-runner-cases.v1",
+  "family": "prepare",
+  "owned_outputs": [
+    "scripts/task-session-governance-runner.py",
+    "development/fixtures/governance-runner-cases.json",
+    "development/validate-governance-runner.py"
+  ],
+  "cases": [
+    {
+      "case_id": "prepare-valid-ticketed-chain",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "ticketed",
+      "expected_writes": 5
+    },
+    {
+      "case_id": "prepare-identical-replay-byte-stable",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "ticketed",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "status-is-read-only",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "ticketed",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "prepare-missing-selection-blocks-before-write",
+      "kind": "negative",
+      "mutation": "missing-selected-row",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "prepare-tied-selection-blocks-before-write",
+      "kind": "negative",
+      "mutation": "duplicate-selected-row",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "prepare-stale-work-pack-blocks-before-write",
+      "kind": "negative",
+      "mutation": "stale-work-pack-digest",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "prepare-stale-control-blocks-before-write",
+      "kind": "negative",
+      "mutation": "stale-control-digest",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "status-rejects-skipped-checkpoint",
+      "kind": "negative",
+      "mutation": "remove-governed-checkpoint",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "status-rejects-predecessor-drift",
+      "kind": "negative",
+      "mutation": "tamper-admitted-predecessor",
+      "expected_result": "block",
+      "expected_writes": 0
+    }
+  ]
+}

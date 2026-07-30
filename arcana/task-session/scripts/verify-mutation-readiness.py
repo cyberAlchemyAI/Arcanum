@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bind an Invoke material receipt to live Task Session mutation controls."""
+"""Bind routed Task Session writes to live controls and optional material evidence."""
 
 from __future__ import annotations
 
@@ -158,6 +158,49 @@ def request_dependency_tuple(dependency: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def context_contract_failures(
+    contract: Any,
+    request: dict[str, Any],
+    write_profile: str,
+    material_writes: set[str],
+    execution_outputs: set[str],
+    allowed_writes: set[str],
+) -> list[str]:
+    if not isinstance(contract, dict):
+        return ["context pack execution contract is missing or invalid"]
+    failures: list[str] = []
+    if contract.get("writeProfile") != write_profile:
+        failures.append("context pack write profile mismatch")
+    for key, label, expected in (
+        ("materialWrites", "material write", material_writes),
+        ("executionOutputs", "execution output", execution_outputs),
+        ("allowedWrites", "allowed write", allowed_writes),
+    ):
+        raw = contract.get(key)
+        if not isinstance(raw, list) or any(not isinstance(item, str) for item in raw):
+            failures.append(f"context pack {label} scope is invalid")
+            continue
+        normalized, errors = normalized_write_set({key: raw}, key, label)
+        failures.extend(f"context pack {error}" for error in errors)
+        if normalized != expected:
+            failures.append(f"context pack {label} scope mismatch")
+    commands = contract.get("validationCommands")
+    if (
+        not isinstance(commands, list)
+        or any(not isinstance(item, str) or not item for item in commands)
+        or commands != request["validationCommands"]
+    ):
+        failures.append("context pack validation surface mismatch")
+    for key, label in (
+        ("lifecycleOwner", "lifecycle owner"),
+        ("authorityClass", "authority class"),
+        ("publicationClass", "publication class"),
+    ):
+        if contract.get(key) != request[key]:
+            failures.append(f"context pack {label} mismatch")
+    return failures
+
+
 def base_receipt(
     request: dict[str, Any],
     request_digest: str | None,
@@ -166,8 +209,13 @@ def base_receipt(
     if execution_mode not in MUTATION_MODES | {"standalone-nonmutating"}:
         execution_mode = "invalid"
     return {
-        "schemaVersion": "1.1.0",
+        "schemaVersion": "1.2.0",
         "executionMode": execution_mode,
+        "writeProfile": (
+            "nonmutating"
+            if execution_mode == "standalone-nonmutating"
+            else "invalid"
+        ),
         "admissionVerdict": "block",
         "mutationReady": False,
         "taskId": request.get("taskId"),
@@ -262,28 +310,40 @@ def resolve_mutation_admission(
         failures.append("material and execution write scopes overlap")
     if material_writes | execution_outputs != allowed_writes:
         failures.append("allowed write scope partition mismatch")
+    if material_writes:
+        write_profile = "material-bound"
+    elif execution_outputs:
+        write_profile = "execution-output-only"
+    else:
+        write_profile = "invalid"
+        failures.append("no writable partition declared")
+    result["writeProfile"] = write_profile
 
     artifacts: dict[str, tuple[bytes | None, dict[str, Any] | None]] = {}
-    for key, label in (
-        ("producerReceiptSchema", "producer receipt schema"),
-        ("materialReceipt", "material receipt"),
-        ("materialPackage", "material package"),
-    ):
-        content, errors = read_exact_artifact(repository_root, request[key], label)
-        failures.extend(errors)
-        document: dict[str, Any] | None = None
-        if content is not None and not errors:
-            document, parse_errors = parse_json_bytes(content, label)
-            failures.extend(parse_errors)
-        artifacts[key] = (content, document)
+    producer_schema: dict[str, Any] | None = None
+    material_receipt: dict[str, Any] | None = None
+    material_package: dict[str, Any] | None = None
+    if write_profile == "material-bound":
+        for key, label in (
+            ("producerReceiptSchema", "producer receipt schema"),
+            ("materialReceipt", "material receipt"),
+            ("materialPackage", "material package"),
+        ):
+            content, errors = read_exact_artifact(repository_root, request[key], label)
+            failures.extend(errors)
+            document: dict[str, Any] | None = None
+            if content is not None and not errors:
+                document, parse_errors = parse_json_bytes(content, label)
+                failures.extend(parse_errors)
+            artifacts[key] = (content, document)
 
-    schema_content, producer_schema = artifacts["producerReceiptSchema"]
-    receipt_content, material_receipt = artifacts["materialReceipt"]
-    _, material_package = artifacts["materialPackage"]
-    if schema_content is not None:
-        result["producerSchemaDigest"] = byte_digest(schema_content)
-    if receipt_content is not None:
-        result["materialReceiptDigest"] = byte_digest(receipt_content)
+        schema_content, producer_schema = artifacts["producerReceiptSchema"]
+        receipt_content, material_receipt = artifacts["materialReceipt"]
+        _, material_package = artifacts["materialPackage"]
+        if schema_content is not None:
+            result["producerSchemaDigest"] = byte_digest(schema_content)
+        if receipt_content is not None:
+            result["materialReceiptDigest"] = byte_digest(receipt_content)
 
     for control in request["controlArtifacts"]:
         _, errors = read_exact_artifact(repository_root, control, "control artifact")
@@ -311,6 +371,16 @@ def resolve_mutation_admission(
                     failures.append("context pack SWU id mismatch")
                 if context_pack.get("strict_coverage") is not True:
                     failures.append("context pack strict coverage is not true")
+                failures.extend(
+                    context_contract_failures(
+                        context_pack.get("execution_contract"),
+                        request,
+                        write_profile,
+                        material_writes,
+                        execution_outputs,
+                        allowed_writes,
+                    )
+                )
 
     for dependency in request["dependencyFrontier"]:
         _, errors = read_exact_artifact(

@@ -1,0 +1,244 @@
+{
+  "schema_version": "task-session.governance-run-contract-fixtures.v1",
+  "positive_cases": [
+    {
+      "id": "governance-run-request-valid",
+      "envelope": "governance-run-request",
+      "expected": "PASS"
+    },
+    {
+      "id": "execution-ticket-valid",
+      "envelope": "execution-ticket",
+      "expected": "PASS"
+    },
+    {
+      "id": "governance-phase-receipt-valid",
+      "envelope": "governance-phase-receipt",
+      "expected": "PASS"
+    },
+    {
+      "id": "executor-receipt-valid",
+      "envelope": "executor-receipt",
+      "expected": "PASS"
+    },
+    {
+      "id": "governance-terminal-receipt-valid",
+      "envelope": "governance-terminal-receipt",
+      "expected": "PASS"
+    }
+  ],
+  "negative_cases": [
+    {
+      "id": "request-rejects-shell-string",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "replace",
+        "path": "/execution_contract/validation_commands/0/argv",
+        "value": "python3 validate.py && rm -rf target"
+      },
+      "expected": "BLOCK",
+      "reason": "structured argv must not be a shell string"
+    },
+    {
+      "id": "ticket-rejects-shell-string",
+      "envelope": "execution-ticket",
+      "mutation": {
+        "op": "replace",
+        "path": "/executor_contract/argv",
+        "value": "python3 executor.py --apply"
+      },
+      "expected": "BLOCK",
+      "reason": "executor launch must use an argv array"
+    },
+    {
+      "id": "ticket-rejects-missing-executor-owner",
+      "envelope": "execution-ticket",
+      "mutation": {
+        "op": "remove",
+        "path": "/executor_contract/owner_identity"
+      },
+      "expected": "BLOCK",
+      "reason": "executor owner identity is mandatory"
+    },
+    {
+      "id": "phase-rejects-missing-owner",
+      "envelope": "governance-phase-receipt",
+      "mutation": {
+        "op": "remove",
+        "path": "/owner_identity"
+      },
+      "expected": "BLOCK",
+      "reason": "phase owner identity is mandatory"
+    },
+    {
+      "id": "phase-rejects-skipped-predecessor",
+      "envelope": "governance-phase-receipt",
+      "mutation": {
+        "op": "replace",
+        "path": "/predecessor/phase",
+        "value": "reconciled"
+      },
+      "expected": "BLOCK",
+      "reason": "observed must follow closeout-joined"
+    },
+    {
+      "id": "ticket-rejects-unbounded-output",
+      "envelope": "execution-ticket",
+      "mutation": {
+        "op": "remove",
+        "path": "/executor_contract/max_output_bytes"
+      },
+      "expected": "BLOCK",
+      "reason": "executor capture ceiling is mandatory"
+    },
+    {
+      "id": "executor-rejects-unbounded-output",
+      "envelope": "executor-receipt",
+      "mutation": {
+        "op": "replace",
+        "path": "/bounded_capture/max_output_bytes",
+        "value": 0
+      },
+      "expected": "BLOCK",
+      "reason": "reported capture ceiling must be positive"
+    },
+    {
+      "id": "request-rejects-zero-timeout",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "replace",
+        "path": "/execution_contract/timeout_seconds",
+        "value": 0
+      },
+      "expected": "BLOCK",
+      "reason": "run timeout must be finite and positive"
+    },
+    {
+      "id": "request-rejects-missing-closeout",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "remove",
+        "path": "/closeout_contract"
+      },
+      "expected": "BLOCK",
+      "reason": "closeout contract is mandatory"
+    },
+    {
+      "id": "ticket-rejects-missing-idempotency-key",
+      "envelope": "execution-ticket",
+      "mutation": {
+        "op": "remove",
+        "path": "/idempotency_key"
+      },
+      "expected": "BLOCK",
+      "reason": "ticket idempotency is mandatory"
+    },
+    {
+      "id": "executor-rejects-nonterminal-receipt",
+      "envelope": "executor-receipt",
+      "mutation": {
+        "op": "replace",
+        "path": "/terminal_sequence/final_executor_write",
+        "value": false
+      },
+      "expected": "BLOCK",
+      "reason": "executor receipt must be the final executor write"
+    },
+    {
+      "id": "terminal-rejects-missing-closeout-join",
+      "envelope": "governance-terminal-receipt",
+      "mutation": {
+        "op": "remove",
+        "path": "/closeout_join"
+      },
+      "expected": "BLOCK",
+      "reason": "terminal receipt must bind owner closeout"
+    },
+    {
+      "id": "terminal-rejects-skipped-observed-predecessor",
+      "envelope": "governance-terminal-receipt",
+      "mutation": {
+        "op": "replace",
+        "path": "/predecessor_ref/phase",
+        "value": "closeout-joined"
+      },
+      "expected": "BLOCK",
+      "reason": "terminal receipt must follow observed"
+    },
+    {
+      "id": "request-rejects-unbounded-write-set",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "remove",
+        "path": "/execution_contract/allowed_writes"
+      },
+      "expected": "BLOCK",
+      "reason": "exact allowed writes are mandatory"
+    }
+  ],
+  "semantic_negative_cases": [
+    {
+      "id": "ticket-write-inventory-drift-blocks",
+      "mutation": {
+        "envelope": "execution-ticket",
+        "op": "replace",
+        "path": "/allowed_writes/0",
+        "value": "src/undeclared.py"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "executor-undeclared-touch-blocks",
+      "mutation": {
+        "envelope": "executor-receipt",
+        "op": "append",
+        "path": "/touched_files",
+        "value": "src/undeclared.py"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "executor-undeclared-output-blocks",
+      "mutation": {
+        "envelope": "executor-receipt",
+        "op": "append",
+        "path": "/outputs",
+        "value": {
+          "path": "results/undeclared.json",
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "size_bytes": 1
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "terminal-incomplete-owner-join-blocks",
+      "mutation": {
+        "envelope": "governance-terminal-receipt",
+        "op": "remove-index",
+        "path": "/closeout_join/joined_owner_receipts/1"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "terminal-phase-order-drift-blocks",
+      "mutation": {
+        "envelope": "governance-terminal-receipt",
+        "op": "replace",
+        "path": "/phase_receipts/7/phase",
+        "value": "reconciled"
+      },
+      "expected": "BLOCK"
+    }
+  ],
+  "expected_counts": {
+    "positive": 5,
+    "negative": 14,
+    "semantic_negative": 5,
+    "staged_files": 7
+  },
+  "experiment_harness": {
+    "status": "not_run",
+    "reason": "SWU-TSGR-002 acceptance is the deterministic positive/negative contract matrix; reusable runner experiments are owned by later SWUs."
+  }
+}

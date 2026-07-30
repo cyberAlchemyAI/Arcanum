@@ -85,10 +85,65 @@
     "expectedExecutionOutputs": []
   },
   {
+    "id": "routed-output-only-admits",
+    "mutation": "routed-output-only",
+    "expectedVerdict": "admit",
+    "expectedReason": null,
+    "expectedWriteProfile": "execution-output-only",
+    "expectedMaterialWrites": []
+  },
+  {
+    "id": "reusable-audit-output-only-admits",
+    "mutation": "reusable-audit-output-only",
+    "expectedVerdict": "admit",
+    "expectedReason": null,
+    "expectedWriteProfile": "execution-output-only",
+    "expectedMaterialWrites": []
+  },
+  {
+    "id": "output-only-with-material-evidence-blocks",
+    "mutation": "output-with-material-evidence",
+    "expectedVerdict": "block",
+    "expectedReason": "admission request schema invalid",
+    "expectedWriteProfile": "invalid",
+    "expectInvalidProfile": true
+  },
+  {
+    "id": "empty-output-only-partitions-block",
+    "mutation": "output-empty-partitions",
+    "expectedVerdict": "block",
+    "expectedReason": "admission request schema invalid",
+    "expectedWriteProfile": "invalid",
+    "expectInvalidProfile": true
+  },
+  {
+    "id": "output-only-expanded-write-scope-blocks",
+    "mutation": "output-expanded-write-scope",
+    "expectedVerdict": "block",
+    "expectedReason": "allowed write scope partition mismatch",
+    "expectedWriteProfile": "execution-output-only"
+  },
+  {
+    "id": "output-only-stale-control-blocks",
+    "mutation": "output-stale-control",
+    "expectedVerdict": "block",
+    "expectedReason": "control artifact digest mismatch",
+    "expectedWriteProfile": "execution-output-only"
+  },
+  {
+    "id": "material-target-relabeled-as-output-blocks",
+    "mutation": "relabel-material-as-output",
+    "expectedVerdict": "block",
+    "expectedReason": "context pack write profile mismatch",
+    "expectedWriteProfile": "execution-output-only"
+  },
+  {
     "id": "missing-authority-class-blocks",
     "mutation": "remove-authority-class",
     "expectedVerdict": "block",
-    "expectedReason": "admission request schema invalid"
+    "expectedReason": "admission request schema invalid",
+    "expectedWriteProfile": "invalid",
+    "expectInvalidProfile": true
   },
   {
     "id": "standalone-nonmutating-is-unchanged",

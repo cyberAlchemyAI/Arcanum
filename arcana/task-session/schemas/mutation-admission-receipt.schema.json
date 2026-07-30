@@ -1,12 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-1-0",
+  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-2-0",
   "title": "TaskSessionMutationAdmissionReceipt",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schemaVersion",
     "executionMode",
+    "writeProfile",
     "admissionVerdict",
     "mutationReady",
     "taskId",
@@ -28,9 +29,12 @@
     "reasons"
   ],
   "properties": {
-    "schemaVersion": {"const": "1.1.0"},
+    "schemaVersion": {"const": "1.2.0"},
     "executionMode": {
       "enum": ["routed-mutation", "reusable-mutation", "standalone-nonmutating", "invalid"]
+    },
+    "writeProfile": {
+      "enum": ["material-bound", "execution-output-only", "nonmutating", "invalid"]
     },
     "admissionVerdict": {"enum": ["admit", "block", "not-applicable"]},
     "mutationReady": {"type": "boolean"},
@@ -91,5 +95,99 @@
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"admissionVerdict": {"const": "admit"}},
+        "required": ["admissionVerdict"]
+      },
+      "then": {
+        "properties": {
+          "mutationReady": {"const": true},
+          "liveValidationRequired": {"const": true},
+          "reasons": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"admissionVerdict": {"const": "block"}},
+        "required": ["admissionVerdict"]
+      },
+      "then": {
+        "properties": {
+          "mutationReady": {"const": false},
+          "reasons": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"writeProfile": {"const": "material-bound"}},
+        "required": ["writeProfile"]
+      },
+      "then": {
+        "properties": {
+          "materialWrites": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "writeProfile": {"const": "material-bound"},
+          "admissionVerdict": {"const": "admit"}
+        },
+        "required": ["writeProfile", "admissionVerdict"]
+      },
+      "then": {
+        "properties": {
+          "producerSchemaDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "materialReceiptDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "materialPackageDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"writeProfile": {"const": "execution-output-only"}},
+        "required": ["writeProfile"]
+      },
+      "then": {
+        "properties": {
+          "producerSchemaDigest": {"type": "null"},
+          "materialReceiptDigest": {"type": "null"},
+          "materialPackageDigest": {"type": "null"},
+          "materialWrites": {"maxItems": 0},
+          "executionOutputs": {"minItems": 1},
+          "liveValidationRequired": {"const": true}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"admissionVerdict": {"const": "not-applicable"}},
+        "required": ["admissionVerdict"]
+      },
+      "then": {
+        "properties": {
+          "executionMode": {"const": "standalone-nonmutating"},
+          "writeProfile": {"const": "nonmutating"},
+          "mutationReady": {"const": false},
+          "liveValidationRequired": {"const": false},
+          "reasons": {"maxItems": 0}
+        }
+      }
+    }
+  ]
 }

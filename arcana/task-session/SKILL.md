@@ -4,7 +4,7 @@ description: "Use when: executing or resuming one nearest evidence-backed bounde
 argument-hint: "[<task-reference|to <target>>] [--task <TASK-ID>] [--swu <SWU-ID>] [--until-blocker] [--list-nearest] [--from <path>] [--session <id>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.8.0
+version: 0.8.1
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -220,20 +220,27 @@ assemble a mutation-admission request that binds the live task/SWU, exact
 controlling artifact references, dependency frontier, material writes,
 validation-owned execution outputs, their complete allowed-write union,
 validation commands, lifecycle owner, authority class, and publication class.
+The strict context pack must repeat the complete execution contract so the
+consumer can detect a material target relabeled as an execution output.
 Standalone non-mutating execution does not require this request.
-37b. Include the material package and its producer receipt plus an exact
-artifact reference to the producer-owned receipt schema. Run
+37b. Derive the write profile from the normalized partitions. A
+`material-bound` profile has one or more material writes and must include the
+material package, producer receipt, and exact producer-owned receipt schema.
+An `execution-output-only` profile has no material writes, one or more
+execution outputs, and must omit all three material artifacts. Run
 `scripts/verify-mutation-readiness.py`; never copy or reimplement the Invoke
 material-package validator inside Task Session.
 37c. Run the consumer after scope, context, gates, and runtime resolution and
 immediately before the first local write or mutating runtime handoff. It must
-re-read every exact controlling artifact and dependency, bind the material
-package to the producer receipt digest, and compare declared targets,
+re-read every exact controlling artifact and dependency, compare the strict
+context execution contract to the request, and compare declared targets,
 validation, ownership, authority, and publication against the live request.
+For `material-bound`, it must also bind the material package to the producer
+receipt digest.
 Normalize and validate all three write lists, require material writes and
 execution outputs to be disjoint, require their union to equal allowed writes,
-and require package changes, target inventory, and producer validated paths to
-equal only the material-write set.
+and, for `material-bound`, require package changes, target inventory, and
+producer validated paths to equal only the material-write set.
 37d. An absent, schema-invalid, stale, mismatched, expanded, or unclassified
 input returns `BLOCK` before mutation. Rebuild the bounded context/material
 handoff only through its owner; approval does not repair a failed binding.
@@ -244,10 +251,12 @@ handoff only through its owner; approval does not repair a failed binding.
 promotion, or publication authority. Live done-criterion and post-mutation
 validation in Step 7 remain mandatory.
 37g. Mutation admission authorizes the ordered lifecycle only: apply admitted
-material writes, run the declared validation that may create only predeclared
-execution outputs, verify every declared output, then persist the terminal Task
-Session receipt as the final write. Execution outputs are not required to exist
-at admission time and may not expand the admitted union.
+material writes when the profile is `material-bound`; then run the declared
+validation that may create only predeclared execution outputs, verify every
+declared output, and persist the terminal Task Session receipt as the final
+write. An `execution-output-only` admission grants no material mutation,
+promotion, publication, or lifecycle authority. Execution outputs are not
+required to exist at admission time and may not expand the admitted union.
 
 ## Step 6 - Execute Task
 
@@ -379,7 +388,8 @@ Recommended signals:
 - continuation handoff path, blocker fingerprint, candidate count, probable route tuples, selection and authorization status,
 - continuation dispatch status, owner receipt, returned next route, and repeated-route or cycle detection.
 - mutation-admission mode, verdict, receipt path, request/package/producer
-  schema digests, bound task/SWU, controlling paths, dependency IDs, allowed
+  schema digests, derived write profile, bound task/SWU, controlling paths,
+  dependency IDs, allowed
   writes, validation commands, boundary classes, live-validation requirement,
   and block reasons.
 - closeout-sync required/no-op status, source receipt, target count, baseline
@@ -416,6 +426,10 @@ A successful execution of this sigil must:
 - bind admission to the live task/SWU, controlling artifacts, dependency
   frontier, allowed writes, validation surface, and authority/publication
   class,
+- derive `material-bound` versus `execution-output-only` from normalized write
+  partitions and bind it to the strict context execution contract,
+- require producer material evidence only for `material-bound` and forbid it
+  for `execution-output-only`,
 - leave standalone non-mutating execution outside the receipt requirement,
 - retain live post-mutation validation after admission,
 - block success when delegated subagents remain open, pending, hidden, or only implicitly abandoned,
@@ -452,6 +466,9 @@ Avoid:
 - treating an Invoke material receipt alone as Task Session admission without
   binding it to the live task/SWU and strict execution controls,
 - copying Invoke material-package validity logic into Task Session,
+- inventing a placeholder material write for output-only or audit-only work,
+- relabeling a material target as an execution output to bypass the producer
+  package,
 - reusing a mutation-admission receipt after any controlling artifact,
   dependency, write scope, validation command, owner, authority, or publication
   binding changes,

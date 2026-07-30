@@ -1,0 +1,352 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-phase-receipt/1-0-0",
+  "title": "TaskSessionGovernancePhaseReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "swu_id",
+    "phase",
+    "phase_index",
+    "predecessor",
+    "input_refs",
+    "result",
+    "output_refs",
+    "owner_identity",
+    "idempotency_key",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-phase-receipt.v1"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "phase": {
+      "enum": [
+        "resolved",
+        "governed",
+        "admitted",
+        "ticketed",
+        "execution-received",
+        "reconciled",
+        "closeout-joined",
+        "observed"
+      ]
+    },
+    "phase_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "receipt_ref"
+      ],
+      "properties": {
+        "phase": {
+          "enum": [
+            "request",
+            "resolved",
+            "governed",
+            "admitted",
+            "ticketed",
+            "execution-received",
+            "reconciled",
+            "closeout-joined"
+          ]
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "input_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "no-op",
+        "block"
+      ]
+    },
+    "output_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "resolved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 1
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "request"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "governed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 2
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "resolved"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "admitted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 3
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "governed"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "ticketed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 4
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "admitted"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "execution-received"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 5
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "ticketed"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "reconciled"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 6
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "execution-received"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "closeout-joined"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 7
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "reconciled"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "observed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase_index": {
+            "const": 8
+          },
+          "predecessor": {
+            "properties": {
+              "phase": {
+                "const": "closeout-joined"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    }
+  }
+}
