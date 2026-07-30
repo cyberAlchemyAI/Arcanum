@@ -1,6 +1,9 @@
 {
   "schema_version": "task-session.governance-runner-cases.v1",
-  "family": "prepare",
+  "families": [
+    "prepare",
+    "executor-join"
+  ],
   "owned_outputs": [
     "scripts/task-session-governance-runner.py",
     "development/fixtures/governance-runner-cases.json",
@@ -67,6 +70,79 @@
       "case_id": "status-rejects-predecessor-drift",
       "kind": "negative",
       "mutation": "tamper-admitted-predecessor",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-launch-structured-received",
+      "family": "executor-join",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "execution-received",
+      "expected_writes": 1
+    },
+    {
+      "case_id": "executor-join-existing-receipt",
+      "family": "executor-join",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "execution-received",
+      "expected_writes": 1
+    },
+    {
+      "case_id": "executor-join-idempotent-replay",
+      "family": "executor-join",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_phase": "execution-received",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-shell-vector-blocks-at-prepare",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-cwd-escape-blocks-at-prepare",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-timeout-is-execution-failure",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "execution-failed",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-nonzero-is-execution-failure",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "execution-failed",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-identity-mismatch-blocks",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-nonterminal-receipt-blocks",
+      "family": "executor-join",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "executor-final-write-order-drift-blocks",
+      "family": "executor-join",
+      "kind": "negative",
       "expected_result": "block",
       "expected_writes": 0
     }

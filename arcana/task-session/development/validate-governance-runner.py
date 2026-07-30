@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -95,7 +96,8 @@ def invoke(argv: list[str]) -> tuple[int, dict[str, Any], str]:
         payload = json.loads(completed.stdout)
     except json.JSONDecodeError as error:
         raise AssertionError(
-            f"runner returned non-JSON stdout: {completed.stdout!r}"
+            f"runner returned non-JSON stdout: {completed.stdout!r}; "
+            f"stderr={completed.stderr!r}"
         ) from error
     return completed.returncode, payload, completed.stderr
 
@@ -251,9 +253,157 @@ def assert_block_before_write(
     return passed, f"{case_id}: code={code} run_exists={run_dir.exists()}"
 
 
+EXECUTOR_HELPER = r'''#!/usr/bin/env python3
+import argparse
+import hashlib
+import json
+import sys
+import time
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--repo-root", required=True)
+parser.add_argument("--run-dir", required=True)
+parser.add_argument("--behavior", choices=("pass", "nonzero", "sleep"), required=True)
+args = parser.parse_args()
+root = Path(args.repo_root).resolve()
+run_dir = (root / args.run_dir).resolve()
+if args.behavior == "sleep":
+    time.sleep(2)
+if args.behavior == "nonzero":
+    raise SystemExit(7)
+ticket_path = run_dir / "execution-ticket.json"
+ticket_data = ticket_path.read_bytes()
+ticket = json.loads(ticket_data)
+output = root / "outputs/artifact.txt"
+output.parent.mkdir(parents=True, exist_ok=True)
+output.write_text("executor-output\n", encoding="utf-8")
+output_data = output.read_bytes()
+receipt_path = run_dir / "terminal-executor-receipt.json"
+receipt = {
+    "schema_version": "task-session.executor-receipt.v1",
+    "receipt_id": "executor-receipt-003",
+    "run_id": ticket["run_id"],
+    "task_id": ticket["task_id"],
+    "swu_id": ticket["swu_id"],
+    "ticket_ref": {
+        "path": ticket_path.relative_to(root).as_posix(),
+        "sha256": hashlib.sha256(ticket_data).hexdigest(),
+        "size_bytes": len(ticket_data),
+    },
+    "owner_identity": ticket["executor_contract"]["owner_identity"],
+    "idempotency_key": ticket["idempotency_key"],
+    "result": "pass",
+    "touched_files": ["outputs/artifact.txt"],
+    "outputs": [{
+        "path": "outputs/artifact.txt",
+        "sha256": hashlib.sha256(output_data).hexdigest(),
+        "size_bytes": len(output_data),
+    }],
+    "validation_results": [{
+        "command_id": "synthetic-validation",
+        "argv": ["synthetic-validation"],
+        "cwd": ".",
+        "timeout_seconds": 1,
+        "max_output_bytes": 1024,
+        "exit_code": 0,
+        "result": "pass",
+    }],
+    "bounded_capture": {
+        "max_output_bytes": ticket["executor_contract"]["max_output_bytes"],
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "stdout_truncated": False,
+        "stderr_truncated": False,
+    },
+    "terminal_sequence": {
+        "sequence_number": 2,
+        "receipt_path": receipt_path.relative_to(root).as_posix(),
+        "final_executor_write": True,
+    },
+    "residue": [],
+}
+receipt_path.write_text(
+    json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+)
+'''
+
+
+def executor_scenario(
+    root: Path,
+    source_task_session: Path,
+    canonical_task_session: Path,
+    name: str,
+    behavior: str = "pass",
+    config_mutation: str | None = None,
+) -> Path:
+    repo = scenario(root, source_task_session, canonical_task_session, name)
+    helper = repo / "scenario/executor.py"
+    helper.write_text(EXECUTOR_HELPER, encoding="utf-8")
+    config = {
+        "schema_version": "task-session.executor-launch-config.v1",
+        "owner_identity": {
+            "capability": "implementation-executor",
+            "subject": "synthetic-executor",
+        },
+        "argv": [
+            sys.executable,
+            "scenario/executor.py",
+            "--repo-root",
+            ".",
+            "--run-dir",
+            "runs/run-1",
+            "--behavior",
+            behavior,
+        ],
+        "cwd": ".",
+        "environment_names": [],
+        "timeout_seconds": 1 if behavior == "sleep" else 5,
+        "max_output_bytes": 4096,
+        "expected_receipt_path": "runs/run-1/terminal-executor-receipt.json",
+        "expected_receipt_schema_ref": exact_ref(
+            repo,
+            repo
+            / "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+        ),
+    }
+    if config_mutation == "shell-vector":
+        config["argv"] = ["sh", "-c", "printf forbidden"]
+    elif config_mutation == "cwd-escape":
+        config["cwd"] = "../"
+    config_path = repo / "scenario/controls/executor-config.json"
+    write_json(config_path, config)
+    request_path = repo / "scenario/request.json"
+    request = load_json(request_path)
+    request["control_refs"].append(exact_ref(repo, config_path))
+    write_json(request_path, request)
+    return repo
+
+
+def run_executor_helper(repo: Path, behavior: str = "pass") -> int:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(repo / "scenario/executor.py"),
+            "--repo-root",
+            str(repo),
+            "--run-dir",
+            "runs/run-1",
+            "--behavior",
+            behavior,
+        ],
+        check=False,
+        capture_output=True,
+        timeout=5,
+    )
+    return completed.returncode
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--family", choices=("prepare",), required=True)
+    parser.add_argument(
+        "--family", choices=("prepare", "executor-join"), required=True
+    )
     parser.add_argument("--task-session-dir")
     parser.add_argument("--material-inventory-manifest")
     args = parser.parse_args()
@@ -268,7 +418,12 @@ def main() -> int:
         source_task_session / "development/fixtures/governance-runner-cases.json"
     )
     fixtures = load_json(fixtures_path)
-    expected_ids = {case["case_id"] for case in fixtures["cases"]}
+    expected_ids = {
+        case["case_id"]
+        for case in fixtures["cases"]
+        if args.family == "executor-join"
+        or case.get("family", "prepare") == "prepare"
+    }
     results: list[tuple[str, bool, str]] = []
 
     with tempfile.TemporaryDirectory(prefix="task-session-runner-prepare-") as raw:
@@ -394,6 +549,181 @@ def main() -> int:
             )
         )
 
+        if args.family == "executor-join":
+            launched = executor_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "executor-launch",
+            )
+            invoke(
+                runner_command(
+                    launched, "prepare", request="scenario/request.json"
+                )
+            )
+            code, payload, stderr = invoke(
+                runner_command(launched, "executor-join")
+            )
+            results.append(
+                (
+                    "executor-launch-structured-received",
+                    code == 0
+                    and payload.get("current_phase") == "execution-received"
+                    and payload.get("phase_index") == 5
+                    and payload.get("writes_performed") == 1
+                    and (
+                        launched
+                        / "runs/run-1/checkpoints/05-execution-received.json"
+                    ).is_file()
+                    and not stderr,
+                    f"code={code} phase={payload.get('current_phase')}",
+                )
+            )
+
+            joined = executor_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "executor-existing",
+            )
+            invoke(
+                runner_command(joined, "prepare", request="scenario/request.json")
+            )
+            helper_exit = run_executor_helper(joined)
+            join_argv = runner_command(joined, "executor-join")
+            join_argv.extend(
+                ["--receipt", "runs/run-1/terminal-executor-receipt.json"]
+            )
+            code, payload, stderr = invoke(join_argv)
+            results.append(
+                (
+                    "executor-join-existing-receipt",
+                    helper_exit == 0
+                    and code == 0
+                    and payload.get("current_phase") == "execution-received"
+                    and payload.get("writes_performed") == 1
+                    and not stderr,
+                    f"helper={helper_exit} code={code}",
+                )
+            )
+            before = tree_manifest(joined / "runs/run-1")
+            code, payload, stderr = invoke(join_argv)
+            after = tree_manifest(joined / "runs/run-1")
+            results.append(
+                (
+                    "executor-join-idempotent-replay",
+                    code == 0
+                    and payload.get("idempotent_replay") is True
+                    and payload.get("writes_performed") == 0
+                    and before == after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            for mutation, case_id in (
+                ("shell-vector", "executor-shell-vector-blocks-at-prepare"),
+                ("cwd-escape", "executor-cwd-escape-blocks-at-prepare"),
+            ):
+                repo = executor_scenario(
+                    temporary,
+                    source_task_session,
+                    canonical_task_session,
+                    case_id,
+                    config_mutation=mutation,
+                )
+                passed, details = assert_block_before_write(repo, case_id)
+                results.append((case_id, passed, details))
+
+            for behavior, case_id in (
+                ("sleep", "executor-timeout-is-execution-failure"),
+                ("nonzero", "executor-nonzero-is-execution-failure"),
+            ):
+                repo = executor_scenario(
+                    temporary,
+                    source_task_session,
+                    canonical_task_session,
+                    case_id,
+                    behavior=behavior,
+                )
+                invoke(
+                    runner_command(
+                        repo, "prepare", request="scenario/request.json"
+                    )
+                )
+                before = tree_manifest(repo / "runs/run-1")
+                code, payload, stderr = invoke(
+                    runner_command(repo, "executor-join")
+                )
+                after = tree_manifest(repo / "runs/run-1")
+                results.append(
+                    (
+                        case_id,
+                        code == 3
+                        and payload.get("result") == "execution-failed"
+                        and payload.get("writes_performed") == 0
+                        and not (
+                            repo
+                            / "runs/run-1/checkpoints/05-execution-received.json"
+                        ).exists()
+                        and before == after
+                        and not stderr,
+                        f"code={code} stable={before == after}",
+                    )
+                )
+
+            for mutation, case_id in (
+                ("identity", "executor-identity-mismatch-blocks"),
+                ("nonterminal", "executor-nonterminal-receipt-blocks"),
+                ("order", "executor-final-write-order-drift-blocks"),
+            ):
+                repo = executor_scenario(
+                    temporary,
+                    source_task_session,
+                    canonical_task_session,
+                    case_id,
+                )
+                invoke(
+                    runner_command(
+                        repo, "prepare", request="scenario/request.json"
+                    )
+                )
+                run_executor_helper(repo)
+                receipt_path = (
+                    repo / "runs/run-1/terminal-executor-receipt.json"
+                )
+                if mutation in ("identity", "nonterminal"):
+                    receipt = load_json(receipt_path)
+                    if mutation == "identity":
+                        receipt["run_id"] = "wrong-run"
+                    else:
+                        receipt["terminal_sequence"]["final_executor_write"] = False
+                    write_json(receipt_path, receipt)
+                else:
+                    output = repo / "outputs/artifact.txt"
+                    future = receipt_path.stat().st_mtime_ns + 1_000_000_000
+                    os.utime(output, ns=(future, future))
+                before = tree_manifest(repo / "runs/run-1")
+                code, payload, stderr = invoke(
+                    runner_command(repo, "executor-join")
+                )
+                after = tree_manifest(repo / "runs/run-1")
+                results.append(
+                    (
+                        case_id,
+                        code == 2
+                        and payload.get("result") == "block"
+                        and payload.get("writes_performed") == 0
+                        and not (
+                            repo
+                            / "runs/run-1/checkpoints/05-execution-received.json"
+                        ).exists()
+                        and before == after
+                        and not stderr,
+                        f"code={code} stable={before == after}",
+                    )
+                )
+
     observed_ids = {case_id for case_id, _, _ in results}
     inventory_errors: list[str] = []
     for relative in OWNED:
@@ -427,8 +757,14 @@ def main() -> int:
             f"extra={sorted(observed_ids-expected_ids)}"
         )
 
-    positive = [item for item in results if "blocks" not in item[0] and "rejects" not in item[0]]
-    negative = [item for item in results if item not in positive]
+    kind_by_id = {
+        case["case_id"]: case["kind"]
+        for case in fixtures["cases"]
+    }
+    positive = [
+        item for item in results if kind_by_id[item[0]] == "positive"
+    ]
+    negative = [item for item in results if kind_by_id[item[0]] == "negative"]
     failures = [item for item in results if not item[1]]
     failures.extend((error, False, error) for error in inventory_errors)
     manifest_digest = hashlib.sha256(

@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -22,7 +23,13 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 
-PHASES = ("resolved", "governed", "admitted", "ticketed")
+PHASES = (
+    "resolved",
+    "governed",
+    "admitted",
+    "ticketed",
+    "execution-received",
+)
 SELECTED_SWU = re.compile(
     r"^\|\s*`(?P<swu>SWU-[A-Z0-9-]+)`\s*\|.*\|\s*selected\s*\|\s*$",
     re.MULTILINE,
@@ -159,10 +166,16 @@ def classify_controls(
     controls: list[tuple[dict[str, Any], dict[str, Any]]],
     task_id: str,
     swu_id: str,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any] | None,
+]:
     evaluations: list[dict[str, Any]] = []
     admissions: list[dict[str, Any]] = []
     preflights: list[dict[str, Any]] = []
+    executor_configs: list[dict[str, Any]] = []
     for reference, document in controls:
         if document.get("schema_version") == (
             "task-session.governance-evaluation-receipt.v1"
@@ -189,13 +202,95 @@ def classify_controls(
                 and document.get("swu_id") == swu_id
             ):
                 raise RunnerBlock("closeout preflight did not proceed for this SWU")
+        if document.get("schema_version") == "task-session.executor-launch-config.v1":
+            executor_configs.append(document)
     if len(evaluations) != 1:
         raise RunnerBlock("exactly one governance evaluation receipt is required")
     if len(admissions) != 1:
         raise RunnerBlock("exactly one mutation admission receipt is required")
     if len(preflights) != 1:
         raise RunnerBlock("exactly one closeout preflight receipt is required")
-    return evaluations[0], admissions[0], preflights[0]
+    if len(executor_configs) > 1:
+        raise RunnerBlock("at most one executor launch configuration is permitted")
+    return (
+        evaluations[0],
+        admissions[0],
+        preflights[0],
+        executor_configs[0] if executor_configs else None,
+    )
+
+
+def executor_contract_from_config(
+    repo_root: Path,
+    request: dict[str, Any],
+    run_dir: Path,
+    config: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if config is None:
+        return {
+            "owner_identity": {
+                "capability": "implementation-executor",
+                "subject": "unconfigured-until-swu-tsgr-004",
+            },
+            "argv": ["task-session-executor-not-configured"],
+            "cwd": ".",
+            "environment_names": [],
+            "timeout_seconds": request["execution_contract"]["timeout_seconds"],
+            "max_output_bytes": request["execution_contract"]["max_output_bytes"],
+            "expected_receipt_path": (
+                relative_path(repo_root, run_dir / "terminal-executor-receipt.json")
+            ),
+            "expected_receipt_schema_ref": exact_ref(
+                repo_root, schema_dir() / "executor-receipt.schema.json"
+            ),
+        }
+    expected = {
+        "schema_version",
+        "owner_identity",
+        "argv",
+        "cwd",
+        "environment_names",
+        "timeout_seconds",
+        "max_output_bytes",
+        "expected_receipt_path",
+        "expected_receipt_schema_ref",
+    }
+    if set(config) != expected:
+        raise RunnerBlock("executor launch configuration is not closed")
+    if not (
+        isinstance(config["argv"], list)
+        and config["argv"]
+        and all(isinstance(item, str) and item for item in config["argv"])
+    ):
+        raise RunnerBlock("executor argv must be a non-empty structured vector")
+    executable = Path(config["argv"][0]).name.casefold()
+    shell_switches = {"-c", "/c", "-command"}
+    if executable in {
+        "sh",
+        "bash",
+        "dash",
+        "zsh",
+        "fish",
+        "cmd",
+        "cmd.exe",
+        "powershell",
+        "powershell.exe",
+        "pwsh",
+    } and any(item.casefold() in shell_switches for item in config["argv"][1:]):
+        raise RunnerBlock("executor argv may not invoke a shell command string")
+    if config["cwd"] != ".":
+        resolve_repo_path(repo_root, config["cwd"], "executor cwd")
+    expected_path = resolve_repo_path(
+        repo_root, config["expected_receipt_path"], "expected executor receipt"
+    )
+    if expected_path != (run_dir / "terminal-executor-receipt.json").resolve():
+        raise RunnerBlock("executor receipt path must be the run-scoped terminal path")
+    read_exact_bytes(
+        repo_root,
+        config["expected_receipt_schema_ref"],
+        "executor receipt schema",
+    )
+    return {key: config[key] for key in expected if key != "schema_version"}
 
 
 def baseline_inventory(repo_root: Path, paths: list[str]) -> list[dict[str, Any]]:
@@ -306,7 +401,7 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
         previous_ref = exact_ref(repo_root, path)
 
     assert current is not None
-    if current["phase"] == "ticketed":
+    if current["phase"] in ("ticketed", "execution-received"):
         ticket_path = run_dir / "execution-ticket.json"
         if not ticket_path.is_file():
             raise RunnerBlock("ticketed checkpoint is missing execution ticket")
@@ -316,6 +411,12 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
             load_object(schema_dir() / "execution-ticket.schema.json", "ticket schema"),
             "execution ticket",
         )
+    if current["phase"] == "ticketed":
+        next_action = "executor-join"
+    elif current["phase"] == "execution-received":
+        next_action = "reconcile-not-implemented"
+    else:
+        next_action = f"resume-{PHASES[len(observed)]}"
     return {
         "schema_version": "task-session.governance-runner-status.v1",
         "result": "pass",
@@ -325,11 +426,7 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
         "current_phase": current["phase"],
         "phase_index": current["phase_index"],
         "checkpoint_ref": exact_ref(repo_root, observed[-1]),
-        "next_action": (
-            "executor-join-not-implemented"
-            if current["phase"] == "ticketed"
-            else f"resume-{PHASES[len(observed)]}"
-        ),
+        "next_action": next_action,
         "writes_performed": 0,
     }
 
@@ -369,29 +466,16 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
     for reference in request["control_refs"]:
         _, document = read_exact_ref(repo_root, reference, "control artifact")
         controls.append((reference, document))
-    evaluation_ref, admission_ref, preflight_ref = classify_controls(
+    evaluation_ref, admission_ref, preflight_ref, executor_config = classify_controls(
         controls, request["task_id"], request["swu_id"]
     )
     baselines = baseline_inventory(
         repo_root, request["execution_contract"]["allowed_writes"]
     )
 
-    expected_schema_path = schema_dir() / "executor-receipt.schema.json"
-    executor_contract = {
-        "owner_identity": {
-            "capability": "implementation-executor",
-            "subject": "unconfigured-until-swu-tsgr-004",
-        },
-        "argv": ["task-session-executor-not-configured"],
-        "cwd": ".",
-        "environment_names": [],
-        "timeout_seconds": request["execution_contract"]["timeout_seconds"],
-        "max_output_bytes": request["execution_contract"]["max_output_bytes"],
-        "expected_receipt_path": (
-            relative_path(repo_root, run_dir / "terminal-executor-receipt.json")
-        ),
-        "expected_receipt_schema_ref": exact_ref(repo_root, expected_schema_path),
-    }
+    executor_contract = executor_contract_from_config(
+        repo_root, request, run_dir, executor_config
+    )
 
     resolved = phase_receipt(
         request=request,
@@ -506,6 +590,205 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
     return status_document(repo_root, run_dir)
 
 
+def execution_failure(
+    ticket: dict[str, Any],
+    reason: str,
+    *,
+    exit_code: int | None,
+    stdout: bytes,
+    stderr: bytes,
+) -> dict[str, Any]:
+    limit = ticket["executor_contract"]["max_output_bytes"]
+    return {
+        "schema_version": "task-session.governance-runner-execution.v1",
+        "result": "execution-failed",
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "exit_code": exit_code,
+        "diagnostics": [reason],
+        "capture": {
+            "max_output_bytes": limit,
+            "stdout_bytes": len(stdout),
+            "stderr_bytes": len(stderr),
+            "stdout_truncated": len(stdout) > limit,
+            "stderr_truncated": len(stderr) > limit,
+        },
+        "writes_performed": 0,
+    }
+
+
+def validate_executor_receipt(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+    receipt_path: Path,
+) -> dict[str, Any]:
+    contract = ticket["executor_contract"]
+    expected_path = resolve_repo_path(
+        repo_root, contract["expected_receipt_path"], "expected executor receipt"
+    )
+    if receipt_path.resolve() != expected_path:
+        raise RunnerBlock("joined executor receipt path differs from ticket")
+    receipt = load_object(receipt_path, "executor receipt")
+    _, schema_bytes = read_exact_bytes(
+        repo_root,
+        contract["expected_receipt_schema_ref"],
+        "executor receipt schema",
+    )
+    schema = json.loads(schema_bytes)
+    validate_schema(receipt, schema, "executor receipt")
+    ticket_ref = exact_ref(repo_root, run_dir / "execution-ticket.json")
+    for field in ("run_id", "task_id", "swu_id", "idempotency_key"):
+        if receipt[field] != ticket[field]:
+            raise RunnerBlock(f"executor receipt {field} identity mismatch")
+    if receipt["ticket_ref"] != ticket_ref:
+        raise RunnerBlock("executor receipt ticket identity mismatch")
+    if receipt["owner_identity"] != contract["owner_identity"]:
+        raise RunnerBlock("executor receipt owner identity mismatch")
+    if receipt["terminal_sequence"]["receipt_path"] != contract[
+        "expected_receipt_path"
+    ]:
+        raise RunnerBlock("executor terminal sequence path mismatch")
+
+    receipt_mtime = receipt_path.stat().st_mtime_ns
+    for raw in receipt["touched_files"]:
+        target = resolve_repo_path(repo_root, raw, "executor touched file")
+        if target.exists() and target.stat().st_mtime_ns > receipt_mtime:
+            raise RunnerBlock("executor receipt was not the final executor write")
+    for reference in receipt["outputs"]:
+        output, _ = read_exact_bytes(repo_root, reference, "executor output")
+        if output.stat().st_mtime_ns > receipt_mtime:
+            raise RunnerBlock("executor receipt was not the final executor write")
+    return receipt
+
+
+def executor_join(
+    repo_root: Path,
+    run_dir: Path,
+    joined_receipt: Path | None,
+) -> dict[str, Any]:
+    current = status_document(repo_root, run_dir)
+    if current["current_phase"] == "execution-received":
+        current["idempotent_replay"] = True
+        return current
+    if current["current_phase"] != "ticketed":
+        raise RunnerBlock("executor join requires a ticketed checkpoint")
+
+    ticket_path = run_dir / "execution-ticket.json"
+    ticket = load_object(ticket_path, "execution ticket")
+    contract = ticket["executor_contract"]
+    expected_receipt = resolve_repo_path(
+        repo_root, contract["expected_receipt_path"], "expected executor receipt"
+    )
+    if joined_receipt is not None and joined_receipt.resolve() != expected_receipt:
+        raise RunnerBlock("explicit joined receipt differs from ticket path")
+
+    stdout = b""
+    stderr = b""
+    if joined_receipt is None and not expected_receipt.is_file():
+        cwd = (
+            repo_root
+            if contract["cwd"] == "."
+            else resolve_repo_path(repo_root, contract["cwd"], "executor cwd")
+        )
+        environment = {
+            name: os.environ[name]
+            for name in contract["environment_names"]
+            if name in os.environ
+        }
+        try:
+            completed = subprocess.run(
+                contract["argv"],
+                cwd=cwd,
+                env=environment,
+                shell=False,
+                capture_output=True,
+                timeout=contract["timeout_seconds"],
+                check=False,
+            )
+        except subprocess.TimeoutExpired as error:
+            return execution_failure(
+                ticket,
+                "executor timeout",
+                exit_code=None,
+                stdout=error.stdout or b"",
+                stderr=error.stderr or b"",
+            )
+        except OSError as error:
+            return execution_failure(
+                ticket,
+                f"executor launch failed: {error}",
+                exit_code=None,
+                stdout=b"",
+                stderr=b"",
+            )
+        stdout = completed.stdout
+        stderr = completed.stderr
+        if completed.returncode != 0:
+            return execution_failure(
+                ticket,
+                "executor returned a nonzero exit status",
+                exit_code=completed.returncode,
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+    receipt = validate_executor_receipt(
+        repo_root, run_dir, ticket, expected_receipt
+    )
+    if receipt["result"] != "pass":
+        return execution_failure(
+            ticket,
+            f"executor receipt result is {receipt['result']}",
+            exit_code=None,
+            stdout=stdout,
+            stderr=stderr,
+        )
+    if (
+        len(stdout) > contract["max_output_bytes"]
+        or len(stderr) > contract["max_output_bytes"]
+    ):
+        return execution_failure(
+            ticket,
+            "executor output exceeded bounded capture",
+            exit_code=0,
+            stdout=stdout,
+            stderr=stderr,
+        )
+
+    ticketed_path = checkpoint_paths(run_dir)[3]
+    ticketed_ref = exact_ref(repo_root, ticketed_path)
+    receipt_ref = exact_ref(repo_root, expected_receipt)
+    phase = phase_receipt(
+        request={
+            "run_id": ticket["run_id"],
+            "task_id": ticket["task_id"],
+            "swu_id": ticket["swu_id"],
+            "owner_identity": ticket["owner_identity"],
+            "idempotency_key": ticket["idempotency_key"],
+        },
+        phase="execution-received",
+        index=5,
+        predecessor_phase="ticketed",
+        predecessor_ref=ticketed_ref,
+        input_refs=[ticketed_ref, exact_ref(repo_root, ticket_path), receipt_ref],
+        output_refs=[receipt_ref],
+    )
+    validate_schema(
+        phase,
+        load_object(
+            schema_dir() / "governance-phase-receipt.schema.json",
+            "phase receipt schema",
+        ),
+        "execution-received phase receipt",
+    )
+    atomic_write(checkpoint_paths(run_dir)[4], rendered_bytes(phase))
+    result = status_document(repo_root, run_dir)
+    result["writes_performed"] = 1
+    return result
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -516,6 +799,10 @@ def parse_args() -> argparse.Namespace:
     status_parser = subparsers.add_parser("status")
     status_parser.add_argument("--repo-root", required=True)
     status_parser.add_argument("--run-dir", required=True)
+    executor_parser = subparsers.add_parser("executor-join")
+    executor_parser.add_argument("--repo-root", required=True)
+    executor_parser.add_argument("--run-dir", required=True)
+    executor_parser.add_argument("--receipt")
     return parser.parse_args()
 
 
@@ -529,6 +816,13 @@ def main() -> int:
         if args.command == "prepare":
             request_path = resolve_repo_path(repo_root, args.request, "request")
             result = prepare(repo_root, request_path, run_dir)
+        elif args.command == "executor-join":
+            receipt_path = (
+                resolve_repo_path(repo_root, args.receipt, "joined executor receipt")
+                if args.receipt
+                else None
+            )
+            result = executor_join(repo_root, run_dir, receipt_path)
         else:
             result = status_document(repo_root, run_dir)
     except (RunnerBlock, OSError, UnicodeError) as error:
@@ -546,7 +840,7 @@ def main() -> int:
         )
         return 2
     print(json.dumps(result, indent=2, sort_keys=True))
-    return 0
+    return 3 if result.get("result") == "execution-failed" else 0
 
 
 if __name__ == "__main__":
