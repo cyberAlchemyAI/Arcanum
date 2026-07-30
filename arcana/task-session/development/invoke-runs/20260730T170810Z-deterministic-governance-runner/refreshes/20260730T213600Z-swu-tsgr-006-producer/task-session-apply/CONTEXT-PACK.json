@@ -1,0 +1,110 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260730T213600Z-swu-tsgr-006-task-session",
+  "task_id": "TASK-TSGR-02",
+  "swu_id": "SWU-TSGR-006",
+  "mode": "standard",
+  "strict_coverage": true,
+  "authority_ceiling": "mutation-admission-input",
+  "approval_basis": {
+    "source": "current user standing request to execute the captured work pack",
+    "scope": "SWU-TSGR-006 exact three declared shared-path updates",
+    "regenerability_treatment": "regeneration lowers decision cost only after exact baselines and staged identities are bound; atomic multi-target application, terminal ordering, and external consequences remain hard gates"
+  },
+  "obligations": [
+    {
+      "id": "O1",
+      "summary": "Execute exactly SWU-TSGR-006 atomic commit, terminal write, and resume.",
+      "status": "covered"
+    },
+    {
+      "id": "O2",
+      "summary": "Bind the passing SWU-TSGR-005 terminal result and joined closeout receipt.",
+      "status": "covered"
+    },
+    {
+      "id": "O3",
+      "summary": "Apply only reconciled staged outputs as one all-or-block transaction.",
+      "status": "covered"
+    },
+    {
+      "id": "O4",
+      "summary": "Record exact-present output as an idempotent no-op without duplicate effects.",
+      "status": "covered"
+    },
+    {
+      "id": "O5",
+      "summary": "Resume or block deterministically after interruption at every commit boundary.",
+      "status": "covered"
+    },
+    {
+      "id": "O6",
+      "summary": "Reject partial multi-target acceptance and contradictory idempotency replay.",
+      "status": "covered"
+    },
+    {
+      "id": "O7",
+      "summary": "Write the terminal receipt last and exclude hooks, continuation, and observation.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Execute exactly one SWU in this Task Session.",
+    "Update only the three admitted shared runner paths.",
+    "Block if any live shared target changes from its preflight digest before apply.",
+    "Preserve every unrelated dirty file.",
+    "Do not implement SWU-TSGR-007 or later behavior.",
+    "Do not update generated mirrors, publish, promote, commit, push, or deploy.",
+    "Persist the terminal Task Session result only after live validation and allowed-write reconciliation."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+      "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-runner.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-006-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+      "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-runner.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-006-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-governance-runner.py --family commit-resume"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "Interruption after every boundary resumes or blocks deterministically.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Non-idempotent effects never duplicate.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Exact-present output is a recorded no-op.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Partial multi-target commit cannot be accepted.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Terminal receipt is written last.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Repeated idempotency key cannot contradict the first accepted result.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}
