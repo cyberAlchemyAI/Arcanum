@@ -67,6 +67,13 @@ Validation:
 python3 arcana/task-session/development/validate-governance-runner.py --family reconcile
 ```
 
+Execution status: completed by
+`work-pack/results/SWU-TSGR-005-RESULT.json` with result `pass`. The live reconcile
+family reported `positive=10/10`, `negative=20/20`, and zero undeclared outputs.
+Apply and exact-present targets classified without live writes; conflict, inventory,
+critical-validation, output-only re-admission, cardinality, and evidence-drift cases
+blocked. Atomic commit, terminal final-write, and resume were not executed.
+
 ## SWU-TSGR-006 — atomic commit, terminal write, and resume
 
 Objective: atomically apply only reconciled staged outputs, then enforce
