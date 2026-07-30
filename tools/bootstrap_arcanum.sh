@@ -1461,6 +1461,39 @@ remove_obsolete_runtime_layers() {
   fi
 }
 
+guard_partial_repo_codex_force() {
+  local skill_root="$target_root/.agents/skills"
+  local existing_package
+
+  [[ "$force" == "true" ]] || return 0
+  profile_enabled "repo-codex" || return 0
+  if [[ -L "$skill_root" ]]; then
+    echo "Refusing --force repo-codex install through a symbolic-link skill surface: $skill_root" >&2
+    exit 1
+  fi
+  [[ -d "$skill_root" ]] || return 0
+
+  existing_package="$(find "$skill_root" -mindepth 1 -maxdepth 1 -print -quit)"
+  [[ -n "$existing_package" ]] || return 0
+  if [[ "$sigil_selection" == "all" && "$spell_selection" == "all" ]]; then
+    return 0
+  fi
+
+  cat >&2 <<EOF
+Refusing a partial --force repo-codex install into an existing skill surface:
+  $skill_root
+
+That operation would replace the whole surface with only the selected capabilities.
+For one capability, use:
+  $script_dir/sync-generated-skill-package.sh --target "$target_root" --sigil <id> --apply
+or:
+  $script_dir/sync-generated-skill-package.sh --target "$target_root" --spell <id> --apply
+
+Use bootstrap --force with --sigils all --spells all only when replacing the complete surface is intentional.
+EOF
+  exit 1
+}
+
 has_obsolete_necronomicon_runtime_book() {
   local necronomicon_root="$dest_root/necronomicon"
   [[ -e "$necronomicon_root" ]] || return 1
@@ -2038,6 +2071,10 @@ echo "  profiles: $profile_selection"
 echo "  default adapter: $default_adapter"
 echo "  clean legacy commands: $clean_legacy_codex_commands"
 
+collect_selected_sigils "$sigil_selection"
+collect_selected_spells "$spell_selection"
+guard_partial_repo_codex_force
+
 if target_profile_writes && [[ "$profile_selection" != "none" ]]; then
   run mkdir -p "$target_root"
 fi
@@ -2057,8 +2094,6 @@ if [[ "$clean_legacy_codex_commands" == "true" ]]; then
   clean_generated_codex_commands
 fi
 
-collect_selected_sigils "$sigil_selection"
-collect_selected_spells "$spell_selection"
 install_repo_local_tools
 if profile_enabled "observability"; then
   install_observability_package

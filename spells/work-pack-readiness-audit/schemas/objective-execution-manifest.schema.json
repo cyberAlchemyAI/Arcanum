@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/objective-execution-manifest/1-0-0",
+  "title": "ObjectiveExecutionManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "evidence_ceiling",
+    "classifier_version",
+    "objective_ref",
+    "closure_receipt_refs",
+    "authority_bindings",
+    "canonical_plan_graph",
+    "execution_bindings",
+    "receipt_bindings",
+    "closeout_bindings",
+    "runtime_binding",
+    "status_receipt_refs",
+    "lifecycle_status_refs",
+    "epoch_binding",
+    "continuity_projection",
+    "semantic_component_digests",
+    "authority_effect",
+    "selected_unit",
+    "mutation_ready"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "manifest_id": {"type": "string", "pattern": "^oem-[a-f0-9]{24}$"},
+    "evidence_ceiling": {"const": "frozen-input-contractual-readiness"},
+    "classifier_version": {"type": "string", "minLength": 1},
+    "objective_ref": {"type": "object"},
+    "closure_receipt_refs": {"type": "array", "minItems": 1},
+    "authority_bindings": {
+      "type": "object",
+      "required": [
+        "canonical_authority_refs",
+        "derived_projection_refs",
+        "execution_byte_baselines",
+        "semantic_bindings"
+      ]
+    },
+    "canonical_plan_graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["units", "finite_frontier"],
+      "properties": {
+        "units": {"type": "array", "minItems": 1},
+        "finite_frontier": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "execution_bindings": {"type": "array", "minItems": 1},
+    "receipt_bindings": {"type": "object"},
+    "closeout_bindings": {"type": "array", "minItems": 1},
+    "runtime_binding": {"type": "object"},
+    "status_receipt_refs": {"type": "object"},
+    "lifecycle_status_refs": {"type": "object"},
+    "epoch_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "epoch_id",
+        "audit_projection_digest",
+        "canonical_semantic_digest",
+        "source_snapshot_digest",
+        "approved_frontier_ref",
+        "run_budget",
+        "risk_policy_ref",
+        "decision_gate_approval_receipt_ref",
+        "approval_status"
+      ],
+      "properties": {
+        "epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "audit_projection_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "canonical_semantic_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "source_snapshot_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "approved_frontier_ref": {"type": "array", "minItems": 1},
+        "run_budget": {"type": "object"},
+        "risk_policy_ref": {"type": "object"},
+        "decision_gate_approval_receipt_ref": {"type": "object"},
+        "approval_status": {"const": "unapproved"}
+      }
+    },
+    "continuity_projection": {"type": "object"},
+    "semantic_component_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "selected_unit": {"type": "null"},
+    "mutation_ready": {"const": false}
+  }
+}

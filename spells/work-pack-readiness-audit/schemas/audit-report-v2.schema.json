@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/report/2-0-0",
+  "title": "WorkPackReadinessAuditReportV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "canonical_spell_id",
+    "verdict",
+    "terminal_code",
+    "evidence_ceiling",
+    "manifest",
+    "blockers",
+    "flags",
+    "source_snapshot",
+    "semantic_component_digests",
+    "canonical_semantic_digest",
+    "audit_projection_digest",
+    "configured_commands_executed",
+    "selected_unit",
+    "authority_effect",
+    "mutation_ready",
+    "next_owner"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "audit_id": {"type": "string", "minLength": 1},
+    "canonical_spell_id": {"const": "work-pack-readiness-audit"},
+    "verdict": {"enum": ["pass", "flag", "block"]},
+    "terminal_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+    "evidence_ceiling": {"const": "frozen-input-contractual-readiness"},
+    "manifest": {
+      "oneOf": [
+        {"type": "object"},
+        {"type": "null"}
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "binding_id", "claim"],
+        "properties": {
+          "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+          "binding_id": {"type": "string", "minLength": 1},
+          "claim": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "source_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest", "artifact_count", "drift"],
+      "properties": {
+        "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "artifact_count": {"type": "integer", "minimum": 0},
+        "drift": {"type": "boolean"}
+      }
+    },
+    "semantic_component_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "canonical_semantic_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "audit_projection_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "configured_commands_executed": {"const": false},
+    "selected_unit": {"type": "null"},
+    "authority_effect": {"const": "none"},
+    "mutation_ready": {"const": false},
+    "next_owner": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"verdict": {"const": "block"}},
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "manifest": {"type": "null"},
+          "blockers": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"verdict": {"enum": ["pass", "flag"]}},
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "manifest": {"type": "object"},
+          "blockers": {"maxItems": 0}
+        }
+      }
+    }
+  ]
+}

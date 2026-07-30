@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/config/2-0-0",
+  "title": "WorkPackReadinessAuditConfigV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "repository_root",
+    "evidence_ceiling",
+    "classifier_version",
+    "objective_ref",
+    "closure_receipt_refs",
+    "authority_bindings",
+    "execution_bindings",
+    "receipt_bindings",
+    "closeout_bindings",
+    "runtime_binding",
+    "status_receipt_refs",
+    "lifecycle_status_refs",
+    "approval_policy",
+    "continuity_projection"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "audit_id": {"type": "string", "minLength": 1},
+    "repository_root": {"const": "."},
+    "evidence_ceiling": {"const": "frozen-input-contractual-readiness"},
+    "classifier_version": {"type": "string", "minLength": 1},
+    "objective_ref": {"$ref": "#/$defs/bindingRef"},
+    "closure_receipt_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/bindingRef"}
+    },
+    "authority_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_authority_refs", "semantic_bindings"],
+      "properties": {
+        "canonical_authority_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/bindingRef"}
+        },
+        "semantic_bindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["owner", "material", "validation", "receipt", "closeout"],
+          "properties": {
+            "owner": {"$ref": "#/$defs/bindingRef"},
+            "material": {"$ref": "#/$defs/bindingRef"},
+            "validation": {"$ref": "#/$defs/bindingRef"},
+            "receipt": {"$ref": "#/$defs/bindingRef"},
+            "closeout": {"$ref": "#/$defs/bindingRef"}
+          }
+        }
+      }
+    },
+    "execution_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/executionBinding"}
+    },
+    "receipt_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "terminal_schema_ref",
+        "semantic_validator_ref",
+        "expected_receipt_refs"
+      ],
+      "properties": {
+        "terminal_schema_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "semantic_validator_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "expected_receipt_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/bindingRef"}
+        }
+      }
+    },
+    "closeout_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unit_id",
+          "allowed_delta_policy_ref",
+          "owner_receipt_contract_ref",
+          "compensation"
+        ],
+        "properties": {
+          "unit_id": {"type": "string", "minLength": 1},
+          "allowed_delta_policy_ref": {"$ref": "#/$defs/nullableBindingRef"},
+          "owner_receipt_contract_ref": {"$ref": "#/$defs/nullableBindingRef"},
+          "compensation": {"$ref": "#/$defs/compensation"}
+        }
+      }
+    },
+    "runtime_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_task_session_execution_mode",
+        "task_session_admission_receipt_ref"
+      ],
+      "properties": {
+        "requested_task_session_execution_mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task_session_admission_receipt_ref": {"$ref": "#/$defs/bindingRef"}
+      }
+    },
+    "status_receipt_refs": {"$ref": "#/$defs/statusRefs"},
+    "lifecycle_status_refs": {"$ref": "#/$defs/lifecycleRefs"},
+    "approval_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_owner_ref",
+        "decision_gate_receipt_ref",
+        "run_budget",
+        "risk_policy_ref",
+        "allowed_audit_verdicts",
+        "allowed_flag_classes"
+      ],
+      "properties": {
+        "approval_owner_ref": {"type": "string", "minLength": 1},
+        "decision_gate_receipt_ref": {"$ref": "#/$defs/bindingRef"},
+        "run_budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_task_session_requests"],
+          "properties": {
+            "max_task_session_requests": {"type": "integer", "minimum": 1}
+          }
+        },
+        "risk_policy_ref": {"$ref": "#/$defs/bindingRef"},
+        "allowed_audit_verdicts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["pass", "flag"]}
+        },
+        "allowed_flag_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"const": "observability-residue"}
+        }
+      }
+    },
+    "continuity_projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cursor",
+        "completed_unit_receipt_refs",
+        "joined_closeout_receipt_refs",
+        "projected_next_successor"
+      ],
+      "properties": {
+        "cursor": {"type": "string", "minLength": 1},
+        "completed_unit_receipt_refs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/bindingRef"}
+        },
+        "joined_closeout_receipt_refs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/bindingRef"}
+        },
+        "projected_next_successor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unit_id",
+            "canonical_successor_ref",
+            "projection_owner_ref",
+            "equivalence_validator_ref",
+            "continuation_router_verification_receipt_ref",
+            "authority_effect"
+          ],
+          "properties": {
+            "unit_id": {"type": ["string", "null"]},
+            "canonical_successor_ref": {"$ref": "#/$defs/nullableBindingRef"},
+            "projection_owner_ref": {"type": "string", "minLength": 1},
+            "equivalence_validator_ref": {"$ref": "#/$defs/bindingRef"},
+            "continuation_router_verification_receipt_ref": {
+              "$ref": "#/$defs/bindingRef"
+            },
+            "authority_effect": {"const": "none"}
+          }
+        }
+      }
+    },
+    "expected_source_snapshot_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "expected_material_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "expected_semantic_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "bindingRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_id", "owner_ref", "artifact_ref", "selector"],
+      "properties": {
+        "binding_id": {"type": "string", "minLength": 1},
+        "owner_ref": {"type": "string", "minLength": 1},
+        "artifact_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "selector": {"type": "string"}
+      }
+    },
+    "nullableBindingRef": {
+      "oneOf": [
+        {"$ref": "#/$defs/bindingRef"},
+        {"type": "null"}
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argv", "cwd", "risk_class"],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "cwd": {"type": "string", "minLength": 1},
+        "risk_class": {
+          "enum": ["read-only", "bounded-write", "browser", "network"]
+        }
+      }
+    },
+    "materialPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_ref",
+        "producer_owner_ref",
+        "producer_receipt_ref",
+        "schema_ref",
+        "declared_sha256",
+        "target_inventory_ref"
+      ],
+      "properties": {
+        "package_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "producer_owner_ref": {"type": ["string", "null"], "minLength": 1},
+        "producer_receipt_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "schema_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "declared_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "target_inventory_ref": {"$ref": "#/$defs/nullableBindingRef"}
+      }
+    },
+    "byteBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "executionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id",
+        "dependencies",
+        "canonical_successors",
+        "command",
+        "material_writes",
+        "execution_outputs",
+        "allowed_writes",
+        "material_package",
+        "byte_baselines"
+      ],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "dependencies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "canonical_successors": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "command": {"$ref": "#/$defs/command"},
+        "material_writes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "execution_outputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "allowed_writes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "material_package": {"$ref": "#/$defs/materialPackage"},
+        "byte_baselines": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/byteBaseline"}
+        }
+      }
+    },
+    "compensation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "rationale"],
+          "properties": {
+            "mode": {"const": "none"},
+            "rationale": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "owner_ref", "contract_ref"],
+          "properties": {
+            "mode": {"const": "owner-routed"},
+            "owner_ref": {"type": "string", "minLength": 1},
+            "contract_ref": {"$ref": "#/$defs/bindingRef"}
+          }
+        }
+      ]
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "owner_ref", "receipt_ref"],
+      "properties": {
+        "value": {"type": "string", "minLength": 1},
+        "owner_ref": {"type": "string", "minLength": 1},
+        "receipt_ref": {"$ref": "#/$defs/bindingRef"}
+      }
+    },
+    "statusRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_authored_status",
+        "registry_released_status",
+        "mutation_runtime_ready_status",
+        "audit_verdict"
+      ],
+      "properties": {
+        "artifact_authored_status": {"$ref": "#/$defs/status"},
+        "registry_released_status": {"$ref": "#/$defs/status"},
+        "mutation_runtime_ready_status": {"$ref": "#/$defs/status"},
+        "audit_verdict": {"$ref": "#/$defs/status"}
+      }
+    },
+    "lifecycleRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_artifact_status", "audit_status", "approval_status", "chain_status"],
+      "properties": {
+        "plan_artifact_status": {"$ref": "#/$defs/status"},
+        "audit_status": {"$ref": "#/$defs/status"},
+        "approval_status": {"$ref": "#/$defs/status"},
+        "chain_status": {"$ref": "#/$defs/status"}
+      }
+    }
+  }
+}
