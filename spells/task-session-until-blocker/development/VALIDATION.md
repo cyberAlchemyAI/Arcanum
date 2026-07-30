@@ -11,6 +11,9 @@
 ## Checks
 
 - Eight deterministic chain-controller cases pass.
+- The additive approved-epoch suite passes durable hash-link, exclusive-create,
+  cursor, risk, budget, successor, semantic `NO_OP`, and compensation cases.
+- All three additive JSON schemas parse and the runner compiles.
 - All four Spellcraft lifecycle regimes validate.
 - Fixture pairs and example prompts cover low, medium, and complex cases.
 - One real bounded chain run satisfies the stop and receipt-join contract.

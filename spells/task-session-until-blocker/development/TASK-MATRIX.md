@@ -10,3 +10,12 @@ The deterministic controller fixture additionally passes eight chain cases:
 linear completion, later blocker, closeout failure, repeated cursor, cross-scope
 successor, successor outside the captured frontier, ambiguous successor, and
 validated no-op closeout.
+
+The additive approved-epoch suite also covers:
+
+- two hash-linked, exclusively created transitions through completion;
+- epoch, transition-link, ordinal, selector, cursor, frontier, risk, and
+  successor failures exposing no next selector;
+- request-budget exhaustion;
+- semantic `NO_OP` inventory mismatch;
+- owner-routed compensation stop without automatic recovery.

@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session-until-blocker/chain-config/1-0-0",
+  "title": "TaskSessionUntilBlockerChainConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "chain_id",
+    "repository_root",
+    "state_directory",
+    "scope_id",
+    "manifest_ref",
+    "audit_verdict",
+    "audit_flags",
+    "approved_epoch",
+    "finite_frontier",
+    "run_budget",
+    "risk_ceiling",
+    "allowed_task_session_flags",
+    "persistence",
+    "compensation"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "chain_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"},
+    "repository_root": {"const": "."},
+    "state_directory": {"type": "string", "minLength": 1},
+    "scope_id": {"type": "string", "minLength": 1},
+    "manifest_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "audit_verdict": {"enum": ["pass", "flag"]},
+    "audit_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "approved_epoch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "epoch_id",
+        "audit_projection_digest",
+        "canonical_semantic_digest",
+        "source_snapshot_digest",
+        "decision_gate_approval_receipt_ref",
+        "approval_owner_ref",
+        "approval_status"
+      ],
+      "properties": {
+        "epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "audit_projection_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "canonical_semantic_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "source_snapshot_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "decision_gate_approval_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "approval_owner_ref": {"type": "string", "minLength": 1},
+        "approval_status": {"const": "approved"}
+      }
+    },
+    "finite_frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "run_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_task_session_requests"],
+      "properties": {
+        "max_task_session_requests": {"type": "integer", "minimum": 1}
+      }
+    },
+    "risk_ceiling": {
+      "enum": ["read-only", "bounded-write", "browser", "network"]
+    },
+    "allowed_task_session_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "collision_policy"],
+      "properties": {
+        "mode": {"const": "append-only-hash-chain"},
+        "collision_policy": {"const": "exclusive-create"}
+      }
+    },
+    "compensation": {"$ref": "#/$defs/compensation"}
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "compensation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "rationale"],
+          "properties": {
+            "mode": {"const": "none"},
+            "rationale": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "owner_ref", "contract_ref"],
+          "properties": {
+            "mode": {"const": "owner-routed"},
+            "owner_ref": {"type": "string", "minLength": 1},
+            "contract_ref": {"$ref": "#/$defs/exactArtifactRef"}
+          }
+        }
+      ]
+    }
+  }
+}

@@ -92,6 +92,38 @@ Persist one chain record containing:
 This state coordinates the series. It does not collapse the inner receipts into
 one synthetic Task Session receipt.
 
+### Approved-epoch candidate runtime
+
+The additive candidate runner at
+[`scripts/run_chain.py`](scripts/run_chain.py) consumes:
+
+- [`chain-config.schema.json`](schemas/chain-config.schema.json), binding the
+  exact WPRA manifest, human/Decision Gate approval receipt, epoch digests,
+  finite frontier, risk ceiling, request budget, flag allowlist, persistence,
+  and compensation policy;
+- [`chain-transition.schema.json`](schemas/chain-transition.schema.json), one
+  hash-linked transition for one fresh Task Session;
+- [`closeout-no-op-proof.schema.json`](schemas/closeout-no-op-proof.schema.json),
+  an exact before/after inventory proof with validator identity and
+  Continuation Router verification.
+
+The runtime stores one immutable `chain.json` and exclusively creates numbered
+transition records. It replays the hash chain on every invocation. A
+preflight or transition receipt exposes either one exact next selector or none;
+it never launches Task Session itself. Repeated cursors, epoch/frontier drift,
+out-of-order or ambiguous successors, risk or budget overflow, missing joins,
+and invalid `NO_OP` proofs stop fail-closed.
+
+`NO_OP` is semantic, not a boolean: before and after inventories must match,
+the observed delta must be empty, the closeout contract must be the approved
+one, and validator identity plus Router verification must be bound.
+Compensation is never automatic. A `none` policy requires rationale; an
+`owner-routed` policy stops and returns the named owner.
+
+This candidate proves finite-frontier control only. Task Session continues to
+own each implementation, Invoke Refresh owns closeout mutation, and the
+approved manifest remains authority-none evidence.
+
 ## Phases
 
 ### 1. Bind And Capture

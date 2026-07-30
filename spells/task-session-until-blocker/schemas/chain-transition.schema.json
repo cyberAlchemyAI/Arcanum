@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session-until-blocker/chain-transition/1-0-0",
+  "title": "TaskSessionUntilBlockerTransition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "chain_id",
+    "transition_id",
+    "transition_digest",
+    "previous_transition_digest",
+    "epoch_id",
+    "cursor",
+    "selector",
+    "request_ordinal",
+    "risk_class",
+    "task_session_result",
+    "task_session_flags",
+    "terminal_receipt_ref",
+    "closeout",
+    "successor",
+    "observed_frontier_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "chain_id": {"type": "string", "minLength": 1},
+    "transition_id": {"type": "string", "minLength": 1},
+    "transition_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "previous_transition_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+    "cursor": {"type": "string", "minLength": 1},
+    "selector": {"type": "string", "minLength": 1},
+    "request_ordinal": {"type": "integer", "minimum": 1},
+    "risk_class": {
+      "enum": ["read-only", "bounded-write", "browser", "network"]
+    },
+    "task_session_result": {"enum": ["PASS", "FLAG", "BLOCK"]},
+    "task_session_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "terminal_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "closeout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result",
+        "owner_receipt_ref",
+        "no_op_proof",
+        "continuation_router_verification_receipt_ref"
+      ],
+      "properties": {
+        "result": {"enum": ["PASS", "NO_OP", "BLOCK"]},
+        "owner_receipt_ref": {"$ref": "#/$defs/nullableArtifactRef"},
+        "no_op_proof": {
+          "oneOf": [
+            {"type": "object"},
+            {"type": "null"}
+          ]
+        },
+        "continuation_router_verification_receipt_ref": {
+          "$ref": "#/$defs/nullableArtifactRef"
+        }
+      }
+    },
+    "successor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id",
+        "candidate_count",
+        "declared",
+        "dependency_ready",
+        "scope_digest"
+      ],
+      "properties": {
+        "unit_id": {"type": ["string", "null"]},
+        "candidate_count": {"type": "integer", "minimum": 0},
+        "declared": {"type": "boolean"},
+        "dependency_ready": {"type": "boolean"},
+        "scope_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "observed_frontier_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "nullableArtifactRef": {
+      "oneOf": [
+        {"$ref": "#/$defs/exactArtifactRef"},
+        {"type": "null"}
+      ]
+    }
+  }
+}
