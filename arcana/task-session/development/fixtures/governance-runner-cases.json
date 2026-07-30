@@ -229,6 +229,95 @@
       "kind": "negative",
       "expected_result": "block",
       "expected_writes": 0
+    },
+    {
+      "case_id": "commit-applies-classified-output-and-closes-receipt",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_transaction_state": "committed"
+    },
+    {
+      "case_id": "commit-identical-idempotency-replay-is-byte-stable",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "commit-records-exact-present-no-op",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_outcome": "already-present-exact-output"
+    },
+    {
+      "case_id": "commit-multi-target-transaction-is-all-or-unaccepted",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "expected_transaction_state": "committed"
+    },
+    {
+      "case_id": "commit-resumes-after-journal-creation",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "interruption_boundary": "journal-created"
+    },
+    {
+      "case_id": "commit-recovers-applied-prefix-without-duplicate-effect",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "interruption_boundary": "target-1"
+    },
+    {
+      "case_id": "commit-resumes-finalized-journal-before-receipt",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "interruption_boundary": "journal-finalized"
+    },
+    {
+      "case_id": "commit-replays-terminal-receipt-without-new-write",
+      "family": "commit-resume",
+      "kind": "positive",
+      "expected_result": "pass",
+      "interruption_boundary": "commit-receipt"
+    },
+    {
+      "case_id": "commit-journal-drift-blocks-without-target-write",
+      "family": "commit-resume",
+      "kind": "negative",
+      "expected_result": "block"
+    },
+    {
+      "case_id": "commit-reconciliation-evidence-drift-blocks-before-journal",
+      "family": "commit-resume",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "commit-impossible-partial-state-is-rejected-not-accepted",
+      "family": "commit-resume",
+      "kind": "negative",
+      "expected_result": "block"
+    },
+    {
+      "case_id": "commit-receipt-final-write-order-drift-blocks",
+      "family": "commit-resume",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
+    },
+    {
+      "case_id": "commit-contradictory-idempotency-replay-blocks",
+      "family": "commit-resume",
+      "kind": "negative",
+      "expected_result": "block",
+      "expected_writes": 0
     }
   ]
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Deterministic, one-SWU Task Session governance runner.
 
-The runner prepares a digest-chained ticket, joins one structured executor, and
-reconciles its staged evidence without applying live target bytes.  Commit,
-terminal-write, owner-hook, continuation, and observation behavior remain
-intentionally absent.
+The runner prepares a digest-chained ticket, joins one structured executor,
+reconciles its staged evidence, and applies an explicitly journaled transaction.
+Whole-run terminal closeout, owner hooks, continuation, and observation behavior
+remain intentionally absent.
 """
 
 from __future__ import annotations
@@ -39,6 +39,15 @@ SELECTED_SWU = re.compile(
 
 class RunnerBlock(ValueError):
     """A fail-closed runner outcome."""
+
+
+class RunnerInterrupted(RuntimeError):
+    """A synthetic transaction interruption used by the validation harness."""
+
+    def __init__(self, boundary: str, writes_performed: int):
+        super().__init__(f"synthetic interruption after {boundary}")
+        self.boundary = boundary
+        self.writes_performed = writes_performed
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -1061,6 +1070,481 @@ def reconcile(
     return result
 
 
+def file_state(path: Path) -> dict[str, Any]:
+    if path.is_file():
+        data = path.read_bytes()
+        return {
+            "state": "present",
+            "sha256": sha256(data),
+            "size_bytes": len(data),
+        }
+    if path.exists():
+        raise RunnerBlock(f"transaction target is not a regular file: {path}")
+    return {"state": "absent", "sha256": None, "size_bytes": None}
+
+
+def state_matches(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    return all(left.get(key) == right.get(key) for key in (
+        "state", "sha256", "size_bytes"
+    ))
+
+
+def transaction_plan(
+    repo_root: Path,
+    run_dir: Path,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    status = status_document(repo_root, run_dir)
+    if status["current_phase"] != "reconciled":
+        raise RunnerBlock("commit-resume requires a reconciled checkpoint")
+    ticket_path = run_dir / "execution-ticket.json"
+    reconciliation_path = run_dir / "reconciliation.json"
+    ticket = load_object(ticket_path, "execution ticket")
+    reconciliation = load_object(reconciliation_path, "reconciliation evidence")
+    ticket_ref = exact_ref(repo_root, ticket_path)
+    reconciliation_ref = exact_ref(repo_root, reconciliation_path)
+    require_closed_keys(
+        reconciliation,
+        {
+            "schema_version",
+            "run_id",
+            "task_id",
+            "swu_id",
+            "ticket_ref",
+            "executor_receipt_ref",
+            "output_only_admission_ref",
+            "mapping_policy",
+            "classifications",
+            "critical_validation_ids",
+            "live_apply_performed",
+            "result",
+        },
+        "reconciliation evidence",
+    )
+    if not (
+        reconciliation["schema_version"]
+        == "task-session.reconciliation-evidence.v1"
+        and reconciliation["ticket_ref"] == ticket_ref
+        and reconciliation["mapping_policy"] == "positional-target-to-output-v1"
+        and reconciliation["live_apply_performed"] is False
+        and reconciliation["result"] == "pass"
+    ):
+        raise RunnerBlock("reconciliation evidence is not an admissible commit input")
+    for key in ("run_id", "task_id", "swu_id"):
+        if reconciliation[key] != ticket[key]:
+            raise RunnerBlock(f"reconciliation {key} identity mismatch")
+    if len(reconciliation["classifications"]) != len(ticket["allowed_writes"]):
+        raise RunnerBlock("reconciliation classification cardinality mismatch")
+
+    targets: list[dict[str, Any]] = []
+    for index, (target_path, classification) in enumerate(
+        zip(
+            ticket["allowed_writes"],
+            reconciliation["classifications"],
+            strict=True,
+        )
+    ):
+        require_closed_keys(
+            classification,
+            {"target_path", "output_ref", "baseline", "live", "classification"},
+            f"reconciliation classification {index}",
+        )
+        if classification["target_path"] != target_path:
+            raise RunnerBlock("reconciliation target order differs from ticket")
+        if classification["classification"] not in (
+            "apply",
+            "already-present-exact-output",
+        ):
+            raise RunnerBlock("reconciliation contains a non-committable classification")
+        _, output_bytes = read_exact_bytes(
+            repo_root,
+            classification["output_ref"],
+            f"transaction output for {target_path}",
+        )
+        output_state = {
+            "state": "present",
+            "sha256": sha256(output_bytes),
+            "size_bytes": len(output_bytes),
+        }
+        targets.append(
+            {
+                "index": index,
+                "target_path": target_path,
+                "output_ref": classification["output_ref"],
+                "output_state": output_state,
+                "baseline": classification["baseline"],
+                "classification": classification["classification"],
+            }
+        )
+    identity = {
+        "ticket_ref": ticket_ref,
+        "reconciliation_ref": reconciliation_ref,
+        "idempotency_key": ticket["idempotency_key"],
+        "targets": targets,
+    }
+    identity["transaction_id"] = "transaction:" + sha256(canonical_bytes(identity))
+    return ticket, reconciliation, identity, targets
+
+
+def initial_journal(
+    ticket: dict[str, Any],
+    identity: dict[str, Any],
+    targets: list[dict[str, Any]],
+) -> dict[str, Any]:
+    return {
+        "schema_version": "task-session.commit-journal.v1",
+        "transaction_id": identity["transaction_id"],
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "idempotency_key": ticket["idempotency_key"],
+        "ticket_ref": identity["ticket_ref"],
+        "reconciliation_ref": identity["reconciliation_ref"],
+        "state": "applying",
+        "next_index": 0,
+        "targets": [
+            {
+                "index": item["index"],
+                "target_path": item["target_path"],
+                "output_ref": item["output_ref"],
+                "baseline": item["baseline"],
+                "classification": item["classification"],
+                "outcome": "pending",
+            }
+            for item in targets
+        ],
+    }
+
+
+def validate_journal(
+    journal: dict[str, Any],
+    expected: dict[str, Any],
+    ticket: dict[str, Any],
+    targets: list[dict[str, Any]],
+) -> None:
+    require_closed_keys(
+        journal,
+        {
+            "schema_version",
+            "transaction_id",
+            "run_id",
+            "task_id",
+            "swu_id",
+            "idempotency_key",
+            "ticket_ref",
+            "reconciliation_ref",
+            "state",
+            "next_index",
+            "targets",
+        },
+        "commit journal",
+    )
+    if journal["schema_version"] != "task-session.commit-journal.v1":
+        raise RunnerBlock("commit journal schema version mismatch")
+    for key in (
+        "transaction_id",
+        "ticket_ref",
+        "reconciliation_ref",
+        "idempotency_key",
+    ):
+        if journal[key] != expected[key]:
+            raise RunnerBlock(f"commit journal {key} mismatch")
+    for key in ("run_id", "task_id", "swu_id"):
+        if journal[key] != ticket[key]:
+            raise RunnerBlock(f"commit journal {key} mismatch")
+    if journal["state"] not in ("applying", "committed"):
+        raise RunnerBlock("commit journal state is invalid")
+    if not isinstance(journal["next_index"], int) or not (
+        0 <= journal["next_index"] <= len(targets)
+    ):
+        raise RunnerBlock("commit journal next index is invalid")
+    if len(journal["targets"]) != len(targets):
+        raise RunnerBlock("commit journal target cardinality mismatch")
+    for observed, item in zip(journal["targets"], targets, strict=True):
+        require_closed_keys(
+            observed,
+            {
+                "index",
+                "target_path",
+                "output_ref",
+                "baseline",
+                "classification",
+                "outcome",
+            },
+            "commit journal target",
+        )
+        for key in (
+            "index",
+            "target_path",
+            "output_ref",
+            "baseline",
+            "classification",
+        ):
+            if observed[key] != item[key]:
+                raise RunnerBlock(f"commit journal target {key} mismatch")
+        if observed["outcome"] not in (
+            "pending",
+            "applied",
+            "already-present-exact-output",
+        ):
+            raise RunnerBlock("commit journal target outcome is invalid")
+        completed = observed["index"] < journal["next_index"]
+        if completed == (observed["outcome"] == "pending"):
+            raise RunnerBlock("commit journal progress is non-monotonic")
+    if journal["state"] == "committed" and journal["next_index"] != len(targets):
+        raise RunnerBlock("committed journal does not cover every target")
+
+
+def commit_receipt_document(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+    identity: dict[str, Any],
+    journal: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "schema_version": "task-session.commit-receipt.v1",
+        "receipt_id": f"commit-receipt:{identity['transaction_id']}",
+        "transaction_id": identity["transaction_id"],
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "idempotency_key": ticket["idempotency_key"],
+        "ticket_ref": identity["ticket_ref"],
+        "reconciliation_ref": identity["reconciliation_ref"],
+        "journal_ref": exact_ref(repo_root, run_dir / "commit-journal.json"),
+        "target_results": [
+            {
+                "target_path": item["target_path"],
+                "output_ref": item["output_ref"],
+                "classification": item["classification"],
+                "outcome": item["outcome"],
+            }
+            for item in journal["targets"]
+        ],
+        "result": "pass",
+        "final_transaction_write": True,
+        "authority_ceiling": "transaction-committed-not-whole-run-terminal",
+        "residue": [
+            (
+                "Canonical whole-run terminal receipt requires later closeout and "
+                "observation phases; this commit receipt does not claim them."
+            )
+        ],
+    }
+
+
+def validate_commit_receipt(
+    repo_root: Path,
+    run_dir: Path,
+    receipt: dict[str, Any],
+    ticket: dict[str, Any],
+    identity: dict[str, Any],
+    targets: list[dict[str, Any]],
+) -> None:
+    require_closed_keys(
+        receipt,
+        {
+            "schema_version",
+            "receipt_id",
+            "transaction_id",
+            "run_id",
+            "task_id",
+            "swu_id",
+            "idempotency_key",
+            "ticket_ref",
+            "reconciliation_ref",
+            "journal_ref",
+            "target_results",
+            "result",
+            "final_transaction_write",
+            "authority_ceiling",
+            "residue",
+        },
+        "commit receipt",
+    )
+    if not (
+        receipt["schema_version"] == "task-session.commit-receipt.v1"
+        and receipt["transaction_id"] == identity["transaction_id"]
+        and receipt["idempotency_key"] == ticket["idempotency_key"]
+        and receipt["ticket_ref"] == identity["ticket_ref"]
+        and receipt["reconciliation_ref"] == identity["reconciliation_ref"]
+        and receipt["result"] == "pass"
+        and receipt["final_transaction_write"] is True
+        and receipt["authority_ceiling"]
+        == "transaction-committed-not-whole-run-terminal"
+    ):
+        raise RunnerBlock("commit receipt identity or terminal claim mismatch")
+    for key in ("run_id", "task_id", "swu_id"):
+        if receipt[key] != ticket[key]:
+            raise RunnerBlock(f"commit receipt {key} mismatch")
+    journal_path = run_dir / "commit-journal.json"
+    if receipt["journal_ref"] != exact_ref(repo_root, journal_path):
+        raise RunnerBlock("commit receipt journal identity is stale")
+    journal = load_object(journal_path, "commit journal")
+    validate_journal(journal, identity, ticket, targets)
+    if journal["state"] != "committed":
+        raise RunnerBlock("commit receipt refers to an incomplete journal")
+    expected_receipt = commit_receipt_document(
+        repo_root, run_dir, ticket, identity, journal
+    )
+    if receipt != expected_receipt:
+        raise RunnerBlock("commit receipt content mismatch")
+    receipt_path = run_dir / "commit-receipt.json"
+    receipt_mtime = receipt_path.stat().st_mtime_ns
+    if journal_path.stat().st_mtime_ns > receipt_mtime:
+        raise RunnerBlock("commit receipt was not the final transaction write")
+    for item in targets:
+        target = resolve_repo_path(
+            repo_root, item["target_path"], "committed target"
+        )
+        if not state_matches(file_state(target), item["output_state"]):
+            raise RunnerBlock("committed target no longer matches staged output")
+        if target.stat().st_mtime_ns > receipt_mtime:
+            raise RunnerBlock("commit receipt was not the final transaction write")
+
+
+def maybe_interrupt(
+    requested: str | None,
+    observed: str,
+    writes_performed: int,
+) -> None:
+    if requested == observed:
+        raise RunnerInterrupted(observed, writes_performed)
+
+
+def commit_resume(
+    repo_root: Path,
+    run_dir: Path,
+    interrupt_after: str | None,
+) -> dict[str, Any]:
+    ticket, _, identity, targets = transaction_plan(repo_root, run_dir)
+    journal_path = run_dir / "commit-journal.json"
+    receipt_path = run_dir / "commit-receipt.json"
+    if receipt_path.exists():
+        receipt = load_object(receipt_path, "commit receipt")
+        validate_commit_receipt(
+            repo_root, run_dir, receipt, ticket, identity, targets
+        )
+        return {
+            "schema_version": "task-session.governance-runner-status.v1",
+            "result": "pass",
+            "run_id": ticket["run_id"],
+            "task_id": ticket["task_id"],
+            "swu_id": ticket["swu_id"],
+            "current_phase": "reconciled",
+            "phase_index": 6,
+            "transaction_state": "committed",
+            "commit_receipt_ref": exact_ref(repo_root, receipt_path),
+            "next_action": "owner-hooks-not-implemented",
+            "idempotent_replay": True,
+            "writes_performed": 0,
+        }
+
+    writes_performed = 0
+    if journal_path.exists():
+        journal = load_object(journal_path, "commit journal")
+        validate_journal(journal, identity, ticket, targets)
+    else:
+        journal = initial_journal(ticket, identity, targets)
+        atomic_write(journal_path, rendered_bytes(journal))
+        writes_performed += 1
+        maybe_interrupt(interrupt_after, "journal-created", writes_performed)
+
+    if journal["state"] == "committed":
+        for item in targets:
+            target = resolve_repo_path(
+                repo_root, item["target_path"], "committed target"
+            )
+            if not state_matches(file_state(target), item["output_state"]):
+                raise RunnerBlock("finalized transaction target state drifted")
+    else:
+        # Scan the complete transaction before advancing its journal.  This makes
+        # an impossible mixed state a write-free block even when a prior crash
+        # left a recoverable applied prefix.
+        for index, item in enumerate(targets):
+            target = resolve_repo_path(
+                repo_root, item["target_path"], "transaction target"
+            )
+            observed = file_state(target)
+            if index < journal["next_index"]:
+                admissible = state_matches(observed, item["output_state"])
+            else:
+                admissible = state_matches(observed, item["output_state"]) or (
+                    item["classification"] == "apply"
+                    and state_matches(observed, item["baseline"])
+                )
+            if not admissible:
+                raise RunnerBlock(
+                    f"transaction target state conflict: {item['target_path']}"
+                )
+        for index, item in enumerate(targets):
+            target = resolve_repo_path(
+                repo_root, item["target_path"], "transaction target"
+            )
+            observed = file_state(target)
+            if index < journal["next_index"]:
+                if not state_matches(observed, item["output_state"]):
+                    raise RunnerBlock("completed transaction target state drifted")
+                continue
+            if state_matches(observed, item["output_state"]):
+                outcome = (
+                    "already-present-exact-output"
+                    if item["classification"] == "already-present-exact-output"
+                    else "applied"
+                )
+            elif (
+                item["classification"] == "apply"
+                and state_matches(observed, item["baseline"])
+            ):
+                _, output_bytes = read_exact_bytes(
+                    repo_root,
+                    item["output_ref"],
+                    f"transaction output for {item['target_path']}",
+                )
+                atomic_write(target, output_bytes)
+                writes_performed += 1
+                maybe_interrupt(
+                    interrupt_after, f"target-{index + 1}", writes_performed
+                )
+                outcome = "applied"
+            else:
+                raise RunnerBlock(
+                    f"transaction target state conflict: {item['target_path']}"
+                )
+            journal["targets"][index]["outcome"] = outcome
+            journal["next_index"] = index + 1
+            atomic_write(journal_path, rendered_bytes(journal))
+            writes_performed += 1
+
+        journal["state"] = "committed"
+        atomic_write(journal_path, rendered_bytes(journal))
+        writes_performed += 1
+        maybe_interrupt(interrupt_after, "journal-finalized", writes_performed)
+
+    receipt = commit_receipt_document(
+        repo_root, run_dir, ticket, identity, journal
+    )
+    atomic_write(receipt_path, rendered_bytes(receipt))
+    writes_performed += 1
+    maybe_interrupt(interrupt_after, "commit-receipt", writes_performed)
+    validate_commit_receipt(
+        repo_root, run_dir, receipt, ticket, identity, targets
+    )
+    return {
+        "schema_version": "task-session.governance-runner-status.v1",
+        "result": "pass",
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "current_phase": "reconciled",
+        "phase_index": 6,
+        "transaction_state": "committed",
+        "commit_receipt_ref": exact_ref(repo_root, receipt_path),
+        "next_action": "owner-hooks-not-implemented",
+        "writes_performed": writes_performed,
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1079,6 +1563,10 @@ def parse_args() -> argparse.Namespace:
     reconcile_parser.add_argument("--repo-root", required=True)
     reconcile_parser.add_argument("--run-dir", required=True)
     reconcile_parser.add_argument("--output-only-admission", required=True)
+    commit_parser = subparsers.add_parser("commit-resume")
+    commit_parser.add_argument("--repo-root", required=True)
+    commit_parser.add_argument("--run-dir", required=True)
+    commit_parser.add_argument("--interrupt-after")
     return parser.parse_args()
 
 
@@ -1108,8 +1596,25 @@ def main() -> int:
             result = reconcile(
                 repo_root, run_dir, output_only_admission_path
             )
+        elif args.command == "commit-resume":
+            result = commit_resume(repo_root, run_dir, args.interrupt_after)
         else:
             result = status_document(repo_root, run_dir)
+    except RunnerInterrupted as error:
+        print(
+            json.dumps(
+                {
+                    "schema_version": "task-session.governance-runner-status.v1",
+                    "result": "interrupted",
+                    "diagnostics": [str(error)],
+                    "interruption_boundary": error.boundary,
+                    "writes_performed": error.writes_performed,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 4
     except (RunnerBlock, OSError, UnicodeError) as error:
         print(
             json.dumps(
