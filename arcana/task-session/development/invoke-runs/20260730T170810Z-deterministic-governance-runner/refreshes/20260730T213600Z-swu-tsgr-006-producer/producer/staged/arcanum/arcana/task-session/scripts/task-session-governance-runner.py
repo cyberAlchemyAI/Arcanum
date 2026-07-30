@@ -1384,11 +1384,11 @@ def validate_commit_receipt(
     validate_journal(journal, identity, ticket, targets)
     if journal["state"] != "committed":
         raise RunnerBlock("commit receipt refers to an incomplete journal")
-    expected_results = commit_receipt_document(
+    expected_receipt = commit_receipt_document(
         repo_root, run_dir, ticket, identity, journal
-    )["target_results"]
-    if receipt["target_results"] != expected_results:
-        raise RunnerBlock("commit receipt target results mismatch")
+    )
+    if receipt != expected_receipt:
+        raise RunnerBlock("commit receipt content mismatch")
     receipt_path = run_dir / "commit-receipt.json"
     receipt_mtime = receipt_path.stat().st_mtime_ns
     if journal_path.stat().st_mtime_ns > receipt_mtime:
@@ -1458,6 +1458,25 @@ def commit_resume(
             if not state_matches(file_state(target), item["output_state"]):
                 raise RunnerBlock("finalized transaction target state drifted")
     else:
+        # Scan the complete transaction before advancing its journal.  This makes
+        # an impossible mixed state a write-free block even when a prior crash
+        # left a recoverable applied prefix.
+        for index, item in enumerate(targets):
+            target = resolve_repo_path(
+                repo_root, item["target_path"], "transaction target"
+            )
+            observed = file_state(target)
+            if index < journal["next_index"]:
+                admissible = state_matches(observed, item["output_state"])
+            else:
+                admissible = state_matches(observed, item["output_state"]) or (
+                    item["classification"] == "apply"
+                    and state_matches(observed, item["baseline"])
+                )
+            if not admissible:
+                raise RunnerBlock(
+                    f"transaction target state conflict: {item['target_path']}"
+                )
         for index, item in enumerate(targets):
             target = resolve_repo_path(
                 repo_root, item["target_path"], "transaction target"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the SWU-TSGR-003 prepare/status runner family."""
+"""Validate the deterministic Task Session governance runner families."""
 
 from __future__ import annotations
 
@@ -466,6 +466,7 @@ def reconcile_scenario(
     name: str,
     *,
     target_count: int = 1,
+    match_target_count: bool = False,
 ) -> Path:
     repo = executor_scenario(
         root,
@@ -482,9 +483,15 @@ def reconcile_scenario(
         f"targets/artifact-{index}.txt"
         for index in range(1, target_count + 1)
     ]
+    declared_outputs = ["staging/artifact-1.txt"]
+    if match_target_count:
+        declared_outputs = [
+            f"staging/artifact-{index}.txt"
+            for index in range(1, target_count + 1)
+        ]
     request["execution_contract"] = {
         "allowed_writes": targets,
-        "declared_outputs": ["staging/artifact-1.txt"],
+        "declared_outputs": declared_outputs,
         "validation_commands": [
             {
                 "command_id": "validate-staged-artifact",
@@ -537,6 +544,28 @@ def reconcile_command(repo: Path) -> list[str]:
     return argv
 
 
+def commit_command(
+    repo: Path, interrupt_after: str | None = None
+) -> list[str]:
+    argv = runner_command(repo, "commit-resume")
+    if interrupt_after is not None:
+        argv.extend(["--interrupt-after", interrupt_after])
+    return argv
+
+
+def advance_to_reconciled(repo: Path) -> tuple[int, dict[str, Any], str]:
+    write_output_only_admission(repo)
+    code, payload, stderr = invoke(
+        runner_command(repo, "prepare", request="scenario/request.json")
+    )
+    if code != 0:
+        return code, payload, stderr
+    code, payload, stderr = invoke(runner_command(repo, "executor-join"))
+    if code != 0:
+        return code, payload, stderr
+    return invoke(reconcile_command(repo))
+
+
 def run_executor_helper(repo: Path, behavior: str = "pass") -> int:
     completed = subprocess.run(
         [
@@ -559,7 +588,9 @@ def run_executor_helper(repo: Path, behavior: str = "pass") -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--family", choices=("prepare", "executor-join", "reconcile"), required=True
+        "--family",
+        choices=("prepare", "executor-join", "reconcile", "commit-resume"),
+        required=True,
     )
     parser.add_argument("--task-session-dir")
     parser.add_argument("--material-inventory-manifest")
@@ -576,10 +607,12 @@ def main() -> int:
     )
     fixtures = load_json(fixtures_path)
     active_families = {"prepare"}
-    if args.family in ("executor-join", "reconcile"):
+    if args.family in ("executor-join", "reconcile", "commit-resume"):
         active_families.add("executor-join")
-    if args.family == "reconcile":
+    if args.family in ("reconcile", "commit-resume"):
         active_families.add("reconcile")
+    if args.family == "commit-resume":
+        active_families.add("commit-resume")
     expected_ids = {
         case["case_id"]
         for case in fixtures["cases"]
@@ -710,7 +743,7 @@ def main() -> int:
             )
         )
 
-        if args.family in ("executor-join", "reconcile"):
+        if args.family in ("executor-join", "reconcile", "commit-resume"):
             launched = executor_scenario(
                 temporary,
                 source_task_session,
@@ -885,7 +918,7 @@ def main() -> int:
                     )
                 )
 
-        if args.family == "reconcile":
+        if args.family in ("reconcile", "commit-resume"):
             apply_repo = reconcile_scenario(
                 temporary,
                 source_task_session,
@@ -1258,6 +1291,393 @@ def main() -> int:
                     and payload.get("writes_performed") == 0
                     and before == after
                     and target_before == target_after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+        if args.family == "commit-resume":
+            apply_commit = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-apply",
+            )
+            advance_to_reconciled(apply_commit)
+            apply_target = apply_commit / "targets/artifact-1.txt"
+            code, payload, stderr = invoke(commit_command(apply_commit))
+            commit_receipt = apply_commit / "runs/run-1/commit-receipt.json"
+            commit_journal = apply_commit / "runs/run-1/commit-journal.json"
+            staged_output = apply_commit / "staging/artifact-1.txt"
+            results.append(
+                (
+                    "commit-applies-classified-output-and-closes-receipt",
+                    code == 0
+                    and payload.get("transaction_state") == "committed"
+                    and file_identity(apply_target) == file_identity(staged_output)
+                    and commit_receipt.is_file()
+                    and load_json(commit_receipt).get("schema_version")
+                    == "task-session.commit-receipt.v1"
+                    and load_json(commit_receipt).get("authority_ceiling")
+                    == "transaction-committed-not-whole-run-terminal"
+                    and commit_receipt.stat().st_mtime_ns
+                    >= max(
+                        commit_journal.stat().st_mtime_ns,
+                        apply_target.stat().st_mtime_ns,
+                    )
+                    and not stderr,
+                    f"code={code} state={payload.get('transaction_state')}",
+                )
+            )
+
+            before_replay = tree_manifest(apply_commit / "runs/run-1")
+            target_before_replay = file_identity(apply_target)
+            code, payload, stderr = invoke(commit_command(apply_commit))
+            after_replay = tree_manifest(apply_commit / "runs/run-1")
+            results.append(
+                (
+                    "commit-identical-idempotency-replay-is-byte-stable",
+                    code == 0
+                    and payload.get("idempotent_replay") is True
+                    and payload.get("writes_performed") == 0
+                    and before_replay == after_replay
+                    and target_before_replay == file_identity(apply_target)
+                    and not stderr,
+                    f"code={code} stable={before_replay == after_replay}",
+                )
+            )
+
+            exact_commit = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-exact-present",
+            )
+            write_output_only_admission(exact_commit)
+            invoke(
+                runner_command(
+                    exact_commit, "prepare", request="scenario/request.json"
+                )
+            )
+            invoke(runner_command(exact_commit, "executor-join"))
+            exact_target = exact_commit / "targets/artifact-1.txt"
+            exact_target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(
+                exact_commit / "staging/artifact-1.txt",
+                exact_target,
+            )
+            invoke(reconcile_command(exact_commit))
+            exact_before = file_identity(exact_target)
+            exact_mtime = exact_target.stat().st_mtime_ns
+            code, payload, stderr = invoke(commit_command(exact_commit))
+            exact_receipt = load_json(
+                exact_commit / "runs/run-1/commit-receipt.json"
+            )
+            results.append(
+                (
+                    "commit-records-exact-present-no-op",
+                    code == 0
+                    and exact_before == file_identity(exact_target)
+                    and exact_mtime == exact_target.stat().st_mtime_ns
+                    and exact_receipt["target_results"][0]["outcome"]
+                    == "already-present-exact-output"
+                    and not stderr,
+                    f"code={code} target_unchanged={exact_mtime == exact_target.stat().st_mtime_ns}",
+                )
+            )
+
+            multi_commit = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-multi-target",
+                target_count=2,
+                match_target_count=True,
+            )
+            advance_to_reconciled(multi_commit)
+            code, payload, stderr = invoke(commit_command(multi_commit))
+            multi_exact = all(
+                file_identity(multi_commit / f"targets/artifact-{index}.txt")
+                == file_identity(multi_commit / f"staging/artifact-{index}.txt")
+                for index in (1, 2)
+            )
+            results.append(
+                (
+                    "commit-multi-target-transaction-is-all-or-unaccepted",
+                    code == 0
+                    and multi_exact
+                    and (
+                        multi_commit / "runs/run-1/commit-receipt.json"
+                    ).is_file()
+                    and not stderr,
+                    f"code={code} all_exact={multi_exact}",
+                )
+            )
+
+            interrupted_journal = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-interrupt-journal",
+            )
+            advance_to_reconciled(interrupted_journal)
+            code1, payload1, stderr1 = invoke(
+                commit_command(interrupted_journal, "journal-created")
+            )
+            code2, payload2, stderr2 = invoke(
+                commit_command(interrupted_journal)
+            )
+            results.append(
+                (
+                    "commit-resumes-after-journal-creation",
+                    code1 == 4
+                    and payload1.get("interruption_boundary") == "journal-created"
+                    and code2 == 0
+                    and payload2.get("transaction_state") == "committed"
+                    and not stderr1
+                    and not stderr2,
+                    f"interrupt={code1} resume={code2}",
+                )
+            )
+
+            interrupted_target = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-interrupt-target",
+                target_count=2,
+                match_target_count=True,
+            )
+            advance_to_reconciled(interrupted_target)
+            code1, payload1, stderr1 = invoke(
+                commit_command(interrupted_target, "target-1")
+            )
+            prefix_unaccepted = (
+                file_identity(interrupted_target / "targets/artifact-1.txt")
+                == file_identity(interrupted_target / "staging/artifact-1.txt")
+                and file_identity(interrupted_target / "targets/artifact-2.txt")
+                == ("absent", None, None)
+                and not (
+                    interrupted_target / "runs/run-1/commit-receipt.json"
+                ).exists()
+            )
+            code2, payload2, stderr2 = invoke(
+                commit_command(interrupted_target)
+            )
+            results.append(
+                (
+                    "commit-recovers-applied-prefix-without-duplicate-effect",
+                    code1 == 4
+                    and prefix_unaccepted
+                    and code2 == 0
+                    and payload2.get("transaction_state") == "committed"
+                    and not stderr1
+                    and not stderr2,
+                    f"interrupt={code1} prefix_unaccepted={prefix_unaccepted} resume={code2}",
+                )
+            )
+
+            interrupted_finalized = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-interrupt-finalized",
+            )
+            advance_to_reconciled(interrupted_finalized)
+            code1, payload1, stderr1 = invoke(
+                commit_command(interrupted_finalized, "journal-finalized")
+            )
+            no_receipt = not (
+                interrupted_finalized / "runs/run-1/commit-receipt.json"
+            ).exists()
+            code2, payload2, stderr2 = invoke(
+                commit_command(interrupted_finalized)
+            )
+            results.append(
+                (
+                    "commit-resumes-finalized-journal-before-receipt",
+                    code1 == 4
+                    and no_receipt
+                    and code2 == 0
+                    and payload2.get("transaction_state") == "committed"
+                    and not stderr1
+                    and not stderr2,
+                    f"interrupt={code1} no_receipt={no_receipt} resume={code2}",
+                )
+            )
+
+            interrupted_receipt = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-interrupt-receipt",
+            )
+            advance_to_reconciled(interrupted_receipt)
+            code1, payload1, stderr1 = invoke(
+                commit_command(interrupted_receipt, "commit-receipt")
+            )
+            before = tree_manifest(interrupted_receipt / "runs/run-1")
+            code2, payload2, stderr2 = invoke(
+                commit_command(interrupted_receipt)
+            )
+            after = tree_manifest(interrupted_receipt / "runs/run-1")
+            results.append(
+                (
+                    "commit-replays-terminal-receipt-without-new-write",
+                    code1 == 4
+                    and (
+                        interrupted_receipt / "runs/run-1/commit-receipt.json"
+                    ).is_file()
+                    and code2 == 0
+                    and payload2.get("idempotent_replay") is True
+                    and before == after
+                    and not stderr1
+                    and not stderr2,
+                    f"interrupt={code1} replay={code2} stable={before == after}",
+                )
+            )
+
+            journal_drift = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-journal-drift",
+            )
+            advance_to_reconciled(journal_drift)
+            invoke(commit_command(journal_drift, "journal-created"))
+            journal_path = journal_drift / "runs/run-1/commit-journal.json"
+            journal = load_json(journal_path)
+            journal["transaction_id"] = "transaction:" + ("0" * 64)
+            write_json(journal_path, journal)
+            before = tree_manifest(journal_drift / "runs/run-1")
+            code, payload, stderr = invoke(commit_command(journal_drift))
+            after = tree_manifest(journal_drift / "runs/run-1")
+            results.append(
+                (
+                    "commit-journal-drift-blocks-without-target-write",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and file_identity(journal_drift / "targets/artifact-1.txt")
+                    == ("absent", None, None)
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            evidence_drift = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-evidence-drift",
+            )
+            advance_to_reconciled(evidence_drift)
+            evidence_path = evidence_drift / "runs/run-1/reconciliation.json"
+            evidence = load_json(evidence_path)
+            evidence["mapping_policy"] = "tampered"
+            write_json(evidence_path, evidence)
+            before = tree_manifest(evidence_drift / "runs/run-1")
+            code, payload, stderr = invoke(commit_command(evidence_drift))
+            after = tree_manifest(evidence_drift / "runs/run-1")
+            results.append(
+                (
+                    "commit-reconciliation-evidence-drift-blocks-before-journal",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and not (
+                        evidence_drift / "runs/run-1/commit-journal.json"
+                    ).exists()
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            partial_conflict = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-partial-conflict",
+                target_count=2,
+                match_target_count=True,
+            )
+            advance_to_reconciled(partial_conflict)
+            invoke(commit_command(partial_conflict, "target-1"))
+            conflict_target = partial_conflict / "targets/artifact-2.txt"
+            conflict_target.write_text("conflicting-external-state\n", encoding="utf-8")
+            before = tree_manifest(partial_conflict / "runs/run-1")
+            target_before = [
+                file_identity(partial_conflict / f"targets/artifact-{index}.txt")
+                for index in (1, 2)
+            ]
+            code, payload, stderr = invoke(commit_command(partial_conflict))
+            after = tree_manifest(partial_conflict / "runs/run-1")
+            target_after = [
+                file_identity(partial_conflict / f"targets/artifact-{index}.txt")
+                for index in (1, 2)
+            ]
+            results.append(
+                (
+                    "commit-impossible-partial-state-is-rejected-not-accepted",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and target_before == target_after
+                    and not (
+                        partial_conflict / "runs/run-1/commit-receipt.json"
+                    ).exists()
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            order_drift = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-final-order-drift",
+            )
+            advance_to_reconciled(order_drift)
+            invoke(commit_command(order_drift))
+            journal_path = order_drift / "runs/run-1/commit-journal.json"
+            receipt_path = order_drift / "runs/run-1/commit-receipt.json"
+            future = receipt_path.stat().st_mtime_ns + 1_000_000_000
+            os.utime(journal_path, ns=(future, future))
+            before = tree_manifest(order_drift / "runs/run-1")
+            code, payload, stderr = invoke(commit_command(order_drift))
+            after = tree_manifest(order_drift / "runs/run-1")
+            results.append(
+                (
+                    "commit-receipt-final-write-order-drift-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
+                    and not stderr,
+                    f"code={code} stable={before == after}",
+                )
+            )
+
+            contradictory = reconcile_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                "commit-contradictory-replay",
+            )
+            advance_to_reconciled(contradictory)
+            invoke(commit_command(contradictory))
+            receipt_path = contradictory / "runs/run-1/commit-receipt.json"
+            receipt = load_json(receipt_path)
+            receipt["idempotency_key"] = "contradictory.replay.key"
+            write_json(receipt_path, receipt)
+            before = tree_manifest(contradictory / "runs/run-1")
+            code, payload, stderr = invoke(commit_command(contradictory))
+            after = tree_manifest(contradictory / "runs/run-1")
+            results.append(
+                (
+                    "commit-contradictory-idempotency-replay-blocks",
+                    code == 2
+                    and payload.get("result") == "block"
+                    and before == after
                     and not stderr,
                     f"code={code} stable={before == after}",
                 )
