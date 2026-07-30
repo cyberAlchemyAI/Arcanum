@@ -90,5 +90,13 @@ Validation:
 python3 arcana/task-session/development/validate-governance-runner.py --family commit-resume
 ```
 
+Execution status: completed by
+`work-pack/results/SWU-TSGR-006-RESULT.json` with result `pass`. The live
+commit-resume family reported `positive=18/18`, `negative=25/25`, and zero
+undeclared outputs. Four declared interruption boundaries resumed
+deterministically; exact-present output was a recorded no-op; interrupted partial
+multi-target state had no acceptable transaction receipt; receipt-order,
+evidence, journal, and contradictory-idempotency drift blocked.
+
 All SWUs are sequential because they share the runner paths. Common closeout control
 applies. Unique successors: TSGR-004, TSGR-005, TSGR-006, and TSGR-007.

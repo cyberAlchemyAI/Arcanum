@@ -15,4 +15,7 @@ Progress:
   failure-class separation evidence;
 - TSGR-005: completed with passing read-only target classification, validation,
   output-only re-admission, and evidence-drift evidence;
-- TSGR-006: selected as the unique dependency-ready successor.
+- TSGR-006: completed with passing journaled commit/resume, exact-present no-op,
+  terminal transaction receipt ordering, interruption recovery, partial-state
+  rejection, and contradictory-replay evidence;
+- W1 exit: satisfied; the unique dependency-ready successor is TSGR-007 in L2.

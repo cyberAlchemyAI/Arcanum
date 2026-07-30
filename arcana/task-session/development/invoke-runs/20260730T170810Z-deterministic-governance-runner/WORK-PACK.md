@@ -4,16 +4,16 @@
 
 | Field | Value |
 | --- | --- |
-| workPackGateStatus | pass through completed `SWU-TSGR-005` receipt |
-| implementationGateStatus | `SWU-TSGR-006` dependency-ready; fresh Task Session gates still required |
+| workPackGateStatus | pass through completed `SWU-TSGR-006` receipt |
+| implementationGateStatus | `SWU-TSGR-007` dependency-ready; fresh Task Session gates still required |
 | complexity | high |
 | outputMode | split |
 | executionPackRef | [EXECUTION-PACK.md](EXECUTION-PACK.md) |
 | layeringArtifactRef | [IMPLEMENTATION-LAYERING.md](IMPLEMENTATION-LAYERING.md) |
 | executionControlRef | [work-pack/shared/EXECUTION-CONTROL.md](work-pack/shared/EXECUTION-CONTROL.md) |
-| activeLayerWindow | L1 |
+| activeLayerWindow | L2 |
 | readinessProfile | proposal-to-opt-in-pilot |
-| selectedSWU | `SWU-TSGR-006` |
+| selectedSWU | `SWU-TSGR-007` |
 
 ## Objective
 
@@ -28,8 +28,8 @@ authority.
 | --- | --- | --- | --- | --- |
 | [TASK-TSGR-00](work-pack/tasks/TASK-TSGR-00-LIFECYCLE.md) | L0 | Sigil Development lifecycle decision | accepted receipt | complete |
 | [TASK-TSGR-01](work-pack/tasks/TASK-TSGR-01-CONTRACTS.md) | L0 | evaluator and runner contracts | TSGR-000 accepted | complete |
-| [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | L1 | controller, reconcile, application, resume | L0 complete | in progress |
-| [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | L2 | owner hooks and continuation | L1 complete | blocked |
+| [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | L1 | controller, reconcile, application, resume | L0 complete | complete |
+| [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | L2 | owner hooks and continuation | L1 complete | in progress |
 | [TASK-TSGR-04](work-pack/tasks/TASK-TSGR-04-OPERATIONS.md) | L3 | observation, experiment, and pilot verdict | L2 complete | blocked |
 
 ## SWU manifest
@@ -42,8 +42,8 @@ authority.
 | `SWU-TSGR-003` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | implement deterministic `prepare` and read-only `status` | TSGR-002 | new runner script and runner fixtures/validator | repeatability, stale/tied scope, phase-order cases | task-session | completed |
 | `SWU-TSGR-004` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | launch or join one structured executor and emit `execution-received` | TSGR-003 | runner script and runner fixtures/validator | argv/path/timeout/receipt-order cases | task-session | completed |
 | `SWU-TSGR-005` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | reconcile writes, outputs, validation, and target classification without applying | TSGR-004 | runner script and runner fixtures/validator | target/write/output/validation matrix | task-session | completed |
-| `SWU-TSGR-006` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | atomically commit admitted staged outputs and enforce terminal-final-write/resume | TSGR-005 | runner script and runner fixtures/validator | apply/idempotent-adoption and interruption matrix | task-session | selected |
-| `SWU-TSGR-007` | [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | add the generic owner side-job protocol and versioned adapter manifest | TSGR-006 | hook manifest, two hook schemas, adapter, fixtures/validator | manifest digest, timeout, malformed receipt, bounded output, owner mismatch | task-session | blocked |
+| `SWU-TSGR-006` | [TASK-TSGR-02](work-pack/tasks/TASK-TSGR-02-RUNNER.md) | atomically commit admitted staged outputs and enforce terminal-final-write/resume | TSGR-005 | runner script and runner fixtures/validator | apply/idempotent-adoption and interruption matrix | task-session | completed |
+| `SWU-TSGR-007` | [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | add the generic owner side-job protocol and versioned adapter manifest | TSGR-006 | hook manifest, two hook schemas, adapter, fixtures/validator | manifest digest, timeout, malformed receipt, bounded output, owner mismatch | task-session | selected |
 | `SWU-TSGR-008` | [TASK-TSGR-03](work-pack/tasks/TASK-TSGR-03-HOOKS.md) | invoke Continuation Router and validate its joined Invoke receipt before emitting a cursor | TSGR-007 plus external owner-readiness receipt | cursor schema, runner/hook integration, route fixtures | pass/no-op/block/unjoined and unique/ambiguous successor | task-session | blocked |
 | `SWU-TSGR-009` | [TASK-TSGR-04](work-pack/tasks/TASK-TSGR-04-OPERATIONS.md) | integrate append-only Signal Observer invocation and dedupe | TSGR-008 | runner observation adapter and observation fixtures | observer append/dedupe and private-payload boundary | task-session | blocked |
 | `SWU-TSGR-010` | [TASK-TSGR-04](work-pack/tasks/TASK-TSGR-04-OPERATIONS.md) | run the paired Experiment Harness and emit an opt-in pilot verdict | TSGR-009 | new experiment package only | paired-run report, acceptance equivalence, public scan, bounded verdict | experiment-harness | blocked |
@@ -83,7 +83,14 @@ Exact path inventories and closeout contracts are in each task contract and
   zero undeclared outputs. Apply and exact-present targets classified without live
   writes; conflict, inventory, critical-validation, output-only re-admission,
   cardinality, and evidence-drift cases blocked.
-- Returned successor: `SWU-TSGR-006`; this selection does not authorize or execute
+- `SWU-TSGR-006`: terminal Task Session receipt
+  [SWU-TSGR-006-RESULT.json](work-pack/results/SWU-TSGR-006-RESULT.json), result
+  `pass`, with commit-resume validation `positive=18/18`, `negative=25/25`,
+  and zero undeclared outputs. Four interruption boundaries resumed
+  deterministically; exact-present output remained a recorded no-op; partial
+  multi-target state had no acceptable transaction receipt; drift and
+  contradictory replay blocked without further writes.
+- Returned successor: `SWU-TSGR-007`; this selection does not authorize or execute
   implementation.
 
 ## Atomicity review
