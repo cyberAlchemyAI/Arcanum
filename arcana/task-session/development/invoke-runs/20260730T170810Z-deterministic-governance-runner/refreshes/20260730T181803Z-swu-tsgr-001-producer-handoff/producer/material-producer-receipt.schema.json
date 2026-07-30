@@ -1,0 +1,519 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/sigil-development/material-producer-receipt/1-0-0",
+  "title": "SigilDevelopmentMaterialProducerReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "recorded_at",
+    "run_id",
+    "dispatch_id",
+    "step_id",
+    "capability_ref",
+    "producer",
+    "source_swu",
+    "selection_receipt",
+    "handoff_ref",
+    "work_pack_ref",
+    "task_contract_ref",
+    "lifecycle_receipt_ref",
+    "observer_review_ref",
+    "root_convention",
+    "canonical_preconditions",
+    "source_artifacts",
+    "staged_outputs",
+    "files_touched",
+    "runtime",
+    "adapter",
+    "result",
+    "validation",
+    "validation_result",
+    "experiment_harness",
+    "remaining_blockers",
+    "lifecycle_owner_next_step",
+    "residue",
+    "mutation_ready",
+    "authority_ceiling"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "sigil-development.material-producer-receipt.v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dispatch_id": {
+      "const": "invoke-refresh-swu-tsgr-001-producer-handoff-v1"
+    },
+    "step_id": {
+      "const": "S2"
+    },
+    "capability_ref": {
+      "const": "sigil-development"
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "mode",
+        "lifecycle_owner",
+        "target_sigil",
+        "selection_owner",
+        "execution_owner"
+      ],
+      "properties": {
+        "capability": {
+          "const": "sigil-development"
+        },
+        "mode": {
+          "const": "update"
+        },
+        "lifecycle_owner": {
+          "const": "sigil-development"
+        },
+        "target_sigil": {
+          "const": "task-session"
+        },
+        "selection_owner": {
+          "const": "task-session"
+        },
+        "execution_owner": {
+          "const": "sigil-development-material-producer"
+        }
+      }
+    },
+    "source_swu": {
+      "const": "SWU-TSGR-001"
+    },
+    "selection_receipt": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "handoff_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "work_pack_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "task_contract_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "lifecycle_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "observer_review_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "root_convention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_repository_root",
+        "arcanum_repository_root",
+        "staged_root",
+        "canonical_target_basis",
+        "staged_path_basis"
+      ],
+      "properties": {
+        "parent_repository_root": {
+          "const": "."
+        },
+        "arcanum_repository_root": {
+          "const": "arcanum"
+        },
+        "staged_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_target_basis": {
+          "const": "parent-repository-relative"
+        },
+        "staged_path_basis": {
+          "const": "parent-repository-relative"
+        }
+      }
+    },
+    "canonical_preconditions": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/canonicalPrecondition"
+      }
+    },
+    "source_artifacts": {
+      "type": "array",
+      "minItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/sourceArtifact"
+      }
+    },
+    "staged_outputs": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/stagedOutput"
+      }
+    },
+    "files_touched": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "runtime": {
+      "const": "local"
+    },
+    "adapter": {
+      "const": "native-skill"
+    },
+    "result": {
+      "const": "pass"
+    },
+    "validation": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/validationRecord"
+      }
+    },
+    "validation_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "golden_parity",
+        "negative_cases",
+        "schema_discrimination",
+        "undeclared_outputs",
+        "staged_manifest"
+      ],
+      "properties": {
+        "status": {
+          "const": "pass"
+        },
+        "golden_parity": {
+          "$ref": "#/$defs/countResult"
+        },
+        "negative_cases": {
+          "$ref": "#/$defs/countResult"
+        },
+        "schema_discrimination": {
+          "$ref": "#/$defs/countResult"
+        },
+        "undeclared_outputs": {
+          "const": 0
+        },
+        "staged_manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count",
+            "sha256"
+          ],
+          "properties": {
+            "count": {
+              "const": 5
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "experiment_harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "report",
+        "owner",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "const": "not_run"
+        },
+        "report": {
+          "type": "null"
+        },
+        "owner": {
+          "const": "experiment-harness"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "remaining_blockers": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "lifecycle_owner_next_step": {
+      "const": "task-session-review"
+    },
+    "residue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/residue"
+      }
+    },
+    "mutation_ready": {
+      "const": false
+    },
+    "authority_ceiling": {
+      "const": "staged-material-only"
+    }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "sourceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes",
+        "role"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "role": {
+          "enum": [
+            "policy",
+            "golden-fixtures",
+            "development-evaluator",
+            "work-pack",
+            "task-contract",
+            "lifecycle-receipt",
+            "selection-receipt",
+            "producer-handoff",
+            "observer-review"
+          ]
+        }
+      }
+    },
+    "canonicalPrecondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_target",
+        "arcanum_target",
+        "state"
+      ],
+      "properties": {
+        "canonical_target": {
+          "type": "string",
+          "pattern": "^arcanum/"
+        },
+        "arcanum_target": {
+          "type": "string",
+          "pattern": "^arcana/"
+        },
+        "state": {
+          "const": "absent"
+        }
+      }
+    },
+    "stagedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_target",
+        "arcanum_target",
+        "staged_ref",
+        "operation",
+        "lifecycle_owner",
+        "target_sigil",
+        "selection_owner",
+        "authority_class",
+        "publication_class"
+      ],
+      "properties": {
+        "canonical_target": {
+          "type": "string",
+          "pattern": "^arcanum/"
+        },
+        "arcanum_target": {
+          "type": "string",
+          "pattern": "^arcana/"
+        },
+        "staged_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "operation": {
+          "const": "create"
+        },
+        "lifecycle_owner": {
+          "const": "sigil-development"
+        },
+        "target_sigil": {
+          "const": "task-session"
+        },
+        "selection_owner": {
+          "const": "task-session"
+        },
+        "authority_class": {
+          "const": "public"
+        },
+        "publication_class": {
+          "const": "public"
+        }
+      }
+    },
+    "countResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "total"
+      ],
+      "properties": {
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "validationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "command_argv",
+        "cwd",
+        "exit_status",
+        "status",
+        "validator_ref",
+        "summary"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command_argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "cwd": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exit_status": {
+          "const": 0
+        },
+        "status": {
+          "const": "pass"
+        },
+        "validator_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "residue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "classification",
+        "summary",
+        "owner",
+        "blocks_staging"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification": {
+          "enum": [
+            "known-duplication",
+            "pending-owner-review",
+            "pending-admission"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocks_staging": {
+          "const": false
+        }
+      }
+    }
+  }
+}

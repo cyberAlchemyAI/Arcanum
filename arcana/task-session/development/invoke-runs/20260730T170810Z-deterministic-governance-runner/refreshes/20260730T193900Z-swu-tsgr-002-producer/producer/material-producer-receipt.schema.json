@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/material-producer-receipt/1-0-0",
+  "title": "TaskSessionMaterialProducerReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "swu_id",
+    "lifecycle_owner",
+    "selection_owner",
+    "result",
+    "authority_ceiling",
+    "staged_root",
+    "manifest_ref",
+    "staged_manifest_sha256",
+    "staged_outputs",
+    "canonical_target_preconditions",
+    "validations",
+    "portability_checks",
+    "undeclared_staged_outputs",
+    "experiment_harness",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.material-producer-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "const": "SWU-TSGR-002"
+    },
+    "lifecycle_owner": {
+      "const": "sigil-development"
+    },
+    "selection_owner": {
+      "const": "task-session"
+    },
+    "result": {
+      "const": "pass"
+    },
+    "authority_ceiling": {
+      "const": "staged-material-only"
+    },
+    "staged_root": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "manifest_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "staged_manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "staged_outputs": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "$ref": "#/$defs/stagedOutput"
+      }
+    },
+    "canonical_target_preconditions": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "$ref": "#/$defs/targetPrecondition"
+      }
+    },
+    "validations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/validation"
+      }
+    },
+    "portability_checks": {
+      "$ref": "#/$defs/portabilityChecks"
+    },
+    "undeclared_staged_outputs": {
+      "const": 0
+    },
+    "experiment_harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "const": "not_run"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "residue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "stagedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "output_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "output_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "targetPrecondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "state",
+        "live_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "state": {
+          "enum": [
+            "absent",
+            "already-present-exact-output",
+            "present-prior-output"
+          ]
+        },
+        "live_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/exactArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "absent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "live_ref": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "already-present-exact-output",
+                  "present-prior-output"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "live_ref": {
+                "$ref": "#/$defs/exactArtifactRef"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argv",
+        "cwd",
+        "exit_code",
+        "result",
+        "case_counts"
+      ],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "result": {
+          "const": "pass"
+        },
+        "case_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "positive",
+            "negative",
+            "semantic_negative",
+            "schema_contracts"
+          ],
+          "properties": {
+            "positive": {
+              "const": "5/5"
+            },
+            "negative": {
+              "const": "14/14"
+            },
+            "semantic_negative": {
+              "const": "5/5"
+            },
+            "schema_contracts": {
+              "const": "5/5"
+            }
+          }
+        }
+      }
+    },
+    "portabilityChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "harness_argv",
+        "cwd",
+        "canonical_layout",
+        "extra_material_inventory"
+      ],
+      "properties": {
+        "harness_argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "canonical_layout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "validator_argv",
+            "unrelated_file_count",
+            "exit_code",
+            "undeclared_outputs",
+            "result"
+          ],
+          "properties": {
+            "validator_argv": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            },
+            "unrelated_file_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "exit_code": {
+              "const": 0
+            },
+            "undeclared_outputs": {
+              "const": 0
+            },
+            "result": {
+              "const": "pass"
+            }
+          }
+        },
+        "extra_material_inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "validator_argv",
+            "extra_target_path",
+            "exit_code",
+            "undeclared_outputs",
+            "diagnostic",
+            "result"
+          ],
+          "properties": {
+            "validator_argv": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            },
+            "extra_target_path": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "exit_code": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "undeclared_outputs": {
+              "const": 1
+            },
+            "diagnostic": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "result": {
+              "const": "pass"
+            }
+          }
+        }
+      }
+    }
+  }
+}

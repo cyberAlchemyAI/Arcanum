@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/swu-tsgr-004-material-producer-receipt/1-0-0",
+  "title": "SwuTsgr004MaterialProducerReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "runtime",
+    "adapter",
+    "source_swu",
+    "swu_id",
+    "lifecycle_owner",
+    "selection_owner",
+    "result",
+    "authority_ceiling",
+    "files_touched",
+    "staged_root",
+    "manifest_ref",
+    "staged_manifest_sha256",
+    "staged_outputs",
+    "canonical_target_preconditions",
+    "validations",
+    "portability_checks",
+    "undeclared_staged_outputs",
+    "experiment_harness",
+    "remaining_blockers",
+    "lifecycle_owner_next_step",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.material-producer-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "runtime": {
+      "const": "codex"
+    },
+    "adapter": {
+      "const": "native-background-helper-with-inline-recovery"
+    },
+    "source_swu": {
+      "const": "SWU-TSGR-004"
+    },
+    "swu_id": {
+      "const": "SWU-TSGR-004"
+    },
+    "lifecycle_owner": {
+      "const": "sigil-development"
+    },
+    "selection_owner": {
+      "const": "task-session"
+    },
+    "result": {
+      "const": "pass"
+    },
+    "authority_ceiling": {
+      "const": "staged-material-only"
+    },
+    "files_touched": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "staged_root": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "manifest_ref": {
+      "$ref": "#/$defs/exactRef"
+    },
+    "staged_manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "staged_outputs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/stagedOutput"
+      }
+    },
+    "canonical_target_preconditions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/precondition"
+      }
+    },
+    "validations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/validation"
+      }
+    },
+    "portability_checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_sibling_treatment",
+        "extra_manifest_treatment",
+        "public_boundary",
+        "shell_surface"
+      ],
+      "properties": {
+        "canonical_sibling_treatment": {
+          "const": "pass"
+        },
+        "extra_manifest_treatment": {
+          "const": "reject"
+        },
+        "public_boundary": {
+          "const": "pass"
+        },
+        "shell_surface": {
+          "const": "absent"
+        }
+      }
+    },
+    "undeclared_staged_outputs": {
+      "const": 0
+    },
+    "experiment_harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "report",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "const": "not_run"
+        },
+        "report": {
+          "type": "null"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "remaining_blockers": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "lifecycle_owner_next_step": {
+      "const": "validate"
+    },
+    "residue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "stagedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "output_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "output_ref": {
+          "$ref": "#/$defs/exactRef"
+        }
+      }
+    },
+    "precondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "state",
+        "live_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "state": {
+          "const": "present"
+        },
+        "live_ref": {
+          "$ref": "#/$defs/exactRef"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argv",
+        "cwd",
+        "exit_code",
+        "result",
+        "case_counts"
+      ],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "exit_code": {
+          "const": 0
+        },
+        "result": {
+          "const": "pass"
+        },
+        "case_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "positive",
+            "negative",
+            "undeclared_outputs"
+          ],
+          "properties": {
+            "positive": {
+              "const": "6/6"
+            },
+            "negative": {
+              "const": "13/13"
+            },
+            "undeclared_outputs": {
+              "const": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

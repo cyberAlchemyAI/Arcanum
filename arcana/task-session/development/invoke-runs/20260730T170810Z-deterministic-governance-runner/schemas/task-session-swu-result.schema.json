@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/planning/task-session-swu-result/1-0-0",
+  "title": "TaskSessionSwuResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "swu_id",
+    "result",
+    "files_touched",
+    "validation",
+    "acceptance_evidence",
+    "blockers",
+    "residue",
+    "handoff_note",
+    "final_write",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.swu-result.v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "swu_id": {
+      "type": "string",
+      "pattern": "^SWU-TSGR-[0-9]{3}$"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "flag",
+        "block",
+        "interrupted"
+      ]
+    },
+    "files_touched": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "validation": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validation"
+      }
+    },
+    "acceptance_evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/exactRef"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "residue": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "handoff_note": {
+      "type": "string"
+    },
+    "final_write": {
+      "const": true
+    },
+    "receipt_digest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/digest"
+        }
+      ],
+      "description": "Lowercase SHA-256 of the UTF-8 JSON serialization after removing the top-level receipt_digest member, sorting every object key lexicographically, preserving array order, emitting no insignificant whitespace, escaping only characters required by JSON, and emitting no trailing newline."
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "result"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "flag",
+            "block",
+            "not-run"
+          ]
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

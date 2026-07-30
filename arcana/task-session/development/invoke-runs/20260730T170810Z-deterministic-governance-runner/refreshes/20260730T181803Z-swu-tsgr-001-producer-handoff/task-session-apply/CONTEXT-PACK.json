@@ -1,0 +1,92 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260730T192255Z-swu-tsgr-001-task-session-apply",
+  "task_id": "TASK-TSGR-01",
+  "swu_id": "SWU-TSGR-001",
+  "mode": "standard",
+  "strict_coverage": true,
+  "authority_ceiling": "mutation-admission-input",
+  "approval": {
+    "decision_id": "TSGR-APPLY-001",
+    "result": "pass",
+    "selected_option": "approve-exact-five-path-apply",
+    "source_path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-DECISION.json"
+  },
+  "obligations": [
+    {
+      "id": "O1",
+      "summary": "Resolve exactly SWU-TSGR-001 and preserve its five material targets.",
+      "status": "covered"
+    },
+    {
+      "id": "O2",
+      "summary": "Bind the accepted lifecycle receipt and the current material-producer receipt.",
+      "status": "covered"
+    },
+    {
+      "id": "O3",
+      "summary": "Require an exact Invoke material receipt and fresh Task Session admission before canonical writes.",
+      "status": "covered"
+    },
+    {
+      "id": "O4",
+      "summary": "Preserve closeout inventory, immutable terminal result, owner join, and the unique SWU-TSGR-002 successor boundary.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Execute exactly one SWU in this Task Session.",
+    "Create only the five admitted canonical material paths before validation.",
+    "Preserve every unrelated dirty file.",
+    "Do not update generated mirrors, publish, promote, commit, push, deploy, or execute SWU-TSGR-002.",
+    "Treat deterministic regenerability as reversibility evidence, not mutation authority.",
+    "Persist the terminal Task Session result only after live validation and allowed-write reconciliation."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/scripts/evaluate-governance.py",
+      "arcanum/arcana/task-session/schemas/governance-evaluation-request.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-evaluation-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-evaluation-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-evaluator.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-001-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/scripts/evaluate-governance.py",
+      "arcanum/arcana/task-session/schemas/governance-evaluation-request.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-evaluation-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-evaluation-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-evaluator.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-001-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-governance-evaluator.py",
+      "python3 arcana/task-session/development/validate-decision-validation-policy.py"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "Evaluator is pure except for its named receipt output.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Every current decision-policy fixture has golden parity.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Malformed request, stale policy digest, unknown kind, and invalid outcome block.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Development evaluator duplication is identified for later removal or delegation.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}

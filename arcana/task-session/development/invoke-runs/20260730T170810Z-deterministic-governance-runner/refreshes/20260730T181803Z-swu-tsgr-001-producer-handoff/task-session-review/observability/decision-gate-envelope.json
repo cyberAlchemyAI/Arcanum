@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-07-30T18:48:02Z",
+  "run_id": "decision-gate-20260730T184000Z-tsgr-apply-001",
+  "session_id": "20260730T170810Z-deterministic-governance-runner",
+  "sigil": "decision-gate",
+  "tier": "arcana",
+  "mode": "execute",
+  "lineage": {
+    "parent_run_id": "task-session-20260730T184000Z-swu-tsgr-001-review",
+    "relation": "invoked-by",
+    "caller": {
+      "id": "task-session",
+      "kind": "sigil",
+      "tier": "arcana",
+      "mode": "execute"
+    }
+  },
+  "evidence": {
+    "status": "complete",
+    "refs": [
+      {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-DECISION.md",
+        "sha256": "913c80c7d515f4d979044189eccf5c2f8470a3704f489f409314c7b5f0db7ce5",
+        "size_bytes": 1881
+      },
+      {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-ADMISSIBILITY.json",
+        "sha256": "3e87d4758b31eea3d0bbf1f70f1af4c4ff58697dc5296aac41516741d3caf392",
+        "size_bytes": 484
+      }
+    ]
+  },
+  "request": {
+    "raw": null,
+    "summary": "Resolve whether to apply exactly five validated SWU-TSGR-001 files.",
+    "intent": "Prevent a consequential public Arcanum mutation from being inferred from broad execution intent."
+  },
+  "execution": {
+    "status": "blocked",
+    "outputs": [
+      "two-option decision record",
+      "schema-valid option-admissibility receipt"
+    ],
+    "files_changed": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-DECISION.md",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-ADMISSIBILITY.json"
+    ],
+    "validation": [
+      "Option prefilter returns gate with two admissible options.",
+      "Decision Gate fixtures pass 10/10.",
+      "Canonical, Codex, and Claude Decision Gate runtime parity passes."
+    ],
+    "notes": "No option selected; no override requested; consequential mutation remains blocked."
+  },
+  "observer": {
+    "quality_bar_status": "pass",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [
+      {
+        "category": "process",
+        "severity": "medium",
+        "summary": "The exact apply decision is waiting for the user.",
+        "evidence": "The admissibility receipt routes to gate with two options and the decision record has no selected option."
+      }
+    ],
+    "output_contract_drift": false,
+    "reflection_trigger": "none",
+    "recommendation": "none"
+  },
+  "target_artifact": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-DECISION.md"
+}

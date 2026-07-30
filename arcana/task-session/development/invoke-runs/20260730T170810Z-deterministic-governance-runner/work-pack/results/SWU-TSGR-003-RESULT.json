@@ -1,0 +1,48 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T202200Z-swu-tsgr-003-task-session",
+  "swu_id": "SWU-TSGR-003",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+    "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+    "arcanum/arcana/task-session/development/validate-governance-runner.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-runner.py --family prepare",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+        "sha256": "739f8c41f12f3c11cf82f67673446f2b325613d53231eaabb89f675ea9d990bc"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T202200Z-swu-tsgr-003-producer/producer/material-producer-receipt.json",
+      "sha256": "cba285c1805e4e10d4967eb7d6940aa9377ce4b78489dc22bf1c24d42ed16754"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T202200Z-swu-tsgr-003-producer/task-session-apply/refresh-material-handoff.json",
+      "sha256": "fb8c0e58b643d3bf648bbc599029ae08ef049916716a42fc04bf7d88d501d72b"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T202200Z-swu-tsgr-003-producer/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "ed29b8a103cbb8fa89baf31638db0c5e64fe0144df0775f18b3828dd8a509487"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-governance-runner.py",
+      "sha256": "739f8c41f12f3c11cf82f67673446f2b325613d53231eaabb89f675ea9d990bc"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "SWU-TSGR-003 implements deterministic prepare and read-only status only; executor launch, reconciliation, commit, closeout hooks, and observation remain later SWUs.",
+    "The runner joins exact evaluator, admission, and preflight receipts; it does not absorb their owner authority.",
+    "Experiment Harness remains not run because paired prototype evidence is owned by SWU-TSGR-010."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-003 completion through invoke:refresh:apply-approved, then return the unique dependency-ready successor SWU-TSGR-004 without executing it in this Task Session.",
+  "final_write": true,
+  "receipt_digest": "39552dbdeb0b4298b26a812f59f8410dda7a371a5458fc025d07a61bbadac8cc"
+}

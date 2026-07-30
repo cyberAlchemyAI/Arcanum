@@ -1,0 +1,188 @@
+{
+  "dispatch_id": "invoke-refresh-swu-tsgr-001-producer-handoff-v1",
+  "intent": {
+    "raw": "Refresh the blocked SWU-TSGR-001 route and hand exact material production to its lifecycle owner.",
+    "objective": "Replace the incorrect generic Invoke producer assumption with a receipt-bound Sigil Development staging route.",
+    "target_artifact": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/REFRESH-REPORT.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "artifact_contract_bridge",
+    "concrete_path_evidence",
+    "owner_boundary_check",
+    "frame_handoff",
+    "residue_ledger",
+    "observability_grouping"
+  ],
+  "steps": [
+    {
+      "step_id": "S0",
+      "name": "Bind the blocked frontier and exact SWU scope",
+      "capability_ref": "invoke",
+      "pattern": "validation",
+      "techniques": [
+        "concrete_path_evidence",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": ".arcanum/task-session-until-blocker/chains/20260730T181222Z-deterministic-governance-runner.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/tasks/TASK-TSGR-01-CONTRACTS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "CONTEXT-PACK.json"
+        }
+      ],
+      "evidence_artifact": "CONTEXT-PACK.md",
+      "stop_conditions": [
+        "block on source digest drift",
+        "block if the five-path material scope changes"
+      ]
+    },
+    {
+      "step_id": "S1",
+      "name": "Author a proposal-only route correction",
+      "capability_ref": "invoke",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "owner_boundary_check",
+        "frame_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S0.CONTEXT-PACK.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "REFRESH-REPORT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "SIGIL-DEVELOPMENT-MATERIAL-PRODUCER-HANDOFF.md"
+        }
+      ],
+      "evidence_artifact": "refresh-report.json",
+      "stop_conditions": [
+        "never author or apply canonical implementation bytes",
+        "never claim mutation readiness from a proposal-only result"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Return material staging to Sigil Development",
+      "capability_ref": "sigil-development",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "owner_boundary_check",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "S1.SIGIL-DEVELOPMENT-MATERIAL-PRODUCER-HANDOFF.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "five staged SWU-TSGR-001 files"
+        },
+        {
+          "kind": "receipt",
+          "ref": "schema-valid material producer receipt"
+        }
+      ],
+      "evidence_artifact": "Sigil Development producer receipt",
+      "stop_conditions": [
+        "stage outside canonical targets",
+        "block on any write outside the five-path scope",
+        "do not fabricate apply approval or mutation admission"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G0-source-identity",
+      "kind": "validation",
+      "owner": "invoke",
+      "condition": "Every selected source still matches the context-pack digest.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G1-proposal-boundary",
+      "kind": "validation",
+      "owner": "invoke",
+      "condition": "The Refresh result remains proposal-only and mutation_handoff_allowed=false.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-producer-owner",
+      "kind": "validation",
+      "owner": "sigil-development",
+      "condition": "Only Sigil Development stages implementation bytes and binds the producer receipt.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-invoke-to-sigil-development-producer",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "sigil-development",
+        "applies_to_steps": [
+          "S2"
+        ],
+        "contract": "Invoke frames the delta and exact scope; Sigil Development owns staged material production.",
+        "on_violation": "block",
+        "delegation_target": "sigil-development",
+        "input_contract": "digest-bound context pack, exact five paths, validation commands, and owner constraints",
+        "owner_boundary": "Invoke proposal-only cannot stage implementation bytes or authorize mutation.",
+        "blocked_fallback": "retain the Task Session blocker with the same five-path scope"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "swu-tsgr-001-material-producer-receipt",
+        "producer": "sigil-development",
+        "required_fields": [
+          "run_id",
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "this refresh run producer directory"
+        ],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "refresh_evidence_bound",
+      "proposal_authored",
+      "producer_handoff_returned"
+    ],
+    "signal_grouping": "dispatch_id"
+  }
+}

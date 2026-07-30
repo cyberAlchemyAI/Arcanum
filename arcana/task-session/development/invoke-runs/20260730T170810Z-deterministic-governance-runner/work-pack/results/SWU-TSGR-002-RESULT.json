@@ -1,0 +1,60 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T193900Z-swu-tsgr-002-task-session-recovery-1",
+  "swu_id": "SWU-TSGR-002",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+    "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+    "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+    "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+    "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+    "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+    "arcanum/arcana/task-session/development/validate-governance-run-contracts.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-run-contracts.py",
+      "result": "block",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T193900Z-swu-tsgr-002-producer/task-session-apply/material-package.json",
+        "sha256": "7e9e31ff6b5e137c0e92d23629d969bee03022098f8bda52ce6ad3e319b2eafe"
+      }
+    },
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-run-contracts.py",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-governance-run-contracts.py",
+        "sha256": "2bd4c66ada2ae54384a423652d4e454a7d5ad1d3d9b11ef002bf2035c93cac38"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T193900Z-swu-tsgr-002-producer/producer/material-producer-receipt.json",
+      "sha256": "753e7dee668399b30cb98e1ac4b998471d4253ae4dfc286ce62e0e2d890b819c"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T193900Z-swu-tsgr-002-producer/task-session-recovery-1/refresh-material-handoff.json",
+      "sha256": "56deaa2918deb1f2748b0b3488c0e3aa02db8e703ad8d39d86f7b6a9bc695d77"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T193900Z-swu-tsgr-002-producer/task-session-recovery-1/mutation-admission-receipt.json",
+      "sha256": "8eff3ff6d74ee5c3847e5967c5dd095f76f7489cd79cad831c57ed0671b06deb"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-governance-run-contracts.py",
+      "sha256": "2bd4c66ada2ae54384a423652d4e454a7d5ad1d3d9b11ef002bf2035c93cac38"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "The first admitted validator incorrectly treated unrelated canonical Task Session siblings as undeclared producer outputs; the failed live run was preserved and the recovered producer receipt is bound by a fresh admission.",
+    "Six canonical outputs already matched the recovered staged material exactly and were not rewritten; only the repaired validator bytes changed during recovery.",
+    "Deterministic regenerability lowered the approval cost here because the mutation was exact, bounded, authority-preserving, unpublished, externally consequence-free, and still passed owner admission."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-002 completion through invoke:refresh:apply-approved, then return the unique dependency-ready successor SWU-TSGR-003 without executing it in this Task Session.",
+  "final_write": true,
+  "receipt_digest": "2bf3bd81edd08935f540a6f84bfa9d6d309fd553aa9deea91c97642fabc46e0f"
+}

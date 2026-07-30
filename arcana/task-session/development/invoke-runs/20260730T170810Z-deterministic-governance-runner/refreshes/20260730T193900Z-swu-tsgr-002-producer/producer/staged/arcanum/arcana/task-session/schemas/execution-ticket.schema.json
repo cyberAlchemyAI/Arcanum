@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/execution-ticket/1-0-0",
+  "title": "TaskSessionExecutionTicket",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ticket_id",
+    "run_id",
+    "task_id",
+    "swu_id",
+    "request_ref",
+    "predecessor_ref",
+    "control_refs",
+    "baseline_inventory",
+    "allowed_writes",
+    "declared_outputs",
+    "validation_contracts",
+    "executor_contract",
+    "owner_identity",
+    "idempotency_key",
+    "closeout_contract"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.execution-ticket.v1"
+    },
+    "ticket_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "predecessor_ref": {
+      "$ref": "#/$defs/phasePredecessor"
+    },
+    "control_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "baseline_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/baselineEntry"
+      }
+    },
+    "allowed_writes": {
+      "$ref": "#/$defs/pathSet"
+    },
+    "declared_outputs": {
+      "$ref": "#/$defs/pathSet"
+    },
+    "validation_contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/structuredCommand"
+      }
+    },
+    "executor_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner_identity",
+        "argv",
+        "cwd",
+        "environment_names",
+        "timeout_seconds",
+        "max_output_bytes",
+        "expected_receipt_path",
+        "expected_receipt_schema_ref"
+      ],
+      "properties": {
+        "owner_identity": {
+          "$ref": "#/$defs/ownerIdentity"
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "environment_names": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z_][A-Z0-9_]*$"
+          }
+        },
+        "timeout_seconds": {
+          "$ref": "#/$defs/timeoutSeconds"
+        },
+        "max_output_bytes": {
+          "$ref": "#/$defs/maxOutputBytes"
+        },
+        "expected_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expected_receipt_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "closeout_contract": {
+      "$ref": "#/$defs/closeoutContract"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "pathSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "timeoutSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "maxOutputBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16777216
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "phasePredecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "receipt_ref"
+      ],
+      "properties": {
+        "phase": {
+          "const": "admitted"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "baselineEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "state",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "state": {
+          "enum": [
+            "absent",
+            "present"
+          ]
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "size_bytes": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "absent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sha256": {
+                "type": "null"
+              },
+              "size_bytes": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "present"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "structuredCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "argv",
+        "cwd",
+        "timeout_seconds",
+        "max_output_bytes"
+      ],
+      "properties": {
+        "command_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "timeout_seconds": {
+          "$ref": "#/$defs/timeoutSeconds"
+        },
+        "max_output_bytes": {
+          "$ref": "#/$defs/maxOutputBytes"
+        }
+      }
+    },
+    "closeoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_owner_capabilities",
+        "continuation_policy",
+        "terminal_receipt_path"
+      ],
+      "properties": {
+        "required_owner_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "continuation_policy": {
+          "const": "emit-cursor-never-execute-successor"
+        },
+        "terminal_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    }
+  }
+}

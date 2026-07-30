@@ -1,0 +1,327 @@
+{
+  "dispatch_id": "invoke-task-session-governance-runner-v1",
+  "intent": {
+    "raw": "Define, design, and plan a deterministic governance runner for Task Session.",
+    "objective": "Accept the lifecycle, productionize policy evaluation, build a checkpointed one-SWU controller, join owner hooks, and validate an opt-in pilot.",
+    "target_artifact": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/WORK-PACK.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "artifact_contract_bridge",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "handle_handoff",
+    "residue_ledger",
+    "observability_grouping"
+  ],
+  "steps": [
+    {
+      "step_id": "S0",
+      "name": "Accept or narrow the Task Session lifecycle update",
+      "capability_ref": "sigil-development",
+      "pattern": "validation",
+      "techniques": [
+        "owner_boundary_check",
+        "scu_swu_reduction",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SIGIL-DEVELOPMENT-HANDOFF.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "decision",
+          "ref": "SWU-TSGR-000 lifecycle receipt"
+        }
+      ],
+      "evidence_artifact": "SIGIL-DEVELOPMENT-LIFECYCLE-RECEIPT.md",
+      "stop_conditions": [
+        "block implementation unless lifecycle decision accepts or explicitly narrows the design"
+      ]
+    },
+    {
+      "step_id": "S1",
+      "name": "Productionize evaluator and runner contracts",
+      "capability_ref": "task-session",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "decision",
+          "ref": "S0.SWU-TSGR-000 accepted"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/tasks/TASK-TSGR-01-CONTRACTS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "production evaluator and versioned runner schemas"
+        },
+        {
+          "kind": "receipt",
+          "ref": "TSGR-001 and TSGR-002 validation receipts"
+        }
+      ],
+      "evidence_artifact": "policy parity and schema fixture receipts",
+      "stop_conditions": [
+        "block if current policy fixtures diverge",
+        "block if any envelope is open or not digest-bindable"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Build checkpointed runner mechanism",
+      "capability_ref": "task-session",
+      "pattern": "sequential",
+      "techniques": [
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "S1 accepted contract receipts"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/tasks/TASK-TSGR-02-RUNNER.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "checkpointed prepare reconcile apply and resume controller"
+        },
+        {
+          "kind": "receipt",
+          "ref": "TSGR-003 through TSGR-006 validation receipts"
+        }
+      ],
+      "evidence_artifact": "runner fixture and crash-restart matrix",
+      "stop_conditions": [
+        "block on undeclared write or output",
+        "block on target conflict",
+        "block if a repeated phase duplicates an effect"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Join owner hooks and continuation cursor",
+      "capability_ref": "task-session",
+      "pattern": "sequential",
+      "techniques": [
+        "artifact_contract_bridge",
+        "owner_boundary_check",
+        "execution_receipt_handoff",
+        "handle_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "S2 crash-safe runner receipt"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/tasks/TASK-TSGR-03-HOOKS.md"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "owner hook protocol and continuity cursor"
+        },
+        {
+          "kind": "receipt",
+          "ref": "TSGR-007 and TSGR-008 owner join receipts"
+        }
+      ],
+      "evidence_artifact": "hook and continuation fixture receipts",
+      "stop_conditions": [
+        "block TSGR-008 until the external Continuation Router production-launcher readiness receipt passes",
+        "block on missing or unjoined owner receipt",
+        "block on ambiguous successor",
+        "never execute the successor"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Append and deduplicate the terminal observation",
+      "capability_ref": "signal-observer",
+      "capability_status": "local-extension",
+      "pattern": "validation",
+      "techniques": [
+        "validation_loop",
+        "observability_grouping",
+        "execution_receipt_handoff"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "S3 accepted end-to-end closeout receipt"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "trace_event",
+          "ref": "deduplicated observer event"
+        }
+      ],
+      "evidence_artifact": "TSGR-009 observation receipt",
+      "stop_conditions": [
+        "do not project private payload into public telemetry",
+        "do not rewrite the implementation result when observation fails"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Measure the prototype and emit a bounded pilot verdict",
+      "capability_ref": "experiment-harness",
+      "capability_status": "local-extension",
+      "pattern": "validation",
+      "techniques": [
+        "recomposition_proof",
+        "validation_loop",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "S4 accepted observation evidence"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "artifact",
+          "ref": "paired manual and runner experiment report with pilot verdict"
+        }
+      ],
+      "evidence_artifact": "TSGR-EXP-001 report and PILOT-VERDICT.md",
+      "stop_conditions": [
+        "block opt-in pilot if acceptance coverage weakens",
+        "do not claim faster without paired evidence",
+        "do not mutate canonical skill documentation or generated mirrors"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G0-lifecycle",
+      "kind": "human_approval",
+      "owner": "sigil-development",
+      "condition": "The lifecycle owner accepts or explicitly narrows the Task Session update before implementation.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G1-contract-parity",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Production evaluator matches existing policy fixtures and runner schemas reject malformed envelopes.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-runner-safety",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Target, write, output, validation, terminal-write, and crash-resume cases discriminate correctly.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-owner-boundary",
+      "kind": "validation",
+      "owner": "sigil-development",
+      "condition": "Continuation Router, Invoke, and Signal Observer remain separate joined owners.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-pilot-evidence",
+      "kind": "validation",
+      "owner": "experiment-harness",
+      "condition": "Paired evidence measures speed without weakening acceptance coverage.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-invoke-to-sigil-development",
+        "kind": "capability_handoff",
+        "from_owner": "invoke",
+        "to_owner": "sigil-development",
+        "applies_to_steps": [
+          "S0"
+        ],
+        "contract": "Invoke authors the package; Sigil Development owns lifecycle acceptance.",
+        "on_violation": "block",
+        "delegation_target": "sigil-development",
+        "input_contract": "define, design selection, layering, work-pack, dispatch, and continuation artifacts",
+        "owner_boundary": "Invoke cannot approve or promote the Task Session lifecycle change.",
+        "blocked_fallback": "preserve planning artifacts without canonical mutation"
+      },
+      {
+        "boundary_id": "B2-task-session-to-owner-hooks",
+        "kind": "capability_handoff",
+        "from_owner": "task-session",
+        "to_owner": "continuation-router-and-invoke",
+        "applies_to_steps": [
+          "S3"
+        ],
+        "contract": "Task Session orders and joins owner hooks but does not implement their semantics.",
+        "on_violation": "block",
+        "delegation_target": "continuation-router",
+        "input_contract": "versioned hook request, exact route tuple, expected owner receipt, and idempotency key",
+        "owner_boundary": "Planning synchronization remains Invoke authority.",
+        "blocked_fallback": "return a blocked continuity cursor without next-SWU execution"
+      }
+    ],
+    "receipts": [
+      {
+        "receipt_id": "task-session-governance-stage-receipt",
+        "producer": "sigil-development task-session experiment-harness or deterministic validator",
+        "required_fields": [
+          "run_id",
+          "step_id",
+          "artifacts",
+          "validation_result",
+          "audit_reference",
+          "residue"
+        ],
+        "stores": [
+          "work-pack results",
+          "consumer-local run evidence"
+        ],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": [
+      "lifecycle_decided",
+      "contracts_validated",
+      "runner_validated",
+      "owner_hooks_joined",
+      "experiment_measured",
+      "pilot_verdict_emitted"
+    ],
+    "signal_grouping": "dispatch_id"
+  }
+}

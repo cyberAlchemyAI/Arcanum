@@ -1,0 +1,31 @@
+{
+  "schema_version": "invoke.refresh-route-correction.v1",
+  "correction_id": "20260730T181803Z-swu-tsgr-001-producer-handoff",
+  "recorded_at": "2026-07-30T18:21:28Z",
+  "supersedes_route": {
+    "path": ".arcanum/task-session-until-blocker/chains/20260730T181222Z-deterministic-governance-runner.continuation-route.json",
+    "sha256": "6a82c87a3973c1609ace78e189226cf5bfbb315da4268101f25ca475cbe2bb8b"
+  },
+  "preserved_chain": {
+    "path": ".arcanum/task-session-until-blocker/chains/20260730T181222Z-deterministic-governance-runner.json",
+    "sha256": "71f6b4b75625da748b9756f50ff5696bb933c008acd2cfc24644507ef48c0b04"
+  },
+  "correction": {
+    "prior_claim": "Proposal-only Invoke supplies a schema-valid material package and producer receipt.",
+    "reason": "The Invoke material-package contract forbids materialized changes in proposal-only mode, and the producer receipt must be owned by the exact material producer.",
+    "next_route": {
+      "capability": "sigil-development",
+      "mode": "update",
+      "target": "SWU-TSGR-001 staged material producer",
+      "handoff": "SIGIL-DEVELOPMENT-MATERIAL-PRODUCER-HANDOFF.md"
+    },
+    "return_route": {
+      "capability": "invoke",
+      "mode": "refresh",
+      "mutation_mode": "apply-approved",
+      "condition": "schema-valid producer receipt and exact scoped approval exist"
+    }
+  },
+  "mutation_authorized": false,
+  "historical_receipts_rewritten": false
+}

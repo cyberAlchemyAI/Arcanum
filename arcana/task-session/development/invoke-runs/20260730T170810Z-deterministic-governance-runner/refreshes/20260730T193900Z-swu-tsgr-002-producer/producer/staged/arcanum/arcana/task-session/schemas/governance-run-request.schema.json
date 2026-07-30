@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-run-request/1-0-0",
+  "title": "TaskSessionGovernanceRunRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "run_id",
+    "work_pack_ref",
+    "swu_ref",
+    "task_id",
+    "swu_id",
+    "control_refs",
+    "execution_contract",
+    "owner_identity",
+    "idempotency_key",
+    "closeout_contract"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-run-request.v1"
+    },
+    "request_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "work_pack_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "swu_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "control_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "execution_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed_writes",
+        "declared_outputs",
+        "validation_commands",
+        "timeout_seconds",
+        "max_output_bytes"
+      ],
+      "properties": {
+        "allowed_writes": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "declared_outputs": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "validation_commands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/structuredCommand"
+          }
+        },
+        "timeout_seconds": {
+          "$ref": "#/$defs/timeoutSeconds"
+        },
+        "max_output_bytes": {
+          "$ref": "#/$defs/maxOutputBytes"
+        }
+      }
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "closeout_contract": {
+      "$ref": "#/$defs/closeoutContract"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "pathSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "timeoutSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "maxOutputBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16777216
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "structuredCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "argv",
+        "cwd",
+        "timeout_seconds",
+        "max_output_bytes"
+      ],
+      "properties": {
+        "command_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "timeout_seconds": {
+          "$ref": "#/$defs/timeoutSeconds"
+        },
+        "max_output_bytes": {
+          "$ref": "#/$defs/maxOutputBytes"
+        }
+      }
+    },
+    "closeoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_owner_capabilities",
+        "continuation_policy",
+        "terminal_receipt_path"
+      ],
+      "properties": {
+        "required_owner_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "continuation_policy": {
+          "const": "emit-cursor-never-execute-successor"
+        },
+        "terminal_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    }
+  }
+}

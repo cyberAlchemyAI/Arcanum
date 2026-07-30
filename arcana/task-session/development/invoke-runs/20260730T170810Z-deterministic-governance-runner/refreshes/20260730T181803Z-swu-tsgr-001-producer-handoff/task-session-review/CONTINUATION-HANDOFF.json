@@ -1,0 +1,56 @@
+{
+  "schema_version": "task-session.continuation-handoff.v1",
+  "handoff_id": "20260730T184000Z-swu-tsgr-001-apply-approval",
+  "source": {
+    "capability": "task-session",
+    "mode": "execute",
+    "result": "BLOCK",
+    "receipt": {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/PRE-MUTATION-REVIEW.json",
+      "sha256": "9ab456c31297433bf2f519b515f2fba5566c4f171ccfdaa4c9379df4c00bfdad",
+      "size_bytes": 5322
+    }
+  },
+  "target_scope": {
+    "task": "TASK-TSGR-01",
+    "swu": "SWU-TSGR-001",
+    "material_write_count": 5,
+    "authority_class": "public",
+    "publication_class": "public"
+  },
+  "blocker": {
+    "class": "human-approval",
+    "id": "TSGR-APPLY-001",
+    "fingerprint": "b3aca268f794b9b9c8574193370c427b9b623dba925baf9548339f5e524abbee",
+    "summary": "Exact five-path public Arcanum apply approval is unresolved.",
+    "decision_artifact": "APPLY-APPROVAL-DECISION.md"
+  },
+  "controlling_evidence": [
+    {
+      "path": "CONTEXT-PACK.json",
+      "sha256": "24bc695fe95a31135a0e0a1cdf09d8cd4fdcc6ca8de662ebf256fdf3dcd1a708"
+    },
+    {
+      "path": "../producer/material-producer-receipt.json",
+      "sha256": "6075a5735ca77ac05339f08403c83bb9f0c72cbbda56eb8cc1035efc39d72987"
+    },
+    {
+      "path": "APPLY-APPROVAL-ADMISSIBILITY.json",
+      "sha256": "3e87d4758b31eea3d0bbf1f70f1af4c4ff58697dc5296aac41516741d3caf392"
+    }
+  ],
+  "next_route_advice": {
+    "capability": "invoke",
+    "mode": "refresh",
+    "mutation_mode": "apply-approved",
+    "authorization_status": "missing",
+    "dispatch": "forbidden-until-decision"
+  },
+  "unblock_actions": [
+    "User selects approve-exact-five-path-apply in Decision Gate TSGR-APPLY-001.",
+    "Invoke materializes and validates one exact five-path material package.",
+    "Task Session rebuilds exact context references, runs mutation admission, and requires mutationReady=true before writing."
+  ],
+  "preserve_source_result": true,
+  "recursive_execution": false
+}

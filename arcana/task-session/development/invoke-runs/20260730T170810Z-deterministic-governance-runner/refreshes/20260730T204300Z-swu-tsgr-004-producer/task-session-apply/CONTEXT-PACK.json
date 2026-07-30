@@ -1,0 +1,101 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260730T204300Z-swu-tsgr-004-task-session",
+  "task_id": "TASK-TSGR-02",
+  "swu_id": "SWU-TSGR-004",
+  "mode": "standard",
+  "strict_coverage": true,
+  "authority_ceiling": "mutation-admission-input",
+  "approval_basis": {
+    "source": "current user standing request to execute the captured work pack",
+    "scope": "SWU-TSGR-004 exact three declared shared-path updates",
+    "regenerability_treatment": "deterministic staged updates reduce decision cost only while baseline conflict detection, owner admission, public boundary, no publication, and consequence-free application remain proven"
+  },
+  "obligations": [
+    {
+      "id": "O1",
+      "summary": "Execute exactly SWU-TSGR-004 structured executor launch-or-join.",
+      "status": "covered"
+    },
+    {
+      "id": "O2",
+      "summary": "Bind the passing SWU-TSGR-003 terminal result and joined closeout receipt.",
+      "status": "covered"
+    },
+    {
+      "id": "O3",
+      "summary": "Use structured argv, cwd, timeout, and bounded output without shell interpolation.",
+      "status": "covered"
+    },
+    {
+      "id": "O4",
+      "summary": "Validate executor receipt identity and terminal write ordering before execution-received.",
+      "status": "covered"
+    },
+    {
+      "id": "O5",
+      "summary": "Distinguish implementation execution failure from governance failure.",
+      "status": "covered"
+    },
+    {
+      "id": "O6",
+      "summary": "Exclude reconciliation and live apply.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Execute exactly one SWU in this Task Session.",
+    "Update only the three admitted shared runner paths.",
+    "Block if any live shared target changes from its preflight digest before apply.",
+    "Preserve every unrelated dirty file.",
+    "Do not implement SWU-TSGR-005 or later behavior.",
+    "Do not update generated mirrors, publish, promote, commit, push, or deploy.",
+    "Persist the terminal Task Session result only after live validation and allowed-write reconciliation."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+      "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-runner.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-004-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+      "arcanum/arcana/task-session/development/fixtures/governance-runner-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-runner.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-004-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-governance-runner.py --family executor-join"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "No shell interpolation occurs.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Path and timeout controls pass.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Executor receipt identity and write order validate.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Execution failure remains distinct from governance failure.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "No reconciliation or live apply occurs.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}

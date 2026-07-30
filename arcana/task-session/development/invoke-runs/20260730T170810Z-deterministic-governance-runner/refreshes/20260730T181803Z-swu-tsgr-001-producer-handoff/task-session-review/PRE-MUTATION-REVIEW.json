@@ -1,0 +1,133 @@
+{
+  "schema_version": "task-session.pre-mutation-review.v1",
+  "recorded_at": "2026-07-30T18:40:00Z",
+  "task": "TASK-TSGR-01",
+  "swu": "SWU-TSGR-001",
+  "series_intent": "none",
+  "resolution_mode": "resume-nearest",
+  "resolution_source": "visible-session-context",
+  "session_recovery": "visible",
+  "resolution_candidates": {
+    "considered": 1,
+    "selected": "SWU-TSGR-001",
+    "stale_rejected": 0,
+    "cross_scope_rejected": 0,
+    "ambiguous": false
+  },
+  "result": "BLOCK",
+  "execution_result": "BLOCK",
+  "context_pack": {
+    "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/CONTEXT-PACK.json",
+    "sha256": "24bc695fe95a31135a0e0a1cdf09d8cd4fdcc6ca8de662ebf256fdf3dcd1a708",
+    "size_bytes": 12589,
+    "strict_coverage": true,
+    "selected_sources": 14
+  },
+  "producer_receipt": {
+    "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/producer/material-producer-receipt.json",
+    "sha256": "6075a5735ca77ac05339f08403c83bb9f0c72cbbda56eb8cc1035efc39d72987",
+    "size_bytes": 15475,
+    "schema_validation": "pass",
+    "task_session_review": "pass-for-material-input"
+  },
+  "decisions": [
+    {
+      "id": "TSGR-APPLY-001",
+      "summary": "Apply exactly five validated staged files to absent public Arcanum targets.",
+      "classification": "blocker",
+      "consequence": "consequential",
+      "reversibility": "reversible",
+      "selected_option": null
+    }
+  ],
+  "decision_gate": {
+    "result": "BLOCK",
+    "decisions_resolved": 0,
+    "blockers_remaining": 1,
+    "route_outcome": "gate",
+    "admissibility_receipt": {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-ADMISSIBILITY.json",
+      "sha256": "3e87d4758b31eea3d0bbf1f70f1af4c4ff58697dc5296aac41516741d3caf392",
+      "size_bytes": 484
+    },
+    "decision_artifact": {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/APPLY-APPROVAL-DECISION.md",
+      "sha256": "913c80c7d515f4d979044189eccf5c2f8470a3704f489f409314c7b5f0db7ce5",
+      "size_bytes": 1881
+    },
+    "recommendation": "approve-exact-five-path-apply",
+    "next_step": "ask-remaining-decision"
+  },
+  "runtime": "local",
+  "adapter": null,
+  "gate_verdict": {
+    "scope": "pass",
+    "dependencies": "pass",
+    "producer_material": "pass",
+    "closeout_preflight": "pass",
+    "apply_approval": "block",
+    "mutation_admission": "not-run"
+  },
+  "closeout_sync": {
+    "status": "no-op",
+    "authorization": "not-needed",
+    "owner_receipt": null,
+    "reason": "No SWU terminal implementation receipt or planning delta exists before the approval gate."
+  },
+  "continuity_cursor": {
+    "status": "preserved",
+    "path": ".arcanum/task-session/continuity/019fb3fb-d97f-7821-9a28-386136b828d3.json",
+    "reason": "The selected SWU and dependency frontier are unchanged."
+  },
+  "continuation_handoff": "CONTINUATION-HANDOFF.json",
+  "blocker_fingerprint": "b3aca268f794b9b9c8574193370c427b9b623dba925baf9548339f5e524abbee",
+  "probable_routes": [
+    {
+      "rank": 1,
+      "route": "invoke:refresh:apply-approved",
+      "authorization": "missing",
+      "condition": "User selects approve-exact-five-path-apply."
+    }
+  ],
+  "optional_continuation": "not-authorized",
+  "returned_next_route": null,
+  "subagent_closeout": {
+    "status": "pass",
+    "spawned_current_review": 0,
+    "inherited_terminal_observers": 1,
+    "joined": 1,
+    "closed": 1,
+    "blocked": 0,
+    "timed_out": 0,
+    "handed_off": 0,
+    "open": 0
+  },
+  "files_updated": [
+    "task-session-review/CONTEXT-PACK.json",
+    "task-session-review/CONTEXT-PACK.md",
+    "task-session-review/CLOSEOUT-PREFLIGHT.json",
+    "task-session-review/APPLY-APPROVAL-OPTIONS.json",
+    "task-session-review/APPLY-APPROVAL-ADMISSIBILITY.json",
+    "task-session-review/APPLY-APPROVAL-DECISION.md",
+    "task-session-review/PRE-MUTATION-REVIEW.json",
+    "task-session-review/PRE-MUTATION-REVIEW.md",
+    "task-session-review/CONTINUATION-HANDOFF.json",
+    "task-session-review/CONTINUATION-ROUTE.json"
+  ],
+  "validation": [
+    "Context source identities 14/14 pass.",
+    "Context strict review coverage passes with one explicit approval blocker.",
+    "Producer receipt schema, 22 exact references, five target preconditions, and staged manifest pass.",
+    "Closeout inventory baselines 4/4 pass.",
+    "Decision Gate option prefilter returns gate with two admissible options.",
+    "Decision Gate canonical fixtures pass 10/10 with generated runtime parity.",
+    "Scoped git diff check passes."
+  ],
+  "validation_criticality": "All review and pre-mutation obligations are acceptance-critical; approval remains unmet.",
+  "experiment_harness": {
+    "status": "not_run",
+    "owner": "SWU-TSGR-010"
+  },
+  "synchronized_records": [],
+  "follow_up": "Select approve-exact-five-path-apply or defer-keep-staged."
+}

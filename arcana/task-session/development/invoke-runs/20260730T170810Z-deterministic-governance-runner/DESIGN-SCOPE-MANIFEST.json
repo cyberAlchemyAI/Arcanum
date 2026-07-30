@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "manifest:task-session-governance-runner-v1",
+  "target_id": "target:task-session-governance-runner",
+  "target_footprint": {
+    "roots": [
+      {
+        "path": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+        "digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+      }
+    ],
+    "inclusions": [
+      {
+        "selector": "local glossary",
+        "path": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/GLOSSARY.md",
+        "digest": "5fbdae3eeb4e43a5f86b0103ead1239a9616b73d1a1c663f366bca84eceb8957"
+      },
+      {
+        "selector": "authored architecture",
+        "path": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+        "digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+      },
+      {
+        "selector": "bounded context pack",
+        "path": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/CONTEXT-PACK.md",
+        "digest": "14d281c3979673354a55c0dc40edb36e16360df0113c13d896c47d6547b78f8d"
+      }
+    ],
+    "exclusions": [
+      {
+        "selector": "consumer-private content",
+        "reason": "public Arcanum design admits no consuming-project prose, fixtures, or telemetry",
+        "evidence_ref": "CONTEXT-PACK.md#Excluded-candidates"
+      },
+      {
+        "selector": "recursive implementation execution",
+        "reason": "Task Session retains a one-SWU ceiling and never executes its successor",
+        "evidence_ref": "SPEC.md#Authority-ceiling"
+      }
+    ]
+  },
+  "source_contracts": [
+    {
+      "source_id": "task-session-skill",
+      "selector": "current process, admission, and closeout owner boundaries",
+      "path": "arcana/task-session/SKILL.md",
+      "digest": "45c7d994ad180c958c353b2f4d3ad41caa1554870d23acd12534bac61cbe2734"
+    },
+    {
+      "source_id": "task-session-policy",
+      "selector": "machine-readable decision and closeout outcomes",
+      "path": "arcana/task-session/decision-validation-policy.json",
+      "digest": "f339f258b7862095f31064712df784ea145184d9b75eb15fcaf0127d7c18b63f"
+    },
+    {
+      "source_id": "nearest-swu-resolver",
+      "selector": "scope resolution without readiness authority",
+      "path": "arcana/task-session/scripts/resolve-nearest-swu.py",
+      "digest": "85c0194b6274a1526c6dcace6355cb019f6aa8738d837840b9d271840300a6b2"
+    },
+    {
+      "source_id": "mutation-readiness-verifier",
+      "selector": "production admission request and receipt consumer",
+      "path": "arcana/task-session/scripts/verify-mutation-readiness.py",
+      "digest": "4f7e1268cfdd656492119ef9c3b7e6928947f2bb659fa459d71fec5cecf6855c"
+    },
+    {
+      "source_id": "continuation-router-skill",
+      "selector": "continuation and owner dispatch boundary",
+      "path": "arcana/continuation-router/SKILL.md",
+      "digest": "5796cf27cf7c7e344ad5b168694a87728931323478a712d319727b7d7a03a8a8"
+    },
+    {
+      "source_id": "observer-hook",
+      "selector": "append-only deduplicated observation",
+      "path": "framework/observability/scripts/observe-invocation.sh",
+      "digest": "b4232192dc04bce4205c6d48e7b16b5a3269809932a1805d81304d759879d40b"
+    }
+  ],
+  "human_actors": [
+    {
+      "actor_id": "task-session-operator",
+      "natural_person": true,
+      "reads": true,
+      "decides": true,
+      "acts": true,
+      "recovers": true,
+      "navigates": false,
+      "assistive_operation": false,
+      "surfaces": [
+        "runner-cli-summary"
+      ],
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "rendered_surfaces": [
+    {
+      "surface_id": "runner-cli-summary",
+      "modality": "terminal-text",
+      "semantic_contract_ref": "ARCHITECTURE.md#UX",
+      "semantic_change": "new",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "interfaces": [
+    {
+      "interface_id": "governance-runner-cli",
+      "kind": "operator-local-cli",
+      "peer": "task-session-operator",
+      "direction": "bidirectional",
+      "contract_ref": "ARCHITECTURE.md#Interface-and-integration-view",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    },
+    {
+      "interface_id": "owner-hook-protocol",
+      "kind": "local-structured-process",
+      "peer": "continuation-router-invoke-and-signal-observer",
+      "direction": "bidirectional",
+      "contract_ref": "SPEC.md#TSGR-FR-007-owner-hooks",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "stores": [
+    {
+      "store_id": "consumer-run-evidence",
+      "authority": "generated-non-policy-evidence",
+      "data_classes": [
+        "phase-receipt",
+        "execution-ticket",
+        "executor-receipt",
+        "owner-hook-receipt",
+        "continuity-cursor"
+      ],
+      "writers": [
+        "run-evidence-writer"
+      ],
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "queues": [],
+  "writers": [
+    {
+      "writer_id": "run-evidence-writer",
+      "targets": [
+        "consumer-run-evidence"
+      ],
+      "concurrency": "one-run-scoped-lock-and-atomic-replacement",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "normative_rules": [
+    {
+      "rule_id": "rule-one-swu",
+      "verb": "must",
+      "subject": "governance-runner",
+      "object": "admit exactly one SWU and never execute its successor",
+      "enforcement_hint": "scope and terminal-cursor validator",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    },
+    {
+      "rule_id": "rule-owner-authority",
+      "verb": "must",
+      "subject": "governance-runner",
+      "object": "authorize only its phase order and join separate owner receipts",
+      "enforcement_hint": "hook allowlist and receipt-chain validation",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    },
+    {
+      "rule_id": "rule-terminal-state",
+      "verb": "must",
+      "subject": "phase-controller",
+      "object": "reject skipped stale or contradictory state transitions",
+      "enforcement_hint": "digest-chained phase-state validator",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    },
+    {
+      "rule_id": "rule-validation",
+      "verb": "must",
+      "subject": "reconciler",
+      "object": "block undeclared writes outputs and unmet acceptance-critical validation",
+      "enforcement_hint": "reconciliation fixture matrix",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "effects": [
+    {
+      "effect_id": "effect-consumer-local-receipt-write",
+      "reversible": true,
+      "external": false,
+      "privileged": false,
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    },
+    {
+      "effect_id": "effect-staged-target-application",
+      "reversible": false,
+      "external": false,
+      "privileged": true,
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "data_and_log_sinks": [
+    {
+      "sink_id": "bounded-run-output",
+      "data_classes": [
+        "paths",
+        "digests",
+        "exit-status",
+        "bounded-stdout",
+        "bounded-stderr"
+      ],
+      "retention_hint": "consumer-local run policy; public observation receives refs and digests only",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "deployment_targets": [
+    {
+      "deployment_id": "opt-in-local-pilot",
+      "environment": "local-repository",
+      "release_mode": "optional-before-recommended",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "compatibility_boundaries": [
+    {
+      "boundary_id": "task-session-governance-path",
+      "old_contract": "agent-led-task-session-governance",
+      "new_contract": "agent-led-plus-optional-deterministic-governance-runner",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/ARCHITECTURE.md",
+      "source_digest": "325928d51cfc771f3fbc39e3ef0fda74d568e2d28436555e4faf6745641be0ab"
+    }
+  ],
+  "quality_claims": [
+    {
+      "claim_id": "faster-governance-hypothesis",
+      "source_kind": "bounded-hypothesis",
+      "threshold_or_tradeoff": "measure paired latency and intervention count without reducing acceptance coverage",
+      "required": false,
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "acceptance_and_readiness_claims": [
+    {
+      "claim_id": "fixture-parity-contract",
+      "selector": "SPEC.md#Acceptance-witnesses",
+      "evidence_state": "authored-complete",
+      "source_selector": "arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/SPEC.md",
+      "source_digest": "45e75678cf93f2c2ed92e9a5b24999ed63e280df09d7e49fe450cc4fd0bb92e9"
+    }
+  ],
+  "unknowns": [],
+  "input_digest": "dd9a50af22f1ff864887f7ccb1663c34d62303571ce8f96a039bff6395a156ea",
+  "authored_by": "invoke-design-author"
+}

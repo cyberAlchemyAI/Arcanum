@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/planning/continuation-closeout-receipt/1-0-0",
+  "title": "ContinuationCloseoutReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "source_swu_id",
+    "source_receipt_ref",
+    "selected_owner_route",
+    "invoke_owner_receipt_ref",
+    "owner_result",
+    "validation",
+    "returned_next_route",
+    "result",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "continuation-router.closeout-join.v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_swu_id": {
+      "type": "string",
+      "pattern": "^SWU-TSGR-[0-9]{3}$"
+    },
+    "source_receipt_ref": {
+      "$ref": "#/$defs/exactRef"
+    },
+    "selected_owner_route": {
+      "const": "invoke:refresh:apply-approved"
+    },
+    "invoke_owner_receipt_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/exactRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "owner_result": {
+      "enum": [
+        "pass",
+        "no-op",
+        "block",
+        "unjoined"
+      ]
+    },
+    "validation": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "returned_next_route": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "no-op",
+        "block"
+      ]
+    },
+    "receipt_digest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/digest"
+        }
+      ],
+      "description": "Lowercase SHA-256 of the UTF-8 JSON serialization after removing the top-level receipt_digest member, sorting every object key lexicographically, preserving array order, emitting no insignificant whitespace, escaping only characters required by JSON, and emitting no trailing newline."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "enum": [
+              "pass",
+              "no-op"
+            ]
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "then": {
+        "properties": {
+          "invoke_owner_receipt_ref": {
+            "$ref": "#/$defs/exactRef"
+          },
+          "owner_result": {
+            "enum": [
+              "pass",
+              "no-op"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    }
+  }
+}

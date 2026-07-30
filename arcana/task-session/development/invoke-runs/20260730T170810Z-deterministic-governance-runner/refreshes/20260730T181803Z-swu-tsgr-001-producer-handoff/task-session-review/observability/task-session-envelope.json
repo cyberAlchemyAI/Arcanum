@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-07-30T18:48:02Z",
+  "run_id": "task-session-20260730T184000Z-swu-tsgr-001-review",
+  "session_id": "20260730T170810Z-deterministic-governance-runner",
+  "sigil": "task-session",
+  "tier": "arcana",
+  "mode": "execute",
+  "evidence": {
+    "status": "complete",
+    "refs": [
+      {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/PRE-MUTATION-REVIEW.json",
+        "sha256": "9ab456c31297433bf2f519b515f2fba5566c4f171ccfdaa4c9379df4c00bfdad",
+        "size_bytes": 5322
+      },
+      {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/CONTEXT-PACK.json",
+        "sha256": "24bc695fe95a31135a0e0a1cdf09d8cd4fdcc6ca8de662ebf256fdf3dcd1a708",
+        "size_bytes": 12589
+      },
+      {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/CONTINUATION-ROUTE.json",
+        "sha256": "63287346b78d5c4f7388f737e0072e4e0a0ca52ed3a5231f58bcf6281fc57cf7",
+        "size_bytes": 2280
+      }
+    ]
+  },
+  "request": {
+    "raw": null,
+    "summary": "Resume the nearest bounded work-pack SWU through Task Session.",
+    "intent": "Execute the deterministic governance-runner work pack without weakening material, owner, approval, or admission gates."
+  },
+  "execution": {
+    "status": "blocked",
+    "outputs": [
+      "strict 14-source Task Session context pack",
+      "closeout prerequisite preflight",
+      "producer material review",
+      "Decision Gate record",
+      "normalized continuation handoff and route receipt"
+    ],
+    "files_changed": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/"
+    ],
+    "validation": [
+      "Context identities pass 14/14.",
+      "Producer receipt and all five absent-target preconditions pass.",
+      "Closeout baselines pass 4/4.",
+      "Decision Gate fixtures pass 10/10.",
+      "Continuation Router fixtures pass 6/6.",
+      "Plan package and continuation JSON validation pass.",
+      "Continuation route JSON Schema passes."
+    ],
+    "notes": "Correctly stopped before canonical mutation because exact user apply approval is unresolved. Source result remains BLOCK and no continuation owner was dispatched."
+  },
+  "observer": {
+    "quality_bar_status": "pass",
+    "anti_pattern_hits": [],
+    "workflow_gaps": [
+      {
+        "category": "process",
+        "severity": "medium",
+        "summary": "TSGR-APPLY-001 is the sole current blocker.",
+        "evidence": "The route receipt selects invoke:refresh:apply-approved but marks authorization missing and dispatch not-authorized."
+      }
+    ],
+    "output_contract_drift": false,
+    "reflection_trigger": "none",
+    "recommendation": "none"
+  },
+  "target_artifact": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-review/PRE-MUTATION-REVIEW.json"
+}

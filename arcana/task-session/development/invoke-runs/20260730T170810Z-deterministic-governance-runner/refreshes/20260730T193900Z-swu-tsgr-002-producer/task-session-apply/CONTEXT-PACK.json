@@ -1,0 +1,94 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260730T193900Z-swu-tsgr-002-task-session",
+  "task_id": "TASK-TSGR-01",
+  "swu_id": "SWU-TSGR-002",
+  "mode": "standard",
+  "strict_coverage": true,
+  "authority_ceiling": "mutation-admission-input",
+  "approval_basis": {
+    "source": "current user standing request to execute the captured whole work pack",
+    "scope": "SWU-TSGR-002 exact seven declared create paths",
+    "regenerability_treatment": "deterministic regeneration supports reversibility but does not replace material validation or Task Session admission"
+  },
+  "obligations": [
+    {
+      "id": "O1",
+      "summary": "Execute exactly the selected SWU-TSGR-002 seven-path schema family.",
+      "status": "covered"
+    },
+    {
+      "id": "O2",
+      "summary": "Bind the passing SWU-TSGR-001 terminal result and joined closeout receipt.",
+      "status": "covered"
+    },
+    {
+      "id": "O3",
+      "summary": "Bind the current Sigil Development producer receipt without treating staging as SWU completion.",
+      "status": "covered"
+    },
+    {
+      "id": "O4",
+      "summary": "Require an exact Invoke material receipt and fresh mutation admission before canonical writes.",
+      "status": "covered"
+    },
+    {
+      "id": "O5",
+      "summary": "Preserve closeout inventory and return SWU-TSGR-003 without executing it.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Execute exactly one SWU in this Task Session.",
+    "Create only the seven admitted canonical material paths before validation.",
+    "Preserve every unrelated dirty file.",
+    "Do not update generated mirrors, publish, promote, commit, push, deploy, or execute SWU-TSGR-003.",
+    "Persist the terminal Task Session result only after live validation and allowed-write reconciliation."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+      "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-run-contracts.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-002-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+      "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-run-contracts.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-002-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-governance-run-contracts.py"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "Every envelope is closed, versioned, and digest-bindable.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Predecessor, idempotency, allowed-write/output, timeout, and closeout fields are mandatory where applicable.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Fixtures reject shell strings, missing owner identity, skipped predecessor, and unbounded output.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}

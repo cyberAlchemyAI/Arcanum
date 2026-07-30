@@ -1,0 +1,62 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T192255Z-swu-tsgr-001-task-session-apply",
+  "swu_id": "SWU-TSGR-001",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/scripts/evaluate-governance.py",
+    "arcanum/arcana/task-session/schemas/governance-evaluation-request.schema.json",
+    "arcanum/arcana/task-session/schemas/governance-evaluation-receipt.schema.json",
+    "arcanum/arcana/task-session/development/fixtures/governance-evaluation-cases.json",
+    "arcanum/arcana/task-session/development/validate-governance-evaluator.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-governance-evaluator.py",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-governance-evaluator.py",
+        "sha256": "38c2b2d160744b732140a928eff38b19a011a4718849acbbf999a253d442e043"
+      }
+    },
+    {
+      "command": "python3 arcana/task-session/development/validate-decision-validation-policy.py",
+      "result": "block",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-decision-validation-policy.py",
+        "sha256": "f6d31b50713907dfd59aab7e5103c3494953ef72d1dc79c04d4045bb9ed2ef16"
+      }
+    },
+    {
+      "command": "python3 arcana/task-session/development/validate-decision-validation-policy.py .. arcana/task-session",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-decision-validation-policy.py",
+        "sha256": "f6d31b50713907dfd59aab7e5103c3494953ef72d1dc79c04d4045bb9ed2ef16"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/producer/material-producer-receipt.json",
+      "sha256": "6075a5735ca77ac05339f08403c83bb9f0c72cbbda56eb8cc1035efc39d72987"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T181803Z-swu-tsgr-001-producer-handoff/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "517180062161956104e8fc9210a6d85b92d57d256120f571663b2b2925f396d4"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-governance-evaluator.py",
+      "sha256": "38c2b2d160744b732140a928eff38b19a011a4718849acbbf999a253d442e043"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "The declared policy-validation command omits two required positional arguments; the same validator passed as the named accepted equivalent with repository root '..' and canonical directory 'arcana/task-session'.",
+    "The development evaluator duplication remains identified for later removal or delegation; no competing authority was silently promoted.",
+    "The deterministic-regenerability criterion is a candidate for a separate governance-policy SWU and is not active policy in SWU-TSGR-001."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-001 completion through invoke:refresh:apply-approved, then return the unique dependency-ready successor SWU-TSGR-002 without executing it in this Task Session.",
+  "final_write": true,
+  "receipt_digest": "3fee7a56f9be2a93efa072b496c56640e77044990499dd8ffa38b9c59b2c8dec"
+}

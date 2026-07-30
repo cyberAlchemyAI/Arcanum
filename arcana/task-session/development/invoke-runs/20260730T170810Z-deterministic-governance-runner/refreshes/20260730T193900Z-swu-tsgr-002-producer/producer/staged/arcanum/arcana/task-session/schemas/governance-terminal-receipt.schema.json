@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-terminal-receipt/1-0-0",
+  "title": "TaskSessionGovernanceTerminalReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "run_id",
+    "task_id",
+    "swu_id",
+    "request_ref",
+    "ticket_ref",
+    "predecessor_ref",
+    "phase_receipts",
+    "executor_receipt_ref",
+    "closeout_join",
+    "observation_ref",
+    "owner_identity",
+    "idempotency_key",
+    "result",
+    "output_refs",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-terminal-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "ticket_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "predecessor_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "receipt_ref"
+      ],
+      "properties": {
+        "phase": {
+          "const": "observed"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "phase_receipts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "phase",
+          "receipt_ref"
+        ],
+        "properties": {
+          "phase": {
+            "enum": [
+              "resolved",
+              "governed",
+              "admitted",
+              "ticketed",
+              "execution-received",
+              "reconciled",
+              "closeout-joined",
+              "observed"
+            ]
+          },
+          "receipt_ref": {
+            "$ref": "#/$defs/exactArtifactRef"
+          }
+        }
+      }
+    },
+    "executor_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "closeout_join": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_owner_capabilities",
+        "joined_owner_receipts",
+        "continuation"
+      ],
+      "properties": {
+        "required_owner_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "joined_owner_receipts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/joinedOwnerReceipt"
+          }
+        },
+        "continuation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "policy",
+            "cursor_ref",
+            "successor_executed"
+          ],
+          "properties": {
+            "policy": {
+              "const": "emit-cursor-never-execute-successor"
+            },
+            "cursor_ref": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/exactArtifactRef"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "successor_executed": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "observation_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    },
+    "output_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "residue": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "joinedOwnerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner_capability",
+        "receipt_ref",
+        "result"
+      ],
+      "properties": {
+        "owner_capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "no-op"
+          ]
+        }
+      }
+    }
+  }
+}

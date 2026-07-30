@@ -1,0 +1,128 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260730T193900Z-swu-tsgr-002-task-session-recovery-1",
+  "task_id": "TASK-TSGR-01",
+  "swu_id": "SWU-TSGR-002",
+  "mode": "standard",
+  "strict_coverage": true,
+  "authority_ceiling": "mutation-admission-input",
+  "approval_basis": {
+    "source": "current user approval to execute the captured work pack and treat bounded deterministic regeneration as lower-decision-cost evidence",
+    "scope": "SWU-TSGR-002 exact seven declared material paths",
+    "regenerability_treatment": "deterministic regeneration supports reversibility only when the mutation remains bounded, authority-preserving, unpublished, externally consequence-free, and owner-gate compliant"
+  },
+  "recovery": {
+    "trigger": "the first live canonical validator run exposed a producer portability defect",
+    "initial_validation_result": "block",
+    "initial_diagnostic": "the validator attributed unrelated canonical Task Session siblings as undeclared producer outputs",
+    "repair_result": "pass",
+    "repair_scope": [
+      "arcanum/arcana/task-session/development/validate-governance-run-contracts.py"
+    ],
+    "already_present_exact_outputs": [
+      "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+      "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+      "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json"
+    ],
+    "terminal_result_present": false,
+    "historical_evidence_policy": "preserve the first admission and failed live-validation evidence; issue a fresh recovery admission before replacing the validator"
+  },
+  "obligations": [
+    {
+      "id": "O1",
+      "summary": "Execute exactly the selected SWU-TSGR-002 seven-path schema family.",
+      "status": "covered"
+    },
+    {
+      "id": "O2",
+      "summary": "Bind the passing SWU-TSGR-001 terminal result and joined closeout receipt.",
+      "status": "covered"
+    },
+    {
+      "id": "O3",
+      "summary": "Bind the recovered Sigil Development producer receipt without treating repaired staging as SWU completion.",
+      "status": "covered"
+    },
+    {
+      "id": "O4",
+      "summary": "Classify six exact canonical outputs as already present and the repaired validator as the only byte-changing material write.",
+      "status": "covered"
+    },
+    {
+      "id": "O5",
+      "summary": "Require a fresh Invoke material receipt and fresh mutation admission before replacing the canonical validator.",
+      "status": "covered"
+    },
+    {
+      "id": "O6",
+      "summary": "Persist the terminal result only after the recovered validator passes in the live canonical tree.",
+      "status": "covered"
+    },
+    {
+      "id": "O7",
+      "summary": "Preserve closeout inventory and return SWU-TSGR-003 without executing it in this Task Session.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Execute exactly one SWU in this Task Session.",
+    "Admit the exact seven-path final material inventory even though six outputs already match.",
+    "Replace only the repaired validator bytes; do not rewrite the six exact outputs.",
+    "Preserve every unrelated dirty file and all historical SWU-TSGR-002 admission evidence.",
+    "Do not update generated mirrors, publish, promote, commit, push, deploy, or execute SWU-TSGR-003.",
+    "Persist the terminal Task Session result only after live validation and allowed-write reconciliation."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+      "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-run-contracts.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-002-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+      "arcanum/arcana/task-session/schemas/execution-ticket.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-phase-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/executor-receipt.schema.json",
+      "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+      "arcanum/arcana/task-session/development/fixtures/governance-run-contract-cases.json",
+      "arcanum/arcana/task-session/development/validate-governance-run-contracts.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-002-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-governance-run-contracts.py"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "Every envelope is closed, versioned, and digest-bindable.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Predecessor, idempotency, allowed-write/output, timeout, and closeout fields are mandatory where applicable.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Fixtures reject shell strings, missing owner identity, skipped predecessor, and unbounded output.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "The recovered validator ignores unrelated canonical siblings while strict producer-manifest mode rejects an eighth attributed output.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}
