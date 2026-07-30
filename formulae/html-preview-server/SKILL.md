@@ -1,10 +1,10 @@
 ---
 name: html-preview-server
-description: "Use when opening, serving, checking, or stopping an existing local HTML artifact through a verified loopback server and direct browser handoff."
-argument-hint: "[open|start|status|stop] <html-path> [--root <directory>] [--port <port>]"
+description: "Use when opening, serving, checking, listing, or stopping existing local HTML artifacts through a verified loopback server and direct browser handoff."
+argument-hint: "[open|start|status|stop] <html-path> [--root <directory>] [--port <port>] | list [--limit <count>]"
 tier: formulae
 domain: local-html-preview
-version: 0.1.0
+version: 0.2.0
 origin: generalized from repeated local HTML preview, localhost handoff, browser verification, and cleanup workflows
 allowed-tools: Read, Glob, Grep, Bash
 ---
@@ -14,7 +14,7 @@ allowed-tools: Read, Glob, Grep, Bash
 <objective>
 Resolve one existing local HTML artifact, start or reuse a managed loopback-only
 server, verify the exact page URL, open it through the available browser runtime,
-and preserve explicit status and cleanup controls.
+and preserve explicit discovery, status, and cleanup controls.
 </objective>
 
 <logic-type>
@@ -31,6 +31,9 @@ verification, browser handoff, and managed shutdown.
 - `html-preview-server status <html-path>`: inspect the managed target server.
 - `html-preview-server stop <html-path>`: stop only the managed server for the
   exact target.
+- `html-preview-server list [--limit <count>]`: return sanitized recent, online,
+  and offline views without changing server state. Default limit: `20`; maximum:
+  `100`.
 - `--root <directory>`: use an explicit containing server root instead of the
   HTML file's parent.
 - `--port <port>`: request a specific loopback port. Default: `0`, which asks the
@@ -43,6 +46,8 @@ Use this sigil when:
 - the user asks to open, serve, or preview an existing local `.html` or `.htm`
   artifact;
 - the user asks for the localhost URL directly;
+- the user asks which managed HTML previews were used recently or are currently
+  online or offline;
 - a generated static artifact needs HTTP-relative asset behavior;
 - a managed preview server must be checked or stopped;
 - a browser-visible validation should begin from one exact local artifact.
@@ -60,13 +65,15 @@ Do not use this sigil when:
 <inputs>
 Required:
 
-- exact local HTML path, or a directory containing `index.html`;
 - mode, defaulting to `open`.
+- for `open`, `start`, `status`, or `stop`: an exact local HTML path, or a
+  directory containing `index.html`.
 
 Optional:
 
 - explicit containing root;
 - explicit port;
+- `list` result limit from `1` through `100`;
 - consuming environment browser runtime;
 - request to preserve or stop the server after inspection.
 </inputs>
@@ -100,6 +107,15 @@ node <skill-directory>/scripts/html-preview-server.mjs \
 6. Store lifecycle state only in the operating system temporary directory.
 7. Treat the helper's JSON receipt as server lifecycle evidence, not browser or
    application evidence.
+8. After a successful `open`, `start`, or `stop`, update the separate sanitized
+   history under an owner-only lock. Retain no token, PID, authorization header,
+   or stale URL in history.
+9. Perform health and exact-byte work outside the history lock. Recover a stale
+   history lock only when its owner is absent and its age exceeds the bounded
+   stale threshold.
+10. Treat history as auxiliary evidence. If history persistence fails after a
+    primary lifecycle result is known, preserve that lifecycle result and return
+    `history_update: failed`; never report a completed stop as blocked.
 
 ## Step 3 - Open directly when mode is `open`
 
@@ -124,7 +140,30 @@ node <skill-directory>/scripts/html-preview-server.mjs \
    managed server for the exact target.
 4. Report whether the server was started, reused, already stopped, or stopped.
 
-## Step 5 - Close with a fixed receipt
+## Step 5 - List sanitized recent, online, and offline views
+
+For `list`:
+
+1. Read only the owner-managed temporary state directory and sanitized history.
+   Do not crawl for HTML, inspect arbitrary processes, or sweep ports.
+2. Merge retained history with compatible legacy live-state records.
+3. Classify an entry as `online` only when its state shape is valid, its
+   token-authenticated health check passes, its target/root identity matches, and
+   its exact target bytes verify at list time.
+4. Classify every other retained target as `offline` with a bounded reason such
+   as `stopped`, `no-live-state`, `stale-state`, `invalid-state`,
+   `identity-conflict`, `target-missing`, or `verification-failed`.
+5. Set `url: null` for every offline entry. A previously allocated loopback URL
+   is not reusable evidence.
+6. Define `recent` as successful helper `open` requests ordered by
+   `last_open_requested_at`. This timestamp does not prove browser navigation.
+7. Keep all targets that currently verify online and the 50 most recent offline
+   history entries. Treat history as OS-temporary rather than durable
+   cross-reboot storage.
+8. Return untruncated counts and at most the requested number of items per view.
+   `list` starts, stops, repairs, and restarts nothing.
+
+## Step 6 - Close with a fixed receipt
 
 Return the output contract. Keep HTTP reachability, browser observation, and
 application behavior as separate evidence fields.
@@ -138,6 +177,14 @@ A successful execution must:
 - bind only to `127.0.0.1`;
 - use a collision-resistant dynamic port by default;
 - reuse a healthy same-target server rather than start a duplicate;
+- list known targets without requiring the caller to remember an exact path;
+- keep recent, online, and offline semantics explicit and deterministic;
+- authenticate and exact-byte verify every entry classified online;
+- retain only sanitized, owner-only, capped OS-temporary history;
+- preserve truthful primary lifecycle receipts when auxiliary history fails;
+- keep network verification outside the history critical section and recover
+  only conservatively stale history locks;
+- return no stale URL for an offline entry;
 - verify the exact target URL over HTTP;
 - reject path traversal and avoid directory listings;
 - open the verified URL directly in `open` mode when a browser runtime exists;
@@ -162,11 +209,21 @@ Avoid:
 - installing Playwright, adding `package.json`, or creating a package root only
   for preview;
 - stopping unrelated processes from unverified PID state;
+- exposing health tokens, token fingerprints, PIDs, authorization headers, raw
+  state, or stale URLs through aggregate output;
+- treating `recent` as proof that browser navigation occurred;
+- treating offline preview state as remote deployment or network status;
+- making `list` start, stop, repair, or restart a server;
+- holding the aggregate history lock across health or exact-byte network checks;
+- turning an auxiliary history-write failure into a false primary lifecycle
+  failure;
+- crawling the repository for HTML or scanning unmanaged processes and ports;
 - leaving the user without the concrete URL or lifecycle state.
 </anti-patterns>
 
 <observability>
-A meaningful execution is any `open`, `start`, `status`, or `stop` attempt that
+A meaningful execution is any `open`, `start`, `status`, `stop`, or `list`
+attempt that
 returns a user-facing receipt.
 
 When the consuming repository has standard Arcanum observability, summarize the
@@ -182,6 +239,8 @@ latest execution through the general post-run hook using:
 - HTTP verification status;
 - browser navigation: observed, unavailable, skipped, or failed;
 - console error count when observed;
+- for `list`: history scope, known/recent/online/offline counts, ignored malformed
+  record counts, and returned-item counts;
 - anti-pattern hits;
 - workflow gaps;
 - output-contract drift;
@@ -197,7 +256,7 @@ Return:
 ```markdown
 ## HTML Preview Server Result
 
-- Mode: open | start | status | stop
+- Mode: open | start | status | stop | list
 - Target: <resolved path>
 - Root: <resolved path>
 - Server: started | reused | running | stopped | already-stopped | blocked
@@ -206,7 +265,18 @@ Return:
 - Browser navigation: observed | unavailable | skipped | failed
 - Browser evidence: <title and console summary | none>
 - State: <managed state path | none>
+- History update: recorded | failed | not applicable
 - Proof boundary: <what this run does and does not establish>
 - Follow-up: <keep using URL | stop command | blocker>
 ```
+
+For `list`, return the helper's sanitized JSON receipt containing:
+
+- `receipt_version: html-preview-server/list-v1`;
+- untruncated `known`, `recent`, `online`, and `offline` counts;
+- limited `recent`, `online`, and `offline` arrays;
+- online URLs only;
+- ignored malformed-record counts;
+- the proof boundary separating helper `open` requests, managed-loopback health,
+  browser navigation, and remote network status.
 </output-contract>

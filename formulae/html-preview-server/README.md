@@ -4,16 +4,20 @@ HTML Preview Server opens an existing local HTML artifact through a verified,
 loopback-only HTTP server without turning a small preview request into a repository
 investigation or a new package root.
 
-It provides four modes:
+It provides five modes:
 
 - `open` starts or reuses the exact target server, verifies the page, opens the URL
   through the available browser runtime, and returns the concrete URL;
 - `start` starts or reuses the server and returns the verified URL without requiring
   browser evidence;
 - `status` reports whether the target's managed server is healthy;
-- `stop` shuts down only the managed server bound to that exact target.
+- `stop` shuts down only the managed server bound to that exact target;
+- `list` returns sanitized recent, online, and offline views of known preview
+  targets without changing server state.
 
 `open` is the default when a caller supplies only an HTML path.
+Because `list` is a reserved mode, a relative target literally named `list` must
+be written as `./list`.
 
 ## Use this sigil when
 
@@ -47,6 +51,9 @@ node formulae/html-preview-server/scripts/html-preview-server.mjs \
 
 node formulae/html-preview-server/scripts/html-preview-server.mjs \
   stop path/to/page.html
+
+node formulae/html-preview-server/scripts/html-preview-server.mjs \
+  list --limit 20
 ```
 
 The default port is dynamic. The containing directory is the default root. Use
@@ -75,6 +82,28 @@ owner-only permissions, and are never repository artifacts.
 
 The stop path authenticates against the managed server before shutdown. It does
 not kill arbitrary process IDs from state files.
+
+The same owner-only temporary directory contains a separate sanitized history
+file. It retains canonical target/root metadata and lifecycle timestamps, but
+never stores health tokens, process identifiers, authorization headers, or stale
+URLs. History is capped at all targets that currently verify online plus the 50
+most recent offline targets. Operating-system temporary cleanup may remove it.
+History writes use an owner-recorded lock with conservative stale-owner recovery
+and atomic replacement. History is auxiliary evidence: if it cannot be updated,
+the already-observed server lifecycle result remains truthful and the receipt
+returns `history_update: failed`.
+
+`list` returns:
+
+- `recent`: successful helper `open` requests, ordered by
+  `last_open_requested_at`;
+- `online`: authenticated managed servers whose exact target bytes verify at
+  list time;
+- `offline`: retained targets that are stopped, stale, invalid, missing, or fail
+  exact-byte verification.
+
+An offline entry always has `url: null`. “Online” and “offline” describe only the
+managed loopback preview, not remote deployment or general network status.
 
 ## Tier rationale
 

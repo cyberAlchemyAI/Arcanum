@@ -1,6 +1,6 @@
 # Validation
 
-- Latest report: `runs/2026-07-29-initial-validation.md`
+- Latest report: `runs/2026-07-30-list-history-validation.md`
 - Status: flag
 - Deterministic lifecycle helper: pass
 - Profile-aware harness structure: pass
@@ -21,6 +21,16 @@
   checked.
 - Same-basename targets receive distinct identities.
 - Stop is authenticated and idempotent.
+- List returns sanitized recent, online, and offline views with untruncated
+  counts and bounded results.
+- Online list entries pass authenticated health, identity, and exact-byte checks;
+  offline entries return no stale URL.
+- Start-only and legacy live-state targets do not inflate recent-open evidence.
+- Stopped, stale, malformed, symlinked, missing-target, and retention-bound cases
+  are covered without token or raw-state disclosure.
+- Stale history locks recover conservatively, different-target history writes do
+  not lose entries, and history persistence failure cannot falsify a completed
+  stop receipt.
 - The canonical package and selectively generated Codex/Claude mirrors match the
   disposable bootstrap output.
 - Shared Chromium navigation reached the exact managed URL with HTTP 200, the

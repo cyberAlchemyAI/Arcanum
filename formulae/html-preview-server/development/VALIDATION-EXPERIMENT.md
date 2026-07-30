@@ -11,9 +11,10 @@ Validate that HTML Preview Server remains a deterministic Formulae sigil across:
 
 - a low-complexity direct open of one standalone HTML file;
 - medium lifecycle behavior covering reuse, status, explicit-root/port conflicts,
-  relative assets, and cleanup;
+  relative assets, sanitized recent/online/offline listing, and cleanup;
 - complex containment, concurrency, encoded-path, stale-state, observability, and
-  proof-boundary review.
+  proof-boundary review, including capped offline history and malformed-record
+  isolation.
 
 ## Evidence Required
 

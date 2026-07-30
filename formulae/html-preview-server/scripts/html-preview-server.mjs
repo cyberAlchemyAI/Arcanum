@@ -4,8 +4,11 @@ import { createHash, randomBytes } from "node:crypto";
 import { createReadStream } from "node:fs";
 import {
   chmod,
+  lstat,
   mkdir,
+  open,
   readFile,
+  readdir,
   realpath,
   rename,
   rmdir,
@@ -21,10 +24,18 @@ import { fileURLToPath } from "node:url";
 
 const HOST = "127.0.0.1";
 const RECEIPT_VERSION = "html-preview-server/v1";
+const LIST_RECEIPT_VERSION = "html-preview-server/list-v1";
+const HISTORY_VERSION = "html-preview-server/history-v1";
 const HEALTH_PATH = "/.well-known/arcanum-html-preview-server/status";
 const STOP_PATH = "/.well-known/arcanum-html-preview-server/stop";
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DEFAULT_STATE_ROOT = path.join(tmpdir(), "arcanum-html-preview-server");
+const HISTORY_FILE_NAME = "history.json";
+const HISTORY_LOCK_NAME = "history.lock";
+const DEFAULT_LIST_LIMIT = 20;
+const MAX_LIST_LIMIT = 100;
+const OFFLINE_HISTORY_LIMIT = 50;
+const HISTORY_LOCK_STALE_MS = 30_000;
 
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -50,6 +61,7 @@ function usage() {
   process.stdout.write(`Usage:
   html-preview-server.mjs <html-path>
   html-preview-server.mjs <open|start|status|stop> <html-path> [--root <directory>] [--port <port>]
+  html-preview-server.mjs list [--limit <count>]
 `);
 }
 
@@ -69,10 +81,31 @@ function parsePublicArgs(argv) {
     return { help: true };
   }
 
-  const knownModes = new Set(["open", "start", "status", "stop"]);
+  const knownModes = new Set(["open", "start", "status", "stop", "list"]);
   let mode = "open";
   if (knownModes.has(values[0])) {
     mode = values.shift();
+  }
+
+  if (mode === "list") {
+    let limit = DEFAULT_LIST_LIMIT;
+    while (values.length > 0) {
+      const flag = values.shift();
+      if (flag !== "--limit") fail(`Unknown argument for list: ${flag}`);
+      const rawLimit = values.shift();
+      if (rawLimit === undefined) fail("--limit requires an integer.");
+      limit = Number(rawLimit);
+      if (
+        !Number.isInteger(limit) ||
+        limit < 1 ||
+        limit > MAX_LIST_LIMIT
+      ) {
+        fail(
+          `--limit must be an integer between 1 and ${MAX_LIST_LIMIT}.`,
+        );
+      }
+    }
+    return { help: false, mode, limit };
   }
 
   const target = values.shift();
@@ -207,15 +240,21 @@ function stateRoot() {
     : DEFAULT_STATE_ROOT;
 }
 
-function statePathFor(target) {
-  const digest = createHash("sha256").update(target).digest("hex").slice(0, 20);
-  return path.join(stateRoot(), `${digest}.json`);
+function targetIdFor(target) {
+  return createHash("sha256").update(target).digest("hex").slice(0, 20);
 }
 
-async function withTargetLock(statePath, operation) {
-  const lockPath = `${statePath}.lock`;
-  await mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
-  await chmod(path.dirname(statePath), 0o700);
+function statePathFor(target) {
+  return path.join(stateRoot(), `${targetIdFor(target)}.json`);
+}
+
+function historyPath() {
+  return path.join(stateRoot(), HISTORY_FILE_NAME);
+}
+
+async function withDirectoryLock(lockPath, timeoutMessage, operation) {
+  await mkdir(path.dirname(lockPath), { recursive: true, mode: 0o700 });
+  await chmod(path.dirname(lockPath), 0o700);
   const deadline = Date.now() + 7000;
   while (true) {
     try {
@@ -224,9 +263,7 @@ async function withTargetLock(statePath, operation) {
     } catch (error) {
       if (error.code !== "EEXIST") throw error;
       if (Date.now() >= deadline) {
-        fail("Timed out waiting for the target lifecycle lock.", {
-          state_file: statePath,
-        });
+        fail(timeoutMessage, { lock: lockPath });
       }
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
@@ -242,12 +279,114 @@ async function withTargetLock(statePath, operation) {
   }
 }
 
-async function readState(statePath) {
+async function withTargetLock(statePath, operation) {
+  return withDirectoryLock(
+    `${statePath}.lock`,
+    "Timed out waiting for the target lifecycle lock.",
+    operation,
+  );
+}
+
+function processIsAlive(pid) {
+  if (!Number.isInteger(pid) || pid < 1) return false;
   try {
-    return JSON.parse(await readFile(statePath, "utf8"));
-  } catch {
-    return null;
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error.code !== "ESRCH";
   }
+}
+
+async function recoverStaleHistoryLock(lockPath) {
+  let lockStat;
+  try {
+    lockStat = await lstat(lockPath);
+  } catch (error) {
+    return error.code === "ENOENT";
+  }
+  if (
+    !lockStat.isFile() ||
+    lockStat.isSymbolicLink() ||
+    Date.now() - lockStat.mtimeMs < HISTORY_LOCK_STALE_MS
+  ) {
+    return false;
+  }
+  const lockRecord = await readRegularJson(lockPath);
+  if (
+    lockRecord.status === "ok" &&
+    processIsAlive(lockRecord.value?.pid)
+  ) {
+    return false;
+  }
+  try {
+    await unlink(lockPath);
+    return true;
+  } catch (error) {
+    return error.code === "ENOENT";
+  }
+}
+
+async function withHistoryLock(operation) {
+  const lockPath = path.join(stateRoot(), HISTORY_LOCK_NAME);
+  await mkdir(path.dirname(lockPath), { recursive: true, mode: 0o700 });
+  await chmod(path.dirname(lockPath), 0o700);
+  const deadline = Date.now() + 7000;
+  let lockHandle;
+  while (!lockHandle) {
+    try {
+      lockHandle = await open(lockPath, "wx", 0o600);
+      await lockHandle.writeFile(
+        `${JSON.stringify({
+          pid: process.pid,
+          acquired_at: new Date().toISOString(),
+        })}\n`,
+      );
+      await lockHandle.sync();
+    } catch (error) {
+      if (lockHandle) {
+        await lockHandle.close().catch(() => {});
+        await unlink(lockPath).catch(() => {});
+        lockHandle = null;
+      }
+      if (error.code !== "EEXIST") throw error;
+      if (await recoverStaleHistoryLock(lockPath)) continue;
+      if (Date.now() >= deadline) {
+        fail("Timed out waiting for the preview-history lock.", {
+          lock: lockPath,
+        });
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+  try {
+    return await operation();
+  } finally {
+    await lockHandle.close().catch(() => {});
+    await unlink(lockPath).catch((error) => {
+      if (error.code !== "ENOENT") throw error;
+    });
+  }
+}
+
+async function readRegularJson(filePath) {
+  try {
+    const fileStat = await lstat(filePath);
+    if (!fileStat.isFile() || fileStat.isSymbolicLink()) {
+      return { status: "invalid", value: null };
+    }
+    return {
+      status: "ok",
+      value: JSON.parse(await readFile(filePath, "utf8")),
+    };
+  } catch (error) {
+    if (error.code === "ENOENT") return { status: "missing", value: null };
+    return { status: "invalid", value: null };
+  }
+}
+
+async function readState(statePath) {
+  const result = await readRegularJson(statePath);
+  return result.status === "ok" ? result.value : null;
 }
 
 async function removeState(statePath) {
@@ -267,6 +406,306 @@ async function writeState(statePath, state) {
   });
   await chmod(temporaryPath, 0o600);
   await rename(temporaryPath, statePath);
+}
+
+function isIsoTimestamp(value) {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    Number.isFinite(Date.parse(value))
+  );
+}
+
+function sanitizeHistoryRecord(candidate) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+    return null;
+  }
+  const {
+    target_id: targetId,
+    target,
+    root,
+    target_kind: targetKind,
+    root_policy: rootPolicy,
+    last_lifecycle_at: lastLifecycleAt,
+    last_mode: lastMode,
+    last_open_requested_at: lastOpenRequestedAt,
+    last_known_server_state: lastKnownServerState,
+  } = candidate;
+  if (
+    typeof target !== "string" ||
+    !path.isAbsolute(target) ||
+    path.resolve(target) !== target ||
+    ![".html", ".htm"].includes(path.extname(target).toLowerCase()) ||
+    typeof root !== "string" ||
+    !path.isAbsolute(root) ||
+    path.resolve(root) !== root ||
+    !isContained(root, target) ||
+    targetId !== targetIdFor(target) ||
+    !["file", "directory-index"].includes(targetKind) ||
+    !["containing-directory", "explicit-root"].includes(rootPolicy) ||
+    !isIsoTimestamp(lastLifecycleAt) ||
+    !["open", "start", "stop"].includes(lastMode) ||
+    !["running", "stopped"].includes(lastKnownServerState) ||
+    !(
+      lastOpenRequestedAt === null ||
+      isIsoTimestamp(lastOpenRequestedAt)
+    )
+  ) {
+    return null;
+  }
+  return {
+    target_id: targetId,
+    target,
+    root,
+    target_kind: targetKind,
+    root_policy: rootPolicy,
+    last_lifecycle_at: lastLifecycleAt,
+    last_mode: lastMode,
+    last_open_requested_at: lastOpenRequestedAt,
+    last_known_server_state: lastKnownServerState,
+  };
+}
+
+async function readHistoryRecords() {
+  const historyResult = await readRegularJson(historyPath());
+  if (historyResult.status === "missing") {
+    return { status: "missing", records: [], invalidRecordCount: 0 };
+  }
+  if (
+    historyResult.status !== "ok" ||
+    historyResult.value?.history_version !== HISTORY_VERSION ||
+    !Array.isArray(historyResult.value?.entries)
+  ) {
+    return { status: "invalid", records: [], invalidRecordCount: 1 };
+  }
+
+  const records = new Map();
+  let invalidRecordCount = 0;
+  for (const candidate of historyResult.value.entries) {
+    const record = sanitizeHistoryRecord(candidate);
+    if (!record) {
+      invalidRecordCount += 1;
+      continue;
+    }
+    const previous = records.get(record.target_id);
+    if (
+      previous &&
+      Date.parse(previous.last_lifecycle_at) >=
+        Date.parse(record.last_lifecycle_at)
+    ) {
+      invalidRecordCount += 1;
+      continue;
+    }
+    if (previous) invalidRecordCount += 1;
+    records.set(record.target_id, record);
+  }
+  return {
+    status: invalidRecordCount > 0 ? "partial" : "ok",
+    records: [...records.values()],
+    invalidRecordCount,
+  };
+}
+
+async function managedStateDirectoryEntries() {
+  try {
+    return await readdir(stateRoot(), { withFileTypes: true });
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+function stateIdFromName(name) {
+  const match = /^([0-9a-f]{20})\.json$/.exec(name);
+  return match ? match[1] : null;
+}
+
+function sanitizeManagedState(candidate, statePath, targetId) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+    return null;
+  }
+  const {
+    target,
+    root,
+    entry,
+    host,
+    port,
+    base_url: baseUrl,
+    url,
+    token,
+    token_fingerprint: tokenFingerprint,
+    state_file: recordedStatePath,
+    started_at: startedAt,
+  } = candidate;
+  if (
+    typeof target !== "string" ||
+    !path.isAbsolute(target) ||
+    path.resolve(target) !== target ||
+    targetIdFor(target) !== targetId ||
+    ![".html", ".htm"].includes(path.extname(target).toLowerCase()) ||
+    typeof root !== "string" ||
+    !path.isAbsolute(root) ||
+    path.resolve(root) !== root ||
+    !isContained(root, target) ||
+    typeof entry !== "string" ||
+    entry.length === 0 ||
+    path.resolve(root, entry) !== target ||
+    host !== HOST ||
+    !Number.isInteger(port) ||
+    port < 1 ||
+    port > 65535 ||
+    baseUrl !== `http://${HOST}:${port}` ||
+    typeof token !== "string" ||
+    !/^[0-9a-f]{64}$/.test(token) ||
+    tokenFingerprint !== sha256(token).slice(0, 16) ||
+    recordedStatePath !== statePath ||
+    !isIsoTimestamp(startedAt)
+  ) {
+    return null;
+  }
+  const encodedEntry = entry
+    .split(path.sep)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  if (url !== `${baseUrl}/${encodedEntry}`) return null;
+  return candidate;
+}
+
+async function readManagedStates() {
+  const states = new Map();
+  const invalidStateIds = new Set();
+  let invalidRecordCount = 0;
+  for (const entry of await managedStateDirectoryEntries()) {
+    if (entry.name === HISTORY_FILE_NAME || !entry.name.endsWith(".json")) {
+      continue;
+    }
+    const targetId = stateIdFromName(entry.name);
+    if (!targetId || !entry.isFile() || entry.isSymbolicLink()) {
+      invalidRecordCount += 1;
+      if (targetId) invalidStateIds.add(targetId);
+      continue;
+    }
+    const statePath = path.join(stateRoot(), entry.name);
+    const stateResult = await readRegularJson(statePath);
+    const state =
+      stateResult.status === "ok"
+        ? sanitizeManagedState(stateResult.value, statePath, targetId)
+        : null;
+    if (!state) {
+      invalidRecordCount += 1;
+      invalidStateIds.add(targetId);
+      continue;
+    }
+    states.set(targetId, state);
+  }
+  return { states, invalidStateIds, invalidRecordCount };
+}
+
+async function writeHistoryRecords(records) {
+  const targetPath = historyPath();
+  await mkdir(path.dirname(targetPath), { recursive: true, mode: 0o700 });
+  await chmod(path.dirname(targetPath), 0o700);
+  const temporaryPath = `${targetPath}.${process.pid}.tmp`;
+  const sorted = [...records].sort(
+    (left, right) =>
+      Date.parse(right.last_lifecycle_at) -
+        Date.parse(left.last_lifecycle_at) ||
+      left.target.localeCompare(right.target),
+  );
+  await writeFile(
+    temporaryPath,
+    `${JSON.stringify(
+      {
+        history_version: HISTORY_VERSION,
+        updated_at: new Date().toISOString(),
+        entries: sorted,
+      },
+      null,
+      2,
+    )}\n`,
+    { mode: 0o600 },
+  );
+  await chmod(temporaryPath, 0o600);
+  await rename(temporaryPath, targetPath);
+}
+
+async function verifiedOnlineStateIds() {
+  const managedStates = await readManagedStates();
+  const identifiers = new Set();
+  await Promise.all(
+    [...managedStates.states].map(async ([targetId, state]) => {
+      if (
+        !(await targetExistsAsHtml(state.target)) ||
+        !(await health(state))
+      ) {
+        return;
+      }
+      try {
+        await verifyTargetUrl(state.url, state.target);
+        identifiers.add(targetId);
+      } catch {
+        // Retention treats unverifiable managed state as offline.
+      }
+    }),
+  );
+  return identifiers;
+}
+
+async function recordHistory(resolved, mode, serverState) {
+  const now = new Date().toISOString();
+  const targetId = targetIdFor(resolved.target);
+  const onlineIds = await verifiedOnlineStateIds();
+  if (["started", "reused"].includes(serverState)) {
+    onlineIds.add(targetId);
+  } else {
+    onlineIds.delete(targetId);
+  }
+  await withHistoryLock(async () => {
+    const history = await readHistoryRecords();
+    const records = new Map(
+      history.records.map((record) => [record.target_id, record]),
+    );
+    const previous = records.get(targetId);
+    records.set(targetId, {
+      target_id: targetId,
+      target: resolved.target,
+      root: resolved.root,
+      target_kind: resolved.targetKind,
+      root_policy: resolved.rootPolicy,
+      last_lifecycle_at: now,
+      last_mode: mode,
+      last_open_requested_at:
+        mode === "open" ? now : (previous?.last_open_requested_at ?? null),
+      last_known_server_state: ["started", "reused"].includes(serverState)
+        ? "running"
+        : "stopped",
+    });
+
+    const inactiveRecords = [...records.values()]
+      .filter((record) => !onlineIds.has(record.target_id))
+      .sort(
+        (left, right) =>
+          Date.parse(right.last_lifecycle_at) -
+          Date.parse(left.last_lifecycle_at),
+      )
+      .slice(0, OFFLINE_HISTORY_LIMIT);
+    const retained = [
+      ...[...records.values()].filter((record) =>
+        onlineIds.has(record.target_id),
+      ),
+      ...inactiveRecords,
+    ];
+    await writeHistoryRecords(retained);
+  });
+}
+
+async function tryRecordHistory(resolved, mode, serverState) {
+  try {
+    await recordHistory(resolved, mode, serverState);
+    return "recorded";
+  } catch {
+    return "failed";
+  }
 }
 
 function authorizationHeaders(state) {
@@ -331,7 +770,14 @@ async function verifyTargetUrl(url, target) {
   };
 }
 
-function publicReceipt(mode, serverState, resolved, state, verification) {
+function publicReceipt(
+  mode,
+  serverState,
+  resolved,
+  state,
+  verification,
+  historyUpdate = "not_applicable",
+) {
   return {
     receipt_version: RECEIPT_VERSION,
     status: "pass",
@@ -349,9 +795,163 @@ function publicReceipt(mode, serverState, resolved, state, verification) {
     server_key: state.server_key,
     helper_sha256: state.helper_sha256,
     verification,
+    history_update: historyUpdate,
     proof_boundary:
       "Proves managed loopback HTTP reachability for the exact target; does not prove visual correctness, usability, application readiness, or external integrations.",
   };
+}
+
+function listItem(record, previewState, verification, url, offlineReason) {
+  return {
+    target_id: record.target_id,
+    target: record.target,
+    root: record.root,
+    target_kind: record.target_kind,
+    root_policy: record.root_policy,
+    last_lifecycle_at: record.last_lifecycle_at,
+    last_mode: record.last_mode,
+    last_open_requested_at: record.last_open_requested_at,
+    last_known_server_state: record.last_known_server_state,
+    preview_state: previewState,
+    verification,
+    url,
+    offline_reason: offlineReason,
+  };
+}
+
+async function targetExistsAsHtml(target) {
+  try {
+    const targetStat = await stat(target);
+    return (
+      targetStat.isFile() &&
+      [".html", ".htm"].includes(path.extname(target).toLowerCase())
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function classifyListRecord(record, managedStates) {
+  if (!(await targetExistsAsHtml(record.target))) {
+    return listItem(
+      record,
+      "offline",
+      "not_run",
+      null,
+      "target-missing",
+    );
+  }
+
+  const state = managedStates.states.get(record.target_id);
+  if (!state) {
+    const reason = managedStates.invalidStateIds.has(record.target_id)
+      ? "invalid-state"
+      : record.last_known_server_state === "stopped"
+        ? "stopped"
+        : "no-live-state";
+    return listItem(record, "offline", "not_run", null, reason);
+  }
+  if (state.target !== record.target || state.root !== record.root) {
+    return listItem(
+      record,
+      "offline",
+      "not_run",
+      null,
+      "identity-conflict",
+    );
+  }
+
+  const currentHealth = await health(state);
+  if (!currentHealth) {
+    return listItem(record, "offline", "not_run", null, "stale-state");
+  }
+  try {
+    await verifyTargetUrl(state.url, record.target);
+    return listItem(record, "online", "pass", state.url, null);
+  } catch {
+    return listItem(
+      record,
+      "offline",
+      "fail",
+      null,
+      "verification-failed",
+    );
+  }
+}
+
+function descendingTimestamp(field) {
+  return (left, right) =>
+    Date.parse(right[field] ?? 0) - Date.parse(left[field] ?? 0) ||
+    left.target.localeCompare(right.target);
+}
+
+async function listMode(limit) {
+  const history = await readHistoryRecords();
+  const managedStates = await readManagedStates();
+  const records = new Map(
+    history.records.map((record) => [record.target_id, record]),
+  );
+  for (const [targetId, state] of managedStates.states) {
+    if (records.has(targetId)) continue;
+    records.set(targetId, {
+      target_id: targetId,
+      target: state.target,
+      root: state.root,
+      target_kind: "file",
+      root_policy:
+        path.dirname(state.target) === state.root
+          ? "containing-directory"
+          : "explicit-root",
+      last_lifecycle_at: state.started_at,
+      last_mode: "legacy-state",
+      last_open_requested_at: null,
+      last_known_server_state: "running",
+    });
+  }
+
+  const classified = await Promise.all(
+    [...records.values()].map((record) =>
+      classifyListRecord(record, managedStates),
+    ),
+  );
+  const recent = classified
+    .filter((record) => record.last_open_requested_at !== null)
+    .sort(descendingTimestamp("last_open_requested_at"));
+  const online = classified
+    .filter((record) => record.preview_state === "online")
+    .sort(descendingTimestamp("last_lifecycle_at"));
+  const offline = classified
+    .filter((record) => record.preview_state === "offline")
+    .sort(descendingTimestamp("last_lifecycle_at"));
+
+  emit({
+    receipt_version: LIST_RECEIPT_VERSION,
+    status: "pass",
+    mode: "list",
+    generated_at: new Date().toISOString(),
+    history_scope: "os-temporary-sanitized",
+    limit,
+    counts: {
+      known: classified.length,
+      recent: recent.length,
+      online: online.length,
+      offline: offline.length,
+    },
+    returned_counts: {
+      recent: Math.min(recent.length, limit),
+      online: Math.min(online.length, limit),
+      offline: Math.min(offline.length, limit),
+    },
+    recent: recent.slice(0, limit),
+    online: online.slice(0, limit),
+    offline: offline.slice(0, limit),
+    ignored_records: {
+      history: history.invalidRecordCount,
+      managed_state: managedStates.invalidRecordCount,
+    },
+    proof_boundary:
+      "Online proves authenticated managed reachability and exact target bytes at snapshot time; recent records successful helper open requests, not browser navigation; offline does not imply remote network status.",
+  });
 }
 
 async function startOrReuse(mode, resolved, requestedPort) {
@@ -378,7 +978,21 @@ async function startOrReuse(mode, resolved, requestedPort) {
         });
       }
       const verification = await verifyTargetUrl(previous.url, resolved.target);
-      emit(publicReceipt(mode, "reused", resolved, previous, verification));
+      const historyUpdate = await tryRecordHistory(
+        resolved,
+        mode,
+        "reused",
+      );
+      emit(
+        publicReceipt(
+          mode,
+          "reused",
+          resolved,
+          previous,
+          verification,
+          historyUpdate,
+        ),
+      );
       return;
     }
     if (previous) await removeState(statePath);
@@ -431,7 +1045,21 @@ async function startOrReuse(mode, resolved, requestedPort) {
 
     try {
       const verification = await verifyTargetUrl(state.url, resolved.target);
-      emit(publicReceipt(mode, "started", resolved, state, verification));
+      const historyUpdate = await tryRecordHistory(
+        resolved,
+        mode,
+        "started",
+      );
+      emit(
+        publicReceipt(
+          mode,
+          "started",
+          resolved,
+          state,
+          verification,
+          historyUpdate,
+        ),
+      );
     } catch (error) {
       try {
         await fetchWithTimeout(`${state.base_url}${STOP_PATH}`, {
@@ -461,6 +1089,7 @@ async function statusMode(resolved) {
       url: null,
       state_file: statePath,
       verification: "not_run",
+      history_update: "not_applicable",
     });
     return;
   }
@@ -483,6 +1112,11 @@ async function stopMode(resolved) {
     const currentHealth = await health(state);
     if (!currentHealth) {
       if (state) await removeState(statePath);
+      const historyUpdate = await tryRecordHistory(
+        resolved,
+        "stop",
+        "already-stopped",
+      );
       emit({
         receipt_version: RECEIPT_VERSION,
         status: "pass",
@@ -493,6 +1127,7 @@ async function stopMode(resolved) {
         url: null,
         state_file: statePath,
         verification: "not_run",
+        history_update: historyUpdate,
       });
       return;
     }
@@ -521,6 +1156,11 @@ async function stopMode(resolved) {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
     await removeState(statePath);
+    const historyUpdate = await tryRecordHistory(
+      resolved,
+      "stop",
+      "stopped",
+    );
     emit({
       receipt_version: RECEIPT_VERSION,
       status: "pass",
@@ -531,6 +1171,7 @@ async function stopMode(resolved) {
       url: state.url,
       state_file: statePath,
       verification: "shutdown_authenticated",
+      history_update: historyUpdate,
     });
   });
 }
@@ -717,6 +1358,10 @@ async function main() {
   const args = parsePublicArgs(process.argv.slice(2));
   if (args.help) {
     usage();
+    return;
+  }
+  if (args.mode === "list") {
+    await listMode(args.limit);
     return;
   }
   const resolved = await resolveTarget(args.target, args.root);
