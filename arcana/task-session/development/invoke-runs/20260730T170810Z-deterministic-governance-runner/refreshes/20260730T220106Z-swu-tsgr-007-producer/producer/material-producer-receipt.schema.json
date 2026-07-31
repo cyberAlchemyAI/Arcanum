@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/swu-tsgr-007-material-producer-receipt/1-0-0",
+  "title": "SwuTsgr007MaterialProducerReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "runtime",
+    "adapter",
+    "source_swu",
+    "swu_id",
+    "result",
+    "authority_ceiling",
+    "files_touched",
+    "source_artifacts",
+    "staged_root",
+    "manifest_ref",
+    "staged_manifest_sha256",
+    "staged_outputs",
+    "canonical_target_preconditions",
+    "target_root_convention",
+    "owner_matrix",
+    "validations",
+    "undeclared_staged_outputs",
+    "experiment_harness",
+    "remaining_blockers",
+    "lifecycle_owner_next_step",
+    "claims_not_made",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.material-producer-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "runtime": {
+      "const": "codex"
+    },
+    "adapter": {
+      "const": "native-background-helper"
+    },
+    "source_swu": {
+      "const": "SWU-TSGR-007"
+    },
+    "swu_id": {
+      "const": "SWU-TSGR-007"
+    },
+    "result": {
+      "const": "pass"
+    },
+    "authority_ceiling": {
+      "const": "isolated-staged-material-only"
+    },
+    "files_touched": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "source_artifacts": {
+      "type": "array",
+      "minItems": 7,
+      "items": {
+        "$ref": "#/$defs/sourceArtifact"
+      }
+    },
+    "staged_root": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "manifest_ref": {
+      "$ref": "#/$defs/exactRef"
+    },
+    "staged_manifest_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "staged_outputs": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/stagedOutput"
+      }
+    },
+    "canonical_target_preconditions": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/precondition"
+      }
+    },
+    "target_root_convention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "path_form",
+        "staged_prefix"
+      ],
+      "properties": {
+        "root": {
+          "const": "."
+        },
+        "path_form": {
+          "const": "repository-relative"
+        },
+        "staged_prefix": {
+          "const": "producer/staged"
+        }
+      }
+    },
+    "owner_matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_owner",
+        "material_owner",
+        "execution_owner",
+        "closeout_owner",
+        "experiment_owner"
+      ],
+      "properties": {
+        "selection_owner": {
+          "const": "task-session"
+        },
+        "material_owner": {
+          "const": "sigil-development"
+        },
+        "execution_owner": {
+          "const": "task-session"
+        },
+        "closeout_owner": {
+          "const": "invoke-via-continuation-router"
+        },
+        "experiment_owner": {
+          "const": "SWU-TSGR-010"
+        }
+      }
+    },
+    "validations": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/$defs/validation"
+      }
+    },
+    "undeclared_staged_outputs": {
+      "const": 0
+    },
+    "experiment_harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "owner",
+        "report",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "const": "not_run"
+        },
+        "owner": {
+          "const": "SWU-TSGR-010"
+        },
+        "report": {
+          "type": "null"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "remaining_blockers": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "lifecycle_owner_next_step": {
+      "const": "validate"
+    },
+    "claims_not_made": {
+      "type": "array",
+      "minItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "mutation-readiness",
+          "task-session-acceptance",
+          "lifecycle-completion",
+          "publication",
+          "promotion",
+          "generated-mirror-sync",
+          "commit",
+          "push"
+        ]
+      }
+    },
+    "residue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "sourceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "artifact_ref"
+      ],
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "artifact_ref": {
+          "$ref": "#/$defs/exactRef"
+        }
+      }
+    },
+    "stagedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "output_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "output_ref": {
+          "$ref": "#/$defs/exactRef"
+        }
+      }
+    },
+    "precondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "state",
+        "live_ref"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "state": {
+          "enum": [
+            "present",
+            "absent"
+          ]
+        },
+        "live_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "absent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "live_ref": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "present"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "live_ref": {
+                "$ref": "#/$defs/exactRef"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argv",
+        "cwd",
+        "exit_code",
+        "result",
+        "case_counts",
+        "evidence"
+      ],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "exit_code": {
+          "const": 0
+        },
+        "result": {
+          "const": "pass"
+        },
+        "case_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "positive",
+            "negative",
+            "undeclared_outputs"
+          ],
+          "properties": {
+            "positive": {
+              "type": "string",
+              "pattern": "^(n/a|[0-9]+/[0-9]+)$"
+            },
+            "negative": {
+              "type": "string",
+              "pattern": "^(n/a|[0-9]+/[0-9]+)$"
+            },
+            "undeclared_outputs": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    }
+  }
+}

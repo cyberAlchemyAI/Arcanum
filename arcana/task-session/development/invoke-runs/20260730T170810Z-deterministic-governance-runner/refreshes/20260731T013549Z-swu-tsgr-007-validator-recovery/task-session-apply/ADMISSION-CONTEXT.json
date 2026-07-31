@@ -1,0 +1,67 @@
+{
+  "schema_version": "task-session.context-pack.v1",
+  "run_id": "20260731T013549Z-swu-tsgr-007-validator-recovery",
+  "task_id": "TASK-TSGR-03",
+  "swu_id": "SWU-TSGR-007",
+  "mode": "recovery",
+  "strict_coverage": true,
+  "authority_ceiling": "one-file-recovery-mutation-admission-input",
+  "approval_basis": {
+    "source": "user authorized continuation including repository-managed automatic commit/push",
+    "scope": "repair only the SWU-TSGR-007 validator default root"
+  },
+  "obligations": [
+    {
+      "id": "R1",
+      "summary": "Make the exact task-contract no-argument command resolve the canonical Task Session directory from the validator file location.",
+      "status": "covered"
+    },
+    {
+      "id": "R2",
+      "summary": "Preserve explicit --task-session-dir and producer-manifest behavior.",
+      "status": "covered"
+    },
+    {
+      "id": "R3",
+      "summary": "Rerun the complete 4 positive, 30 negative, 4 schema matrix in no-argument and explicit-root modes.",
+      "status": "covered"
+    }
+  ],
+  "constraints": [
+    "Update only the admitted validator material path before terminal result persistence.",
+    "Do not change the two schemas, adapter manifest, runner, fixtures, planning files, or SWU-TSGR-008.",
+    "Do not invoke live owner effects.",
+    "Preserve the existing validator matrix and inventory enforcement."
+  ],
+  "execution_contract": {
+    "writeProfile": "material-bound",
+    "materialWrites": [
+      "arcanum/arcana/task-session/development/validate-owner-hook.py"
+    ],
+    "executionOutputs": [
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-007-RESULT.json"
+    ],
+    "allowedWrites": [
+      "arcanum/arcana/task-session/development/validate-owner-hook.py",
+      "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/work-pack/results/SWU-TSGR-007-RESULT.json"
+    ],
+    "validationCommands": [
+      "python3 arcana/task-session/development/validate-owner-hook.py",
+      "python3 arcana/task-session/development/validate-owner-hook.py --task-session-dir arcana/task-session"
+    ],
+    "lifecycleOwner": "sigil-development",
+    "authorityClass": "public",
+    "publicationClass": "public"
+  },
+  "done_criteria": [
+    {
+      "criterion": "The exact no-argument validator command passes the complete declared matrix from the canonical Arcanum root.",
+      "criticality": "acceptance-critical"
+    },
+    {
+      "criterion": "Explicit-root mode passes the same matrix and all five other SWU-TSGR-007 product files retain their admitted digests.",
+      "criticality": "acceptance-critical"
+    }
+  ],
+  "blockers": []
+}

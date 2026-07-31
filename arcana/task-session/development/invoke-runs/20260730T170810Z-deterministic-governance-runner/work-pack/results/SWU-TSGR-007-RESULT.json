@@ -1,0 +1,72 @@
+{
+  "schema_version": "task-session.swu-result.v1",
+  "run_id": "20260730T220106Z-swu-tsgr-007-task-session",
+  "swu_id": "SWU-TSGR-007",
+  "result": "pass",
+  "files_touched": [
+    "arcanum/arcana/task-session/schemas/owner-hook-request.schema.json",
+    "arcanum/arcana/task-session/schemas/owner-hook-receipt.schema.json",
+    "arcanum/arcana/task-session/hook-adapters.json",
+    "arcanum/arcana/task-session/scripts/run-owner-hook.py",
+    "arcanum/arcana/task-session/development/fixtures/owner-hook-cases.json",
+    "arcanum/arcana/task-session/development/validate-owner-hook.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcana/task-session/development/validate-owner-hook.py",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-owner-hook.py",
+        "sha256": "02f76cb63e93bd564e0086d5cc8719e5f79ba7e722bfdfa6d46c774f294ad6b4"
+      }
+    },
+    {
+      "command": "python3 arcana/task-session/development/validate-owner-hook.py --task-session-dir arcana/task-session",
+      "result": "pass",
+      "evidence_ref": {
+        "path": "arcanum/arcana/task-session/development/validate-owner-hook.py",
+        "sha256": "02f76cb63e93bd564e0086d5cc8719e5f79ba7e722bfdfa6d46c774f294ad6b4"
+      }
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T220106Z-swu-tsgr-007-producer/producer/material-producer-receipt.json",
+      "sha256": "a6f0722ce8c7f807bfc91d030c3738137f11ac051d6737d6b28b0fe9185bafca"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T220106Z-swu-tsgr-007-producer/task-session-apply/refresh-material-handoff.json",
+      "sha256": "d23f58bc9e33a131010a3ffeb43d7fd9e219f9c6210f7a8099db20eed5935a59"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260730T220106Z-swu-tsgr-007-producer/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "44e2e81b4212570ab5cbecbb4c124eb4f92f143299840c852105b778b0d55b0b"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260731T013549Z-swu-tsgr-007-validator-recovery/producer/material-producer-receipt.json",
+      "sha256": "55e79972f232eebc0e4b8476891c48c595557f1a291a9cfb30e6fa7d4d8ea6e6"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260731T013549Z-swu-tsgr-007-validator-recovery/task-session-apply/refresh-material-handoff.json",
+      "sha256": "b904cb36e64419841e2ac126cf9f87cce43680939240daf33685777c0dd1fdbf"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260730T170810Z-deterministic-governance-runner/refreshes/20260731T013549Z-swu-tsgr-007-validator-recovery/task-session-apply/mutation-admission-receipt.json",
+      "sha256": "87d12b77c50363707a5500418865189409aa354ed78631f6675b3451c1b5059f"
+    },
+    {
+      "path": "arcanum/arcana/task-session/development/validate-owner-hook.py",
+      "sha256": "02f76cb63e93bd564e0086d5cc8719e5f79ba7e722bfdfa6d46c774f294ad6b4"
+    }
+  ],
+  "blockers": [],
+  "residue": [
+    "SWU-TSGR-007 adds a manifest-bound generic owner-hook protocol with structured argv, exact schema and path binding, bounded subprocess capture, idempotency binding, and fail-closed receipt verification; validation uses synthetic adapters only and performs no live owner effects.",
+    "The first canonical no-argument acceptance run exposed an incorrect default root. Task Session blocked completion, admitted a one-file validator recovery, and then passed both no-argument and explicit-root modes with the other five product digests unchanged.",
+    "Both final validation modes passed 4 positive, 30 negative, and 4 schema cases with zero undeclared outputs. Experiment Harness remains not run because reusable paired-prototype evidence is owned by SWU-TSGR-010.",
+    "Repository-managed automatic commits and pushes occurred during execution under the user's explicit authorization; this receipt does not claim publication, promotion, deployment, or production readiness."
+  ],
+  "handoff_note": "Synchronize SWU-TSGR-007 completion through invoke:refresh:apply-approved, then evaluate the external readiness dependency for SWU-TSGR-008 without executing that successor as part of this Task Session.",
+  "final_write": true,
+  "receipt_digest": "84e70c8b06ac240b1a8c92c56f53d9c2108a8aa4a1b8670b3ab65aafda82fda2"
+}
