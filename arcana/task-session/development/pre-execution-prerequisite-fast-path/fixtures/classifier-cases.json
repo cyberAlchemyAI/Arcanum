@@ -1,0 +1,17 @@
+{
+  "schema_version": "pre-execution-prerequisite-classifier-fixtures.v1",
+  "cases": [
+    {"case_id": "no-prerequisite", "variant": "no-prerequisite", "classification": "satisfied", "authorization_status": "not-required", "entry_state": "context-ready", "action": "continue-context-build", "read_count": 2, "control_count": 0},
+    {"case_id": "plan-once-ready", "variant": "plan-once", "classification": "satisfied", "authorization_status": "not-required", "entry_state": "plan-once-selection-ready", "action": "continue-context-build", "read_count": 2, "control_count": 0},
+    {"case_id": "unmet-no-authorization", "variant": "unmet", "classification": "unmet", "authorization_status": "missing", "entry_state": "owner-prerequisite", "action": "block-missing-authorization", "read_count": 3, "control_count": 0},
+    {"case_id": "unmet-authorized", "variant": "authorized", "classification": "unmet", "authorization_status": "matched", "entry_state": "owner-prerequisite", "action": "route-one-owner-hop", "read_count": 3, "control_count": 1},
+    {"case_id": "authorization-route-mismatch", "variant": "authorization-mismatch", "classification": "unmet", "authorization_status": "mismatch", "entry_state": "owner-prerequisite", "action": "block", "read_count": 3, "control_count": 1},
+    {"case_id": "authorization-scope-expanded", "variant": "authorization-expanded", "classification": "unmet", "authorization_status": "mismatch", "entry_state": "owner-prerequisite", "action": "block", "read_count": 3, "control_count": 1},
+    {"case_id": "satisfied-current-receipt", "variant": "satisfied", "classification": "satisfied", "authorization_status": "not-required", "entry_state": "context-ready", "action": "continue-context-build", "read_count": 4, "control_count": 0},
+    {"case_id": "ambiguous-source", "variant": "ambiguous", "classification": "ambiguous", "authorization_status": "mismatch", "entry_state": "blocked", "action": "block", "read_count": 3, "control_count": 0},
+    {"case_id": "stale-target-inventory", "variant": "stale", "classification": "stale", "authorization_status": "mismatch", "entry_state": "blocked", "action": "block", "read_count": 3, "control_count": 0},
+    {"case_id": "invalid-untyped-prerequisite", "variant": "invalid", "classification": "invalid", "authorization_status": "missing", "entry_state": "blocked", "action": "block", "read_count": 3, "control_count": 0},
+    {"case_id": "repeated-attempt-fingerprint", "variant": "repeated", "classification": "invalid", "authorization_status": "mismatch", "entry_state": "blocked", "action": "block", "read_count": 3, "control_count": 0},
+    {"case_id": "mismatched-satisfaction-receipt", "variant": "mismatched-receipt", "classification": "stale", "authorization_status": "mismatch", "entry_state": "blocked", "action": "block", "read_count": 4, "control_count": 0}
+  ]
+}

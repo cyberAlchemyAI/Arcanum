@@ -1,0 +1,44 @@
+{
+  "schema_version": "pep.task-session-receipt.v1",
+  "work_pack_id": "WP-PEP-20260804",
+  "task_id": "TASK-PEP-CONTRACT",
+  "swu_id": "SWU-PEP-001",
+  "layer": "L0",
+  "attempt_id": "pep-whole-pack-20260804-01:SWU-PEP-001:1",
+  "result": "pass",
+  "execution_result": "pass",
+  "closeout_sync": "pass",
+  "lifecycle_owner": "sigil-development",
+  "pre_mutation_targets": [
+    {"path": "arcanum/arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json", "state": "absent"},
+    {"path": "arcanum/arcana/task-session/schemas/pre-execution-prerequisite-receipt.schema.json", "state": "absent"},
+    {"path": "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/schema-cases.json", "state": "absent"},
+    {"path": "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py", "state": "absent"}
+  ],
+  "files_changed": [
+    "arcanum/arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json",
+    "arcanum/arcana/task-session/schemas/pre-execution-prerequisite-receipt.schema.json",
+    "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/schema-cases.json",
+    "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py --group schema",
+      "result": "pass",
+      "summary": "16 positive and adversarial cases passed"
+    },
+    {
+      "command": "git -C arcanum diff --check -- arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json arcana/task-session/schemas/pre-execution-prerequisite-receipt.schema.json arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/schema-cases.json arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py",
+      "result": "pass"
+    }
+  ],
+  "owner_boundary": "pass",
+  "public_boundary": "pass",
+  "experiment_harness": "pass",
+  "lifecycle_owner_receipt": "receipts/SWU-PEP-001.sigil-development.json",
+  "successor": "SWU-PEP-002",
+  "successor_selected": false,
+  "residue": [],
+  "started_at": "2026-08-04T19:30:00Z",
+  "finished_at": "2026-08-04T19:38:40Z"
+}

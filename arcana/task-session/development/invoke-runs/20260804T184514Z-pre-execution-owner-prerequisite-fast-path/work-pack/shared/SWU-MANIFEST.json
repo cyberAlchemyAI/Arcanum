@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "work_pack_id": "WP-PEP-20260804",
+  "selected_swu": null,
+  "selection_authority": "explicit-operator-or-approved-dispatch-owner",
+  "recommended_first_swu": "SWU-PEP-001",
+  "units": [
+    {
+      "swu_id": "SWU-PEP-001",
+      "task_id": "TASK-PEP-CONTRACT",
+      "layer": "L0",
+      "primary_behavior": "Define typed pre-execution prerequisite and classification contracts.",
+      "dependencies": [],
+      "successor": "SWU-PEP-002",
+      "write_scope": [
+        "arcanum/arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json",
+        "arcanum/arcana/task-session/schemas/pre-execution-prerequisite-receipt.schema.json",
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/schema-cases.json",
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py"
+      ],
+      "acceptance_boundary": "Schemas distinguish satisfied, unmet, ambiguous, stale, and invalid outcomes and reject authority or scope collapse."
+    },
+    {
+      "swu_id": "SWU-PEP-002",
+      "task_id": "TASK-PEP-CLASSIFIER",
+      "layer": "L1",
+      "primary_behavior": "Classify a selected unit's prerequisite before Context Builder under an instrumented read/phase budget.",
+      "dependencies": ["SWU-PEP-001"],
+      "successor": "SWU-PEP-003",
+      "write_scope": [
+        "arcanum/arcana/task-session/scripts/classify-pre-execution-prerequisite.py",
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/classifier-cases.json",
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_classifier.py"
+      ],
+      "acceptance_boundary": "Unmet/ambiguous/stale cases return a typed receipt without entering forbidden phases."
+    },
+    {
+      "swu_id": "SWU-PEP-003",
+      "task_id": "TASK-PEP-ROUTER",
+      "layer": "L2",
+      "primary_behavior": "Route one pre-execution prerequisite hop through Continuation Router.",
+      "dependencies": ["SWU-PEP-002"],
+      "successor": "SWU-PEP-004",
+      "write_scope": [
+        "arcanum/arcana/continuation-router/SKILL.md",
+        "arcanum/arcana/continuation-router/schemas/continuation-route.schema.json",
+        "arcanum/arcana/continuation-router/development/route-fixtures/",
+        "arcanum/arcana/continuation-router/development/validate-route-fixtures.py"
+      ],
+      "acceptance_boundary": "The router distinguishes prerequisite phase, performs at most one exact authorized owner dispatch, and preserves owner authority."
+    },
+    {
+      "swu_id": "SWU-PEP-004",
+      "task_id": "TASK-PEP-ROUTER",
+      "layer": "L2",
+      "primary_behavior": "Join the owner receipt, revalidate scope, and resume the same Task Session attempt once.",
+      "dependencies": ["SWU-PEP-003"],
+      "successor": "SWU-PEP-005",
+      "write_scope": [
+        "arcanum/arcana/task-session/SKILL.md",
+        "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+        "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+        "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_owner_resume.py"
+      ],
+      "acceptance_boundary": "A current owner receipt resumes at Context Builder once; stale, reused, or mismatched receipts block before mutation."
+    },
+    {
+      "swu_id": "SWU-PEP-005",
+      "task_id": "TASK-PEP-ADOPTION",
+      "layer": "L3",
+      "primary_behavior": "Make Invoke Plan and Implementation Readiness advertise a prerequisite-consistent execution entry.",
+      "dependencies": ["SWU-PEP-004"],
+      "successor": "SWU-PEP-006",
+      "write_scope": [
+        "arcanum/spells/invoke/plan.md",
+        "arcanum/spells/invoke/templates/work-pack.md",
+        "arcanum/spells/implementation-readiness/README.md",
+        "arcanum/spells/implementation-readiness/development/"
+      ],
+      "acceptance_boundary": "Plans cannot claim Task Session is immediate when a prerequisite is unmet, and plan-once is reused for expected just-in-time material."
+    },
+    {
+      "swu_id": "SWU-PEP-006",
+      "task_id": "TASK-PEP-INTEGRATION",
+      "layer": "L3",
+      "primary_behavior": "Prove the complete entry route and synchronize validated generated packages.",
+      "dependencies": ["SWU-PEP-005"],
+      "successor": null,
+      "write_scope": [
+        "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/",
+        ".agents/skills/task-session/",
+        ".agents/skills/continuation-router/",
+        ".agents/skills/invoke/",
+        ".agents/skills/implementation-readiness/",
+        ".claude/skills/task-session/",
+        ".claude/skills/continuation-router/",
+        ".claude/skills/invoke/",
+        ".claude/skills/implementation-readiness/"
+      ],
+      "acceptance_boundary": "Synthetic and regression canaries pass, generated packages match canonical sources, and public scans find no private identifiers."
+    }
+  ]
+}

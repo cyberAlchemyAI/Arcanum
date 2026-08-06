@@ -1,0 +1,66 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "route-work-pack-binding-no-prompt",
+  "source": {
+    "capability": "implementation-readiness",
+    "mode": "execute",
+    "result": "completed",
+    "receipt": "fixtures/execution-entry.json",
+    "blocker_fingerprint": "sha256:work-pack-binding-v1",
+    "legacy_adaptation": false
+  },
+  "authorization": {
+    "source": "work-pack-binding",
+    "requested": false,
+    "exact_route": null,
+    "evidence": "A current admission receipt proves the complete declared Work-Pack route tuple.",
+    "authorization_prompt_required": false,
+    "work_pack_binding": {
+      "work_pack_id": "WP-GENERIC-001",
+      "work_pack_semantic_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "allowed_routes_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "binding_id": "wpeb-111111111111111111111111",
+      "binding_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "route_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "admission_receipt_ref": {
+        "path": "fixtures/work-pack-route-admission.json",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "size_bytes": 320
+      }
+    }
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "capability": "invoke",
+      "mode": "refresh",
+      "mutation_mode": "apply-approved",
+      "owner": "invoke",
+      "evidence": ["The validated Work-Pack admission receipt names exactly one declared owner."],
+      "required_inputs": ["current execution binding", "declared task input"],
+      "missing_inputs": [],
+      "mutation_risk": "medium",
+      "approval_required": true,
+      "authorization_status": "matched",
+      "expected_receipt": "One terminal owner receipt bound to the admitted route.",
+      "fallback": "Block on the exact failed owner gate."
+    }
+  ],
+  "selection": {
+    "status": "selected",
+    "candidate_rank": 1,
+    "reason": "The complete Work-Pack binding matches and no additional authorization prompt is required."
+  },
+  "dispatch": {
+    "status": "completed",
+    "runtime": "bounded-helper",
+    "owner_receipt": "fixtures/owner-work-pack-receipt.json",
+    "helper_closeout": "pass"
+  },
+  "owner_boundary": "pass",
+  "returned_next_route": {
+    "capability": "task-session",
+    "mode": "execute",
+    "target": "SWU-GENERIC-001"
+  }
+}

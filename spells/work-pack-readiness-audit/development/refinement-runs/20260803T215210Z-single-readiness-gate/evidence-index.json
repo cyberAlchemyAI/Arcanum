@@ -1,0 +1,48 @@
+{
+  "run_id": "20260803T215210Z-single-readiness-gate",
+  "target": "arcanum/spells/work-pack-readiness-audit and arcanum/arcana/task-session",
+  "refinement_loop": "arcanum/arcana/refine/REFINEMENT-LOOP.md",
+  "preset": "standard",
+  "research_mode": "no-research",
+  "status": "pass",
+  "evidence_ceiling": "authored-repaired-plan",
+  "artifacts": {
+    "run_manifest": "RUN-MANIFEST.md",
+    "seed_proposal": "REFINE-SEED-PROPOSAL.md",
+    "dispatch_route": "REFINE-DISPATCH.json",
+    "runtime_handoff": "RUNTIME-HANDOFF.md",
+    "result": "RESULT.md",
+    "implementation_result": "IMPLEMENTATION-RESULT.json",
+    "implementation_summary": "IMPLEMENTATION-RESULT.md",
+    "stages_dir": "stages/"
+  },
+  "stages": [
+    {"step_id": "s01-context-builder", "capability_ref": "context-builder", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/01-context-builder.md", "stages/01-context-builder.json", "stages/01-context-builder-index.json"], "blocked_reason": null},
+    {"step_id": "s02-invoke-define", "capability_ref": "invoke", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/02-invoke-define.md"], "blocked_reason": null},
+    {"step_id": "s03-interrogation-review", "capability_ref": "interrogation", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/03-interrogation-refine-review.md"], "blocked_reason": null},
+    {"step_id": "s04-research-decision", "capability_ref": "refine", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/04-research-decision.md"], "blocked_reason": null},
+    {"step_id": "s05-distill", "capability_ref": "distill", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/05-distill.md"], "blocked_reason": null},
+    {"step_id": "s06-invoke-design", "capability_ref": "invoke", "status": "flag", "verdict": "flag", "artifact_paths": ["stages/06-invoke-design.md"], "blocked_reason": null},
+    {"step_id": "s07-interrogation-design-review", "capability_ref": "interrogation", "status": "block", "verdict": "block", "artifact_paths": ["stages/07-interrogation-refine-design-review.md", "stages/07-admission-boundary-critic.json"], "blocked_reason": "initial design failed eight admission-boundary challenges; all route to s08 repair"},
+    {"step_id": "s08-distill-repair", "capability_ref": "distill", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/08-distill-repair.md", "stages/08-single-gate-contract.json"], "blocked_reason": null},
+    {"step_id": "s09-invoke-plan", "capability_ref": "invoke", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/09-invoke-plan.md", "stages/09-implementation-layering.md", "stages/09-work-pack.md", "stages/09-execution-pack.md", "stages/09-handoff-state.json", "stages/09-plan-distill-validation.md", "stages/work-pack/tasks/TASK-SRG-CONTRACT.md", "stages/work-pack/tasks/TASK-SRG-PRODUCER.md", "stages/work-pack/tasks/TASK-SRG-CONSUMER.md", "stages/work-pack/tasks/TASK-SRG-INTEGRATION.md", "stages/work-pack/waves/W0-CONTRACT.md", "stages/work-pack/waves/W1-PRODUCER.md", "stages/work-pack/waves/W2-CONSUMER.md", "stages/work-pack/waves/W3-INTEGRATION.md"], "blocked_reason": null},
+    {"step_id": "s10-final-synthesis", "capability_ref": "interrogation", "status": "pass", "verdict": "pass", "artifact_paths": ["stages/10-final-interrogation-and-synthesis.md", "RESULT.md"], "blocked_reason": null}
+  ],
+  "subagents": [
+    {"agent_id": "readiness_admission_critic", "role_id": "admission-boundary-critic", "spawn_status": "spawned", "join_status": "completed", "close_status": "closed", "receipt_artifact": "stages/07-admission-boundary-critic.json"},
+    {"agent_id": "/root/single_gate_impl_auditor", "role_id": "implementation-auditor", "spawn_status": "spawned", "join_status": "completed", "close_status": "closed", "receipt_artifact": "IMPLEMENTATION-RESULT.json", "mutation": "none"}
+  ],
+  "implementation_extension": {
+    "status": "pass",
+    "evidence_ceiling": "implemented-local-validation",
+    "implemented_swu_behaviors": "10/10",
+    "post_execution_closeout": "invoke:refresh:apply-approved",
+    "canonical_generated_parity": "pass",
+    "authority_effect": "none",
+    "promotion_claim": "none"
+  },
+  "recommended_next_routes": [
+    "consumer opt-in through selected-unit-at-task-session",
+    "invoke refresh plus readiness re-audit only after semantic plan drift"
+  ]
+}

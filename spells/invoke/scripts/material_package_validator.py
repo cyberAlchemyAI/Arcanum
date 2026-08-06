@@ -30,7 +30,7 @@ def schema_errors(
     ]
 
 
-def canonical_digest(document: dict[str, Any]) -> str:
+def canonical_digest(document: Any) -> str:
     payload = json.dumps(
         document, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode("utf-8")
@@ -91,7 +91,7 @@ def validate_exact_ref(
 
 def proposal_only_receipt(document: dict[str, Any]) -> dict[str, Any]:
     metadata = receipt_metadata(document)
-    return {
+    receipt = {
         "schemaVersion": "1.0.0",
         "packageId": metadata["packageId"],
         "patchVerdict": "not-applicable",
@@ -107,13 +107,16 @@ def proposal_only_receipt(document: dict[str, Any]) -> dict[str, Any]:
         "publicationClass": metadata["publicationClass"],
         "reasons": [],
     }
+    if metadata["planBinding"] is not None:
+        receipt["planBinding"] = metadata["planBinding"]
+    return receipt
 
 
 def receipt_metadata(document: dict[str, Any]) -> dict[str, Any]:
     package_id = document.get("package_id")
     lifecycle_owner = document.get("lifecycle_owner")
     validation_commands = document.get("validation_commands")
-    return {
+    receipt = {
         "packageId": (
             package_id
             if isinstance(package_id, str) and package_id
@@ -146,7 +149,13 @@ def receipt_metadata(document: dict[str, Any]) -> dict[str, Any]:
             if isinstance(validation_commands, list)
             else []
         ),
+        "planBinding": (
+            document.get("plan_binding")
+            if isinstance(document.get("plan_binding"), dict)
+            else None
+        ),
     }
+    return receipt
 
 
 def rejected_receipt(
@@ -158,7 +167,7 @@ def rejected_receipt(
     publication_result: str = "reject",
 ) -> dict[str, Any]:
     metadata = receipt_metadata(document)
-    return {
+    receipt = {
         "schemaVersion": "1.0.0",
         "packageId": metadata["packageId"],
         "patchVerdict": "reject",
@@ -174,6 +183,9 @@ def rejected_receipt(
         "publicationClass": metadata["publicationClass"],
         "reasons": sorted(set(reasons)),
     }
+    if metadata["planBinding"] is not None:
+        receipt["planBinding"] = metadata["planBinding"]
+    return receipt
 
 
 def validate_material_package(
@@ -241,6 +253,27 @@ def validate_material_package(
             reasons.append(f"duplicate target inventory path: {target}")
             continue
         inventory_by_target[target] = entry
+
+    plan_binding = document.get("plan_binding")
+    if plan_binding is not None:
+        baseline_paths: list[str] = []
+        for baseline in plan_binding["target_baselines"]:
+            normalized, baseline_error = normalized_relative_path(baseline["path"])
+            if baseline_error:
+                reasons.append(f"target baseline {baseline_error}")
+                continue
+            assert normalized is not None
+            if normalized != baseline["path"]:
+                reasons.append(f"non-canonical target baseline path: {baseline['path']}")
+            baseline_paths.append(normalized)
+        if len(baseline_paths) != len(set(baseline_paths)):
+            reasons.append("duplicate target baseline path")
+        if set(baseline_paths) != set(inventory_by_target):
+            reasons.append("target baseline inventory mismatch")
+        if plan_binding["validation_contract_digest"] != canonical_digest(
+            plan_binding["validation_contracts"]
+        ):
+            reasons.append("validation contract digest mismatch")
 
     approval = document["approval"]
     approved_scope: set[str] = set()
@@ -389,6 +422,8 @@ def validate_material_package(
             "publicationClass": document["publication_class"],
             "reasons": [],
         }
+        if document.get("plan_binding") is not None:
+            receipt["planBinding"] = document["plan_binding"]
 
     receipt_errors = schema_errors(receipt, receipt_schema, "material receipt")
     if receipt_errors:

@@ -124,6 +124,25 @@ This candidate proves finite-frontier control only. Task Session continues to
 own each implementation, Invoke Refresh owns closeout mutation, and the
 approved manifest remains authority-none evidence.
 
+### Work-Pack prerequisite resumption
+
+The additive fresh-session admission at
+[`scripts/fresh_session_resume.py`](scripts/fresh_session_resume.py) handles the
+one detour that is intentionally not a terminal Task Session transition. It
+joins one exact Work-Pack-bound Router admission and one byte-current passing
+prerequisite-owner receipt, then validates a new fast-entry classification.
+Only `task-ready` evidence may produce a durable admission for a new Task
+Session using the original selected unit and captured frontier.
+
+The prerequisite detour does not consume the unit's one terminal Task Session
+receipt slot or the logical finite-frontier request budget. The emitted fresh
+admission is stored by exclusive create in a separate evidence ledger. A
+replayed owner fingerprint, unchanged prerequisite, repeated session cursor,
+changed frontier or budget, stale or mismatched receipt, or reused terminal
+receipt slot blocks without launching Task Session. The controller consumes
+the returned `task-session:execute` admission; this spell never launches a
+process itself and never recursively resumes the guarding session.
+
 ## Phases
 
 ### 1. Bind And Capture
@@ -253,6 +272,8 @@ Return:
 - no recursive Task Session continuation;
 - no mutation before closeout preflight passes;
 - no continuation without joined inner receipts;
+- no fresh-session admission without exact Router, owner, and reclassification evidence;
+- one exclusive fresh-session admission per prerequisite fingerprint;
 - no cross-scope or frontier-expanding continuation;
 - deterministic stop at the first failed gate;
 - public, project-agnostic contract and fixtures.

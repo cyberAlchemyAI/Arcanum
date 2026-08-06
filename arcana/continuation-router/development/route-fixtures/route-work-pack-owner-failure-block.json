@@ -1,0 +1,26 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "route-work-pack-owner-failure-block",
+  "source": {"capability": "implementation-readiness", "mode": "execute", "result": "completed", "receipt": "fixtures/execution-entry.json", "blocker_fingerprint": "sha256:work-pack-owner-failure-v1", "legacy_adaptation": false},
+  "authorization": {
+    "source": "work-pack-binding",
+    "requested": false,
+    "exact_route": null,
+    "evidence": "A current admission receipt proves the complete declared Work-Pack route tuple.",
+    "authorization_prompt_required": false,
+    "work_pack_binding": {
+      "work_pack_id": "WP-GENERIC-001",
+      "work_pack_semantic_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "allowed_routes_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "binding_id": "wpeb-111111111111111111111111",
+      "binding_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "route_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "admission_receipt_ref": {"path": "fixtures/work-pack-route-admission.json", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "size_bytes": 320}
+    }
+  },
+  "candidates": [{"rank": 1, "capability": "invoke", "mode": "refresh", "mutation_mode": "apply-approved", "owner": "invoke", "evidence": ["The admitted owner returned a failing terminal receipt."], "required_inputs": ["current execution binding"], "missing_inputs": [], "mutation_risk": "medium", "approval_required": true, "authorization_status": "matched", "expected_receipt": "One terminal owner receipt.", "fallback": "Stop on owner failure."}],
+  "selection": {"status": "blocked", "candidate_rank": 1, "reason": "The selected owner returned a failing terminal receipt."},
+  "dispatch": {"status": "blocked", "runtime": "bounded-helper", "owner_receipt": "fixtures/owner-work-pack-failure.json", "helper_closeout": "block"},
+  "owner_boundary": "pass",
+  "returned_next_route": null
+}

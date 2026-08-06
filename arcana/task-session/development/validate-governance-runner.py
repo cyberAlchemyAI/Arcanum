@@ -124,6 +124,10 @@ def scenario(
         source_task_session / "scripts/task-session-governance-runner.py",
         runner_target,
     )
+    shutil.copy2(
+        source_task_session / "scripts/fast_execution_entry_guard.py",
+        runner_target.parent / "fast_execution_entry_guard.py",
+    )
     schema_target = repo / "arcanum/arcana/task-session/schemas"
     schema_target.mkdir(parents=True, exist_ok=True)
     for name in (
@@ -131,8 +135,30 @@ def scenario(
         "execution-ticket.schema.json",
         "governance-phase-receipt.schema.json",
         "executor-receipt.schema.json",
+        "fast-execution-entry-request.schema.json",
+        "fast-execution-entry-receipt.schema.json",
+        "mutation-admission-receipt.schema.json",
     ):
         shutil.copy2(canonical_task_session / "schemas" / name, schema_target / name)
+    implementation_readiness = (
+        canonical_task_session.parents[1] / "spells/implementation-readiness"
+    )
+    readiness_target = repo / "arcanum/spells/implementation-readiness"
+    (readiness_target / "scripts").mkdir(parents=True, exist_ok=True)
+    (readiness_target / "schemas").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(
+        implementation_readiness / "scripts/execution_contracts.py",
+        readiness_target / "scripts/execution_contracts.py",
+    )
+    for name in (
+        "execution-policy.schema.json",
+        "execution-entry-projection.schema.json",
+        "execution-intent-binding.schema.json",
+    ):
+        shutil.copy2(
+            implementation_readiness / "schemas" / name,
+            readiness_target / "schemas" / name,
+        )
 
     scenario_dir = repo / "scenario"
     scenario_dir.mkdir(parents=True)

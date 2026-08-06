@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "cases": [
+    {"name": "matched-bound-route", "mutation": null, "expected_verdict": "pass", "expected_code": "ROUTE_ADMITTED"},
+    {"name": "undeclared-route", "mutation": {"target": "candidate", "path": ["route_id"], "value": "route-other"}, "expected_verdict": "block", "expected_code": "ROUTE_UNDECLARED"},
+    {"name": "wrong-frontier", "mutation": {"target": "candidate", "path": ["frontier_swu"], "value": "SWU-GENERIC-002"}, "expected_verdict": "block", "expected_code": "ROUTE_FRONTIER_MISMATCH"},
+    {"name": "wrong-owner", "mutation": {"target": "candidate", "path": ["mode"], "value": "inspect"}, "expected_verdict": "block", "expected_code": "ROUTE_OWNER_MISMATCH"},
+    {"name": "wrong-target", "mutation": {"target": "candidate", "path": ["target"], "value": "different target"}, "expected_verdict": "block", "expected_code": "ROUTE_TARGET_MISMATCH"},
+    {"name": "expanded-write-scope", "mutation": {"target": "candidate", "path": ["write_scope"], "value": ["packages/example/", "packages/other/"]}, "expected_verdict": "block", "expected_code": "ROUTE_WRITE_SCOPE_EXPANDED"},
+    {"name": "wrong-effect", "mutation": {"target": "candidate", "path": ["effect_class"], "value": "publication-or-deployment"}, "expected_verdict": "block", "expected_code": "ROUTE_EFFECT_MISMATCH"},
+    {"name": "wrong-required-input-contract", "mutation": {"target": "candidate", "path": ["required_inputs"], "value": ["task.md", "extra.md"]}, "expected_verdict": "block", "expected_code": "ROUTE_INPUT_MISMATCH"},
+    {"name": "missing-required-input", "mutation": {"target": "request", "path": ["available_inputs"], "value": []}, "expected_verdict": "block", "expected_code": "ROUTE_INPUT_MISSING"},
+    {"name": "wrong-receipt-contract", "mutation": {"target": "candidate", "path": ["expected_receipt"], "value": "receipts/other.json"}, "expected_verdict": "block", "expected_code": "ROUTE_RECEIPT_MISMATCH"},
+    {"name": "stale-binding", "mutation": {"target": "binding", "path": ["allowed_routes_digest"], "value": "0000000000000000000000000000000000000000000000000000000000000000"}, "expected_verdict": "block", "expected_code": "ALLOWED_ROUTES_DIGEST_STALE"},
+    {"name": "stale-policy-routes", "mutation": {"target": "policy", "path": ["allowed_routes_digest"], "value": "0000000000000000000000000000000000000000000000000000000000000000"}, "expected_verdict": "block", "expected_code": "ALLOWED_ROUTES_DIGEST_STALE"},
+    {"name": "unknown-installed-owner", "mutation": {"target": "request", "path": ["installed_owner_routes"], "value": [{"capability": "review", "mode": "inspect"}]}, "expected_verdict": "block", "expected_code": "OWNER_ROUTE_UNKNOWN"},
+    {"name": "ambiguous-owner", "mutation": {"target": "request", "path": ["duplicate_candidate"], "value": true}, "expected_verdict": "block", "expected_code": "OWNER_ROUTE_AMBIGUOUS"},
+    {"name": "repeated-route-fingerprint", "mutation": {"target": "request", "path": ["consume_current_fingerprint"], "value": true}, "expected_verdict": "block", "expected_code": "ROUTE_FINGERPRINT_REPEATED"},
+    {"name": "authorization-flag-not-accepted", "mutation": {"target": "request", "path": ["authorization_flag"], "value": "invoke:refresh"}, "expected_verdict": "block", "expected_code": "SCHEMA_INVALID"}
+  ]
+}

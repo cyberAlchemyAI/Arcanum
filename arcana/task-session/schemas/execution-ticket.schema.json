@@ -26,6 +26,10 @@
     "schema_version": {
       "const": "task-session.execution-ticket.v1"
     },
+    "entry_profile": {"const": "work-pack-fast-entry"},
+    "fast_execution_entry": {"$ref": "#/$defs/fastExecutionEntryProvenance"},
+    "admission_profile": {"const": "plan-once-selected-unit"},
+    "plan_admission": {"$ref": "#/$defs/planAdmission"},
     "ticket_id": {
       "$ref": "#/$defs/nonEmptyString"
     },
@@ -131,6 +135,24 @@
       "$ref": "#/$defs/closeoutContract"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"admission_profile": {"const": "plan-once-selected-unit"}},
+        "required": ["admission_profile"]
+      },
+      "then": {"required": ["plan_admission"]}
+    },
+    {
+      "if": {
+        "properties": {"entry_profile": {"const": "work-pack-fast-entry"}},
+        "required": ["entry_profile"]
+      },
+      "then": {
+        "required": ["fast_execution_entry", "admission_profile", "plan_admission"]
+      }
+    }
+  ],
   "$defs": {
     "nonEmptyString": {
       "type": "string",
@@ -356,6 +378,58 @@
         "terminal_receipt_path": {
           "$ref": "#/$defs/nonEmptyString"
         }
+      }
+    },
+    "planAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_epoch_id",
+        "unit_contract_digest",
+        "attempt_id",
+        "selection_receipt_ref",
+        "mutation_admission_receipt_ref",
+        "admission_token",
+        "target_baseline_digest",
+        "target_baselines",
+        "validation_contract_digest",
+        "consumption_ledger_path"
+      ],
+      "properties": {
+        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "unit_contract_digest": {"$ref": "#/$defs/sha256"},
+        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+        "selection_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "mutation_admission_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "admission_token": {"$ref": "#/$defs/sha256"},
+        "target_baseline_digest": {"$ref": "#/$defs/sha256"},
+        "target_baselines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/baselineEntry"}
+        },
+        "validation_contract_digest": {"$ref": "#/$defs/sha256"},
+        "consumption_ledger_path": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "fastExecutionEntryProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_ref",
+        "receipt_ref",
+        "binding_id",
+        "binding_digest",
+        "route_fingerprint",
+        "work_pack_semantic_digest"
+      ],
+      "properties": {
+        "request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "binding_id": {"type": "string", "pattern": "^wpeb-[a-f0-9]{24}$"},
+        "binding_digest": {"$ref": "#/$defs/sha256"},
+        "route_fingerprint": {"$ref": "#/$defs/sha256"},
+        "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"}
       }
     }
   }

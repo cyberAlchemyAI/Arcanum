@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "arcanum.work-pack-execution-grant.design-scope.v1",
+  "target_id": "arcanum.work-pack-execution-grant",
+  "target_footprint": {
+    "roots": [
+      {"path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"}
+    ],
+    "inclusions": [
+      {"selector": "glossary", "path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/GLOSSARY.md", "digest": "a5ecf7ec1d68a35890a8a50bd66d0dad58fec921168b9fa64d8acdcb0f242b4c"},
+      {"selector": "architecture", "path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"},
+      {"selector": "layering", "path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-LAYERING.md", "digest": "7eb1802034c9404a81001595a5aefe65d50c92705d2be80883db501295b6c383"},
+      {"selector": "implementation-plan", "path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-PLAN.md", "digest": "f44424c68d5a1a0303585bc13efe8eac08567d2bc40140ad0800d0e32bbd6ba6"},
+      {"selector": "work-pack", "path": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md", "digest": "0ccd28e21dc9ec6fe9186c8b76f2e0e39857d93d6851adaa54f19af7ca831777"}
+    ],
+    "exclusions": [
+      {"selector": "implementation-mutation", "reason": "Invoke authors the development package but executes no SWU.", "evidence_ref": "WORK-PACK.md#control-fields"},
+      {"selector": "private-consumer-evidence", "reason": "The public package uses only product-neutral failure patterns and public Arcanum contracts.", "evidence_ref": "DEFINE-CONTEXT.md#scope"},
+      {"selector": "promotion-release-deployment", "reason": "The execution binding has bounded execution authority only.", "evidence_ref": "SPEC.md#claim-ceiling"}
+    ]
+  },
+  "source_contracts": [
+    {"source_id": "implementation-readiness-current", "selector": "outer-composition-baseline", "path": "arcanum/spells/implementation-readiness/README.md", "digest": "ae378a384db3ff0343e21d0b59e0af23181a7c5bf034b09031ac06890f83f4e5"},
+    {"source_id": "invoke-plan-current", "selector": "plan-and-work-pack-handoff", "path": "arcanum/spells/invoke/plan.md", "digest": "e206842f8cf479c4c28c3391468ab81b57a2fa47955fa3d074c8aa9cf83527ab"},
+    {"source_id": "invoke-refresh-current", "selector": "refresh-authorization-and-owner-boundary", "path": "arcanum/spells/invoke/refresh.md", "digest": "d31e6a03bcb29c29871107b30c8bd144dbab7bea2a7add997150a50538ef18d5"},
+    {"source_id": "plan-once-implementation", "selector": "single-readiness-gate-evidence", "path": "arcanum/spells/work-pack-readiness-audit/development/refinement-runs/20260803T215210Z-single-readiness-gate/IMPLEMENTATION-RESULT.md", "digest": "e86cb01fa56a1c8790fa24961f1c0f4294756042e44b67384e288f7ec5e99208"},
+    {"source_id": "continuation-router-current", "selector": "one-hop-owner-routing", "path": "arcanum/arcana/continuation-router/SKILL.md", "digest": "5796cf27cf7c7e344ad5b168694a87728931323478a712d319727b7d7a03a8a8"},
+    {"source_id": "task-session-current", "selector": "one-unit-execution-and-admission", "path": "arcanum/arcana/task-session/SKILL.md", "digest": "d8f0d0d5d8e959112f686d7346effade6f8e08792cd87dc4a84d9bbd68dd2bd8"},
+    {"source_id": "task-session-chain-current", "selector": "finite-frontier-outer-loop", "path": "arcanum/spells/task-session-until-blocker/README.md", "digest": "e689c425506a629394aba94cdbaa82b4cdb3f429c2edc0f74cd9d96d479c2775"}
+  ],
+  "human_actors": [
+    {"actor_id": "work-pack-operator", "natural_person": true, "reads": true, "decides": true, "acts": true, "recovers": true, "navigates": true, "assistive_operation": false, "surfaces": ["work-pack-execution-result"], "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "source_digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"}
+  ],
+  "rendered_surfaces": [],
+  "interfaces": [
+    {"interface_id": "plan-to-outer-loop", "kind": "versioned-execution-entry", "peer": "invoke-plan", "direction": "inbound", "contract_ref": "architecture-bundle.md#view-6--dependency-and-interface", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "source_digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"},
+    {"interface_id": "outer-loop-to-router", "kind": "work-pack-bound-owner-route", "peer": "continuation-router", "direction": "outbound", "contract_ref": "architecture-bundle.md#view-6--dependency-and-interface", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "source_digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"},
+    {"interface_id": "outer-loop-to-task-session", "kind": "selected-unit-execution-contract", "peer": "task-session", "direction": "outbound", "contract_ref": "architecture-bundle.md#view-6--dependency-and-interface", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "source_digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"}
+  ],
+  "stores": [],
+  "queues": [],
+  "writers": [],
+  "normative_rules": [
+    {"rule_id": "bound-route-needs-no-repeat-authorization", "verb": "must-authorize-once", "subject": "direct Work Pack execution intent", "object": "declared internal capability and tool routes", "enforcement_hint": "execution binding plus Router match", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "source_digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"},
+    {"rule_id": "fast-entry-before-context", "verb": "must-precede", "subject": "execution-entry state classification", "object": "full Context Builder and mutation admission", "enforcement_hint": "Task Session fast prerequisite guard", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "source_digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"},
+    {"rule_id": "protected-effects-stop", "verb": "must-stop", "subject": "execution outer loop", "object": "semantic scope destructive external cost authority publication promotion deployment and critical-validation decisions", "enforcement_hint": "decision classifier and stop policy", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "source_digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"},
+    {"rule_id": "fresh-session-only", "verb": "must-transition", "subject": "joined owner prerequisite receipt", "object": "fresh one-unit Task Session", "enforcement_hint": "outer-loop reducer and cycle guard", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "source_digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"}
+  ],
+  "effects": [
+    {"effect_id": "emit-local-execution-receipts", "reversible": true, "external": false, "privileged": false, "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md", "source_digest": "0ccd28e21dc9ec6fe9186c8b76f2e0e39857d93d6851adaa54f19af7ca831777"}
+  ],
+  "data_and_log_sinks": [],
+  "deployment_targets": [],
+  "compatibility_boundaries": [
+    {"boundary_id": "ad-hoc-to-work-pack-bound-routing", "old_contract": "each consequential continuation requires an exact repeated route authorization", "new_contract": "a current Work Pack execution binding covers matching internal routes while ad hoc behavior remains fail closed", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md", "source_digest": "d6631256fadf6aa2edcbe1dde21f58206f518b1d04ee7db39a1c2312ab5616d1"},
+    {"boundary_id": "legacy-readiness-to-plan-once", "old_contract": "future material absence can force pre-execution refresh and repeated audit", "new_contract": "semantic plan is audited once and selected-unit material is admitted live", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-PLAN.md", "source_digest": "f44424c68d5a1a0303585bc13efe8eac08567d2bc40140ad0800d0e32bbd6ba6"}
+  ],
+  "quality_claims": [
+    {"claim_id": "bounded-fast-entry", "source_kind": "design-contract", "threshold_or_tradeoff": "prerequisite classification completes within the declared entry read and phase budget before Context Builder", "required": true, "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-PLAN.md", "source_digest": "f44424c68d5a1a0303585bc13efe8eac08567d2bc40140ad0800d0e32bbd6ba6"},
+    {"claim_id": "zero-internal-authorization-prompts", "source_kind": "design-contract", "threshold_or_tradeoff": "authorization prompt count is zero for every matched Work-Pack-bound internal route", "required": true, "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md", "source_digest": "0ccd28e21dc9ec6fe9186c8b76f2e0e39857d93d6851adaa54f19af7ca831777"}
+  ],
+  "acceptance_and_readiness_claims": [
+    {"claim_id": "wpeg-design-authored", "selector": "SPEC.md#acceptance", "evidence_state": "authored-complete", "source_selector": "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md", "source_digest": "05e7b4d29b821e2f1b3b4e41d116efc4e78c07ca78f95355a5303ac7fdd3123b"}
+  ],
+  "unknowns": [],
+  "input_digest": "5921c8c93b237985c729806a9d76c7f9329a73b208088d4d7a6e7f32f940dfda",
+  "authored_by": "invoke-design-author"
+}

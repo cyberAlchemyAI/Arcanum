@@ -1,0 +1,446 @@
+{
+  "dispatch_id": "dispatch-pre-execution-owner-prerequisite-fast-path-v1",
+  "parent_dispatch_id": null,
+  "intent": {
+    "raw": "Fix late discovery of a declared Invoke Refresh prerequisite without weakening owner or mutation gates.",
+    "objective": "Implement a read-bounded pre-execution prerequisite classifier, one-hop owner route, same-attempt resume, and plan-entry adoption.",
+    "target_artifact": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/WORK-PACK.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "validation_loop",
+    "owner_boundary_check",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "artifact_contract_bridge",
+    "residue_ledger"
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "One bounded native helper runs the finite serial frontier through Task Session Until Blocker. Each SWU still produces its own Task Session and lifecycle-owner evidence; no parallel role fan-out is safe.",
+    "binding_mode": "capability-bound",
+    "execution_owner": "parent-orchestrator",
+    "roles": [
+      {
+        "role_id": "pep-work-pack-series",
+        "purpose": "Execute the captured six-SWU frontier serially, stopping at the first genuine blocker and preserving each inner owner receipt.",
+        "owns": "Task Session Until Blocker chain receipt and joined inner receipts",
+        "capability_ref": "task-session-until-blocker",
+        "capability_target": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/WORK-PACK.md",
+        "capability_mode": "execute",
+        "agent_count": 1,
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": [
+          "arcanum/arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json",
+          "arcanum/arcana/task-session/schemas/pre-execution-prerequisite-receipt.schema.json",
+          "arcanum/arcana/task-session/scripts/classify-pre-execution-prerequisite.py",
+          "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/",
+          "arcanum/arcana/continuation-router/SKILL.md",
+          "arcanum/arcana/continuation-router/schemas/continuation-route.schema.json",
+          "arcanum/arcana/continuation-router/development/route-fixtures/",
+          "arcanum/arcana/continuation-router/development/validate-route-fixtures.py",
+          "arcanum/arcana/task-session/SKILL.md",
+          "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+          "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+          "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+          "arcanum/spells/invoke/plan.md",
+          "arcanum/spells/invoke/templates/work-pack.md",
+          "arcanum/spells/implementation-readiness/README.md",
+          "arcanum/spells/implementation-readiness/development/",
+          ".agents/skills/task-session/",
+          ".agents/skills/continuation-router/",
+          ".agents/skills/invoke/",
+          ".agents/skills/implementation-readiness/",
+          ".claude/skills/task-session/",
+          ".claude/skills/continuation-router/",
+          ".claude/skills/invoke/",
+          ".claude/skills/implementation-readiness/",
+          "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/"
+        ],
+        "forbidden_write_scopes": [
+          "implementation/",
+          "telemetry/",
+          "sessions/"
+        ],
+        "depends_on_roles": [],
+        "input_refs": [
+          "S1.route-validation-receipt",
+          "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-CONTRACT.md",
+          "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-CLASSIFIER.md",
+          "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-ROUTER.md",
+          "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-ADOPTION.md",
+          "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-INTEGRATION.md"
+        ],
+        "output_refs": [
+          "S2.sigil-lifecycle-receipts",
+          "S3.routing-lifecycle-receipts",
+          "S4.spell-lifecycle-receipts",
+          "S5.integration-receipt"
+        ],
+        "applies_to_steps": ["S2", "S3", "S4", "S5"]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "pep-serial-frontier",
+        "role_ids": ["pep-work-pack-series"],
+        "parallel": false,
+        "join_policy": "all",
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "none",
+    "join_policy": "all",
+    "authorization": "approved",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ],
+    "permission_prompt": "Approve the exact lifecycle dispatch beginning with SWU-PEP-001?"
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Validate the lifecycle route",
+      "capability_ref": "dispatch-spec",
+      "mode": "validate",
+      "pattern": "validation",
+      "parallel": false,
+      "techniques": ["validation_loop", "owner_boundary_check", "artifact_contract_bridge"],
+      "inputs": [
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/execution.dispatch.json"
+        }
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S1.route-validation-receipt"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S1.route-validation-receipt",
+      "stop_conditions": [
+        "block if route validation fails",
+        "block if the route grants Task Session owner mutation authority"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Implement prerequisite contracts and classifier",
+      "capability_ref": "task-session-until-blocker",
+      "capability_status": "candidate",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S1"],
+      "techniques": [
+        "sequence",
+        "scu_swu_reduction",
+        "artifact_contract_bridge",
+        "execution_receipt_handoff",
+        "concrete_path_evidence"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S1.route-validation-receipt"},
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-CONTRACT.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-CLASSIFIER.md"
+        }
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S2.sigil-lifecycle-receipts"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block unless SWU-PEP-001 and SWU-PEP-002 pass independently",
+        "block if the classifier enters Context Builder on an unmet prerequisite"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Implement one-hop routing and same-attempt resume",
+      "capability_ref": "task-session-until-blocker",
+      "capability_status": "candidate",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S2"],
+      "techniques": [
+        "sequence",
+        "owner_boundary_check",
+        "execution_receipt_handoff",
+        "validation_loop"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S2.sigil-lifecycle-receipts"},
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-ROUTER.md"
+        }
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S3.routing-lifecycle-receipts"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if more than one owner hop can execute",
+        "block if authorization, receipt joining, baseline recheck, or attempt idempotency fails"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Align Invoke Plan and Implementation Readiness",
+      "capability_ref": "task-session-until-blocker",
+      "capability_status": "candidate",
+      "mode": "execute",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S3"],
+      "techniques": [
+        "sequence",
+        "recomposition_proof",
+        "owner_boundary_check",
+        "artifact_contract_bridge",
+        "execution_receipt_handoff"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S3.routing-lifecycle-receipts"},
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-ADOPTION.md"
+        }
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S4.spell-lifecycle-receipts"}
+      ],
+      "join_policy": "none",
+      "stop_conditions": [
+        "block if Plan still advertises Task Session before an unmet prerequisite",
+        "block if execution intent becomes ambient apply authority"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Run integration, regression, and packaging proof",
+      "capability_ref": "task-session-until-blocker",
+      "capability_status": "candidate",
+      "mode": "execute",
+      "pattern": "validation",
+      "parallel": false,
+      "depends_on_steps": ["S4"],
+      "techniques": [
+        "sequence",
+        "recomposition_proof",
+        "validation_loop",
+        "concrete_path_evidence",
+        "execution_receipt_handoff",
+        "residue_ledger"
+      ],
+      "inputs": [
+        {"kind": "receipt", "ref": "S4.spell-lifecycle-receipts"},
+        {
+          "kind": "artifact",
+          "ref": "arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/work-pack/tasks/TASK-PEP-INTEGRATION.md"
+        }
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "S5.integration-receipt"},
+        {"kind": "ledger", "ref": "S5.residue-ledger"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "S5.integration-receipt",
+      "stop_conditions": [
+        "block on any acceptance-critical regression",
+        "block on generated-source drift or a public/private boundary leak",
+        "do not claim promotion, release, deployment, or live-project repair"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G0-route",
+      "kind": "validation",
+      "owner": "dispatch-spec",
+      "condition": "The dispatch passes schema, technique, dependency, boundary, and promotion checks.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G1-contract-classifier",
+      "kind": "quality",
+      "owner": "sigil-development",
+      "condition": "Typed contracts and read-bounded classification pass before routing work.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-owner-route",
+      "kind": "policy",
+      "owner": "sigil-development",
+      "condition": "One-hop routing, exact authorization, joined receipt, revalidation, and idempotent resume pass.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-adoption",
+      "kind": "quality",
+      "owner": "spellcraft",
+      "condition": "Plan and entrypoint surfaces advertise one consistent immediate route and preserve plan-once and legacy behavior.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-integration",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "Cross-capability canaries, regressions, public scan, and generated parity pass.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5-promotion-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "capability owners",
+      "condition": "Implementation evidence does not imply registry promotion, publication, release, deployment, or production readiness.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "dispatch_validated",
+      "swu_started",
+      "swu_closed",
+      "lifecycle_receipt_joined",
+      "integration_started",
+      "integration_closed",
+      "dispatch_closed"
+    ],
+    "signal_grouping": "dispatch_id + step_id + task_id + swu_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-plan-to-task-entry",
+        "kind": "capability_handoff",
+        "from_owner": "spellcraft",
+        "to_owner": "sigil-development",
+        "applies_to_steps": ["S2", "S3", "S4"],
+        "contract": "Plan evidence declares prerequisite state but cannot grant Task Session or owner mutation authority.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-owner-receipt-return",
+        "kind": "evidence_return",
+        "from_owner": "invoke-refresh-owner",
+        "to_owner": "task-session",
+        "applies_to_steps": ["S3"],
+        "contract": "The joined owner receipt is evidence for the satisfaction predicate; Task Session still owns live mutation admission.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B3-implementation-authorization",
+        "kind": "human_approval",
+        "from_owner": "operator",
+        "to_owner": "parent-orchestrator",
+        "applies_to_steps": ["S2", "S3", "S4", "S5"],
+        "contract": "No implementation lifecycle step begins without exact dispatch authorization and selected-SWU scope.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "sigil-development and spellcraft",
+      "execution": "task-session for selected implementation units; continuation-router for one-hop dispatch only",
+      "validation": "dispatch-spec plus owner-local validators",
+      "evidence": "joined lifecycle and task receipts",
+      "memory": "no automatic promotion",
+      "promotion": "outside this dispatch"
+    },
+    "receipts": [
+      {
+        "receipt_id": "lifecycle-receipt",
+        "producer": "sigil-development-or-spellcraft",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "integration-receipt",
+        "producer": "task-session",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "status",
+          "artifacts",
+          "validation_result",
+          "blockers",
+          "residue"
+        ],
+        "on_missing": "block"
+      }
+    ],
+    "state_namespaces": [
+      {
+        "namespace": "canonical-arcanum-sources",
+        "owner": "capability-lifecycle-owner",
+        "write_policy": "owner-routed selected-SWU mutation only"
+      },
+      {
+        "namespace": "generated-runtime-packages",
+        "owner": "arcanum-generation-tool",
+        "write_policy": "selective sync after canonical validation"
+      },
+      {
+        "namespace": "development-package-evidence",
+        "owner": "task-session-development-cycle",
+        "write_policy": "receipts and validation evidence only"
+      }
+    ],
+    "promotion_splits": [
+      {
+        "source": "local implementation and validation evidence",
+        "target": "registry promotion, publication, release, deployment, or production readiness",
+        "rule": "No automatic transition; require the target lifecycle owner's explicit gate.",
+        "on_violation": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "No development receipt grants registry promotion.",
+    "No generated parity result proves live consuming-project behavior.",
+    "No prerequisite route grants publication, release, deployment, or destructive authority."
+  ]
+}

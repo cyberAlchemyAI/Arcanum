@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -331,6 +332,293 @@ def baseline_inventory(repo_root: Path, paths: list[str]) -> list[dict[str, Any]
     return inventory
 
 
+def execution_writes_fit_route_scope(
+    route_scopes: list[str], execution_writes: list[str]
+) -> bool:
+    """Require an exact file delta that uses, and never escapes, route scope."""
+
+    if not route_scopes or not execution_writes:
+        return False
+    scopes = [
+        PurePosixPath(normalized_relative(item, "route write scope"))
+        for item in route_scopes
+    ]
+    writes = [
+        PurePosixPath(normalized_relative(item, "execution write"))
+        for item in execution_writes
+    ]
+
+    def contains(scope: PurePosixPath, target: PurePosixPath) -> bool:
+        return target == scope or scope in target.parents
+
+    return all(any(contains(scope, target) for scope in scopes) for target in writes) and all(
+        any(contains(scope, target) for target in writes) for scope in scopes
+    )
+
+
+def fast_execution_entry_contract(
+    repo_root: Path,
+    request: dict[str, Any],
+) -> dict[str, Any] | None:
+    if request.get("entry_profile") != "work-pack-fast-entry":
+        return None
+    profile = request["fast_execution_entry"]
+    _, guard_request = read_exact_ref(
+        repo_root, profile["request_ref"], "work-pack fast-entry request"
+    )
+    _, receipt = read_exact_ref(
+        repo_root, profile["receipt_ref"], "work-pack fast-entry receipt"
+    )
+    module_path = Path(__file__).resolve().parent / "fast_execution_entry_guard.py"
+    specification = importlib.util.spec_from_file_location(
+        "task_session_fast_execution_entry_guard", module_path
+    )
+    if specification is None or specification.loader is None:
+        raise RunnerBlock("cannot load Work Pack fast-entry validator")
+    module = importlib.util.module_from_spec(specification)
+    try:
+        specification.loader.exec_module(module)
+        module.validate_fast_entry_receipt(receipt, guard_request)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise RunnerBlock(f"Work Pack fast-entry validation failed: {error}") from error
+
+    binding = guard_request["execution_binding"]
+    route = binding["current_route"]
+    selected = guard_request["selected_unit"]
+    expected = (
+        receipt.get("decision") == "proceed"
+        and receipt.get("code") == "TASK_READY"
+        and receipt.get("permitted_next_action") == "enter-context-builder"
+        and receipt.get("entry_state") == "task-ready"
+        and receipt.get("authorization_source") == "work-pack-binding"
+        and receipt.get("authorization_prompt_required") is False
+        and receipt.get("mutation_count") == 0
+        and receipt.get("phase_trace", {}).get("owner_hops_dispatched") == 0
+        and receipt.get("authority_effect") == "none"
+        and guard_request["execution_policy"]["work_pack_id"]
+        == request["work_pack_ref"]["path"]
+        and selected["work_pack_id"] == request["work_pack_ref"]["path"]
+        and selected["swu_id"] == request["swu_id"]
+        and guard_request["execution_entry"]["selected_unit"] == request["swu_id"]
+        and binding["selected_unit"] == request["swu_id"]
+        and isinstance(route, dict)
+        and route["frontier_swu"] == request["swu_id"]
+        and route["capability"] == "task-session"
+        and route["mode"] == "execute"
+        and execution_writes_fit_route_scope(
+            route["write_scope"], request["execution_contract"]["allowed_writes"]
+        )
+        and route["expected_receipt"]
+        == request["closeout_contract"]["terminal_receipt_path"]
+    )
+    if not expected:
+        raise RunnerBlock(
+            "fast-entry request and receipt do not bind this governance route"
+        )
+    return {
+        "request_ref": profile["request_ref"],
+        "receipt_ref": profile["receipt_ref"],
+        "binding_id": binding["binding_id"],
+        "binding_digest": binding["binding_digest"],
+        "route_fingerprint": binding["route_fingerprint"],
+        "work_pack_semantic_digest": binding["work_pack_semantic_digest"],
+    }
+
+
+def plan_admission_contract(
+    repo_root: Path,
+    request: dict[str, Any],
+    admission_ref: dict[str, Any],
+    fast_entry: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    if request.get("admission_profile") != "plan-once-selected-unit":
+        return None
+    plan = request["plan_admission"]
+    if plan["attempt_id"] != request["run_id"]:
+        raise RunnerBlock("plan admission attempt must equal the governance run id")
+    if plan["mutation_admission_receipt_ref"] != admission_ref:
+        raise RunnerBlock("plan admission receipt identity differs from admitted control")
+    if admission_ref not in request["control_refs"]:
+        raise RunnerBlock("mutation admission receipt is absent from control refs")
+    if plan["selection_receipt_ref"] not in request["control_refs"]:
+        raise RunnerBlock("selection receipt is absent from control refs")
+
+    _, admission = read_exact_ref(
+        repo_root, admission_ref, "plan mutation admission receipt"
+    )
+    _, selection = read_exact_ref(
+        repo_root, plan["selection_receipt_ref"], "plan selection receipt"
+    )
+    expected = (
+        admission.get("schemaVersion") == "1.2.0"
+        and admission.get("admissionProfile") == "plan-once-selected-unit"
+        and admission.get("admissionVerdict") == "admit"
+        and admission.get("mutationReady") is True
+        and admission.get("singleUse") is True
+        and admission.get("taskId") == request["task_id"]
+        and admission.get("swuId") == request["swu_id"]
+        and admission.get("planEpochId") == plan["plan_epoch_id"]
+        and admission.get("unitContractDigest") == plan["unit_contract_digest"]
+        and admission.get("attemptId") == plan["attempt_id"]
+        and admission.get("admissionToken") == plan["admission_token"]
+        and admission.get("targetBaselineDigest")
+        == plan["target_baseline_digest"]
+        and admission.get("validationContractDigest")
+        == plan["validation_contract_digest"]
+        and admission.get("reasons") == []
+    )
+    if not expected:
+        raise RunnerBlock("plan mutation admission does not bind this run")
+    if not (
+        selection.get("schemaVersion") == "1.0.0"
+        and selection.get("selectionVerdict") == "select"
+        and selection.get("terminalCode") == "SELECTION_READY"
+        and selection.get("taskId") == request["task_id"]
+        and selection.get("swuId") == request["swu_id"]
+        and selection.get("planEpochId") == plan["plan_epoch_id"]
+        and selection.get("unitContractDigest") == plan["unit_contract_digest"]
+        and selection.get("mutationReady") is False
+        and selection.get("authorityEffect") == "none"
+    ):
+        raise RunnerBlock("selection receipt does not bind this run")
+    if fast_entry is not None:
+        validate_schema(
+            admission,
+            load_object(
+                schema_dir() / "mutation-admission-receipt.schema.json",
+                "mutation admission receipt schema",
+            ),
+            "plan mutation admission receipt",
+        )
+        material_writes = sorted(admission.get("materialWrites", []))
+        execution_outputs = sorted(admission.get("executionOutputs", []))
+        allowed_writes = sorted(admission.get("allowedWrites", []))
+        requested_writes = sorted(request["execution_contract"]["allowed_writes"])
+        terminal_output = request["closeout_contract"]["terminal_receipt_path"]
+        if material_writes != requested_writes:
+            raise RunnerBlock(
+                "fast-entry execution writes differ from plan material admission"
+            )
+        if execution_outputs != [terminal_output]:
+            raise RunnerBlock(
+                "fast-entry terminal output differs from plan execution admission"
+            )
+        if allowed_writes != sorted(material_writes + execution_outputs):
+            raise RunnerBlock("fast-entry plan admission write closure is inconsistent")
+        if admission.get("selectionReceiptDigest") != plan[
+            "selection_receipt_ref"
+        ]["sha256"]:
+            raise RunnerBlock("plan admission selection receipt identity is stale")
+        if not (
+            selection.get("selectionIntentSource") == "execution-intent-binding"
+            and selection.get("canonicalSemanticDigest")
+            == fast_entry["work_pack_semantic_digest"]
+        ):
+            raise RunnerBlock(
+                "fast-entry selection is not bound to the execution intent"
+            )
+    if sha256(canonical_bytes(request["execution_contract"]["validation_commands"])) != plan[
+        "validation_contract_digest"
+    ]:
+        raise RunnerBlock("governance validation contract differs from plan admission")
+
+    receipt_parent = PurePosixPath(admission_ref["path"]).parent
+    ledger_relative = PurePosixPath(".admission-consumption") / (
+        f"{admission_ref['sha256']}.json"
+    )
+    expected_ledger = (
+        ledger_relative
+        if str(receipt_parent) == "."
+        else receipt_parent / ledger_relative
+    ).as_posix()
+    if plan["consumption_ledger_path"] != expected_ledger:
+        raise RunnerBlock("admission consumption ledger path is not deterministic")
+
+    raw_baselines = admission.get("targetBaselines")
+    if not isinstance(raw_baselines, list) or not raw_baselines:
+        raise RunnerBlock("plan admission receipt lacks target baselines")
+    baselines = [
+        {
+            "path": item["path"],
+            "state": item["state"],
+            "sha256": item["sha256"],
+            "size_bytes": item["sizeBytes"],
+        }
+        for item in raw_baselines
+    ]
+    if sha256(canonical_bytes(raw_baselines)) != plan["target_baseline_digest"]:
+        raise RunnerBlock("plan target baseline digest is inconsistent")
+    if fast_entry is not None and sorted(item["path"] for item in raw_baselines) != sorted(
+        request["execution_contract"]["allowed_writes"]
+    ):
+        raise RunnerBlock("fast-entry plan baselines do not cover exact execution writes")
+    return {**plan, "target_baselines": baselines}
+
+
+def verify_plan_live_baselines(repo_root: Path, ticket: dict[str, Any]) -> None:
+    if ticket.get("admission_profile") != "plan-once-selected-unit":
+        return
+    for baseline in ticket["plan_admission"]["target_baselines"]:
+        target = resolve_repo_path(repo_root, baseline["path"], "plan target baseline")
+        if baseline["state"] == "absent":
+            if target.exists():
+                raise RunnerBlock(
+                    f"plan target baseline changed from absent: {baseline['path']}"
+                )
+            continue
+        if not target.is_file():
+            raise RunnerBlock(
+                f"plan target baseline changed from present: {baseline['path']}"
+            )
+        content = target.read_bytes()
+        if not (
+            sha256(content) == baseline["sha256"]
+            and len(content) == baseline["size_bytes"]
+        ):
+            raise RunnerBlock(f"plan target baseline drift: {baseline['path']}")
+
+
+def consume_plan_admission(
+    repo_root: Path, run_dir: Path, ticket: dict[str, Any]
+) -> dict[str, Any] | None:
+    if ticket.get("admission_profile") != "plan-once-selected-unit":
+        return None
+    plan = ticket["plan_admission"]
+    ledger_path = resolve_repo_path(
+        repo_root, plan["consumption_ledger_path"], "admission consumption ledger"
+    )
+    payload = {
+        "schema_version": "task-session.admission-consumption.v1",
+        "run_id": ticket["run_id"],
+        "task_id": ticket["task_id"],
+        "swu_id": ticket["swu_id"],
+        "attempt_id": plan["attempt_id"],
+        "admission_token": plan["admission_token"],
+        "ticket_ref": exact_ref(repo_root, run_dir / "execution-ticket.json"),
+        "mutation_admission_receipt_ref": plan[
+            "mutation_admission_receipt_ref"
+        ],
+    }
+    data = rendered_bytes(payload)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        descriptor = os.open(
+            ledger_path,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            0o600,
+        )
+    except FileExistsError:
+        existing = load_object(ledger_path, "admission consumption ledger")
+        if existing != payload:
+            raise RunnerBlock("single-use admission receipt was already consumed")
+    else:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+    return exact_ref(repo_root, ledger_path)
+
+
 def phase_receipt(
     *,
     request: dict[str, Any],
@@ -373,6 +661,371 @@ def atomic_write(path: Path, data: bytes) -> None:
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+
+
+def json_pointer_value(document: Any, pointer: str) -> Any:
+    if not pointer.startswith("/"):
+        raise RunnerBlock("satisfaction predicate must use an absolute JSON pointer")
+    value = document
+    try:
+        for raw_part in pointer[1:].split("/"):
+            part = raw_part.replace("~1", "/").replace("~0", "~")
+            value = value[int(part)] if isinstance(value, list) else value[part]
+    except (KeyError, IndexError, TypeError, ValueError) as error:
+        raise RunnerBlock("owner receipt does not satisfy the declared JSON pointer") from error
+    return value
+
+
+def continuation_route_schema() -> Path:
+    return (
+        Path(__file__).resolve().parents[2]
+        / "continuation-router"
+        / "schemas"
+        / "continuation-route.schema.json"
+    )
+
+
+def verify_pre_execution_live_baselines(
+    repo_root: Path, prerequisite: dict[str, Any]
+) -> None:
+    for baseline in prerequisite["target_inventory"]:
+        target = resolve_repo_path(
+            repo_root, baseline["path"], "pre-execution target baseline"
+        )
+        if baseline["state"] == "absent":
+            if target.exists():
+                raise RunnerBlock(
+                    f"pre-execution target baseline changed from absent: {baseline['path']}"
+                )
+            continue
+        if not target.is_file():
+            raise RunnerBlock(
+                f"pre-execution target baseline changed from present: {baseline['path']}"
+            )
+        data = target.read_bytes()
+        if not (
+            sha256(data) == baseline["sha256"]
+            and len(data) == baseline["size_bytes"]
+        ):
+            raise RunnerBlock(
+                f"pre-execution target baseline drift: {baseline['path']}"
+            )
+
+
+def validate_pre_execution_chain(
+    repo_root: Path,
+    request_path: Path,
+    request: dict[str, Any],
+) -> dict[str, Any]:
+    if request.get("entry_profile") != "pre-execution-prerequisite":
+        raise RunnerBlock("request does not select the pre-execution prerequisite profile")
+    prerequisite = request["pre_execution_prerequisite"]
+    if prerequisite["attempt_id"] != request["run_id"]:
+        raise RunnerBlock("pre-execution attempt must equal the governance run id")
+
+    _, classification = read_exact_ref(
+        repo_root,
+        prerequisite["classification_receipt_ref"],
+        "pre-execution classification receipt",
+    )
+    validate_schema(
+        classification,
+        load_object(
+            schema_dir() / "pre-execution-prerequisite-receipt.schema.json",
+            "pre-execution classification receipt schema",
+        ),
+        "pre-execution classification receipt",
+    )
+    if not (
+        classification["classification"] == "unmet"
+        and classification["permitted_next_action"] == "route-one-owner-hop"
+        and classification["authorization"]["status"] == "matched"
+        and classification["task_id"] == request["task_id"]
+        and classification["swu_id"] == request["swu_id"]
+        and classification["attempt_id"] == request["run_id"]
+        and classification["prerequisite_fingerprint"]
+        == prerequisite["prerequisite_fingerprint"]
+        and classification["phase_trace"]["context_builder_entered"] is False
+        and classification["phase_trace"]["mutation_admission_entered"] is False
+        and classification["phase_trace"]["implementation_inspected"] is False
+        and classification["phase_trace"]["target_mutation_entered"] is False
+        and classification["phase_trace"]["owner_hops_dispatched"] == 0
+    ):
+        raise RunnerBlock("classification receipt does not admit one prerequisite owner hop")
+
+    _, route = read_exact_ref(
+        repo_root,
+        prerequisite["continuation_route_receipt_ref"],
+        "pre-execution continuation route receipt",
+    )
+    validate_schema(
+        route,
+        load_object(continuation_route_schema(), "continuation route schema"),
+        "pre-execution continuation route receipt",
+    )
+    context = route["source"]["pre_execution_context"]
+    binding = route["authorization"]["binding"]
+    handle = route["control_handle"]
+    target_digest = sha256(canonical_bytes(prerequisite["target_inventory"]))
+    validation_digest = sha256(
+        canonical_bytes(request["execution_contract"]["validation_commands"])
+    )
+    predicate_digest = sha256(
+        canonical_bytes(prerequisite["satisfaction_predicate"])
+    )
+    current_key = (
+        f"{prerequisite['attempt_id']}:"
+        f"{prerequisite['prerequisite_fingerprint']}"
+    )
+    expected_common = {
+        "task_id": request["task_id"],
+        "swu_id": request["swu_id"],
+        "attempt_id": request["run_id"],
+        "prerequisite_fingerprint": prerequisite["prerequisite_fingerprint"],
+        "target_inventory_digest": target_digest,
+        "validation_contract_digest": validation_digest,
+        "satisfaction_predicate_digest": predicate_digest,
+        "resume_point": prerequisite["resume_point"],
+        "max_owner_hops": prerequisite["max_owner_hops"],
+        "allowed_effect": prerequisite["allowed_effect"],
+    }
+    if not (
+        route["schema_version"] == "arcanum.continuation_route.v2"
+        and route["source"]["phase"] == "pre-execution-prerequisite"
+        and route["source"]["capability"] == "task-session"
+        and route["source"]["mode"] == "execute"
+        and route["source"]["result"] == "unmet"
+        and context["classification_receipt_ref"]
+        == prerequisite["classification_receipt_ref"]
+        and context["declared_owner_route"] == prerequisite["route"]
+        and current_key not in context["consumed_attempt_fingerprints"]
+        and route["authorization"]["requested"] is True
+        and route["authorization"]["exact_route"] == prerequisite["route"]
+        and binding["evidence_ref"]
+        == classification["authorization"]["evidence_ref"]
+        and route["selection"]["status"] == "selected"
+        and route["selection"]["candidate_rank"] == 1
+        and len(route["candidates"]) == 1
+        and route["candidates"][0]["authorization_status"] == "matched"
+        and route["dispatch"]["status"] == "completed"
+        and route["dispatch"]["dispatch_count"] == 1
+        and route["dispatch"]["join_count"] == 1
+        and route["dispatch"]["join_validation"] == "pass"
+        and route["dispatch"]["helper_closeout"] == "pass"
+        and route["dispatch"]["router_mutations"] == []
+        and route["dispatch"]["owner_receipt_ref"]
+        == prerequisite["owner_receipt_ref"]
+        and route["owner_boundary"] == "pass"
+        and route["returned_next_route"] is None
+        and handle["return_to"] == "task-session"
+        and handle["mode"] == "resume-same-attempt"
+        and handle["route"] == prerequisite["route"]
+        and handle["owner_receipt_ref"] == prerequisite["owner_receipt_ref"]
+    ):
+        raise RunnerBlock("continuation route is not a joined one-hop prerequisite result")
+    for field, expected in expected_common.items():
+        if context.get(field) != expected:
+            raise RunnerBlock(f"pre-execution route context mismatch: {field}")
+        if binding.get(field) != expected:
+            raise RunnerBlock(f"pre-execution authorization mismatch: {field}")
+        if handle.get(field) != expected:
+            raise RunnerBlock(f"pre-execution control handle mismatch: {field}")
+    if binding.get("route") != prerequisite["route"]:
+        raise RunnerBlock("pre-execution authorization route mismatch")
+
+    owner_path, owner_receipt = read_exact_ref(
+        repo_root,
+        prerequisite["owner_receipt_ref"],
+        "pre-execution owner receipt",
+    )
+    _, owner_schema_bytes = read_exact_bytes(
+        repo_root,
+        prerequisite["owner_receipt_schema_ref"],
+        "pre-execution owner receipt schema",
+    )
+    try:
+        owner_schema = json.loads(owner_schema_bytes)
+    except json.JSONDecodeError as error:
+        raise RunnerBlock("pre-execution owner receipt schema is invalid JSON") from error
+    validate_schema(owner_receipt, owner_schema, "pre-execution owner receipt")
+    expected_paths = sorted(item["path"] for item in prerequisite["target_inventory"])
+    if not (
+        owner_receipt.get("packageId") == prerequisite["expected_package_id"]
+        and owner_receipt.get("packageDigest")
+        == prerequisite["expected_package_digest"]
+        and sorted(owner_receipt.get("validatedPaths", [])) == expected_paths
+        and owner_receipt.get("validationCommands")
+        == prerequisite["expected_owner_validation_commands"]
+        and owner_receipt.get("patchVerdict") == "pass"
+        and owner_receipt.get("mutationHandoff") == "ready"
+        and owner_receipt.get("dependencyResult") == "pass"
+        and owner_receipt.get("ownerBoundaryResult") == "pass"
+        and owner_receipt.get("publicationBoundaryResult") == "pass"
+        and owner_receipt.get("reasons") == []
+    ):
+        raise RunnerBlock("owner receipt package, scope, validation, or readiness mismatch")
+    predicate = prerequisite["satisfaction_predicate"]
+    if json_pointer_value(owner_receipt, predicate["receipt_pointer"]) not in predicate[
+        "accepted_values"
+    ]:
+        raise RunnerBlock("owner receipt does not satisfy the prerequisite predicate")
+    if owner_path.stat().st_size != prerequisite["owner_receipt_ref"]["size_bytes"]:
+        raise RunnerBlock("owner receipt size changed during prerequisite validation")
+
+    verify_pre_execution_live_baselines(repo_root, prerequisite)
+    return {
+        "request_ref": exact_ref(repo_root, request_path),
+        "classification_receipt_ref": prerequisite["classification_receipt_ref"],
+        "continuation_route_receipt_ref": prerequisite[
+            "continuation_route_receipt_ref"
+        ],
+        "owner_receipt_ref": prerequisite["owner_receipt_ref"],
+        "attempt_id": prerequisite["attempt_id"],
+        "prerequisite_fingerprint": prerequisite["prerequisite_fingerprint"],
+        "route": prerequisite["route"],
+        "target_inventory_digest": target_digest,
+        "validation_contract_digest": validation_digest,
+        "satisfaction_predicate_digest": predicate_digest,
+        "resume_point": prerequisite["resume_point"],
+        "max_owner_hops": prerequisite["max_owner_hops"],
+        "allowed_effect": prerequisite["allowed_effect"],
+    }
+
+
+def pre_execution_paths(
+    repo_root: Path, run_dir: Path, prerequisite: dict[str, Any]
+) -> tuple[Path, Path]:
+    ledger = resolve_repo_path(
+        repo_root,
+        prerequisite["consumption_ledger_path"],
+        "pre-execution consumption ledger",
+    )
+    receipt = resolve_repo_path(
+        repo_root,
+        prerequisite["resume_receipt_path"],
+        "pre-execution resume receipt",
+    )
+    if ledger != (run_dir / "pre-execution-consumption.json").resolve():
+        raise RunnerBlock("pre-execution consumption ledger path is not deterministic")
+    if receipt != (run_dir / "pre-execution-resume-receipt.json").resolve():
+        raise RunnerBlock("pre-execution resume receipt path is not deterministic")
+    return ledger, receipt
+
+
+def validate_pre_execution_resume(
+    repo_root: Path,
+    request_path: Path,
+    request: dict[str, Any],
+    run_dir: Path,
+    chain: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    prerequisite = request["pre_execution_prerequisite"]
+    ledger_path, receipt_path = pre_execution_paths(repo_root, run_dir, prerequisite)
+    if not receipt_path.is_file() or not ledger_path.is_file():
+        raise RunnerBlock("pre-execution resume evidence is incomplete")
+    chain = chain or validate_pre_execution_chain(repo_root, request_path, request)
+    ledger = load_object(ledger_path, "pre-execution consumption ledger")
+    ledger_ref = exact_ref(repo_root, ledger_path)
+    receipt = load_object(receipt_path, "pre-execution resume receipt")
+    expected_ledger = {
+        "schema_version": "task-session.pre-execution-consumption.v1",
+        **chain,
+        "resume_receipt_path": relative_path(repo_root, receipt_path),
+        "state": "consumed",
+    }
+    if ledger != expected_ledger:
+        raise RunnerBlock("pre-execution consumption ledger identity mismatch")
+    expected_receipt = {
+        "schema_version": "task-session.pre-execution-resume-receipt.v1",
+        "result": "pass",
+        **chain,
+        "consumption_ledger_ref": ledger_ref,
+        "resume_count": 1,
+        "selector_resolution_reentered": False,
+        "context_builder_entry_budget": 1,
+        "next_action": "context-builder",
+    }
+    if receipt != expected_receipt:
+        raise RunnerBlock("pre-execution resume receipt identity mismatch")
+    verify_pre_execution_live_baselines(repo_root, prerequisite)
+    return receipt
+
+
+def prerequisite_resume(
+    repo_root: Path, request_path: Path, run_dir: Path
+) -> dict[str, Any]:
+    request = load_object(request_path, "governance run request")
+    validate_schema(
+        request,
+        load_object(schema_dir() / "governance-run-request.schema.json", "request schema"),
+        "governance run request",
+    )
+    chain = validate_pre_execution_chain(repo_root, request_path, request)
+    prerequisite = request["pre_execution_prerequisite"]
+    ledger_path, receipt_path = pre_execution_paths(repo_root, run_dir, prerequisite)
+    if receipt_path.exists():
+        receipt = validate_pre_execution_resume(
+            repo_root, request_path, request, run_dir, chain
+        )
+        return {
+            "schema_version": "task-session.governance-runner-status.v1",
+            "result": "already-resumed",
+            "run_id": request["run_id"],
+            "task_id": request["task_id"],
+            "swu_id": request["swu_id"],
+            "resume_point": receipt["resume_point"],
+            "resume_count": 1,
+            "idempotent_replay": True,
+            "context_builder_entry_budget": 0,
+            "next_action": None,
+            "writes_performed": 0,
+        }
+    if ledger_path.exists():
+        raise RunnerBlock("pre-execution attempt/fingerprint is already or partially consumed")
+
+    ledger = {
+        "schema_version": "task-session.pre-execution-consumption.v1",
+        **chain,
+        "resume_receipt_path": relative_path(repo_root, receipt_path),
+        "state": "consumed",
+    }
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        descriptor = os.open(ledger_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError as error:
+        raise RunnerBlock(
+            "pre-execution attempt/fingerprint was consumed concurrently"
+        ) from error
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(rendered_bytes(ledger))
+        handle.flush()
+        os.fsync(handle.fileno())
+
+    # Recheck after exclusive consumption and before authorizing Context Builder.
+    verify_pre_execution_live_baselines(repo_root, prerequisite)
+    receipt = {
+        "schema_version": "task-session.pre-execution-resume-receipt.v1",
+        "result": "pass",
+        **chain,
+        "consumption_ledger_ref": exact_ref(repo_root, ledger_path),
+        "resume_count": 1,
+        "selector_resolution_reentered": False,
+        "context_builder_entry_budget": 1,
+        "next_action": "context-builder",
+    }
+    atomic_write(receipt_path, rendered_bytes(receipt))
+    return {
+        "schema_version": "task-session.governance-runner-status.v1",
+        "result": "pass",
+        "run_id": request["run_id"],
+        "task_id": request["task_id"],
+        "swu_id": request["swu_id"],
+        "resume_point": prerequisite["resume_point"],
+        "resume_count": 1,
+        "idempotent_replay": False,
+        "next_action": "context-builder",
+        "writes_performed": 2,
+    }
 
 
 def checkpoint_paths(run_dir: Path) -> list[Path]:
@@ -450,7 +1103,7 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
 
 
 def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any]:
-    if run_dir.exists():
+    if run_dir.exists() and any((run_dir / "checkpoints").glob("*.json")):
         status = status_document(repo_root, run_dir)
         request = load_object(request_path, "governance run request")
         ticket = load_object(run_dir / "execution-ticket.json", "execution ticket")
@@ -471,14 +1124,42 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         "governance run request",
     )
     request_ref = exact_ref(repo_root, request_path)
-    work_pack_path, work_pack_bytes = read_exact_bytes(
-        repo_root, request["work_pack_ref"], "work pack"
-    )
-    swu_path, swu_bytes = read_exact_bytes(repo_root, request["swu_ref"], "SWU contract")
-    if request["swu_id"] != selected_swu(work_pack_bytes):
-        raise RunnerBlock("requested SWU is not the unique selected work-pack SWU")
-    if request["swu_id"].encode("utf-8") not in swu_bytes:
-        raise RunnerBlock("SWU contract does not name requested SWU")
+    pre_execution_resume = None
+    fast_entry = fast_execution_entry_contract(repo_root, request)
+    if request.get("entry_profile") == "pre-execution-prerequisite":
+        pre_execution_resume = validate_pre_execution_resume(
+            repo_root, request_path, request, run_dir
+        )
+        # Exact refs are re-read for drift only. The selected task/SWU identity
+        # was already bound before atomic consumption; selector resolution is
+        # intentionally not re-entered on this same-attempt resume.
+        read_exact_bytes(repo_root, request["work_pack_ref"], "work pack")
+        _, swu_bytes = read_exact_bytes(
+            repo_root, request["swu_ref"], "SWU contract"
+        )
+        if request["swu_id"].encode("utf-8") not in swu_bytes:
+            raise RunnerBlock("resumed SWU contract does not name requested SWU")
+    elif fast_entry is not None:
+        # The exact TASK_READY receipt replaces only the legacy prose selector.
+        # Work Pack/SWU identity, governance controls, plan admission, baselines,
+        # and atomic single-use consumption remain mandatory.
+        read_exact_bytes(repo_root, request["work_pack_ref"], "work pack")
+        _, swu_bytes = read_exact_bytes(
+            repo_root, request["swu_ref"], "SWU contract"
+        )
+        if request["swu_id"].encode("utf-8") not in swu_bytes:
+            raise RunnerBlock("fast-entry SWU contract does not name requested SWU")
+    else:
+        _, work_pack_bytes = read_exact_bytes(
+            repo_root, request["work_pack_ref"], "work pack"
+        )
+        _, swu_bytes = read_exact_bytes(
+            repo_root, request["swu_ref"], "SWU contract"
+        )
+        if request["swu_id"] != selected_swu(work_pack_bytes):
+            raise RunnerBlock("requested SWU is not the unique selected work-pack SWU")
+        if request["swu_id"].encode("utf-8") not in swu_bytes:
+            raise RunnerBlock("SWU contract does not name requested SWU")
 
     controls: list[tuple[dict[str, Any], dict[str, Any]]] = []
     for reference in request["control_refs"]:
@@ -486,6 +1167,9 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         controls.append((reference, document))
     evaluation_ref, admission_ref, preflight_ref, executor_config = classify_controls(
         controls, request["task_id"], request["swu_id"]
+    )
+    plan_contract = plan_admission_contract(
+        repo_root, request, admission_ref, fast_entry
     )
     baselines = baseline_inventory(
         repo_root, request["execution_contract"]["allowed_writes"]
@@ -495,13 +1179,29 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         repo_root, request, run_dir, executor_config
     )
 
+    resolved_inputs = [request_ref, request["work_pack_ref"], request["swu_ref"]]
+    if pre_execution_resume is not None:
+        resolved_inputs.append(
+            exact_ref(
+                repo_root,
+                resolve_repo_path(
+                    repo_root,
+                    request["pre_execution_prerequisite"]["resume_receipt_path"],
+                    "pre-execution resume receipt",
+                ),
+            )
+        )
+    if fast_entry is not None:
+        resolved_inputs.extend(
+            [fast_entry["request_ref"], fast_entry["receipt_ref"]]
+        )
     resolved = phase_receipt(
         request=request,
         phase="resolved",
         index=1,
         predecessor_phase="request",
         predecessor_ref=request_ref,
-        input_refs=[request_ref, request["work_pack_ref"], request["swu_ref"]],
+        input_refs=resolved_inputs,
         output_refs=[request["work_pack_ref"], request["swu_ref"]],
     )
     resolved_bytes = rendered_bytes(resolved)
@@ -564,6 +1264,12 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         "idempotency_key": request["idempotency_key"],
         "closeout_contract": request["closeout_contract"],
     }
+    if plan_contract is not None:
+        ticket["admission_profile"] = "plan-once-selected-unit"
+        ticket["plan_admission"] = plan_contract
+    if fast_entry is not None:
+        ticket["entry_profile"] = "work-pack-fast-entry"
+        ticket["fast_execution_entry"] = fast_entry
     validate_schema(
         ticket,
         load_object(schema_dir() / "execution-ticket.schema.json", "ticket schema"),
@@ -605,7 +1311,19 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         (checkpoint_paths(run_dir)[3], ticketed_bytes),
     ):
         atomic_write(path, data)
-    return status_document(repo_root, run_dir)
+    result = status_document(repo_root, run_dir)
+    if pre_execution_resume is not None:
+        result["entry_profile"] = "pre-execution-prerequisite"
+        result["resume_point"] = "task-session:context-build"
+        result["resume_count"] = 1
+        result["selector_resolution_reentered"] = False
+        result["context_builder_entry_count"] = 1
+    if fast_entry is not None:
+        result["entry_profile"] = "work-pack-fast-entry"
+        result["fast_entry_receipt_ref"] = fast_entry["receipt_ref"]
+        result["selector_resolution_reentered"] = False
+        result["context_builder_entry_count"] = 1
+    return result
 
 
 def execution_failure(
@@ -701,6 +1419,19 @@ def executor_join(
     )
     if joined_receipt is not None and joined_receipt.resolve() != expected_receipt:
         raise RunnerBlock("explicit joined receipt differs from ticket path")
+
+    if ticket.get("admission_profile") == "plan-once-selected-unit":
+        verify_plan_live_baselines(repo_root, ticket)
+        ledger_path = resolve_repo_path(
+            repo_root,
+            ticket["plan_admission"]["consumption_ledger_path"],
+            "admission consumption ledger",
+        )
+        if (joined_receipt is not None or expected_receipt.is_file()) and not ledger_path.is_file():
+            raise RunnerBlock(
+                "pre-joined executor output bypassed single-use admission consumption"
+            )
+        consume_plan_admission(repo_root, run_dir, ticket)
 
     stdout = b""
     stderr = b""
@@ -1567,6 +2298,10 @@ def parse_args() -> argparse.Namespace:
     commit_parser.add_argument("--repo-root", required=True)
     commit_parser.add_argument("--run-dir", required=True)
     commit_parser.add_argument("--interrupt-after")
+    prerequisite_parser = subparsers.add_parser("prerequisite-resume")
+    prerequisite_parser.add_argument("--repo-root", required=True)
+    prerequisite_parser.add_argument("--request", required=True)
+    prerequisite_parser.add_argument("--run-dir", required=True)
     return parser.parse_args()
 
 
@@ -1580,6 +2315,9 @@ def main() -> int:
         if args.command == "prepare":
             request_path = resolve_repo_path(repo_root, args.request, "request")
             result = prepare(repo_root, request_path, run_dir)
+        elif args.command == "prerequisite-resume":
+            request_path = resolve_repo_path(repo_root, args.request, "request")
+            result = prerequisite_resume(repo_root, request_path, run_dir)
         elif args.command == "executor-join":
             receipt_path = (
                 resolve_repo_path(repo_root, args.receipt, "joined executor receipt")

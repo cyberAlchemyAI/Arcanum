@@ -9,11 +9,26 @@ import json
 import os
 import re
 import stat
+import sys
 from collections import Counter, defaultdict, deque
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 from jsonschema import Draft202012Validator
+
+try:
+    from plan_semantics import (
+        NORMALIZER_VERSION,
+        PlanSemanticError,
+        build_plan_semantics,
+    )
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from plan_semantics import (  # type: ignore[no-redef]
+        NORMALIZER_VERSION,
+        PlanSemanticError,
+        build_plan_semantics,
+    )
 
 
 SPELL_ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +38,8 @@ SIGNAL_SCHEMA = SPELL_ROOT / "schemas" / "refresh-signal-pack.schema.json"
 CONFIG_SCHEMA_V2 = SPELL_ROOT / "schemas" / "audit-config-v2.schema.json"
 REPORT_SCHEMA_V2 = SPELL_ROOT / "schemas" / "audit-report-v2.schema.json"
 MANIFEST_SCHEMA = SPELL_ROOT / "schemas" / "objective-execution-manifest.schema.json"
+PLAN_MANIFEST_SCHEMA = SPELL_ROOT / "schemas" / "plan-semantic-manifest.schema.json"
+SELECTION_HANDOFF_SCHEMA = SPELL_ROOT / "schemas" / "selection-handoff.schema.json"
 STATUS_BLOCK = "block"
 
 
@@ -1155,13 +1172,14 @@ def _v2_blocker(code: str, binding_id: str, claim: str) -> dict[str, str]:
 
 def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
     blockers: list[dict[str, str]] = []
+    plan_once = config.get("admission_timing") == "selected-unit-at-task-session"
     unit_ids = {unit["unit_id"] for unit in config["execution_bindings"]}
     expected_material = config.get("expected_material_digests", {})
 
     for unit in config["execution_bindings"]:
         unit_id = unit["unit_id"]
         package = unit["material_package"]
-        checks = (
+        strict_material_checks = (
             (
                 package["package_ref"] is None,
                 "MATERIAL_PACKAGE_REF_MISSING",
@@ -1199,6 +1217,15 @@ def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
                 "execution byte baseline set is empty",
             ),
         )
+        owner_checks = (
+            (
+                package["producer_owner_ref"] is None,
+                "MATERIAL_PRODUCER_OWNER_UNRESOLVED",
+                f"{unit_id}:producer-owner",
+                "material producer owner is absent or unresolved",
+            ),
+        )
+        checks = owner_checks if plan_once else strict_material_checks
         for failed, code, binding_id, claim in checks:
             if failed:
                 blockers.append(_v2_blocker(code, binding_id, claim))
@@ -1233,6 +1260,8 @@ def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
                 )
         expected_digest = expected_material.get(unit_id)
         if (
+            not plan_once
+            and
             expected_digest is not None
             and package["declared_sha256"] != expected_digest
         ):
@@ -1283,7 +1312,72 @@ def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
                 "terminal receipt semantic validator is absent",
             )
         )
+    if not plan_once and config["runtime_binding"][
+        "task_session_admission_receipt_ref"
+    ] is None:
+        blockers.append(
+            _v2_blocker(
+                "TASK_SESSION_ADMISSION_RECEIPT_MISSING",
+                "runtime-admission",
+                "strict full-frontier mode requires a current Task Session admission receipt",
+            )
+        )
     return blockers
+
+
+def _plan_once_semantic_repair_entry(
+    config: dict[str, Any],
+    plan_semantics: dict[str, Any] | None,
+    blockers: list[dict[str, str]],
+) -> dict[str, Any] | None:
+    """Compile one exact declared Refresh entry for repairable semantic drift."""
+
+    codes = {item["code"] for item in blockers}
+    if "EPOCH_INVALIDATED_SEMANTIC_CHANGE" not in codes:
+        return None
+    if codes != {"EPOCH_INVALIDATED_SEMANTIC_CHANGE"} or plan_semantics is None:
+        return None
+    frontier = plan_semantics.get("ready_frontier") or [
+        item["unit_id"] for item in config["execution_bindings"]
+    ]
+    if not frontier:
+        blockers.append(
+            _v2_blocker(
+                "SEMANTIC_REFRESH_UNIT_MISSING",
+                "execution-entry",
+                "semantic repair has no deterministic frontier unit",
+            )
+        )
+        return None
+    selected_unit = frontier[0]
+    routes = [
+        route
+        for route in config["execution_policy"]["allowed_routes"]
+        if route["frontier_swu"] == selected_unit
+        and route["capability"] == "invoke"
+        and route["mode"] == "refresh"
+    ]
+    if len(routes) != 1:
+        blockers.append(
+            _v2_blocker(
+                "SEMANTIC_REFRESH_ROUTE_NOT_UNIQUE",
+                "execution-entry",
+                f"expected one declared Invoke Refresh route for {selected_unit}, got {len(routes)}",
+            )
+        )
+        return None
+    route = routes[0]
+    return {
+        "entry_state": "owner-prerequisite",
+        "selected_unit": selected_unit,
+        "route_id": route["route_id"],
+        "next_owner": {
+            "capability": route["capability"],
+            "mode": route["mode"],
+            "target": route["target"],
+        },
+        "blocker_code": None,
+    }
 
 
 def _v2_binding_blockers(
@@ -1316,6 +1410,256 @@ def _v2_binding_blockers(
 
     visit(config)
     return blockers
+
+
+def _binding_selected_value(
+    binding: dict[str, Any], repository_root: Path
+) -> Any:
+    path = repository_root / binding["artifact_ref"]["path"]
+    return _resolve_json_pointer(load_json(path), binding["selector"])
+
+
+def _completion_continuity_projection(
+    config: dict[str, Any],
+    repository_root: Path,
+    *,
+    canonical_semantic_digest: str,
+    plan_epoch_id: str,
+    unit_contract_digests: dict[str, str],
+    source_snapshot_digest: str,
+) -> tuple[dict[str, Any] | None, list[dict[str, str]]]:
+    """Validate and project one immutable historical completion prefix."""
+
+    continuity = config.get("continuity_projection")
+    if not isinstance(continuity, dict):
+        return None, [
+            _v2_blocker(
+                "CONTINUITY_PROJECTION_MISSING",
+                "continuity-projection",
+                "plan-once execution requires an explicit continuity projection",
+            )
+        ]
+
+    blockers: list[dict[str, str]] = []
+    units = config["execution_bindings"]
+    frontier = [unit["unit_id"] for unit in units]
+    completed_refs = continuity["completed_unit_receipt_refs"]
+    closeout_refs = continuity["joined_closeout_receipt_refs"]
+    projected = continuity["projected_next_successor"]
+
+    if len(completed_refs) != len(closeout_refs):
+        blockers.append(
+            _v2_blocker(
+                "CONTINUITY_RECEIPT_MISSING",
+                "continuity-projection",
+                "completed and joined-closeout receipt counts differ",
+            )
+        )
+    if len(completed_refs) > len(frontier):
+        blockers.append(
+            _v2_blocker(
+                "CONTINUITY_FRONTIER_MISMATCH",
+                "continuity-projection",
+                "completed receipt count exceeds the captured frontier",
+            )
+        )
+
+    completed_prefix: list[dict[str, Any]] = []
+    seen_receipts: set[tuple[str, str, int]] = set()
+    pair_count = min(len(completed_refs), len(closeout_refs), len(units))
+    for index in range(pair_count):
+        unit = units[index]
+        completion = completed_refs[index]
+        closeout = closeout_refs[index]
+        completion_ref = completion["artifact_ref"]
+        closeout_ref = closeout["artifact_ref"]
+        unit_id = unit["unit_id"]
+
+        if completion["selector"] != "/result":
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING",
+                    completion["binding_id"],
+                    f"{unit_id} completion selector must be /result",
+                )
+            )
+            continue
+        if closeout["selector"] != "/lifecycle_owner_validation/status":
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING",
+                    closeout["binding_id"],
+                    f"{unit_id} closeout selector must be /lifecycle_owner_validation/status",
+                )
+            )
+            continue
+
+        if completion_ref != closeout_ref:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING",
+                    completion["binding_id"],
+                    f"{unit_id} completion and closeout do not bind the same receipt bytes",
+                )
+            )
+            continue
+        receipt_identity = exact_ref_key(completion_ref)
+        if receipt_identity in seen_receipts:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_REPLAY",
+                    completion["binding_id"],
+                    f"{unit_id} reuses a completion receipt",
+                )
+            )
+            continue
+        seen_receipts.add(receipt_identity)
+        if completion_ref["path"] not in unit["execution_outputs"]:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_NON_PREFIX_COMPLETION",
+                    completion["binding_id"],
+                    f"{unit_id} completion receipt is not a declared unit output",
+                )
+            )
+            continue
+
+        try:
+            receipt = load_json(repository_root / completion_ref["path"])
+            completion_value = _resolve_json_pointer(
+                receipt, completion["selector"]
+            )
+            closeout_value = _resolve_json_pointer(receipt, closeout["selector"])
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING",
+                    completion["binding_id"],
+                    str(error),
+                )
+            )
+            continue
+        if receipt.get("swu_id") != unit.get("swu_id", unit_id):
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_NON_PREFIX_COMPLETION",
+                    completion["binding_id"],
+                    f"expected {unit_id}, receipt names {receipt.get('swu_id')}",
+                )
+            )
+            continue
+        if unit.get("task_id") is not None and receipt.get("task_id") != unit["task_id"]:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_NON_PREFIX_COMPLETION",
+                    completion["binding_id"],
+                    f"{unit_id} receipt task identity differs from the unit contract",
+                )
+            )
+            continue
+        if completion_value != "pass" or closeout_value != "pass":
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING",
+                    completion["binding_id"],
+                    f"{unit_id} completion and closeout selectors must both resolve pass",
+                )
+            )
+            continue
+        completed_prefix.append(
+            {
+                "unit_id": unit_id,
+                "unit_contract_digest": unit_contract_digests[unit_id],
+                "completion_binding_id": completion["binding_id"],
+                "completion_artifact_ref": completion_ref,
+                "closeout_binding_id": closeout["binding_id"],
+            }
+        )
+
+    prefix_length = len(completed_refs)
+    next_unit = frontier[prefix_length] if prefix_length < len(frontier) else None
+    expected_cursor = next_unit if next_unit is not None else "__complete__"
+    if continuity["cursor"] != expected_cursor:
+        blockers.append(
+            _v2_blocker(
+                "CONTINUITY_CURSOR_CONTRADICTION",
+                "continuity-projection",
+                f"expected cursor {expected_cursor}, got {continuity['cursor']}",
+            )
+        )
+    if projected["unit_id"] != next_unit:
+        blockers.append(
+            _v2_blocker(
+                "CONTINUITY_FRONTIER_MISMATCH",
+                "continuity-projection",
+                f"expected projected next unit {next_unit}, got {projected['unit_id']}",
+            )
+        )
+    if next_unit is None:
+        blockers.append(
+            _v2_blocker(
+                "CONTINUITY_CURSOR_CONTRADICTION",
+                "continuity-projection",
+                "the current plan-once selection handoff cannot represent an already complete frontier",
+            )
+        )
+
+    successor_bindings = [
+        projected["canonical_successor_ref"],
+        projected["continuation_router_verification_receipt_ref"],
+    ]
+    for binding in successor_bindings:
+        if binding is None:
+            if next_unit is not None:
+                blockers.append(
+                    _v2_blocker(
+                        "CONTINUITY_RECEIPT_MISSING",
+                        "continuity-projection",
+                        "a non-terminal frontier requires a canonical successor binding",
+                    )
+                )
+            continue
+        try:
+            selected = _binding_selected_value(binding, repository_root)
+        except (OSError, ValueError, json.JSONDecodeError) as error:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_RECEIPT_MISSING", binding["binding_id"], str(error)
+                )
+            )
+            continue
+        if selected != next_unit:
+            blockers.append(
+                _v2_blocker(
+                    "CONTINUITY_FRONTIER_MISMATCH",
+                    binding["binding_id"],
+                    f"expected successor {next_unit}, got {selected}",
+                )
+            )
+
+    if blockers:
+        return None, blockers
+
+    source_projection = {
+        "cursor": continuity["cursor"],
+        "completed_unit_receipt_refs": completed_refs,
+        "joined_closeout_receipt_refs": closeout_refs,
+        "projected_next_successor": projected,
+        "source_snapshot_digest": source_snapshot_digest,
+    }
+    payload = {
+        "source_audit_id": config["audit_id"],
+        "source_projection_digest": digest_bytes(canonical_bytes(source_projection)),
+        "work_pack_semantic_digest": canonical_semantic_digest,
+        "plan_epoch_id": plan_epoch_id,
+        "completed_prefix": completed_prefix,
+        "next_unit": next_unit,
+        "authority_effect": "none",
+    }
+    return {
+        **payload,
+        "continuity_digest": digest_bytes(canonical_bytes(payload)),
+    }, []
 
 
 def _v2_semantic_components(config: dict[str, Any]) -> dict[str, Any]:
@@ -1433,6 +1777,7 @@ def compare_manifests_v2(
 def audit_v2(config: dict[str, Any], repository_root: Path) -> dict[str, Any]:
     """Build a deterministic, no-authority projection or one stable block report."""
 
+    plan_once = config.get("admission_timing") == "selected-unit-at-task-session"
     refs, ref_conflicts = _unique_exact_refs(config)
     initial_snapshot, snapshot_errors = capture_snapshot(repository_root, refs)
     blockers = [
@@ -1457,14 +1802,35 @@ def audit_v2(config: dict[str, Any], repository_root: Path) -> dict[str, Any]:
             )
         )
 
-    component_payloads = _v2_semantic_components(config)
-    component_digests = {
-        name: digest_bytes(canonical_bytes(payload))
-        for name, payload in sorted(component_payloads.items())
-    }
-    semantic_digest = digest_bytes(canonical_bytes(component_digests))
+    plan_semantics: dict[str, Any] | None = None
+    try:
+        if plan_once:
+            plan_semantics = build_plan_semantics(config, repository_root)
+            component_digests = plan_semantics["semantic_component_digests"]
+            semantic_digest = plan_semantics["canonical_semantic_digest"]
+        else:
+            component_payloads = _v2_semantic_components(config)
+            component_digests = {
+                name: digest_bytes(canonical_bytes(payload))
+                for name, payload in sorted(component_payloads.items())
+            }
+            semantic_digest = digest_bytes(canonical_bytes(component_digests))
+    except PlanSemanticError as error:
+        blockers.append(
+            _v2_blocker(
+                "PLAN_SEMANTIC_NORMALIZATION_FAILED",
+                "plan-semantics",
+                str(error),
+            )
+        )
+        component_digests = {}
+        semantic_digest = None
     expected_semantic = config.get("expected_semantic_digest")
-    if expected_semantic is not None and expected_semantic != semantic_digest:
+    if (
+        expected_semantic is not None
+        and semantic_digest is not None
+        and expected_semantic != semantic_digest
+    ):
         blockers.append(
             _v2_blocker(
                 "EPOCH_INVALIDATED_SEMANTIC_CHANGE",
@@ -1486,118 +1852,223 @@ def audit_v2(config: dict[str, Any], repository_root: Path) -> dict[str, Any]:
 
     manifest: dict[str, Any] | None = None
     projection_digest: str | None = None
-    if not blockers:
+    if not blockers and semantic_digest is not None:
         finite_frontier = [unit["unit_id"] for unit in config["execution_bindings"]]
-        projection_payload = {
-            "evidence_ceiling": config["evidence_ceiling"],
-            "classifier_version": config["classifier_version"],
-            "objective_ref": config["objective_ref"],
-            "closure_receipt_refs": config["closure_receipt_refs"],
-            "authority_bindings": config["authority_bindings"],
-            "execution_bindings": config["execution_bindings"],
-            "receipt_bindings": config["receipt_bindings"],
-            "closeout_bindings": config["closeout_bindings"],
-            "runtime_binding": config["runtime_binding"],
-            "status_receipt_refs": config["status_receipt_refs"],
-            "lifecycle_status_refs": config["lifecycle_status_refs"],
-            "approval_policy": config["approval_policy"],
-            "continuity_projection": config["continuity_projection"],
-            "source_snapshot_digest": source_digest,
-            "canonical_semantic_digest": semantic_digest,
-            "semantic_component_digests": component_digests,
-        }
-        projection_digest = digest_bytes(canonical_bytes(projection_payload))
-        epoch_seed = digest_bytes(
-            canonical_bytes(
-                {
-                    "semantic": semantic_digest,
-                    "snapshot": source_digest,
-                    "frontier": finite_frontier,
-                    "budget": config["approval_policy"]["run_budget"],
-                    "risk": _binding_semantics(
-                        config["approval_policy"]["risk_policy_ref"]
-                    ),
+        if plan_once:
+            assert plan_semantics is not None
+            epoch_seed = digest_bytes(
+                canonical_bytes(
+                    {
+                        "normalizer_version": NORMALIZER_VERSION,
+                        "canonical_semantic_digest": semantic_digest,
+                        "unit_contract_digests": plan_semantics[
+                            "unit_contract_digests"
+                        ],
+                    }
+                )
+            )
+            plan_epoch_id = f"epoch-{epoch_seed[:24]}"
+            completion_continuity, continuity_blockers = (
+                _completion_continuity_projection(
+                    config,
+                    repository_root,
+                    canonical_semantic_digest=semantic_digest,
+                    plan_epoch_id=plan_epoch_id,
+                    unit_contract_digests=plan_semantics[
+                        "unit_contract_digests"
+                    ],
+                    source_snapshot_digest=source_digest,
+                )
+            )
+            blockers.extend(continuity_blockers)
+            post_continuity_snapshot, post_continuity_errors = capture_snapshot(
+                repository_root, refs
+            )
+            if (
+                post_continuity_snapshot != initial_snapshot
+                or post_continuity_errors
+            ):
+                drift = True
+                if not any(item["code"] == "SNAPSHOT_DRIFT" for item in blockers):
+                    blockers.append(
+                        _v2_blocker(
+                            "SNAPSHOT_DRIFT",
+                            "snapshot",
+                            "; ".join(post_continuity_errors)
+                            or "continuity inputs changed during projection",
+                        )
+                    )
+            if not blockers:
+                assert completion_continuity is not None
+                manifest_payload = {
+                    "schema_version": "1.0.0",
+                    "audit_id": config["audit_id"],
+                    "work_pack_id": config["execution_policy"]["work_pack_id"],
+                    "normalizer_version": NORMALIZER_VERSION,
+                    "admission_timing": "selected-unit-at-task-session",
+                    "plan_epoch_id": plan_epoch_id,
+                    "canonical_semantic_digest": semantic_digest,
+                    "semantic_component_digests": component_digests,
+                    "unit_contract_digests": plan_semantics[
+                        "unit_contract_digests"
+                    ],
+                    "ready_frontier": plan_semantics["ready_frontier"],
+                    "source_snapshot_digest": source_digest,
+                    "completion_continuity": completion_continuity,
+                    "selection_required": True,
+                    "runtime_admission_status": "pending-selection",
+                    "allowed_routes": config["execution_policy"]["allowed_routes"],
+                    "allowed_routes_digest": config["execution_policy"][
+                        "allowed_routes_digest"
+                    ],
+                    "execution_entry": {
+                        "entry_state": "selection-ready",
+                        "selected_unit": None,
+                        "route_id": None,
+                        "next_owner": {
+                            "capability": "implementation-readiness",
+                            "mode": "execute",
+                            "target": config["execution_policy"]["work_pack_id"],
+                        },
+                        "blocker_code": None,
+                    },
+                    "authority_effect": "none",
+                    "selected_unit": None,
+                    "mutation_ready": False,
                 }
-            )
-        )
-        manifest = {
-            "schema_version": "1.0.0",
-            "manifest_id": f"oem-{projection_digest[:24]}",
-            "evidence_ceiling": config["evidence_ceiling"],
-            "classifier_version": config["classifier_version"],
-            "objective_ref": config["objective_ref"],
-            "closure_receipt_refs": config["closure_receipt_refs"],
-            "authority_bindings": {
-                **config["authority_bindings"],
-                "derived_projection_refs": [
-                    {
-                        "producer": "work-pack-readiness-audit",
-                        "audit_projection_digest": projection_digest,
-                        "authority_effect": "none",
-                    }
-                ],
-                "execution_byte_baselines": [
-                    {
-                        "unit_id": unit["unit_id"],
-                        "baselines": unit["byte_baselines"],
-                    }
-                    for unit in config["execution_bindings"]
-                ],
-            },
-            "canonical_plan_graph": {
-                "units": [
-                    {
-                        "unit_id": unit["unit_id"],
-                        "dependencies": unit["dependencies"],
-                        "canonical_successors": unit["canonical_successors"],
-                    }
-                    for unit in config["execution_bindings"]
-                ],
-                "finite_frontier": finite_frontier,
-            },
-            "execution_bindings": config["execution_bindings"],
-            "receipt_bindings": config["receipt_bindings"],
-            "closeout_bindings": config["closeout_bindings"],
-            "runtime_binding": config["runtime_binding"],
-            "status_receipt_refs": config["status_receipt_refs"],
-            "lifecycle_status_refs": config["lifecycle_status_refs"],
-            "epoch_binding": {
-                "epoch_id": f"epoch-{epoch_seed[:24]}",
-                "audit_projection_digest": projection_digest,
-                "canonical_semantic_digest": semantic_digest,
+                projection_digest = digest_bytes(canonical_bytes(manifest_payload))
+                manifest = {
+                    **manifest_payload,
+                    "manifest_id": f"psm-{projection_digest[:24]}",
+                }
+                manifest_errors = schema_errors(
+                    manifest, load_json(PLAN_MANIFEST_SCHEMA), "plan semantic manifest"
+                )
+                if manifest_errors:
+                    blockers.extend(
+                        _v2_blocker("MANIFEST_SCHEMA_INVALID", "manifest", error)
+                        for error in manifest_errors
+                    )
+                    manifest = None
+                    projection_digest = None
+        else:
+            projection_payload = {
+                "evidence_ceiling": config["evidence_ceiling"],
+                "classifier_version": config["classifier_version"],
+                "objective_ref": config["objective_ref"],
+                "closure_receipt_refs": config["closure_receipt_refs"],
+                "authority_bindings": config["authority_bindings"],
+                "execution_bindings": config["execution_bindings"],
+                "receipt_bindings": config["receipt_bindings"],
+                "closeout_bindings": config["closeout_bindings"],
+                "runtime_binding": config["runtime_binding"],
+                "status_receipt_refs": config["status_receipt_refs"],
+                "lifecycle_status_refs": config["lifecycle_status_refs"],
+                "approval_policy": config["approval_policy"],
+                "continuity_projection": config["continuity_projection"],
                 "source_snapshot_digest": source_digest,
-                "approved_frontier_ref": finite_frontier,
-                "run_budget": config["approval_policy"]["run_budget"],
-                "risk_policy_ref": config["approval_policy"]["risk_policy_ref"],
-                "decision_gate_approval_receipt_ref": config["approval_policy"][
-                    "decision_gate_receipt_ref"
-                ],
-                "approval_status": "unapproved",
-            },
-            "continuity_projection": config["continuity_projection"],
-            "semantic_component_digests": component_digests,
-            "authority_effect": "none",
-            "selected_unit": None,
-            "mutation_ready": False,
-        }
-        manifest_errors = schema_errors(
-            manifest, load_json(MANIFEST_SCHEMA), "objective execution manifest"
-        )
-        if manifest_errors:
-            blockers.extend(
-                _v2_blocker("MANIFEST_SCHEMA_INVALID", "manifest", error)
-                for error in manifest_errors
+                "canonical_semantic_digest": semantic_digest,
+                "semantic_component_digests": component_digests,
+            }
+            projection_digest = digest_bytes(canonical_bytes(projection_payload))
+            epoch_seed = digest_bytes(
+                canonical_bytes(
+                    {
+                        "semantic": semantic_digest,
+                        "snapshot": source_digest,
+                        "frontier": finite_frontier,
+                        "budget": config["approval_policy"]["run_budget"],
+                        "risk": _binding_semantics(
+                            config["approval_policy"]["risk_policy_ref"]
+                        ),
+                    }
+                )
             )
-            manifest = None
-            projection_digest = None
+            manifest = {
+                "schema_version": "1.0.0",
+                "manifest_id": f"oem-{projection_digest[:24]}",
+                "evidence_ceiling": config["evidence_ceiling"],
+                "classifier_version": config["classifier_version"],
+                "objective_ref": config["objective_ref"],
+                "closure_receipt_refs": config["closure_receipt_refs"],
+                "authority_bindings": {
+                    **config["authority_bindings"],
+                    "derived_projection_refs": [
+                        {
+                            "producer": "work-pack-readiness-audit",
+                            "audit_projection_digest": projection_digest,
+                            "authority_effect": "none",
+                        }
+                    ],
+                    "execution_byte_baselines": [
+                        {
+                            "unit_id": unit["unit_id"],
+                            "baselines": unit["byte_baselines"],
+                        }
+                        for unit in config["execution_bindings"]
+                    ],
+                },
+                "canonical_plan_graph": {
+                    "units": [
+                        {
+                            "unit_id": unit["unit_id"],
+                            "dependencies": unit["dependencies"],
+                            "canonical_successors": unit["canonical_successors"],
+                        }
+                        for unit in config["execution_bindings"]
+                    ],
+                    "finite_frontier": finite_frontier,
+                },
+                "execution_bindings": config["execution_bindings"],
+                "receipt_bindings": config["receipt_bindings"],
+                "closeout_bindings": config["closeout_bindings"],
+                "runtime_binding": config["runtime_binding"],
+                "status_receipt_refs": config["status_receipt_refs"],
+                "lifecycle_status_refs": config["lifecycle_status_refs"],
+                "epoch_binding": {
+                    "epoch_id": f"epoch-{epoch_seed[:24]}",
+                    "audit_projection_digest": projection_digest,
+                    "canonical_semantic_digest": semantic_digest,
+                    "source_snapshot_digest": source_digest,
+                    "approved_frontier_ref": finite_frontier,
+                    "run_budget": config["approval_policy"]["run_budget"],
+                    "risk_policy_ref": config["approval_policy"]["risk_policy_ref"],
+                    "decision_gate_approval_receipt_ref": config["approval_policy"][
+                        "decision_gate_receipt_ref"
+                    ],
+                    "approval_status": "unapproved",
+                },
+                "continuity_projection": config["continuity_projection"],
+                "semantic_component_digests": component_digests,
+                "authority_effect": "none",
+                "selected_unit": None,
+                "mutation_ready": False,
+            }
+            manifest_errors = schema_errors(
+                manifest, load_json(MANIFEST_SCHEMA), "objective execution manifest"
+            )
+            if manifest_errors:
+                blockers.extend(
+                    _v2_blocker("MANIFEST_SCHEMA_INVALID", "manifest", error)
+                    for error in manifest_errors
+                )
+                manifest = None
+                projection_digest = None
 
+    semantic_repair_entry = (
+        _plan_once_semantic_repair_entry(config, plan_semantics, blockers)
+        if plan_once
+        else None
+    )
     verdict = "block" if blockers else "pass"
     report = {
         "schema_version": "2.0.0",
         "audit_id": config["audit_id"],
         "canonical_spell_id": "work-pack-readiness-audit",
         "verdict": verdict,
-        "terminal_code": blockers[0]["code"] if blockers else "PROJECTION_READY",
+        "terminal_code": blockers[0]["code"] if blockers else (
+            "PLAN_SEMANTIC_READY" if plan_once else "PROJECTION_READY"
+        ),
         "evidence_ceiling": config["evidence_ceiling"],
         "manifest": manifest,
         "blockers": blockers,
@@ -1614,18 +2085,54 @@ def audit_v2(config: dict[str, Any], repository_root: Path) -> dict[str, Any]:
         "selected_unit": None,
         "authority_effect": "none",
         "mutation_ready": False,
-        "next_owner": "decision-gate" if verdict == "pass" else "invoke:refresh",
+        "next_owner": (
+            "implementation-readiness:execute"
+            if verdict == "pass" and plan_once
+            else "decision-gate"
+            if verdict == "pass"
+            else "invoke:refresh"
+        ),
     }
+    if plan_once:
+        report["admission_timing"] = "selected-unit-at-task-session"
+        report["runtime_admission_status"] = (
+            "pending-selection" if verdict == "pass" else "block"
+        )
+        report["execution_entry"] = (
+            manifest["execution_entry"]
+            if manifest is not None
+            else semantic_repair_entry
+            if semantic_repair_entry is not None
+            else {
+                "entry_state": "blocked",
+                "selected_unit": None,
+                "route_id": None,
+                "next_owner": {
+                    "capability": "invoke",
+                    "mode": "refresh",
+                    "target": config["audit_id"],
+                },
+                "blocker_code": blockers[0]["code"] if blockers else "PLAN_BLOCKED",
+            }
+        )
     return report
 
 
 def write_outputs_v2(report: dict[str, Any], output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path = output_dir / "work-pack-readiness-report-v2.json"
-    manifest_path = output_dir / "objective-execution-manifest.json"
+    plan_once = report.get("admission_timing") == "selected-unit-at-task-session"
+    manifest_path = output_dir / (
+        "plan-semantic-manifest.json"
+        if plan_once
+        else "objective-execution-manifest.json"
+    )
+    handoff_path = output_dir / "selection-handoff.json"
     targets = [report_path]
     if report["manifest"] is not None:
         targets.append(manifest_path)
+        if plan_once:
+            targets.append(handoff_path)
     existing = [str(path) for path in targets if path.exists()]
     if existing:
         raise ValueError(f"refusing to overwrite audit outputs: {', '.join(existing)}")
@@ -1638,10 +2145,40 @@ def write_outputs_v2(report: dict[str, Any], output_dir: Path) -> None:
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     if report["manifest"] is not None:
-        manifest_path.write_text(
-            json.dumps(report["manifest"], indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
+        manifest_bytes = (
+            json.dumps(report["manifest"], indent=2, sort_keys=True) + "\n"
+        ).encode("utf-8")
+        manifest_path.write_bytes(manifest_bytes)
+        if plan_once:
+            handoff = {
+                "schema_version": "1.0.0",
+                "audit_id": report["audit_id"],
+                "plan_epoch_id": report["manifest"]["plan_epoch_id"],
+                "manifest_ref": {
+                    "path": manifest_path.name,
+                    "sha256": digest_bytes(manifest_bytes),
+                    "size_bytes": len(manifest_bytes),
+                },
+                "ready_frontier": report["manifest"]["ready_frontier"],
+                "allowed_routes": report["manifest"]["allowed_routes"],
+                "allowed_routes_digest": report["manifest"][
+                    "allowed_routes_digest"
+                ],
+                "execution_entry": report["manifest"]["execution_entry"],
+                "next_owner": "implementation-readiness:execute",
+                "selection_required": True,
+                "authority_effect": "none",
+                "mutation_ready": False,
+            }
+            errors = schema_errors(
+                handoff, load_json(SELECTION_HANDOFF_SCHEMA), "selection handoff"
+            )
+            if errors:
+                raise ValueError("; ".join(errors))
+            handoff_path.write_text(
+                json.dumps(handoff, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
 
 
 def parse_args() -> argparse.Namespace:
@@ -1654,7 +2191,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config = load_json(args.config)
-    is_v2 = config.get("schema_version") == "2.0.0"
+    schema_version = config.get("schema_version")
+    if schema_version not in {"1.0.0", "2.0.0"}:
+        raise SystemExit(f"unsupported audit config schema_version: {schema_version!r}")
+    is_v2 = schema_version == "2.0.0"
     config_schema = CONFIG_SCHEMA_V2 if is_v2 else CONFIG_SCHEMA
     config_errors = schema_errors(config, load_json(config_schema), "audit config")
     if config_errors:

@@ -30,9 +30,83 @@ This template is standalone at invoke scope and is composed by the DomainSpec im
 | swuAtomicityStatus | pass, flag, block, or n/a | Required for medium/high plans; task-shaped SWUs block handoff. |
 | firstUnitNarrownessStatus | pass, flag, block, or n/a | Required before selecting the first mutation-capable SWU. |
 | closeoutSyncStatus | pass or block | Pass only when every mutation-capable SWU has a complete Task Session closeout contract. |
+| admissionTiming | selected-unit-at-task-session or full-frontier | New plans default to selected-unit timing; full-frontier requires a named reason. |
+| executionEntryState | selection-ready, owner-prerequisite, task-ready, or blocked | Must name exactly one truthful current state. |
+| allowedRoutesDigest | {sha256} | Canonical digest of the exact internal route projection. |
 | activeLayerWindow | L0, L1, L2, L3, or n/a | Primary layer focus for current execution slice. |
 | lastUpdatedAt | {iso-timestamp} | Last update time for this work-pack. |
 | readinessProfile | pilot, release-candidate, production | Completion target profile. |
+
+## Work-Pack Execution Policy
+
+```yaml
+executionPolicy:
+  routePolicy: automatic-in-scope
+  allowedRoutes:
+    - routeId: <stable route id>
+      frontierSwu: <exact SWU id>
+      capability: <installed owner id>
+      mode: <owner mode>
+      target: <exact target>
+      writeScope: [<normalized repository-local paths>]
+      effectClass: repository-local-reversible
+      requiredInputs: [<typed input refs>]
+      expectedReceipt: <exact receipt contract>
+  allowedRoutesDigest: <canonical sha256>
+  automaticDecisions:
+    - internal-tool-selection
+    - capability-owner-routing
+    - reversible-local-default
+    - declared-fallback
+    - declared-retry
+    - fresh-task-session-resumption
+  stopDecisions:
+    - product-or-semantic-choice
+    - scope-expansion
+    - destructive-or-irreversible-effect
+    - credentials-or-secret-access
+    - external-message-or-network-effect
+    - cost-policy-or-risk-acceptance
+    - authority-promotion-publication-deployment
+    - failed-acceptance-critical-validation
+  scopeSource: exact-work-pack-and-captured-frontier
+  validationPolicy: owner-gates-remain-mandatory
+
+executionEntry:
+  state: selection-ready
+  selectedUnit: null
+  routeId: null
+  nextOwner: implementation-readiness:execute
+
+# Null unless the selected SWU has a genuine owner prerequisite that must be
+# resolved inside the already-running Task Session attempt.
+preExecutionOwnerPrerequisite:
+  sourcePhase: pre-execution-prerequisite
+  recordSchema: arcanum/arcana/task-session/schemas/pre-execution-owner-prerequisite.schema.json
+  recordRef: <exact path, sha256, and size of the instantiated typed record>
+  authorizationEvidenceSelector: <current direct request or exact durable approval>
+  returnControl: same-task-session-attempt
+  resumePoint: task-session:context-build
+  maxOwnerHops: 1
+```
+
+The operator's direct request to run or finish this Work Pack is the execution
+intent. Matched internal routes do not require a second authorization prompt.
+Undeclared routes and protected effects still stop before mutation.
+
+When `declared-retry` is present, it authorizes only one retry after the same
+owner route returns `REPAIRABLE_OWNER_CONDITION` for the unchanged entry,
+binding, and selected unit. The retry consumes the ordinary step budget and
+does not release replay history. A second retry stops before another dispatch.
+
+The pre-execution record must conform to the referenced schema and bind the
+route, task, SWU, attempt, target inventory, structured validation contracts,
+expected owner receipt, satisfaction predicate, authorization requirement,
+allowed effect, and complete fingerprint inputs. A generic readiness
+`owner-prerequisite` may join before a fresh Task Session starts. A route with
+`sourcePhase: pre-execution-prerequisite` instead returns its exact control
+handle to the same active attempt and resumes Context Builder once; it must not
+be converted into a fresh Task Session action.
 
 ## Objective Summary
 

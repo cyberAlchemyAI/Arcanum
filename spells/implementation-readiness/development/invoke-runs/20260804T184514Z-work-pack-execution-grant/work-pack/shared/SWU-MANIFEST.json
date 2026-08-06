@@ -1,0 +1,234 @@
+{
+  "schema_version": "1.0.0",
+  "work_pack_id": "WP-WPEG-20260804",
+  "selected_swu": null,
+  "recommended_first_swu": "SWU-WPEG-001",
+  "execution_policy": {
+    "route_policy": "automatic-in-scope",
+    "per_hop_authorization": "not-required-for-work-pack-bound-routes",
+    "stop_policy": "first-real-blocker-or-frontier-complete",
+    "automatic_decisions": [
+      "internal-tool-selection",
+      "capability-owner-routing",
+      "reversible-local-default",
+      "declared-fallback",
+      "declared-retry",
+      "fresh-task-session-resumption"
+    ],
+    "stop_decisions": [
+      "product-or-semantic-choice",
+      "scope-expansion",
+      "destructive-or-irreversible-effect",
+      "credentials-or-secret-access",
+      "external-message-or-network-effect",
+      "cost-policy-or-risk-acceptance",
+      "authority-promotion-publication-deployment",
+      "failed-acceptance-critical-validation"
+    ],
+    "allowed_routes_digest": "a2092630f4115fdc25c8624a9cc1232b5d347021c4f88c8e387911c3d7a20ca2",
+    "allowed_routes": [
+      {
+        "frontier_swu": "SWU-WPEG-001",
+        "capability": "spellcraft",
+        "mode": "update",
+        "target": "implementation-readiness execution contracts",
+        "write_scope": [
+          "arcanum/spells/implementation-readiness/schemas/",
+          "arcanum/spells/implementation-readiness/scripts/",
+          "arcanum/spells/implementation-readiness/development/fixtures/"
+        ],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["SPEC.md", "work-pack/tasks/TASK-WPEG-CONTRACT.md"],
+        "expected_receipt": "receipts/SWU-WPEG-001.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-002",
+        "capability": "spellcraft",
+        "mode": "update",
+        "target": "Invoke Plan and Work Pack readiness contracts",
+        "write_scope": [
+          "arcanum/spells/invoke/plan.md",
+          "arcanum/spells/invoke/templates/work-pack.md",
+          "arcanum/spells/work-pack-readiness-audit/"
+        ],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-001.json", "work-pack/tasks/TASK-WPEG-CONTRACT.md"],
+        "expected_receipt": "receipts/SWU-WPEG-002.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-003",
+        "capability": "sigil-development",
+        "mode": "update",
+        "target": "continuation-router bound-route admission",
+        "write_scope": ["arcanum/arcana/continuation-router/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-002.json", "work-pack/tasks/TASK-WPEG-ROUTER.md"],
+        "expected_receipt": "receipts/SWU-WPEG-003.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-004",
+        "capability": "spellcraft",
+        "mode": "update",
+        "target": "implementation-readiness outer loop",
+        "write_scope": ["arcanum/spells/implementation-readiness/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-003.json", "work-pack/tasks/TASK-WPEG-ROUTER.md"],
+        "expected_receipt": "receipts/SWU-WPEG-004.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-005",
+        "capability": "sigil-development",
+        "mode": "update",
+        "target": "task-session fast prerequisite guard",
+        "write_scope": ["arcanum/arcana/task-session/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-004.json", "work-pack/tasks/TASK-WPEG-TASK-SESSION.md"],
+        "expected_receipt": "receipts/SWU-WPEG-005.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-006",
+        "capability": "spellcraft",
+        "mode": "update",
+        "target": "task-session-until-blocker fresh-session resumption",
+        "write_scope": ["arcanum/spells/task-session-until-blocker/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-005.json", "work-pack/tasks/TASK-WPEG-TASK-SESSION.md"],
+        "expected_receipt": "receipts/SWU-WPEG-006.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-007",
+        "capability": "task-session",
+        "mode": "verify",
+        "target": "work-pack execution causal integration fixtures",
+        "write_scope": ["arcanum/spells/implementation-readiness/development/integration/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-006.json", "work-pack/tasks/TASK-WPEG-INTEGRATION.md"],
+        "expected_receipt": "receipts/SWU-WPEG-007.json"
+      },
+      {
+        "frontier_swu": "SWU-WPEG-008",
+        "capability": "spellcraft",
+        "mode": "validate",
+        "target": "generated package parity and closeout",
+        "write_scope": [
+          ".agents/skills/implementation-readiness/",
+          ".agents/skills/invoke/",
+          ".agents/skills/continuation-router/",
+          ".agents/skills/task-session/",
+          ".agents/skills/task-session-until-blocker/",
+          ".claude/skills/implementation-readiness/",
+          ".claude/skills/invoke/",
+          ".claude/skills/continuation-router/",
+          ".claude/skills/task-session/",
+          ".claude/skills/task-session-until-blocker/"
+        ],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["receipts/SWU-WPEG-007.json", "work-pack/tasks/TASK-WPEG-INTEGRATION.md"],
+        "expected_receipt": "receipts/SWU-WPEG-008.json"
+      }
+    ]
+  },
+  "swus": [
+    {
+      "swu_id": "SWU-WPEG-001",
+      "parent_task": "TASK-WPEG-CONTRACT",
+      "primary_behavior": "Validate execution policy, entry projection, and intent binding.",
+      "dependencies": [],
+      "successor": "SWU-WPEG-002",
+      "write_scope": [
+        "arcanum/spells/implementation-readiness/schemas/",
+        "arcanum/spells/implementation-readiness/scripts/",
+        "arcanum/spells/implementation-readiness/development/fixtures/"
+      ],
+      "verification": "python3 arcanum/spells/implementation-readiness/scripts/validate_execution_contracts.py"
+    },
+    {
+      "swu_id": "SWU-WPEG-002",
+      "parent_task": "TASK-WPEG-CONTRACT",
+      "primary_behavior": "Emit one consistent execution-entry state from Plan/readiness output.",
+      "dependencies": ["SWU-WPEG-001"],
+      "successor": "SWU-WPEG-003",
+      "write_scope": [
+        "arcanum/spells/invoke/plan.md",
+        "arcanum/spells/invoke/templates/work-pack.md",
+        "arcanum/spells/work-pack-readiness-audit/"
+      ],
+      "verification": "bash arcanum/spells/invoke/development/run-validation-fixtures.sh && python3 arcanum/spells/work-pack-readiness-audit/development/test_plan_once_end_to_end.py"
+    },
+    {
+      "swu_id": "SWU-WPEG-003",
+      "parent_task": "TASK-WPEG-ROUTER",
+      "primary_behavior": "Admit matched Work-Pack-bound owner hops without per-route authorization.",
+      "dependencies": ["SWU-WPEG-002"],
+      "successor": "SWU-WPEG-004",
+      "write_scope": [
+        "arcanum/arcana/continuation-router/"
+      ],
+      "verification": "bash arcanum/arcana/continuation-router/development/run-validation-fixtures.sh"
+    },
+    {
+      "swu_id": "SWU-WPEG-004",
+      "parent_task": "TASK-WPEG-ROUTER",
+      "primary_behavior": "Run the Work-Pack execution outer loop through Implementation Readiness.",
+      "dependencies": ["SWU-WPEG-003"],
+      "successor": "SWU-WPEG-005",
+      "write_scope": [
+        "arcanum/spells/implementation-readiness/"
+      ],
+      "verification": "python3 arcanum/spells/implementation-readiness/development/validate-outer-loop.py"
+    },
+    {
+      "swu_id": "SWU-WPEG-005",
+      "parent_task": "TASK-WPEG-TASK-SESSION",
+      "primary_behavior": "Classify prerequisites before deep Task Session context construction.",
+      "dependencies": ["SWU-WPEG-004"],
+      "successor": "SWU-WPEG-006",
+      "write_scope": [
+        "arcanum/arcana/task-session/"
+      ],
+      "verification": "bash arcanum/arcana/task-session/development/run-validation-fixtures.sh"
+    },
+    {
+      "swu_id": "SWU-WPEG-006",
+      "parent_task": "TASK-WPEG-TASK-SESSION",
+      "primary_behavior": "Resume through a fresh Task Session after one joined prerequisite owner hop.",
+      "dependencies": ["SWU-WPEG-005"],
+      "successor": "SWU-WPEG-007",
+      "write_scope": [
+        "arcanum/spells/task-session-until-blocker/"
+      ],
+      "verification": "bash arcanum/spells/task-session-until-blocker/development/run-validation-fixtures.sh"
+    },
+    {
+      "swu_id": "SWU-WPEG-007",
+      "parent_task": "TASK-WPEG-INTEGRATION",
+      "primary_behavior": "Prove direct-intent execution, automatic routes, and stop boundaries end to end.",
+      "dependencies": ["SWU-WPEG-006"],
+      "successor": "SWU-WPEG-008",
+      "write_scope": [
+        "arcanum/spells/implementation-readiness/development/integration/"
+      ],
+      "verification": "python3 arcanum/spells/implementation-readiness/development/integration/test_work_pack_execution.py"
+    },
+    {
+      "swu_id": "SWU-WPEG-008",
+      "parent_task": "TASK-WPEG-INTEGRATION",
+      "primary_behavior": "Synchronize generated packages, documentation, and observability after canonical validation.",
+      "dependencies": ["SWU-WPEG-007"],
+      "successor": null,
+      "write_scope": [
+        ".agents/skills/implementation-readiness/",
+        ".agents/skills/invoke/",
+        ".agents/skills/continuation-router/",
+        ".agents/skills/task-session/",
+        ".agents/skills/task-session-until-blocker/",
+        ".claude/skills/implementation-readiness/",
+        ".claude/skills/invoke/",
+        ".claude/skills/continuation-router/",
+        ".claude/skills/task-session/",
+        ".claude/skills/task-session-until-blocker/"
+      ],
+      "verification": "selective generated-skill sync plus canonical/generated parity and scoped git diff checks"
+    }
+  ]
+}

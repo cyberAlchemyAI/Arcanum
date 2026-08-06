@@ -147,6 +147,50 @@ SWUs in one Task Session receipt.
 
 ## Step 2 - Build Context Pack
 
+For an exact Work-Pack-bound execution request, first run
+`scripts/classify-fast-execution-entry.py` after resolving the policy, selected
+unit, execution binding, and execution-entry projection, but before entering
+Context Builder. The guard reads exactly those four logical inputs in one
+entry-guard phase. `task-ready` proceeds to the ordinary Context Builder path;
+`owner-prerequisite` returns the exact bound owner packet to the outer loop
+with no authorization prompt; every other result blocks. A `route-owner` or
+`block` result must leave Context Builder, deep material inspection, mutation
+admission, target hashing/mutation, and owner dispatch unentered. The guard
+itself performs zero target mutations and never converts a stop into another
+authorization question.
+
+For `task-ready`, persist the exact fast-entry request and receipt and carry
+both references into the governance runner's `work-pack-fast-entry` profile.
+The runner must revalidate the receipt against the original request before it
+may bypass the legacy prose-selected-row check. It must then bind the Work Pack
+path, selected SWU, Task Session route, route write scope, expected terminal
+receipt, plan selection, and single-use admission. A path-only receipt or a
+receipt detached from its four logical inputs returns `BLOCK` before run-state
+writes.
+
+9a. After exact task/SWU resolution and before Context Builder, classify any
+declared `PreExecutionOwnerPrerequisite` with
+`scripts/classify-pre-execution-prerequisite.py`. Read only the selected work
+pack, selected unit, prerequisite record, referenced satisfaction receipt, and
+separately traced current-request control evidence.
+9b. A satisfied or plan-once-ready result permits the normal Context Builder
+entry. An unmet result without exact authorization fast-blocks with Context
+Builder, implementation inspection, target hashing, mutation admission, and
+target mutation all unentered.
+9c. For one exactly authorized unmet prerequisite, route through Continuation
+Router's `pre-execution-prerequisite` phase. Require its separate, current,
+digest-and-size-bound owner receipt and a fully bound same-attempt control
+handle. Task Session does not perform or impersonate the owner's work.
+9d. Before resuming, match route, task, SWU, attempt, prerequisite fingerprint,
+target inventory, structured validation contract, expected package, owner
+receipt schema, satisfaction predicate, resume point, one-hop budget, and
+allowed effect. Rehash every live target baseline after the owner hop.
+9e. Atomically consume the attempt/fingerprint pair before resuming. Resume the
+same attempt exactly once at `task-session:context-build`; do not re-enter
+selector resolution and do not recursively invoke Task Session. A repeated or
+partially consumed pair, stale/tampered receipt, baseline drift, expanded
+package target, unsatisfied owner result, or unjoined helper returns `BLOCK`.
+
 10. Run `context-builder` in lean or standard mode for the selected task/SWU.
 11. Include the task contract, source links, architecture/spec references, work-pack row, dependency rows, blocker rows, write scope, done criteria, validation surface, and known repository conventions.
 12. When `--via runtime` is set, request a runtime handoff pack from Context Builder, emitted as Markdown plus JSON/index and persisted under session/run evidence.
@@ -257,6 +301,22 @@ declared output, and persist the terminal Task Session receipt as the final
 write. An `execution-output-only` admission grants no material mutation,
 promotion, publication, or lifecycle authority. Execution outputs are not
 required to exist at admission time and may not expand the admitted union.
+37h. When the audit profile is `selected-unit-at-task-session`, require the
+exact Plan Semantic Manifest and selection receipt before accepting material.
+Bind task, SWU, plan epoch, unit-contract digest, attempt, complete structured
+validation-contract digest, target inventory and baselines, lifecycle owner,
+authority, and publication through the Invoke package, producer receipt,
+mutation-admission request, and admission receipt.
+37i. Rehash every selected material target against its present/absent baseline
+at admission and again at the mutating adapter boundary. A missing future
+package blocks only mutation; it does not invalidate the audited semantic plan.
+Any plan semantic drift routes to Invoke Refresh and readiness re-audit.
+37j. Treat plan-once admission as single-use. The governance runner must bind
+the admission token to `attempt_id = run_id`, atomically create the deterministic
+receipt-digest consumption ledger immediately before executor launch, carry
+the admission chain into the execution ticket, and require the terminal receipt
+to record the consumed receipt, token, attempt, and ledger reference. A second
+ticket or pre-joined executor output cannot reuse or bypass that admission.
 
 ## Step 6 - Execute Task
 
@@ -408,6 +468,11 @@ A successful execution of this sigil must:
 - recover from missing conversational context only through runtime-supplied
   current-session evidence or repository-local continuity,
 - revalidate every cursor-selected candidate against the live work pack,
+- classify declared pre-execution prerequisites before Context Builder,
+- join only a digest-and-size-bound owner receipt under the exact authorized
+  route and revalidate its package, scope, predicate, and live baselines,
+- atomically consume each prerequisite attempt/fingerprint and permit exactly
+  one same-attempt Context Builder resume,
 - resolve exactly one work-pack task or SWU when the input is a work-pack,
 - build a bounded context pack before decisions, gates, runtime selection, or mutation,
 - require strict handoff-pack coverage before `--via runtime` delegation,
@@ -423,6 +488,8 @@ A successful execution of this sigil must:
 - keep runtime delegation behind an explicit adapter boundary,
 - require a current producer-schema-validated, digest-bound mutation-admission
   receipt immediately before routed or reusable mutation,
+- for plan-once execution, require a current non-authoritative selection
+  receipt and atomically consume its attempt-bound admission exactly once,
 - bind admission to the live task/SWU, controlling artifacts, dependency
   frontier, allowed writes, validation surface, and authority/publication
   class,
@@ -472,6 +539,9 @@ Avoid:
 - reusing a mutation-admission receipt after any controlling artifact,
   dependency, write scope, validation command, owner, authority, or publication
   binding changes,
+- treating a plan-once selection receipt as mutation authority, omitting the
+  live target-baseline recheck, or launching an executor before atomic
+  admission consumption,
 - treating mutation admission as a substitute for live validation or as
   lifecycle authority,
 - falling through to a lower-priority candidate when the selected evidence is
@@ -498,6 +568,9 @@ Avoid:
 - reporting AFK research as successful while subagent joins, closes, residues, or reroutes are unproven.
 - treating free-text `next_route` as mutation approval.
 - re-entering Task Session with the same blocker fingerprint and unchanged controlling evidence.
+- accepting a path-only prerequisite owner receipt, a mismatched control
+  handle, expanded package target, or a second resume for a consumed
+  attempt/fingerprint,
 - performing Invoke Refresh, Decision Gate, Goal, or another owner's mutation directly inside Task Session instead of dispatching and joining the owner.
 - deriving closeout authorization for implementation, another task, authority,
   promotion, publication, deployment, destructive cleanup, policy/cost/risk

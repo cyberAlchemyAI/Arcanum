@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session-until-blocker/fresh-session-resume-receipt/1-0-0",
+  "title": "FreshSessionResumeReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "chain_id",
+    "loop_id",
+    "loop_state_digest",
+    "work_pack_id",
+    "work_pack_semantic_digest",
+    "selected_unit",
+    "decision",
+    "code",
+    "detail",
+    "captured_frontier",
+    "session_budget",
+    "original_task_session_id",
+    "joined_owner_receipt_count",
+    "owner_join",
+    "resumed_route_fingerprints",
+    "fresh_task_session_start_count",
+    "fresh_task_session",
+    "task_session_receipt_slot",
+    "evidence_write_count",
+    "ledger_event_ref",
+    "authorization_prompt_count",
+    "recursive_resume",
+    "mutation_count",
+    "protected_effect_count",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "receipt_id": {"type": "string", "pattern": "^fsr-[a-f0-9]{24}$"},
+    "chain_id": {"type": ["string", "null"], "minLength": 1},
+    "loop_id": {"type": ["string", "null"], "minLength": 1},
+    "loop_state_digest": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "work_pack_id": {"type": ["string", "null"], "minLength": 1},
+    "work_pack_semantic_digest": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "selected_unit": {"type": ["string", "null"], "minLength": 1},
+    "decision": {"enum": ["start-fresh-session", "block"]},
+    "code": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+    "detail": {"type": ["string", "null"], "minLength": 1},
+    "captured_frontier": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "session_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captured", "current", "used_before", "used_after"],
+      "properties": {
+        "captured": {"type": "integer", "minimum": 0},
+        "current": {"type": "integer", "minimum": 0},
+        "used_before": {"type": "integer", "minimum": 0},
+        "used_after": {"type": "integer", "minimum": 0}
+      }
+    },
+    "original_task_session_id": {"type": ["string", "null"], "minLength": 1},
+    "joined_owner_receipt_count": {"type": "integer", "minimum": 0, "maximum": 1},
+    "owner_join": {
+      "oneOf": [{"$ref": "#/$defs/ownerJoin"}, {"type": "null"}]
+    },
+    "resumed_route_fingerprints": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    },
+    "fresh_task_session_start_count": {"type": "integer", "minimum": 0, "maximum": 1},
+    "fresh_task_session": {
+      "oneOf": [{"$ref": "#/$defs/freshSession"}, {"type": "null"}]
+    },
+    "task_session_receipt_slot": {
+      "oneOf": [{"$ref": "#/$defs/receiptSlot"}, {"type": "null"}]
+    },
+    "evidence_write_count": {"type": "integer", "minimum": 0, "maximum": 1},
+    "ledger_event_ref": {
+      "oneOf": [{"$ref": "#/$defs/exactArtifactRef"}, {"type": "null"}]
+    },
+    "authorization_prompt_count": {"const": 0},
+    "recursive_resume": {"const": false},
+    "mutation_count": {"const": 0},
+    "protected_effect_count": {"const": 0},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"decision": {"const": "start-fresh-session"}},
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {
+          "code": {"const": "FRESH_TASK_SESSION_READY"},
+          "detail": {"type": "null"},
+          "joined_owner_receipt_count": {"const": 1},
+          "owner_join": {"$ref": "#/$defs/ownerJoin"},
+          "fresh_task_session_start_count": {"const": 1},
+          "fresh_task_session": {"$ref": "#/$defs/freshSession"},
+          "task_session_receipt_slot": {"$ref": "#/$defs/receiptSlot"},
+          "evidence_write_count": {"const": 1},
+          "ledger_event_ref": {"$ref": "#/$defs/exactArtifactRef"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"decision": {"const": "block"}},
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {
+          "detail": {"type": "string", "minLength": 1},
+          "fresh_task_session_start_count": {"const": 0},
+          "fresh_task_session": {"type": "null"},
+          "task_session_receipt_slot": {"type": "null"},
+          "evidence_write_count": {"const": 0},
+          "ledger_event_ref": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "ownerJoin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_id", "receipt_ref", "binding_id", "binding_digest", "route_fingerprint"],
+      "properties": {
+        "receipt_id": {"type": "string", "minLength": 1},
+        "receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "binding_id": {"type": "string", "minLength": 1},
+        "binding_digest": {"$ref": "#/$defs/sha256"},
+        "route_fingerprint": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "freshSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_id",
+        "cursor",
+        "selector",
+        "action",
+        "binding_id",
+        "binding_digest",
+        "route_fingerprint",
+        "expected_receipt"
+      ],
+      "properties": {
+        "session_id": {"type": "string", "pattern": "^task-session-[a-f0-9]{24}$"},
+        "cursor": {"type": "string", "pattern": "^cursor-[a-f0-9]{24}$"},
+        "selector": {"type": "string", "minLength": 1},
+        "action": {"const": "task-session:execute"},
+        "binding_id": {"type": "string", "minLength": 1},
+        "binding_digest": {"$ref": "#/$defs/sha256"},
+        "route_fingerprint": {"$ref": "#/$defs/sha256"},
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    },
+    "receiptSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_id", "expected_receipt", "maximum_receipts"],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "expected_receipt": {"type": "string", "minLength": 1},
+        "maximum_receipts": {"const": 1}
+      }
+    }
+  }
+}

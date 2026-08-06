@@ -1,0 +1,266 @@
+{
+  "dispatch_id": "dispatch-work-pack-execution-grant-v1",
+  "intent": {
+    "raw": "Implement one Work-Pack execution intent that can choose internal tools and owner routes until completion or a real blocker.",
+    "objective": "Remove per-hop authorization for Work-Pack-bound internal routes while preserving exact scope, owner, validation, and protected-effect stops.",
+    "target_artifact": "spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md"
+  },
+  "mode": "sequence",
+  "techniques": [
+    "sequence",
+    "scu_swu_reduction",
+    "recomposition_proof",
+    "owner_boundary_check",
+    "approval_semantics_map",
+    "execution_receipt_handoff",
+    "validation_loop",
+    "concrete_path_evidence",
+    "artifact_contract_bridge",
+    "residue_ledger",
+    "observability_grouping"
+  ],
+  "subagent_strategy": {
+    "status": "none",
+    "explanation": "The implementation chain is dependency-ordered and should execute one lifecycle-owned SWU at a time; no parallel subagent dispatch is part of this Plan.",
+    "binding_mode": "descriptive",
+    "parallelism": "none",
+    "join_policy": "none",
+    "authorization": "not_needed",
+    "permission_prompt": "none"
+  },
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
+  "steps": [
+    {
+      "step_id": "S1",
+      "name": "Implement execution contracts and truthful Plan projection",
+      "capability_ref": "spellcraft",
+      "mode": "update",
+      "pattern": "sequential",
+      "parallel": false,
+      "techniques": ["sequence", "scu_swu_reduction", "artifact_contract_bridge", "validation_loop"],
+      "inputs": [
+        {"kind": "artifact", "ref": "work-pack/tasks/TASK-WPEG-CONTRACT.md"},
+        {"kind": "artifact", "ref": "SPEC.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/S1-contract-plan.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "receipts/S1-contract-plan.json",
+      "stop_conditions": [
+        "block if automatic decisions overlap protected stop classes",
+        "block if Plan can still advertise Task Session while a prerequisite is unresolved"
+      ]
+    },
+    {
+      "step_id": "S2",
+      "name": "Implement Work-Pack-bound Continuation Router admission",
+      "capability_ref": "sigil-development",
+      "mode": "update",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S1"],
+      "techniques": ["sequence", "owner_boundary_check", "approval_semantics_map", "execution_receipt_handoff", "validation_loop"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/S1-contract-plan.json"},
+        {"kind": "artifact", "ref": "work-pack/tasks/TASK-WPEG-ROUTER.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/S2-router.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "receipts/S2-router.json",
+      "stop_conditions": [
+        "block if an undeclared tuple, stale allowed-routes digest, or out-of-scope route can consume a Work-Pack binding",
+        "block if ad hoc routing silently gains bound-route authority"
+      ]
+    },
+    {
+      "step_id": "S3",
+      "name": "Implement outer loop, fast guard, and fresh-session resumption",
+      "capability_ref": "sigil-development",
+      "mode": "update",
+      "pattern": "sequential",
+      "parallel": false,
+      "depends_on_steps": ["S2"],
+      "techniques": ["sequence", "owner_boundary_check", "execution_receipt_handoff", "validation_loop", "residue_ledger"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/S2-router.json"},
+        {"kind": "artifact", "ref": "work-pack/tasks/TASK-WPEG-TASK-SESSION.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/S3-execution-loop.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "receipts/S3-execution-loop.json",
+      "stop_conditions": [
+        "block if Task Session performs deep context work before a declared prerequisite route",
+        "block if a Task Session recursively resumes itself",
+        "block if the captured frontier can expand"
+      ]
+    },
+    {
+      "step_id": "S4",
+      "name": "Run cross-capability causal integration fixtures",
+      "capability_ref": "task-session",
+      "mode": "verify",
+      "pattern": "validation",
+      "parallel": false,
+      "depends_on_steps": ["S3"],
+      "techniques": ["sequence", "recomposition_proof", "validation_loop", "concrete_path_evidence", "execution_receipt_handoff"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/S3-execution-loop.json"},
+        {"kind": "artifact", "ref": "work-pack/tasks/TASK-WPEG-INTEGRATION.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/S4-integration.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "receipts/S4-integration.json",
+      "stop_conditions": [
+        "block unless declared internal routes produce zero authorization prompts",
+        "block if any protected-effect negative fixture reaches its effect",
+        "block if live mutation admission is bypassed"
+      ]
+    },
+    {
+      "step_id": "S5",
+      "name": "Validate generated package parity and closeout",
+      "capability_ref": "spellcraft",
+      "mode": "validate",
+      "pattern": "synthesis",
+      "parallel": false,
+      "depends_on_steps": ["S4"],
+      "techniques": ["sequence", "recomposition_proof", "validation_loop", "observability_grouping", "residue_ledger"],
+      "inputs": [
+        {"kind": "receipt", "ref": "receipts/S4-integration.json"},
+        {"kind": "artifact", "ref": "WORK-PACK.md"}
+      ],
+      "outputs": [
+        {"kind": "receipt", "ref": "receipts/S5-closeout.json"},
+        {"kind": "ledger", "ref": "receipts/S5-residue.json"}
+      ],
+      "join_policy": "none",
+      "evidence_artifact": "receipts/S5-closeout.json",
+      "stop_conditions": [
+        "block on canonical/generated drift",
+        "do not claim registry release, publication, deployment, or promotion"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "G1-contract",
+      "kind": "validation",
+      "owner": "spellcraft",
+      "condition": "Execution contracts and Plan projection pass positive and adversarial fixtures.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G2-routing",
+      "kind": "policy",
+      "owner": "sigil-development",
+      "condition": "Only complete capability/mode/target/write/effect/input/receipt tuples in the current allowed-routes digest bypass per-hop authorization; all mismatches and stop classes remain blocked.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G3-execution",
+      "kind": "quality",
+      "owner": "task-session",
+      "condition": "Fast prerequisite classification, fresh-session resumption, exact live admission, and finite frontier controls pass.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G4-integration",
+      "kind": "validation",
+      "owner": "task-session",
+      "condition": "One direct execution intent completes declared routes with zero internal authorization prompts and all protected negative cases fail before effects.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "G5-promotion-boundary",
+      "kind": "promotion_guardrail",
+      "owner": "spellcraft",
+      "condition": "Local implementation evidence does not imply registry release, publication, promotion, deployment, or production readiness.",
+      "on_fail": "block"
+    }
+  ],
+  "observability": {
+    "dispatch_id_required": true,
+    "parent_dispatch_id": null,
+    "trace_events": [
+      "execution_binding_created",
+      "entry_classified",
+      "automatic_decision_recorded",
+      "owner_hop_started",
+      "owner_receipt_joined",
+      "task_session_started",
+      "task_session_closed",
+      "stop_class_reached",
+      "frontier_completed",
+      "dispatch_closed"
+    ],
+    "signal_grouping": "dispatch_id + execution_binding_id + owner_route + task_id + swu_id"
+  },
+  "boundary_evidence": {
+    "boundaries": [
+      {
+        "boundary_id": "B1-plan-to-outer-loop",
+        "kind": "capability_handoff",
+        "from_owner": "invoke-plan",
+        "to_owner": "implementation-readiness",
+        "applies_to_steps": ["S1", "S2", "S3"],
+        "contract": "The Work Pack and direct execution intent permit only declared local routes and do not authorize stop-class effects.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B2-router-to-owner",
+        "kind": "capability_handoff",
+        "from_owner": "continuation-router",
+        "to_owner": "selected-capability-owner",
+        "applies_to_steps": ["S2", "S3"],
+        "contract": "The Router invokes one matching owner and joins its receipt without performing owner work.",
+        "on_violation": "block"
+      },
+      {
+        "boundary_id": "B3-owner-evidence-return",
+        "kind": "evidence_return",
+        "from_owner": "selected-capability-owner",
+        "to_owner": "implementation-readiness",
+        "applies_to_steps": ["S2", "S3", "S4", "S5"],
+        "contract": "Progress requires a separate terminal owner receipt; a route recommendation alone is insufficient.",
+        "on_violation": "block"
+      }
+    ],
+    "authority": {
+      "lifecycle": "spellcraft and sigil-development",
+      "execution": "implementation-readiness outer loop and one-unit task-session",
+      "validation": "owner validators and task-session",
+      "evidence": "separate owner and task-session receipts",
+      "memory": "no automatic promotion",
+      "promotion": "outside this dispatch"
+    },
+    "receipts": [
+      {
+        "receipt_id": "owner-hop-receipt",
+        "producer": "selected capability owner",
+        "required_fields": ["run_id", "capability_ref", "status", "artifacts", "validation", "blockers", "residue", "handoff_note"],
+        "on_missing": "block"
+      },
+      {
+        "receipt_id": "task-session-receipt",
+        "producer": "task-session",
+        "required_fields": ["run_id", "session_id", "status", "artifacts", "validation", "blockers", "residue", "handoff_note"],
+        "on_missing": "block"
+      }
+    ]
+  },
+  "promotion_guardrails": [
+    "Work-Pack execution intent is bounded execution authority, not lifecycle or promotion authority.",
+    "Local fixture success does not authorize publication, deployment, release, or production claims.",
+    "Execution evidence cannot silently promote Inventory, Ontology, glossary, spell, or sigil state."
+  ]
+}

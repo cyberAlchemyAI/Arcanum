@@ -26,6 +26,9 @@
   ],
   "properties": {
     "schema_version": {"const": "2.0.0"},
+    "admission_timing": {
+      "enum": ["full-frontier", "selected-unit-at-task-session"]
+    },
     "audit_id": {"type": "string", "minLength": 1},
     "canonical_spell_id": {"const": "work-pack-readiness-audit"},
     "verdict": {"enum": ["pass", "flag", "block"]},
@@ -84,9 +87,72 @@
     "selected_unit": {"type": "null"},
     "authority_effect": {"const": "none"},
     "mutation_ready": {"const": false},
+    "runtime_admission_status": {
+      "enum": ["pending-selection", "pass", "flag", "block"]
+    },
+    "execution_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_state", "selected_unit", "route_id", "next_owner", "blocker_code"],
+      "properties": {
+        "entry_state": {"enum": ["selection-ready", "owner-prerequisite", "blocked"]},
+        "selected_unit": {"type": ["string", "null"], "minLength": 1},
+        "route_id": {"type": ["string", "null"], "minLength": 1},
+        "next_owner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability", "mode", "target"],
+          "properties": {
+            "capability": {"enum": ["implementation-readiness", "invoke"]},
+            "mode": {"enum": ["execute", "refresh"]},
+            "target": {"type": "string", "minLength": 1}
+          }
+        },
+        "blocker_code": {"type": ["string", "null"], "minLength": 1}
+      }
+    },
     "next_owner": {"type": "string", "minLength": 1}
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "admission_timing": {"const": "selected-unit-at-task-session"}
+        },
+        "required": ["admission_timing"]
+      },
+      "then": {
+        "required": ["execution_entry"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_entry": {
+            "properties": {"entry_state": {"const": "owner-prerequisite"}},
+            "required": ["entry_state"]
+          }
+        },
+        "required": ["execution_entry"]
+      },
+      "then": {
+        "properties": {
+          "execution_entry": {
+            "properties": {
+              "selected_unit": {"type": "string"},
+              "route_id": {"type": "string"},
+              "next_owner": {
+                "properties": {
+                  "capability": {"const": "invoke"},
+                  "mode": {"const": "refresh"}
+                }
+              },
+              "blocker_code": {"type": "null"}
+            }
+          }
+        }
+      }
+    },
     {
       "if": {
         "properties": {"verdict": {"const": "block"}},

@@ -1,0 +1,67 @@
+{
+  "schema_version": "arcanum.continuation_route.v2",
+  "route_id": "route-pre-execution-authorized",
+  "source": {
+    "phase": "pre-execution-prerequisite",
+    "capability": "task-session",
+    "mode": "execute",
+    "result": "unmet",
+    "receipt": "fixtures/pre-execution-classification.json",
+    "blocker_fingerprint": "sha256:pre-execution-authorized",
+    "legacy_adaptation": false,
+    "pre_execution_context": {
+      "task_id": "TASK-GENERIC-001",
+      "swu_id": "SWU-GENERIC-001",
+      "attempt_id": "attempt-generic-001",
+      "prerequisite_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "classification_receipt_ref": {"path": "fixtures/pre-execution-classification.json", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "size_bytes": 100},
+      "declared_owner_route": "invoke:refresh:apply-approved",
+      "target_inventory_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "validation_contract_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "satisfaction_predicate_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "resume_point": "task-session:context-build",
+      "max_owner_hops": 1,
+      "allowed_effect": "pre-execution-prerequisite-resolution",
+      "consumed_attempt_fingerprints": []
+    }
+  },
+  "authorization": {
+    "requested": true,
+    "exact_route": "invoke:refresh:apply-approved",
+    "evidence": "Current request authorizes the exact prerequisite tuple.",
+    "binding": {
+      "route": "invoke:refresh:apply-approved",
+      "task_id": "TASK-GENERIC-001",
+      "swu_id": "SWU-GENERIC-001",
+      "attempt_id": "attempt-generic-001",
+      "prerequisite_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "target_inventory_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "validation_contract_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "satisfaction_predicate_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "resume_point": "task-session:context-build",
+      "max_owner_hops": 1,
+      "allowed_effect": "pre-execution-prerequisite-resolution",
+      "evidence_ref": {"path": "fixtures/authorization.json", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "size_bytes": 80}
+    }
+  },
+  "candidates": [{
+    "rank": 1,
+    "capability": "invoke",
+    "mode": "refresh",
+    "mutation_mode": "apply-approved",
+    "owner": "invoke",
+    "evidence": ["The typed prerequisite declares exactly one owner route."],
+    "required_inputs": ["material package", "target inventory", "validation contracts", "exact authorization"],
+    "missing_inputs": [],
+    "mutation_risk": "medium",
+    "approval_required": true,
+    "authorization_status": "matched",
+    "expected_receipt": "Invoke owner receipt bound to the prerequisite.",
+    "fallback": "Block on the exact failed owner gate."
+  }],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "The typed owner route and complete authorization binding match."},
+  "dispatch": {"status": "completed", "runtime": "bounded-helper", "owner_receipt": "fixtures/owner-invoke-refresh-receipt.json", "owner_receipt_ref": {"path": "fixtures/owner-invoke-refresh-receipt.json", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "size_bytes": 240}, "join_validation": "pass", "helper_closeout": "pass", "dispatch_count": 1, "join_count": 1, "router_mutations": []},
+  "owner_boundary": "pass",
+  "control_handle": {"return_to": "task-session", "mode": "resume-same-attempt", "task_id": "TASK-GENERIC-001", "swu_id": "SWU-GENERIC-001", "attempt_id": "attempt-generic-001", "prerequisite_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "resume_point": "task-session:context-build", "route": "invoke:refresh:apply-approved", "target_inventory_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "validation_contract_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "satisfaction_predicate_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "max_owner_hops": 1, "allowed_effect": "pre-execution-prerequisite-resolution", "owner_receipt_ref": {"path": "fixtures/owner-invoke-refresh-receipt.json", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "size_bytes": 240}},
+  "returned_next_route": null
+}

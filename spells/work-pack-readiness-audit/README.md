@@ -202,6 +202,13 @@ The refresh pack is always proposal-only:
 The report always keeps `plan_contract_status` separate from
 `runtime_admission_status`.
 
+For the explicit v2 `selected-unit-at-task-session` profile, `pass` means the
+semantic plan is ready for selection, not that runtime mutation is ready. That
+profile always reports `runtime_admission_status: pending-selection`,
+`selected_unit: null`, `mutation_ready: false`, and
+`next_owner: task-session:selection` until Task Session issues a separate live
+admission receipt.
+
 ## Failure Policy
 
 - Fail closed on unsupported formats, missing refs, unsafe paths, snapshot
@@ -304,3 +311,32 @@ The only flag class the v2 public contract admits is
 `observability-residue`. All other gaps block and expose no manifest to a
 chain consumer. Compensation is either `none` with a rationale or an explicit
 owner-routed contract; the audit never invents rollback.
+
+### Plan-once selected-unit admission
+
+Set `"admission_timing": "selected-unit-at-task-session"` only when material
+packages are intentionally produced after planning. Absence of this field, or
+`full-frontier`, retains the strict v2 behavior and its missing-material
+blockers.
+
+The opt-in profile:
+
+- requires task/SWU identity and complete structured validation contracts for
+  every unit;
+- resolves each declared JSON Pointer and hashes the normalized selected value,
+  closed component payloads, and per-unit contracts;
+- keeps whole-file hashes and the source snapshot as provenance, outside the
+  plan epoch;
+- excludes material-package bytes, target baselines, and mutable lifecycle or
+  closeout receipts from the epoch;
+- emits `plan-semantic-manifest.json` and `selection-handoff.json` instead of
+  the strict Objective Execution Manifest;
+- treats absent future material as pending selection, not as an Invoke Refresh
+  defect.
+
+`scripts/verify_plan_selection.py` then re-resolves the current semantic
+selectors, requires exact task/SWU membership, complete dependency receipts,
+current lifecycle eligibility, and explicit confirmation, and emits a
+non-authoritative selection receipt. A semantic value or normalizer change
+blocks selection and requires Refresh plus readiness re-audit. A status-only
+or package-production change does not.

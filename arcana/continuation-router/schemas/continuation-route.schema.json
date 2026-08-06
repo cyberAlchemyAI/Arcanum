@@ -1,0 +1,357 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/continuation-router/continuation-route/2-0-0",
+  "title": "ArcanumContinuationRouteReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "route_id",
+    "source",
+    "authorization",
+    "candidates",
+    "selection",
+    "dispatch",
+    "owner_boundary",
+    "returned_next_route"
+  ],
+  "properties": {
+    "schema_version": {"enum": ["arcanum.continuation_route.v1", "arcanum.continuation_route.v2"]},
+    "route_id": {"$ref": "#/$defs/nonEmptyString"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "mode", "result", "receipt", "blocker_fingerprint"],
+      "properties": {
+        "phase": {"enum": ["terminal", "pre-execution-prerequisite"]},
+        "capability": {"$ref": "#/$defs/nonEmptyString"},
+        "mode": {"$ref": "#/$defs/nonEmptyString"},
+        "result": {"enum": ["pass", "block", "flag", "completed", "blocked", "flagged", "completed_at_next_blocker", "unmet"]},
+        "receipt": {"$ref": "#/$defs/nonEmptyString"},
+        "blocker_fingerprint": {"$ref": "#/$defs/nonEmptyString"},
+        "legacy_adaptation": {"type": "boolean", "default": false},
+        "pre_execution_context": {
+          "oneOf": [
+            {"$ref": "#/$defs/preExecutionContext"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "exact_route", "evidence"],
+      "properties": {
+        "source": {
+          "enum": ["ad-hoc-exact-route", "work-pack-binding", "not-required", "none"]
+        },
+        "requested": {"type": "boolean"},
+        "exact_route": {"type": ["string", "null"]},
+        "evidence": {"type": ["string", "null"]},
+        "authorization_prompt_required": {"type": "boolean"},
+        "work_pack_binding": {
+          "oneOf": [
+            {"$ref": "#/$defs/workPackBindingEvidence"},
+            {"type": "null"}
+          ]
+        },
+        "binding": {
+          "oneOf": [
+            {"$ref": "#/$defs/authorizationBinding"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/candidate"}
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "candidate_rank", "reason"],
+      "properties": {
+        "status": {"enum": ["selected", "ambiguous", "not-authorized", "blocked", "none"]},
+        "candidate_rank": {"type": ["integer", "null"], "minimum": 1, "maximum": 3},
+        "reason": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "runtime", "owner_receipt", "helper_closeout"],
+      "properties": {
+        "status": {"enum": ["not-requested", "not-authorized", "blocked", "completed", "flagged"]},
+        "runtime": {"type": ["string", "null"]},
+        "owner_receipt": {"type": ["string", "null"]},
+        "owner_receipt_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/exactArtifactRef"},
+            {"type": "null"}
+          ]
+        },
+        "join_validation": {"enum": ["not-run", "pass", "block"]},
+        "helper_closeout": {"enum": ["n/a", "pass", "flag", "block"]},
+        "dispatch_count": {"type": "integer", "minimum": 0, "maximum": 1},
+        "join_count": {"type": "integer", "minimum": 0, "maximum": 1},
+        "router_mutations": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "owner_boundary": {"enum": ["pass", "block"]},
+    "control_handle": {
+      "oneOf": [
+        {"$ref": "#/$defs/controlHandle"},
+        {"type": "null"}
+      ]
+    },
+    "returned_next_route": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability", "mode", "target"],
+          "properties": {
+            "capability": {"$ref": "#/$defs/nonEmptyString"},
+            "mode": {"$ref": "#/$defs/nonEmptyString"},
+            "target": {"type": ["string", "null"]}
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.continuation_route.v2"}}, "required": ["schema_version"]},
+      "then": {
+        "required": ["control_handle"],
+        "properties": {
+          "source": {"required": ["phase", "pre_execution_context"]},
+          "authorization": {"required": ["binding"]},
+          "dispatch": {"required": ["dispatch_count", "join_count", "router_mutations", "owner_receipt_ref", "join_validation"]}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "authorization": {
+            "properties": {"source": {"const": "work-pack-binding"}},
+            "required": ["source"]
+          }
+        },
+        "required": ["authorization"]
+      },
+      "then": {
+        "properties": {
+          "authorization": {
+            "required": ["authorization_prompt_required", "work_pack_binding"],
+            "properties": {
+              "requested": {"const": false},
+              "exact_route": {"type": "null"},
+              "evidence": {"type": "string", "minLength": 1},
+              "authorization_prompt_required": {"const": false},
+              "work_pack_binding": {"$ref": "#/$defs/workPackBindingEvidence"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source": {"properties": {"phase": {"const": "pre-execution-prerequisite"}}, "required": ["phase"]}
+        },
+        "required": ["source"]
+      },
+      "then": {
+        "properties": {
+          "schema_version": {"const": "arcanum.continuation_route.v2"},
+          "source": {
+            "properties": {
+              "capability": {"const": "task-session"},
+              "mode": {"const": "execute"},
+              "result": {"const": "unmet"},
+              "legacy_adaptation": {"const": false},
+              "pre_execution_context": {"$ref": "#/$defs/preExecutionContext"}
+            }
+          },
+          "returned_next_route": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonEmptyString"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "preExecutionContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "swu_id",
+        "attempt_id",
+        "prerequisite_fingerprint",
+        "classification_receipt_ref",
+        "declared_owner_route",
+        "target_inventory_digest",
+        "validation_contract_digest",
+        "satisfaction_predicate_digest",
+        "resume_point",
+        "max_owner_hops",
+        "allowed_effect",
+        "consumed_attempt_fingerprints"
+      ],
+      "properties": {
+        "task_id": {"$ref": "#/$defs/nonEmptyString"},
+        "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+        "prerequisite_fingerprint": {"$ref": "#/$defs/sha256"},
+        "classification_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "declared_owner_route": {"const": "invoke:refresh:apply-approved"},
+        "target_inventory_digest": {"$ref": "#/$defs/sha256"},
+        "validation_contract_digest": {"$ref": "#/$defs/sha256"},
+        "satisfaction_predicate_digest": {"$ref": "#/$defs/sha256"},
+        "resume_point": {"const": "task-session:context-build"},
+        "max_owner_hops": {"const": 1},
+        "allowed_effect": {"const": "pre-execution-prerequisite-resolution"},
+        "consumed_attempt_fingerprints": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^.+:[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "authorizationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route",
+        "task_id",
+        "swu_id",
+        "attempt_id",
+        "prerequisite_fingerprint",
+        "target_inventory_digest",
+        "validation_contract_digest",
+        "satisfaction_predicate_digest",
+        "resume_point",
+        "max_owner_hops",
+        "allowed_effect",
+        "evidence_ref"
+      ],
+      "properties": {
+        "route": {"const": "invoke:refresh:apply-approved"},
+        "task_id": {"$ref": "#/$defs/nonEmptyString"},
+        "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+        "prerequisite_fingerprint": {"$ref": "#/$defs/sha256"},
+        "target_inventory_digest": {"$ref": "#/$defs/sha256"},
+        "validation_contract_digest": {"$ref": "#/$defs/sha256"},
+        "satisfaction_predicate_digest": {"$ref": "#/$defs/sha256"},
+        "resume_point": {"const": "task-session:context-build"},
+        "max_owner_hops": {"const": 1},
+        "allowed_effect": {"const": "pre-execution-prerequisite-resolution"},
+        "evidence_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "workPackBindingEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "work_pack_id",
+        "work_pack_semantic_digest",
+        "allowed_routes_digest",
+        "binding_id",
+        "binding_digest",
+        "route_fingerprint",
+        "admission_receipt_ref"
+      ],
+      "properties": {
+        "work_pack_id": {"$ref": "#/$defs/nonEmptyString"},
+        "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+        "allowed_routes_digest": {"$ref": "#/$defs/sha256"},
+        "binding_id": {"type": "string", "pattern": "^wpeb-[a-f0-9]{24}$"},
+        "binding_digest": {"$ref": "#/$defs/sha256"},
+        "route_fingerprint": {"$ref": "#/$defs/sha256"},
+        "admission_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "controlHandle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "return_to",
+        "mode",
+        "task_id",
+        "swu_id",
+        "attempt_id",
+        "prerequisite_fingerprint",
+        "resume_point",
+        "route",
+        "target_inventory_digest",
+        "validation_contract_digest",
+        "satisfaction_predicate_digest",
+        "max_owner_hops",
+        "allowed_effect",
+        "owner_receipt_ref"
+      ],
+      "properties": {
+        "return_to": {"const": "task-session"},
+        "mode": {"const": "resume-same-attempt"},
+        "task_id": {"$ref": "#/$defs/nonEmptyString"},
+        "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+        "prerequisite_fingerprint": {"$ref": "#/$defs/sha256"},
+        "resume_point": {"const": "task-session:context-build"},
+        "route": {"const": "invoke:refresh:apply-approved"},
+        "target_inventory_digest": {"$ref": "#/$defs/sha256"},
+        "validation_contract_digest": {"$ref": "#/$defs/sha256"},
+        "satisfaction_predicate_digest": {"$ref": "#/$defs/sha256"},
+        "max_owner_hops": {"const": 1},
+        "allowed_effect": {"const": "pre-execution-prerequisite-resolution"},
+        "owner_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rank", "capability", "mode", "mutation_mode", "owner", "evidence",
+        "required_inputs", "missing_inputs", "mutation_risk", "approval_required",
+        "authorization_status", "expected_receipt", "fallback"
+      ],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1, "maximum": 3},
+        "capability": {"$ref": "#/$defs/nonEmptyString"},
+        "mode": {"$ref": "#/$defs/nonEmptyString"},
+        "mutation_mode": {"type": ["string", "null"]},
+        "owner": {"$ref": "#/$defs/nonEmptyString"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "required_inputs": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "missing_inputs": {"type": "array", "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "mutation_risk": {"enum": ["none", "low", "medium", "high"]},
+        "approval_required": {"type": "boolean"},
+        "authorization_status": {"enum": ["not-required", "matched", "missing", "mismatch"]},
+        "expected_receipt": {"$ref": "#/$defs/nonEmptyString"},
+        "fallback": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    }
+  }
+}

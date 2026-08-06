@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session-until-blocker/fresh-session-resume-request/1-0-0",
+  "title": "FreshSessionResumeRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "chain_id",
+    "loop_id",
+    "loop_state_digest",
+    "repository_root",
+    "resume_state_directory",
+    "work_pack_id",
+    "work_pack_semantic_digest",
+    "captured_frontier",
+    "selected_unit",
+    "original_task_session",
+    "original_guard",
+    "route_admission",
+    "owner_join",
+    "reclassification",
+    "resumed_route_fingerprints",
+    "visited_task_session_ids",
+    "visited_session_cursors",
+    "task_session_receipts",
+    "session_budget",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "chain_id": {"type": "string", "minLength": 1},
+    "loop_id": {"type": "string", "minLength": 1},
+    "loop_state_digest": {"$ref": "#/$defs/sha256"},
+    "repository_root": {"const": "."},
+    "resume_state_directory": {"type": "string", "minLength": 1},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+    "captured_frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "selected_unit": {"type": "string", "minLength": 1},
+    "original_task_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "cursor"],
+      "properties": {
+        "session_id": {"type": "string", "minLength": 1},
+        "cursor": {"type": "string", "minLength": 1}
+      }
+    },
+    "original_guard": {"$ref": "#/$defs/guardPair"},
+    "route_admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request", "receipt"],
+      "properties": {
+        "request": {"type": "object"},
+        "receipt": {"type": "object"}
+      }
+    },
+    "owner_join": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_ref", "receipt"],
+      "properties": {
+        "receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "receipt": {"$ref": "#/$defs/ownerReceipt"}
+      }
+    },
+    "reclassification": {"$ref": "#/$defs/guardPair"},
+    "resumed_route_fingerprints": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    },
+    "visited_task_session_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "visited_session_cursors": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "task_session_receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_id", "session_id", "receipt_id"],
+        "properties": {
+          "unit_id": {"type": "string", "minLength": 1},
+          "session_id": {"type": "string", "minLength": 1},
+          "receipt_id": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "session_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_max_task_sessions",
+        "current_max_task_sessions",
+        "task_sessions_started"
+      ],
+      "properties": {
+        "captured_max_task_sessions": {"type": "integer", "minimum": 1},
+        "current_max_task_sessions": {"type": "integer", "minimum": 1},
+        "task_sessions_started": {"type": "integer", "minimum": 0}
+      }
+    },
+    "authority_effect": {"const": "none"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "guardPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request", "receipt"],
+      "properties": {
+        "request": {"type": "object"},
+        "receipt": {"type": "object"}
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "effect_class": {"type": "string", "minLength": 1},
+        "required_inputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    },
+    "ownerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "receipt_id",
+        "result",
+        "work_pack_id",
+        "selected_unit",
+        "binding_id",
+        "binding_digest",
+        "route_fingerprint",
+        "route",
+        "authorization_prompt_required",
+        "authority_effect"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "receipt_id": {"type": "string", "minLength": 1},
+        "result": {"enum": ["pass", "block"]},
+        "work_pack_id": {"type": "string", "minLength": 1},
+        "selected_unit": {"type": "string", "minLength": 1},
+        "binding_id": {"type": "string", "minLength": 1},
+        "binding_digest": {"$ref": "#/$defs/sha256"},
+        "route_fingerprint": {"$ref": "#/$defs/sha256"},
+        "route": {"$ref": "#/$defs/route"},
+        "authorization_prompt_required": {"const": false},
+        "authority_effect": {"const": "none"}
+      }
+    }
+  }
+}

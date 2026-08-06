@@ -1,0 +1,40 @@
+{
+  "schema_version": "pep.task-session-receipt.v1",
+  "work_pack_id": "WP-PEP-20260804",
+  "task_id": "TASK-PEP-CLASSIFIER",
+  "swu_id": "SWU-PEP-002",
+  "layer": "L1",
+  "attempt_id": "pep-whole-pack-20260804-01:SWU-PEP-002:1",
+  "result": "pass",
+  "execution_result": "pass",
+  "closeout_sync": "pass",
+  "lifecycle_owner": "sigil-development",
+  "pre_mutation_targets": [
+    {"path": "arcanum/arcana/task-session/scripts/classify-pre-execution-prerequisite.py", "state": "absent"},
+    {"path": "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/classifier-cases.json", "state": "absent"},
+    {"path": "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_classifier.py", "state": "absent"}
+  ],
+  "files_changed": [
+    "arcanum/arcana/task-session/scripts/classify-pre-execution-prerequisite.py",
+    "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/fixtures/classifier-cases.json",
+    "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_classifier.py"
+  ],
+  "validation": [
+    {
+      "command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_classifier.py",
+      "result": "pass",
+      "summary": "2 tests; 12 classifier fixtures; structural file-read and control-input traces plus phase bounds passed"
+    },
+    {"command": "git -C arcanum diff --check -- <SWU-PEP-002 targets>", "result": "pass"},
+    {"command": "public-boundary identifier scan over SWU-PEP-002 targets", "result": "pass"}
+  ],
+  "owner_boundary": "pass",
+  "public_boundary": "pass",
+  "experiment_harness": "pass",
+  "lifecycle_owner_receipt": "receipts/SWU-PEP-002.sigil-development.json",
+  "successor": "SWU-PEP-003",
+  "successor_selected": false,
+  "residue": [],
+  "started_at": "2026-08-04T19:39:00Z",
+  "finished_at": "2026-08-04T19:42:29Z"
+}

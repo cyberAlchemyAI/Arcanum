@@ -1,0 +1,59 @@
+{
+  "schema_version": "pep.task-session-receipt.v1",
+  "work_pack_id": "WP-PEP-20260804",
+  "task_id": "TASK-PEP-ROUTER",
+  "swu_id": "SWU-PEP-004",
+  "layer": "L2",
+  "attempt_id": "pep-whole-pack-20260804-01:SWU-PEP-004:2",
+  "result": "pass",
+  "execution_result": "pass",
+  "closeout_sync": "pass",
+  "lifecycle_owner": "sigil-development",
+  "pre_mutation_targets": [
+    {"path": "arcanum/arcana/task-session/SKILL.md", "state": "present", "sha256": "d8f0d0d5d8e959112f686d7346effade6f8e08792cd87dc4a84d9bbd68dd2bd8"},
+    {"path": "arcanum/arcana/task-session/schemas/governance-run-request.schema.json", "state": "present", "sha256": "9c7e56327c78485c5255785fe11ef45b2df367777fd2a67ee3342bbeeab635b9"},
+    {"path": "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json", "state": "present", "sha256": "806fc321e8faabacf83d0818fffd291116089ef4d181a06a59d8c1a696fdcb0a"},
+    {"path": "arcanum/arcana/task-session/scripts/task-session-governance-runner.py", "state": "present", "sha256": "0f6bcbc76d7237b356b82a13e2c930d815590c5fab96e02212852955ba5f448a"},
+    {"path": "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_owner_resume.py", "state": "absent"}
+  ],
+  "pre_existing_bytes": {
+    "status": "preserved-and-live-validated",
+    "summary": "Existing plan-once admission, baseline recheck, and single-use ledger changes were preserved. The separately authorized WPEG fixture repair restored the positive admission regression without weakening validators."
+  },
+  "files_changed": [
+    "arcanum/arcana/task-session/SKILL.md",
+    "arcanum/arcana/task-session/schemas/governance-run-request.schema.json",
+    "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+    "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+    "arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_owner_resume.py"
+  ],
+  "validation": [
+    {"command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_owner_resume.py", "result": "pass", "summary": "2 tests; valid exactly-once resume plus 10 adversarial blockers"},
+    {"command": "bash arcanum/arcana/continuation-router/development/run-validation-fixtures.sh", "result": "pass", "summary": "11 normal and 2 expected-rejection route fixtures"},
+    {"command": "python3 arcanum/arcana/task-session/development/test_plan_once_governance.py", "result": "pass", "summary": "2 tests"},
+    {"command": "python3 arcanum/arcana/task-session/development/test_plan_once_admission.py", "result": "pass", "summary": "3 tests; current positive admission plus cross-attempt reuse and live target drift blockers"},
+    {"command": "Draft202012Validator.check_schema on the two touched governance schemas", "result": "pass"},
+    {"command": "python3 arcanum/spells/work-pack-readiness-audit/development/test_plan_once_end_to_end.py", "result": "pass", "summary": "1 end-to-end plan-once test"},
+    {"command": "git -C arcanum diff --check -- <SWU-PEP-004 targets>", "result": "pass"},
+    {"command": "public-boundary identifier scan over SWU-PEP-004 targets", "result": "pass"}
+  ],
+  "owner_boundary": "pass",
+  "public_boundary": "pass",
+  "experiment_harness": "pass",
+  "lifecycle_owner_receipt": "receipts/SWU-PEP-004.sigil-development.json",
+  "successor": "SWU-PEP-005",
+  "successor_selected": true,
+  "resolved_blockers": [
+    {
+      "id": "PEP-BLOCK-PLAN-ONCE-REGRESSION-001",
+      "class": "acceptance-critical-validation",
+      "detail": "test_plan_once_admission.py positive fixture is stale against required plan manifest and selection receipt fields",
+      "required_fields": ["allowed_routes", "allowed_routes_digest", "execution_entry", "work_pack_id", "selectionIntentDigest", "selectionIntentSource"],
+      "resolution": "User authorized the exact one-file WPEG-owned fixture repair; the parent applied it and the complete SWU-004 validation surface passed."
+    }
+  ],
+  "blockers": [],
+  "residue": [],
+  "started_at": "2026-08-04T19:50:00Z",
+  "finished_at": "2026-08-04T20:24:19Z"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "arcanum.continuation_route.v1",
+  "route_id": "work-pack-binding-with-auth-prompt",
+  "source": {"capability": "implementation-readiness", "mode": "execute", "result": "completed", "receipt": "fixtures/execution-entry.json", "blocker_fingerprint": "sha256:invalid-work-pack-prompt-v1", "legacy_adaptation": false},
+  "authorization": {
+    "source": "work-pack-binding",
+    "requested": true,
+    "exact_route": "invoke:refresh:apply-approved",
+    "evidence": "An invalid receipt attempts to require an extra prompt.",
+    "authorization_prompt_required": true,
+    "work_pack_binding": {
+      "work_pack_id": "WP-GENERIC-001",
+      "work_pack_semantic_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "allowed_routes_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "binding_id": "wpeb-111111111111111111111111",
+      "binding_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "route_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "admission_receipt_ref": {"path": "fixtures/work-pack-route-admission.json", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "size_bytes": 320}
+    }
+  },
+  "candidates": [{"rank": 1, "capability": "invoke", "mode": "refresh", "mutation_mode": "apply-approved", "owner": "invoke", "evidence": ["Invalid prompt requirement."], "required_inputs": ["current execution binding"], "missing_inputs": [], "mutation_risk": "medium", "approval_required": true, "authorization_status": "matched", "expected_receipt": "One terminal owner receipt.", "fallback": "Block."}],
+  "selection": {"status": "selected", "candidate_rank": 1, "reason": "Invalid."},
+  "dispatch": {"status": "completed", "runtime": "bounded-helper", "owner_receipt": "fixtures/owner-work-pack-receipt.json", "helper_closeout": "pass"},
+  "owner_boundary": "pass",
+  "returned_next_route": null
+}

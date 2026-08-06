@@ -13,6 +13,14 @@ from jsonschema import Draft202012Validator
 
 
 MUTATION_MODES = {"routed-mutation", "reusable-mutation"}
+PLAN_MANIFEST_SCHEMA_ID = (
+    "https://arcanum.dev/schemas/work-pack-readiness-audit/"
+    "plan-semantic-manifest/1-0-0"
+)
+SELECTION_RECEIPT_SCHEMA_ID = (
+    "https://arcanum.dev/schemas/work-pack-readiness-audit/"
+    "selection-receipt/1-0-0"
+)
 
 
 def canonical_digest(document: Any) -> str:
@@ -208,7 +216,7 @@ def base_receipt(
     execution_mode = request.get("executionMode", "invalid")
     if execution_mode not in MUTATION_MODES | {"standalone-nonmutating"}:
         execution_mode = "invalid"
-    return {
+    receipt = {
         "schemaVersion": "1.2.0",
         "executionMode": execution_mode,
         "writeProfile": (
@@ -276,6 +284,204 @@ def base_receipt(
         "liveValidationRequired": execution_mode in MUTATION_MODES,
         "reasons": [],
     }
+    if request.get("admissionProfile") == "plan-once-selected-unit":
+        plan = request.get("planAdmission", {})
+        receipt.update(
+            {
+                "admissionProfile": "plan-once-selected-unit",
+                "planEpochId": plan.get("planEpochId"),
+                "unitContractDigest": plan.get("unitContractDigest"),
+                "attemptId": plan.get("attemptId"),
+                "planManifestDigest": None,
+                "selectionReceiptDigest": None,
+                "targetBaselineDigest": None,
+                "targetBaselines": plan.get("targetBaselines"),
+                "validationContractDigest": plan.get(
+                    "validationContractDigest"
+                ),
+                "admissionToken": None,
+                "singleUse": True,
+            }
+        )
+    return receipt
+
+
+def live_baseline_failures(
+    repository_root: Path, baselines: list[dict[str, Any]]
+) -> list[str]:
+    failures: list[str] = []
+    root = repository_root.resolve()
+    observed: set[str] = set()
+    for baseline in baselines:
+        normalized, path_error = normalized_relative_path(baseline["path"])
+        if path_error:
+            failures.append(f"target baseline {path_error}")
+            continue
+        assert normalized is not None
+        if normalized != baseline["path"]:
+            failures.append(f"non-canonical target baseline path: {baseline['path']}")
+        if normalized in observed:
+            failures.append(f"duplicate target baseline path: {normalized}")
+        observed.add(normalized)
+        candidate = (root / normalized).resolve(strict=False)
+        try:
+            candidate.relative_to(root)
+        except ValueError:
+            failures.append(f"target baseline path escape: {baseline['path']}")
+            continue
+        if baseline["state"] == "absent":
+            if candidate.exists():
+                failures.append(f"target baseline changed from absent: {normalized}")
+            continue
+        if not candidate.is_file():
+            failures.append(f"target baseline changed from present: {normalized}")
+            continue
+        content = candidate.read_bytes()
+        if byte_digest(content) != baseline["sha256"]:
+            failures.append(f"target baseline digest mismatch: {normalized}")
+        if len(content) != baseline["sizeBytes"]:
+            failures.append(f"target baseline size mismatch: {normalized}")
+    return failures
+
+
+def validate_plan_admission(
+    request: dict[str, Any],
+    repository_root: Path,
+    material_package: dict[str, Any] | None,
+    material_receipt: dict[str, Any] | None,
+    result: dict[str, Any],
+) -> list[str]:
+    if request.get("admissionProfile") != "plan-once-selected-unit":
+        return []
+    plan = request["planAdmission"]
+    failures: list[str] = []
+    documents: dict[str, dict[str, Any] | None] = {}
+    contents: dict[str, bytes | None] = {}
+    for key, label in (
+        ("planManifestSchema", "plan manifest schema"),
+        ("planManifest", "plan semantic manifest"),
+        ("selectionReceiptSchema", "selection receipt schema"),
+        ("selectionReceipt", "selection receipt"),
+    ):
+        content, errors = read_exact_artifact(repository_root, plan[key], label)
+        failures.extend(errors)
+        document = None
+        if content is not None and not errors:
+            document, parse_errors = parse_json_bytes(content, label)
+            failures.extend(parse_errors)
+        contents[key] = content
+        documents[key] = document
+
+    manifest = documents["planManifest"]
+    manifest_schema = documents["planManifestSchema"]
+    selection = documents["selectionReceipt"]
+    selection_schema = documents["selectionReceiptSchema"]
+    if contents["planManifest"] is not None:
+        result["planManifestDigest"] = byte_digest(contents["planManifest"])
+    if contents["selectionReceipt"] is not None:
+        result["selectionReceiptDigest"] = byte_digest(
+            contents["selectionReceipt"]
+        )
+    if manifest is not None and manifest_schema is not None:
+        if manifest_schema.get("$id") != PLAN_MANIFEST_SCHEMA_ID:
+            failures.append("plan manifest schema identity mismatch")
+        failures.extend(schema_errors(manifest, manifest_schema, "plan manifest"))
+    if selection is not None and selection_schema is not None:
+        if selection_schema.get("$id") != SELECTION_RECEIPT_SCHEMA_ID:
+            failures.append("selection receipt schema identity mismatch")
+        failures.extend(
+            schema_errors(selection, selection_schema, "selection receipt")
+        )
+
+    expected_epoch = plan["planEpochId"]
+    expected_unit = plan["unitContractDigest"]
+    if manifest is not None:
+        if manifest.get("plan_epoch_id") != expected_epoch:
+            failures.append("plan manifest epoch mismatch")
+        if not (
+            manifest.get("authority_effect") == "none"
+            and manifest.get("mutation_ready") is False
+            and manifest.get("selected_unit") is None
+        ):
+            failures.append("plan manifest authority ceiling mismatch")
+        if expected_unit not in manifest.get("unit_contract_digests", {}).values():
+            failures.append("unit contract digest is absent from plan manifest")
+    if selection is not None:
+        if not (
+            selection.get("selectionVerdict") == "select"
+            and selection.get("terminalCode") == "SELECTION_READY"
+            and selection.get("authorityEffect") == "none"
+            and selection.get("mutationReady") is False
+        ):
+            failures.append("selection receipt does not select a non-authoritative unit")
+        for key, expected, label in (
+            ("taskId", request["taskId"], "task id"),
+            ("swuId", request["swuId"], "SWU id"),
+            ("planEpochId", expected_epoch, "plan epoch"),
+            ("unitContractDigest", expected_unit, "unit contract digest"),
+        ):
+            if selection.get(key) != expected:
+                failures.append(f"selection receipt {label} mismatch")
+        if selection.get("manifestDigest") != result["planManifestDigest"]:
+            failures.append("selection receipt manifest digest mismatch")
+
+    request_baselines = plan["targetBaselines"]
+    baseline_paths, baseline_path_errors = normalized_write_set(
+        {"targetBaselines": [item["path"] for item in request_baselines]},
+        "targetBaselines",
+        "target baseline",
+    )
+    failures.extend(baseline_path_errors)
+    material_paths, _ = normalized_write_set(
+        request, "materialWrites", "material write"
+    )
+    if baseline_paths != material_paths:
+        failures.append("target baseline inventory does not equal material writes")
+    failures.extend(live_baseline_failures(repository_root, request_baselines))
+    target_digest = canonical_digest(request_baselines)
+    result["targetBaselineDigest"] = target_digest
+
+    validation_digest = canonical_digest(plan["structuredValidationContracts"])
+    if plan["validationContractDigest"] != validation_digest:
+        failures.append("validation contract digest mismatch")
+
+    package_binding = material_package.get("plan_binding") if material_package else None
+    receipt_binding = material_receipt.get("planBinding") if material_receipt else None
+    expected_binding = {
+        "task_id": request["taskId"],
+        "swu_id": request["swuId"],
+        "plan_epoch_id": expected_epoch,
+        "unit_contract_digest": expected_unit,
+        "selection_receipt_digest": result["selectionReceiptDigest"],
+        "attempt_id": plan["attemptId"],
+        "validation_contract_digest": plan["validationContractDigest"],
+        "validation_contracts": plan["structuredValidationContracts"],
+        "target_baselines": [
+            {
+                "path": item["path"],
+                "state": item["state"],
+                "sha256": item["sha256"],
+                "size_bytes": item["sizeBytes"],
+            }
+            for item in request_baselines
+        ],
+    }
+    if package_binding != expected_binding:
+        failures.append("material package plan binding mismatch")
+    if receipt_binding != expected_binding:
+        failures.append("material receipt plan binding mismatch")
+
+    if not failures:
+        result["admissionToken"] = canonical_digest(
+            {
+                "requestDigest": result["requestDigest"],
+                "selectionReceiptDigest": result["selectionReceiptDigest"],
+                "attemptId": plan["attemptId"],
+                "targetBaselineDigest": target_digest,
+                "validationContractDigest": validation_digest,
+            }
+        )
+    return failures
 
 
 def resolve_mutation_admission(
@@ -471,6 +677,16 @@ def resolve_mutation_admission(
                 failures.append(f"material package {label} mismatch")
             if material_receipt.get(request_key) != expected:
                 failures.append(f"material receipt {label} mismatch")
+
+    failures.extend(
+        validate_plan_admission(
+            request,
+            repository_root,
+            material_package,
+            material_receipt,
+            result,
+        )
+    )
 
     failures = sorted(set(failures))
     result["reasons"] = failures

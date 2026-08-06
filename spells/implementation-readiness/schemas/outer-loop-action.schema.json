@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/implementation-readiness/outer-loop-action/1-0-0",
+  "title": "WorkPackOuterLoopAction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "action_id",
+    "action_type",
+    "phase_before",
+    "phase_after",
+    "selected_unit",
+    "owner_route",
+    "route_admission",
+    "task_session_id",
+    "authorization_source",
+    "authorization_prompt_required",
+    "automatic_decision",
+    "stop_reason",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "action_id": {"type": "string", "pattern": "^wpoa-[a-f0-9]{24}$"},
+    "action_type": {
+      "enum": [
+        "select-unit",
+        "route-owner",
+        "start-task-session",
+        "stop",
+        "complete"
+      ]
+    },
+    "phase_before": {"type": "string", "minLength": 1},
+    "phase_after": {"type": "string", "minLength": 1},
+    "selected_unit": {"type": ["string", "null"], "minLength": 1},
+    "owner_route": {"type": ["object", "null"]},
+    "route_admission": {"type": ["object", "null"]},
+    "task_session_id": {"type": ["string", "null"], "minLength": 1},
+    "authorization_source": {
+      "enum": ["work-pack-binding", "not-required", "none"]
+    },
+    "authorization_prompt_required": {"const": false},
+    "automatic_decision": {"type": ["string", "null"], "minLength": 1},
+    "stop_reason": {"type": ["string", "null"], "minLength": 1},
+    "authority_effect": {"const": "none"}
+  }
+}

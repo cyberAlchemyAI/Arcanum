@@ -1,0 +1,188 @@
+{
+  "schema_version": "pre-execution-prerequisite-fixtures.v1",
+  "cases": [
+    {
+      "case_id": "valid-prerequisite",
+      "schema": "prerequisite",
+      "valid": true,
+      "document": {
+        "schema_version": "task-session.pre-execution-owner-prerequisite.v1",
+        "prerequisite_id": "PEP-001",
+        "task_id": "TASK-001",
+        "swu_id": "SWU-001",
+        "attempt_id": "attempt-001",
+        "owner_route": {"capability": "invoke", "mode": "refresh", "mutation_mode": "apply-approved"},
+        "trigger": {
+          "kind": "declared-owner-prerequisite",
+          "source_selectors": [{"path": "WORK-PACK.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size_bytes": 10}]
+        },
+        "target_inventory": [{
+          "path": "candidate/RESULT.md",
+          "state": "absent",
+          "sha256": null,
+          "size_bytes": null,
+          "lifecycle_owner": "invoke",
+          "authority_class": "public",
+          "publication_class": "internal"
+        }],
+        "validation_contracts": [{
+          "command_id": "validate-result",
+          "argv": ["python3", "validate.py"],
+          "cwd": ".",
+          "timeout_seconds": 30,
+          "max_output_bytes": 65536
+        }],
+        "expected_owner_receipt": {
+          "schema_id": "invoke.material-package-receipt.v1",
+          "owner_capability": "invoke",
+          "receipt_selector": "candidate/receipt.json"
+        },
+        "satisfaction_predicate": {
+          "kind": "json-pointer-any-of",
+          "receipt_pointer": "/patchVerdict",
+          "accepted_values": ["pass"]
+        },
+        "authorization_requirement": {
+          "required": true,
+          "evidence_selector": "current-dispatch-authorization",
+          "binding_fields": ["owner_route", "task_id", "swu_id", "attempt_id", "target_inventory", "validation_contracts", "allowed_effect"]
+        },
+        "resume_point": "task-session:context-build",
+        "max_owner_hops": 1,
+        "allowed_effect": "pre-execution-prerequisite-resolution",
+        "fingerprint_inputs": ["schema_version", "prerequisite_id", "task_id", "swu_id", "attempt_id", "owner_route", "trigger", "target_inventory", "validation_contracts", "expected_owner_receipt", "satisfaction_predicate", "authorization_requirement", "resume_point", "max_owner_hops", "allowed_effect"]
+      }
+    },
+    {
+      "case_id": "reject-missing-target-inventory",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "delete": "/target_inventory"
+    },
+    {
+      "case_id": "reject-extra-authorized-path",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/authorization_requirement/authorized_paths": ["candidate/extra.md"]}
+    },
+    {
+      "case_id": "reject-unknown-owner-route",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/owner_route/capability": "unknown-owner"}
+    },
+    {
+      "case_id": "reject-ambiguous-source-selector",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/trigger/source_selectors": []}
+    },
+    {
+      "case_id": "reject-no-op-without-matching-predicate",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/satisfaction_predicate/accepted_values": []}
+    },
+    {
+      "case_id": "reject-hop-budget-expansion",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/max_owner_hops": 2}
+    },
+    {
+      "case_id": "reject-authority-effect-collapse",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/allowed_effect": "deployment"}
+    },
+    {
+      "case_id": "reject-incomplete-fingerprint-input-set",
+      "schema": "prerequisite",
+      "valid": false,
+      "mutate_from": "valid-prerequisite",
+      "set": {"/fingerprint_inputs": ["prerequisite_id", "task_id", "swu_id", "attempt_id", "owner_route", "target_inventory", "validation_contracts", "satisfaction_predicate"]}
+    },
+    {
+      "case_id": "valid-unmet-fast-block-receipt",
+      "schema": "receipt",
+      "valid": true,
+      "document": {
+        "schema_version": "task-session.pre-execution-prerequisite-receipt.v1",
+        "receipt_id": "receipt-001",
+        "prerequisite_id": "PEP-001",
+        "task_id": "TASK-001",
+        "swu_id": "SWU-001",
+        "attempt_id": "attempt-001",
+        "classification": "unmet",
+        "prerequisite_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "inputs_read": ["work-pack", "selected-unit", "prerequisite"],
+        "authorization": {"status": "missing", "evidence_ref": null},
+        "permitted_next_action": "block-missing-authorization",
+        "phase_trace": {
+          "resolved": true,
+          "prerequisite_classified": true,
+          "context_builder_entered": false,
+          "mutation_admission_entered": false,
+          "implementation_inspected": false,
+          "target_mutation_entered": false,
+          "owner_hops_dispatched": 0
+        },
+        "reasons": ["exact prerequisite authorization is absent"]
+      }
+    },
+    {
+      "case_id": "valid-satisfied-receipt",
+      "schema": "receipt",
+      "valid": true,
+      "mutate_from": "valid-unmet-fast-block-receipt",
+      "set": {
+        "/classification": "satisfied",
+        "/authorization/status": "not-required",
+        "/permitted_next_action": "continue-context-build",
+        "/reasons": []
+      }
+    },
+    {
+      "case_id": "reject-classifier-claiming-context-entry",
+      "schema": "receipt",
+      "valid": false,
+      "mutate_from": "valid-satisfied-receipt",
+      "set": {"/phase_trace/context_builder_entered": true}
+    },
+    {
+      "case_id": "reject-collapsed-classification",
+      "schema": "receipt",
+      "valid": false,
+      "mutate_from": "valid-unmet-fast-block-receipt",
+      "set": {"/classification": true}
+    },
+    {
+      "case_id": "reject-unmet-context-entry",
+      "schema": "receipt",
+      "valid": false,
+      "mutate_from": "valid-unmet-fast-block-receipt",
+      "set": {"/phase_trace/context_builder_entered": true}
+    },
+    {
+      "case_id": "reject-second-owner-hop",
+      "schema": "receipt",
+      "valid": false,
+      "mutate_from": "valid-unmet-fast-block-receipt",
+      "set": {"/phase_trace/owner_hops_dispatched": 2}
+    },
+    {
+      "case_id": "reject-invalid-resume-action",
+      "schema": "receipt",
+      "valid": false,
+      "mutate_from": "valid-unmet-fast-block-receipt",
+      "set": {"/permitted_next_action": "continue-context-build"}
+    }
+  ]
+}

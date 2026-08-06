@@ -1,0 +1,48 @@
+diff --git a/arcana/task-session/development/test_plan_once_admission.py b/arcana/task-session/development/test_plan_once_admission.py
+--- a/arcana/task-session/development/test_plan_once_admission.py
++++ b/arcana/task-session/development/test_plan_once_admission.py
+@@ -115,7 +115,21 @@ class PlanOnceAdmissionTests(unittest.TestCase):
+         epoch = "epoch-" + "c" * 24
+         unit_digest = "b" * 64
++        allowed_routes = [
++            {
++                "route_id": "route-U1-task-session",
++                "frontier_swu": "U1",
++                "capability": "task-session",
++                "mode": "execute",
++                "target": "TASK-U1",
++                "write_scope": ["target.txt", "receipts/U1.json"],
++                "effect_class": "repository-local-reversible",
++                "required_inputs": ["plan-manifest", "selection-receipt"],
++                "expected_receipt": "governance-terminal-receipt",
++            }
++        ]
+         manifest = {
+             "schema_version": "1.0.0",
+             "manifest_id": "psm-" + "d" * 24,
+             "audit_id": "fixture-audit",
++            "work_pack_id": "WP-U1",
+             "normalizer_version": "1.0.0",
+@@ -129,3 +143,16 @@ class PlanOnceAdmissionTests(unittest.TestCase):
+             "selection_required": True,
+             "runtime_admission_status": "pending-selection",
++            "allowed_routes": allowed_routes,
++            "allowed_routes_digest": digest(allowed_routes),
++            "execution_entry": {
++                "entry_state": "selection-ready",
++                "selected_unit": None,
++                "route_id": None,
++                "next_owner": {
++                    "capability": "implementation-readiness",
++                    "mode": "execute",
++                    "target": "WP-U1",
++                },
++                "blocker_code": None,
++            },
+             "authority_effect": "none",
+@@ -149,3 +176,5 @@ class PlanOnceAdmissionTests(unittest.TestCase):
+             "lifecycleEligibilityDigest": "2" * 64,
+             "explicitConfirmationDigest": "3" * 64,
++            "selectionIntentSource": "explicit-confirmation",
++            "selectionIntentDigest": "3" * 64,
+             "authorityEffect": "none",

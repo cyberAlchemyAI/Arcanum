@@ -189,6 +189,25 @@ Use [refine](../refine/) before Task Session when the user has a vague target, f
 
 ## Context Builder Baseline
 
+For an exact Work-Pack-bound request, Task Session first classifies the
+execution entry with `scripts/classify-fast-execution-entry.py`. This boundary
+reads only the Work Pack policy, selected unit, current execution binding, and
+execution-entry projection. It enters one guard phase and performs no target
+mutation. `task-ready` continues to Context Builder. `owner-prerequisite`
+returns the exact bound owner packet to Implementation Readiness with
+`authorization_prompt_required=false`. Blocked, stale, mismatched, and
+selection-only entries stop before Context Builder, deep material inspection,
+mutation admission, target hashing/mutation, or owner dispatch.
+
+When the guard returns `TASK_READY`, the deterministic governance runner
+accepts a `work-pack-fast-entry` profile containing exact references to both
+the guard request and its receipt. The runner revalidates the receipt against
+the original four logical inputs and binds the selected unit, Task Session
+route, write scope, expected terminal receipt, plan selection, and single-use
+admission. This replaces only the legacy prose `selected` row check; every
+other context, admission, live-baseline, validation, and closeout gate remains
+mandatory. A receipt without its exact request is not execution authority.
+
 Task Session must run a context-building pass before decision cards, gate checks, runtime handoff, or mutation. The context pack keeps the selected task/SWU connected to the surrounding architecture, source contracts, work-pack rows, blocker rows, constraints, write scope, validation surface, and local repository conventions.
 
 If required source context is missing, contradictory, or too weak to check the task safely, Task Session returns `BLOCK` with the smallest context gap to resolve. It should not execute from the task file alone when linked architecture or work-pack context can change the correct implementation choice.

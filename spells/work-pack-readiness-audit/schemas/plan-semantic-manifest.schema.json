@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/plan-semantic-manifest/1-0-0",
+  "title": "PlanSemanticManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "audit_id",
+    "work_pack_id",
+    "normalizer_version",
+    "admission_timing",
+    "plan_epoch_id",
+    "canonical_semantic_digest",
+    "semantic_component_digests",
+    "unit_contract_digests",
+    "ready_frontier",
+    "source_snapshot_digest",
+    "completion_continuity",
+    "selection_required",
+    "runtime_admission_status",
+    "allowed_routes",
+    "allowed_routes_digest",
+    "execution_entry",
+    "authority_effect",
+    "selected_unit",
+    "mutation_ready"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "manifest_id": {"type": "string", "pattern": "^psm-[a-f0-9]{24}$"},
+    "audit_id": {"type": "string", "minLength": 1},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "normalizer_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "admission_timing": {"const": "selected-unit-at-task-session"},
+    "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+    "canonical_semantic_digest": {"$ref": "#/$defs/sha256"},
+    "semantic_component_digests": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/sha256"}
+    },
+    "unit_contract_digests": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/sha256"}
+    },
+    "ready_frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "source_snapshot_digest": {"$ref": "#/$defs/sha256"},
+    "completion_continuity": {"$ref": "#/$defs/completionContinuity"},
+    "selection_required": {"const": true},
+    "runtime_admission_status": {"const": "pending-selection"},
+    "allowed_routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/allowedRoute"}
+    },
+    "allowed_routes_digest": {"$ref": "#/$defs/sha256"},
+    "execution_entry": {"$ref": "#/$defs/executionEntry"},
+    "authority_effect": {"const": "none"},
+    "selected_unit": {"type": "null"},
+    "mutation_ready": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "completedPrefixItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id",
+        "unit_contract_digest",
+        "completion_binding_id",
+        "completion_artifact_ref",
+        "closeout_binding_id"
+      ],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "unit_contract_digest": {"$ref": "#/$defs/sha256"},
+        "completion_binding_id": {"type": "string", "minLength": 1},
+        "completion_artifact_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "closeout_binding_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "completionContinuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_audit_id",
+        "source_projection_digest",
+        "work_pack_semantic_digest",
+        "plan_epoch_id",
+        "completed_prefix",
+        "next_unit",
+        "authority_effect",
+        "continuity_digest"
+      ],
+      "properties": {
+        "source_audit_id": {"type": "string", "minLength": 1},
+        "source_projection_digest": {"$ref": "#/$defs/sha256"},
+        "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "completed_prefix": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/completedPrefixItem"}
+        },
+        "next_unit": {"type": ["string", "null"], "minLength": 1},
+        "authority_effect": {"const": "none"},
+        "continuity_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "allowedRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "effect_class": {"const": "repository-local-reversible"},
+        "required_inputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    },
+    "executionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_state", "selected_unit", "route_id", "next_owner", "blocker_code"],
+      "properties": {
+        "entry_state": {"const": "selection-ready"},
+        "selected_unit": {"type": "null"},
+        "route_id": {"type": "null"},
+        "next_owner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability", "mode", "target"],
+          "properties": {
+            "capability": {"const": "implementation-readiness"},
+            "mode": {"const": "execute"},
+            "target": {"type": "string", "minLength": 1}
+          }
+        },
+        "blocker_code": {"type": "null"}
+      }
+    }
+  }
+}

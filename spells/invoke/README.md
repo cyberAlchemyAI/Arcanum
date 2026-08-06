@@ -310,6 +310,13 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Refresh apply approval is exact-scope evidence: after path normalization, its
   scope must equal both material-package change targets and target inventory.
   A missing or extra approval path blocks the material handoff.
+- When consuming a `selected-unit-at-task-session` selection, a materialized
+  package may include `plan_binding`. The producer receipt repeats it exactly.
+  It binds task, SWU, semantic plan epoch, unit-contract digest, exact selection
+  receipt digest, attempt, complete structured validation contracts and their
+  digest, plus present/absent target baselines. The producer validates baseline
+  inventory and validation digest, while Task Session remains responsible for
+  rehashing live targets and issuing the only mutation-admission verdict.
 - Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
 - Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
 - Capability reporting must use the three-axis resolver. An authored artifact,

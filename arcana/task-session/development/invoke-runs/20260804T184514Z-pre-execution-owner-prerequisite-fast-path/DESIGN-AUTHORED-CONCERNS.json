@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "concerns": [
+    {
+      "concern_id": "authored:authority",
+      "primary_class": "authority",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["SPEC.md#authority-rules", "architecture-bundle.md#view-6-dependency-and-interface"],
+      "rationale": "Plan declaration, route authorization, owner mutation, Task Session admission, and promotion authority must remain distinct.",
+      "ownership": {"accountable_owner": "task-session-authority-owner", "contributing_owners": ["invoke-owner", "continuation-router-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:security",
+      "primary_class": "security",
+      "required_predicate": false,
+      "disposition": "not-applicable-with-rationale",
+      "selected": false,
+      "evidence_selectors": ["SPEC.md#non-goals"],
+      "rationale": "The planned repository-local route adds no network, credential, authentication, or privilege surface.",
+      "ownership": {"accountable_owner": "security-risk-owner", "contributing_owners": ["task-session-development-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:state-event",
+      "primary_class": "state-event",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["architecture-bundle.md#view-5-decision-and-state-flow", "SPEC.md#task-session-entry"],
+      "rationale": "Classification, owner dispatch, join, revalidation, resume, and block transitions must be ordered.",
+      "ownership": {"accountable_owner": "task-session-workflow-owner", "contributing_owners": ["continuation-router-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:persistence",
+      "primary_class": "persistence",
+      "required_predicate": false,
+      "disposition": "not-applicable-with-rationale",
+      "selected": false,
+      "evidence_selectors": ["SPEC.md#non-goals"],
+      "rationale": "The design owns versioned repository receipts but no database, queue, scheduler, or concurrent runtime store.",
+      "ownership": {"accountable_owner": "persistence-owner", "contributing_owners": ["task-session-development-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:failure",
+      "primary_class": "failure",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["SPEC.md#acceptance", "IMPLEMENTATION-PLAN.md#stop-conditions"],
+      "rationale": "Ambiguity, stale scope, receipt mismatch, replay, cycle, and owner failure must block before mutation.",
+      "ownership": {"accountable_owner": "task-session-workflow-owner", "contributing_owners": ["continuation-router-owner", "invoke-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:reliability",
+      "primary_class": "reliability",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["SPEC.md#fast-path-budget", "WORK-PACK.md#acceptance-matrix"],
+      "rationale": "Deterministic phase/read bounds, idempotency, and baseline rechecks are acceptance-critical.",
+      "ownership": {"accountable_owner": "task-session-service-owner", "contributing_owners": ["validation-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:integration",
+      "primary_class": "integration",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["architecture-bundle.md#view-6-dependency-and-interface", "execution.dispatch.json"],
+      "rationale": "Invoke Plan, readiness audit, Task Session, Continuation Router, and owner receipts cross versioned boundaries.",
+      "ownership": {"accountable_owner": "arcanum-interface-owner", "contributing_owners": ["task-session-owner", "invoke-owner", "continuation-router-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:migration",
+      "primary_class": "migration",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["architecture-bundle.md#key-decisions", "RESIDUE.md#open-but-non-blocking-for-package-authoring"],
+      "rationale": "Typed entry and plan-once adoption must preserve legacy strict profiles and existing receipts.",
+      "ownership": {"accountable_owner": "arcanum-migration-owner", "contributing_owners": ["task-session-owner", "readiness-audit-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:rollout",
+      "primary_class": "rollout",
+      "required_predicate": false,
+      "disposition": "recommended",
+      "selected": false,
+      "evidence_selectors": ["implementation-layering.md#promotion-evidence"],
+      "rationale": "The plan needs staged adoption evidence, but registry release is outside this package.",
+      "revisit_condition": "Re-evaluate after integration canaries and generated parity pass under lifecycle-owner receipts.",
+      "ownership": {"accountable_owner": "release-owner", "contributing_owners": ["task-session-development-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:privacy-data",
+      "primary_class": "privacy-data",
+      "required_predicate": false,
+      "disposition": "not-applicable-with-rationale",
+      "selected": false,
+      "evidence_selectors": ["README.md", "SPEC.md#non-goals"],
+      "rationale": "Synthetic public fixtures contain no user data, private source, telemetry sink, or retained sensitive payload.",
+      "ownership": {"accountable_owner": "data-owner", "contributing_owners": ["public-boundary-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:performance",
+      "primary_class": "performance",
+      "required_predicate": false,
+      "disposition": "recommended",
+      "selected": false,
+      "evidence_selectors": ["SPEC.md#fast-path-budget"],
+      "rationale": "The five-second local SLO is useful telemetry, while deterministic phase/read bounds remain the acceptance contract.",
+      "revisit_condition": "Set a stronger threshold only after multiple hosts report stable measurements.",
+      "ownership": {"accountable_owner": "task-session-service-owner", "contributing_owners": ["validation-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:ux",
+      "primary_class": "ux",
+      "required_predicate": false,
+      "disposition": "not-applicable-with-rationale",
+      "selected": false,
+      "evidence_selectors": ["SPEC.md#non-goals", "architecture-bundle.md#view-1-context"],
+      "rationale": "The package changes command and receipt semantics but creates no rendered semantic surface.",
+      "ownership": {"accountable_owner": "ux-plan-owner", "contributing_owners": ["task-session-operator"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    },
+    {
+      "concern_id": "authored:validation",
+      "primary_class": "validation",
+      "required_predicate": true,
+      "disposition": "required",
+      "selected": true,
+      "evidence_selectors": ["IMPLEMENTATION-PLAN.md#validation-strategy", "WORK-PACK.md#validation-commands"],
+      "rationale": "Schemas, read budgets, owner joins, stale scopes, cycles, regressions, public scans, and generated parity require discriminating checks.",
+      "ownership": {"accountable_owner": "validation-owner", "contributing_owners": ["task-session-owner", "invoke-owner", "continuation-router-owner"], "artifact_owner": "task-session-development-owner", "validator_owner": "invoke-design-selection-validator"}
+    }
+  ]
+}

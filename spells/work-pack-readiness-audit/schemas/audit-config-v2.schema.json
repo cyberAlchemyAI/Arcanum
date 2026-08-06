@@ -24,6 +24,10 @@
   ],
   "properties": {
     "schema_version": {"const": "2.0.0"},
+    "admission_timing": {
+      "enum": ["full-frontier", "selected-unit-at-task-session"]
+    },
+    "execution_policy": {"$ref": "#/$defs/executionPolicy"},
     "audit_id": {"type": "string", "minLength": 1},
     "repository_root": {"const": "."},
     "evidence_ceiling": {"const": "frozen-input-contractual-readiness"},
@@ -113,7 +117,7 @@
           "type": "string",
           "minLength": 1
         },
-        "task_session_admission_receipt_ref": {"$ref": "#/$defs/bindingRef"}
+        "task_session_admission_receipt_ref": {"$ref": "#/$defs/nullableBindingRef"}
       }
     },
     "status_receipt_refs": {"$ref": "#/$defs/statusRefs"},
@@ -190,7 +194,7 @@
             "projection_owner_ref": {"type": "string", "minLength": 1},
             "equivalence_validator_ref": {"$ref": "#/$defs/bindingRef"},
             "continuation_router_verification_receipt_ref": {
-              "$ref": "#/$defs/bindingRef"
+              "$ref": "#/$defs/nullableBindingRef"
             },
             "authority_effect": {"const": "none"}
           }
@@ -214,6 +218,83 @@
     }
   },
   "$defs": {
+    "allowedRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "effect_class": {"const": "repository-local-reversible"},
+        "required_inputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    },
+    "executionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "work_pack_id",
+        "route_policy",
+        "allowed_routes",
+        "allowed_routes_digest",
+        "automatic_decisions",
+        "stop_decisions",
+        "scope_source",
+        "validation_policy"
+      ],
+      "properties": {
+        "work_pack_id": {"type": "string", "minLength": 1},
+        "route_policy": {"const": "automatic-in-scope"},
+        "allowed_routes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/allowedRoute"}
+        },
+        "allowed_routes_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "automatic_decisions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "stop_decisions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "scope_source": {"const": "exact-work-pack-and-captured-frontier"},
+        "validation_policy": {"const": "owner-gates-remain-mandatory"}
+      }
+    },
     "exactArtifactRef": {
       "type": "object",
       "additionalProperties": false,
@@ -255,6 +336,33 @@
         "risk_class": {
           "enum": ["read-only", "bounded-write", "browser", "network"]
         }
+      }
+    },
+    "structuredValidationCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_id", "argv", "cwd", "timeout_seconds", "max_output_bytes"],
+      "properties": {
+        "command_id": {"type": "string", "minLength": 1},
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "cwd": {"type": "string", "minLength": 1},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
+        "max_output_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    },
+    "attemptContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id_policy", "collision_policy", "success_teardown", "failure_teardown"],
+      "properties": {
+        "id_policy": {"type": "string", "minLength": 1},
+        "collision_policy": {"type": "string", "minLength": 1},
+        "success_teardown": {"type": "string", "minLength": 1},
+        "failure_teardown": {"type": "string", "minLength": 1}
       }
     },
     "materialPackage": {
@@ -304,6 +412,12 @@
         "byte_baselines"
       ],
       "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "swu_id": {"type": "string", "minLength": 1},
+        "lifecycle_owner": {"type": "string", "minLength": 1},
+        "authority_class": {"enum": ["public", "private"]},
+        "publication_class": {"enum": ["public", "private", "internal"]},
+        "attempt_contract": {"$ref": "#/$defs/attemptContract"},
         "unit_id": {"type": "string", "minLength": 1},
         "dependencies": {
           "type": "array",
@@ -316,6 +430,11 @@
           "items": {"type": "string", "minLength": 1}
         },
         "command": {"$ref": "#/$defs/command"},
+        "validation_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/structuredValidationCommand"}
+        },
         "material_writes": {
           "type": "array",
           "uniqueItems": true,
@@ -398,5 +517,43 @@
         "chain_status": {"$ref": "#/$defs/status"}
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "admission_timing": {"const": "selected-unit-at-task-session"}
+        },
+        "required": ["admission_timing"]
+      },
+      "then": {
+        "required": ["execution_policy"],
+        "properties": {
+          "execution_bindings": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/executionBinding"},
+                {
+                  "required": [
+                    "task_id",
+                    "swu_id",
+                    "lifecycle_owner",
+                    "authority_class",
+                    "publication_class",
+                    "attempt_contract",
+                    "validation_contracts"
+                  ]
+                }
+              ]
+            }
+          },
+          "runtime_binding": {
+            "properties": {
+              "task_session_admission_receipt_ref": {"type": "null"}
+            }
+          }
+        }
+      }
+    }
+  ]
 }

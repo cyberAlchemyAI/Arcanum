@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0.0",
+  "receipt_id": "distill-pre-execution-prerequisite-plan-20260804-receipt",
+  "run_id": "distill-pre-execution-prerequisite-plan-20260804",
+  "request_ref": {
+    "path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/DISTILL-RUN-REQUEST.json",
+    "sha256": "a56f76eb2d6e6a9fab26c0318dc17593204add58eb554a4628cb87e0a2d4b578",
+    "size_bytes": 2360
+  },
+  "event_refs": [
+    "distill-pre-execution-prerequisite-plan-20260804:0",
+    "distill-pre-execution-prerequisite-plan-20260804:1",
+    "distill-pre-execution-prerequisite-plan-20260804:2",
+    "distill-pre-execution-prerequisite-plan-20260804:3",
+    "distill-pre-execution-prerequisite-plan-20260804:4",
+    "distill-pre-execution-prerequisite-plan-20260804:5",
+    "distill-pre-execution-prerequisite-plan-20260804:6"
+  ],
+  "role_trace": [
+    {
+      "role": "proposer",
+      "execution_path": "role_simulation",
+      "invocation_ref": null,
+      "evidence_refs": ["architecture-bundle.md", "IMPLEMENTATION-PLAN.md", "WORK-PACK.md", "execution.dispatch.json"],
+      "result_ref": {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/PLAN-PROPOSER-RESULT.md",
+        "sha256": "c7870555d374bdb4e476824b129c104b17d97c28bb75026dfbc0f1709b02b760",
+        "size_bytes": 398
+      }
+    },
+    {
+      "role": "balancer",
+      "execution_path": "role_simulation",
+      "invocation_ref": null,
+      "evidence_refs": ["BOUNDED-HELPER-RECEIPT.md"],
+      "result_ref": {
+        "path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/BOUNDED-HELPER-RECEIPT.md",
+        "sha256": "2b2da4b4569150375306390466690b8fd822441ace9962d89991670bfe1c74bf",
+        "size_bytes": 964
+      }
+    }
+  ],
+  "objections": [
+    {
+      "statement": "Task Session currently reaches owner-prerequisite routing only after normal Context Builder work.",
+      "objection_id": "PEP-DISTILL-O1",
+      "category": "process",
+      "objection_ref": "BOUNDED-HELPER-RECEIPT.md",
+      "disposition": "revise",
+      "evidence_refs": ["SPEC.md#task-session-entry", "WORK-PACK.md#acceptance-matrix"]
+    },
+    {
+      "statement": "A bare Task Session request cannot currently authorize an apply-capable Refresh.",
+      "objection_id": "PEP-DISTILL-O2",
+      "category": "authority",
+      "objection_ref": "BOUNDED-HELPER-RECEIPT.md",
+      "disposition": "revise",
+      "evidence_refs": ["SPEC.md#authority-rules", "RESIDUE.md"]
+    },
+    {
+      "statement": "Multiple prerequisite hops exceed Continuation Router's one-hop boundary.",
+      "objection_id": "PEP-DISTILL-O3",
+      "category": "scope",
+      "objection_ref": "BOUNDED-HELPER-RECEIPT.md",
+      "disposition": "defer",
+      "evidence_refs": ["architecture-bundle.md#key-decisions", "RESIDUE.md"]
+    },
+    {
+      "statement": "Wall-clock performance alone would create flaky and host-dependent acceptance.",
+      "objection_id": "PEP-DISTILL-O4",
+      "category": "technique",
+      "objection_ref": "BOUNDED-HELPER-RECEIPT.md",
+      "disposition": "revise",
+      "evidence_refs": ["SPEC.md#fast-path-budget", "PLAN-DISTILL-VALIDATION.md#premortem"]
+    }
+  ],
+  "reconciliations": [
+    {
+      "statement": "Add a typed classifier before Context Builder and assert skipped phases.",
+      "category": "process",
+      "objection_ref": "PEP-DISTILL-O1",
+      "disposition": "accept",
+      "evidence_refs": ["PLAN-DISTILL-VALIDATION.md#reconciliation", "work-pack/tasks/TASK-PEP-CLASSIFIER.md"]
+    },
+    {
+      "statement": "Keep bare entry fail-closed and accept only exact carried authorization for owner mutation.",
+      "category": "authority",
+      "objection_ref": "PEP-DISTILL-O2",
+      "disposition": "accept",
+      "evidence_refs": ["SPEC.md#authority-rules", "RESIDUE.md"]
+    },
+    {
+      "statement": "Limit the fast path to one owner hop and defer prerequisite DAGs to an outer-loop owner.",
+      "category": "scope",
+      "objection_ref": "PEP-DISTILL-O3",
+      "disposition": "defer",
+      "evidence_refs": ["architecture-bundle.md#key-decisions", "RESIDUE.md"]
+    },
+    {
+      "statement": "Use phase and read counts as the normative budget and retain five seconds only as an operational SLO.",
+      "category": "technique",
+      "objection_ref": "PEP-DISTILL-O4",
+      "disposition": "accept",
+      "evidence_refs": ["SPEC.md#fast-path-budget", "PLAN-DISTILL-VALIDATION.md#premortem"]
+    }
+  ],
+  "technique_trace": [
+    {"technique": "abstraction_level_guard", "status": "applied", "evidence_refs": ["implementation-layering.md"]},
+    {"technique": "recomposition_proof", "status": "applied", "evidence_refs": ["PLAN-DISTILL-VALIDATION.md#recomposition-proof", "work-pack/waves/WAVE-GRAPH.md"]},
+    {"technique": "requisite_variety_check", "status": "applied", "evidence_refs": ["WORK-PACK.md#acceptance-matrix"]},
+    {"technique": "boundary_object_check", "status": "applied", "evidence_refs": ["SPEC.md#core-types", "work-pack/shared/CLOSEOUT-CONTRACT.md"]},
+    {"technique": "concept_vs_knowledge_status", "status": "applied", "evidence_refs": ["README.md#claim-ceiling", "PLAN-RESULT.md"]},
+    {"technique": "premortem_pass", "status": "applied", "evidence_refs": ["PLAN-DISTILL-VALIDATION.md#premortem"]},
+    {"technique": "navigable_result_check", "status": "applied", "evidence_refs": ["README.md#start-here", "PLAN-DISTILL-VALIDATION.md#navigation"]},
+    {"technique": "swu_atomicity_check", "status": "applied", "evidence_refs": ["PLAN-DISTILL-VALIDATION.md#swu-atomicity", "work-pack/shared/SWU-MANIFEST.json"]}
+  ],
+  "termination": {
+    "reason": "reconciled",
+    "round_count": 2
+  },
+  "verdict": "pass",
+  "gaps": [
+    "The lifecycle owners must accept the exact carried-authorization representation before the authorized owner-hop SWUs.",
+    "Making plan-once the global default requires separate compatibility evidence.",
+    "Multi-hop prerequisite graphs remain outside the fast-path scope.",
+    "No SWU or lifecycle dispatch is selected or authorized."
+  ],
+  "recomposition": {
+    "summary": "Contracts, classifier, one-hop routing, guarded resume, plan adoption, and integration proof recompose into one zero-surprise execution-entry behavior.",
+    "result_ref": {
+      "path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/PLAN-DISTILL-VALIDATION.md",
+      "sha256": "124cc9a43611c38d346ae3bdcf6b0d95b0bd3816e18002288609a281569be8ae",
+      "size_bytes": 3276
+    }
+  },
+  "next_route": {
+    "capability": "sigil-development",
+    "status": "blocked"
+  },
+  "reviewed_input_provenance": [
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/architecture-bundle.md", "sha256": "9c9b335a2d00640416900fc6a25bed141ee305c75210f95b7ef83b07834fcef8", "size_bytes": 5175},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/implementation-layering.md", "sha256": "09742fc3914e7e5624edef2d6bbd77481ec8cfa23e54bb145d3c57f7e3232884", "size_bytes": 1480},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/IMPLEMENTATION-PLAN.md", "sha256": "8227162a44205de5d68d71baa7f0ec24c40eca04c53f60e16192aa4275734a77", "size_bytes": 3053},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/WORK-PACK.md", "sha256": "353a0c820766d1882413384c567558a4d63da73dc2a17d3aeb8428e871321395", "size_bytes": 3789},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/execution.dispatch.json", "sha256": "8ac695500a553f325a2cb1b6e3705d81ff83f837910bc2b238c79db790fddd8f", "size_bytes": 12265},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/PLAN-PROPOSER-RESULT.md", "sha256": "c7870555d374bdb4e476824b129c104b17d97c28bb75026dfbc0f1709b02b760", "size_bytes": 398},
+    {"path": "arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/BOUNDED-HELPER-RECEIPT.md", "sha256": "2b2da4b4569150375306390466690b8fd822441ace9962d89991670bfe1c74bf", "size_bytes": 964}
+  ]
+}

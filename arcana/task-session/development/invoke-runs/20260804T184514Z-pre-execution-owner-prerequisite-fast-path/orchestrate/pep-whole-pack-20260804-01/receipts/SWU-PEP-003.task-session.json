@@ -1,0 +1,44 @@
+{
+  "schema_version": "pep.task-session-receipt.v1",
+  "work_pack_id": "WP-PEP-20260804",
+  "task_id": "TASK-PEP-ROUTER",
+  "swu_id": "SWU-PEP-003",
+  "layer": "L2",
+  "attempt_id": "pep-whole-pack-20260804-01:SWU-PEP-003:1",
+  "result": "pass",
+  "execution_result": "pass",
+  "closeout_sync": "pass",
+  "lifecycle_owner": "sigil-development",
+  "pre_mutation_targets": [
+    {"path": "arcanum/arcana/continuation-router/SKILL.md", "state": "present", "sha256": "5796cf27cf7c7e344ad5b168694a87728931323478a712d319727b7d7a03a8a8"},
+    {"path": "arcanum/arcana/continuation-router/schemas/continuation-route.schema.json", "state": "absent"},
+    {"path": "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-*.json", "state": "absent"},
+    {"path": "arcanum/arcana/continuation-router/development/validate-route-fixtures.py", "state": "present", "sha256": "160df3b39665e3f35f0219371c218797798e0a2468b4d2839c8e716ebce6ec1b"}
+  ],
+  "files_changed": [
+    "arcanum/arcana/continuation-router/SKILL.md",
+    "arcanum/arcana/continuation-router/schemas/continuation-route.schema.json",
+    "arcanum/arcana/continuation-router/development/validate-route-fixtures.py",
+    "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-authorized.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-unauthorized.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-ambiguous.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-unknown-owner.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/route-pre-execution-repeated-fingerprint.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/adversarial/tampered-owner-receipt-ref.json",
+    "arcanum/arcana/continuation-router/development/route-fixtures/adversarial/tampered-control-handle.json"
+  ],
+  "validation": [
+    {"command": "bash arcanum/arcana/continuation-router/development/run-validation-fixtures.sh", "result": "pass", "summary": "5 lifecycle regimes, 11 route fixtures, and 2 expected-rejection TOCTOU fixtures passed"},
+    {"command": "git -C arcanum diff --check -- <SWU-PEP-003 targets>", "result": "pass"},
+    {"command": "public-boundary scan over canonical contract, schema, and new fixtures", "result": "pass"}
+  ],
+  "owner_boundary": "pass",
+  "public_boundary": "pass",
+  "experiment_harness": "pass",
+  "lifecycle_owner_receipt": "receipts/SWU-PEP-003.sigil-development.json",
+  "successor": "SWU-PEP-004",
+  "successor_selected": false,
+  "residue": [],
+  "started_at": "2026-08-04T19:43:00Z",
+  "finished_at": "2026-08-04T19:49:00Z"
+}

@@ -1,0 +1,80 @@
+{
+  "contract_id": "arcanum.plan-once-selected-unit-admission.v0.1",
+  "evidence_state": "designed-not-implemented",
+  "legacy_default": "full-frontier",
+  "opt_in_profile": "selected-unit-at-task-session",
+  "states": [
+    "plan-semantic-ready",
+    "runtime-pending-selection",
+    "selected-not-admitted",
+    "material-produced",
+    "runtime-admitted",
+    "task-running",
+    "terminal",
+    "closeout-synchronized"
+  ],
+  "plan_epoch_components": [
+    "objective",
+    "owner-and-producer-owner",
+    "unit-identity-and-graph",
+    "complete-command-contract",
+    "write-partitions",
+    "attempt-contract",
+    "validation-contract",
+    "receipt-and-semantic-validator-contract",
+    "closeout-contract",
+    "runtime-contract",
+    "risk-budget-authority-publication"
+  ],
+  "excluded_from_plan_epoch": [
+    "material-package-bytes",
+    "producer-receipt-bytes",
+    "target-byte-baselines",
+    "mutable-lifecycle-status-receipts",
+    "post-execution-evidence-and-handoff-status"
+  ],
+  "selection_receipt_bindings": [
+    "plan_epoch_id",
+    "canonical_semantic_digest",
+    "task_id",
+    "swu_id",
+    "unit_contract_digest",
+    "current_dependency_receipt_digests",
+    "current_lifecycle_eligibility",
+    "explicit_selection_receipt"
+  ],
+  "material_admission_bindings": [
+    "selection_receipt_digest",
+    "task_id",
+    "swu_id",
+    "plan_epoch_id",
+    "unit_contract_digest",
+    "attempt_id",
+    "target_inventory",
+    "target_byte_baselines",
+    "full_validation_contract_digest",
+    "owner",
+    "authority",
+    "publication"
+  ],
+  "mutation_gate": {
+    "required_verdict": "admit",
+    "required_mutation_ready": true,
+    "single_use": true,
+    "bound_to_attempt": true,
+    "required_by_every_mutating_adapter": true,
+    "recorded_in_terminal_receipt": true
+  },
+  "reaudit_only_when": [
+    "a plan semantic component changes",
+    "the canonical semantic normalizer version changes",
+    "the selected unit is absent from the audited plan epoch"
+  ],
+  "no_reaudit_when": [
+    "selected-unit material was absent during planning",
+    "a valid package is produced later for the selected unit",
+    "typed lifecycle status or closeout evidence changes without plan semantic drift"
+  ],
+  "authority_effect": "none",
+  "mutation_ready": false
+}

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/continuation-router/work-pack-route-admission/1-0-0",
+  "title": "WorkPackRouteAdmissionReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "verdict",
+    "code",
+    "authorization_source",
+    "authorization_prompt_required",
+    "dispatch_allowed",
+    "candidate_count",
+    "binding_id",
+    "binding_digest",
+    "matched_route",
+    "route_fingerprint",
+    "blocking_detail",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "verdict": {"enum": ["pass", "block"]},
+    "code": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+    "authorization_source": {"enum": ["work-pack-binding", "none"]},
+    "authorization_prompt_required": {"const": false},
+    "dispatch_allowed": {"type": "boolean"},
+    "candidate_count": {"type": "integer", "minimum": 0, "maximum": 3},
+    "binding_id": {"type": ["string", "null"], "minLength": 1},
+    "binding_digest": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "matched_route": {
+      "oneOf": [{"$ref": "#/$defs/route"}, {"type": "null"}]
+    },
+    "route_fingerprint": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "blocking_detail": {"type": ["string", "null"], "minLength": 1},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"verdict": {"const": "pass"}}, "required": ["verdict"]},
+      "then": {
+        "properties": {
+          "code": {"const": "ROUTE_ADMITTED"},
+          "authorization_source": {"const": "work-pack-binding"},
+          "dispatch_allowed": {"const": true},
+          "candidate_count": {"const": 1},
+          "binding_id": {"type": "string", "minLength": 1},
+          "binding_digest": {"$ref": "#/$defs/sha256"},
+          "matched_route": {"$ref": "#/$defs/route"},
+          "route_fingerprint": {"$ref": "#/$defs/sha256"},
+          "blocking_detail": {"type": "null"}
+        }
+      },
+      "else": {
+        "properties": {
+          "authorization_source": {"const": "none"},
+          "dispatch_allowed": {"const": false},
+          "matched_route": {"type": "null"},
+          "blocking_detail": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {"type": "array", "minItems": 1, "uniqueItems": true},
+        "effect_class": {"type": "string", "minLength": 1},
+        "required_inputs": {"type": "array", "minItems": 1, "uniqueItems": true},
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

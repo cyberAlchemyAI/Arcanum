@@ -410,6 +410,49 @@ def semantic_errors(documents: dict[str, dict[str, Any]]) -> list[str]:
         errors.append("execution-ticket: validation contracts drift from request")
     if ticket["closeout_contract"] != request["closeout_contract"]:
         errors.append("execution-ticket: closeout contract drift from request")
+    if request.get("admission_profile") == "plan-once-selected-unit":
+        if ticket.get("admission_profile") != "plan-once-selected-unit":
+            errors.append("execution-ticket: plan admission profile is missing")
+        if terminal.get("admission_profile") != "plan-once-selected-unit":
+            errors.append("terminal-receipt: plan admission profile is missing")
+        request_plan = request.get("plan_admission", {})
+        ticket_plan = ticket.get("plan_admission", {})
+        for key in (
+            "plan_epoch_id",
+            "unit_contract_digest",
+            "attempt_id",
+            "selection_receipt_ref",
+            "mutation_admission_receipt_ref",
+            "admission_token",
+            "target_baseline_digest",
+            "validation_contract_digest",
+            "consumption_ledger_path",
+        ):
+            if ticket_plan.get(key) != request_plan.get(key):
+                errors.append(f"execution-ticket: plan admission {key} drift")
+        consumed = terminal.get("consumed_admission", {})
+        if consumed.get("receipt_ref") != ticket_plan.get(
+            "mutation_admission_receipt_ref"
+        ):
+            errors.append("terminal-receipt: consumed admission receipt drift")
+        if consumed.get("admission_token") != ticket_plan.get("admission_token"):
+            errors.append("terminal-receipt: consumed admission token drift")
+        if consumed.get("attempt_id") != ticket_plan.get("attempt_id"):
+            errors.append("terminal-receipt: consumed admission attempt drift")
+    if request.get("entry_profile") == "work-pack-fast-entry":
+        if ticket.get("entry_profile") != "work-pack-fast-entry":
+            errors.append("execution-ticket: fast-entry profile is missing")
+        if terminal.get("entry_profile") != "work-pack-fast-entry":
+            errors.append("terminal-receipt: fast-entry profile is missing")
+        request_fast = request.get("fast_execution_entry", {})
+        ticket_fast = ticket.get("fast_execution_entry", {})
+        terminal_fast = terminal.get("fast_execution_entry", {})
+        if ticket_fast.get("request_ref") != request_fast.get("request_ref"):
+            errors.append("execution-ticket: fast-entry request identity drift")
+        if ticket_fast.get("receipt_ref") != request_fast.get("receipt_ref"):
+            errors.append("execution-ticket: fast-entry receipt identity drift")
+        if terminal_fast != ticket_fast:
+            errors.append("terminal-receipt: fast-entry provenance drift")
 
     allowed_writes = set(ticket["allowed_writes"])
     undeclared_touches = sorted(set(executor["touched_files"]) - allowed_writes)

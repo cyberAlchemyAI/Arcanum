@@ -48,9 +48,9 @@ class V2Fixture:
             "approval": {"status": "unapproved"},
             "risk": {"maximum": "bounded-write"},
             "decision": {"selection": "pending"},
-            "successor": {"unitId": "U1"},
+            "successor": "U1",
             "equivalence": {"version": "1"},
-            "continuation": {"status": "unverified"},
+            "continuation": "U1",
         }
         self.evidence_path = self.root / "evidence.json"
         self.evidence_path.write_text(
@@ -208,7 +208,7 @@ class V2Fixture:
                 "allowed_flag_classes": ["observability-residue"],
             },
             "continuity_projection": {
-                "cursor": "root",
+                "cursor": "U1",
                 "completed_unit_receipt_refs": [],
                 "joined_closeout_receipt_refs": [],
                 "projected_next_successor": {

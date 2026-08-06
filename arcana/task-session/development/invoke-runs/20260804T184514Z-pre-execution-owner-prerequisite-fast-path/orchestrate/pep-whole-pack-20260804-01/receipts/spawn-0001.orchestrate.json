@@ -1,0 +1,51 @@
+{
+  "schema_version": "arcanum.native-dispatch-runner.receipt.v0.1",
+  "action_id": "spawn-0001",
+  "dispatch_id": "dispatch-pre-execution-owner-prerequisite-fast-path-v1",
+  "run_id": "pep-whole-pack-20260804-01",
+  "wave_id": "pep-serial-frontier",
+  "step_id": "S2",
+  "role": "pep-work-pack-series",
+  "capability_ref": "task-session-until-blocker",
+  "agent_id": "/root/pep_work_pack_series",
+  "status": "pass",
+  "artifacts": [
+    "chain.json",
+    "receipts/SWU-PEP-001.task-session.json",
+    "receipts/SWU-PEP-001.sigil-development.json",
+    "receipts/SWU-PEP-002.task-session.json",
+    "receipts/SWU-PEP-002.sigil-development.json",
+    "receipts/SWU-PEP-003.task-session.json",
+    "receipts/SWU-PEP-003.sigil-development.json",
+    "receipts/SWU-PEP-004.task-session.json",
+    "receipts/SWU-PEP-004.sigil-development.json",
+    "receipts/SWU-PEP-005.task-session.json",
+    "receipts/SWU-PEP-005.spellcraft.json",
+    "receipts/SWU-PEP-006.task-session.json",
+    "receipts/SWU-PEP-006.integration.json"
+  ],
+  "validation": "pass",
+  "validation_details": [
+    {"command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/validate-fixtures.py --group schema", "result": "pass", "summary": "16 schema fixtures"},
+    {"command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_classifier.py", "result": "pass", "summary": "2 tests; 12 classifier cases"},
+    {"command": "bash arcanum/arcana/continuation-router/development/run-validation-fixtures.sh", "result": "pass", "summary": "14 normal, 3 adversarial, and 16 work-pack route fixtures"},
+    {"command": "python3 arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/test_owner_resume.py", "result": "pass", "summary": "2 tests; exactly-once resume and 10 blockers"},
+    {"command": "python3 arcanum/arcana/task-session/development/test_plan_once_governance.py", "result": "pass", "summary": "2 tests"},
+    {"command": "python3 arcanum/arcana/task-session/development/test_plan_once_admission.py", "result": "pass", "summary": "3 tests after exact authorized WPEG fixture repair"},
+    {"command": "python3 arcanum/spells/work-pack-readiness-audit/development/test_plan_once_end_to_end.py", "result": "pass", "summary": "1 test"},
+    {"command": "bash arcanum/spells/invoke/development/run-validation-fixtures.sh", "result": "pass", "summary": "SWU-PEP-005 declared Invoke validation"},
+    {"command": "bash arcanum/arcana/task-session/development/pre-execution-prerequisite-fast-path/run-validation-fixtures.sh", "result": "pass", "summary": "5 integration tests plus all seven canary/regression groups"},
+    {"command": "python3 arcanum/formulae/dispatch-spec/scripts/validate-dispatch.py arcanum/arcana/task-session/development/invoke-runs/20260804T184514Z-pre-execution-owner-prerequisite-fast-path/execution.dispatch.json", "result": "pass"},
+    {"command": "selective generated sync and zero-diff preview for four capabilities across repo-codex,claude", "result": "pass"},
+    {"command": "scoped Draft 2020-12 schema validation, public-boundary scans, cache absence, and canonical/generated git diff --check", "result": "pass"}
+  ],
+  "resolved_blockers": [
+    "PEP-BLOCK-PLAN-ONCE-REGRESSION-001: user authorized the exact one-file WPEG fixture repair; admission and dependent regressions pass"
+  ],
+  "blockers": [],
+  "residue": [
+    "Repository-local validation only; no commit, push, promotion, publication, release, deployment, or production proof."
+  ],
+  "started_at": "2026-08-04T19:24:00Z",
+  "finished_at": "2026-08-04T20:35:34Z"
+}

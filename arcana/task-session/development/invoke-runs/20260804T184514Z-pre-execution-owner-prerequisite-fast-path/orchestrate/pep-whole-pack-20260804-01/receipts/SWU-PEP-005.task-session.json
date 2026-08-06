@@ -1,0 +1,59 @@
+{
+  "schema_version": "pep.task-session-receipt.v1",
+  "work_pack_id": "WP-PEP-20260804",
+  "task_id": "TASK-PEP-ADOPTION",
+  "swu_id": "SWU-PEP-005",
+  "layer": "L3",
+  "attempt_id": "pep-whole-pack-20260804-01:SWU-PEP-005:1",
+  "result": "pass",
+  "execution_result": "pass",
+  "closeout_sync": "pass",
+  "lifecycle_owner": "spellcraft",
+  "target_inventory": [
+    {"path": "arcanum/spells/invoke/plan.md", "sha256": "8a53eae304dccb0dbbfef41522e4ef69c6211fc2377c36b2adc0bfb7dec50621"},
+    {"path": "arcanum/spells/invoke/templates/work-pack.md", "sha256": "67c402b410119de91ffcbb23fad964dd4c0e226d94c2de6e7fe0ccaad7f39e5e"},
+    {"path": "arcanum/spells/implementation-readiness/README.md", "sha256": "924719e8cc63e0672fc4738444eae0f7fd565a117a8d83967952c068ab512f66"},
+    {"path": "arcanum/spells/implementation-readiness/development/", "tree_sha256": "1b5e3077ab2a5dc362e00bb9b60bd4cf8c7e7afc6957f09f2d6f3a2dd570e247"}
+  ],
+  "pre_existing_bytes": {
+    "status": "preserved-and-minimally-extended",
+    "owner": "unfinished WPEG package",
+    "summary": "The exact SWU-PEP-005 targets were already dirty before admission. Existing WPEG execution-entry behavior was preserved; only the missing PEP distinction between a generic pre-Task-Session owner join and a same-attempt pre-execution return was added to the three canonical spell targets."
+  },
+  "pre_mutation_sha256": {
+    "arcanum/spells/invoke/plan.md": "7f53dc64c264991fb63d7870d04a198d3e1b9d7e12873cf6d8d17ad8fc5daaeb",
+    "arcanum/spells/invoke/templates/work-pack.md": "af64303fdfe328780832ed41331186adb329b235b003e1c7604a5e36af533183",
+    "arcanum/spells/implementation-readiness/README.md": "4e49ee46c6e6338c7fab083cbcf3aff0f2ab24887b9f40d267c170fe2c41f28a"
+  },
+  "files_changed": [
+    "arcanum/spells/invoke/plan.md",
+    "arcanum/spells/invoke/templates/work-pack.md",
+    "arcanum/spells/implementation-readiness/README.md"
+  ],
+  "requirements": [
+    {"id": "PEP-005-R1", "result": "pass", "evidence": "Invoke Plan and the work-pack template require one truthful execution-entry state plus exact allowed-route digest."},
+    {"id": "PEP-005-R2", "result": "pass", "evidence": "New mutation-capable plans default to selected-unit-at-task-session; selection-ready is expected runtime material, not Refresh drift."},
+    {"id": "PEP-005-R3", "result": "pass", "evidence": "owner-prerequisite names its exact owner route; generic outer-loop joins may start a fresh Task Session, while source_phase=pre-execution-prerequisite returns the bound control handle to the same attempt and resumes Context Builder exactly once."},
+    {"id": "PEP-005-R4", "result": "pass", "evidence": "Implementation Readiness carries pre-execution authorization only from the current direct user request or an exact durable approval binding route, task, SWU, attempt, target inventory, validation contracts, and effect."},
+    {"id": "PEP-005-R5", "result": "pass", "evidence": "Bare unauthorized Task Session remains fail-closed; work-pack-bound authorization is produced only by the readiness binding."},
+    {"id": "PEP-005-R6", "result": "pass", "evidence": "Invoke legacy full-frontier fixtures and the readiness finite-frontier reducer remain passing."}
+  ],
+  "validation": [
+    {"command": "python3 arcanum/spells/work-pack-readiness-audit/development/test_plan_once_end_to_end.py", "result": "pass", "summary": "1 end-to-end plan-once test"},
+    {"command": "bash arcanum/spells/invoke/development/run-validation-fixtures.sh", "result": "pass", "summary": "Invoke fixtures pass; transient timestamped report outside SWU scope was removed"},
+    {"command": "python3 arcanum/spells/implementation-readiness/scripts/validate_execution_contracts.py", "result": "pass", "summary": "3 valid entry states and 14 negative cases; zero authorization prompts"},
+    {"command": "python3 arcanum/spells/implementation-readiness/development/validate-outer-loop.py", "result": "pass", "summary": "selection-ready, owner route, finite frontier, 8 stop classes, correlation and CLI cases"},
+    {"command": "precise private-identifier scan over SWU-PEP-005 targets", "result": "pass"},
+    {"command": "git -C arcanum diff --check -- spells/invoke/plan.md spells/invoke/templates/work-pack.md spells/implementation-readiness", "result": "pass"}
+  ],
+  "owner_boundary": "pass",
+  "public_boundary": "pass",
+  "experiment_harness": "pass",
+  "lifecycle_owner_receipt": "receipts/SWU-PEP-005.spellcraft.json",
+  "successor": "SWU-PEP-006",
+  "successor_selected": true,
+  "blockers": [],
+  "residue": [],
+  "started_at": "2026-08-04T20:24:20Z",
+  "finished_at": "2026-08-04T20:30:10Z"
+}

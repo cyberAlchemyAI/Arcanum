@@ -1,0 +1,414 @@
+{
+  "concerns": [
+    {
+      "concern_id": "concern:authority",
+      "disposition": "required",
+      "output_id": "architecture:authority-trust",
+      "ownership": {
+        "accountable_owner": "authority-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "work-pack-owner",
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "SPEC.md#decision-classes",
+          "SPEC.md#owner-rules",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "authority",
+      "rationale": "Bounded Work Pack execution must not become promotion or ambient authority.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:authority",
+        "signal:normative-rule:bound-route-needs-no-repeat-authorization"
+      ]
+    },
+    {
+      "concern_id": "concern:security",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "security-risk-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "SPEC.md#non-goals"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "security",
+      "rationale": "No authentication, secret, tenant, network, or privilege surface is introduced; such effects are stop classes.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:security"
+      ]
+    },
+    {
+      "concern_id": "concern:state-event",
+      "disposition": "required",
+      "output_id": "architecture:state-event",
+      "ownership": {
+        "accountable_owner": "workflow-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "continuation-router-owner",
+          "task-session-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md",
+          "architecture-bundle.md#view-5--decision-and-state-flow"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "state-event",
+      "rationale": "Binding, owner-hop, task-session, stop, and completion transitions require an explicit state model.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:state-event",
+        "signal:normative-rule:fast-entry-before-context",
+        "signal:normative-rule:fresh-session-only"
+      ]
+    },
+    {
+      "concern_id": "concern:persistence",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "persistence-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "SPEC.md#claim-ceiling"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "persistence",
+      "rationale": "The package owns repository receipts but introduces no database, queue, lock, or durable service.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:persistence"
+      ]
+    },
+    {
+      "concern_id": "concern:failure",
+      "disposition": "required",
+      "output_id": "architecture:failure-compensation",
+      "ownership": {
+        "accountable_owner": "workflow-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "continuation-router-owner",
+          "task-session-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "IMPLEMENTATION-PLAN.md#stop-conditions",
+          "architecture-bundle.md#failure-and-recovery"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "failure",
+      "rationale": "Stale bindings, missing joins, cycles, scope expansion, owner failures, and protected effects must fail closed.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:failure"
+      ]
+    },
+    {
+      "concern_id": "concern:reliability",
+      "disposition": "required",
+      "output_id": "architecture:quality",
+      "ownership": {
+        "accountable_owner": "service-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "validation-owner",
+          "task-session-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "PLAN-DISTILL-VALIDATION.md#recomposition-proof",
+          "WORK-PACK.md#global-acceptance"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "reliability",
+      "rationale": "Deterministic routing, exact receipt joins, fresh sessions, and finite frontiers are acceptance-critical.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:reliability"
+      ]
+    },
+    {
+      "concern_id": "concern:integration",
+      "disposition": "required",
+      "output_id": "architecture:integration-versioning",
+      "ownership": {
+        "accountable_owner": "interface-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "invoke-owner",
+          "continuation-router-owner",
+          "task-session-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-PLAN.md",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/architecture-bundle.md",
+          "architecture-bundle.md#view-6--dependency-and-interface"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "integration",
+      "rationale": "Plan, audit, router, owner, Task Session, and series-controller interfaces must compose without authority collapse.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:integration",
+        "signal:compatibility:ad-hoc-to-work-pack-bound-routing",
+        "signal:compatibility:legacy-readiness-to-plan-once",
+        "signal:interface:outer-loop-to-router",
+        "signal:interface:outer-loop-to-task-session",
+        "signal:interface:plan-to-outer-loop"
+      ]
+    },
+    {
+      "concern_id": "concern:migration",
+      "disposition": "required",
+      "output_id": "architecture:migration-rollout",
+      "ownership": {
+        "accountable_owner": "migration-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "invoke-owner",
+          "continuation-router-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "IMPLEMENTATION-PLAN.md#migration",
+          "SPEC.md#compatibility"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "migration",
+      "rationale": "New bound-route semantics must coexist with legacy strict readiness and ad hoc routing.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:migration"
+      ]
+    },
+    {
+      "concern_id": "concern:rollout",
+      "disposition": "recommended",
+      "output_id": "architecture:migration-rollout",
+      "ownership": {
+        "accountable_owner": "release-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "architecture-bundle.md#migration-and-rollout-decisions"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "rollout",
+      "rationale": "Default adoption should follow local canary and generated parity, not this authored Plan alone.",
+      "revisit_condition": "Re-evaluate after SWU-WPEG-007 and SWU-WPEG-008 pass.",
+      "selected": false,
+      "signal_ids": [
+        "authored:rollout"
+      ]
+    },
+    {
+      "concern_id": "concern:privacy-data",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "data-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "DEFINE-CONTEXT.md#scope"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "privacy-data",
+      "rationale": "Public fixtures use product-neutral local metadata and introduce no new data or log sink.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:privacy-data"
+      ]
+    },
+    {
+      "concern_id": "concern:performance",
+      "disposition": "required",
+      "output_id": "architecture:quality",
+      "ownership": {
+        "accountable_owner": "service-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "task-session-owner",
+          "validation-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "IMPLEMENTATION-PLAN.md#slice-e--fast-task-session-guard",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/IMPLEMENTATION-PLAN.md",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "performance",
+      "rationale": "The fix must prove an entry read/phase budget so deterministic prerequisites are not discovered through a deep audit.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:performance",
+        "signal:quality-claim:bounded-fast-entry",
+        "signal:quality-claim:zero-internal-authorization-prompts"
+      ]
+    },
+    {
+      "concern_id": "concern:ux",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "ux-plan-owner",
+        "artifact_owner": "implementation-readiness-owner",
+        "contributing_owners": [
+          "implementation-readiness-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "SPEC.md#primary-behavior",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "ux",
+      "rationale": "The operator interaction changes routing cadence but creates no new or changed rendered semantic surface.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:ux",
+        "signal:human-actor:work-pack-operator"
+      ]
+    },
+    {
+      "concern_id": "concern:validation",
+      "disposition": "required",
+      "output_id": "validation-contracts",
+      "ownership": {
+        "accountable_owner": "design-owner",
+        "artifact_owner": "plan-work-pack-owner",
+        "contributing_owners": [
+          "validation-owner",
+          "task-session-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "PLAN-DISTILL-VALIDATION.md#atomicity-review",
+          "WORK-PACK.md#global-acceptance",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/SPEC.md",
+          "arcanum/spells/implementation-readiness/development/invoke-runs/20260804T184514Z-work-pack-execution-grant/WORK-PACK.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "validation",
+      "rationale": "Positive, adversarial, causal integration, parity, and no-effect stop cases are required.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:validation",
+        "signal:acceptance-readiness-claim:wpeg-design-authored",
+        "signal:effect:emit-local-execution-receipts",
+        "signal:normative-rule:protected-effects-stop"
+      ]
+    }
+  ],
+  "denominator_receipt_digest": "5f733c49517365f2da59d095ac9cfbc6227d7f41c5f265eb1db06bbd3e5e76f7",
+  "diagnostics": [],
+  "evidence_state": "design-validator-pass",
+  "fixed_point": true,
+  "manifest_id": "arcanum.work-pack-execution-grant.design-scope.v1",
+  "manifest_input_digest": "5921c8c93b237985c729806a9d76c7f9329a73b208088d4d7a6e7f32f940dfda",
+  "pass_1_digest": "0387d17942879abc2f79252bf2d697a808f970c41e32cca5b95d9cf224a2bf5a",
+  "pass_2_digest": "0387d17942879abc2f79252bf2d697a808f970c41e32cca5b95d9cf224a2bf5a",
+  "result_digest": "518ca4f48c1457893199ffa0d3c722517b2925f10f6cc3374a39e9a85a7c891e",
+  "schema_version": "1.0.0",
+  "selected_outputs": [
+    "architecture",
+    "architecture:authority-trust",
+    "architecture:failure-compensation",
+    "architecture:integration-versioning",
+    "architecture:migration-rollout",
+    "architecture:quality",
+    "architecture:state-event",
+    "validation-contracts"
+  ],
+  "verdict": "pass"
+}

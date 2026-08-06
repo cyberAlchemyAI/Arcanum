@@ -1,0 +1,15 @@
+{
+  "schema_version": "arcanum.continuation_route.v2",
+  "route_id": "route-pre-execution-repeated-fingerprint",
+  "source": {
+    "phase": "pre-execution-prerequisite", "capability": "task-session", "mode": "execute", "result": "unmet", "receipt": "fixtures/pre-execution-classification.json", "blocker_fingerprint": "sha256:pre-execution-repeat", "legacy_adaptation": false,
+    "pre_execution_context": {"task_id": "TASK-GENERIC-001", "swu_id": "SWU-GENERIC-001", "attempt_id": "attempt-generic-001", "prerequisite_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "classification_receipt_ref": {"path": "fixtures/pre-execution-classification.json", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "size_bytes": 100}, "declared_owner_route": "invoke:refresh:apply-approved", "target_inventory_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "validation_contract_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "satisfaction_predicate_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "resume_point": "task-session:context-build", "max_owner_hops": 1, "allowed_effect": "pre-execution-prerequisite-resolution", "consumed_attempt_fingerprints": ["attempt-generic-001:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]}
+  },
+  "authorization": {"requested": false, "exact_route": null, "evidence": null, "binding": null},
+  "candidates": [{"rank": 1, "capability": "invoke", "mode": "refresh", "mutation_mode": "apply-approved", "owner": "invoke", "evidence": ["The same attempt and prerequisite fingerprint were already dispatched."], "required_inputs": ["fresh attempt or changed prerequisite"], "missing_inputs": ["fresh attempt or changed prerequisite"], "mutation_risk": "medium", "approval_required": true, "authorization_status": "missing", "expected_receipt": "No second owner receipt.", "fallback": "Reuse the joined receipt or begin a newly admitted attempt."}],
+  "selection": {"status": "blocked", "candidate_rank": 1, "reason": "The attempt/fingerprint pair is already consumed."},
+  "dispatch": {"status": "blocked", "runtime": null, "owner_receipt": null, "owner_receipt_ref": null, "join_validation": "not-run", "helper_closeout": "n/a", "dispatch_count": 0, "join_count": 0, "router_mutations": []},
+  "owner_boundary": "pass",
+  "control_handle": null,
+  "returned_next_route": null
+}

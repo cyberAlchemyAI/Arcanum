@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/pre-execution-owner-prerequisite/1-0-0",
+  "title": "PreExecutionOwnerPrerequisite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "prerequisite_id",
+    "task_id",
+    "swu_id",
+    "attempt_id",
+    "owner_route",
+    "trigger",
+    "target_inventory",
+    "validation_contracts",
+    "expected_owner_receipt",
+    "satisfaction_predicate",
+    "authorization_requirement",
+    "resume_point",
+    "max_owner_hops",
+    "allowed_effect",
+    "fingerprint_inputs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.pre-execution-owner-prerequisite.v1"
+    },
+    "prerequisite_id": {"$ref": "#/$defs/nonEmptyString"},
+    "task_id": {"$ref": "#/$defs/nonEmptyString"},
+    "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+    "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "owner_route": {"$ref": "#/$defs/ownerRoute"},
+    "trigger": {"$ref": "#/$defs/trigger"},
+    "target_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/targetInventoryEntry"}
+    },
+    "validation_contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/structuredCommand"}
+    },
+    "expected_owner_receipt": {"$ref": "#/$defs/expectedOwnerReceipt"},
+    "satisfaction_predicate": {"$ref": "#/$defs/satisfactionPredicate"},
+    "authorization_requirement": {"$ref": "#/$defs/authorizationRequirement"},
+    "resume_point": {"const": "task-session:context-build"},
+    "max_owner_hops": {"const": 1},
+    "allowed_effect": {"const": "pre-execution-prerequisite-resolution"},
+    "fingerprint_inputs": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "schema_version"},
+        {"const": "prerequisite_id"},
+        {"const": "task_id"},
+        {"const": "swu_id"},
+        {"const": "attempt_id"},
+        {"const": "owner_route"},
+        {"const": "trigger"},
+        {"const": "target_inventory"},
+        {"const": "validation_contracts"},
+        {"const": "expected_owner_receipt"},
+        {"const": "satisfaction_predicate"},
+        {"const": "authorization_requirement"},
+        {"const": "resume_point"},
+        {"const": "max_owner_hops"},
+        {"const": "allowed_effect"}
+      ],
+      "items": false,
+      "minItems": 15,
+      "maxItems": 15
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ownerRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "mode", "mutation_mode"],
+      "properties": {
+        "capability": {"const": "invoke"},
+        "mode": {"const": "refresh"},
+        "mutation_mode": {"const": "apply-approved"}
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_selectors"],
+      "properties": {
+        "kind": {"const": "declared-owner-prerequisite"},
+        "source_selectors": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactArtifactRef"}
+        }
+      }
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonEmptyString"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "targetInventoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "state",
+        "sha256",
+        "size_bytes",
+        "lifecycle_owner",
+        "authority_class",
+        "publication_class"
+      ],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonEmptyString"},
+        "state": {"enum": ["absent", "present"]},
+        "sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "size_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "lifecycle_owner": {"$ref": "#/$defs/nonEmptyString"},
+        "authority_class": {"enum": ["public", "private"]},
+        "publication_class": {"enum": ["public", "private", "internal"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "absent"}}, "required": ["state"]},
+          "then": {"properties": {"sha256": {"type": "null"}, "size_bytes": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"state": {"const": "present"}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "sha256": {"$ref": "#/$defs/sha256"},
+              "size_bytes": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      ]
+    },
+    "structuredCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_id", "argv", "cwd", "timeout_seconds", "max_output_bytes"],
+      "properties": {
+        "command_id": {"$ref": "#/$defs/nonEmptyString"},
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/nonEmptyString"}
+        },
+        "cwd": {"$ref": "#/$defs/nonEmptyString"},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
+        "max_output_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    },
+    "expectedOwnerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "owner_capability", "receipt_selector"],
+      "properties": {
+        "schema_id": {"$ref": "#/$defs/nonEmptyString"},
+        "owner_capability": {"const": "invoke"},
+        "receipt_selector": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "satisfactionPredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "receipt_pointer", "accepted_values"],
+      "properties": {
+        "kind": {"const": "json-pointer-any-of"},
+        "receipt_pointer": {"type": "string", "pattern": "^/"},
+        "accepted_values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["pass", "no-op", "ready"]}
+        }
+      }
+    },
+    "authorizationRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "evidence_selector", "binding_fields"],
+      "properties": {
+        "required": {"const": true},
+        "evidence_selector": {"$ref": "#/$defs/nonEmptyString"},
+        "binding_fields": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "owner_route"},
+            {"const": "task_id"},
+            {"const": "swu_id"},
+            {"const": "attempt_id"},
+            {"const": "target_inventory"},
+            {"const": "validation_contracts"},
+            {"const": "allowed_effect"}
+          ],
+          "items": false,
+          "minItems": 7,
+          "maxItems": 7
+        }
+      }
+    }
+  }
+}

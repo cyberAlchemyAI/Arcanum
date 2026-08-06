@@ -1,0 +1,72 @@
+{
+  "schema_version": "arcanum.single-readiness-gate.implementation-result.v1",
+  "work_pack_id": "WP-SINGLE-READINESS-GATE",
+  "result": "pass",
+  "implemented_swu_behaviors": [
+    "SWU-SRG-001",
+    "SWU-SRG-002",
+    "SWU-SRG-003",
+    "SWU-SRG-004",
+    "SWU-SRG-005",
+    "SWU-SRG-006",
+    "SWU-SRG-007",
+    "SWU-SRG-008",
+    "SWU-SRG-009",
+    "SWU-SRG-010"
+  ],
+  "implemented_contract": {
+    "legacy_default": "full-frontier",
+    "opt_in_profile": "selected-unit-at-task-session",
+    "strict_v2_preserved": true,
+    "plan_once_requires_second_pre_execution_audit": false,
+    "reaudit_only_for_semantic_plan_drift": true,
+    "post_execution_invoke_refresh_preserved": true
+  },
+  "canonical_packages": [
+    "spells/work-pack-readiness-audit",
+    "spells/invoke",
+    "arcana/task-session"
+  ],
+  "validation": {
+    "work_pack_readiness_v1": "10/10 pass",
+    "work_pack_readiness_strict_v2": "3/3 pass",
+    "plan_once_audit_and_selection": "5/5 pass",
+    "plan_once_cross_capability_route": "1/1 pass with one audit and zero pre-execution refresh calls",
+    "invoke_material_package": "23/23 pass",
+    "task_session_policy": "25/25 pass",
+    "task_session_nearest_resolution": "11/11 pass",
+    "task_session_legacy_mutation_admission": "23/23 pass",
+    "task_session_plan_admission": "3/3 pass",
+    "task_session_plan_governance": "2/2 pass",
+    "governance_contract_matrix": "positive 5/5; negative 14/14; semantic-negative 5/5; schema 5/5",
+    "governance_runner_full_family": "positive 18/18; negative 25/25",
+    "generated_package_parity": "work-pack-readiness-audit, invoke, and task-session exact for repo-codex and claude"
+  },
+  "adversarial_witnesses": [
+    "status-only and byte-only-outside-selector changes preserve the plan epoch",
+    "graph, write, owner, authority, publication, attempt, validation, receipt, closeout, runtime, and risk changes invalidate the unit epoch",
+    "duplicate binding ids, unknown selectors, and floats fail closed",
+    "wrong attempt and changed live target baseline block mutation",
+    "second governance run cannot reuse an atomically consumed admission receipt",
+    "terminal profile requires the consumed admission identity chain"
+  ],
+  "closeout": {
+    "owner": "invoke:refresh:apply-approved",
+    "allowed_delta_classes": ["evidence_added", "status_changed", "route_changed"],
+    "target_baselines": {
+      "stages/09-work-pack.md": "1de6853ed9f2f4f40c642000d609682291ae0a0f30b069d4074fc580b2c250df",
+      "stages/09-handoff-state.json": "c0ece540970b5335d67cd3515e3726f0699418a4756ad4b3f6518afdee2d3e2a"
+    },
+    "targets": ["stages/09-work-pack.md", "stages/09-handoff-state.json"],
+    "result": "applied"
+  },
+  "helper": {
+    "agent_id": "/root/single_gate_impl_auditor",
+    "mode": "read-only",
+    "status": "joined-complete"
+  },
+  "authority_effect": "none",
+  "mutation_ready": false,
+  "promotion_claim": "none",
+  "release_claim": "none"
+}

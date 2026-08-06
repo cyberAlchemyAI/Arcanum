@@ -31,6 +31,14 @@ contract without inferring targets after code mutation.
 
 Plan mode also performs automatic Distill validation before mutation-capable handoff. The validation checks whether the draft implementation plan, layering artifact, work-pack, and handoff route identify the smallest coherent executable unit, preserve recomposition into the approved design, expose hidden gaps, and avoid overbuilt or vague task/SWU structure.
 
+For newly authored Work Packs, Plan mode also emits one execution-entry
+projection. The default admission timing is
+`selected-unit-at-task-session`: expected future material is
+`selection-ready`, not an Invoke Refresh defect. The projection includes a
+canonical digest of exact allowed internal routes. A direct request to run or
+finish the Work Pack is later bound to this projection by Implementation
+Readiness; it does not create a second per-route approval step.
+
 ## Implementation Coverage
 
 - The L2 plan contract is implemented as a mode-level governance contract.
@@ -92,6 +100,10 @@ Plan mode blocks when approved design references are missing, required standalon
 - SWU requirements for medium/high work-packs,
 - Task Session closeout synchronization contract for every mutation-capable
   SWU,
+- admission timing (`selected-unit-at-task-session` by default for new plans,
+  or `full-frontier` with a named reason),
+- execution policy with exact allowed capability/mode/target/write/effect/input/
+  receipt tuples and automatic/stop decision classes,
 - target artifact type (`spell`, `sigil`, or neutral),
 - Dispatch Spec technique trace requirements,
 - Distill validation target and gap ownership rules,
@@ -169,6 +181,44 @@ Work-pack tables must be navigable. Task-board task IDs should link to task cont
 Work-packs must carry a Task Session closeout synchronization contract for every
 mutation-capable SWU. The contract binds exact owner targets and receipts; it is
 not deferred implementation detail.
+
+## Work-Pack Execution Entry Policy
+
+Every new mutation-capable Work Pack must declare:
+
+- `admissionTiming`, defaulting to `selected-unit-at-task-session`;
+- a finite frontier and exact `allowedRoutes` projection;
+- a canonical `allowedRoutesDigest`;
+- automatic decisions limited to internal tool/owner routing, declared
+  reversible fallbacks, one typed same-route retry, and fresh Task Session
+  resumption;
+- stop decisions for semantic choice, scope expansion, protected effects, and
+  failed acceptance-critical validation;
+- exactly one entry state: `selection-ready`, `owner-prerequisite`,
+  `task-ready`, or `blocked`;
+- a next owner consistent with that state.
+
+`selection-ready` routes to `implementation-readiness:execute`. It must not
+route to Task Session while selection or another prerequisite remains. A real
+semantic-plan change routes to `invoke:refresh`; expected missing material does
+not. Work-Pack-bound internal routes require no additional `--authorize-route`
+flag, while ad hoc routes keep their existing exact authorization behavior.
+When a Work Pack declares `declared-retry`, the only retryable owner result is
+`REPAIRABLE_OWNER_CONDITION`; it retries the unchanged route once, consumes the
+normal step budget, preserves replay history, and does not request another
+authorization.
+
+An `owner-prerequisite` entry must preserve which execution boundary owns the
+return. A generic outer-loop owner join that occurs before Task Session exists
+may reclassify the entry and then start one fresh Task Session. In contrast, a
+declared `PreExecutionOwnerPrerequisite` is instantiated for an already
+resolved Task Session attempt. Its Router handoff uses
+`source_phase=pre-execution-prerequisite`, returns the bound control handle to
+that same attempt, and resumes exactly once at
+`resume_point=task-session:context-build`; it never starts a second Task
+Session. The plan must bind the typed prerequisite record and its exact
+authorization-evidence selector rather than treating the execution entry or a
+bare Work-Pack declaration as apply authority.
 
 ## Implementation Detail Policy
 

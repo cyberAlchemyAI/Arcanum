@@ -17,5 +17,14 @@ python3 \
   "$script_dir/validate-nearest-swu-resolver.py" \
   "$canonical_dir"
 
+python3 "$script_dir/test_fast_execution_entry_guard.py"
+
+python3 "$script_dir/pre-execution-prerequisite-fast-path/validate-fixtures.py"
+python3 "$script_dir/pre-execution-prerequisite-fast-path/test_classifier.py"
+python3 "$script_dir/pre-execution-prerequisite-fast-path/test_owner_resume.py"
+
 python3 \
   "$script_dir/validate-mutation-admission.py"
+
+python3 "$script_dir/test_plan_once_admission.py"
+python3 "$script_dir/test_plan_once_governance.py"
