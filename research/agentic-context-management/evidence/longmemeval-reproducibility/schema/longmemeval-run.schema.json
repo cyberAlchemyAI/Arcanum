@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/research/agentic-context-management/longmemeval-run.schema.json",
+  "title": "ACM OR1 LongMemEval Reproducibility JSONL Row",
+  "description": "One row in an append-only, one-run-per-file LongMemEval reproducibility evidence stream.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_id",
+    "experiment_id",
+    "selected_unit",
+    "run_id",
+    "record_index",
+    "record_type",
+    "timestamp",
+    "evidence_class",
+    "protocol_deviations",
+    "claim_status_update_allowed"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "project_id": { "const": "agentic-context-management" },
+    "experiment_id": { "const": "ACM-OR1-LME-REPRO" },
+    "selected_unit": { "const": "OR1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "record_index": { "type": "integer", "minimum": 0 },
+    "record_type": {
+      "type": "string",
+      "enum": ["run_manifest", "question_result", "run_summary"]
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "evidence_class": {
+      "type": "string",
+      "enum": ["synthetic_fixture", "dry_run", "live_experiment"]
+    },
+    "protocol_deviations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "claim_status_update_allowed": { "const": false },
+    "source_pins": { "$ref": "#/$defs/source_pins" },
+    "dataset": { "$ref": "#/$defs/dataset" },
+    "models": { "$ref": "#/$defs/models" },
+    "provider": { "$ref": "#/$defs/provider" },
+    "prompt_hashes": { "$ref": "#/$defs/prompt_hashes" },
+    "judge_protocol": { "const": "binary_correct_wrong_against_gold" },
+    "isolation_mode": { "type": "string", "minLength": 1 },
+    "question": { "$ref": "#/$defs/question" },
+    "retrieval": { "$ref": "#/$defs/retrieval" },
+    "answer": { "$ref": "#/$defs/answer" },
+    "judge": { "$ref": "#/$defs/judge" },
+    "correct": { "type": "boolean" },
+    "question_count": { "type": "integer", "minimum": 1 },
+    "correct_count": { "type": "integer", "minimum": 0 },
+    "accuracy": { "$ref": "#/$defs/score" },
+    "category_results": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/category" },
+      "additionalProperties": { "$ref": "#/$defs/category_result" }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "record_type": { "const": "run_manifest" } } },
+      "then": {
+        "required": [
+          "source_pins",
+          "dataset",
+          "models",
+          "provider",
+          "prompt_hashes",
+          "judge_protocol",
+          "isolation_mode"
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "record_type": { "const": "question_result" } } },
+      "then": {
+        "required": ["question", "retrieval", "answer", "judge", "correct"]
+      }
+    },
+    {
+      "if": { "properties": { "record_type": { "const": "run_summary" } } },
+      "then": {
+        "required": ["question_count", "correct_count", "accuracy", "category_results"]
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "git_revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "single-session-user",
+        "single-session-preference",
+        "knowledge-update",
+        "temporal-reasoning",
+        "single-session-assistant",
+        "multi-session"
+      ]
+    },
+    "source_pins": {
+      "type": "object",
+      "required": [
+        "paper_pdf_sha256",
+        "companion_harness_revision",
+        "companion_results_revision",
+        "published_run_harness_revision"
+      ],
+      "properties": {
+        "paper_pdf_sha256": { "$ref": "#/$defs/sha256" },
+        "companion_harness_revision": { "$ref": "#/$defs/git_revision" },
+        "companion_results_revision": { "$ref": "#/$defs/git_revision" },
+        "published_run_harness_revision": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "category_counts": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/category" },
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "name",
+        "revision",
+        "distribution",
+        "split",
+        "expected_question_count",
+        "expected_category_counts",
+        "ordered_question_set_sha256"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "revision": { "type": "string", "minLength": 1 },
+        "distribution": { "type": "string", "minLength": 1 },
+        "split": { "type": "string", "minLength": 1 },
+        "expected_question_count": { "type": "integer", "minimum": 1 },
+        "expected_category_counts": { "$ref": "#/$defs/category_counts" },
+        "ordered_question_set_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "required": ["identifier", "revision", "parameters_sha256"],
+      "properties": {
+        "identifier": { "type": "string", "minLength": 1 },
+        "revision": { "type": "string", "minLength": 1 },
+        "parameters_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "models": {
+      "type": "object",
+      "required": ["answer", "judge"],
+      "properties": {
+        "answer": { "$ref": "#/$defs/model" },
+        "judge": { "$ref": "#/$defs/model" }
+      },
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "object",
+      "required": ["name", "adapter_revision", "configuration_sha256"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "adapter_revision": { "type": "string", "minLength": 1 },
+        "configuration_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "prompt_hashes": {
+      "type": "object",
+      "required": ["retrieval", "answer", "judge"],
+      "properties": {
+        "retrieval": { "$ref": "#/$defs/sha256" },
+        "answer": { "$ref": "#/$defs/sha256" },
+        "judge": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "question": {
+      "type": "object",
+      "required": ["id", "category", "query_sha256", "gold_answer_sha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "category": { "$ref": "#/$defs/category" },
+        "query_sha256": { "$ref": "#/$defs/sha256" },
+        "gold_answer_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["ref", "sha256"],
+      "properties": {
+        "ref": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "retrieval": {
+      "type": "object",
+      "required": ["retrieved_item_count", "token_count", "latency_ms", "artifact"],
+      "properties": {
+        "retrieved_item_count": { "type": "integer", "minimum": 0 },
+        "token_count": { "type": "integer", "minimum": 0 },
+        "latency_ms": { "type": "number", "minimum": 0 },
+        "artifact": { "$ref": "#/$defs/artifact" }
+      },
+      "additionalProperties": false
+    },
+    "answer": {
+      "type": "object",
+      "required": ["model_identifier", "token_count", "artifact"],
+      "properties": {
+        "model_identifier": { "type": "string", "minLength": 1 },
+        "token_count": { "type": "integer", "minimum": 0 },
+        "artifact": { "$ref": "#/$defs/artifact" }
+      },
+      "additionalProperties": false
+    },
+    "judge": {
+      "type": "object",
+      "required": ["model_identifier", "verdict", "artifact"],
+      "properties": {
+        "model_identifier": { "type": "string", "minLength": 1 },
+        "verdict": { "type": "string", "enum": ["CORRECT", "WRONG"] },
+        "artifact": { "$ref": "#/$defs/artifact" }
+      },
+      "additionalProperties": false
+    },
+    "category_result": {
+      "type": "object",
+      "required": ["question_count", "correct_count", "accuracy"],
+      "properties": {
+        "question_count": { "type": "integer", "minimum": 1 },
+        "correct_count": { "type": "integer", "minimum": 0 },
+        "accuracy": { "$ref": "#/$defs/score" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
