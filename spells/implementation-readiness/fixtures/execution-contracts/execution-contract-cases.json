@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "base_policy": {
+    "schema_version": "1.0.0",
+    "work_pack_id": "WP-PUBLIC-FIXTURE",
+    "work_pack_semantic_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "frontier": ["SWU-U1", "SWU-U2"],
+    "completion_continuity": {
+      "source_audit_id": "public-fixture-audit",
+      "source_projection_digest": "283eba08165abbd3061015a85806a3086ad1253d53943b73336e692a3201a53b",
+      "work_pack_semantic_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+      "plan_epoch_id": "epoch-5b96529cbb6f13561aef6bdb",
+      "completed_prefix": [],
+      "next_unit": "SWU-U1",
+      "authority_effect": "none",
+      "continuity_digest": "fb55b11c6ffad7d3484bb6ab0c1538359b72e2c73488a351a4e5fdfb6578bbf7"
+    },
+    "allowed_routes": [
+      {
+        "route_id": "task-u1",
+        "frontier_swu": "SWU-U1",
+        "capability": "task-session",
+        "mode": "execute",
+        "target": "SWU-U1",
+        "write_scope": ["packages/u1/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["work-pack.json", "selection-receipt.json"],
+        "expected_receipt": "receipts/u1.json"
+      },
+      {
+        "route_id": "owner-u2",
+        "frontier_swu": "SWU-U2",
+        "capability": "invoke",
+        "mode": "refresh",
+        "target": "SWU-U2 semantic repair",
+        "write_scope": ["planning/u2/"],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["plan.json"],
+        "expected_receipt": "receipts/refresh-u2.json"
+      }
+    ],
+    "allowed_routes_digest": "AUTO",
+    "automatic_decisions": [
+      "internal-tool-selection",
+      "capability-owner-routing",
+      "declared-fallback",
+      "fresh-task-session-resumption"
+    ],
+    "stop_decisions": [
+      "product-or-semantic-choice",
+      "scope-expansion",
+      "destructive-or-irreversible-effect",
+      "credentials-or-secret-access",
+      "external-message-or-network-effect",
+      "cost-policy-or-risk-acceptance",
+      "authority-promotion-publication-deployment",
+      "failed-acceptance-critical-validation"
+    ],
+    "validation_commands": ["python3 validate.py"],
+    "scope_source": "exact-work-pack-and-captured-frontier",
+    "validation_policy": "owner-gates-remain-mandatory",
+    "authority_effect": "none"
+  },
+  "invalid_cases": [
+    {"mutation": "unknown-frontier", "expected_code": "ROUTE_FRONTIER_UNKNOWN"},
+    {"mutation": "escaping-path", "expected_code": "PATH_UNSAFE"},
+    {"mutation": "missing-validation", "expected_code": "SCHEMA_INVALID"},
+    {"mutation": "protected-effect", "expected_code": "PROTECTED_ROUTE_EFFECT"},
+    {"mutation": "stale-route-digest", "expected_code": "ALLOWED_ROUTES_DIGEST_STALE"},
+    {"mutation": "stale-work-pack", "expected_code": "CONTINUITY_SEMANTIC_STALE"},
+    {"mutation": "contradictory-entry", "expected_code": "ENTRY_ROUTE_CONTRADICTION"},
+    {"mutation": "undeclared-route", "expected_code": "ROUTE_UNDECLARED"},
+    {"mutation": "target-mismatch", "expected_code": "ROUTE_TARGET_MISMATCH"},
+    {"mutation": "write-expansion", "expected_code": "ROUTE_WRITE_SCOPE_EXPANDED"},
+    {"mutation": "effect-mismatch", "expected_code": "ROUTE_EFFECT_MISMATCH"},
+    {"mutation": "input-mismatch", "expected_code": "ROUTE_INPUT_MISMATCH"},
+    {"mutation": "receipt-mismatch", "expected_code": "ROUTE_RECEIPT_MISMATCH"},
+    {"mutation": "frontier-replay", "expected_code": "FRONTIER_STALE"}
+  ]
+}

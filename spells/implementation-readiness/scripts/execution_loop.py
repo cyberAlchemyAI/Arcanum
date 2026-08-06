@@ -20,15 +20,15 @@ from execution_contracts import (
     validate_execution_entry,
     validate_execution_policy,
 )
+from implementation_readiness_runtime_paths import capability_root
 
 
 SPELL_ROOT = Path(__file__).resolve().parents[1]
-ARCANUM_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_ROOT = SPELL_ROOT / "schemas"
 STATE_SCHEMA = SCHEMA_ROOT / "outer-loop-state.schema.json"
 ACTION_SCHEMA = SCHEMA_ROOT / "outer-loop-action.schema.json"
 EVENT_SCHEMA = SCHEMA_ROOT / "outer-loop-event.schema.json"
-ROUTER_SCRIPTS = ARCANUM_ROOT / "arcana" / "continuation-router" / "scripts"
+ROUTER_SCRIPTS = capability_root("continuation-router", "arcana") / "scripts"
 if str(ROUTER_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(ROUTER_SCRIPTS))
 

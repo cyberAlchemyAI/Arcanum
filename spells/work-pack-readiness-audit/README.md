@@ -81,6 +81,11 @@ Paths are normalized relative paths. Absolute paths, traversal, unresolved
 globs or environment variables, and symlink escape block the audit. The runner
 never executes configured commands.
 
+For Work-Pack-bound automatic routes, the admitted effect class is exactly
+`repository-local-reversible`. A closeout-only boundary is carried by its
+owner mode, exact target/write scope, closeout contract, and receipt; appending
+`closeout-only` or another purpose label to the effect token is schema-invalid.
+
 ## Shared State
 
 | State | Produced By | Consumed By |

@@ -8,27 +8,29 @@ import hashlib
 import importlib.util
 import json
 import os
+import sys
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+SCRIPT_ROOT = Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from task_session_until_blocker_runtime_paths import capability_root  # noqa: E402
+
 
 SPELL_ROOT = Path(__file__).resolve().parents[1]
-ARCANUM_ROOT = Path(__file__).resolve().parents[3]
 REQUEST_SCHEMA = SPELL_ROOT / "schemas" / "fresh-session-resume-request.schema.json"
 RECEIPT_SCHEMA = SPELL_ROOT / "schemas" / "fresh-session-resume-receipt.schema.json"
 FAST_GUARD_PATH = (
-    ARCANUM_ROOT
-    / "arcana"
-    / "task-session"
+    capability_root("task-session", "arcana")
     / "scripts"
     / "fast_execution_entry_guard.py"
 )
 ROUTER_PATH = (
-    ARCANUM_ROOT
-    / "arcana"
-    / "continuation-router"
+    capability_root("continuation-router", "arcana")
     / "scripts"
     / "work_pack_route.py"
 )
@@ -599,4 +601,3 @@ def admit_fresh_task_session(
             owner_receipt=owner_receipt,
             owner_reference=owner_reference,
         )
-

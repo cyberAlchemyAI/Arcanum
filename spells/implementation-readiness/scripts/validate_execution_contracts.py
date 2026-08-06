@@ -26,7 +26,7 @@ from execution_contracts import (  # noqa: E402
 
 FIXTURE = (
     SPELL_ROOT
-    / "development/fixtures/execution-contracts/execution-contract-cases.json"
+    / "fixtures/execution-contracts/execution-contract-cases.json"
 )
 CREATED_AT = "2026-08-04T20:00:00Z"
 

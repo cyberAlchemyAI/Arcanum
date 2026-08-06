@@ -94,6 +94,13 @@ The operator's direct request to run or finish this Work Pack is the execution
 intent. Matched internal routes do not require a second authorization prompt.
 Undeclared routes and protected effects still stop before mutation.
 
+`effectClass` is a closed shared vocabulary, not a place to encode route
+purpose. A closeout route uses `repository-local-reversible`; its closeout-only
+boundary is expressed by the Invoke Refresh mode, exact target and write scope,
+the Closeout Contract, expected receipt, and derived authorization. Validate
+the machine-readable execution-entry projection with the installed
+Implementation Readiness validator before marking this Work Pack pass-ready.
+
 When `declared-retry` is present, it authorizes only one retry after the same
 owner route returns `REPAIRABLE_OWNER_CONDITION` for the unchanged entry,
 binding, and selected unit. The retry consumes the ordinary step budget and

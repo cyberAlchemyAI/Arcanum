@@ -183,6 +183,26 @@ class PlanOnceSelectionTests(unittest.TestCase):
         self.assertTrue((output / "selection-handoff.json").is_file())
         self.assertFalse((output / "objective-execution-manifest.json").exists())
 
+    def test_closeout_only_effect_subtype_is_schema_invalid(self) -> None:
+        config = self.config()
+        routes = config["execution_policy"]["allowed_routes"]
+        routes[1]["effect_class"] = (
+            "repository-local-reversible-closeout-only"
+        )
+        config["execution_policy"]["allowed_routes_digest"] = AUDIT.digest_bytes(
+            AUDIT.canonical_bytes(routes)
+        )
+        errors = AUDIT.schema_errors(
+            config, AUDIT.load_json(AUDIT.CONFIG_SCHEMA_V2), "v2 config"
+        )
+        self.assertTrue(
+            any(
+                "execution_policy/allowed_routes/1/effect_class" in error
+                and "repository-local-reversible" in error
+                for error in errors
+            )
+        )
+
     def test_status_only_bytes_preserve_epoch_but_command_drift_does_not(self) -> None:
         config = self.config()
         first = self.audit(config)["manifest"]

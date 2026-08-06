@@ -5,6 +5,11 @@ captured, ordered work-pack frontier as a series of distinct Task Sessions. It
 continues only across uniquely declared, dependency-ready successors and stops
 at the first genuine blocker or when the captured frontier is complete.
 
+Its fresh-session runtime resolves Task Session and Continuation Router from
+canonical `arcana/` sources or sibling generated `skills/` packages. A missing
+dependency blocks explicitly; generated installations do not assume that a
+canonical Arcanum source tree is present.
+
 The spell does not widen Task Session. Each Task Session still owns exactly one
 task or SWU, one validation result, one lifecycle-owner closeout join, one
 continuity cursor, and one terminal receipt.

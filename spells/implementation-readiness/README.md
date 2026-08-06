@@ -66,6 +66,16 @@ intent and both the selected-unit receipt and the single-use mutation-admission
 receipt match the plan epoch and unit contract. A separate confirmation cannot
 substitute for the direct Work Pack execution intent.
 
+Before that boundary, Invoke-authored
+`arcanum.work-pack-execution-entry/v1` artifacts must pass
+`scripts/validate_work_pack_execution_entry.py`. The authoring validator owns
+the closed route-effect and decision vocabularies, recomputes the exact
+allowed-routes digest, rejects unsafe paths and unknown frontier references,
+and checks that the projected entry state is internally consistent. A
+closeout-only route still uses `repository-local-reversible`; its narrower
+authority comes from the declared owner mode, target, write scope, closeout
+contract, and expected receipt rather than from an invented effect subtype.
+
 For a guarding Task Session prerequisite, the same boundary calls the
 `task-session-until-blocker` fresh-session owner only after the exact task route
 is admitted. It binds the resume request to the live outer-loop projection,
@@ -137,12 +147,19 @@ next dispatch; they are not converted into authorization prompts.
 
 ### Machine contracts
 
+- `schemas/work-pack-execution-entry.schema.json` — Invoke-authored execution policy and entry preflight.
 - `schemas/execution-policy.schema.json` — frozen automatic and stop policy.
 - `schemas/execution-entry-projection.schema.json` — one truthful current entry state.
 - `schemas/execution-intent-binding.schema.json` — one current route binding derived from direct intent.
 - `schemas/outer-loop-state.schema.json` — stable run, frontier, budget, histories, and pending correlation.
 - `schemas/outer-loop-action.schema.json` — the one next controller action.
 - `schemas/outer-loop-event.schema.json` — the exact selection, owner, or Task Session join event.
+
+The canonical source layout resolves dependencies under `spells/` and
+`arcana/`. Generated native packages resolve the same dependencies as sibling
+packages under their installed `skills/` root. Missing sibling capabilities
+block with an installation error; the runtime never falls back to an ambient
+repository path.
 
 The controller does not perform owner mutation, weaken Task Session admission,
 absorb a new frontier unit, recursively resume a Task Session, promote evidence,

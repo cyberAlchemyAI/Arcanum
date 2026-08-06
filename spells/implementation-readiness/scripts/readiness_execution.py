@@ -19,12 +19,12 @@ from execution_contracts import (
     validate_execution_policy,
 )
 from execution_loop import decide_next_action, initialize_outer_loop
+from implementation_readiness_runtime_paths import capability_root
 
 
 SPELL_ROOT = Path(__file__).resolve().parents[1]
-ARCANUM_ROOT = Path(__file__).resolve().parents[3]
-READINESS_AUDIT_ROOT = ARCANUM_ROOT / "spells" / "work-pack-readiness-audit"
-TASK_SESSION_ROOT = ARCANUM_ROOT / "arcana" / "task-session"
+READINESS_AUDIT_ROOT = capability_root("work-pack-readiness-audit", "spells")
+TASK_SESSION_ROOT = capability_root("task-session", "arcana")
 AUDIT_CONFIG_SCHEMA = READINESS_AUDIT_ROOT / "schemas" / "audit-config-v2.schema.json"
 AUDIT_REPORT_SCHEMA = READINESS_AUDIT_ROOT / "schemas" / "audit-report-v2.schema.json"
 SELECTION_RECEIPT_SCHEMA = (
@@ -33,13 +33,9 @@ SELECTION_RECEIPT_SCHEMA = (
 MUTATION_ADMISSION_SCHEMA = (
     TASK_SESSION_ROOT / "schemas" / "mutation-admission-receipt.schema.json"
 )
-FRESH_SESSION_RUNTIME_PATH = (
-    ARCANUM_ROOT
-    / "spells"
-    / "task-session-until-blocker"
-    / "scripts"
-    / "fresh_session_resume.py"
-)
+FRESH_SESSION_RUNTIME_PATH = capability_root(
+    "task-session-until-blocker", "spells"
+) / "scripts" / "fresh_session_resume.py"
 
 
 def _load_owner_module(name: str, path: Path) -> Any:

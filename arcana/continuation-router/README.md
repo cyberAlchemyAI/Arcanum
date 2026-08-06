@@ -60,6 +60,11 @@ authorization question.
 A Work-Pack name, declaration, route string, or binding digest by itself is not
 authorization. Owner-specific validation remains mandatory after admission.
 
+The Work-Pack route runtime resolves Implementation Readiness from canonical
+`spells/` sources or a sibling generated `skills/implementation-readiness`
+package. A missing dependency blocks explicitly; generated installations do
+not require a canonical Arcanum source tree.
+
 ## Common Routes
 
 - planning drift -> `invoke:refresh`;

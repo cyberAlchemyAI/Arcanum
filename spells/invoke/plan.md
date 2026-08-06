@@ -198,6 +198,23 @@ Every new mutation-capable Work Pack must declare:
   `task-ready`, or `blocked`;
 - a next owner consistent with that state.
 
+Before Plan reports a pass-ready handoff, its machine-readable
+`arcanum.work-pack-execution-entry/v1` projection must pass the installed
+Implementation Readiness validator:
+
+```text
+python3 <implementation-readiness-package>/scripts/validate_work_pack_execution_entry.py --projection <EXECUTION-ENTRY.json>
+```
+
+The route effect vocabulary is closed. Work-Pack-bound implementation and
+closeout routes use `repository-local-reversible`; destructive, external,
+authority, promotion, publication, and deployment effects remain stop
+decisions. `closeout-only` is not an effect class. Express that restriction
+through the Invoke Refresh mode, exact closeout target and write scope,
+Closeout Contract, expected owner receipt, and derived authorization boundary.
+An unknown effect or automatic-decision token, stale route digest, unsafe path,
+unknown frontier reference, or contradictory entry state blocks Plan handoff.
+
 `selection-ready` routes to `implementation-readiness:execute`. It must not
 route to Task Session while selection or another prerequisite remains. A real
 semantic-plan change routes to `invoke:refresh`; expected missing material does
@@ -365,6 +382,9 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
   synchronization contract. Missing target inventory, baseline binding,
   admitted delta classes, owner validation, expected owner receipt, or
   deterministic successor policy blocks handoff before source mutation.
+- The machine-readable execution-entry projection must pass the installed
+  Implementation Readiness authoring validator; prose, template resemblance,
+  or a later readiness failure is not substitute evidence.
 - SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
 - SWUs intended for runtime-goal handoff must include source anchors, validation surface, write scope, and handoff notes; Invoke must not pre-generate context packs during planning.
 - Split task files must contain useful task-local SWU execution contracts, not just task titles.

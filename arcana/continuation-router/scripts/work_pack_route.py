@@ -13,11 +13,18 @@ from jsonschema import Draft202012Validator
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
-ARCANUM_ROOT = Path(__file__).resolve().parents[3]
+SCRIPT_ROOT = Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from continuation_router_runtime_paths import capability_root  # noqa: E402
+
 SCHEMA_ROOT = PACKAGE_ROOT / "schemas"
 REQUEST_SCHEMA = SCHEMA_ROOT / "work-pack-route-request.schema.json"
 ADMISSION_SCHEMA = SCHEMA_ROOT / "work-pack-route-admission.schema.json"
-EXECUTION_CONTRACTS = ARCANUM_ROOT / "spells" / "implementation-readiness" / "scripts"
+EXECUTION_CONTRACTS = capability_root(
+    "implementation-readiness", "spells"
+) / "scripts"
 if str(EXECUTION_CONTRACTS) not in sys.path:
     sys.path.insert(0, str(EXECUTION_CONTRACTS))
 
