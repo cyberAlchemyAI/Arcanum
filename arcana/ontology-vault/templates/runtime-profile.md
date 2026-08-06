@@ -8,6 +8,23 @@
 - Owner route: {owner-route}
 - Date: {date}
 
+## Ontology Type Selection
+
+- Ontology type: {ontology-type-catalog-id}
+- Selection source: explicit | profile | inferred | user
+- Selection confidence: exact | high | medium | low
+- Project-local type alias: {local-alias-or-none}
+- Ambiguity candidates: {catalog-ids-or-none}
+- User selection required: yes | no
+
+`Ontology type` must resolve to one entry in
+[`catalogs/ontology-types.json`](../catalogs/ontology-types.json). A
+project-local alias names this profile's specialization only; it does not add a
+reusable Arcanum type. When the type derives branch arguments, record any
+compatible explicit override and its reason.
+
+Derived branch arguments: {derived-or-explicit-branch-arguments}
+
 ## Source Boundary
 
 | Ref Type | Paths Or Handles | Allowed Use | Blocked Use |

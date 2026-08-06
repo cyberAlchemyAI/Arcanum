@@ -1,6 +1,7 @@
 # Ontology Vault
 
-Ontology Vault is an Arcana sigil for creating and maintaining a governed knowledge vault.
+Ontology Vault is an Arcana sigil for selecting, creating, and maintaining a
+governed ontology.
 
 It helps a repository move from scattered notes, sessions, discoveries, premises, and conventions toward a traceable ontology: one where knowledge roles, maturity states, confidence, edge rules, and promotion decisions are explicit.
 
@@ -8,9 +9,42 @@ It helps a repository move from scattered notes, sessions, discoveries, premises
 
 Knowledge repositories often grow by accumulation. Sessions pile up, discoveries contradict each other, premises become hidden assumptions, and conventions drift from actual use.
 
-Ontology Vault turns that material into governed knowledge. It maps the current structure, distills durable content from sessions, reviews falsifiable premises, separates evidence confidence from commitment confidence, and proposes convention changes with migration impact.
+Ontology Vault first determines what job the ontology must do. It then maps the
+current structure, distills durable content from sessions, reviews falsifiable
+premises, separates evidence confidence from commitment confidence, and
+proposes convention changes with migration impact.
 
 When a repository has both domain intent and implementation evidence, Ontology Vault can map branch-aware ontology: a business branch, a system branch, and a bridge layer between them.
+
+When an architecture tool needs an ontology to understand enforceable
+properties, Ontology Vault instead maps architecture element types, typed
+properties, allowed relations, profiles, observation projections, and
+explainable findings. That is a different primary job from tracing business
+intent into implementation.
+
+## Select The Ontology Type
+
+Ontology Vault maintains a small, product-neutral
+[ontology type catalog](catalogs/ontology-types.json). The types are routing
+archetypes, not canonical classes or authority decisions.
+
+| Type | Primary modeling job | Derived branch scope |
+| --- | --- | --- |
+| `knowledge-vault` | Knowledge roles, confidence, premises, sessions, evidence, and conventions. | None |
+| `business-domain` | Domain meaning, rules, policies, workflows, outcomes, and value. | `business` |
+| `system-runtime` | Components, runtime behavior, data, tests, telemetry, and deployment. | `system` |
+| `business-system-bridge` | Realization, traceability, coverage, constraints, gaps, and drift. | `business,system` plus bridge |
+| `authority-governance` | Authority kinds, source posture, owners, reliance, gates, and residue. | None |
+| `architecture-property` | Architecture types, properties, relations, constraints, profiles, projections, and findings. | `system` |
+
+Use `--ontology-type <id>` for an explicit selection. Clear intent selects one
+type without asking. If two or more types remain plausible, Ontology Vault
+offers the two or three strongest choices and states what each choice will
+model. It must not silently default to a generic map.
+
+A runtime profile may name a project-local type alias, but it must map that
+alias to one catalog type. The alias remains local and does not extend Arcanum
+vocabulary.
 
 ## Use When
 
@@ -20,7 +54,9 @@ When a repository has both domain intent and implementation evidence, Ontology V
 - confidence promotion or demotion needs explicit gates,
 - ontology roles, tags, edge types, or maturity states are drifting,
 - delegated research and synthesis findings need traceable links,
-- business intent needs traceability to system implementation, tests, telemetry, or runtime constraints.
+- business intent needs traceability to system implementation, tests, telemetry, or runtime constraints,
+- an architecture needs a typed property model for profiles, source
+  projections, and conformance findings,
 - a project has a local ontology surface and needs a repeatable runtime profile
   for map, validation, confidence, drift, projection, or delegated-evidence
   runs before a dedicated runtime exists.
@@ -46,6 +82,9 @@ When a repository has both domain intent and implementation evidence, Ontology V
 - Business ontology: domain language, intent, rules, policies, outcomes, user concepts, premises, and value claims.
 - System ontology: components, services, APIs, events, jobs, tables, data flows, runtime constraints, metrics, tests, and deployment facts.
 - Bridge ontology: cross-branch evidence that connects business intent to system realization, observation, tests, constraints, and drift.
+- Architecture property ontology: element types, typed properties, allowed
+  relations, constraint operators, profiles, observation projections, and
+  explainable expected-versus-observed findings.
 
 ## Branch-Aware Authority Model
 
@@ -85,6 +124,8 @@ The sigil can produce:
 - premise review,
 - confidence promotion or demotion report,
 - ontology convention change plan,
+- ontology type selection receipt,
+- architecture property map and profile/projection validation,
 - project-local runtime profile validation,
 - delegated research record,
 - synthesis findings record,
@@ -100,6 +141,11 @@ routes, source-spine rules, implementation evidence, and allowed/blocked
 runtime outputs. The profile names what Ontology Vault may read, what it may
 emit, which owner gates control movement, and where residue and observability
 go.
+
+The profile also records one cataloged `ontology_type` and may retain one
+project-local `ontology_type_alias`. Type selects the model shape; branch
+arguments narrow traversal inside that model. Compatible explicit branch
+arguments may override derived scope, but they never change the selected type.
 
 Runtime profiles can run inline or through a governed agent backend. Agent
 returns are delegated evidence; they can support maps, validation reports,

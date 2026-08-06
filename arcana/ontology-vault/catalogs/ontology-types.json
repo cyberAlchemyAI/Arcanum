@@ -1,0 +1,168 @@
+{
+  "catalog_version": "ontology-vault-types/v1",
+  "status": "reusable-routing-catalog",
+  "authority_effect": "none",
+  "purpose": "Select the primary modeling job for an Ontology Vault invocation before source discovery.",
+  "selection_sources": ["explicit", "profile", "inferred", "user"],
+  "ambiguity_policy": {
+    "minimum_choices": 2,
+    "maximum_choices": 3,
+    "require_mutually_exclusive_primary_job": true,
+    "require_choice_consequence": true,
+    "forbid_silent_default": true
+  },
+  "types": [
+    {
+      "ontology_type_id": "knowledge-vault",
+      "label": "Knowledge vault",
+      "primary_job": "Govern accumulated knowledge and its lifecycle.",
+      "model_focus": [
+        "knowledge roles",
+        "maturity status",
+        "evidence confidence",
+        "commitment confidence",
+        "premises",
+        "sessions",
+        "delegated evidence",
+        "conventions"
+      ],
+      "clear_intent_signals": [
+        "distill sessions",
+        "review premises",
+        "promote confidence",
+        "govern a knowledge vault",
+        "change ontology conventions"
+      ],
+      "derived_arguments": [],
+      "selection_consequence": "Map knowledge roles, evidence, confidence, sessions, premises, and lifecycle gates; do not assume a domain-to-runtime bridge."
+    },
+    {
+      "ontology_type_id": "business-domain",
+      "label": "Business or domain",
+      "primary_job": "Model domain meaning and desired behavior independently of implementation.",
+      "model_focus": [
+        "actors",
+        "domain concepts",
+        "business rules",
+        "policies",
+        "workflows",
+        "outcomes",
+        "value measures"
+      ],
+      "clear_intent_signals": [
+        "domain language",
+        "business rules",
+        "business policy",
+        "desired outcomes",
+        "domain workflow"
+      ],
+      "derived_arguments": ["--branch", "business"],
+      "selection_consequence": "Model meaning, rules, policies, workflows, and outcomes; implementation artifacts remain out of scope unless separately bridged."
+    },
+    {
+      "ontology_type_id": "system-runtime",
+      "label": "System or runtime",
+      "primary_job": "Model what a technical system contains and how it behaves at runtime.",
+      "model_focus": [
+        "components",
+        "services",
+        "interfaces",
+        "events",
+        "data structures",
+        "tests",
+        "telemetry",
+        "deployment units",
+        "runtime constraints"
+      ],
+      "clear_intent_signals": [
+        "runtime topology",
+        "system components",
+        "services and APIs",
+        "runtime events",
+        "deployment and telemetry"
+      ],
+      "derived_arguments": ["--branch", "system"],
+      "selection_consequence": "Map components, runtime behavior, data, tests, telemetry, and deployment facts; do not treat those facts as domain meaning."
+    },
+    {
+      "ontology_type_id": "business-system-bridge",
+      "label": "Business-system bridge",
+      "primary_job": "Evaluate alignment and drift between domain intent and system evidence.",
+      "model_focus": [
+        "realization",
+        "traceability",
+        "test coverage",
+        "observation",
+        "technical constraints",
+        "evidence gaps",
+        "drift"
+      ],
+      "clear_intent_signals": [
+        "intent to implementation",
+        "business system alignment",
+        "trace domain rules to code",
+        "implementation drift",
+        "cross-branch evidence"
+      ],
+      "derived_arguments": [
+        "--branches",
+        "business,system",
+        "--bridge",
+        "business-system"
+      ],
+      "selection_consequence": "Require evidence from both business and system branches and report realization, coverage, constraints, gaps, and drift."
+    },
+    {
+      "ontology_type_id": "authority-governance",
+      "label": "Authority and governance",
+      "primary_job": "Model who may decide, what sources may support, and how claims may move.",
+      "model_focus": [
+        "authority kinds",
+        "source posture",
+        "owner routes",
+        "reliance",
+        "promotion gates",
+        "non-collapse rules",
+        "residue"
+      ],
+      "clear_intent_signals": [
+        "authority model",
+        "owner routes",
+        "promotion gates",
+        "source reliance",
+        "authority non-collapse"
+      ],
+      "derived_arguments": [],
+      "selection_consequence": "Map ownership, source posture, reliance, gates, and residue; do not decide or promote authority through the ontology itself."
+    },
+    {
+      "ontology_type_id": "architecture-property",
+      "label": "Architecture properties",
+      "primary_job": "Describe and evaluate the typed properties an architecture is expected to have.",
+      "model_focus": [
+        "architecture element types",
+        "typed property definitions",
+        "allowed relations",
+        "constraint operators",
+        "architecture profiles",
+        "observation projections",
+        "explainable property findings"
+      ],
+      "clear_intent_signals": [
+        "understand architecture properties",
+        "architecture enforcement",
+        "typed architecture constraints",
+        "evaluate observed architecture facts",
+        "architecture profile"
+      ],
+      "derived_arguments": ["--branch", "system"],
+      "selection_consequence": "Model element types, typed properties, relations, profiles, projections, and property findings; do not substitute generic intent-to-implementation traceability."
+    }
+  ],
+  "project_local_alias_policy": {
+    "required_fields": ["ontology_type", "ontology_type_alias"],
+    "base_type_must_exist_in_catalog": true,
+    "alias_is_canonical": false,
+    "alias_may_extend_catalog": false
+  }
+}

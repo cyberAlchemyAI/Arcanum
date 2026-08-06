@@ -1,0 +1,191 @@
+{
+  "fixture_version": "ontology-vault-routing-cases/v1",
+  "cases": [
+    {
+      "case_id": "clear-architecture-property-correction-regression",
+      "prompt": "Build an ontology that lets an architecture checker understand the element types, properties, and relations it must enforce.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": null,
+        "matched_catalog_signals": [
+          {
+            "ontology_type_id": "architecture-property",
+            "signal": "understand architecture properties"
+          },
+          {
+            "ontology_type_id": "architecture-property",
+            "signal": "architecture enforcement"
+          }
+        ]
+      },
+      "expected": {
+        "selected_ontology_type": "architecture-property",
+        "selection_source": "inferred",
+        "selection_confidence": "high",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": null,
+        "derived_arguments": ["--branch", "system"]
+      }
+    },
+    {
+      "case_id": "clear-business-domain",
+      "prompt": "Map the actors, domain language, business rules, policies, workflows, and desired outcomes.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": null,
+        "matched_catalog_signals": [
+          {
+            "ontology_type_id": "business-domain",
+            "signal": "domain language"
+          },
+          {
+            "ontology_type_id": "business-domain",
+            "signal": "business rules"
+          }
+        ]
+      },
+      "expected": {
+        "selected_ontology_type": "business-domain",
+        "selection_source": "inferred",
+        "selection_confidence": "high",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": null,
+        "derived_arguments": ["--branch", "business"]
+      }
+    },
+    {
+      "case_id": "clear-system-runtime",
+      "prompt": "Map the runtime topology: services, APIs, events, data stores, deployment units, metrics, and technical constraints.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": null,
+        "matched_catalog_signals": [
+          {
+            "ontology_type_id": "system-runtime",
+            "signal": "runtime topology"
+          },
+          {
+            "ontology_type_id": "system-runtime",
+            "signal": "deployment and telemetry"
+          }
+        ]
+      },
+      "expected": {
+        "selected_ontology_type": "system-runtime",
+        "selection_source": "inferred",
+        "selection_confidence": "high",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": null,
+        "derived_arguments": ["--branch", "system"]
+      }
+    },
+    {
+      "case_id": "clear-business-system-bridge",
+      "prompt": "Trace domain rules to implementation, tests, and telemetry, then report missing evidence and implementation drift.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": null,
+        "matched_catalog_signals": [
+          {
+            "ontology_type_id": "business-system-bridge",
+            "signal": "trace domain rules to code"
+          },
+          {
+            "ontology_type_id": "business-system-bridge",
+            "signal": "implementation drift"
+          }
+        ]
+      },
+      "expected": {
+        "selected_ontology_type": "business-system-bridge",
+        "selection_source": "inferred",
+        "selection_confidence": "high",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": null,
+        "derived_arguments": ["--branches", "business,system", "--bridge", "business-system"]
+      }
+    },
+    {
+      "case_id": "ambiguous-generic-package-ontology",
+      "prompt": "Create an ontology for this software package.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": null,
+        "matched_catalog_signals": [],
+        "candidate_hints": [
+          "architecture-property",
+          "system-runtime",
+          "authority-governance"
+        ]
+      },
+      "expected": {
+        "selected_ontology_type": null,
+        "selection_source": null,
+        "selection_confidence": "low",
+        "ambiguity_candidates": [
+          {
+            "ontology_type_id": "architecture-property",
+            "label": "Architecture properties",
+            "consequence": "Model element types, typed properties, relations, profiles, projections, and property findings; do not substitute generic intent-to-implementation traceability."
+          },
+          {
+            "ontology_type_id": "system-runtime",
+            "label": "System or runtime",
+            "consequence": "Map components, runtime behavior, data, tests, telemetry, and deployment facts; do not treat those facts as domain meaning."
+          },
+          {
+            "ontology_type_id": "authority-governance",
+            "label": "Authority and governance",
+            "consequence": "Map ownership, source posture, reliance, gates, and residue; do not decide or promote authority through the ontology itself."
+          }
+        ],
+        "user_selection_required": true,
+        "project_local_type_alias": null,
+        "derived_arguments": []
+      }
+    },
+    {
+      "case_id": "project-local-profile-alias",
+      "prompt": "Use the repository profile's structural policy ontology.",
+      "inputs": {
+        "explicit_ontology_type": null,
+        "profile": {
+          "ontology_type": "architecture-property",
+          "ontology_type_alias": "local-structural-policy"
+        },
+        "matched_catalog_signals": []
+      },
+      "expected": {
+        "selected_ontology_type": "architecture-property",
+        "selection_source": "profile",
+        "selection_confidence": "exact",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": "local-structural-policy",
+        "derived_arguments": ["--branch", "system"]
+      }
+    },
+    {
+      "case_id": "explicit-type-precedes-vague-intent",
+      "prompt": "Map this ontology.",
+      "inputs": {
+        "explicit_ontology_type": "knowledge-vault",
+        "profile": null,
+        "matched_catalog_signals": []
+      },
+      "expected": {
+        "selected_ontology_type": "knowledge-vault",
+        "selection_source": "explicit",
+        "selection_confidence": "exact",
+        "ambiguity_candidates": [],
+        "user_selection_required": false,
+        "project_local_type_alias": null,
+        "derived_arguments": []
+      }
+    }
+  ]
+}
