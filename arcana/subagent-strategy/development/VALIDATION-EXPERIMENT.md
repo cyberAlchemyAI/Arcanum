@@ -30,6 +30,9 @@ This artifact is not promotion-ready until validation passes, expected outputs a
 - `strategy-single-confirmation-readiness-medium`: unpooled approver and
   companion-only disagreement evidence block before the human gate; the
   repaired digest-owned sheet reaches exactly one confirmation request.
+- `strategy-carried-confirmation-medium`: changed serialization bytes rerun
+  readiness and both tension checks, while deterministic material equivalence
+  carries the prior confirmation without a redundant human gate.
 - `strategy-handoff-gap-complex`: an existing upstream artifact fails the
   type-owner handoff gate, so the consumer stays blocked and a declared
   feedback edge is used without spending final-approval revision capacity.

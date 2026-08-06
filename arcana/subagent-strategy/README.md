@@ -25,7 +25,7 @@ trigger decision
   -> persisted strategy sheet
   -> composite deterministic confirmation readiness
   -> sheet-only independent tension checks on the admitted digest
-  -> one explicit human confirmation
+  -> one material-strategy confirmation
   -> registration
   -> dependency and type-owner handoff readiness
   -> execution
@@ -98,18 +98,21 @@ or a proposed strategy, but it blocks registration and execution.
    comparison.
 7. Present the complete admitted sheet and artifact destination to the human.
 8. Treat draft-revision authorization as discussion, not confirmation. Ask once
-   after readiness and PASS/PASS, then freeze only after explicit dispatch
-   confirmation.
-9. Register before spawning any working group.
-10. Run a consuming group only when blocking dependencies are complete and the
+   after readiness and PASS/PASS. Confirmation binds the reviewed material
+   strategy rather than its raw serialization bytes.
+9. After any byte change, rerun readiness and both tension checks. Carry the
+   prior confirmation only when a deterministic material-equivalence check
+   proves the reviewed strategy unchanged; otherwise present and reconfirm it.
+10. Register before spawning any working group.
+11. Run a consuming group only when blocking dependencies are complete and the
     type owner's declared handoff-readiness criteria pass for the exact upstream
     artifacts.
-11. Route `needs_feedback` gaps through declared feedback or revision edges
+12. Route `needs_feedback` gaps through declared feedback or revision edges
     while loop capacity remains; preserve `blocked` gaps for final approval.
-12. Propagate partial and failed results downstream.
-13. Join and close every agent, report the exit reason, and append the close
+13. Propagate partial and failed results downstream.
+14. Join and close every agent, report the exit reason, and append the close
     event.
-14. Update configured result and observability hooks.
+15. Update configured result and observability hooks.
 
 ## Artifacts
 

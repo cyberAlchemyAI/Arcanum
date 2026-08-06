@@ -31,4 +31,6 @@ asked to confirm.
 - Preserve both independent verdicts before any checker/reviewer comparison.
 - Ask for confirmation exactly once after PASS/PASS.
 - Register immediately if the confirmed digest remains unchanged.
-- Keep a genuine post-confirmation byte edit fail-closed.
+- If bytes change after confirmation, rerun readiness and both tension checks.
+- Carry confirmation only when a deterministic material-projection comparison
+  proves the strategy unchanged; otherwise require reconfirmation.

@@ -39,6 +39,23 @@ tension_gate:
   input_boundary: exact-sheet-bytes-and-rubric-only
   protocol: parallel-independent-verdicts-then-optional-frozen-report-comparison
 
+material_confirmation:
+  projection_owner: <capability-or-file>
+  projection_artifact: <path>
+  equivalence_validator: <deterministic-command>
+  material_fields:
+    - objective-and-evidence-boundary
+    - dispatch-type
+    - lanes-agents-roles-angles-prompts-and-source-scope
+    - expected-outputs-and-destination
+    - dependency-topology-and-loop-ceilings
+    - final-approver
+    - publication-privacy-validation-and-stop-conditions
+  mechanical_fields:
+    - whitespace-and-key-order
+    - machine-digests-and-evidence-handles
+    - derived-counts-and-schema-defaults
+
 agent_pool:
   source: <path-or-runtime-provider>
   selection_rules: <summary>
@@ -61,6 +78,9 @@ final_approval:
 human_gate:
   revision_authorization_is_confirmation: false
   normal_confirmation_request_count: 1
+  confirmation_binds: material-strategy-projection
+  byte_change_policy: rerun-machine-gates
+  material_or_unknown_change_policy: require-reconfirmation
 
 result_hooks:
   inventory: <capability-and-mode | none>
@@ -98,5 +118,10 @@ publication:
   sheet schema and registrar.
 - Draft revision authorization is not dispatch confirmation; a normal ready
   proposal asks once.
+- Human confirmation binds the material-strategy projection, not exact sheet
+  bytes. Every byte revision reruns machine readiness and tension checks.
+- A prior confirmation carries only when the configured deterministic
+  equivalence validator proves the material projection unchanged. Unknown
+  equivalence fails closed and requires reconfirmation.
 - Post-result hooks are explicitly configured or explicitly absent.
 - Publication rules prevent private evidence from crossing into public paths.

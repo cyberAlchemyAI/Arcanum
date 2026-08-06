@@ -4,7 +4,7 @@ description: "Use when deciding whether work merits a governed multi-agent dispa
 argument-hint: "<goal> [--type <dispatch-type>] [--profile <path>] [--propose | --run | --close]"
 tier: arcana
 domain: multi-agent-governance
-version: 0.2.0
+version: 0.3.0
 origin: extracted from a governed repository-local subagent dispatch router and generalized for public reuse
 allowed-tools: Read, Write, Glob, Grep, Task, Bash
 ---
@@ -54,6 +54,7 @@ Expected inputs, when available:
 - non-mutating confirmation-readiness validation mode,
 - deterministic agent-eligibility and final-approver admission rules,
 - digest-owned tension-evidence representation,
+- material-strategy projection and deterministic equivalence validation,
 - callable subagent mechanism,
 - tension-check, registration, ledger, inventory, and observability bindings.
 </inputs>
@@ -82,16 +83,41 @@ A dispatch is justified only when at least one trigger holds:
 A single helper spawned inside one agent's bounded scope is not a dispatch. Report it post-hoc in the parent's helper closeout. It becomes a dispatch when it fans out to two or more agents or outgrows the parent's scope.
 </dispatch-trigger>
 
+<confirmation-semantics>
+Human confirmation binds the material strategy that was presented, not the
+serialization bytes of its dispatch sheet. The local runtime must define and
+persist a deterministic material-strategy projection containing every choice
+that could change what the human authorized: objective and evidence boundary,
+dispatch type, lanes and purposes, agent identities and roles, angles and
+prompts, source scope, expected outputs, dependency topology, loop ceilings,
+final approver, destination, publication or privacy boundary, validation, and
+stop conditions.
+
+Whitespace, key ordering, machine digests, evidence handles, derived counts,
+schema-default materialization, and canonical encoding of already-presented
+content are mechanical only when a deterministic equivalence check proves that
+the material projection is unchanged. Unknown or unprovable equivalence fails
+closed as material.
+
+Exact sheet digests remain mandatory machine-integrity evidence. Every byte
+change invalidates the old readiness digest, tension verdicts, and registration
+attachment, so those machine gates rerun against the current bytes. A prior
+human confirmation may carry forward only after the current sheet passes those
+gates and the configured equivalence check proves the material strategy is
+unchanged. Material changes require the revised strategy to be presented and
+explicitly reconfirmed.
+</confirmation-semantics>
+
 <process>
 1. Resolve the active repository and the nearest applicable runtime profile. Treat generated adapters as non-authoritative when a canonical local owner exists.
 2. Make the preliminary trigger decision before designing groups. If no trigger holds, work inline and return the reason.
 3. Resolve the dispatch type. Read only its named owner contract and run only its configured read-only preflights. Preflight evidence informs strategy design but never authorizes the dispatch.
-4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema. Every load-bearing tension claim, including each predicted pairwise disagreement, must live inside the digest-bound sheet rather than companion prose.
+4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema. Persist the runtime's deterministic material-strategy projection beside the sheet. Every load-bearing tension claim, including each predicted pairwise disagreement, must live inside the digest-bound sheet rather than companion prose.
 5. Run the form owner's non-mutating confirmation-readiness validator against the exact persisted sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. Confirmation readiness is one composite checkpoint: form and version, live type-owner prerequisites, agent eligibility and identity uniqueness, final-approver admission, complete digest-owned tension evidence, and configured publication boundaries must all close before the human gate. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
 6. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Persist one predicted-disagreement record for every unordered pair in the sheet representation owned by the local schema. Reject redundant angles, nominal disagreement, incomplete pair coverage, or companion-only evidence.
-7. Run the configured tension gate against only the admitted sheet bytes and the gate rubric; companion files, parent summaries, and unstored chat context cannot satisfy the gate. Phase 1 launches two independent checkers in parallel and preserves each independent verdict bound to the same sheet digest. If either reports defects, Phase 2 may give the frozen checker report to the reviewer solely to compare the apontamentos; the reviewer must not revise its independent verdict. Both independent verdicts must pass. Any revision returns to Step 5 before both checks rerun. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
+7. Run the configured tension gate against only the admitted sheet bytes and the gate rubric; companion files, parent summaries, and unstored chat context cannot satisfy the gate. Phase 1 launches two independent checkers in parallel and preserves each independent verdict bound to the same sheet digest. If either reports defects, Phase 2 may give the frozen checker report to the reviewer solely to compare the apontamentos; the reviewer must not revise its independent verdict. Both independent verdicts must pass. Any byte revision returns to Step 5 before both checks rerun against the current digest. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
 8. Present the complete admitted strategy in chat, including the trigger decision, lanes, agents, dependency flow, preflight consequences, artifact destination, readiness state, gate state, ledger state, and next human action.
-9. Wait for explicit human confirmation. Silence, discussion, a question, or authorization to revise the draft is not dispatch confirmation. Ask only after composite readiness and both independent tension verdicts pass, so a normal run presents exactly one confirmation request. Confirmation freezes the exact admitted sheet bytes. Any later byte change returns to Step 5, reruns both tension checks, and requires new confirmation.
+9. Wait for explicit human confirmation of the complete material strategy. Silence, discussion, a question, or authorization to revise the draft is not dispatch confirmation. Ask only after composite readiness and both independent tension verdicts pass, so a normal run presents exactly one confirmation request. If bytes later change, return to Step 5 and rerun both tension checks. Carry the prior confirmation only when the configured deterministic equivalence check proves the material-strategy projection unchanged; record the equivalence receipt and attach the carried confirmation to the current machine digest. Present and reconfirm any material revision. Treat unknown or unprovable equivalence as material.
 10. Validate and append the dispatch event through the profile's deterministic registrar before launching working agents. Never hand-edit an append-only ledger when a registrar exists.
 11. Launch groups by dependency. A group is ready only when every incoming blocking edge has produced what the target must answer **and** the dispatch type owner's declared stage-handoff gate returns `ready` for those exact upstream artifacts. Output existence alone is not readiness. A gate may return `needs_feedback` only with a typed defect, repair-owner stage, eligible already-confirmed edge, and remaining loop capacity; otherwise it returns `blocked`. `sequential` and forward `zig-zag` edges block by default; `feedback` edges do not. On `needs_feedback`, traverse only the named declared feedback or revision edge and keep the consumer blocked. On `blocked`, propagate the gap and confidence limit to the final approver without inventing a new edge or exceeding a loop ceiling. Agents within a ready group run in parallel.
 12. Preserve partial results. If an agent fails or a stage-handoff gate blocks, downstream groups and the final approver receive the failure or typed gap, available evidence, and resulting confidence limit.
@@ -126,7 +152,7 @@ Emit or preserve:
 - preflight status and its concrete design consequence,
 - confirmation-readiness status and obligations closed, expected and observed form versions, projection-drift warnings, and pre-confirmation revision count,
 - tension-check results and revision count,
-- confirmation request count, avoidable confirmation request count, preventable post-confirmation revision count, and freeze state,
+- confirmation request count, avoidable confirmation request count, preventable post-confirmation revision count, sheet-byte revision count, material-strategy revision count, carried-confirmation count, equivalence verdict, and material confirmation state,
 - registration and close event identifiers,
 - stage-handoff readiness verdicts, typed gaps, feedback or revision routes used, and remaining loop capacity,
 - agent lifecycle counts and partial failures,
@@ -150,7 +176,9 @@ A successful execution must:
 - define real anti-bias tension for every multi-agent group,
 - keep all load-bearing tension evidence inside the admitted sheet bytes,
 - receive two independent PASS results before confirmation,
-- require exactly one explicit confirmation request on a normal ready proposal and freeze the confirmed sheet,
+- require at most one explicit confirmation request while the material strategy remains unchanged,
+- rerun readiness, tension, and registration integrity checks after every byte change,
+- carry confirmation only with deterministic material-equivalence evidence and reconfirm material or unclassifiable changes,
 - register before spawning working groups,
 - honor blocking and non-blocking dependency semantics,
 - require the type owner's stage-handoff readiness verdict before launching a consuming group,
@@ -178,7 +206,9 @@ Avoid:
 - treating a form-version warning as permission to admit a stale sheet,
 - treating silence, continued discussion, or draft-revision authorization as dispatch confirmation,
 - making a reviewer react to checker findings before preserving the reviewer's independent verdict,
-- editing the frozen sheet without rerunning readiness, both tension checks, and confirmation,
+- editing sheet bytes without rerunning readiness and both tension checks,
+- asking the human to reconfirm a deterministically equivalent material strategy merely because serialization bytes changed,
+- carrying confirmation across a material change or when equivalence is unknown,
 - spawning working agents before deterministic registration,
 - treating an upstream file or return as stage-ready merely because it exists,
 - spending a downstream approval or revision loop on an upstream evidence gap when the declared feedback route can still repair it,
@@ -209,7 +239,7 @@ Return:
 - Subagents: <names or handles, roles, angles, expected outputs>
 - Dependency flow: <sequential, zig-zag, feedback, final approval>
 - Tension gate: <PASS/PASS | revision required | unavailable | not applicable>
-- Human gate: <awaiting confirmation | confirmed/frozen | not applicable>
+- Human gate: <awaiting confirmation | confirmed/materially-bound | carried-by-equivalence | not applicable>
 - Registration: <unregistered | registered with evidence | blocked | not applicable>
 - Execution: <not started | completed | partial | failed | not applicable>
 - Stage handoffs: <ready | needs_feedback with typed gaps, repair owner, edge, and loops remaining | blocked | not applicable>

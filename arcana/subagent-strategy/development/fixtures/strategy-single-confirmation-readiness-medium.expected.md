@@ -14,12 +14,12 @@
 - Subagents: unique eligible identities with differentiated roles, angles, and expected outputs
 - Dependency flow: explorers to synthesis to final approval
 - Tension gate: PASS/PASS from independent sheet-only verdicts on the admitted digest
-- Human gate: awaiting one explicit dispatch confirmation; draft-revision authorization is not confirmation
+- Human gate: awaiting one explicit material-strategy confirmation; draft-revision authorization is not confirmation
 - Registration: unregistered until confirmation; unchanged confirmed digest is immediately admissible
 - Execution: not started
 - Agent closeout: 0 open, 0 joined, 0 failed, 0 closed
 - Ledger closeout: not applicable
 - Result artifacts: schema `0.8.0` persisted sheet and readiness receipt
-- Validation: unpooled approver and companion-only evidence rejected pre-confirmation; pair coverage, pool eligibility, approver shape, sheet-only tension input, and one-request behavior checked
+- Validation: unpooled approver and companion-only evidence rejected pre-confirmation; pair coverage, pool eligibility, approver shape, sheet-only tension input, and one-request-per-material-strategy behavior checked
 - Reflection trigger: severe-gap repaired by targeted update
 - Next human action: confirm the ready sheet once, revise it, or decline
