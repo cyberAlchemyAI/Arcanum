@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -31,6 +32,13 @@ def load_json(path: Path) -> dict[str, Any]:
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def canonical_digest(value: Any) -> str:
+    data = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(data).hexdigest()
 
 
 def exact_ref(root: Path, path: Path) -> dict[str, Any]:
@@ -266,6 +274,210 @@ def scenario(
     elif mutation == "stale-control-digest":
         request["control_refs"][0]["sha256"] = "0" * 64
     write_json(scenario_dir / "request.json", request)
+    return repo
+
+
+def load_module(path: Path, module_name: str) -> Any:
+    specification = importlib.util.spec_from_file_location(module_name, path)
+    if specification is None or specification.loader is None:
+        raise AssertionError(f"cannot load validation helper: {path}")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
+def plan_fast_entry_scenario(
+    root: Path,
+    source_task_session: Path,
+    canonical_task_session: Path,
+    name: str,
+    *,
+    terminal_in_route_scope: bool,
+    terminal_as_directory_scope: bool = False,
+) -> Path:
+    repo = scenario(root, source_task_session, canonical_task_session, name)
+    scenario_dir = repo / "scenario"
+    controls_dir = scenario_dir / "controls"
+    request_path = scenario_dir / "request.json"
+    request = load_json(request_path)
+
+    material_writes = request["execution_contract"]["allowed_writes"]
+    terminal_output = request["closeout_contract"]["terminal_receipt_path"]
+    route_scope = [*material_writes]
+    expected_receipt = terminal_output
+    if terminal_in_route_scope:
+        if terminal_as_directory_scope:
+            terminal_output = "runs/run-1/attempt-receipts/20260808T000000Z-a1.json"
+            expected_receipt = "runs/run-1/attempt-receipts"
+            request["closeout_contract"]["terminal_receipt_path"] = terminal_output
+        route_scope.append(expected_receipt)
+    route = {
+        "route_id": "route-task-session-synthetic-003",
+        "frontier_swu": request["swu_id"],
+        "capability": "task-session",
+        "mode": "execute",
+        "target": f"{request['task_id']}/{request['swu_id']}",
+        "write_scope": route_scope,
+        "effect_class": "repository-local-reversible",
+        "required_inputs": ["synthetic-plan-admission"],
+        "expected_receipt": expected_receipt,
+    }
+    policy = {
+        "schema_version": "1.0.0",
+        "work_pack_id": "WP-TSGR-PLAN-ONCE",
+        "work_pack_semantic_digest": "1" * 64,
+        "frontier": [request["swu_id"]],
+        "allowed_routes": [route],
+        "allowed_routes_digest": canonical_digest([route]),
+        "automatic_decisions": ["internal-tool-selection"],
+        "stop_decisions": ["failed-acceptance-critical-validation"],
+        "validation_commands": ["python3 -m json.tool outputs/artifact.txt"],
+        "scope_source": "exact-work-pack-and-captured-frontier",
+        "validation_policy": "owner-gates-remain-mandatory",
+        "authority_effect": "none",
+    }
+    entry = {
+        "schema_version": "1.0.0",
+        "work_pack_id": policy["work_pack_id"],
+        "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
+        "allowed_routes_digest": policy["allowed_routes_digest"],
+        "entry_state": "task-ready",
+        "selected_unit": request["swu_id"],
+        "route_id": route["route_id"],
+        "next_owner": {
+            "capability": route["capability"],
+            "mode": route["mode"],
+            "target": route["target"],
+        },
+        "blocker_code": None,
+        "authority_effect": "none",
+    }
+    contracts = load_module(
+        repo
+        / "arcanum/spells/implementation-readiness/scripts/execution_contracts.py",
+        f"task_session_plan_contracts_{name.replace('-', '_')}",
+    )
+    binding = contracts.build_execution_intent_binding(
+        policy,
+        entry,
+        source_invocation_id=f"synthetic:{name}",
+        created_at="2026-08-08T00:00:00Z",
+        execution_mode="one-unit",
+    )
+    fast_request = {
+        "schema_version": "1.0.0",
+        "execution_policy": policy,
+        "execution_entry": entry,
+        "execution_binding": binding,
+        "selected_unit": {
+            "work_pack_id": policy["work_pack_id"],
+            "swu_id": request["swu_id"],
+        },
+        "authority_effect": "none",
+    }
+    fast_request_path = scenario_dir / "fast-entry-request.json"
+    write_json(fast_request_path, fast_request)
+    guard = load_module(
+        repo
+        / "arcanum/arcana/task-session/scripts/fast_execution_entry_guard.py",
+        f"task_session_fast_guard_{name.replace('-', '_')}",
+    )
+    fast_receipt_path = scenario_dir / "fast-entry-receipt.json"
+    write_json(fast_receipt_path, guard.classify_fast_entry(fast_request))
+
+    plan_epoch = "epoch-" + "2" * 24
+    unit_digest = "3" * 64
+    selection = {
+        "schemaVersion": "1.0.0",
+        "selectionVerdict": "select",
+        "terminalCode": "SELECTION_READY",
+        "taskId": request["task_id"],
+        "swuId": request["swu_id"],
+        "planEpochId": plan_epoch,
+        "unitContractDigest": unit_digest,
+        "mutationReady": False,
+        "authorityEffect": "none",
+        "selectionIntentSource": "execution-intent-binding",
+        "canonicalSemanticDigest": policy["work_pack_semantic_digest"],
+    }
+    selection_path = controls_dir / "selection.json"
+    write_json(selection_path, selection)
+    selection_ref = exact_ref(repo, selection_path)
+
+    target_baselines = [
+        {"path": path, "state": "absent", "sha256": None, "sizeBytes": None}
+        for path in material_writes
+    ]
+    validation_digest = canonical_digest(
+        request["execution_contract"]["validation_commands"]
+    )
+    admission = {
+        "schemaVersion": "1.2.0",
+        "admissionProfile": "plan-once-selected-unit",
+        "executionMode": "reusable-mutation",
+        "writeProfile": "material-bound",
+        "admissionVerdict": "admit",
+        "mutationReady": True,
+        "taskId": request["task_id"],
+        "swuId": request["swu_id"],
+        "requestDigest": "4" * 64,
+        "producerSchemaDigest": "5" * 64,
+        "materialReceiptDigest": "6" * 64,
+        "materialPackageDigest": "7" * 64,
+        "controllingPaths": ["scenario/TASK.md"],
+        "dependencyIds": [],
+        "materialWrites": material_writes,
+        "executionOutputs": [terminal_output],
+        "allowedWrites": [*material_writes, terminal_output],
+        "validationCommands": ["validate-artifact"],
+        "lifecycleOwner": "task-session",
+        "authorityClass": "public",
+        "publicationClass": "internal",
+        "planEpochId": plan_epoch,
+        "unitContractDigest": unit_digest,
+        "attemptId": request["run_id"],
+        "planManifestDigest": "8" * 64,
+        "selectionReceiptDigest": selection_ref["sha256"],
+        "targetBaselineDigest": canonical_digest(target_baselines),
+        "targetBaselines": target_baselines,
+        "validationContractDigest": validation_digest,
+        "admissionToken": "9" * 64,
+        "singleUse": True,
+        "liveValidationRequired": True,
+        "reasons": [],
+    }
+    admission_path = controls_dir / "admission.json"
+    write_json(admission_path, admission)
+    admission_ref = exact_ref(repo, admission_path)
+    evaluation_path = controls_dir / "evaluation.json"
+    preflight_path = controls_dir / "preflight.json"
+    request["control_refs"] = [
+        exact_ref(repo, evaluation_path),
+        admission_ref,
+        exact_ref(repo, preflight_path),
+        selection_ref,
+    ]
+    request["entry_profile"] = "work-pack-fast-entry"
+    request["fast_execution_entry"] = {
+        "request_ref": exact_ref(repo, fast_request_path),
+        "receipt_ref": exact_ref(repo, fast_receipt_path),
+    }
+    request["admission_profile"] = "plan-once-selected-unit"
+    request["plan_admission"] = {
+        "plan_epoch_id": plan_epoch,
+        "unit_contract_digest": unit_digest,
+        "attempt_id": request["run_id"],
+        "selection_receipt_ref": selection_ref,
+        "mutation_admission_receipt_ref": admission_ref,
+        "admission_token": admission["admissionToken"],
+        "target_baseline_digest": admission["targetBaselineDigest"],
+        "validation_contract_digest": validation_digest,
+        "consumption_ledger_path": (
+            "scenario/controls/.admission-consumption/"
+            f"{admission_ref['sha256']}.json"
+        ),
+    }
+    write_json(request_path, request)
     return repo
 
 
@@ -711,6 +923,80 @@ def main() -> int:
                 and before_status == after_status
                 and not stderr,
                 f"code={code} stable={before_status == after_status}",
+            )
+        )
+
+        partitioned = plan_fast_entry_scenario(
+            temporary,
+            source_task_session,
+            canonical_task_session,
+            "plan-fast-entry-route-scope-partition",
+            terminal_in_route_scope=True,
+        )
+        code, payload, stderr = invoke(
+            runner_command(
+                partitioned, "prepare", request="scenario/request.json"
+            )
+        )
+        partition_run_dir = partitioned / "runs/run-1"
+        partition_files = {
+            path.relative_to(partition_run_dir).as_posix()
+            for path in partition_run_dir.rglob("*")
+            if path.is_file()
+        }
+        results.append(
+            (
+                "prepare-plan-fast-entry-route-scope-partition",
+                code == 0
+                and payload.get("result") == "pass"
+                and payload.get("current_phase") == "ticketed"
+                and payload.get("entry_profile") == "work-pack-fast-entry"
+                and len(partition_files) == 5
+                and not stderr,
+                f"code={code} phase={payload.get('current_phase')} "
+                f"files={len(partition_files)}",
+            )
+        )
+
+        attempt_scope = plan_fast_entry_scenario(
+            temporary,
+            source_task_session,
+            canonical_task_session,
+            "plan-fast-entry-attempt-receipt-directory-scope",
+            terminal_in_route_scope=True,
+            terminal_as_directory_scope=True,
+        )
+        code, payload, stderr = invoke(
+            runner_command(attempt_scope, "prepare", request="scenario/request.json")
+        )
+        results.append(
+            (
+                "prepare-plan-fast-entry-attempt-receipt-directory-scope",
+                code == 0
+                and payload.get("result") == "pass"
+                and payload.get("current_phase") == "ticketed"
+                and payload.get("entry_profile") == "work-pack-fast-entry"
+                and not stderr,
+                f"code={code} phase={payload.get('current_phase')}",
+            )
+        )
+
+        terminal_escape = plan_fast_entry_scenario(
+            temporary,
+            source_task_session,
+            canonical_task_session,
+            "plan-fast-entry-terminal-outside-route",
+            terminal_in_route_scope=False,
+        )
+        passed, details = assert_block_before_write(
+            terminal_escape,
+            "prepare-plan-fast-entry-terminal-outside-route-blocks-before-write",
+        )
+        results.append(
+            (
+                "prepare-plan-fast-entry-terminal-outside-route-blocks-before-write",
+                passed,
+                details,
             )
         )
 

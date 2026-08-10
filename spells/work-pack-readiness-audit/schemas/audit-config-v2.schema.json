@@ -77,7 +77,9 @@
       ],
       "properties": {
         "terminal_schema_ref": {"$ref": "#/$defs/nullableBindingRef"},
-        "semantic_validator_ref": {"$ref": "#/$defs/nullableBindingRef"},
+        "semantic_validator_ref": {
+          "$ref": "#/$defs/nullableSemanticValidatorBindingRef"
+        },
         "expected_receipt_refs": {
           "type": "array",
           "minItems": 1,
@@ -319,6 +321,24 @@
     "nullableBindingRef": {
       "oneOf": [
         {"$ref": "#/$defs/bindingRef"},
+        {"type": "null"}
+      ]
+    },
+    "opaqueExactArtifactBindingRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_id", "owner_ref", "binding_mode", "artifact_ref"],
+      "properties": {
+        "binding_id": {"type": "string", "minLength": 1},
+        "owner_ref": {"type": "string", "minLength": 1},
+        "binding_mode": {"const": "opaque-exact-artifact"},
+        "artifact_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "nullableSemanticValidatorBindingRef": {
+      "oneOf": [
+        {"$ref": "#/$defs/bindingRef"},
+        {"$ref": "#/$defs/opaqueExactArtifactBindingRef"},
         {"type": "null"}
       ]
     },

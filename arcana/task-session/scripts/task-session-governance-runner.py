@@ -385,19 +385,20 @@ def fast_execution_entry_contract(
     binding = guard_request["execution_binding"]
     route = binding["current_route"]
     selected = guard_request["selected_unit"]
+    entry_pair = (receipt.get("code"), receipt.get("entry_state"))
     expected = (
         receipt.get("decision") == "proceed"
-        and receipt.get("code") == "TASK_READY"
+        and entry_pair
+        in {("CONTEXT_READY", "context-ready"), ("TASK_READY", "task-ready")}
         and receipt.get("permitted_next_action") == "enter-context-builder"
-        and receipt.get("entry_state") == "task-ready"
         and receipt.get("authorization_source") == "work-pack-binding"
         and receipt.get("authorization_prompt_required") is False
         and receipt.get("mutation_count") == 0
         and receipt.get("phase_trace", {}).get("owner_hops_dispatched") == 0
         and receipt.get("authority_effect") == "none"
         and guard_request["execution_policy"]["work_pack_id"]
-        == request["work_pack_ref"]["path"]
-        and selected["work_pack_id"] == request["work_pack_ref"]["path"]
+        == selected["work_pack_id"]
+        and binding["work_pack_id"] == selected["work_pack_id"]
         and selected["swu_id"] == request["swu_id"]
         and guard_request["execution_entry"]["selected_unit"] == request["swu_id"]
         and binding["selected_unit"] == request["swu_id"]
@@ -406,10 +407,16 @@ def fast_execution_entry_contract(
         and route["capability"] == "task-session"
         and route["mode"] == "execute"
         and execution_writes_fit_route_scope(
-            route["write_scope"], request["execution_contract"]["allowed_writes"]
+            route["write_scope"],
+            [
+                *request["execution_contract"]["allowed_writes"],
+                request["closeout_contract"]["terminal_receipt_path"],
+            ],
         )
-        and route["expected_receipt"]
-        == request["closeout_contract"]["terminal_receipt_path"]
+        and execution_writes_fit_route_scope(
+            [route["expected_receipt"]],
+            [request["closeout_contract"]["terminal_receipt_path"]],
+        )
     )
     if not expected:
         raise RunnerBlock(
@@ -495,16 +502,38 @@ def plan_admission_contract(
         allowed_writes = sorted(admission.get("allowedWrites", []))
         requested_writes = sorted(request["execution_contract"]["allowed_writes"])
         terminal_output = request["closeout_contract"]["terminal_receipt_path"]
-        if material_writes != requested_writes:
-            raise RunnerBlock(
-                "fast-entry execution writes differ from plan material admission"
-            )
-        if execution_outputs != [terminal_output]:
-            raise RunnerBlock(
-                "fast-entry terminal output differs from plan execution admission"
-            )
-        if allowed_writes != sorted(material_writes + execution_outputs):
-            raise RunnerBlock("fast-entry plan admission write closure is inconsistent")
+        if admission.get("writeProfile") == "material-bound":
+            if material_writes != requested_writes:
+                raise RunnerBlock(
+                    "fast-entry execution writes differ from plan material admission"
+                )
+            if execution_outputs != [terminal_output]:
+                raise RunnerBlock(
+                    "fast-entry terminal output differs from plan execution admission"
+                )
+            if allowed_writes != sorted(material_writes + execution_outputs):
+                raise RunnerBlock(
+                    "fast-entry plan admission write closure is inconsistent"
+                )
+        elif admission.get("writeProfile") == "execution-output-only":
+            if terminal_output in requested_writes:
+                raise RunnerBlock(
+                    "fast-entry output-only plan admission duplicates the terminal receipt"
+                )
+            if material_writes != []:
+                raise RunnerBlock(
+                    "fast-entry output-only plan admission declares material writes"
+                )
+            if execution_outputs != requested_writes:
+                raise RunnerBlock(
+                    "fast-entry execution outputs differ from output-only plan admission"
+                )
+            if allowed_writes != requested_writes:
+                raise RunnerBlock(
+                    "fast-entry output-only plan admission write closure is inconsistent"
+                )
+        else:
+            raise RunnerBlock("fast-entry plan admission write profile is invalid")
         if admission.get("selectionReceiptDigest") != plan[
             "selection_receipt_ref"
         ]["sha256"]:
@@ -1140,7 +1169,7 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         if request["swu_id"].encode("utf-8") not in swu_bytes:
             raise RunnerBlock("resumed SWU contract does not name requested SWU")
     elif fast_entry is not None:
-        # The exact TASK_READY receipt replaces only the legacy prose selector.
+        # The exact ready-entry receipt replaces only the legacy prose selector.
         # Work Pack/SWU identity, governance controls, plan admission, baselines,
         # and atomic single-use consumption remain mandatory.
         read_exact_bytes(repo_root, request["work_pack_ref"], "work pack")

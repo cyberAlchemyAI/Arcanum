@@ -168,7 +168,9 @@ class PlanOnceGovernanceTests(unittest.TestCase):
         return request, request_path
 
     def activate_fast_profile(
-        self, route_write_scope: list[str] | None = None
+        self,
+        route_write_scope: list[str] | None = None,
+        entry_state: str = "task-ready",
     ) -> tuple[dict, Path]:
         request, request_path = self.activate_profile()
         work_pack_path = self.repo / request["work_pack_ref"]["path"]
@@ -180,6 +182,12 @@ class PlanOnceGovernanceTests(unittest.TestCase):
         )
         request["work_pack_ref"] = HARNESS.exact_ref(self.repo, work_pack_path)
 
+        terminal_output = request["closeout_contract"]["terminal_receipt_path"]
+        route_scope = (
+            request["execution_contract"]["allowed_writes"]
+            if route_write_scope is None
+            else route_write_scope
+        )
         routes = [
             {
                 "route_id": "route-task",
@@ -187,11 +195,7 @@ class PlanOnceGovernanceTests(unittest.TestCase):
                 "capability": "task-session",
                 "mode": "execute",
                 "target": request["swu_id"],
-                "write_scope": (
-                    request["execution_contract"]["allowed_writes"]
-                    if route_write_scope is None
-                    else route_write_scope
-                ),
+                "write_scope": [*route_scope, terminal_output],
                 "effect_class": "repository-local-reversible",
                 "required_inputs": ["plan-manifest", "selection-receipt"],
                 "expected_receipt": request["closeout_contract"][
@@ -201,7 +205,7 @@ class PlanOnceGovernanceTests(unittest.TestCase):
         ]
         policy = {
             "schema_version": "1.0.0",
-            "work_pack_id": request["work_pack_ref"]["path"],
+            "work_pack_id": "WP-PLAN-ONCE-FAST-ENTRY",
             "work_pack_semantic_digest": canonical_digest(
                 {"work_pack": "synthetic-fast-entry"}
             ),
@@ -226,7 +230,7 @@ class PlanOnceGovernanceTests(unittest.TestCase):
             "work_pack_id": policy["work_pack_id"],
             "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
             "allowed_routes_digest": policy["allowed_routes_digest"],
-            "entry_state": "task-ready",
+            "entry_state": entry_state,
             "selected_unit": request["swu_id"],
             "route_id": "route-task",
             "next_owner": {
@@ -341,6 +345,40 @@ class PlanOnceGovernanceTests(unittest.TestCase):
         HARNESS.write_json(request_path, request)
         return request, request_path
 
+    def activate_output_only_fast_profile(self) -> tuple[dict, Path]:
+        request, request_path = self.activate_fast_profile()
+        admission_path = self.repo / request["plan_admission"][
+            "mutation_admission_receipt_ref"
+        ]["path"]
+        admission = HARNESS.load_json(admission_path)
+        output_paths = request["execution_contract"]["allowed_writes"]
+        admission.update(
+            {
+                "writeProfile": "execution-output-only",
+                "producerSchemaDigest": None,
+                "materialReceiptDigest": None,
+                "materialPackageDigest": None,
+                "materialWrites": [],
+                "executionOutputs": output_paths,
+                "allowedWrites": output_paths,
+            }
+        )
+        HARNESS.write_json(admission_path, admission)
+        admission_ref = HARNESS.exact_ref(self.repo, admission_path)
+        request["control_refs"] = [
+            admission_ref
+            if reference["path"] == admission_ref["path"]
+            else reference
+            for reference in request["control_refs"]
+        ]
+        request["plan_admission"]["mutation_admission_receipt_ref"] = admission_ref
+        request["plan_admission"]["consumption_ledger_path"] = (
+            "scenario/controls/.admission-consumption/"
+            f"{admission_ref['sha256']}.json"
+        )
+        HARNESS.write_json(request_path, request)
+        return request, request_path
+
     def test_ticket_binds_admission_and_atomic_consumption_blocks_second_run(self) -> None:
         request, request_path = self.activate_profile()
         code, prepared = run(
@@ -411,6 +449,55 @@ class PlanOnceGovernanceTests(unittest.TestCase):
         self.assertEqual(code, 0, joined)
         ledger = self.repo / request["plan_admission"]["consumption_ledger_path"]
         self.assertTrue(ledger.is_file())
+
+    def test_context_entry_runs_full_plan_once_admission_before_mutation(self) -> None:
+        request, _ = self.activate_fast_profile(entry_state="context-ready")
+        code, prepared = run(
+            self.repo, "prepare", "scenario/request.json", "runs/run-1"
+        )
+        self.assertEqual(code, 0, prepared)
+        self.assertEqual(prepared["entry_profile"], "work-pack-fast-entry")
+        ticket = HARNESS.load_json(self.repo / "runs/run-1/execution-ticket.json")
+        self.assertEqual(ticket["admission_profile"], "plan-once-selected-unit")
+        self.assertEqual(
+            ticket["plan_admission"]["mutation_admission_receipt_ref"],
+            request["plan_admission"]["mutation_admission_receipt_ref"],
+        )
+        code, joined = run(
+            self.repo, "executor-join", "scenario/request.json", "runs/run-1"
+        )
+        self.assertEqual(code, 0, joined)
+        ledger = self.repo / request["plan_admission"]["consumption_ledger_path"]
+        self.assertTrue(ledger.is_file())
+
+    def test_fast_entry_output_only_binds_and_consumes_plan_once(self) -> None:
+        request, _ = self.activate_output_only_fast_profile()
+        code, prepared = run(
+            self.repo, "prepare", "scenario/request.json", "runs/run-1"
+        )
+        self.assertEqual(code, 0, prepared)
+        ticket = HARNESS.load_json(self.repo / "runs/run-1/execution-ticket.json")
+        self.assertEqual(ticket["entry_profile"], "work-pack-fast-entry")
+        self.assertEqual(ticket["admission_profile"], "plan-once-selected-unit")
+        code, joined = run(
+            self.repo, "executor-join", "scenario/request.json", "runs/run-1"
+        )
+        self.assertEqual(code, 0, joined)
+        ledger = self.repo / request["plan_admission"]["consumption_ledger_path"]
+        self.assertTrue(ledger.is_file())
+
+    def test_fast_entry_output_only_rejects_terminal_receipt_partition(self) -> None:
+        request, request_path = self.activate_output_only_fast_profile()
+        request["execution_contract"]["allowed_writes"].append(
+            request["closeout_contract"]["terminal_receipt_path"]
+        )
+        HARNESS.write_json(request_path, request)
+        code, blocked = run(
+            self.repo, "prepare", "scenario/request.json", "runs/run-1"
+        )
+        self.assertEqual(code, 2, blocked)
+        self.assertIn("duplicates the terminal receipt", " ".join(blocked["diagnostics"]))
+        self.assertFalse((self.repo / "runs/run-1").exists())
 
     def test_fast_entry_narrows_directory_route_scope_to_exact_material_file(self) -> None:
         request, _ = self.activate_fast_profile(route_write_scope=["outputs"])

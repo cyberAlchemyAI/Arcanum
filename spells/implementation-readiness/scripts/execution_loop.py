@@ -472,7 +472,7 @@ def decide_next_action(
         state["pending_action_id"] = action["action_id"]
         state["pending_retry"] = None
         return state, action
-    if entry_state == "task-ready":
+    if entry_state in {"context-ready", "task-ready"}:
         session_seed = {
             "loop_id": state["loop_id"],
             "selected_unit": selected_unit,

@@ -114,8 +114,60 @@ def binding_payload(binding: dict[str, Any] | None, repository_root: Path) -> An
     }
 
 
+def opaque_artifact_binding_payload(binding: dict[str, Any]) -> dict[str, Any]:
+    """Normalize one non-JSON exact artifact without reading its contents."""
+
+    if binding.get("binding_mode") != "opaque-exact-artifact":
+        raise PlanSemanticError(
+            "unsupported binding mode: "
+            f"{binding.get('binding_mode', '<missing>')}"
+        )
+    reference = binding.get("artifact_ref")
+    if not isinstance(reference, dict):
+        raise PlanSemanticError(
+            f"binding {binding.get('binding_id', '<unknown>')} lacks an artifact ref"
+        )
+    required = {"path", "sha256", "size_bytes"}
+    if set(reference) != required:
+        raise PlanSemanticError(
+            f"binding {binding.get('binding_id', '<unknown>')} has an invalid exact artifact ref"
+        )
+    if not isinstance(reference["path"], str):
+        raise PlanSemanticError(
+            f"binding {binding.get('binding_id', '<unknown>')} has a non-string artifact path"
+        )
+    if not isinstance(reference["sha256"], str) or len(reference["sha256"]) != 64:
+        raise PlanSemanticError(
+            f"binding {binding.get('binding_id', '<unknown>')} has an invalid artifact digest"
+        )
+    if not isinstance(reference["size_bytes"], int) or isinstance(
+        reference["size_bytes"], bool
+    ) or reference["size_bytes"] < 0:
+        raise PlanSemanticError(
+            f"binding {binding.get('binding_id', '<unknown>')} has an invalid artifact size"
+        )
+    return {
+        "binding_id": binding["binding_id"],
+        "owner_ref": binding["owner_ref"],
+        "binding_mode": "opaque-exact-artifact",
+        "artifact_ref": {
+            "path": reference["path"],
+            "sha256": reference["sha256"],
+            "size_bytes": reference["size_bytes"],
+        },
+    }
+
+
 def _normalized_binding_tree(value: Any, repository_root: Path) -> Any:
     if isinstance(value, dict):
+        binding_shape = {"binding_id", "owner_ref", "artifact_ref"}
+        if binding_shape <= set(value):
+            if "binding_mode" in value:
+                return opaque_artifact_binding_payload(value)
+            if "selector" not in value:
+                raise PlanSemanticError(
+                    f"binding {value.get('binding_id', '<unknown>')} lacks a selector"
+                )
         if {"binding_id", "owner_ref", "artifact_ref", "selector"} <= set(value):
             return binding_payload(value, repository_root)
         return {
@@ -133,7 +185,8 @@ def _assert_unique_binding_ids(config: dict[str, Any]) -> None:
 
     def visit(value: Any) -> None:
         if isinstance(value, dict):
-            if {"binding_id", "owner_ref", "artifact_ref", "selector"} <= set(value):
+            binding_shape = {"binding_id", "owner_ref", "artifact_ref"}
+            if binding_shape <= set(value):
                 binding_id = value["binding_id"]
                 if binding_id in observed:
                     raise PlanSemanticError(f"duplicate binding id: {binding_id}")

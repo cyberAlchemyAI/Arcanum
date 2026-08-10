@@ -123,6 +123,73 @@ class ChainFixture:
             },
         }
 
+    def v2_config(self) -> dict[str, object]:
+        frontier = ["U1", "U2"]
+        routes = []
+        for unit_id in frontier:
+            routes.extend(
+                [
+                    {
+                        "route_id": f"task-session-{unit_id}",
+                        "frontier_swu": unit_id,
+                        "capability": "task-session",
+                        "mode": "execute",
+                        "target": unit_id,
+                        "write_scope": [f"product/{unit_id}"],
+                        "effect_class": "repository-local-reversible",
+                        "required_inputs": [f"contract/{unit_id}"],
+                        "expected_receipt": f"receipt/{unit_id}",
+                    },
+                    {
+                        "route_id": f"closeout-{unit_id}",
+                        "frontier_swu": unit_id,
+                        "capability": "invoke",
+                        "mode": "refresh-apply-approved",
+                        "target": f"{unit_id}-closeout",
+                        "write_scope": [f"plan/{unit_id}"],
+                        "effect_class": "repository-local-reversible",
+                        "required_inputs": [f"receipt/{unit_id}"],
+                        "expected_receipt": f"closeout/{unit_id}",
+                    },
+                ]
+            )
+        manifest = {
+            "manifest_id": f"psm-{self.projection_digest[:24]}",
+            "plan_epoch_id": self.epoch_id,
+            "canonical_semantic_digest": self.semantic_digest,
+            "source_snapshot_digest": self.snapshot_digest,
+            "ready_frontier": frontier,
+            "completion_continuity": {
+                "plan_epoch_id": self.epoch_id,
+                "work_pack_semantic_digest": self.semantic_digest,
+                "next_unit": "U1",
+                "authority_effect": "none",
+            },
+            "allowed_routes": routes,
+            "allowed_routes_digest": CHAIN.digest(routes),
+            "authority_effect": "none",
+            "mutation_ready": False,
+            "selected_unit": None,
+        }
+        (self.root / "manifest-v2.json").write_text(
+            json.dumps(manifest, sort_keys=True), encoding="utf-8"
+        )
+        report = {
+            "verdict": "pass",
+            "flags": [],
+            "audit_projection_digest": self.projection_digest,
+            "canonical_semantic_digest": self.semantic_digest,
+            "source_snapshot": {"digest": self.snapshot_digest},
+            "manifest": manifest,
+        }
+        (self.root / "report-v2.json").write_text(
+            json.dumps(report, sort_keys=True), encoding="utf-8"
+        )
+        config = self.config()
+        config["manifest_ref"] = self.exact("manifest-v2.json")
+        config["audit_report_ref"] = self.exact("report-v2.json")
+        return config
+
     def transition(
         self,
         selector: str = "U1",
@@ -331,6 +398,30 @@ class ApprovedEpochChainTests(unittest.TestCase):
             receipt["terminal_code"], "COMPENSATION_OWNER_ROUTE_REQUIRED"
         )
         self.assertEqual(receipt["next_route"], "recovery-owner")
+        self.assertIsNone(receipt["next_task_session_selector"])
+
+    def test_v2_manifest_binds_the_exact_report_and_routes(self) -> None:
+        config = self.fixture.v2_config()
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNotNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "CHAIN_PREFLIGHT_READY")
+        self.assertEqual(receipt["next_task_session_selector"], "U1")
+        self.assertEqual(manifest["execution_bindings"][0]["command"]["risk_class"], "bounded-write")
+
+    def test_v2_manifest_missing_closeout_route_blocks(self) -> None:
+        config = self.fixture.v2_config()
+        manifest_path = self.fixture.root / "manifest-v2.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["allowed_routes"] = [
+            route
+            for route in manifest["allowed_routes"]
+            if route["route_id"] != "closeout-U2"
+        ]
+        manifest["allowed_routes_digest"] = CHAIN.digest(manifest["allowed_routes"])
+        manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+        config["manifest_ref"] = self.fixture.exact("manifest-v2.json")
+        _, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
         self.assertIsNone(receipt["next_task_session_selector"])
 
 

@@ -265,17 +265,20 @@ def validate_execution_entry(
             raise ExecutionContractError(
                 "ENTRY_ROUTE_CONTRADICTION", "owner differs from route"
             )
-    elif state == "task-ready":
+    elif state in {"context-ready", "task-ready"}:
         if selected is None or route_id not in routes or blocker is not None:
-            raise ExecutionContractError("ENTRY_ROUTE_CONTRADICTION", "task-ready route")
+            raise ExecutionContractError(
+                "ENTRY_ROUTE_CONTRADICTION", f"{state} route"
+            )
         route = routes[route_id]
         if route["frontier_swu"] != selected:
             raise ExecutionContractError(
-                "ENTRY_ROUTE_CONTRADICTION", "task route frontier differs"
+                "ENTRY_ROUTE_CONTRADICTION", f"{state} route frontier differs"
             )
         if route["capability"] != "task-session" or owner != _owner_for_route(route):
             raise ExecutionContractError(
-                "ENTRY_ROUTE_CONTRADICTION", "task-ready must name Task Session route"
+                "ENTRY_ROUTE_CONTRADICTION",
+                f"{state} must name Task Session route",
             )
     elif state == "blocked":
         if blocker is None or route_id is not None:

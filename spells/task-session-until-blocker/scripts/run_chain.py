@@ -103,6 +103,132 @@ def block(code: str, claim: str, *, next_route: str | None = None) -> dict[str, 
     }
 
 
+def normalize_plan_semantic_manifest(
+    manifest: dict[str, Any],
+    config: dict[str, Any],
+    audit_report: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Adapt a WPRA v2 manifest without weakening its frozen bindings."""
+    if "epoch_binding" in manifest:
+        return manifest
+
+    required = {
+        "manifest_id",
+        "plan_epoch_id",
+        "canonical_semantic_digest",
+        "source_snapshot_digest",
+        "ready_frontier",
+        "completion_continuity",
+        "allowed_routes",
+        "allowed_routes_digest",
+    }
+    missing = sorted(name for name in required if name not in manifest)
+    if missing:
+        raise ValueError(f"WPRA v2 manifest missing: {', '.join(missing)}")
+    if audit_report is None:
+        raise ValueError("WPRA v2 manifest requires an exact audit report reference")
+
+    approved = config["approved_epoch"]
+    report_snapshot = audit_report.get("source_snapshot")
+    report_checks = {
+        "verdict": config["audit_verdict"],
+        "flags": config["audit_flags"],
+        "audit_projection_digest": approved["audit_projection_digest"],
+        "canonical_semantic_digest": approved["canonical_semantic_digest"],
+    }
+    mismatches = [
+        name for name, expected in report_checks.items()
+        if audit_report.get(name) != expected
+    ]
+    if (
+        not isinstance(report_snapshot, dict)
+        or report_snapshot.get("digest") != approved["source_snapshot_digest"]
+    ):
+        mismatches.append("source_snapshot_digest")
+    if audit_report.get("manifest") != manifest:
+        mismatches.append("manifest")
+    if mismatches:
+        raise ValueError(
+            "WPRA v2 audit report differs from approved epoch: "
+            + ", ".join(mismatches)
+        )
+    if manifest["manifest_id"] != f"psm-{approved['audit_projection_digest'][:24]}":
+        raise ValueError("WPRA v2 manifest id does not bind the audit projection")
+
+    frontier = manifest["ready_frontier"]
+    if (
+        not isinstance(frontier, list)
+        or not frontier
+        or any(not isinstance(unit, str) or not unit for unit in frontier)
+        or len(frontier) != len(set(frontier))
+    ):
+        raise ValueError("WPRA v2 ready frontier is not a unique non-empty sequence")
+    continuity = manifest["completion_continuity"]
+    if not isinstance(continuity, dict) or (
+        continuity.get("plan_epoch_id") != manifest["plan_epoch_id"]
+        or continuity.get("work_pack_semantic_digest")
+        != manifest["canonical_semantic_digest"]
+        or continuity.get("next_unit") != frontier[0]
+        or continuity.get("authority_effect") != "none"
+    ):
+        raise ValueError("WPRA v2 continuity binding is invalid")
+    if digest(manifest["allowed_routes"]) != manifest["allowed_routes_digest"]:
+        raise ValueError("WPRA v2 allowed routes digest mismatch")
+
+    task_routes: dict[str, dict[str, Any]] = {}
+    closeout_routes: dict[str, dict[str, Any]] = {}
+    for route in manifest["allowed_routes"]:
+        if not isinstance(route, dict):
+            raise ValueError("WPRA v2 allowed route is not an object")
+        unit_id = route.get("frontier_swu")
+        if unit_id not in frontier:
+            raise ValueError("WPRA v2 allowed route is outside the ready frontier")
+        if route.get("effect_class") != "repository-local-reversible":
+            raise ValueError("WPRA v2 allowed route has an unsafe effect class")
+        if route.get("capability") == "task-session":
+            if (
+                route.get("mode") != "execute"
+                or route.get("target") != unit_id
+                or unit_id in task_routes
+            ):
+                raise ValueError("WPRA v2 Task Session route is ambiguous or invalid")
+            task_routes[unit_id] = route
+        elif route.get("capability") == "invoke":
+            if (
+                route.get("mode") != "refresh-apply-approved"
+                or route.get("target") != f"{unit_id}-closeout"
+                or unit_id in closeout_routes
+            ):
+                raise ValueError("WPRA v2 closeout route is ambiguous or invalid")
+            closeout_routes[unit_id] = route
+        else:
+            raise ValueError("WPRA v2 allowed route has an unsupported capability")
+    if set(task_routes) != set(frontier) or set(closeout_routes) != set(frontier):
+        raise ValueError("WPRA v2 routes do not cover the ready frontier exactly")
+
+    normalized = dict(manifest)
+    normalized["epoch_binding"] = {
+        "epoch_id": manifest["plan_epoch_id"],
+        "audit_projection_digest": approved["audit_projection_digest"],
+        "canonical_semantic_digest": manifest["canonical_semantic_digest"],
+        "source_snapshot_digest": manifest["source_snapshot_digest"],
+    }
+    normalized["canonical_plan_graph"] = {"finite_frontier": frontier}
+    normalized["execution_bindings"] = [
+        {
+            "unit_id": unit_id,
+            # WPRA v2 permits only repository-local reversible Task Session routes.
+            "command": {"risk_class": "bounded-write"},
+        }
+        for unit_id in frontier
+    ]
+    # V2 binds Invoke's expected receipt path but not a static exact contract
+    # digest. PASS closeouts remain supported; NO_OP continues to block unless a
+    # future v2 manifest adds an exact closeout-contract binding.
+    normalized["closeout_bindings"] = []
+    return normalized
+
+
 def preflight(
     config: dict[str, Any], repository_root: Path
 ) -> tuple[dict[str, Any] | None, dict[str, Any]]:
@@ -113,8 +239,17 @@ def preflight(
             config["approved_epoch"]["decision_gate_approval_receipt_ref"],
         )
         manifest = load_json(manifest_path)
+        audit_report = None
+        if "audit_report_ref" in config:
+            audit_report = load_json(
+                verify_exact_ref(repository_root, config["audit_report_ref"])
+            )
     except (OSError, ValueError, json.JSONDecodeError) as error:
         return None, block("FROZEN_INPUT_MISMATCH", str(error))
+    try:
+        manifest = normalize_plan_semantic_manifest(manifest, config, audit_report)
+    except ValueError as error:
+        return None, block("MANIFEST_SHAPE_INVALID", str(error))
 
     if (
         manifest.get("authority_effect") != "none"

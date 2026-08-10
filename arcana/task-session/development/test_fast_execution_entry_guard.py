@@ -93,7 +93,7 @@ def base_policy() -> dict:
 
 
 def entry(policy: dict, state: str) -> dict:
-    if state == "task-ready":
+    if state in {"context-ready", "task-ready"}:
         route_id = "route-task"
         owner = {
             "capability": "task-session",
@@ -189,6 +189,13 @@ def main() -> int:
     assert task_ready["decision"] == "proceed"
     assert task_ready["permitted_next_action"] == "enter-context-builder"
     print("PASS: task-ready -> proceed to existing Context Builder path")
+
+    context_ready = classify_fast_entry(request("context-ready"))
+    assert_fast_boundary(context_ready)
+    assert context_ready["decision"] == "proceed"
+    assert context_ready["code"] == "CONTEXT_READY"
+    assert context_ready["permitted_next_action"] == "enter-context-builder"
+    print("PASS: context-ready -> enter Context Builder without mutation authority")
 
     owner_request = request("owner-prerequisite")
     owner = classify_fast_entry(owner_request)
@@ -299,7 +306,7 @@ def main() -> int:
             shutil.copy2(readiness_source / relative, target)
         input_path = root / "request.json"
         input_path.write_text(
-            json.dumps(request("task-ready"), indent=2, sort_keys=True) + "\n",
+            json.dumps(request("context-ready"), indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         completed = subprocess.run(
@@ -319,7 +326,7 @@ def main() -> int:
             )
         generated_receipt = json.loads(completed.stdout)
         assert generated_receipt["decision"] == "proceed"
-        assert generated_receipt["code"] == "TASK_READY"
+        assert generated_receipt["code"] == "CONTEXT_READY"
     print("PASS: generated skill layout resolves implementation-readiness sibling")
 
     print("FAST_EXECUTION_ENTRY_GUARD=pass")

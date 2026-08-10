@@ -243,14 +243,16 @@ class WorkPackExecutionIntegrationTests(unittest.TestCase):
                 report,
                 selection_binding,
             )
-            task_entry = READINESS.compile_plan_once_task_entry(
+            context_entry = READINESS.compile_plan_once_context_entry(
                 policy,
                 config,
                 report,
                 selection,
-                admission,
                 selection_binding,
             )
+            self.assertEqual(context_entry["entry_state"], "context-ready")
+            self.assertFalse(selection["mutationReady"])
+            self.assertTrue(admission["mutationReady"])
             state = OUTER.join_event(
                 state,
                 policy,
@@ -259,9 +261,25 @@ class WorkPackExecutionIntegrationTests(unittest.TestCase):
                     state,
                     event_type="selection-materialized",
                     result="pass",
-                    next_entry=task_entry,
+                    next_entry=context_entry,
                 ),
             )
+            fast_entry = FAST_GUARD.classify_fast_entry(
+                {
+                    "schema_version": "1.0.0",
+                    "execution_policy": policy,
+                    "execution_entry": state["current_entry"],
+                    "execution_binding": state["current_binding"],
+                    "selected_unit": {
+                        "work_pack_id": policy["work_pack_id"],
+                        "swu_id": context_entry["selected_unit"],
+                    },
+                    "authority_effect": "none",
+                }
+            )
+            self.assertEqual(fast_entry["decision"], "proceed")
+            self.assertEqual(fast_entry["code"], "CONTEXT_READY")
+            self.assertEqual(fast_entry["mutation_count"], 0)
             task_route = state["current_binding"]["current_route"]
             state, task_action = OUTER.decide_next_action(
                 state,

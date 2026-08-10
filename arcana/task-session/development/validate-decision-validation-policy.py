@@ -198,8 +198,8 @@ def validate_contracts(repo_root: Path, canonical_dir: Path) -> list[str]:
     for clause in forbidden_clauses:
         if clause in canonical_body:
             errors.append(f"canonical contract retains forbidden clause: {clause}")
-    if "version: 0.8.1" not in canonical_frontmatter:
-        errors.append("canonical contract version is not 0.8.1")
+    if "version: 0.8.2" not in canonical_frontmatter:
+        errors.append("canonical contract version is not 0.8.2")
 
     support_paths = (
         Path("README.md"),

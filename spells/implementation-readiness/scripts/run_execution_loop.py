@@ -10,6 +10,7 @@ from pathlib import Path
 
 from execution_loop import decide_next_action, initialize_outer_loop, join_event, set_stop_decision
 from readiness_execution import (
+    compile_plan_once_context_entry,
     compile_plan_once_task_entry,
     decide_task_session_with_fresh_resume,
     initialize_from_readiness,
@@ -45,6 +46,16 @@ def main() -> int:
             step_budget=request["step_budget"],
         )
         result = {"policy": policy, "state": state}
+    elif operation == "selection-context-entry":
+        result = {
+            "entry": compile_plan_once_context_entry(
+                request["policy"],
+                request["audit_config"],
+                request["audit_report"],
+                request["selection_receipt"],
+                request["execution_binding"],
+            )
+        }
     elif operation == "selection-entry":
         result = {
             "entry": compile_plan_once_task_entry(

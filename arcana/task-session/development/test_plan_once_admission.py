@@ -344,6 +344,51 @@ class PlanOnceAdmissionTests(unittest.TestCase):
         self.assertEqual([error.message for error in errors], [])
         return result
 
+    def build_output_only_request(self):
+        request = self.build_request()
+        output_path = "receipts/U1.json"
+        write_json(
+            self.root / "controls/context.json",
+            {
+                "task_id": "TASK-U1",
+                "swu_id": "SWU-U1",
+                "strict_coverage": True,
+                "execution_contract": {
+                    "writeProfile": "execution-output-only",
+                    "materialWrites": [],
+                    "executionOutputs": [output_path],
+                    "allowedWrites": [output_path],
+                    "validationCommands": self.validation_commands,
+                    "lifecycleOwner": "sigil-development",
+                    "authorityClass": "public",
+                    "publicationClass": "public",
+                },
+            },
+        )
+        request["controlArtifacts"][2] = {
+            **exact(self.root, "controls/context.json"),
+            "role": "context-pack",
+            "authorityClass": "public",
+        }
+        for key in (
+            "materialPackage",
+            "materialReceipt",
+            "producerReceiptSchema",
+        ):
+            request.pop(key)
+        request["materialWrites"] = []
+        request["executionOutputs"] = [output_path]
+        request["allowedWrites"] = [output_path]
+        request["planAdmission"]["targetBaselines"] = [
+            {
+                "path": output_path,
+                "state": "absent",
+                "sha256": None,
+                "sizeBytes": None,
+            }
+        ]
+        return request
+
     def test_exact_plan_identity_and_live_baseline_admit(self) -> None:
         result = self.resolve(self.build_request())
         self.assertEqual(result["admissionVerdict"], "admit")
@@ -365,6 +410,38 @@ class PlanOnceAdmissionTests(unittest.TestCase):
         result = self.resolve(request)
         self.assertEqual(result["admissionVerdict"], "block")
         self.assertIn("material package plan binding mismatch", result["reasons"])
+
+    def test_exact_plan_output_only_identity_and_baseline_admit(self) -> None:
+        result = self.resolve(self.build_output_only_request())
+        self.assertEqual(result["admissionVerdict"], "admit")
+        self.assertTrue(result["mutationReady"])
+        self.assertEqual(result["writeProfile"], "execution-output-only")
+        self.assertEqual(result["materialWrites"], [])
+        self.assertEqual(result["executionOutputs"], ["receipts/U1.json"])
+        self.assertIsNone(result["materialPackageDigest"])
+        self.assertTrue(result["singleUse"])
+        self.assertIsNotNone(result["admissionToken"])
+
+    def test_plan_output_only_mixed_partition_blocks(self) -> None:
+        request = self.build_output_only_request()
+        request["materialWrites"] = ["target.txt"]
+        request["allowedWrites"] = ["target.txt", "receipts/U1.json"]
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertFalse(result["mutationReady"])
+        self.assertTrue(
+            any("admission request schema invalid" in reason for reason in result["reasons"])
+        )
+
+    def test_plan_output_only_material_evidence_blocks(self) -> None:
+        request = self.build_output_only_request()
+        request["materialPackage"] = exact(self.root, "material-package.json")
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertFalse(result["mutationReady"])
+        self.assertTrue(
+            any("admission request schema invalid" in reason for reason in result["reasons"])
+        )
 
 
 if __name__ == "__main__":

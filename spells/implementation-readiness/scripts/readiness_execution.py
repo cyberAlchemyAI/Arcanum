@@ -359,6 +359,113 @@ def selection_intent_projection(
     }
 
 
+def compile_plan_once_context_entry(
+    policy: dict[str, Any],
+    audit_config: dict[str, Any],
+    audit_report: dict[str, Any],
+    selection_receipt: dict[str, Any],
+    execution_binding: dict[str, Any],
+) -> dict[str, Any]:
+    """Emit a selected-unit Context Builder entry with no mutation authority."""
+
+    validate_execution_policy(policy)
+    _validate(audit_config, AUDIT_CONFIG_SCHEMA, "audit config")
+    _validate(audit_report, AUDIT_REPORT_SCHEMA, "audit report")
+    _validate(selection_receipt, SELECTION_RECEIPT_SCHEMA, "selection receipt")
+    validate_execution_binding(
+        execution_binding,
+        policy,
+        compile_readiness_entry(policy, audit_report),
+    )
+    report_continuity = audit_report["manifest"].get("completion_continuity")
+    policy_continuity = policy["completion_continuity"]
+    if report_continuity is None:
+        raise ReadinessExecutionError(
+            "CONTINUITY_PROJECTION_MISSING", audit_report["audit_id"]
+        )
+    if report_continuity != policy_continuity:
+        raise ReadinessExecutionError(
+            "CONTINUITY_POLICY_STATE_MISMATCH", audit_report["audit_id"]
+        )
+    if audit_report["verdict"] not in {"pass", "flag"}:
+        raise ReadinessExecutionError(
+            "PLAN_ONCE_AUDIT_NOT_READY", audit_report["terminal_code"]
+        )
+    manifest = audit_report["manifest"]
+    if manifest is None:
+        raise ReadinessExecutionError("PLAN_MANIFEST_MISSING", audit_report["audit_id"])
+    if selection_receipt["selectionVerdict"] != "select":
+        raise ReadinessExecutionError(
+            "SELECTION_NOT_READY", selection_receipt["terminalCode"]
+        )
+    intent = selection_intent_projection(execution_binding)
+    if selection_receipt["selectionIntentSource"] != "execution-intent-binding":
+        raise ReadinessExecutionError(
+            "SECOND_CONFIRMATION_NOT_CONSUMABLE",
+            selection_receipt["selectionIntentSource"],
+        )
+    if selection_receipt["selectionIntentDigest"] != canonical_digest(intent):
+        raise ReadinessExecutionError(
+            "SELECTION_INTENT_BINDING_MISMATCH", execution_binding["binding_id"]
+        )
+    if selection_receipt["canonicalSemanticDigest"] != policy["work_pack_semantic_digest"]:
+        raise ReadinessExecutionError(
+            "SELECTION_SEMANTIC_STALE", selection_receipt["taskId"]
+        )
+    if selection_receipt["planEpochId"] != manifest["plan_epoch_id"]:
+        raise ReadinessExecutionError(
+            "SELECTION_EPOCH_STALE", selection_receipt["taskId"]
+        )
+
+    matches = [
+        item
+        for item in audit_config["execution_bindings"]
+        if item.get("task_id") == selection_receipt["taskId"]
+        and item.get("swu_id") == selection_receipt["swuId"]
+    ]
+    if len(matches) != 1:
+        raise ReadinessExecutionError(
+            "SELECTED_UNIT_NOT_UNIQUE", str(selection_receipt["swuId"])
+        )
+    unit = matches[0]
+    unit_id = unit["unit_id"]
+    if selection_receipt["unitContractDigest"] != manifest["unit_contract_digests"].get(
+        unit_id
+    ):
+        raise ReadinessExecutionError("UNIT_CONTRACT_STALE", unit_id)
+
+    routes = [
+        route
+        for route in policy["allowed_routes"]
+        if route["frontier_swu"] == unit_id
+        and route["capability"] == "task-session"
+        and route["mode"] == "execute"
+    ]
+    if len(routes) != 1:
+        raise ReadinessExecutionError(
+            "TASK_SESSION_ROUTE_NOT_UNIQUE", f"{unit_id}:{len(routes)}"
+        )
+    route = routes[0]
+    entry = {
+        "schema_version": "1.0.0",
+        "work_pack_id": policy["work_pack_id"],
+        "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
+        "allowed_routes_digest": policy["allowed_routes_digest"],
+        "entry_state": "context-ready",
+        "selected_unit": unit_id,
+        "route_id": route["route_id"],
+        "next_owner": {
+            "capability": route["capability"],
+            "mode": route["mode"],
+            "target": route["target"],
+        },
+        "blocker_code": None,
+        "authority_effect": "none",
+    }
+    validate_execution_entry(entry, policy)
+    return entry
+
+
 def compile_plan_once_task_entry(
     policy: dict[str, Any],
     audit_config: dict[str, Any],

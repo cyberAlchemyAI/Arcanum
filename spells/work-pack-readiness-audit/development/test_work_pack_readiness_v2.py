@@ -80,6 +80,20 @@ class V2Fixture:
             "selector": selector,
         }
 
+    def opaque_validator_binding(self, content: bytes) -> dict[str, object]:
+        path = self.root / "validate-terminal-receipt.py"
+        path.write_bytes(content)
+        return {
+            "binding_id": "terminal-validator",
+            "owner_ref": "synthetic-owner",
+            "binding_mode": "opaque-exact-artifact",
+            "artifact_ref": {
+                "path": path.name,
+                "sha256": sha256(content),
+                "size_bytes": len(content),
+            },
+        }
+
     def status(self, name: str, value: str) -> dict[str, object]:
         return {
             "value": value,

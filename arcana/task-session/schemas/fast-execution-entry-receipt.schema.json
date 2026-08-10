@@ -97,11 +97,9 @@
       "if": {"properties": {"decision": {"const": "proceed"}}, "required": ["decision"]},
       "then": {
         "properties": {
-          "code": {"const": "TASK_READY"},
           "work_pack_id": {"type": "string", "minLength": 1},
           "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
           "selected_unit": {"type": "string", "minLength": 1},
-          "entry_state": {"const": "task-ready"},
           "binding_id": {"type": "string", "pattern": "^wpeb-[a-f0-9]{24}$"},
           "binding_digest": {"$ref": "#/$defs/sha256"},
           "route_fingerprint": {"$ref": "#/$defs/sha256"},
@@ -109,7 +107,21 @@
           "authorization_source": {"const": "work-pack-binding"},
           "permitted_next_action": {"const": "enter-context-builder"},
           "blocker_detail": {"type": "null"}
-        }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "code": {"const": "CONTEXT_READY"},
+              "entry_state": {"const": "context-ready"}
+            }
+          },
+          {
+            "properties": {
+              "code": {"const": "TASK_READY"},
+              "entry_state": {"const": "task-ready"}
+            }
+          }
+        ]
       }
     },
     {

@@ -179,13 +179,26 @@ def classify_fast_entry(request: dict[str, Any]) -> dict[str, Any]:
             raise FastGuardError("WORK_PACK_ID_MISMATCH", selected["work_pack_id"])
         if selected["swu_id"] not in policy["frontier"]:
             raise FastGuardError("SELECTED_UNIT_OUTSIDE_FRONTIER", selected["swu_id"])
-        if entry["entry_state"] in {"task-ready", "owner-prerequisite"}:
+        if entry["entry_state"] in {
+            "context-ready",
+            "task-ready",
+            "owner-prerequisite",
+        }:
             if entry["selected_unit"] != selected["swu_id"]:
                 raise FastGuardError("SELECTED_UNIT_STALE", selected["swu_id"])
             route = binding["current_route"]
             if route is None or route["frontier_swu"] != selected["swu_id"]:
                 raise FastGuardError("ROUTE_FRONTIER_MISMATCH", selected["swu_id"])
 
+        if entry["entry_state"] == "context-ready":
+            return _receipt(
+                request,
+                trace,
+                decision="proceed",
+                code="CONTEXT_READY",
+                owner_packet=None,
+                blocker_detail=None,
+            )
         if entry["entry_state"] == "task-ready":
             return _receipt(
                 request,

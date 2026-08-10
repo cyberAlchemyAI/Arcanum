@@ -435,8 +435,24 @@ def validate_plan_admission(
     material_paths, _ = normalized_write_set(
         request, "materialWrites", "material write"
     )
-    if baseline_paths != material_paths:
-        failures.append("target baseline inventory does not equal material writes")
+    execution_output_paths, _ = normalized_write_set(
+        request, "executionOutputs", "execution output"
+    )
+    write_profile = result["writeProfile"]
+    baseline_target_paths = (
+        material_paths
+        if write_profile == "material-bound"
+        else execution_output_paths
+    )
+    baseline_target_label = (
+        "material writes"
+        if write_profile == "material-bound"
+        else "execution outputs"
+    )
+    if baseline_paths != baseline_target_paths:
+        failures.append(
+            "target baseline inventory does not equal " + baseline_target_label
+        )
     failures.extend(live_baseline_failures(repository_root, request_baselines))
     target_digest = canonical_digest(request_baselines)
     result["targetBaselineDigest"] = target_digest
@@ -445,31 +461,38 @@ def validate_plan_admission(
     if plan["validationContractDigest"] != validation_digest:
         failures.append("validation contract digest mismatch")
 
-    package_binding = material_package.get("plan_binding") if material_package else None
-    receipt_binding = material_receipt.get("planBinding") if material_receipt else None
-    expected_binding = {
-        "task_id": request["taskId"],
-        "swu_id": request["swuId"],
-        "plan_epoch_id": expected_epoch,
-        "unit_contract_digest": expected_unit,
-        "selection_receipt_digest": result["selectionReceiptDigest"],
-        "attempt_id": plan["attemptId"],
-        "validation_contract_digest": plan["validationContractDigest"],
-        "validation_contracts": plan["structuredValidationContracts"],
-        "target_baselines": [
-            {
-                "path": item["path"],
-                "state": item["state"],
-                "sha256": item["sha256"],
-                "size_bytes": item["sizeBytes"],
-            }
-            for item in request_baselines
-        ],
-    }
-    if package_binding != expected_binding:
-        failures.append("material package plan binding mismatch")
-    if receipt_binding != expected_binding:
-        failures.append("material receipt plan binding mismatch")
+    if write_profile == "material-bound":
+        package_binding = (
+            material_package.get("plan_binding") if material_package else None
+        )
+        receipt_binding = (
+            material_receipt.get("planBinding") if material_receipt else None
+        )
+        expected_binding = {
+            "task_id": request["taskId"],
+            "swu_id": request["swuId"],
+            "plan_epoch_id": expected_epoch,
+            "unit_contract_digest": expected_unit,
+            "selection_receipt_digest": result["selectionReceiptDigest"],
+            "attempt_id": plan["attemptId"],
+            "validation_contract_digest": plan["validationContractDigest"],
+            "validation_contracts": plan["structuredValidationContracts"],
+            "target_baselines": [
+                {
+                    "path": item["path"],
+                    "state": item["state"],
+                    "sha256": item["sha256"],
+                    "size_bytes": item["sizeBytes"],
+                }
+                for item in request_baselines
+            ],
+        }
+        if package_binding != expected_binding:
+            failures.append("material package plan binding mismatch")
+        if receipt_binding != expected_binding:
+            failures.append("material receipt plan binding mismatch")
+    elif write_profile != "execution-output-only":
+        failures.append("plan admission write profile is invalid")
 
     if not failures:
         result["admissionToken"] = canonical_digest(

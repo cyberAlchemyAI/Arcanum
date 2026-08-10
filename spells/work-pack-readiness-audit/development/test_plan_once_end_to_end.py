@@ -21,6 +21,82 @@ import test_plan_once_admission as ADMISSION  # noqa: E402
 
 
 class PlanOnceEndToEndTests(unittest.TestCase):
+    def test_opaque_semantic_validator_is_snapshotted_and_normalized(self) -> None:
+        plan_case = PLAN.PlanOnceSelectionTests()
+        plan_case.setUp()
+        try:
+            config = plan_case.config()
+            first_content = b"#!/usr/bin/env python3\nprint('validator v1')\n"
+            opaque = plan_case.fixture.opaque_validator_binding(first_content)
+            config["receipt_bindings"]["semantic_validator_ref"] = opaque
+
+            errors = PLAN.AUDIT.schema_errors(
+                config, PLAN.AUDIT.load_json(PLAN.AUDIT.CONFIG_SCHEMA_V2), "v2 config"
+            )
+            self.assertEqual(errors, [])
+            refs, conflicts = PLAN.AUDIT._unique_exact_refs(config)
+            self.assertEqual(conflicts, [])
+            snapshot, snapshot_errors = PLAN.AUDIT.capture_snapshot(
+                plan_case.fixture.root, refs
+            )
+            self.assertEqual(snapshot_errors, [])
+            self.assertEqual(
+                snapshot["validate-terminal-receipt.py"],
+                (
+                    opaque["artifact_ref"]["sha256"],
+                    opaque["artifact_ref"]["size_bytes"],
+                ),
+            )
+
+            semantics = PLAN.AUDIT.build_plan_semantics(
+                config, plan_case.fixture.root
+            )
+            normalized = semantics["components"]["receipt"]["bindings"][
+                "semantic_validator_ref"
+            ]
+            self.assertEqual(normalized["binding_mode"], "opaque-exact-artifact")
+            self.assertEqual(normalized["artifact_ref"], opaque["artifact_ref"])
+            first = plan_case.audit(config)
+            self.assertEqual(first["verdict"], "pass")
+            self.assertEqual(
+                first["source_snapshot"]["digest"],
+                PLAN.AUDIT.snapshot_digest(snapshot),
+            )
+
+            second_content = b"#!/usr/bin/env python3\nprint('validator v2')\n"
+            config["receipt_bindings"]["semantic_validator_ref"] = (
+                plan_case.fixture.opaque_validator_binding(second_content)
+            )
+            second = plan_case.audit(config)
+            self.assertEqual(second["verdict"], "pass")
+            self.assertNotEqual(
+                first["source_snapshot"]["digest"],
+                second["source_snapshot"]["digest"],
+            )
+            self.assertNotEqual(
+                first["canonical_semantic_digest"],
+                second["canonical_semantic_digest"],
+            )
+        finally:
+            plan_case.tearDown()
+
+    def test_opaque_semantic_validator_rejects_unknown_mode(self) -> None:
+        plan_case = PLAN.PlanOnceSelectionTests()
+        plan_case.setUp()
+        try:
+            config = plan_case.config()
+            invalid = plan_case.fixture.opaque_validator_binding(b"not JSON\n")
+            invalid["binding_mode"] = "json-pointer"
+            config["receipt_bindings"]["semantic_validator_ref"] = invalid
+            errors = PLAN.AUDIT.schema_errors(
+                config, PLAN.AUDIT.load_json(PLAN.AUDIT.CONFIG_SCHEMA_V2), "v2 config"
+            )
+            self.assertNotEqual(errors, [])
+            with self.assertRaises(PLAN.AUDIT.PlanSemanticError):
+                PLAN.AUDIT.build_plan_semantics(config, plan_case.fixture.root)
+        finally:
+            plan_case.tearDown()
+
     def test_continuity_rejects_selector_spoof_and_wrong_successor(self) -> None:
         plan_case = PLAN.PlanOnceSelectionTests()
         plan_case.setUp()
