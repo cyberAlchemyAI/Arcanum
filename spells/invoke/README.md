@@ -4,7 +4,7 @@ description: "Use when: turning development intent into governed define, design,
 argument-hint: "<define|design|plan|handoff|refresh|full|validate> <target-or-intent> [--output <path>] [--dry-run]"
 tier: spells
 domain: lifecycle-authoring
-version: 0.3.0
+version: 0.3.1
 origin: canonical Arcanum spell for intent-to-artifact authoring
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -24,6 +24,20 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 Invoke is an authoring front door, not the lifecycle owner for every artifact it can describe. It discovers intent, shapes definitions, designs, and plans, then hands off to the capability that owns the target lifecycle.
 
 Invoke does not require deprecated command files, slash commands, or command-resolution bridges as authoring readiness evidence. When an Invoke-authored plan prepares later execution, it should name native capability handles, expected receipts, validation surfaces, and subagent/local fallback boundaries. Legacy command adapters may remain as explicit example-runner compatibility only.
+
+## Human Result Contract
+
+Every user-facing Invoke result must follow
+`framework/OUTCOME-BRIEF-CONTRACT.md`: lead with a short plain-language
+`Outcome Brief`, then state `Boundary and Next Decision`, and only then return
+the existing technical result. The brief is a human projection of the same run
+evidence; it does not change receipt schemas, authority, promotion, mutation,
+or lifecycle state.
+
+The opening must explain the objective, result, and why it matters without
+requiring the operator to decode paths, hashes, status axes, or internal
+identifiers. The boundary must explicitly name what changed, what did not,
+remaining uncertainty, any exact user decision, and the next bounded action.
 
 ## Trigger Conditions
 
@@ -235,6 +249,7 @@ result, or mutation authority.
 4. Run automatic Distill validation when required by mode or triggered by broad/ambiguous output shape.
 5. When Distill ran, append one linked child Distill signal through Signal Observer.
 6. Apply global gates, observability, and handoff policy from this root contract.
+7. Render the human result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
 
 ## Target Artifact Provenance
 
@@ -325,6 +340,9 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - Capability reporting must use the three-axis resolver. An authored artifact,
   registry release, or runtime-ready receipt opens only its matching axis; no
   consumer may reconstruct a collapsed readiness label.
+- Every user-facing mode result must begin with the Outcome Brief and boundary
+  layers before presenting the detailed Invoke result. A missing or receipt-first
+  brief is output-contract drift and cannot be reported as a complete result.
 
 ## Global Failure Policy
 
@@ -377,6 +395,25 @@ When `.arcanum/observability/` exists, record:
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Invoke tried to produce,
+what it produced or why it stopped, and why that matters.>
+
+- Objective: <what this Invoke mode was trying to accomplish>
+- Result: <what is now known, authored, flagged, blocked, or unchanged>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <artifacts, evidence, or state changed; none when applicable>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Invoke Result
 
 - Mode: <define | design | plan | handoff | refresh | full | validate>

@@ -4,7 +4,7 @@ description: "Use when: executing or resuming one nearest evidence-backed bounde
 argument-hint: "[<task-reference|to <target>>] [--task <TASK-ID>] [--swu <SWU-ID>] [--until-blocker] [--list-nearest] [--from <path>] [--session <id>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.8.1
+version: 0.8.2
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -18,6 +18,22 @@ Execute one bounded task end to end while making trade-offs explicit, enforcing 
 <logic-type>
 Arcana: guided execution loop with human decision points, hard gates, and completion evidence.
 </logic-type>
+
+<human-result-contract>
+
+Every user-facing Task Session terminal result must follow
+`framework/OUTCOME-BRIEF-CONTRACT.md`: lead with a short plain-language
+`Outcome Brief`, then state `Boundary and Next Decision`, and only then present
+the existing detailed Task Session result and any Decision Gate result.
+
+The opening explains the objective, execution result, and why it matters without
+requiring the operator to decode receipts, admission fields, paths, or internal
+status identifiers. The boundary explicitly states what changed, what did not,
+remaining uncertainty, the exact user decision if one exists, and the next
+bounded action. This human projection does not alter terminal receipts,
+closeout evidence, authority, promotion, publication, or runtime state.
+
+</human-result-contract>
 
 <required-sigils>
 
@@ -402,7 +418,7 @@ ticket or pre-joined executor output cannot reuse or bypass that admission.
 
 ## Step 9 - Report
 
-60. Return a compact task-session report with resolution mode/source,
+60. Return a compact task-session report in Outcome Brief -> Boundary and Next Decision -> Technical Details order, followed by resolution mode/source,
     candidates considered, session recovery status, context pack, handoff pack
     artifact, strict coverage, fallback-search status, decisions and their
     classifications, runtime adapter, gate verdict, execution result,
@@ -517,6 +533,7 @@ A successful execution of this sigil must:
 - emit a schema-valid continuity cursor after joined closeout or a
   receipt-backed no-op,
 - return a report that a reviewer can audit without reconstructing the full session.
+- lead every terminal user-facing report, including `BLOCK`, with a plain-language Outcome Brief and explicit boundary/decision layer.
 </quality-bar>
 
 <anti-patterns>
@@ -576,12 +593,32 @@ Avoid:
   promotion, publication, deployment, destructive cleanup, policy/cost/risk
   acceptance, an ambiguous successor, or an undeclared target.
 - recursively executing the next route returned by a continuation owner.
+- leading with receipt mechanics, gate fields, or paths before explaining the practical execution outcome and boundary.
 </anti-patterns>
 
 <output-contract>
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what task was attempted, what
+completed or why it stopped, and why that matters.>
+
+- Objective: <what this Task Session was trying to accomplish>
+- Result: <what completed, was flagged, or is blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <files, evidence, closeout state, or none>
+- Unchanged: <unexecuted work, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Task Session Result
 
 - Task: <task-reference>

@@ -448,6 +448,25 @@ When `.arcanum/observability/` exists, record:
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Plan tried to make
+executable, what it prepared or why it stopped, and why that matters.>
+
+- Objective: <what Plan was trying to accomplish>
+- Result: <what is now planned, flagged, or blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <planning artifacts, evidence, or state changed>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Invoke Result
 
 - Mode: plan

@@ -285,6 +285,25 @@ When `.arcanum/observability/` exists, record:
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Refresh compared, what
+it updated or proposed, or why it stopped, and why that matters.>
+
+- Objective: <what Refresh was trying to reconcile>
+- Result: <what changed, was proposed, remained unchanged, or is blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <refresh artifacts, approved targets, evidence, or none>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Invoke Validation Fixture Result
 
 - Mode: refresh

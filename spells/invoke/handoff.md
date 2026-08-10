@@ -151,6 +151,25 @@ When `.arcanum/observability/` exists, record:
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what context the handoff
+preserves, what it enables, or why it is blocked.>
+
+- Objective: <what the handoff was trying to preserve or enable>
+- Result: <what handoff is available, flagged, or blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <handoff artifacts or evidence changed>
+- Unchanged: <target work, implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Invoke Validation Fixture Result
 
 - Mode: handoff

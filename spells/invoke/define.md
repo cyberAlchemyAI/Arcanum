@@ -85,6 +85,25 @@ Define mode produces or updates a governed specification and glossary baseline w
 Return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Define tried to establish,
+what it established or why it stopped, and why that matters.>
+
+- Objective: <what Define was trying to accomplish>
+- Result: <what is now defined, flagged, or blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <definition artifacts, evidence, or state changed>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Invoke Result
 
 - Mode: define

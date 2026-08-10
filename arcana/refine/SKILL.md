@@ -4,7 +4,7 @@ description: "Use when: turning a vague refinement target, design concern, folde
 argument-hint: "<target> [--preset compact|standard|full|deep] [--research no|bounded|if-gap]"
 tier: arcana
 domain: refinement-governance
-version: 0.2.0
+version: 0.2.1
 origin: redesigned as discovery/design loop using dispatch-spec route contracts and native runtime handoff receipts
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Bash, Task
 ---
@@ -18,6 +18,22 @@ Design an initial refinement seed, emit a dispatch-spec route for the canonical 
 <logic-type>
 Arcana: discovery and design orchestration with research decision, critique, repair, non-executed planning, and auditable stage evidence.
 </logic-type>
+
+<human-result-contract>
+
+Every user-facing Refine strategy proposal and final result must follow
+`framework/OUTCOME-BRIEF-CONTRACT.md`: lead with a short plain-language
+`Outcome Brief`, then state `Boundary and Next Decision`, and only then present
+the existing strategy or result details.
+
+The opening explains the objective, result, and why it matters without requiring
+the operator to decode stage names, receipt handles, paths, or internal status
+identifiers. The boundary explicitly states what changed, what did not,
+remaining uncertainty, the exact user decision if one exists, and the next
+bounded action. This human projection does not alter stage receipts, dispatch
+validation, authority, promotion, or runtime state.
+
+</human-result-contract>
 
 <required-capabilities>
 
@@ -293,7 +309,7 @@ If no preset is supplied, use `standard`.
 4. Select dispatch technique overlays from the policy above, recording why each selected overlay applies or why it was not selected.
 5. Write `REFINE-DISPATCH.json` as a dispatch-spec document for the canonical ten-stage loop, including route menu/decision, technique overlays, gates, handoffs, and observability.
 6. Validate `REFINE-DISPATCH.json` against `formulae/dispatch-spec/dispatch.schema.yml` and the `dispatch-spec` validator/skill contract, or block with exact missing fields.
-7. Show the Dispatch Spec strategy preview as `Refine Run Strategy Proposal`: inferred target/outcome, overlays, why they apply, subagent strategy, role ownership, join policy, receipts, runtime implications, and deferred work.
+7. Show the Dispatch Spec strategy preview in Outcome Brief -> Boundary and Next Decision -> Technical Details order, with the existing `Refine Run Strategy Proposal` as the technical layer: inferred target/outcome, overlays, why they apply, subagent strategy, role ownership, join policy, receipts, runtime implications, and deferred work.
 8. Ask permission to run the validated route. When subagents are recommended or required, permission must explicitly cover delegated subagent execution. Stop here until the operator confirms.
 9. Write `RUNTIME-HANDOFF.md` with the runtime objective, validated dispatch reference, strategy permission state, adapter/run fields, blocked fields, and runtime status.
 10. For each runtime-backed stage in the validated dispatch, identify the native capability handle and required receipt fields before execution.
@@ -301,7 +317,7 @@ If no preset is supplied, use `standard`.
 12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, record it as compatibility or handoff preparation; do not count command-interface execution as the native stage proof.
 13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
 14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
-15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict.
+15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict; render its user-facing result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
 16. Recommend next routes only after the final synthesis; do not execute them as part of refine.
 </process>
 
@@ -322,6 +338,7 @@ A successful Refine run must:
 - cite dispatch techniques only when they are expressed by steps, gates, handoffs, or validation notes,
 - block unavailable native capabilities or unsafe runtime handoff with exact missing fields,
 - produce a final refined synthesis,
+- lead both strategy and final user-facing results with a plain-language Outcome Brief and explicit boundary/decision layer,
 - keep Task Session and Sigil Development out of the loop except as optional next-route recommendations.
 </quality-bar>
 
@@ -372,12 +389,32 @@ Avoid:
 - silently falling back from failed dispatch validation, failed runtime handoff, or failed native stage receipt.
 - running runtime-backed stages or subagents before showing the Dispatch Spec strategy and receiving permission.
 - treating a simple "refine everything" request as permission to run before the strategy proposal is confirmed.
+- leading with stage receipts, paths, or dispatch mechanics before explaining the practical outcome and boundary.
 </anti-patterns>
 
 <output-contract>
 For the initial strategy proposal, return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what refinement is proposed,
+why this strategy fits, and what confirmation would allow.>
+
+- Objective: <what the proposed refinement is trying to accomplish>
+- Result: <strategy prepared, flagged, or blocked>
+- Why it matters: <what the strategy would clarify or make possible>
+
+## Boundary and Next Decision
+
+- Changed: <strategy/evidence artifacts changed or none>
+- Unchanged: <no runtime stages, subagents, implementation, authority, or promotion unless already evidenced>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact confirmation needed or none>
+- Next action: <what runs next, by which owner, if confirmed>
+
+## Technical Details
+
 ## Refine Run Strategy Proposal
 
 - Target: <inferred target>
@@ -398,6 +435,25 @@ For the initial strategy proposal, return:
 After confirmation and execution, return:
 
 ```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Refine tried to clarify,
+what the refinement established or why it stopped, and why that matters.>
+
+- Objective: <what the run was trying to refine>
+- Result: <what is now known, designed, planned, flagged, or blocked>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <refinement artifacts, evidence, or state changed>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
 ## Refine Result
 
 - Target: <target>
