@@ -22,6 +22,7 @@ ACTION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action.v0.1"
 RECEIPT_SCHEMA_VERSION = "arcanum.native-dispatch-runner.receipt.v0.1"
 GATE_DECISION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.gate-decision.v0.1"
 ACTION_SET_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action-set.v0.1"
+MAX_ACTION_NUMBER = 9999
 
 RECEIPT_REQUIRED_FIELDS = {
     "schema_version",
@@ -48,6 +49,112 @@ class CompileBlocked(RuntimeError):
     def __init__(self, blockers: list[str]) -> None:
         super().__init__("; ".join(blockers))
         self.blockers = blockers
+
+
+def _format_action_id(action_number: int) -> str:
+    if action_number < 1 or action_number > MAX_ACTION_NUMBER:
+        raise CompileBlocked(
+            [f"run action allocation exceeds supported range: {action_number}"]
+        )
+    return f"spawn-{action_number:04d}"
+
+
+def _action_count_for_waves(
+    dispatch: dict[str, Any], wave_ids: list[str]
+) -> int:
+    """Count statically declared action instances for an ordered wave history."""
+
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict):
+        raise CompileBlocked(["dispatch must declare a subagent_strategy"])
+    roles = strategy.get("roles")
+    waves = strategy.get("execution_waves")
+    if not isinstance(roles, list) or not isinstance(waves, list):
+        raise CompileBlocked(["capability-bound strategy requires roles and execution_waves"])
+
+    role_by_id: dict[str, dict[str, Any]] = {}
+    for role in roles:
+        if not isinstance(role, dict) or not role.get("role_id"):
+            continue
+        role_id = str(role["role_id"])
+        if role_id in role_by_id:
+            raise CompileBlocked([f"duplicate strategy role identifier: {role_id}"])
+        role_by_id[role_id] = role
+
+    wave_by_id: dict[str, dict[str, Any]] = {}
+    for wave in waves:
+        if not isinstance(wave, dict) or not wave.get("wave_id"):
+            continue
+        wave_id = str(wave["wave_id"])
+        if wave_id in wave_by_id:
+            raise CompileBlocked([f"duplicate execution wave identifier: {wave_id}"])
+        wave_by_id[wave_id] = wave
+
+    total = 0
+    seen_wave_ids: set[str] = set()
+    for wave_id in wave_ids:
+        if wave_id in seen_wave_ids:
+            raise CompileBlocked([f"duplicate completed wave identifier: {wave_id}"])
+        seen_wave_ids.add(wave_id)
+        wave = wave_by_id.get(wave_id)
+        if wave is None:
+            raise CompileBlocked([f"unknown completed wave identifier: {wave_id}"])
+        for role_id_value in wave.get("role_ids", []) or []:
+            role_id = str(role_id_value)
+            role = role_by_id.get(role_id)
+            if role is None:
+                raise CompileBlocked(
+                    [f"completed wave '{wave_id}' references unknown role: {role_id}"]
+                )
+            agent_count = role.get("agent_count")
+            if (
+                not isinstance(agent_count, int)
+                or isinstance(agent_count, bool)
+                or agent_count < 1
+            ):
+                raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
+            total += agent_count
+            if total > MAX_ACTION_NUMBER:
+                raise CompileBlocked(
+                    [f"run action allocation exceeds supported range: {total}"]
+                )
+    return total
+
+
+def _validated_run_action_count(
+    dispatch: dict[str, Any],
+    state: dict[str, Any],
+    actions: list[dict[str, Any]],
+    current_wave_id: str,
+) -> int:
+    """Validate the current frontier and return its run-global allocated count."""
+
+    eligible_action_ids = state.get("eligible_action_ids")
+    if not isinstance(eligible_action_ids, list) or any(
+        not isinstance(action_id, str) for action_id in eligible_action_ids
+    ):
+        raise CompileBlocked(["state eligible_action_ids must be an array of strings"])
+
+    action_ids = [action.get("action_id") for action in actions]
+    if any(not isinstance(action_id, str) for action_id in action_ids):
+        raise CompileBlocked(["run-plan actions must have string action_id values"])
+    if eligible_action_ids != action_ids:
+        raise CompileBlocked(["state/run-plan eligible action mismatch"])
+    if len(set(action_ids)) != len(action_ids):
+        raise CompileBlocked(["run-plan action identifiers must be unique"])
+
+    previous_completed = [str(item) for item in state.get("completed_wave_ids", []) or []]
+    previous_action_count = _action_count_for_waves(dispatch, previous_completed)
+    allocated_action_count = _action_count_for_waves(
+        dispatch, previous_completed + [current_wave_id]
+    )
+    expected_action_ids = [
+        _format_action_id(action_number)
+        for action_number in range(previous_action_count + 1, allocated_action_count + 1)
+    ]
+    if action_ids != expected_action_ids:
+        raise CompileBlocked(["run-plan action identifiers do not match run-global allocation"])
+    return allocated_action_count
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -190,7 +297,7 @@ def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str,
             action_number = len(actions) + 1
             action = {
                 "schema_version": ACTION_SCHEMA_VERSION,
-                "action_id": f"spawn-{action_number:04d}",
+                "action_id": _format_action_id(action_number),
                 "action": "spawn",
                 "dispatch_id": dispatch_id,
                 "run_id": run_id,
@@ -336,7 +443,7 @@ def _compile_named_wave_actions(
             actions.append(
                 {
                     "schema_version": ACTION_SCHEMA_VERSION,
-                    "action_id": f"spawn-{action_number:04d}",
+                    "action_id": _format_action_id(action_number),
                     "action": "spawn",
                     "dispatch_id": str(dispatch.get("dispatch_id", "")),
                     "run_id": run_id,
@@ -367,6 +474,10 @@ def _receipt_shape_blockers(receipt: Any, index: int) -> list[str]:
         return [f"{prefix}: receipt must be an object"]
     missing = sorted(RECEIPT_REQUIRED_FIELDS - set(receipt))
     blockers = [f"{prefix}: missing required field '{field}'" for field in missing]
+    unexpected = sorted(set(receipt) - RECEIPT_REQUIRED_FIELDS)
+    blockers.extend(
+        f"{prefix}: unexpected field '{field}'" for field in unexpected
+    )
     if receipt.get("schema_version") != RECEIPT_SCHEMA_VERSION:
         blockers.append(f"{prefix}: unsupported schema_version")
     for field in (
@@ -404,16 +515,20 @@ def _admit_receipts(
     blockers: list[str] = []
 
     for index, receipt in enumerate(receipts):
-        blockers.extend(_receipt_shape_blockers(receipt, index))
+        shape_blockers = _receipt_shape_blockers(receipt, index)
+        blockers.extend(shape_blockers)
+        if shape_blockers:
+            continue
         if not isinstance(receipt, dict) or not isinstance(receipt.get("action_id"), str):
             continue
         action_id = receipt["action_id"]
         if action_id in receipt_by_id:
             blockers.append(f"duplicate receipt for action '{action_id}'")
             continue
-        receipt_by_id[action_id] = receipt
         if action_id not in expected_by_id:
             blockers.append(f"unexpected receipt for action '{action_id}'")
+            continue
+        receipt_by_id[action_id] = receipt
 
     admitted: list[dict[str, Any]] = []
     identity_fields = (
@@ -430,18 +545,22 @@ def _admit_receipts(
         if receipt is None:
             blockers.append(f"missing receipt for action '{action_id}'")
             continue
+        identity_blocked = False
         for field in identity_fields:
             if receipt.get(field) != action.get(field):
                 blockers.append(
                     f"action '{action_id}': receipt {field} '{receipt.get(field)}' does not match '{action.get(field)}'"
                 )
+                identity_blocked = True
+        if identity_blocked:
+            continue
+        admitted.append(receipt)
         if receipt.get("status") != "pass":
             blockers.append(f"action '{action_id}': non-pass status '{receipt.get('status')}'")
         if receipt.get("validation") != "pass":
             blockers.append(f"action '{action_id}': non-pass validation '{receipt.get('validation')}'")
         if receipt.get("blockers"):
             blockers.append(f"action '{action_id}': receipt declares blockers")
-        admitted.append(receipt)
 
     return admitted, sorted(set(blockers))
 
@@ -486,6 +605,9 @@ def reduce_wave_receipts(
     current_wave_id = str(selected_wave.get("wave_id", ""))
     if state.get("selected_wave_id") != current_wave_id:
         raise CompileBlocked(["state/run-plan selected wave mismatch"])
+    allocated_action_count = _validated_run_action_count(
+        dispatch, state, actions, current_wave_id
+    )
 
     admitted, blockers = _admit_receipts(actions, receipts)
     strategy = dispatch.get("subagent_strategy") if isinstance(dispatch.get("subagent_strategy"), dict) else {}
@@ -504,7 +626,7 @@ def reduce_wave_receipts(
                 dispatch,
                 run_id,
                 next_wave_id,
-                start_action_number=len(actions) + 1,
+                start_action_number=allocated_action_count + 1,
             )
         decision = "gate_pass"
         next_state_name = "gate_pass" if next_wave_id else "complete"

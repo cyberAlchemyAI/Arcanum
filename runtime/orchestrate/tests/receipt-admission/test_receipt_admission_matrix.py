@@ -109,6 +109,19 @@ class ReceiptAdmissionMatrixTests(unittest.TestCase):
         self.assertEqual(normalized["agent_id"], expected_agent)
         self.assertEqual(normalized["blockers"], case["expected_blockers"])
 
+    def test_malformed_or_identity_mismatched_receipts_are_not_admitted(self) -> None:
+        receipts = copy.deepcopy(pass_receipts())
+        del receipts[0]["agent_id"]
+        receipts[1]["role"] = "wrong-role"
+        admitted, blockers = coordinator._admit_receipts(
+            self.run_plan["actions"], receipts
+        )
+        self.assertNotIn("spawn-0001", [item["action_id"] for item in admitted])
+        self.assertNotIn("spawn-0002", [item["action_id"] for item in admitted])
+        self.assertIn("spawn-0003", [item["action_id"] for item in admitted])
+        self.assertTrue(any("missing required field 'agent_id'" in item for item in blockers))
+        self.assertTrue(any("receipt role 'wrong-role'" in item for item in blockers))
+
     def test_matrix_covers_required_failure_classes_and_bindings(self) -> None:
         ids = {case["case_id"] for case in self.matrix["cases"]}
         required = {

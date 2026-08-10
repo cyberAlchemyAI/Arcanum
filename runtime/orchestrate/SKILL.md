@@ -35,6 +35,7 @@ native_spawn_contract:
   returned_binding:
     - action_id
     - agent_id
+  driver: scripts/native_dispatch_driver.py
 native_join_contract:
   input_receipt_schema: schemas/receipt.schema.json
   join_policy: all
@@ -52,6 +53,18 @@ native_join_contract:
   missing_result_status: timed_out
   identity_mismatch_status: block
   reducer: scripts/native_dispatch_coordinator.py
+  driver: scripts/native_dispatch_driver.py
+  receipt_admission_schema: schemas/receipt-admission.schema.yml
+  receipt_join_event: receipt_joined
+  gate_event: gate_decided
+native_evidence_contract:
+  causal_schema: schemas/run-event.schema.json
+  residue_schema: schemas/run-residue.schema.yml
+  append_owner: scripts/native_dispatch_driver.py
+  source_time_append_required: true
+  prefix_validation_required: true
+  complete_validation_before_resolved_close: true
+  pure_reduce_live_evidence: false
 ---
 
 # Skill: Arcanum Orchestrate
@@ -72,6 +85,14 @@ Route work through installed Arcanum capabilities and provide the parent-owned n
 ## `orchestrate execute <dispatch.json>`
 
 Accept exactly one repository-local dispatch JSON path. Extra positional arguments, a missing path, or another verb return a blocked preflight receipt and perform no host action.
+
+Native execution after preflight uses
+`scripts/native_dispatch_driver.py`. Its `prepare-spawn` and `prepare-wait`
+commands append the required pre-call events before making a host request
+artifact available. `record-spawn` and `append-event` record host-owned results.
+`advance-wave` admits the exact current-wave receipt set, appends receipt joins
+and the reducer-owned gate decision, validates the causal stream, and only then
+persists dependent actions.
 </commands>
 
 <execute-preflight>
@@ -101,6 +122,13 @@ Return a structured receipt containing:
 
 <native-execution-boundary>
 Only a later native execution step may consume coordinator-emitted actions and call operations declared by the host profile. Never execute an action that lacks a persisted action document. Never use nested `codex exec`, another model-backed CLI, or silent local-inline model work when a required native operation is unavailable.
+
+The deterministic coordinator's `reduce` command remains an offline reducer
+and fixture surface. Its result alone is not live execution evidence and cannot
+justify a resolved closeout. A live native path must use the driver handshake
+and a validator-clean causal stream. If a pre-call append blocks, do not make
+the host call. If a post-call append or terminal validation blocks, preserve
+the partial stream and close with error; never reconstruct the missing event.
 </native-execution-boundary>
 
 <native-spawn-action>
@@ -108,10 +136,10 @@ Consume exactly one persisted action document whose `action` is `spawn` and whos
 
 1. Admit the action only when its `action_id` exists in the current run plan, its persisted document matches that plan entry, and no attempt event already exists for the identifier.
 2. Build bounded host context from only the action's role, capability, target, mode, mutation policy, write scope, forbidden scopes, input references, and output references.
-3. Append `action_attempted` to the run event stream before invoking the host operation mapped from `spawn` by the selected host profile.
+3. Run driver `prepare-spawn`; it must append `action_attempted` before exposing the exact host request. If preparation blocks, do not invoke the host.
 4. Invoke that operation exactly once. Do not retry implicitly.
-5. On return, append `host_spawn_returned` and persist the returned `agent_id` with the `action_id`. A missing agent identifier is a blocking host failure.
-6. On host error, append `host_spawn_failed`, persist a blocking native-spawn receipt, and stop dependent execution.
+5. On return, run driver `record-spawn --agent-id <id>` to append `host_spawn_returned` and bind the returned `agent_id` to the `action_id`. A missing agent identifier is a blocking host failure.
+6. On host error, run driver `record-spawn --failed` to append `host_spawn_failed`, persist the failure in the non-causal residue stream when useful, and stop dependent execution.
 
 An unknown, non-persisted, mismatched, duplicate, or replayed action blocks before a host call. Waiting, joining, result normalization, and gate reduction are separate execution steps.
 </native-spawn-action>
@@ -120,14 +148,29 @@ An unknown, non-persisted, mismatched, duplicate, or replayed action blocks befo
 Consume one persisted wave plan and the complete action-to-native-agent bindings returned by prior spawn actions. The Codex wait operation is mailbox-wide, so do not model it as a targeted per-agent API.
 
 1. Reject bindings that are absent, duplicated, outside the selected wave, or inconsistent with the persisted actions.
-2. Register every known native identifier exactly once in a pending set and append `agent_wait_registered` for each.
-3. Append `wait_attempted`, invoke the host's mailbox-wide wait operation, then reconcile returned completions and the host inventory against only the pending identifiers. Repeat only within the declared bounded wait policy.
+2. Run driver `prepare-wait`; it derives every successful native binding from the causal stream, appends one `agent_wait_registered` per expected action and `wait_attempted`, then exposes the mailbox-wide wait request.
+3. Invoke the host's mailbox-wide wait operation, then reconcile returned completions and the host inventory against only the pending identifiers. Repeat only within the declared bounded wait policy, appending another `wait_attempted` before each call.
 4. For a terminal known agent, validate its declared action and agent identities, normalize its bounded result to `schemas/receipt.schema.json`, append `agent_terminal`, and mark it logically closed exactly once with `agent_closed`.
 5. For an unresolved known agent when the wait policy expires, append `wait_timed_out`, invoke the mapped interrupt operation once, append `agent_interrupted`, and normalize an explicit `timed_out` receipt for its expected action.
-6. Give the deterministic reducer exactly one normalized receipt per expected action. Return its state, gate decision, and next action set without reinterpretation.
+6. Persist normalized receipts in a directory containing exactly one `<action_id>.json` file per current-wave action and no other entries.
+7. Run driver `advance-wave`. It validates closed receipt shape and identity into `schemas/receipt-admission.schema.yml`, appends `receipt_joined`, invokes the deterministic reducer, appends `gate_decided` before exposing dependents, and validates the complete causal stream. Return its state, gate decision, and next action set without reinterpretation.
 
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.
 </native-join-wave>
+
+<causal-event-and-residue-boundary>
+`events.jsonl` contains only records admitted by
+`schemas/run-event.schema.json` through the native driver. Feedback,
+governance repair, commentary, evidence-closure notes, and reduction notes are
+not causal events. When they need preservation, append them explicitly to a
+separate `residue.jsonl` through driver `append-residue` and
+`schemas/run-residue.schema.yml`.
+
+Residue is read-only collaboration or diagnostic evidence. It cannot satisfy a
+spawn, wait, terminal, join, gate, closeout, authority, or promotion
+obligation. Historical mixed logs remain historical failure evidence and must
+not be rewritten into a passing causal stream.
+</causal-event-and-residue-boundary>
 
 <failure-policy>
 - Invalid dispatch: `block`, no plan, no actions, zero spawn attempts.
@@ -137,6 +180,9 @@ An unknown result, duplicate terminal result, missing binding, identity mismatch
 - Ready: `pass`, `wave_ready`, compiled actions only; spawning is still not part of preflight.
 - Unknown or replayed native action: `block`, no host call.
 - Native spawn error or missing returned agent identifier: record the attempted call and blocking failure evidence; do not retry implicitly.
+- Source-time event append failure: make no pending host call; preserve the existing stream byte-for-byte and block.
 - Missing or mismatched joined result: normalize blocking evidence for the expected action and let the deterministic reducer withhold dependents.
 - Unresolved known agent: interrupt once under the wave's incomplete policy, record residue, and return an explicit `timed_out` receipt.
+- Receipt directory contamination, missing exact receipt, closed-schema violation, or identity mismatch: block before reduction and emit no dependent action.
+- Invalid causal prefix or terminal stream: preserve raw evidence, emit no dependent action, and close with error; never derive or synthesize missing history.
 </failure-policy>

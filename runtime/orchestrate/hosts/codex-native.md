@@ -32,6 +32,8 @@ spawn_contract:
     - task_name
     - message
     - fork_turns
+  prepare_command: scripts/native_dispatch_driver.py prepare-spawn
+  record_command: scripts/native_dispatch_driver.py record-spawn
 join_contract:
   join_policy: all
   wait_operation: collaboration.wait_agent
@@ -44,6 +46,13 @@ join_contract:
   interrupt_per_unresolved_agent: 1
   missing_result_status: timed_out
   identity_mismatch_status: block
+  prepare_wait_command: scripts/native_dispatch_driver.py prepare-wait
+  advance_wave_command: scripts/native_dispatch_driver.py advance-wave
+evidence_contract:
+  causal_append_command: scripts/native_dispatch_driver.py append-event
+  residue_append_command: scripts/native_dispatch_driver.py append-residue
+  source_time_append_required: true
+  pure_reduce_live_evidence: false
 ---
 
 # Codex Native Host Profile
@@ -66,6 +75,11 @@ Preflight records availability and returns. It must not call any mapped operatio
 
 If any required operation is absent, block. Do not invoke a nested model-backed CLI and do not synthesize a host receipt.
 
+The Python driver does not invoke `collaboration.*`. It performs the
+fail-closed prepare/record handshake around the host-owned call. The parent
+must receive a passing preparation receipt, invoke the exact returned request
+once through the active host tool, and record the result before continuing.
+
 ## Spawn Mapping
 
 For one admitted `spawn` action, call `collaboration.spawn_agent` exactly once with:
@@ -74,10 +88,25 @@ For one admitted `spawn` action, call `collaboration.spawn_agent` exactly once w
 - `fork_turns: none`, so the child receives only explicitly bounded action context;
 - a `message` containing the action identifier, role, capability, target, mode, mutation policy, write scope, forbidden scopes, input references, output references, and required receipt shape.
 
-Persist `action_attempted` before the call. On success, persist `host_spawn_returned` with the native `agent_id` bound to the action. On error or a missing identifier, persist `host_spawn_failed` and block without implicit retry. Waiting for the returned identifier belongs to the later join action, not spawn mapping.
+Use `native_dispatch_driver.py prepare-spawn` to persist `action_attempted`
+before the call and expose the exact request only after that append succeeds.
+On success, use `record-spawn --agent-id` to persist
+`host_spawn_returned` with the native `agent_id` bound to the action. On error
+or a missing identifier, use `record-spawn --failed`, preserve any diagnostic
+text in the separate residue stream, and block without implicit retry. Waiting
+for the returned identifier belongs to the later join action, not spawn
+mapping.
 
 ## Join Mapping
 
 `collaboration.wait_agent` waits for mailbox activity and does not accept a target identifier. Register each known wave agent once in a pending set, call the mailbox-wide wait operation in bounded rounds, and use `collaboration.list_agents` plus returned completion messages to reconcile only those known identifiers.
 
-A completed known agent is logically closed once and needs no interrupt. An unresolved known agent is interrupted at most once through `collaboration.interrupt_agent`; its expected action receives an explicit `timed_out` receipt. Unknown or duplicated result identities are blocking evidence. The native driver passes the complete normalized receipt set to the deterministic reducer and never opens a gate itself.
+A completed known agent is logically closed once and needs no interrupt. An unresolved known agent is interrupted at most once through `collaboration.interrupt_agent`; its expected action receives an explicit `timed_out` receipt. Unknown or duplicated result identities are blocking evidence.
+
+Use `prepare-wait` before every mailbox-wide wait. After terminal cleanup,
+persist exactly one closed-schema `<action_id>.json` receipt per current action
+and call `advance-wave`. That command owns exact receipt admission,
+`receipt_joined`, deterministic reduction, `gate_decided`, and full event
+validation before dependent actions are written. The coordinator's pure
+`reduce` command is offline reducer evidence only and must not be cited as a
+live native-run closeout.

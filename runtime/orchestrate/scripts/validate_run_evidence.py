@@ -25,6 +25,14 @@ EVENT_KINDS = {
     "gate_decided",
 }
 BASE_FIELDS = {"schema_version", "sequence", "event", "dispatch_id", "run_id", "wave_id", "action_id", "agent_id", "operation"}
+EVENT_FIELDS = BASE_FIELDS | {
+    "depends_on_gate_id",
+    "receipt_status",
+    "gate_id",
+    "decision",
+    "required_action_ids",
+    "admitted_receipt_action_ids",
+}
 
 
 def load_events(path: Path) -> list[dict[str, Any]]:
@@ -43,6 +51,9 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
     missing = sorted(BASE_FIELDS - set(event))
     if missing:
         return "missing required fields: " + ", ".join(missing)
+    unexpected = sorted(set(event) - EVENT_FIELDS)
+    if unexpected:
+        return "unexpected fields: " + ", ".join(unexpected)
     if event.get("schema_version") != "arcanum.native-dispatch-runner.run-event.v0.1":
         return "unsupported schema_version"
     if event.get("event") not in EVENT_KINDS:
@@ -66,6 +77,8 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
             value = event.get(field)
             if not isinstance(value, list) or (field == "required_action_ids" and not value) or any(not isinstance(item, str) or not item for item in value):
                 return f"gate_decided requires valid {field}"
+            if len(set(value)) != len(value):
+                return f"gate_decided requires unique {field}"
         return None
     if not isinstance(event.get("action_id"), str) or not event["action_id"]:
         return f"{kind} requires action_id"
@@ -82,7 +95,12 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
     return None
 
 
-def validate_events(events: list[dict[str, Any]], source: str) -> dict[str, Any]:
+def validate_events(
+    events: list[dict[str, Any]],
+    source: str,
+    *,
+    require_complete: bool = True,
+) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
     attempts: dict[str, dict[str, Any]] = {}
     host_results: dict[str, dict[str, Any]] = {}
@@ -93,6 +111,7 @@ def validate_events(events: list[dict[str, Any]], source: str) -> dict[str, Any]
     timeouts: dict[str, dict[str, Any]] = {}
     interrupts: dict[str, dict[str, Any]] = {}
     joined: dict[str, dict[str, Any]] = {}
+    gate_decisions: dict[str, int] = {}
     gate_passes: dict[str, int] = {}
     dispatch_id: str | None = None
     run_id: str | None = None
@@ -106,6 +125,9 @@ def validate_events(events: list[dict[str, Any]], source: str) -> dict[str, Any]
                 "message": message,
             }
         )
+
+    if require_complete and not events:
+        reject("empty_event_stream", None, "a complete run event stream must not be empty")
 
     for expected_sequence, event in enumerate(events, start=1):
         if event.get("sequence") != expected_sequence:
@@ -282,7 +304,7 @@ def validate_events(events: list[dict[str, Any]], source: str) -> dict[str, Any]
             gate_id = event.get("gate_id")
             required = event.get("required_action_ids", [])
             admitted = event.get("admitted_receipt_action_ids", [])
-            if gate_id in gate_passes:
+            if gate_id in gate_decisions:
                 reject("duplicate_gate_decision", event, f"gate {gate_id} was already decided")
             for required_action_id in required:
                 if required_action_id not in attempts:
@@ -298,15 +320,18 @@ def validate_events(events: list[dict[str, Any]], source: str) -> dict[str, Any]
                     receipt = joined.get(required_action_id)
                     if receipt is not None and receipt.get("receipt_status") != "pass":
                         reject("gate_admitted_non_pass", event, "gate_pass admitted a non-pass receipt", required_action_id)
-                if len(errors) == gate_error_count and isinstance(gate_id, str):
+            if len(errors) == gate_error_count and isinstance(gate_id, str):
+                gate_decisions[gate_id] = event.get("sequence")
+                if event.get("decision") == "gate_pass":
                     gate_passes[gate_id] = event.get("sequence")
 
-    for action_id, attempt in attempts.items():
-        host_result = host_results.get(action_id)
-        if host_result is None:
-            reject("missing_host_result", attempt, "attempted action has no host result", action_id)
-        elif host_result.get("event") == "host_spawn_returned" and action_id not in joined:
-            reject("missing_joined_receipt", host_result, "successful host result has no joined receipt", action_id)
+    if require_complete:
+        for action_id, attempt in attempts.items():
+            host_result = host_results.get(action_id)
+            if host_result is None:
+                reject("missing_host_result", attempt, "attempted action has no host result", action_id)
+            elif host_result.get("event") == "host_spawn_returned" and action_id not in joined:
+                reject("missing_joined_receipt", host_result, "successful host result has no joined receipt", action_id)
 
     valid = not errors
     return {
