@@ -23,12 +23,23 @@
       "const": "task-session.governance-run-request.v1"
     },
     "entry_profile": {
-      "enum": ["pre-execution-prerequisite", "work-pack-fast-entry"]
+      "enum": [
+        "pre-execution-prerequisite",
+        "work-pack-fast-entry"
+      ]
     },
-    "pre_execution_prerequisite": {"$ref": "#/$defs/preExecutionPrerequisite"},
-    "fast_execution_entry": {"$ref": "#/$defs/fastExecutionEntryRequest"},
-    "admission_profile": {"const": "plan-once-selected-unit"},
-    "plan_admission": {"$ref": "#/$defs/planAdmission"},
+    "pre_execution_prerequisite": {
+      "$ref": "#/$defs/preExecutionPrerequisite"
+    },
+    "fast_execution_entry": {
+      "$ref": "#/$defs/fastExecutionEntryRequest"
+    },
+    "admission_profile": {
+      "const": "plan-once-selected-unit"
+    },
+    "plan_admission": {
+      "$ref": "#/$defs/planAdmission"
+    },
     "request_id": {
       "$ref": "#/$defs/nonEmptyString"
     },
@@ -100,32 +111,70 @@
   "allOf": [
     {
       "if": {
-        "properties": {"admission_profile": {"const": "plan-once-selected-unit"}},
-        "required": ["admission_profile"]
-      },
-      "then": {"required": ["plan_admission"]}
-    },
-    {
-      "if": {
-        "properties": {"entry_profile": {"const": "pre-execution-prerequisite"}},
-        "required": ["entry_profile"]
+        "properties": {
+          "admission_profile": {
+            "const": "plan-once-selected-unit"
+          }
+        },
+        "required": [
+          "admission_profile"
+        ]
       },
       "then": {
-        "required": ["pre_execution_prerequisite"],
-        "not": {"required": ["fast_execution_entry"]}
+        "required": [
+          "plan_admission"
+        ]
       }
     },
     {
       "if": {
-        "properties": {"entry_profile": {"const": "work-pack-fast-entry"}},
-        "required": ["entry_profile"]
+        "properties": {
+          "entry_profile": {
+            "const": "pre-execution-prerequisite"
+          }
+        },
+        "required": [
+          "entry_profile"
+        ]
       },
       "then": {
-        "required": ["fast_execution_entry", "admission_profile", "plan_admission"],
+        "required": [
+          "pre_execution_prerequisite"
+        ],
+        "not": {
+          "required": [
+            "fast_execution_entry"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
         "properties": {
-          "admission_profile": {"const": "plan-once-selected-unit"}
+          "entry_profile": {
+            "const": "work-pack-fast-entry"
+          }
         },
-        "not": {"required": ["pre_execution_prerequisite"]}
+        "required": [
+          "entry_profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "fast_execution_entry",
+          "admission_profile",
+          "plan_admission"
+        ],
+        "properties": {
+          "admission_profile": {
+            "const": "plan-once-selected-unit"
+          }
+        },
+        "not": {
+          "required": [
+            "pre_execution_prerequisite"
+          ]
+        }
       }
     }
   ],
@@ -254,8 +303,88 @@
         },
         "terminal_receipt_path": {
           "$ref": "#/$defs/nonEmptyString"
+        },
+        "receipt_profile": {
+          "const": "precloseout-execution-v1"
+        },
+        "precloseout_execution_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "precloseout_execution_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "expected_owner_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expected_owner_receipt_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "final_terminal_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "receipt_profile": {
+                "const": "precloseout-execution-v1"
+              }
+            },
+            "required": [
+              "receipt_profile"
+            ]
+          },
+          "then": {
+            "required": [
+              "receipt_profile",
+              "precloseout_execution_receipt_path",
+              "precloseout_execution_schema_ref",
+              "expected_owner_receipt_path",
+              "expected_owner_receipt_schema_ref",
+              "final_terminal_schema_ref"
+            ],
+            "properties": {
+              "required_owner_capabilities": {
+                "const": [
+                  "invoke"
+                ]
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "precloseout_execution_receipt_path"
+                  ]
+                },
+                {
+                  "required": [
+                    "precloseout_execution_schema_ref"
+                  ]
+                },
+                {
+                  "required": [
+                    "expected_owner_receipt_path"
+                  ]
+                },
+                {
+                  "required": [
+                    "expected_owner_receipt_schema_ref"
+                  ]
+                },
+                {
+                  "required": [
+                    "final_terminal_schema_ref"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
     },
     "planAdmission": {
       "type": "object",
@@ -272,24 +401,50 @@
         "consumption_ledger_path"
       ],
       "properties": {
-        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
-        "unit_contract_digest": {"$ref": "#/$defs/sha256"},
-        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
-        "selection_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "mutation_admission_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "admission_token": {"$ref": "#/$defs/sha256"},
-        "target_baseline_digest": {"$ref": "#/$defs/sha256"},
-        "validation_contract_digest": {"$ref": "#/$defs/sha256"},
-        "consumption_ledger_path": {"$ref": "#/$defs/nonEmptyString"}
+        "plan_epoch_id": {
+          "type": "string",
+          "pattern": "^epoch-[a-f0-9]{24}$"
+        },
+        "unit_contract_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "selection_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "mutation_admission_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "admission_token": {
+          "$ref": "#/$defs/sha256"
+        },
+        "target_baseline_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "validation_contract_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "consumption_ledger_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
       }
     },
     "fastExecutionEntryRequest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["request_ref", "receipt_ref"],
+      "required": [
+        "request_ref",
+        "receipt_ref"
+      ],
       "properties": {
-        "request_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
+        "request_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
       }
     },
     "preExecutionPrerequisite": {
@@ -315,68 +470,181 @@
         "resume_receipt_path"
       ],
       "properties": {
-        "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
-        "prerequisite_fingerprint": {"$ref": "#/$defs/sha256"},
-        "classification_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "continuation_route_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "owner_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "owner_receipt_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
-        "route": {"const": "invoke:refresh:apply-approved"},
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prerequisite_fingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "classification_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "continuation_route_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "owner_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "owner_receipt_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "route": {
+          "const": "invoke:refresh:apply-approved"
+        },
         "target_inventory": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/targetBaseline"}
+          "items": {
+            "$ref": "#/$defs/targetBaseline"
+          }
         },
-        "expected_package_id": {"$ref": "#/$defs/nonEmptyString"},
-        "expected_package_digest": {"$ref": "#/$defs/sha256"},
+        "expected_package_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expected_package_digest": {
+          "$ref": "#/$defs/sha256"
+        },
         "expected_owner_validation_commands": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/nonEmptyString"}
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
         },
-        "satisfaction_predicate": {"$ref": "#/$defs/satisfactionPredicate"},
-        "resume_point": {"const": "task-session:context-build"},
-        "max_owner_hops": {"const": 1},
-        "allowed_effect": {"const": "pre-execution-prerequisite-resolution"},
-        "consumption_ledger_path": {"$ref": "#/$defs/nonEmptyString"},
-        "resume_receipt_path": {"$ref": "#/$defs/nonEmptyString"}
+        "satisfaction_predicate": {
+          "$ref": "#/$defs/satisfactionPredicate"
+        },
+        "resume_point": {
+          "const": "task-session:context-build"
+        },
+        "max_owner_hops": {
+          "const": 1
+        },
+        "allowed_effect": {
+          "const": "pre-execution-prerequisite-resolution"
+        },
+        "consumption_ledger_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "resume_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
       }
     },
     "targetBaseline": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "state", "sha256", "size_bytes"],
+      "required": [
+        "path",
+        "state",
+        "sha256",
+        "size_bytes"
+      ],
       "properties": {
-        "path": {"$ref": "#/$defs/nonEmptyString"},
-        "state": {"enum": ["absent", "present"]},
-        "sha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
-        "size_bytes": {"type": ["integer", "null"], "minimum": 0}
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "state": {
+          "enum": [
+            "absent",
+            "present"
+          ]
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "size_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
       },
       "allOf": [
         {
-          "if": {"properties": {"state": {"const": "absent"}}, "required": ["state"]},
-          "then": {"properties": {"sha256": {"type": "null"}, "size_bytes": {"type": "null"}}}
+          "if": {
+            "properties": {
+              "state": {
+                "const": "absent"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sha256": {
+                "type": "null"
+              },
+              "size_bytes": {
+                "type": "null"
+              }
+            }
+          }
         },
         {
-          "if": {"properties": {"state": {"const": "present"}}, "required": ["state"]},
-          "then": {"properties": {"sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": "integer", "minimum": 0}}}
+          "if": {
+            "properties": {
+              "state": {
+                "const": "present"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
         }
       ]
     },
     "satisfactionPredicate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "receipt_pointer", "accepted_values"],
+      "required": [
+        "kind",
+        "receipt_pointer",
+        "accepted_values"
+      ],
       "properties": {
-        "kind": {"const": "json-pointer-any-of"},
-        "receipt_pointer": {"type": "string", "pattern": "^/"},
+        "kind": {
+          "const": "json-pointer-any-of"
+        },
+        "receipt_pointer": {
+          "type": "string",
+          "pattern": "^/"
+        },
         "accepted_values": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["pass", "no-op", "ready"]}
+          "items": {
+            "enum": [
+              "pass",
+              "no-op",
+              "ready"
+            ]
+          }
         }
       }
     }

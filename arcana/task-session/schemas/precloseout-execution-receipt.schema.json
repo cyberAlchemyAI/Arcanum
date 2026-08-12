@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/precloseout-execution-receipt/1-0-0",
+  "title": "TaskSessionPrecloseoutExecutionReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "run_id",
+    "task_id",
+    "swu_id",
+    "request_ref",
+    "ticket_ref",
+    "executor_receipt_ref",
+    "consumed_admission",
+    "material_commit_ref",
+    "reconciliation_ref",
+    "validation_receipt_ref",
+    "validation_contract_digest",
+    "target_inventory_ref",
+    "target_result_inventory_ref",
+    "output_refs",
+    "closeout_contract",
+    "claim_state",
+    "owner_identity",
+    "idempotency_key",
+    "result",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.precloseout-execution-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "ticket_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "executor_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "consumed_admission": {
+      "$ref": "#/$defs/consumedAdmission"
+    },
+    "material_commit_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "reconciliation_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "validation_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "validation_contract_digest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "target_inventory_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "target_result_inventory_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "output_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "closeout_contract": {
+      "$ref": "#/$defs/closeoutContract"
+    },
+    "claim_state": {
+      "const": "execution-validated-closeout-pending"
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "result": {
+      "const": "pass"
+    },
+    "residue": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "consumedAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_ref",
+        "admission_token",
+        "attempt_id",
+        "consumption_ledger_ref"
+      ],
+      "properties": {
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "admission_token": {
+          "$ref": "#/$defs/sha256"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "consumption_ledger_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "closeoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route",
+        "owner_capability",
+        "source_receipt_path",
+        "source_schema_ref",
+        "target_inventory_ref",
+        "expected_owner_receipt_path",
+        "expected_owner_receipt_schema_ref",
+        "final_terminal_receipt_path",
+        "final_terminal_schema_ref",
+        "allowed_delta_classes",
+        "continuation_policy"
+      ],
+      "properties": {
+        "route": {
+          "const": "invoke:refresh:apply-approved"
+        },
+        "owner_capability": {
+          "const": "invoke"
+        },
+        "source_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "target_inventory_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "expected_owner_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expected_owner_receipt_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "final_terminal_receipt_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "final_terminal_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "allowed_delta_classes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "evidence_added",
+              "blocker_opened",
+              "blocker_resolved",
+              "status_changed",
+              "route_changed"
+            ]
+          }
+        },
+        "continuation_policy": {
+          "const": "emit-cursor-never-execute-successor"
+        }
+      }
+    }
+  }
+}

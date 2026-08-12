@@ -25,6 +25,30 @@
       "id": "governance-terminal-receipt-valid",
       "envelope": "governance-terminal-receipt",
       "expected": "PASS"
+    },
+    {
+      "id": "precloseout-request-profile-valid",
+      "family": "precloseout-execution-v1",
+      "envelope": "governance-run-request",
+      "expected": "PASS"
+    },
+    {
+      "id": "precloseout-ticket-profile-valid",
+      "family": "precloseout-execution-v1",
+      "envelope": "execution-ticket",
+      "expected": "PASS"
+    },
+    {
+      "id": "precloseout-receipt-valid",
+      "family": "precloseout-execution-v1",
+      "envelope": "precloseout-execution-receipt",
+      "expected": "PASS"
+    },
+    {
+      "id": "precloseout-terminal-profile-valid",
+      "family": "precloseout-execution-v1",
+      "envelope": "governance-terminal-receipt",
+      "expected": "PASS"
     }
   ],
   "negative_cases": [
@@ -174,6 +198,73 @@
       },
       "expected": "BLOCK",
       "reason": "exact allowed writes are mandatory"
+    },
+    {
+      "id": "profile-request-rejects-missing-precloseout-path",
+      "family": "precloseout-execution-v1",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "remove",
+        "path": "/closeout_contract/precloseout_execution_receipt_path"
+      },
+      "expected": "BLOCK",
+      "reason": "selected profile must declare exact precloseout path"
+    },
+    {
+      "id": "profile-ticket-rejects-missing-precloseout-schema",
+      "family": "precloseout-execution-v1",
+      "envelope": "execution-ticket",
+      "mutation": {
+        "op": "remove",
+        "path": "/closeout_contract/precloseout_execution_schema_ref"
+      },
+      "expected": "BLOCK",
+      "reason": "selected profile must bind source schema"
+    },
+    {
+      "id": "profile-terminal-rejects-missing-precloseout-ref",
+      "family": "precloseout-execution-v1",
+      "envelope": "governance-terminal-receipt",
+      "mutation": {
+        "op": "remove",
+        "path": "/precloseout_execution_receipt_ref"
+      },
+      "expected": "BLOCK",
+      "reason": "final terminal must bind the typed source receipt"
+    },
+    {
+      "id": "profile-request-rejects-missing-invoke-owner-schema",
+      "family": "precloseout-execution-v1",
+      "envelope": "governance-run-request",
+      "mutation": {
+        "op": "remove",
+        "path": "/closeout_contract/expected_owner_receipt_schema_ref"
+      },
+      "expected": "BLOCK",
+      "reason": "selected profile must bind the exact Invoke receipt schema"
+    },
+    {
+      "id": "profile-precloseout-rejects-missing-admission",
+      "family": "precloseout-execution-v1",
+      "envelope": "precloseout-execution-receipt",
+      "mutation": {
+        "op": "remove",
+        "path": "/consumed_admission"
+      },
+      "expected": "BLOCK",
+      "reason": "typed source receipt must prove consumed admission"
+    },
+    {
+      "id": "profile-precloseout-rejects-closeout-join",
+      "family": "precloseout-execution-v1",
+      "envelope": "precloseout-execution-receipt",
+      "mutation": {
+        "op": "add-property",
+        "path": "/closeout_join",
+        "value": {}
+      },
+      "expected": "BLOCK",
+      "reason": "schema is closed and does not permit closeout_join"
     }
   ],
   "semantic_negative_cases": [
@@ -229,16 +320,97 @@
         "value": "reconciled"
       },
       "expected": "BLOCK"
+    },
+    {
+      "id": "profile-ticket-precloseout-path-drift-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "execution-ticket",
+        "op": "replace",
+        "path": "/closeout_contract/precloseout_execution_receipt_path",
+        "value": "run/forged-precloseout.json"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "profile-terminal-executor-substitution-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "governance-terminal-receipt",
+        "op": "replace",
+        "path": "/precloseout_execution_receipt_ref",
+        "value": {
+          "path": "run/executor-receipt.json",
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "size_bytes": 115
+        }
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "profile-precloseout-admission-token-drift-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "precloseout-execution-receipt",
+        "op": "replace",
+        "path": "/consumed_admission/admission_token",
+        "value": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "profile-precloseout-validation-drift-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "precloseout-execution-receipt",
+        "op": "replace",
+        "path": "/validation_contract_digest",
+        "value": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "profile-terminal-invoke-source-path-drift-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "governance-terminal-receipt",
+        "op": "replace",
+        "path": "/closeout_join/joined_owner_receipts/0/receipt_ref/path",
+        "value": "run/hooks/wrong-invoke.receipt.json"
+      },
+      "expected": "BLOCK"
+    },
+    {
+      "id": "profile-precloseout-invoke-schema-drift-blocks",
+      "family": "precloseout-execution-v1",
+      "mutation": {
+        "envelope": "precloseout-execution-receipt",
+        "op": "replace",
+        "path": "/closeout_contract/expected_owner_receipt_schema_ref/sha256",
+        "value": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "expected": "BLOCK"
     }
   ],
   "expected_counts": {
-    "positive": 5,
-    "negative": 14,
-    "semantic_negative": 5,
-    "staged_files": 7
+    "positive": 9,
+    "negative": 20,
+    "semantic_negative": 11,
+    "staged_files": 8
   },
   "experiment_harness": {
     "status": "not_run",
     "reason": "SWU-TSGR-002 acceptance is the deterministic positive/negative contract matrix; reusable runner experiments are owned by later SWUs."
+  },
+  "profile_coverage": {
+    "profile": "precloseout-execution-v1",
+    "legacy_envelopes_retained": 5,
+    "profile_envelopes": [
+      "governance-run-request",
+      "execution-ticket",
+      "precloseout-execution-receipt",
+      "governance-terminal-receipt"
+    ],
+    "claim_ceiling": "fixture contract only; no live executor or Invoke owner hop"
   }
 }

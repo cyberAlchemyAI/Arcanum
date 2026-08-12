@@ -19,6 +19,9 @@ SCHEMA_FILES = {
     "execution-ticket": "schemas/execution-ticket.schema.json",
     "governance-phase-receipt": "schemas/governance-phase-receipt.schema.json",
     "executor-receipt": "schemas/executor-receipt.schema.json",
+    "precloseout-execution-receipt": (
+        "schemas/precloseout-execution-receipt.schema.json"
+    ),
     "governance-terminal-receipt": (
         "schemas/governance-terminal-receipt.schema.json"
     ),
@@ -333,6 +336,228 @@ def build_documents() -> dict[str, dict[str, Any]]:
     }
 
 
+def build_profile_documents() -> dict[str, dict[str, Any]]:
+    """Build the selected profile while retaining build_documents() as legacy."""
+    documents = build_documents()
+    request = documents["governance-run-request"]
+    ticket = documents["execution-ticket"]
+    terminal = documents["governance-terminal-receipt"]
+    request["admission_profile"] = "plan-once-selected-unit"
+    request["plan_admission"] = {
+        "plan_epoch_id": "epoch-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "unit_contract_digest": "1" * 64,
+        "attempt_id": "attempt-profile-001",
+        "selection_receipt_ref": exact_ref("run/selection.json", "2", 201),
+        "mutation_admission_receipt_ref": exact_ref("run/admission.json", "3", 202),
+        "admission_token": "4" * 64,
+        "target_baseline_digest": "5" * 64,
+        "validation_contract_digest": "6" * 64,
+        "consumption_ledger_path": "run/admission-consumption.json",
+    }
+    request["closeout_contract"] = {
+        "receipt_profile": "precloseout-execution-v1",
+        "required_owner_capabilities": ["invoke"],
+        "continuation_policy": "emit-cursor-never-execute-successor",
+        "precloseout_execution_receipt_path": "run/precloseout-execution-receipt.json",
+        "precloseout_execution_schema_ref": exact_ref(
+            "schemas/precloseout-execution-receipt.schema.json", "a", 301
+        ),
+        "expected_owner_receipt_path": "run/hooks/invoke-refresh.receipt.json",
+        "expected_owner_receipt_schema_ref": exact_ref(
+            "schemas/invoke-refresh-receipt.schema.json", "c", 303
+        ),
+        "terminal_receipt_path": "run/terminal-receipt.json",
+        "final_terminal_schema_ref": exact_ref(
+            "schemas/governance-terminal-receipt.schema.json", "b", 302
+        ),
+    }
+    ticket["admission_profile"] = "plan-once-selected-unit"
+    ticket["plan_admission"] = {
+        **copy.deepcopy(request["plan_admission"]),
+        "target_baselines": [
+            {
+                "path": "src/module.py",
+                "state": "present",
+                "sha256": "7" * 64,
+                "size_bytes": 207,
+            }
+        ],
+    }
+    ticket["closeout_contract"] = copy.deepcopy(request["closeout_contract"])
+    terminal["admission_profile"] = "plan-once-selected-unit"
+    terminal["consumed_admission"] = {
+        "receipt_ref": copy.deepcopy(
+            request["plan_admission"]["mutation_admission_receipt_ref"]
+        ),
+        "admission_token": request["plan_admission"]["admission_token"],
+        "attempt_id": request["plan_admission"]["attempt_id"],
+        "consumption_ledger_ref": exact_ref(
+            "run/admission-consumption.json", "8", 208
+        ),
+    }
+    terminal["receipt_profile"] = "precloseout-execution-v1"
+    terminal["precloseout_execution_receipt_ref"] = exact_ref(
+        "run/precloseout-execution-receipt.json", "9", 209
+    )
+    terminal["precloseout_execution_schema_ref"] = copy.deepcopy(
+        request["closeout_contract"]["precloseout_execution_schema_ref"]
+    )
+    terminal["closeout_join"] = {
+        "required_owner_capabilities": ["invoke"],
+        "joined_owner_receipts": [
+            {
+                "owner_capability": "invoke",
+                "receipt_ref": exact_ref("run/hooks/invoke-refresh.receipt.json", "a", 210),
+                "result": "pass",
+            }
+        ],
+        "continuation": {
+            "policy": "emit-cursor-never-execute-successor",
+            "cursor_ref": exact_ref("run/continuity-cursor.json", "b", 211),
+            "successor_executed": False,
+        },
+    }
+    precloseout = {
+        "schema_version": "task-session.precloseout-execution-receipt.v1",
+        "receipt_id": "precloseout-receipt-example-001",
+        "run_id": request["run_id"],
+        "task_id": request["task_id"],
+        "swu_id": request["swu_id"],
+        "request_ref": copy.deepcopy(terminal["request_ref"]),
+        "ticket_ref": copy.deepcopy(terminal["ticket_ref"]),
+        "executor_receipt_ref": copy.deepcopy(terminal["executor_receipt_ref"]),
+        "consumed_admission": copy.deepcopy(terminal["consumed_admission"]),
+        "material_commit_ref": exact_ref("run/material-commit.json", "c", 212),
+        "reconciliation_ref": exact_ref("run/reconciliation.json", "d", 213),
+        "validation_receipt_ref": exact_ref("run/validation.json", "e", 214),
+        "validation_contract_digest": request["plan_admission"]["validation_contract_digest"],
+        "target_inventory_ref": exact_ref("run/target-inventory.json", "f", 215),
+        "target_result_inventory_ref": exact_ref("run/target-result-inventory.json", "1", 216),
+        "output_refs": copy.deepcopy(terminal["output_refs"]),
+        "closeout_contract": {
+            "route": "invoke:refresh:apply-approved",
+            "owner_capability": "invoke",
+            "source_receipt_path": request["closeout_contract"]["precloseout_execution_receipt_path"],
+            "source_schema_ref": copy.deepcopy(request["closeout_contract"]["precloseout_execution_schema_ref"]),
+            "target_inventory_ref": exact_ref("run/closeout-target-inventory.json", "2", 217),
+            "expected_owner_receipt_path": request["closeout_contract"]["expected_owner_receipt_path"],
+            "expected_owner_receipt_schema_ref": copy.deepcopy(request["closeout_contract"]["expected_owner_receipt_schema_ref"]),
+            "final_terminal_receipt_path": request["closeout_contract"]["terminal_receipt_path"],
+            "final_terminal_schema_ref": copy.deepcopy(request["closeout_contract"]["final_terminal_schema_ref"]),
+            "allowed_delta_classes": ["evidence_added", "status_changed"],
+            "continuation_policy": "emit-cursor-never-execute-successor",
+        },
+        "claim_state": "execution-validated-closeout-pending",
+        "owner_identity": copy.deepcopy(request["owner_identity"]),
+        "idempotency_key": "run-example-001:precloseout",
+        "result": "pass",
+        "residue": [],
+    }
+    documents["precloseout-execution-receipt"] = precloseout
+    return documents
+
+
+def precloseout_semantic_errors(documents: dict[str, dict[str, Any]]) -> list[str]:
+    request = documents["governance-run-request"]
+    ticket = documents["execution-ticket"]
+    executor = documents["executor-receipt"]
+    terminal = documents["governance-terminal-receipt"]
+    precloseout = documents.get("precloseout-execution-receipt")
+    errors: list[str] = []
+    if precloseout is None:
+        return ["precloseout-receipt: selected profile is missing its source receipt"]
+    contract = request["closeout_contract"]
+    if contract.get("receipt_profile") != "precloseout-execution-v1":
+        errors.append("request: precloseout profile is missing")
+    if ticket["closeout_contract"] != contract:
+        errors.append("execution-ticket: precloseout closeout contract drift")
+    if terminal.get("receipt_profile") != "precloseout-execution-v1":
+        errors.append("terminal-receipt: precloseout sequence profile is missing")
+    if terminal.get("precloseout_execution_schema_ref") != contract.get(
+        "precloseout_execution_schema_ref"
+    ):
+        errors.append("terminal-receipt: precloseout schema identity drift")
+    terminal_precloseout = terminal.get("precloseout_execution_receipt_ref", {})
+    if terminal_precloseout.get("path") != contract.get(
+        "precloseout_execution_receipt_path"
+    ):
+        errors.append("terminal-receipt: precloseout receipt path drift")
+    if terminal_precloseout == terminal["executor_receipt_ref"]:
+        errors.append("terminal-receipt: executor receipt cannot substitute for precloseout receipt")
+    if precloseout["request_ref"] != terminal["request_ref"]:
+        errors.append("precloseout-receipt: request identity drift")
+    if precloseout["ticket_ref"] != terminal["ticket_ref"]:
+        errors.append("precloseout-receipt: ticket identity drift")
+    if precloseout["executor_receipt_ref"] != terminal["executor_receipt_ref"]:
+        errors.append("precloseout-receipt: executor identity drift")
+    if precloseout["output_refs"] != executor["outputs"]:
+        errors.append("precloseout-receipt: output refs do not join executor outputs")
+    if terminal["output_refs"] != precloseout["output_refs"]:
+        errors.append("terminal-receipt: output refs do not join precloseout target outputs")
+    if precloseout["owner_identity"] != request["owner_identity"]:
+        errors.append("precloseout-receipt: task-session owner identity drift")
+    for key in ("receipt_ref", "admission_token", "attempt_id", "consumption_ledger_ref"):
+        if precloseout["consumed_admission"].get(key) != terminal["consumed_admission"].get(key):
+            errors.append(f"precloseout-receipt: consumed admission {key} drift")
+    plan = ticket.get("plan_admission", {})
+    consumed = precloseout["consumed_admission"]
+    if consumed.get("receipt_ref") != plan.get("mutation_admission_receipt_ref"):
+        errors.append("precloseout-receipt: admission receipt drift from ticket")
+    if consumed.get("admission_token") != plan.get("admission_token"):
+        errors.append("precloseout-receipt: admission token drift from ticket")
+    if consumed.get("attempt_id") != plan.get("attempt_id"):
+        errors.append("precloseout-receipt: admission attempt drift from ticket")
+    if precloseout["validation_contract_digest"] != plan.get("validation_contract_digest"):
+        errors.append("precloseout-receipt: validation contract drift from ticket")
+    precloseout_contract = precloseout["closeout_contract"]
+    if precloseout_contract["source_receipt_path"] != terminal_precloseout.get("path"):
+        errors.append("precloseout-receipt: Invoke source path drift")
+    if precloseout_contract["source_schema_ref"] != terminal.get(
+        "precloseout_execution_schema_ref"
+    ):
+        errors.append("precloseout-receipt: Invoke source schema drift")
+    if precloseout_contract["final_terminal_receipt_path"] != contract.get(
+        "terminal_receipt_path"
+    ):
+        errors.append("precloseout-receipt: final terminal path drift")
+    if precloseout_contract["final_terminal_schema_ref"] != contract.get(
+        "final_terminal_schema_ref"
+    ):
+        errors.append("precloseout-receipt: final terminal schema drift")
+    if precloseout_contract["expected_owner_receipt_path"] != contract.get(
+        "expected_owner_receipt_path"
+    ):
+        errors.append("precloseout-receipt: Invoke owner receipt path drift")
+    if precloseout_contract["expected_owner_receipt_schema_ref"] != contract.get(
+        "expected_owner_receipt_schema_ref"
+    ):
+        errors.append("precloseout-receipt: Invoke owner receipt schema drift")
+    joined = terminal["closeout_join"]
+    if joined["required_owner_capabilities"] != ["invoke"]:
+        errors.append("terminal-receipt: selected profile requires Invoke-only closeout")
+    joined_capabilities = [item["owner_capability"] for item in joined["joined_owner_receipts"]]
+    if joined_capabilities != ["invoke"]:
+        errors.append("terminal-receipt: selected profile must join exactly Invoke")
+    if joined["joined_owner_receipts"][0]["receipt_ref"].get("path") != precloseout_contract[
+        "expected_owner_receipt_path"
+    ]:
+        errors.append("terminal-receipt: Invoke owner receipt path drift")
+    return errors
+
+
+def documents_for_case(
+    case: dict[str, Any],
+    legacy_documents: dict[str, dict[str, Any]],
+    profile_documents: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    family = case.get("family", "legacy")
+    if family == "legacy":
+        return legacy_documents
+    if family == "precloseout-execution-v1":
+        return profile_documents
+    raise ValueError(f"unknown fixture family: {family}")
+
+
 def schema_errors(document: dict[str, Any], schema: dict[str, Any]) -> list[str]:
     return [
         (
@@ -383,6 +608,12 @@ def apply_mutation(document: dict[str, Any], mutation: dict[str, Any]) -> None:
         if not isinstance(target, list):
             raise ValueError("append requires an array target")
         target.append(copy.deepcopy(mutation["value"]))
+    elif operation == "add-property":
+        if not isinstance(parent, dict):
+            raise ValueError("add-property requires an object parent")
+        if key in parent:
+            raise ValueError("add-property may not replace an existing key")
+        parent[key] = copy.deepcopy(mutation["value"])
     else:
         raise ValueError(f"unknown mutation operation: {operation}")
 
@@ -470,8 +701,9 @@ def semantic_errors(documents: dict[str, dict[str, Any]]) -> list[str]:
             + ", ".join(undeclared_executor_outputs)
         )
     terminal_output_paths = {item["path"] for item in terminal["output_refs"]}
-    if terminal_output_paths != executor_output_paths:
-        errors.append("terminal-receipt: output refs do not join executor outputs")
+    if request["closeout_contract"].get("receipt_profile") != "precloseout-execution-v1":
+        if terminal_output_paths != executor_output_paths:
+            errors.append("terminal-receipt: output refs do not join executor outputs")
 
     if phase["phase"] != "observed" or phase["predecessor"]["phase"] != (
         "closeout-joined"
@@ -498,6 +730,8 @@ def semantic_errors(documents: dict[str, dict[str, Any]]) -> list[str]:
         request["closeout_contract"]["required_owner_capabilities"]
     ):
         errors.append("terminal-receipt: required closeout owners drift from request")
+    if request["closeout_contract"].get("receipt_profile") == "precloseout-execution-v1":
+        errors.extend(precloseout_semantic_errors(documents))
     return errors
 
 
@@ -544,7 +778,7 @@ def main() -> int:
     parser.add_argument(
         "--task-session-dir",
         help=(
-            "Task Session tree containing the five schemas, fixture corpus, and "
+            "Task Session tree containing the six schemas, fixture corpus, and "
             "validator; defaults to the tree containing this validator"
         ),
     )
@@ -567,7 +801,8 @@ def main() -> int:
         for name, relative_path in SCHEMA_FILES.items()
     }
     fixtures = load_json(task_session_dir / FIXTURE_FILE)
-    base_documents = build_documents()
+    legacy_documents = build_documents()
+    profile_documents = build_profile_documents()
     errors: list[str] = []
     positive_rows: list[tuple[str, bool]] = []
     negative_rows: list[tuple[str, bool]] = []
@@ -596,22 +831,28 @@ def main() -> int:
 
     for case in fixtures["positive_cases"]:
         name = case["envelope"]
-        issues = schema_errors(base_documents[name], schemas[name])
+        documents = documents_for_case(case, legacy_documents, profile_documents)
+        issues = schema_errors(documents[name], schemas[name])
         passed = not issues
         positive_rows.append((case["id"], passed))
         if not passed:
             errors.append(f"{case['id']}: " + "; ".join(issues))
 
-    positive_semantic_issues = semantic_errors(base_documents)
-    if positive_semantic_issues:
-        errors.extend(
-            f"positive-envelope-family: {issue}"
-            for issue in positive_semantic_issues
-        )
+    for family_name, documents in (
+        ("legacy", legacy_documents),
+        ("precloseout-execution-v1", profile_documents),
+    ):
+        positive_semantic_issues = semantic_errors(documents)
+        if positive_semantic_issues:
+            errors.extend(
+                f"positive-envelope-family-{family_name}: {issue}"
+                for issue in positive_semantic_issues
+            )
 
     for case in fixtures["negative_cases"]:
         name = case["envelope"]
-        candidate = copy.deepcopy(base_documents[name])
+        documents = documents_for_case(case, legacy_documents, profile_documents)
+        candidate = copy.deepcopy(documents[name])
         apply_mutation(candidate, case["mutation"])
         issues = schema_errors(candidate, schemas[name])
         passed = bool(issues)
@@ -620,7 +861,10 @@ def main() -> int:
             errors.append(f"{case['id']}: negative case unexpectedly passed")
 
     for case in fixtures["semantic_negative_cases"]:
-        documents = copy.deepcopy(base_documents)
+        source_documents = documents_for_case(
+            case, legacy_documents, profile_documents
+        )
+        documents = copy.deepcopy(source_documents)
         mutation = case["mutation"]
         name = mutation["envelope"]
         apply_mutation(documents[name], mutation)
