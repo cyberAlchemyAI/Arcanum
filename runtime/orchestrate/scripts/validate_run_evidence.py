@@ -21,6 +21,7 @@ EVENT_KINDS = {
     "agent_closed",
     "wait_timed_out",
     "agent_interrupted",
+    "run_blocked",
     "receipt_joined",
     "gate_decided",
 }
@@ -32,6 +33,9 @@ EVENT_FIELDS = BASE_FIELDS | {
     "decision",
     "required_action_ids",
     "admitted_receipt_action_ids",
+    "failed_action_ids",
+    "cleaned_action_ids",
+    "blocker_code",
 }
 
 
@@ -88,6 +92,23 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
     elif kind == "host_spawn_failed":
         if event.get("agent_id") is not None:
             return "host_spawn_failed requires null agent_id"
+    elif kind == "run_blocked":
+        if event.get("agent_id") is not None:
+            return "run_blocked requires null agent_id"
+        if event.get("blocker_code") != "partial_wave_spawn_failure":
+            return "run_blocked requires partial_wave_spawn_failure blocker_code"
+        for field in ("failed_action_ids", "cleaned_action_ids"):
+            value = event.get(field)
+            if (
+                not isinstance(value, list)
+                or any(not isinstance(item, str) or not item for item in value)
+                or len(set(value)) != len(value)
+            ):
+                return f"run_blocked requires unique string {field}"
+        if not event["failed_action_ids"]:
+            return "run_blocked requires at least one failed_action_id"
+        if event.get("action_id") not in event["failed_action_ids"]:
+            return "run_blocked action_id must identify a failed action"
     elif not isinstance(event.get("agent_id"), str) or not event["agent_id"]:
         return f"{kind} requires agent_id"
     if kind == "receipt_joined" and event.get("receipt_status") not in {"pass", "block", "fail", "timed_out"}:
@@ -113,6 +134,7 @@ def validate_events(
     joined: dict[str, dict[str, Any]] = {}
     gate_decisions: dict[str, int] = {}
     gate_passes: dict[str, int] = {}
+    run_blocks: list[dict[str, Any]] = []
     dispatch_id: str | None = None
     run_id: str | None = None
 
@@ -299,6 +321,39 @@ def validate_events(
             if join_valid:
                 joined[action_id] = event
 
+        elif kind == "run_blocked":
+            block_valid = True
+            if run_blocks:
+                reject("duplicate_run_blocked", event, "run already has a blocked closeout")
+                block_valid = False
+            failed_action_ids = event.get("failed_action_ids", [])
+            cleaned_action_ids = event.get("cleaned_action_ids", [])
+            for failed_action_id in failed_action_ids:
+                host_result = host_results.get(failed_action_id)
+                if host_result is None or host_result.get("event") != "host_spawn_failed":
+                    reject("blocked_closeout_missing_failed_spawn", event, "blocked closeout references an action without host_spawn_failed", failed_action_id)
+                    block_valid = False
+            successful_action_ids = {
+                candidate_action_id
+                for candidate_action_id, host_result in host_results.items()
+                if host_result.get("event") == "host_spawn_returned"
+            }
+            if set(cleaned_action_ids) != successful_action_ids:
+                reject("blocked_closeout_cleanup_set_mismatch", event, "blocked closeout must name every and only successfully spawned action")
+                block_valid = False
+            for cleaned_action_id in cleaned_action_ids:
+                if cleaned_action_id not in closes and cleaned_action_id not in interrupts:
+                    reject("blocked_closeout_uncleaned_agent", event, "blocked closeout names an agent without terminal cleanup", cleaned_action_id)
+                    block_valid = False
+            if joined:
+                reject("blocked_closeout_after_join", event, "blocked closeout cannot follow a joined receipt")
+                block_valid = False
+            if gate_decisions:
+                reject("blocked_closeout_after_gate", event, "blocked closeout cannot follow a gate decision")
+                block_valid = False
+            if block_valid:
+                run_blocks.append(event)
+
         elif kind == "gate_decided":
             gate_error_count = len(errors)
             gate_id = event.get("gate_id")
@@ -325,7 +380,22 @@ def validate_events(
                 if event.get("decision") == "gate_pass":
                     gate_passes[gate_id] = event.get("sequence")
 
-    if require_complete:
+    if run_blocks and events and events[-1].get("event") != "run_blocked":
+        reject("blocked_closeout_not_terminal", run_blocks[-1], "run_blocked must be the final causal event")
+
+    if require_complete and not run_blocks:
+        failed_results = [
+            event
+            for event in host_results.values()
+            if event.get("event") == "host_spawn_failed"
+        ]
+        if failed_results:
+            reject(
+                "missing_blocked_closeout",
+                failed_results[0],
+                "a host_spawn_failed action requires a terminal run_blocked closeout",
+                failed_results[0].get("action_id"),
+            )
         for action_id, attempt in attempts.items():
             host_result = host_results.get(action_id)
             if host_result is None:

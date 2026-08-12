@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/partial-wave-closeout.schema.json",
+  "title": "Native Dispatch Runner Partial-Wave Blocked Closeout",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "state",
+    "dispatch_id",
+    "run_id",
+    "wave_id",
+    "failed_action_ids",
+    "cleaned_action_ids",
+    "unattempted_action_ids",
+    "dependent_action_ids",
+    "blockers",
+    "event_validation_status"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.partial-wave-closeout.v0.1"},
+    "status": {"const": "block"},
+    "state": {"const": "blocked"},
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "wave_id": {"type": "string", "minLength": 1},
+    "failed_action_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "cleaned_action_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "unattempted_action_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "dependent_action_ids": {"type": "array", "maxItems": 0},
+    "blockers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "event_validation_status": {"const": "pass"}
+  },
+  "additionalProperties": false
+}

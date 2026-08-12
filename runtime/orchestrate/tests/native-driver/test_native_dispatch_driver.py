@@ -54,6 +54,9 @@ class NativeDispatchDriverTests(unittest.TestCase):
         cls.admission_schema = load_json(SCHEMAS / "receipt-admission.schema.yml")
         cls.event_schema = load_json(SCHEMAS / "run-event.schema.json")
         cls.residue_schema = load_json(SCHEMAS / "run-residue.schema.yml")
+        cls.partial_closeout_schema = load_json(
+            SCHEMAS / "partial-wave-closeout.schema.json"
+        )
 
     def persist_actions(self, root: Path) -> dict[str, Path]:
         paths: dict[str, Path] = {}
@@ -122,6 +125,57 @@ class NativeDispatchDriverTests(unittest.TestCase):
         driver.append_causal_records(events, terminal_records)
         return events
 
+    def build_partial_stream(
+        self, root: Path, *, failure_action_id: str = "spawn-0003"
+    ) -> tuple[Path, dict[str, Path], dict[str, dict[str, Any]]]:
+        events = root / "events.jsonl"
+        action_paths = self.persist_actions(root)
+        receipts = {
+            value["action_id"]: value
+            for value in (
+                load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
+            )
+        }
+        for action in self.run_plan["actions"]:
+            action_id = action["action_id"]
+            driver.prepare_spawn(
+                action_paths[action_id],
+                self.run_plan_path,
+                events,
+                root / "requests" / f"{action_id}.json",
+                None,
+            )
+            if action_id == failure_action_id:
+                driver.record_spawn(
+                    action_paths[action_id], self.run_plan_path, events, None
+                )
+                break
+            driver.record_spawn(
+                action_paths[action_id],
+                self.run_plan_path,
+                events,
+                receipts[action_id]["agent_id"],
+            )
+        return events, action_paths, receipts
+
+    def append_partial_cleanup_residue(
+        self, root: Path, action: dict[str, Any], agent_id: str
+    ) -> None:
+        driver.append_residue_record(
+            root / "residue.jsonl",
+            {
+                "recorded_at": "2026-08-10T00:00:00Z",
+                "kind": "evidence_closure",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": agent_id,
+                "summary": "Known partial-wave sibling completed; its raw return remains unjoined evidence.",
+                "source_refs": ["events.jsonl"],
+            },
+        )
+
     def test_prepare_spawn_persists_pre_event_before_request_and_replay_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -171,6 +225,169 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 validator.validate_events(
                     values, str(events), require_complete=False
                 )["valid"]
+            )
+
+    def test_partial_recovery_closes_completed_known_siblings_and_blocks_the_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events, action_paths, receipts = self.build_partial_stream(root)
+            before_prepare_wait = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.prepare_wait(
+                    self.run_plan_path, events, root / "requests" / "wait.json"
+                )
+            self.assertEqual(events.read_bytes(), before_prepare_wait)
+
+            request = driver.prepare_partial_recovery(
+                self.run_plan_path,
+                events,
+                root / "requests" / "partial-wait.json",
+            )
+            self.assertEqual(request["pending_agent_ids"], [
+                receipts["spawn-0001"]["agent_id"],
+                receipts["spawn-0002"]["agent_id"],
+            ])
+            for action_id in ("spawn-0001", "spawn-0002"):
+                action = next(
+                    item for item in self.run_plan["actions"] if item["action_id"] == action_id
+                )
+                driver.record_partial_terminal(
+                    action_paths[action_id],
+                    self.run_plan_path,
+                    events,
+                    receipts[action_id]["agent_id"],
+                )
+                self.append_partial_cleanup_residue(
+                    root, action, receipts[action_id]["agent_id"]
+                )
+
+            state_before = self.state_path.read_bytes()
+            closeout = driver.close_partial_wave(
+                self.run_plan_path,
+                self.state_path,
+                events,
+                root / "residue.jsonl",
+                root / "partial-closeout.json",
+            )
+            Draft202012Validator(self.partial_closeout_schema).validate(closeout)
+            self.assertEqual(self.state_path.read_bytes(), state_before)
+            self.assertEqual(closeout["failed_action_ids"], ["spawn-0003"])
+            self.assertEqual(closeout["dependent_action_ids"], [])
+            causal = validator.load_events(events)
+            self.assertEqual(causal[-1]["event"], "run_blocked")
+            self.assertNotIn("receipt_joined", [item["event"] for item in causal])
+            self.assertNotIn("gate_decided", [item["event"] for item in causal])
+            validation = validator.validate_events(causal, str(events))
+            self.assertTrue(validation["valid"], validation)
+
+    def test_partial_recovery_interrupts_an_unresolved_sibling_once(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events, action_paths, receipts = self.build_partial_stream(root)
+            driver.prepare_partial_recovery(
+                self.run_plan_path,
+                events,
+                root / "requests" / "partial-wait.json",
+            )
+            interrupt = driver.prepare_partial_interrupt(
+                action_paths["spawn-0001"],
+                self.run_plan_path,
+                events,
+                receipts["spawn-0001"]["agent_id"],
+                root / "requests" / "interrupt.json",
+            )
+            self.assertEqual(interrupt["operation"], "collaboration.interrupt_agent")
+            driver.record_partial_interrupt(
+                action_paths["spawn-0001"],
+                self.run_plan_path,
+                events,
+                receipts["spawn-0001"]["agent_id"],
+            )
+            action_two = next(
+                item for item in self.run_plan["actions"] if item["action_id"] == "spawn-0002"
+            )
+            driver.record_partial_terminal(
+                action_paths["spawn-0002"],
+                self.run_plan_path,
+                events,
+                receipts["spawn-0002"]["agent_id"],
+            )
+            for action_id in ("spawn-0001", "spawn-0002"):
+                action = next(
+                    item for item in self.run_plan["actions"] if item["action_id"] == action_id
+                )
+                self.append_partial_cleanup_residue(
+                    root, action, receipts[action_id]["agent_id"]
+                )
+            closeout = driver.close_partial_wave(
+                self.run_plan_path,
+                self.state_path,
+                events,
+                root / "residue.jsonl",
+                root / "partial-closeout.json",
+            )
+            self.assertEqual(closeout["status"], "block")
+            self.assertTrue(
+                validator.validate_events(validator.load_events(events), str(events))["valid"]
+            )
+
+    def test_partial_recovery_rejects_missing_cleanup_residue_without_mutating_events(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events, action_paths, receipts = self.build_partial_stream(root)
+            driver.prepare_partial_recovery(
+                self.run_plan_path,
+                events,
+                root / "requests" / "partial-wait.json",
+            )
+            for action_id in ("spawn-0001", "spawn-0002"):
+                driver.record_partial_terminal(
+                    action_paths[action_id],
+                    self.run_plan_path,
+                    events,
+                    receipts[action_id]["agent_id"],
+                )
+            (root / "residue.jsonl").write_text("", encoding="utf-8")
+            before = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.close_partial_wave(
+                    self.run_plan_path,
+                    self.state_path,
+                    events,
+                    root / "residue.jsonl",
+                    root / "partial-closeout.json",
+                )
+            self.assertEqual(events.read_bytes(), before)
+            self.assertFalse((root / "partial-closeout.json").exists())
+
+    def test_partial_closeout_without_known_siblings_is_valid_and_no_later_spawn_is_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events, action_paths, _ = self.build_partial_stream(
+                root, failure_action_id="spawn-0001"
+            )
+            before = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.prepare_spawn(
+                    action_paths["spawn-0002"],
+                    self.run_plan_path,
+                    events,
+                    root / "requests" / "spawn-0002-retry.json",
+                    None,
+                )
+            self.assertEqual(events.read_bytes(), before)
+            (root / "residue.jsonl").write_text("", encoding="utf-8")
+            closeout = driver.close_partial_wave(
+                self.run_plan_path,
+                self.state_path,
+                events,
+                root / "residue.jsonl",
+                root / "partial-closeout.json",
+            )
+            self.assertEqual(closeout["cleaned_action_ids"], [])
+            self.assertEqual(closeout["unattempted_action_ids"], ["spawn-0002", "spawn-0003"])
+            self.assertTrue(
+                validator.validate_events(validator.load_events(events), str(events))["valid"]
             )
 
     def test_invalid_causal_append_is_byte_stable_and_full_empty_stream_blocks(self) -> None:

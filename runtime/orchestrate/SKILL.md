@@ -158,6 +158,29 @@ Consume one persisted wave plan and the complete action-to-native-agent bindings
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.
 </native-join-wave>
 
+<partial-wave-recovery>
+When one or more selected-wave spawns produce `host_spawn_failed`, keep the
+normal `prepare-wait` all-action rule unchanged. Do not synthesize a failed
+action receipt and do not call `advance-wave`.
+
+1. Stop every later spawn in that wave.
+2. Run driver `prepare-partial-recovery`; it derives only successful native
+   bindings, appends their registrations plus one mailbox-wide wait event, and
+   exposes the exact host wait request.
+3. Reconcile only those known identifiers with the host inventory. Record a
+   completed sibling through `record-partial-terminal`; for an unresolved one,
+   run `prepare-partial-interrupt`, invoke its exact interrupt request once,
+   then record it with `record-partial-interrupt`.
+4. Append separate `evidence_closure` residue for every cleaned sibling.
+5. Run `close-partial-wave`. It requires all known siblings to be cleaned,
+   appends a terminal typed `run_blocked`, validates the complete stream, and
+   emits no joins, gates, dependent actions, or retry.
+
+The blocked closeout preserves the failed run as evidence only. A fresh run
+requires a distinct run ID and explicit retry authority; it must not replay an
+action in the closed stream.
+</partial-wave-recovery>
+
 <causal-event-and-residue-boundary>
 `events.jsonl` contains only records admitted by
 `schemas/run-event.schema.json` through the native driver. Feedback,
@@ -180,6 +203,7 @@ not be rewritten into a passing causal stream.
 - Ready: `pass`, `wave_ready`, compiled actions only; spawning is still not part of preflight.
 - Unknown or replayed native action: `block`, no host call.
 - Native spawn error or missing returned agent identifier: record the attempted call and blocking failure evidence; do not retry implicitly.
+- Partial-wave spawn failure: clean only already-known siblings through the dedicated partial-recovery handshake, append a terminal `run_blocked` closeout, and expose zero dependent actions.
 - Source-time event append failure: make no pending host call; preserve the existing stream byte-for-byte and block.
 - Missing or mismatched joined result: normalize blocking evidence for the expected action and let the deterministic reducer withhold dependents.
 - Unresolved known agent: interrupt once under the wave's incomplete policy, record residue, and return an explicit `timed_out` receipt.

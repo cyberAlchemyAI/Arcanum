@@ -28,6 +28,7 @@
         "agent_closed",
         "wait_timed_out",
         "agent_interrupted",
+        "run_blocked",
         "receipt_joined",
         "gate_decided"
       ]
@@ -52,6 +53,20 @@
       "type": "array",
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
+    },
+    "failed_action_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "cleaned_action_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "blocker_code": {
+      "const": "partial_wave_spawn_failure"
     }
   },
   "allOf": [
@@ -78,6 +93,13 @@
       "if": {"properties": {"event": {"const": "wait_attempted"}}},
       "then": {
         "properties": {"action_id": {"type": "null"}, "agent_id": {"type": "null"}}
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "run_blocked"}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "null"}},
+        "required": ["failed_action_ids", "cleaned_action_ids", "blocker_code"]
       }
     },
     {

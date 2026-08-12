@@ -47,6 +47,11 @@ join_contract:
   missing_result_status: timed_out
   identity_mismatch_status: block
   prepare_wait_command: scripts/native_dispatch_driver.py prepare-wait
+  prepare_partial_recovery_command: scripts/native_dispatch_driver.py prepare-partial-recovery
+  record_partial_terminal_command: scripts/native_dispatch_driver.py record-partial-terminal
+  prepare_partial_interrupt_command: scripts/native_dispatch_driver.py prepare-partial-interrupt
+  record_partial_interrupt_command: scripts/native_dispatch_driver.py record-partial-interrupt
+  close_partial_wave_command: scripts/native_dispatch_driver.py close-partial-wave
   advance_wave_command: scripts/native_dispatch_driver.py advance-wave
 evidence_contract:
   causal_append_command: scripts/native_dispatch_driver.py append-event
@@ -110,3 +115,19 @@ and call `advance-wave`. That command owns exact receipt admission,
 validation before dependent actions are written. The coordinator's pure
 `reduce` command is offline reducer evidence only and must not be cited as a
 live native-run closeout.
+
+## Partial Spawn Recovery
+
+If a selected-wave spawn returns `host_spawn_failed`, do not issue another
+spawn in that wave and do not fabricate a receipt for the failed action. Use
+`prepare-partial-recovery` to register only the successfully spawned sibling
+identifiers and prepare one mailbox-wide wait. Reconcile those identifiers with
+the host inventory: record completed siblings with
+`record-partial-terminal`; for a still-live sibling, use
+`prepare-partial-interrupt`, make its exact interrupt call once, then use
+`record-partial-interrupt`.
+
+Append one `evidence_closure` residue record for each cleaned sibling, then
+use `close-partial-wave`. It emits a terminal `run_blocked` event and a typed
+blocked closeout with no receipt joins, gate decision, dependent actions, or
+retry. A new host run needs separate retry authority and a distinct run ID.
