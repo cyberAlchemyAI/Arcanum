@@ -123,23 +123,31 @@ class ChainFixture:
             },
         }
 
-    def v2_config(self) -> dict[str, object]:
+    def v2_config(
+        self,
+        *,
+        fragment_targets: bool = False,
+        include_closeout_routes: bool = True,
+    ) -> dict[str, object]:
         frontier = ["U1", "U2"]
         routes = []
         for unit_id in frontier:
-            routes.extend(
-                [
-                    {
-                        "route_id": f"task-session-{unit_id}",
-                        "frontier_swu": unit_id,
-                        "capability": "task-session",
-                        "mode": "execute",
-                        "target": unit_id,
-                        "write_scope": [f"product/{unit_id}"],
-                        "effect_class": "repository-local-reversible",
-                        "required_inputs": [f"contract/{unit_id}"],
-                        "expected_receipt": f"receipt/{unit_id}",
-                    },
+            target = f"product/{unit_id}#{unit_id}" if fragment_targets else unit_id
+            routes.append(
+                {
+                    "route_id": f"task-session-{unit_id}",
+                    "frontier_swu": unit_id,
+                    "capability": "task-session",
+                    "mode": "execute",
+                    "target": target,
+                    "write_scope": [f"product/{unit_id}"],
+                    "effect_class": "repository-local-reversible",
+                    "required_inputs": [f"contract/{unit_id}"],
+                    "expected_receipt": f"receipt/{unit_id}",
+                }
+            )
+            if include_closeout_routes:
+                routes.append(
                     {
                         "route_id": f"closeout-{unit_id}",
                         "frontier_swu": unit_id,
@@ -150,9 +158,8 @@ class ChainFixture:
                         "effect_class": "repository-local-reversible",
                         "required_inputs": [f"receipt/{unit_id}"],
                         "expected_receipt": f"closeout/{unit_id}",
-                    },
-                ]
-            )
+                    }
+                )
         manifest = {
             "manifest_id": f"psm-{self.projection_digest[:24]}",
             "plan_epoch_id": self.epoch_id,
@@ -408,8 +415,79 @@ class ApprovedEpochChainTests(unittest.TestCase):
         self.assertEqual(receipt["next_task_session_selector"], "U1")
         self.assertEqual(manifest["execution_bindings"][0]["command"]["risk_class"], "bounded-write")
 
-    def test_v2_manifest_missing_closeout_route_blocks(self) -> None:
-        config = self.fixture.v2_config()
+    def test_v2_manifest_accepts_fragment_targets_without_inline_closeouts(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNotNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "CHAIN_PREFLIGHT_READY")
+        self.assertEqual(receipt["next_task_session_selector"], "U1")
+        self.assertEqual(manifest["closeout_bindings"], [])
+
+    def test_v2_fragment_target_must_name_its_frontier_unit(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest_path = self.fixture.root / "manifest-v2.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["allowed_routes"][0]["target"] = "product/U1#U2"
+        manifest["allowed_routes_digest"] = CHAIN.digest(manifest["allowed_routes"])
+        manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+        report_path = self.fixture.root / "report-v2.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["manifest"] = manifest
+        report_path.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
+        config["manifest_ref"] = self.fixture.exact("manifest-v2.json")
+        config["audit_report_ref"] = self.fixture.exact("report-v2.json")
+        _, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIsNone(receipt["next_task_session_selector"])
+
+    def test_v2_fragment_target_allows_exactly_one_fragment(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest_path = self.fixture.root / "manifest-v2.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["allowed_routes"][0]["target"] = "product/U1#U1#extra"
+        manifest["allowed_routes_digest"] = CHAIN.digest(manifest["allowed_routes"])
+        manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+        report_path = self.fixture.root / "report-v2.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["manifest"] = manifest
+        report_path.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
+        config["manifest_ref"] = self.fixture.exact("manifest-v2.json")
+        config["audit_report_ref"] = self.fixture.exact("report-v2.json")
+        _, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIsNone(receipt["next_task_session_selector"])
+
+    def test_v2_task_routes_must_cover_the_frontier_exactly(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest_path = self.fixture.root / "manifest-v2.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["allowed_routes"] = [
+            route
+            for route in manifest["allowed_routes"]
+            if route["route_id"] != "task-session-U2"
+        ]
+        manifest["allowed_routes_digest"] = CHAIN.digest(manifest["allowed_routes"])
+        manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+        report_path = self.fixture.root / "report-v2.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["manifest"] = manifest
+        report_path.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
+        config["manifest_ref"] = self.fixture.exact("manifest-v2.json")
+        config["audit_report_ref"] = self.fixture.exact("report-v2.json")
+        _, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIsNone(receipt["next_task_session_selector"])
+
+    def test_v2_partial_inline_closeout_routes_block(self) -> None:
+        config = self.fixture.v2_config(fragment_targets=True)
         manifest_path = self.fixture.root / "manifest-v2.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["allowed_routes"] = [
@@ -419,9 +497,44 @@ class ApprovedEpochChainTests(unittest.TestCase):
         ]
         manifest["allowed_routes_digest"] = CHAIN.digest(manifest["allowed_routes"])
         manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+        report_path = self.fixture.root / "report-v2.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["manifest"] = manifest
+        report_path.write_text(json.dumps(report, sort_keys=True), encoding="utf-8")
         config["manifest_ref"] = self.fixture.exact("manifest-v2.json")
+        config["audit_report_ref"] = self.fixture.exact("report-v2.json")
         _, receipt = CHAIN.preflight(config, self.fixture.root)
         self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIsNone(receipt["next_task_session_selector"])
+
+    def test_v2_pass_closeout_can_advance_without_static_contract(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNotNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "CHAIN_PREFLIGHT_READY")
+        receipt, _ = CHAIN.evaluate_transition(
+            config,
+            manifest,
+            self.fixture.transition(closeout="PASS"),
+            CHAIN.initial_state(config),
+        )
+        self.assertEqual(receipt["terminal_code"], "NEXT_SELECTOR_READY")
+        self.assertEqual(receipt["next_task_session_selector"], "U2")
+
+    def test_v2_without_exact_closeout_contract_rejects_no_op(self) -> None:
+        config = self.fixture.v2_config(
+            fragment_targets=True, include_closeout_routes=False
+        )
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNotNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "CHAIN_PREFLIGHT_READY")
+        transition = self.fixture.transition(closeout="NO_OP")
+        receipt, _ = CHAIN.evaluate_transition(
+            config, manifest, transition, CHAIN.initial_state(config)
+        )
+        self.assertEqual(receipt["terminal_code"], "NO_OP_PROOF_INVALID")
         self.assertIsNone(receipt["next_task_session_selector"])
 
 

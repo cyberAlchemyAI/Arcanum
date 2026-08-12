@@ -175,6 +175,20 @@ def normalize_plan_semantic_manifest(
     if digest(manifest["allowed_routes"]) != manifest["allowed_routes_digest"]:
         raise ValueError("WPRA v2 allowed routes digest mismatch")
 
+    def valid_task_target(target: Any, unit_id: str) -> bool:
+        """Accept a legacy unit selector or one strict ``base#unit`` selector."""
+        if target == unit_id:
+            return True
+        if not isinstance(target, str):
+            return False
+        base, marker, fragment = target.partition("#")
+        return (
+            target.count("#") == 1
+            and bool(base)
+            and marker == "#"
+            and fragment == unit_id
+        )
+
     task_routes: dict[str, dict[str, Any]] = {}
     closeout_routes: dict[str, dict[str, Any]] = {}
     for route in manifest["allowed_routes"]:
@@ -188,7 +202,7 @@ def normalize_plan_semantic_manifest(
         if route.get("capability") == "task-session":
             if (
                 route.get("mode") != "execute"
-                or route.get("target") != unit_id
+                or not valid_task_target(route.get("target"), unit_id)
                 or unit_id in task_routes
             ):
                 raise ValueError("WPRA v2 Task Session route is ambiguous or invalid")
@@ -203,8 +217,14 @@ def normalize_plan_semantic_manifest(
             closeout_routes[unit_id] = route
         else:
             raise ValueError("WPRA v2 allowed route has an unsupported capability")
-    if set(task_routes) != set(frontier) or set(closeout_routes) != set(frontier):
-        raise ValueError("WPRA v2 routes do not cover the ready frontier exactly")
+    if set(task_routes) != set(frontier):
+        raise ValueError("WPRA v2 Task Session routes do not cover the ready frontier exactly")
+    # WPRA v2 binds Task Session routes in the frozen manifest. Its closeout
+    # contract is owned by the audited configuration, not necessarily emitted
+    # as a second inline route. If a future projection does include inline
+    # closeout routes, they must still cover the same frontier exactly.
+    if closeout_routes and set(closeout_routes) != set(frontier):
+        raise ValueError("WPRA v2 closeout routes do not cover the ready frontier exactly")
 
     normalized = dict(manifest)
     normalized["epoch_binding"] = {
@@ -222,9 +242,9 @@ def normalize_plan_semantic_manifest(
         }
         for unit_id in frontier
     ]
-    # V2 binds Invoke's expected receipt path but not a static exact contract
-    # digest. PASS closeouts remain supported; NO_OP continues to block unless a
-    # future v2 manifest adds an exact closeout-contract binding.
+    # V2 does not carry a static exact closeout-contract digest. PASS closeouts
+    # remain supported through owner/router joins; NO_OP continues to block
+    # unless a future v2 manifest adds an exact closeout-contract binding.
     normalized["closeout_bindings"] = []
     return normalized
 
