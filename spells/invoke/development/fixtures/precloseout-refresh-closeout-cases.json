@@ -1,0 +1,201 @@
+{
+  "schema_version": "invoke.precloseout-refresh-closeout-fixtures.v1",
+  "schema_path": "arcanum/spells/invoke/schemas/precloseout-refresh-closeout-receipt.schema.json",
+  "base_receipt": {
+    "schema_version": "invoke.precloseout-refresh-closeout-receipt.v1",
+    "receipt_id": "INVOKE-UEV-001-CLOSEOUT",
+    "owner_identity": {
+      "capability": "invoke",
+      "mode": "refresh",
+      "mutation_mode": "apply-approved",
+      "activation_source": "delegated",
+      "subject": "invoke:refresh:apply-approved"
+    },
+    "task_identity": {
+      "task_id": "TASK-UEV-001",
+      "run_id": "UEV-20260810T000000Z",
+      "swu_id": "SWU-UEV-001",
+      "attempt_id": "attempt-001",
+      "idempotency_key": "uev-swu-001-attempt-001"
+    },
+    "precloseout_source": {
+      "receipt_ref": {
+        "path": "arcanum/arcana/ux-evidence-validator/development/work-packs/uev-deterministic-kernel/results/SWU-UEV-001-PRECLOSEOUT-EXECUTION-RECEIPT.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "size_bytes": 701
+      },
+      "schema_ref": {
+        "path": "arcanum/arcana/task-session/schemas/precloseout-execution-receipt.schema.json",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "size_bytes": 4096
+      },
+      "task_identity": {
+        "task_id": "TASK-UEV-001",
+        "run_id": "UEV-20260810T000000Z",
+        "swu_id": "SWU-UEV-001",
+        "attempt_id": "attempt-001",
+        "idempotency_key": "uev-swu-001-attempt-001"
+      }
+    },
+    "closeout_output": {
+      "path": "arcanum/arcana/ux-evidence-validator/development/work-packs/uev-deterministic-kernel/closeout/SWU-UEV-001-REFRESH-RECEIPT.json"
+    },
+    "validation_inventory": [
+      {
+        "validation_id": "precloseout-source-binding",
+        "kind": "source-precloseout",
+        "result": "pass",
+        "evidence_ref": {
+          "path": "evidence/precloseout-source-binding.json",
+          "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+          "size_bytes": 281
+        }
+      },
+      {
+        "validation_id": "material-reconciliation",
+        "kind": "material-reconciliation",
+        "result": "pass",
+        "evidence_ref": {
+          "path": "evidence/material-reconciliation.json",
+          "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+          "size_bytes": 309
+        }
+      },
+      {
+        "validation_id": "target-validation",
+        "kind": "target-validation",
+        "result": "pass",
+        "evidence_ref": {
+          "path": "evidence/target-validation.json",
+          "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+          "size_bytes": 366
+        }
+      }
+    ],
+    "result": "pass",
+    "final_owner_write": {
+      "write_class": "invoke-closeout-receipt",
+      "owner_capability": "invoke",
+      "completed": true,
+      "output_ref": {
+        "path": "arcanum/arcana/ux-evidence-validator/development/work-packs/uev-deterministic-kernel/closeout/SWU-UEV-001-REFRESH-RECEIPT.json"
+      }
+    },
+    "receipt_digest": "7c2c94bd04c9cf06d628ea4f6fecfd451fa7adbffcb3d9adc609e4ecfba97145"
+  },
+  "source_precloseout": {
+    "receipt_ref": {
+      "path": "arcanum/arcana/ux-evidence-validator/development/work-packs/uev-deterministic-kernel/results/SWU-UEV-001-PRECLOSEOUT-EXECUTION-RECEIPT.json",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size_bytes": 701
+    },
+    "schema_ref": {
+      "path": "arcanum/arcana/task-session/schemas/precloseout-execution-receipt.schema.json",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size_bytes": 4096
+    },
+    "task_identity": {
+      "task_id": "TASK-UEV-001",
+      "run_id": "UEV-20260810T000000Z",
+      "swu_id": "SWU-UEV-001",
+      "attempt_id": "attempt-001",
+      "idempotency_key": "uev-swu-001-attempt-001"
+    }
+  },
+  "cases": [
+    {
+      "id": "valid-pass-owner-closeout",
+      "mutation": "none",
+      "expected": "pass"
+    },
+    {
+      "id": "valid-noop-owner-closeout",
+      "mutation": "no-op-result",
+      "expected": "pass"
+    },
+    {
+      "id": "reject-source-receipt-ref-drift",
+      "mutation": "source-receipt-ref-drift",
+      "expected": "fail",
+      "expected_error": "precloseout receipt ref does not match supplied source"
+    },
+    {
+      "id": "reject-source-schema-ref-drift",
+      "mutation": "source-schema-ref-drift",
+      "expected": "fail",
+      "expected_error": "precloseout schema ref does not match supplied source"
+    },
+    {
+      "id": "reject-task-identity-drift",
+      "mutation": "task-identity-drift",
+      "expected": "fail",
+      "expected_error": "task identity does not match supplied precloseout source"
+    },
+    {
+      "id": "reject-non-invoke-owner",
+      "mutation": "owner-capability-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-proposal-only-owner",
+      "mutation": "owner-mutation-mode-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-non-delegated-owner",
+      "mutation": "owner-activation-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-non-closeout-output",
+      "mutation": "closeout-output-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-final-owner-write-drift",
+      "mutation": "final-owner-write-drift",
+      "expected": "fail",
+      "expected_error": "final owner write does not equal declared closeout output"
+    },
+    {
+      "id": "reject-missing-required-validation-kind",
+      "mutation": "missing-validation-kind",
+      "expected": "fail",
+      "expected_error": "validation inventory missing required kind"
+    },
+    {
+      "id": "reject-duplicate-validation-id",
+      "mutation": "duplicate-validation-id",
+      "expected": "fail",
+      "expected_error": "validation inventory contains duplicate validation_id"
+    },
+    {
+      "id": "reject-nonpass-validation",
+      "mutation": "validation-result-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-terminal-result",
+      "mutation": "result-drift",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-incomplete-final-write",
+      "mutation": "final-owner-write-incomplete",
+      "expected": "fail",
+      "expected_error": "schema invalid"
+    },
+    {
+      "id": "reject-receipt-digest-drift",
+      "mutation": "receipt-digest-drift",
+      "expected": "fail",
+      "expected_error": "receipt digest does not match canonical receipt projection"
+    }
+  ]
+}
