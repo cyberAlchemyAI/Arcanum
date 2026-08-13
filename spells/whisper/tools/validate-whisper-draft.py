@@ -31,6 +31,24 @@ REQUIRED_CANDIDATE_FIELDS = {
     "hard_gate_results",
 }
 REQUIRED_PART_TRIGGERS = {"delegated", "revised", "validation_failed"}
+READER_MOVEMENT_ACTIVATIONS = {
+    "conceptual_explanation",
+    "mechanism_explanation",
+    "material_restructure",
+    "document_in_sequence",
+}
+REQUIRED_READER_MOVEMENT_CHECKS = {
+    "opening_problem_specific",
+    "passage_earns_next",
+    "ending_transforms_opening",
+    "first_movement_break",
+    "relation_over_catalogue",
+    "need_before_name",
+    "sequence_autonomy_when_applicable",
+}
+READER_MOVEMENT_STATUS = "candidate"
+READER_MOVEMENT_SCOPE = "audience_facing_explanatory_prose"
+READER_MOVEMENT_SEMANTIC_AUTHORITY = "human_editorial_judgment"
 
 
 def load_schema(path: Path) -> dict:
@@ -174,6 +192,93 @@ def record_readability_finding(
         errors.append(finding)
     else:
         flags.append(finding)
+
+
+def validate_reader_movement_contract(delivery_flow: dict) -> tuple[list[str], list[str]]:
+    """Validate declaration shape without pretending to judge reader movement."""
+
+    errors: list[str] = []
+    checks: list[str] = []
+    config = delivery_flow.get("reader_movement")
+    if config is None:
+        return errors, checks
+
+    if not isinstance(config, dict):
+        return ["readability delivery_flow.reader_movement must be a mapping when present"], checks
+
+    if config.get("status") != READER_MOVEMENT_STATUS:
+        errors.append(
+            "readability reader_movement.status must remain `candidate` until broader experiment evidence exists"
+        )
+
+    if config.get("scope") != READER_MOVEMENT_SCOPE:
+        errors.append(
+            "readability reader_movement.scope must be `audience_facing_explanatory_prose`"
+        )
+
+    raw_activations = config.get("applies_when")
+    if not isinstance(raw_activations, list) or any(
+        not isinstance(item, str) or not item.strip() for item in raw_activations
+    ):
+        errors.append("readability reader_movement.applies_when must be a list of non-empty strings")
+        activations: set[str] = set()
+    else:
+        activation_terms = [item.strip() for item in raw_activations]
+        activations = set(activation_terms)
+        if len(activations) != len(activation_terms):
+            errors.append("readability reader_movement.applies_when must not contain duplicate identifiers")
+
+    if not activations:
+        errors.append("readability reader_movement.applies_when must name at least one activation mode")
+    unsupported_activations = activations - READER_MOVEMENT_ACTIVATIONS
+    if unsupported_activations:
+        errors.append(
+            "readability reader_movement has unsupported activation modes: "
+            + ", ".join(sorted(unsupported_activations))
+        )
+
+    raw_human_checks = config.get("human_review_checks")
+    if not isinstance(raw_human_checks, list) or any(
+        not isinstance(item, str) or not item.strip() for item in raw_human_checks
+    ):
+        errors.append("readability reader_movement.human_review_checks must be a list of non-empty strings")
+        human_checks: set[str] = set()
+    else:
+        human_check_terms = [item.strip() for item in raw_human_checks]
+        human_checks = set(human_check_terms)
+        if len(human_checks) != len(human_check_terms):
+            errors.append(
+                "readability reader_movement.human_review_checks must not contain duplicate identifiers"
+            )
+
+    missing_checks = REQUIRED_READER_MOVEMENT_CHECKS - human_checks
+    if missing_checks:
+        errors.append(
+            "readability reader_movement missing human review checks: "
+            + ", ".join(sorted(missing_checks))
+        )
+    unsupported_checks = human_checks - REQUIRED_READER_MOVEMENT_CHECKS
+    if unsupported_checks:
+        errors.append(
+            "readability reader_movement has unsupported human review checks: "
+            + ", ".join(sorted(unsupported_checks))
+        )
+
+    if config.get("semantic_authority") != READER_MOVEMENT_SEMANTIC_AUTHORITY:
+        errors.append(
+            "readability reader_movement.semantic_authority must be `human_editorial_judgment`"
+        )
+
+    if not errors:
+        checks.append(
+            "reader movement candidate contract declares activation modes: "
+            + ", ".join(sorted(activations))
+        )
+        checks.append(
+            "reader movement reserves prose outcomes for human editorial judgment; validator checked declaration shape only"
+        )
+
+    return errors, checks
 
 
 def ids_from(items: list[dict], key: str = "id") -> set[str]:
@@ -512,6 +617,10 @@ def validate_readability_dynamics(schema: dict, paragraphs: list[str]) -> tuple[
                 )
 
     if delivery_flow:
+        reader_movement_errors, reader_movement_checks = validate_reader_movement_contract(delivery_flow)
+        errors.extend(reader_movement_errors)
+        checks.extend(reader_movement_checks)
+
         intent_patterns = terms_from(delivery_flow.get("intent_narration_patterns"))
         for index, paragraph in enumerate(paragraphs, start=1):
             for pattern in intent_patterns:

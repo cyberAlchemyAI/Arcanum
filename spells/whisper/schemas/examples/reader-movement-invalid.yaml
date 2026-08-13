@@ -1,0 +1,33 @@
+---
+# whisper_schema_example:
+#   tier: optional_extension_fixture
+#   expected_validation: BLOCK with exit 1
+#
+text_intent_substrate:
+  transport_schema:
+    length_words:
+      min: 20
+      max: 400
+    max_characters: 4000
+    opening_contract:
+      validation_rules: {}
+      external_reference_policy:
+        external_reference_terms: []
+        allowed_after_paragraph: 1
+  readability_dynamics:
+    layer_id: generic_reader_movement_negative_control_v1
+    defaults:
+      severity_default: flag
+    delivery_flow:
+      reader_movement:
+        status: proven
+        scope: all_transport_content
+        applies_when:
+          - any_document
+          - any_document
+        human_review_checks:
+          - opening_problem_specific
+          - opening_problem_specific
+          - ending_transforms_opening
+          - mechanical_semantic_pass
+        semantic_authority: deterministic_validator

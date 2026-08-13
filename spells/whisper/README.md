@@ -157,9 +157,52 @@ only with a recorded reason. When active:
    only repeat the opening.
 4. Audition three transport-owned moments before full derivative generation.
 
+### Conditional reader movement
+
+Activate `readability_dynamics.delivery_flow.reader_movement` when the main
+editorial difficulty is introducing unfamiliar ideas in an intelligible order,
+materially restructuring an attempted explanation, or making one document in a
+sequence understandable on its own. It is not a default for routine summaries,
+specifications, research reports, plans, reference material, or surface
+copyediting. In a mixed transport, apply it only to audience-facing explanatory
+prose.
+
+Before planning, relate the reader's current understanding to the change the
+text should produce. When the layer is active, review the movement with these
+human editorial checks:
+
+1. **Problem-specific opening:** begin with a condition, relation, or tension
+   that belongs to this problem. If the opening still works after replacing its
+   main nouns with unrelated ones, revise it.
+2. **Need before name:** prepare the practical distinction or consequence before
+   asking specialized terminology to carry it.
+3. **Earned progression:** after each passage, identify what changed in what the
+   reader can understand or ask, and let that change earn the next passage.
+4. **Relation over catalogue:** when several parts appear together, explain the
+   relation that makes them belong. If reordering the parts changes nothing,
+   recover the load-bearing relation or retain only what the reader needs there.
+5. **First movement break:** when restructuring, recover the attempted movement
+   and revise from the first unearned concept, inert transition, or restart
+   instead of polishing downstream prose first.
+6. **Sequential autonomy when applicable:** reconstruct only the minimum causal
+   premise needed to understand a document in a sequence, advance its own
+   movement, and test it both alone and after its predecessor.
+7. **Transformed ending:** make the opening situation newly intelligible,
+   judgeable, or actionable under the transport's ending policy rather than
+   merely repeating the route.
+
+Lists and tables remain appropriate when independent scanning or exact
+comparison is the reader's real need. Transport-owned endings and calls to
+action also remain authoritative. Reader movement governs explanatory sequence;
+it does not impose one visible rhetorical form on every transport.
+
 Executable checks may flag configured intent-narration phrases and duplicate
 prose blocks. Semantic repetition, reading flow, and preservation of
-load-bearing examples remain editorial judgments. A successful delivery
+load-bearing examples remain editorial judgments. The executable validator may
+also verify that a configured reader-movement layer declares the complete
+candidate check set and preserves human semantic authority. It cannot establish
+that an opening is specific, a passage earns the next, a relation is
+load-bearing, or an ending transforms the opening. A successful delivery
 audition improves editorial confidence but cannot promote an unproven transport
 beyond `flag`.
 

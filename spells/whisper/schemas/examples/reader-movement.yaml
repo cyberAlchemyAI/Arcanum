@@ -1,0 +1,37 @@
+---
+# whisper_schema_example:
+#   tier: optional_extension_fixture
+#   expected_validation: PASS for declaration shape only
+#
+text_intent_substrate:
+  transport_schema:
+    length_words:
+      min: 20
+      max: 400
+    max_characters: 4000
+    opening_contract:
+      validation_rules: {}
+      external_reference_policy:
+        external_reference_terms: []
+        allowed_after_paragraph: 1
+  readability_dynamics:
+    layer_id: generic_reader_movement_fixture_v1
+    defaults:
+      severity_default: flag
+    delivery_flow:
+      reader_movement:
+        status: candidate
+        scope: audience_facing_explanatory_prose
+        applies_when:
+          - conceptual_explanation
+          - mechanism_explanation
+          - material_restructure
+        human_review_checks:
+          - opening_problem_specific
+          - passage_earns_next
+          - ending_transforms_opening
+          - first_movement_break
+          - relation_over_catalogue
+          - need_before_name
+          - sequence_autonomy_when_applicable
+        semantic_authority: human_editorial_judgment

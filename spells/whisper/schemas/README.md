@@ -34,6 +34,9 @@ schemas/
     delivery-flow.yaml
     delivery-flow-pass.md
     delivery-flow-fail.md
+    reader-movement.yaml
+    reader-movement-invalid.yaml
+    reader-movement-draft.md
 ```
 
 ## Fixture Tiers
@@ -44,6 +47,8 @@ schemas/
 | `examples/substack-object-first-abstraction.yaml` | `partial_compatibility_fixture` | Sequel substrate fixture; useful for field coverage, not yet a full draft-validator fixture. |
 | `examples/readability-dynamics.yaml` | `optional_extension_fixture` | Minimal optional readability layer; should produce expected readability flags against a dense draft. |
 | `examples/delivery-flow.yaml` | `optional_extension_fixture` | Configures conservative intent-narration and duplicate-block checks against paired pass/fail drafts. |
+| `examples/reader-movement.yaml` | `optional_extension_fixture` | Declares the complete candidate reader-movement contract while preserving human editorial authority. |
+| `examples/reader-movement-invalid.yaml` | `optional_extension_fixture` | Negative control that must block because it omits required checks and assigns semantic authority to the validator. |
 
 ## Base Contract
 
@@ -73,6 +78,14 @@ intent-narration patterns and conservatively normalized duplicate prose blocks.
 Semantic repetition, heading/body paraphrase, reading sequence, and preservation
 of load-bearing examples remain human editorial checks. The extension is not a
 required base field.
+
+The conditional `delivery_flow.reader_movement` branch is for audience-facing
+conceptual or mechanism explanation, material restructuring, and document
+sequences. The validator checks only its candidate status, scope, unique
+activation names, exact human-review identifiers, and semantic-authority
+declaration. It cannot determine whether the prose actually moves a reader.
+Lists, tables, transport-owned calls to action, and non-explanatory passages
+remain outside this candidate rule.
 
 Review payload fields such as `block_id`, `part_id`, selected text, issue type,
 requested change mode, and priority are deferred to a future review schema.
@@ -126,6 +139,22 @@ python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
 
 The first command must print `PASS`; the second must print `FLAG` with both
 `intent_narration_detected` and `duplicate_prose_block` findings.
+
+Check the reader-movement declaration and its negative control:
+
+```bash
+python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
+  --schema arcanum/spells/whisper/schemas/examples/reader-movement.yaml \
+  --draft arcanum/spells/whisper/schemas/examples/reader-movement-draft.md
+
+python3 arcanum/spells/whisper/tools/validate-whisper-draft.py \
+  --schema arcanum/spells/whisper/schemas/examples/reader-movement-invalid.yaml \
+  --draft arcanum/spells/whisper/schemas/examples/reader-movement-draft.md
+```
+
+The first command must print `PASS` while stating that it checked declaration
+shape only. The negative control must print `BLOCK` and exit 1. Neither result
+is evidence that a reader experienced the intended movement.
 
 ## Promotion Policy
 
