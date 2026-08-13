@@ -6,12 +6,14 @@ import copy
 import importlib.util
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, RefResolver
 
 
 ARCANUM_ROOT = Path(__file__).resolve().parents[4]
@@ -57,6 +59,8 @@ class NativeDispatchDriverTests(unittest.TestCase):
         cls.partial_closeout_schema = load_json(
             SCHEMAS / "partial-wave-closeout.schema.json"
         )
+        cls.action_schema = load_json(SCHEMAS / "action.schema.json")
+        cls.run_plan_schema = load_json(SCHEMAS / "run-plan.schema.json")
 
     def persist_actions(self, root: Path) -> dict[str, Path]:
         paths: dict[str, Path] = {}
@@ -124,6 +128,21 @@ class NativeDispatchDriverTests(unittest.TestCase):
             )
         driver.append_causal_records(events, terminal_records)
         return events
+
+    def advance_first_wave(
+        self, root: Path
+    ) -> tuple[Path, Path, dict[str, Any]]:
+        events = self.build_pre_join_stream(root)
+        output = root / "advance"
+        result = driver.advance_wave(
+            self.dispatch_path,
+            self.state_path,
+            self.run_plan_path,
+            self.copy_receipts(root),
+            events,
+            output,
+        )
+        return events, output, result
 
     def build_partial_stream(
         self, root: Path, *, failure_action_id: str = "spawn-0003"
@@ -208,6 +227,19 @@ class NativeDispatchDriverTests(unittest.TestCase):
             self.assertEqual(events.read_bytes(), before)
             self.assertFalse(replay_output.exists())
 
+    def test_spawn_request_name_is_stable_within_and_distinct_across_runs(self) -> None:
+        action = copy.deepcopy(self.run_plan["actions"][0])
+        first = driver._spawn_request(action)
+        self.assertEqual(first, driver._spawn_request(action))
+        other_run = copy.deepcopy(action)
+        other_run["run_id"] = "run-fixture-002"
+        second = driver._spawn_request(other_run)
+        self.assertNotEqual(first["task_name"], second["task_name"])
+        self.assertRegex(first["task_name"], r"^orchestrate_[0-9a-f]{64}_spawn_0001$")
+        self.assertNotIn(action["run_id"], first["task_name"])
+        self.assertNotIn(action["dispatch_id"], first["task_name"])
+        self.assertNotIn(action["role"], first["task_name"])
+
     def test_prepare_wait_registers_complete_wave_before_exposing_request(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -226,6 +258,58 @@ class NativeDispatchDriverTests(unittest.TestCase):
                     values, str(events), require_complete=False
                 )["valid"]
             )
+
+    def test_prepare_wait_reuses_registrations_and_appends_one_wait_per_call(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events = root / "events.jsonl"
+            action_paths = self.persist_actions(root)
+            receipts = {
+                value["action_id"]: value
+                for value in (
+                    load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
+                )
+            }
+            for action in self.run_plan["actions"]:
+                action_id = action["action_id"]
+                driver.prepare_spawn(
+                    action_paths[action_id],
+                    self.run_plan_path,
+                    events,
+                    root / "requests" / f"{action_id}.json",
+                    None,
+                )
+                driver.record_spawn(
+                    action_paths[action_id],
+                    self.run_plan_path,
+                    events,
+                    receipts[action_id]["agent_id"],
+                )
+
+            first_path = root / "requests" / "wait-001.json"
+            second_path = root / "requests" / "wait-002.json"
+            first = driver.prepare_wait(self.run_plan_path, events, first_path)
+            second = driver.prepare_wait(self.run_plan_path, events, second_path)
+            self.assertEqual(first["pending_agent_ids"], second["pending_agent_ids"])
+            values = validator.load_events(events)
+            self.assertEqual(
+                len([item for item in values if item["event"] == "agent_wait_registered"]),
+                3,
+            )
+            self.assertEqual(
+                len([item for item in values if item["event"] == "wait_attempted"]),
+                2,
+            )
+            self.assertTrue(first_path.is_file())
+            self.assertTrue(second_path.is_file())
+            self.assertTrue(
+                validator.validate_events(values, str(events), require_complete=False)["valid"]
+            )
+
+            before_replay = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.prepare_wait(self.run_plan_path, events, second_path)
+            self.assertEqual(events.read_bytes(), before_replay)
 
     def test_partial_recovery_closes_completed_known_siblings_and_blocks_the_run(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -390,6 +474,124 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 validator.validate_events(validator.load_events(events), str(events))["valid"]
             )
 
+    def test_later_wave_spawn_failure_closes_without_rewriting_prior_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events = self.build_pre_join_stream(root)
+            advance = driver.advance_wave(
+                self.dispatch_path,
+                self.state_path,
+                self.run_plan_path,
+                self.copy_receipts(root),
+                events,
+                root / "advance",
+            )
+            action = advance["action_set"]["actions"][0]
+            action_path = root / "artifact" / "actions" / f"{action['action_id']}.json"
+            write_json(action_path, action)
+            dispatch = load_json(self.dispatch_path)
+            wave = next(
+                item
+                for item in dispatch["subagent_strategy"]["execution_waves"]
+                if item["wave_id"] == action["wave_id"]
+            )
+            run_plan = {
+                "schema_version": "arcanum.native-dispatch-runner.run-plan.v0.1",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "state": "wave_ready",
+                "validation_status": "pass",
+                "selected_wave": wave,
+                "action_artifacts": [f"actions/{action['action_id']}.json"],
+                "actions": [action],
+            }
+            run_plan_path = root / "artifact" / "run-plan.json"
+            state_path = root / "artifact" / "state.json"
+            write_json(run_plan_path, run_plan)
+            write_json(state_path, advance["state"])
+            driver.prepare_spawn(
+                action_path,
+                run_plan_path,
+                events,
+                root / "requests" / "spawn-0004.json",
+                "g-checks",
+            )
+            driver.record_spawn(action_path, run_plan_path, events, None)
+            (root / "residue.jsonl").write_text("", encoding="utf-8")
+
+            closeout = driver.close_partial_wave(
+                run_plan_path,
+                state_path,
+                events,
+                root / "residue.jsonl",
+                root / "partial-closeout.json",
+            )
+            self.assertEqual(closeout["failed_action_ids"], ["spawn-0004"])
+            self.assertEqual(closeout["cleaned_action_ids"], [])
+            causal = validator.load_events(events)
+            self.assertEqual(causal[-1]["event"], "run_blocked")
+            self.assertEqual(causal[-1]["wave_id"], "artifact")
+            self.assertTrue(any(item["event"] == "gate_decided" for item in causal[:-1]))
+            self.assertTrue(
+                validator.validate_events(causal, str(events))["valid"]
+            )
+
+    def test_later_wave_block_does_not_excuse_missing_earlier_join(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events = self.build_pre_join_stream(root)
+            values = validator.load_events(events)
+            first_join = next(
+                index for index, item in enumerate(values) if item["event"] == "agent_terminal"
+            )
+            values = values[:first_join]
+            values.extend(
+                [
+                    {
+                        "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                        "sequence": len(values) + 1,
+                        "event": "action_attempted",
+                        "dispatch_id": self.run_plan["dispatch_id"],
+                        "run_id": self.run_plan["run_id"],
+                        "wave_id": "artifact",
+                        "action_id": "spawn-0004",
+                        "agent_id": None,
+                        "operation": "collaboration.spawn_agent",
+                        "depends_on_gate_id": None,
+                    },
+                    {
+                        "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                        "sequence": len(values) + 2,
+                        "event": "host_spawn_failed",
+                        "dispatch_id": self.run_plan["dispatch_id"],
+                        "run_id": self.run_plan["run_id"],
+                        "wave_id": "artifact",
+                        "action_id": "spawn-0004",
+                        "agent_id": None,
+                        "operation": "collaboration.spawn_agent",
+                    },
+                    {
+                        "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                        "sequence": len(values) + 3,
+                        "event": "run_blocked",
+                        "dispatch_id": self.run_plan["dispatch_id"],
+                        "run_id": self.run_plan["run_id"],
+                        "wave_id": "artifact",
+                        "action_id": "spawn-0004",
+                        "agent_id": None,
+                        "operation": "logical-close",
+                        "failed_action_ids": ["spawn-0004"],
+                        "cleaned_action_ids": [],
+                        "blocker_code": "partial_wave_spawn_failure",
+                    },
+                ]
+            )
+            receipt = validator.validate_events(values, "missing-earlier-join.jsonl")
+            self.assertIn(
+                "missing_joined_receipt",
+                [item["code"] for item in receipt["errors"]],
+            )
+
     def test_invalid_causal_append_is_byte_stable_and_full_empty_stream_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -503,6 +705,191 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 [item["event"] for item in causal[-4:]],
                 ["receipt_joined", "receipt_joined", "receipt_joined", "gate_decided"],
             )
+
+    def test_prepare_next_wave_plan_cli_preserves_prefix_and_enables_exact_spawn(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events, advance, result = self.advance_first_wave(root)
+            causal_before = events.read_bytes()
+            next_plan_path = root / "next-run-plan.json"
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(DRIVER_PATH),
+                    "prepare-next-wave-plan",
+                    str(self.dispatch_path),
+                    "--prior-run-plan",
+                    str(self.run_plan_path),
+                    "--gate-decision",
+                    str(advance / "gate-decision.json"),
+                    "--next-actions",
+                    str(advance / "next-actions.json"),
+                    "--next-state",
+                    str(advance / "state.json"),
+                    "--events",
+                    str(events),
+                    "--actions-dir",
+                    str(advance / "actions"),
+                    "--output",
+                    str(next_plan_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+            self.assertEqual(json.loads(completed.stdout)["wave_id"], "artifact")
+            self.assertEqual(events.read_bytes(), causal_before)
+
+            next_plan = load_json(next_plan_path)
+            resolver = RefResolver.from_schema(
+                self.run_plan_schema,
+                store={
+                    self.action_schema["$id"]: self.action_schema,
+                    "action.schema.json": self.action_schema,
+                },
+            )
+            Draft202012Validator(
+                self.run_plan_schema, resolver=resolver
+            ).validate(next_plan)
+            self.assertEqual(next_plan["selected_wave"]["depends_on_waves"], ["checks"])
+            self.assertEqual(next_plan["actions"], result["action_set"]["actions"])
+            action_path = advance / "actions" / "spawn-0004.json"
+            self.assertEqual(
+                action_path.read_bytes(),
+                driver._json_payload(next_plan["actions"][0]).encode("utf-8"),
+            )
+
+            before_missing_gate = events.read_bytes()
+            with self.assertRaisesRegex(
+                driver.DriverBlocked, "requires a non-empty passed gate"
+            ):
+                driver.prepare_spawn(
+                    action_path,
+                    next_plan_path,
+                    events,
+                    root / "requests" / "missing-gate.json",
+                    None,
+                )
+            self.assertEqual(events.read_bytes(), before_missing_gate)
+            self.assertFalse((root / "requests" / "missing-gate.json").exists())
+
+            driver.prepare_spawn(
+                action_path,
+                next_plan_path,
+                events,
+                root / "requests" / "spawn-0004.json",
+                "g-checks",
+            )
+            causal = validator.load_events(events)
+            self.assertEqual(causal[-1]["event"], "action_attempted")
+            self.assertEqual(causal[-1]["action_id"], "spawn-0004")
+            self.assertEqual(causal[-1]["depends_on_gate_id"], "g-checks")
+            self.assertTrue(
+                validator.validate_events(
+                    causal, str(events), require_complete=False
+                )["valid"]
+            )
+
+    def test_prepare_next_wave_plan_rejects_bad_frontiers_before_mutation(self) -> None:
+        cases = (
+            "wrong_gate",
+            "missing_action",
+            "blocked_gate",
+            "replayed_action",
+            "terminal_block",
+            "mismatched_state",
+            "edited_action_bytes",
+            "contaminated_actions",
+            "duplicate_output",
+        )
+        for case in cases:
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                events, advance, result = self.advance_first_wave(root)
+                gate_path = advance / "gate-decision.json"
+                state_path = advance / "state.json"
+                action_path = advance / "actions" / "spawn-0004.json"
+                output_path = root / "next-run-plan.json"
+
+                if case == "wrong_gate":
+                    gate = copy.deepcopy(result["gate_decision"])
+                    gate["gate_id"] = "g-wrong"
+                    gate_path = root / "wrong-gate.json"
+                    write_json(gate_path, gate)
+                elif case == "missing_action":
+                    action_path.unlink()
+                elif case == "blocked_gate":
+                    gate = copy.deepcopy(result["gate_decision"])
+                    gate["decision"] = "gate_block"
+                    gate["blockers"] = ["fixture block"]
+                    gate_path = root / "blocked-gate.json"
+                    write_json(gate_path, gate)
+                elif case == "replayed_action":
+                    action = result["action_set"]["actions"][0]
+                    driver.append_causal_records(
+                        events,
+                        [
+                            {
+                                "event": "action_attempted",
+                                "dispatch_id": action["dispatch_id"],
+                                "run_id": action["run_id"],
+                                "wave_id": action["wave_id"],
+                                "action_id": action["action_id"],
+                                "agent_id": None,
+                                "operation": "collaboration.spawn_agent",
+                                "depends_on_gate_id": "g-checks",
+                            }
+                        ],
+                    )
+                elif case == "terminal_block":
+                    blocked_root = root / "blocked"
+                    blocked_events, _, _ = self.build_partial_stream(
+                        blocked_root, failure_action_id="spawn-0001"
+                    )
+                    (blocked_root / "residue.jsonl").write_text(
+                        "", encoding="utf-8"
+                    )
+                    driver.close_partial_wave(
+                        self.run_plan_path,
+                        self.state_path,
+                        blocked_events,
+                        blocked_root / "residue.jsonl",
+                        blocked_root / "partial-closeout.json",
+                    )
+                    events = blocked_events
+                elif case == "mismatched_state":
+                    state = copy.deepcopy(result["state"])
+                    state["eligible_action_ids"] = ["spawn-9999"]
+                    state_path = root / "mismatched-state.json"
+                    write_json(state_path, state)
+                elif case == "edited_action_bytes":
+                    action_path.write_bytes(action_path.read_bytes() + b" ")
+                elif case == "contaminated_actions":
+                    write_json(advance / "actions" / "extra.json", {"extra": True})
+                elif case == "duplicate_output":
+                    output_path.write_text("sentinel\n", encoding="utf-8")
+
+                causal_before = events.read_bytes()
+                output_before = (
+                    output_path.read_bytes() if output_path.exists() else None
+                )
+                with self.assertRaises(driver.DriverBlocked):
+                    driver.prepare_next_wave_plan(
+                        self.dispatch_path,
+                        self.run_plan_path,
+                        gate_path,
+                        advance / "next-actions.json",
+                        state_path,
+                        events,
+                        advance / "actions",
+                        output_path,
+                    )
+                self.assertEqual(events.read_bytes(), causal_before)
+                if output_before is None:
+                    self.assertFalse(output_path.exists())
+                else:
+                    self.assertEqual(output_path.read_bytes(), output_before)
 
     def test_structural_nonpass_receipt_is_admitted_and_blocks_gate(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

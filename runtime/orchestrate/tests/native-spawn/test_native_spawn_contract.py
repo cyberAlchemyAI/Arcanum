@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-import re
+import hashlib
 import unittest
 from pathlib import Path
 from typing import Any, Callable
@@ -40,8 +40,10 @@ def compact_list(values: list[str]) -> str:
 
 
 def build_spawn_request(action: dict[str, Any], host: dict[str, Any]) -> dict[str, Any]:
-    task_stem = re.sub(r"[^a-z0-9]+", "_", action["role"].lower()).strip("_")
     action_stem = action["action_id"].replace("-", "_")
+    run_scope = hashlib.sha256(
+        f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
+    ).hexdigest()
     lines = [
         "Execute one bounded host-native proof action.",
         f"Action: {action['action_id']}",
@@ -59,7 +61,7 @@ def build_spawn_request(action: dict[str, Any], host: dict[str, Any]) -> dict[st
     return {
         "action_id": action["action_id"],
         "operation": host["spawn_contract"]["operation"],
-        "task_name": f"{task_stem}_{action_stem}",
+        "task_name": f"orchestrate_{run_scope}_{action_stem}",
         "fork_turns": host["spawn_contract"]["fork_turns"],
         "message": "\n".join(lines),
     }

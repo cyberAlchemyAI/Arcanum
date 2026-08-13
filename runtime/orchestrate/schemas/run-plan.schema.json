@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://arcanum.local/runtime/orchestrate/schemas/run-plan.schema.json",
-  "title": "Native Dispatch Runner First-Wave Run Plan",
+  "title": "Native Dispatch Runner Current-Wave Run Plan",
   "type": "object",
   "required": ["schema_version", "dispatch_id", "run_id", "state", "validation_status", "selected_wave", "action_artifacts", "actions"],
   "properties": {
@@ -18,7 +18,7 @@
         "role_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
         "parallel": {"type": "boolean"},
         "join_policy": {"type": "string"},
-        "depends_on_waves": {"type": "array", "maxItems": 0},
+        "depends_on_waves": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
         "gate_after": {"type": ["string", "null"]},
         "on_incomplete": {"type": "string"}
       },

@@ -87,6 +87,25 @@ grep -q "preview only" "$test_root/preview.out" ||
 [[ "$(sha256sum "$target/.agents/skills/sentinel/SKILL.md")" == "$sentinel_before" ]] ||
   fail "two-profile sync changed the sentinel package"
 
+"$sync_tool" \
+  --target "$target" \
+  --runtime orchestrate \
+  --profiles repo-codex,claude >"$test_root/runtime-preview.out"
+grep -q "preview only" "$test_root/runtime-preview.out" ||
+  fail "runtime selective sync preview did not report preview mode"
+
+"$sync_tool" \
+  --target "$target" \
+  --runtime orchestrate \
+  --profiles repo-codex,claude \
+  --apply >"$test_root/runtime-apply.out"
+[[ -f "$target/.agents/skills/orchestrate/scripts/native_dispatch_driver.py" ]] ||
+  fail "runtime selective sync did not install the Codex Orchestrate package"
+[[ -f "$target/.claude/skills/orchestrate/scripts/native_dispatch_driver.py" ]] ||
+  fail "runtime selective sync did not install the Claude Orchestrate package"
+[[ "$(sha256sum "$target/.agents/skills/sentinel/SKILL.md")" == "$sentinel_before" ]] ||
+  fail "runtime selective sync changed the sentinel package"
+
 alias_target="$test_root/alias-consumer"
 mkdir -p "$alias_target"
 git init -q "$alias_target"

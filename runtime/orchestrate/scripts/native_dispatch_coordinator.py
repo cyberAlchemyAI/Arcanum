@@ -468,6 +468,242 @@ def _compile_named_wave_actions(
     return actions
 
 
+def _normalized_wave_plan(wave: Any) -> dict[str, Any]:
+    """Return the closed run-plan projection of one declared route wave."""
+
+    if not isinstance(wave, dict):
+        raise CompileBlocked(["execution wave must be an object"])
+    wave_id = wave.get("wave_id")
+    role_ids = wave.get("role_ids")
+    dependencies = wave.get("depends_on_waves", []) or []
+    if not isinstance(wave_id, str) or not wave_id:
+        raise CompileBlocked(["execution wave must have a non-empty wave_id"])
+    if (
+        not isinstance(role_ids, list)
+        or not role_ids
+        or any(not isinstance(item, str) or not item for item in role_ids)
+    ):
+        raise CompileBlocked([f"execution wave '{wave_id}' has invalid role_ids"])
+    if (
+        not isinstance(dependencies, list)
+        or any(not isinstance(item, str) or not item for item in dependencies)
+        or len(set(dependencies)) != len(dependencies)
+    ):
+        raise CompileBlocked(
+            [f"execution wave '{wave_id}' has invalid depends_on_waves"]
+        )
+    gate_after = wave.get("gate_after")
+    if gate_after is not None and (
+        not isinstance(gate_after, str) or not gate_after
+    ):
+        raise CompileBlocked([f"execution wave '{wave_id}' has invalid gate_after"])
+    if not isinstance(wave.get("parallel", False), bool):
+        raise CompileBlocked([f"execution wave '{wave_id}' has invalid parallel"])
+    for field, default in (("join_policy", "all"), ("on_incomplete", "block")):
+        value = wave.get(field, default)
+        if not isinstance(value, str) or not value:
+            raise CompileBlocked([f"execution wave '{wave_id}' has invalid {field}"])
+    return {
+        "wave_id": wave_id,
+        "role_ids": list(role_ids),
+        "parallel": wave.get("parallel", False),
+        "join_policy": wave.get("join_policy", "all"),
+        "depends_on_waves": list(dependencies),
+        "gate_after": gate_after,
+        "on_incomplete": wave.get("on_incomplete", "block"),
+    }
+
+
+def build_next_wave_plan(
+    dispatch: dict[str, Any],
+    prior_run_plan: dict[str, Any],
+    gate_decision: dict[str, Any],
+    action_set: dict[str, Any],
+    next_state: dict[str, Any],
+    persisted_actions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Purely derive one dependent-wave plan from an admitted gate frontier."""
+
+    dispatch_id = dispatch.get("dispatch_id")
+    run_id = prior_run_plan.get("run_id")
+    if not isinstance(dispatch_id, str) or not dispatch_id:
+        raise CompileBlocked(["dispatch must have a non-empty dispatch_id"])
+    if not isinstance(run_id, str) or not run_id:
+        raise CompileBlocked(["prior run plan must have a non-empty run_id"])
+
+    versioned_inputs = (
+        ("prior run plan", prior_run_plan, RUN_PLAN_SCHEMA_VERSION),
+        ("gate decision", gate_decision, GATE_DECISION_SCHEMA_VERSION),
+        ("next action set", action_set, ACTION_SET_SCHEMA_VERSION),
+        ("next state", next_state, STATE_SCHEMA_VERSION),
+    )
+    for label, value, expected_version in versioned_inputs:
+        if not isinstance(value, dict):
+            raise CompileBlocked([f"{label} must be an object"])
+        if value.get("schema_version") != expected_version:
+            raise CompileBlocked([f"{label} has an unsupported schema_version"])
+        if value.get("dispatch_id") != dispatch_id:
+            raise CompileBlocked([f"{label} dispatch identity mismatch"])
+        if value.get("run_id") != run_id:
+            raise CompileBlocked([f"{label} run identity mismatch"])
+
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict) or strategy.get("binding_mode") != "capability-bound":
+        raise CompileBlocked(["dispatch must declare a capability-bound subagent_strategy"])
+    authorization = strategy.get("authorization")
+    if authorization not in AUTHORIZED_STATES:
+        raise CompileBlocked(
+            [f"execution authorization is not satisfied: {authorization or '<missing>'}"]
+        )
+    waves = strategy.get("execution_waves")
+    if not isinstance(waves, list) or not waves:
+        raise CompileBlocked(["capability-bound strategy requires execution_waves"])
+    wave_by_id: dict[str, dict[str, Any]] = {}
+    for wave in waves:
+        normalized = _normalized_wave_plan(wave)
+        wave_id = normalized["wave_id"]
+        if wave_id in wave_by_id:
+            raise CompileBlocked([f"duplicate execution wave identifier: {wave_id}"])
+        wave_by_id[wave_id] = wave
+
+    selected_wave = prior_run_plan.get("selected_wave")
+    prior_actions = prior_run_plan.get("actions")
+    if not isinstance(selected_wave, dict) or not isinstance(prior_actions, list) or not prior_actions:
+        raise CompileBlocked(["prior run plan must contain one selected wave and actions"])
+    if any(not isinstance(action, dict) for action in prior_actions):
+        raise CompileBlocked(["prior run plan contains a non-object action"])
+    source_wave_id = selected_wave.get("wave_id")
+    if not isinstance(source_wave_id, str) or source_wave_id not in wave_by_id:
+        raise CompileBlocked(["prior run plan references an unknown source wave"])
+    if selected_wave != _normalized_wave_plan(wave_by_id[source_wave_id]):
+        raise CompileBlocked(["prior run plan source wave does not match the dispatch route"])
+    prior_action_ids = [action.get("action_id") for action in prior_actions]
+    if any(not isinstance(item, str) or not item for item in prior_action_ids):
+        raise CompileBlocked(["prior run plan has invalid action identifiers"])
+    if len(set(prior_action_ids)) != len(prior_action_ids):
+        raise CompileBlocked(["prior run plan action identifiers must be unique"])
+    if prior_run_plan.get("state") != "wave_ready" or prior_run_plan.get("validation_status") != "pass":
+        raise CompileBlocked(["prior run plan is not validator-ready"])
+    if prior_run_plan.get("action_artifacts") != [
+        f"actions/{action_id}.json" for action_id in prior_action_ids
+    ]:
+        raise CompileBlocked(["prior run plan action artifacts do not exactly bind its actions"])
+
+    gate_id = gate_decision.get("gate_id")
+    if not isinstance(gate_id, str) or not gate_id:
+        raise CompileBlocked(["dependent-wave planning requires a non-empty source gate"])
+    if (
+        gate_decision.get("wave_id") != source_wave_id
+        or action_set.get("source_wave_id") != source_wave_id
+        or selected_wave.get("gate_after") != gate_id
+        or action_set.get("source_gate_id") != gate_id
+    ):
+        raise CompileBlocked(["prior plan/source gate linkage mismatch"])
+    if gate_decision.get("decision") != "gate_pass" or gate_decision.get("blockers"):
+        raise CompileBlocked(["source gate decision is not an unblocked gate_pass"])
+    if action_set.get("decision") != "gate_pass":
+        raise CompileBlocked(["next action set is not opened by gate_pass"])
+    if gate_decision.get("required_action_ids") != prior_action_ids:
+        raise CompileBlocked(["source gate required actions do not match the prior run plan"])
+    if gate_decision.get("admitted_receipt_action_ids") != prior_action_ids:
+        raise CompileBlocked(["source gate did not admit the exact prior action set"])
+
+    completed_wave_ids = next_state.get("completed_wave_ids")
+    if (
+        not isinstance(completed_wave_ids, list)
+        or not completed_wave_ids
+        or any(not isinstance(item, str) or not item for item in completed_wave_ids)
+        or len(set(completed_wave_ids)) != len(completed_wave_ids)
+    ):
+        raise CompileBlocked(["next state has invalid completed_wave_ids"])
+    if completed_wave_ids[-1] != source_wave_id:
+        raise CompileBlocked(["next state does not append the source wave to completed history"])
+    previous_completed = completed_wave_ids[:-1]
+    source_dependencies = selected_wave.get("depends_on_waves", [])
+    if not set(source_dependencies) <= set(previous_completed):
+        raise CompileBlocked(["source wave dependencies are not completed"])
+
+    next_wave_id = gate_decision.get("next_wave_id")
+    action_set_actions = action_set.get("actions")
+    if (
+        not isinstance(next_wave_id, str)
+        or not next_wave_id
+        or action_set.get("next_wave_id") != next_wave_id
+        or next_state.get("selected_wave_id") != next_wave_id
+    ):
+        raise CompileBlocked(["gate/action-set/state next-wave linkage mismatch"])
+    if next_wave_id in completed_wave_ids or next_wave_id not in wave_by_id:
+        raise CompileBlocked(["next wave is already completed or unknown"])
+    if next_state.get("state") != "gate_pass" or next_state.get("validation_status") != "pass":
+        raise CompileBlocked(["next state is not a validator-clean gate_pass frontier"])
+    if next_state.get("authorization_status") != authorization or next_state.get("blockers"):
+        raise CompileBlocked(["next state authorization or blockers do not permit planning"])
+    next_wave = wave_by_id[next_wave_id]
+    normalized_next_wave = _normalized_wave_plan(next_wave)
+    if not set(normalized_next_wave["depends_on_waves"]) <= set(completed_wave_ids):
+        raise CompileBlocked(["next wave dependencies are not completed"])
+    eligible_wave = _next_eligible_wave(dispatch, completed_wave_ids)
+    if not isinstance(eligible_wave, dict) or eligible_wave.get("wave_id") != next_wave_id:
+        raise CompileBlocked(["next wave is not the route's next eligible wave"])
+
+    if not isinstance(action_set_actions, list) or not action_set_actions:
+        raise CompileBlocked(["next action set must contain actions"])
+    if any(not isinstance(action, dict) for action in action_set_actions):
+        raise CompileBlocked(["next action set contains a non-object action"])
+    next_action_ids = [action.get("action_id") for action in action_set_actions]
+    if any(not isinstance(item, str) or not item for item in next_action_ids):
+        raise CompileBlocked(["next action set has invalid action identifiers"])
+    if len(set(next_action_ids)) != len(next_action_ids):
+        raise CompileBlocked(["next action set action identifiers must be unique"])
+    if (
+        gate_decision.get("next_action_ids") != next_action_ids
+        or next_state.get("eligible_action_ids") != next_action_ids
+    ):
+        raise CompileBlocked(["gate/action-set/state next-action linkage mismatch"])
+    if persisted_actions != action_set_actions:
+        raise CompileBlocked(["persisted actions do not exactly match the next action set"])
+
+    source_state = {
+        "eligible_action_ids": prior_action_ids,
+        "completed_wave_ids": previous_completed,
+    }
+    source_allocated_count = _validated_run_action_count(
+        dispatch, source_state, prior_actions, source_wave_id
+    )
+    expected_source_actions = _compile_named_wave_actions(
+        dispatch,
+        run_id,
+        source_wave_id,
+        start_action_number=_action_count_for_waves(dispatch, previous_completed) + 1,
+    )
+    if prior_actions != expected_source_actions:
+        raise CompileBlocked(["prior run-plan actions do not match route allocation"])
+    expected_next_actions = _compile_named_wave_actions(
+        dispatch,
+        run_id,
+        next_wave_id,
+        start_action_number=source_allocated_count + 1,
+    )
+    if action_set_actions != expected_next_actions:
+        raise CompileBlocked(["next actions do not match route allocation"])
+    _validated_run_action_count(
+        dispatch, next_state, action_set_actions, next_wave_id
+    )
+
+    return {
+        "schema_version": RUN_PLAN_SCHEMA_VERSION,
+        "dispatch_id": dispatch_id,
+        "run_id": run_id,
+        "state": "wave_ready",
+        "validation_status": "pass",
+        "selected_wave": normalized_next_wave,
+        "action_artifacts": [
+            f"actions/{action_id}.json" for action_id in next_action_ids
+        ],
+        "actions": action_set_actions,
+    }
+
+
 def _receipt_shape_blockers(receipt: Any, index: int) -> list[str]:
     prefix = f"receipt[{index}]"
     if not isinstance(receipt, dict):

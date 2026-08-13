@@ -92,7 +92,8 @@ commands append the required pre-call events before making a host request
 artifact available. `record-spawn` and `append-event` record host-owned results.
 `advance-wave` admits the exact current-wave receipt set, appends receipt joins
 and the reducer-owned gate decision, validates the causal stream, and only then
-persists dependent actions.
+persists dependent actions. `prepare-next-wave-plan` binds those exact actions
+to an exclusively created current-wave plan without changing the causal stream.
 </commands>
 
 <execute-preflight>
@@ -136,6 +137,9 @@ Consume exactly one persisted action document whose `action` is `spawn` and whos
 
 1. Admit the action only when its `action_id` exists in the current run plan, its persisted document matches that plan entry, and no attempt event already exists for the identifier.
 2. Build bounded host context from only the action's role, capability, target, mode, mutation policy, write scope, forbidden scopes, input references, and output references.
+   The host task name must be an opaque deterministic function of dispatch ID,
+   run ID, and action ID. It must differ across fresh runs and must not include
+   raw role, target, reference, dispatch, or run prose.
 3. Run driver `prepare-spawn`; it must append `action_attempted` before exposing the exact host request. If preparation blocks, do not invoke the host.
 4. Invoke that operation exactly once. Do not retry implicitly.
 5. On return, run driver `record-spawn --agent-id <id>` to append `host_spawn_returned` and bind the returned `agent_id` to the `action_id`. A missing agent identifier is a blocking host failure.
@@ -154,9 +158,28 @@ Consume one persisted wave plan and the complete action-to-native-agent bindings
 5. For an unresolved known agent when the wait policy expires, append `wait_timed_out`, invoke the mapped interrupt operation once, append `agent_interrupted`, and normalize an explicit `timed_out` receipt for its expected action.
 6. Persist normalized receipts in a directory containing exactly one `<action_id>.json` file per current-wave action and no other entries.
 7. Run driver `advance-wave`. It validates closed receipt shape and identity into `schemas/receipt-admission.schema.yml`, appends `receipt_joined`, invokes the deterministic reducer, appends `gate_decided` before exposing dependents, and validates the complete causal stream. Return its state, gate decision, and next action set without reinterpretation.
+8. When a passing gate exposes dependents, run driver `prepare-next-wave-plan` with the exact dispatch, prior run plan, gate decision, next action set, next state, causal prefix, and action directory emitted by `advance-wave`. Continue only with its exclusively created current-wave plan.
 
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.
 </native-join-wave>
+
+<native-next-wave-plan>
+`prepare-next-wave-plan` is a deterministic, non-causal transition. It writes
+no event and performs no host operation. It requires the validator-clean event
+prefix to end at the exact passed source gate, rejects replayed or terminally
+blocked runs, verifies route dependencies and run-global action allocation,
+and admits an action directory only when it contains exactly the canonically
+serialized action files named by the next action set. The output path is
+exclusive; an existing output blocks before mutation.
+
+Invoke it as `prepare-next-wave-plan <dispatch.json> --prior-run-plan <plan>
+--gate-decision <gate> --next-actions <action-set> --next-state <state>
+--events <events.jsonl> --actions-dir <actions> --output <next-plan>`.
+
+Pass the emitted plan to `prepare-spawn` with the matching
+`--depends-on-gate-id`. A dependent-wave spawn without one passed gate from its
+declared dependency waves blocks before appending `action_attempted`.
+</native-next-wave-plan>
 
 <partial-wave-recovery>
 When one or more selected-wave spawns produce `host_spawn_failed`, keep the
@@ -175,6 +198,10 @@ action receipt and do not call `advance-wave`.
 5. Run `close-partial-wave`. It requires all known siblings to be cleaned,
    appends a terminal typed `run_blocked`, validates the complete stream, and
    emits no joins, gates, dependent actions, or retry.
+
+Partial-wave recovery is scoped to the selected failed wave. Earlier completed
+waves retain their joins and gate decisions, while `run_blocked` remains unique
+and globally terminal for the run.
 
 The blocked closeout preserves the failed run as evidence only. A fresh run
 requires a distinct run ID and explicit retry authority; it must not replay an

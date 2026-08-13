@@ -180,8 +180,11 @@ class ReduceWaveReceiptsTests(unittest.TestCase):
                 "on_incomplete": "block",
             }
         )
+        dispatch["subagent_strategy"]["execution_waves"][1]["gate_after"] = (
+            "g-artifact"
+        )
 
-        artifact_state, _, artifact_actions = coordinator.reduce_wave_receipts(
+        artifact_state, artifact_gate, artifact_actions = coordinator.reduce_wave_receipts(
             dispatch, state, run_plan, pass_receipts()
         )
         self.assertEqual(
@@ -189,14 +192,27 @@ class ReduceWaveReceiptsTests(unittest.TestCase):
             expected["second_wave_action_ids"],
         )
 
-        artifact_run_plan = run_plan_for_wave(
-            dispatch, artifact_state, artifact_actions["actions"]
+        artifact_run_plan = coordinator.build_next_wave_plan(
+            dispatch,
+            run_plan,
+            artifact_gate,
+            artifact_actions,
+            artifact_state,
+            artifact_actions["actions"],
         )
-        _, gate, reviewer_actions = coordinator.reduce_wave_receipts(
+        reviewer_state, gate, reviewer_actions = coordinator.reduce_wave_receipts(
             dispatch,
             artifact_state,
             artifact_run_plan,
             [pass_receipt_for_action(artifact_actions["actions"][0])],
+        )
+        reviewer_run_plan = coordinator.build_next_wave_plan(
+            dispatch,
+            artifact_run_plan,
+            gate,
+            reviewer_actions,
+            reviewer_state,
+            reviewer_actions["actions"],
         )
 
         self.assertEqual(gate["decision"], "gate_pass")
@@ -214,6 +230,42 @@ class ReduceWaveReceiptsTests(unittest.TestCase):
             ),
             7,
         )
+        self.assertEqual(
+            reviewer_run_plan["selected_wave"]["depends_on_waves"],
+            ["artifact"],
+        )
+        self.assertEqual(
+            reviewer_run_plan["actions"], reviewer_actions["actions"]
+        )
+
+    def test_next_wave_builder_emits_schema_valid_dependent_plan(self) -> None:
+        dispatch, state, run_plan = inputs()
+        next_state, gate, action_set = coordinator.reduce_wave_receipts(
+            dispatch, state, run_plan, pass_receipts()
+        )
+        next_plan = coordinator.build_next_wave_plan(
+            dispatch,
+            run_plan,
+            gate,
+            action_set,
+            next_state,
+            action_set["actions"],
+        )
+        action_schema = load_json(SCHEMAS / "action.schema.json")
+        run_plan_schema = load_json(SCHEMAS / "run-plan.schema.json")
+        resolver = RefResolver.from_schema(
+            run_plan_schema,
+            store={
+                action_schema["$id"]: action_schema,
+                "action.schema.json": action_schema,
+            },
+        )
+        Draft202012Validator(run_plan_schema, resolver=resolver).validate(next_plan)
+        self.assertEqual(next_plan["selected_wave"]["wave_id"], "artifact")
+        self.assertEqual(
+            next_plan["selected_wave"]["depends_on_waves"], ["checks"]
+        )
+        self.assertEqual(next_plan["actions"], action_set["actions"])
 
     def test_run_global_allocator_blocks_out_of_range_and_legacy_reset_ids(self) -> None:
         for value in (0, coordinator.MAX_ACTION_NUMBER + 1):

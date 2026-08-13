@@ -75,11 +75,19 @@ def _load_json_object(path: Path, label: str) -> dict[str, Any]:
 
 def _write_json(path: Path, value: Any, *, exclusive: bool = False) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    if exclusive and path.exists():
-        raise DriverBlocked([f"output already exists: {path}"])
-    path.write_text(
-        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    payload = _json_payload(value)
+    if exclusive:
+        try:
+            with path.open("x", encoding="utf-8") as handle:
+                handle.write(payload)
+        except FileExistsError as exc:
+            raise DriverBlocked([f"output already exists: {path}"]) from exc
+        return
+    path.write_text(payload, encoding="utf-8")
+
+
+def _json_payload(value: Any) -> str:
+    return json.dumps(value, indent=2, sort_keys=True) + "\n"
 
 
 def _load_jsonl_handle(handle: Any, source: Path) -> list[dict[str, Any]]:
@@ -280,8 +288,10 @@ def _compact(values: list[str]) -> str:
 
 
 def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
-    task_stem = re.sub(r"[^a-z0-9]+", "_", action["role"].lower()).strip("_")
     action_stem = action["action_id"].replace("-", "_")
+    run_scope = hashlib.sha256(
+        f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
+    ).hexdigest()
     lines = [
         "Execute one bounded host-native action.",
         f"Action: {action['action_id']}",
@@ -299,7 +309,7 @@ def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
     return {
         "action_id": action["action_id"],
         "operation": "collaboration.spawn_agent",
-        "task_name": f"{task_stem}_{action_stem}",
+        "task_name": f"orchestrate_{run_scope}_{action_stem}",
         "fork_turns": "none",
         "message": "\n".join(lines),
     }
@@ -312,8 +322,31 @@ def prepare_spawn(
     request_output: Path,
     depends_on_gate_id: str | None,
 ) -> dict[str, Any]:
-    action, _ = _admit_persisted_action(action_path, run_plan_path)
+    action, run_plan = _admit_persisted_action(action_path, run_plan_path)
     events = _validated_prefix(event_stream) if event_stream.exists() else []
+    selected_wave = run_plan.get("selected_wave")
+    dependencies = (
+        selected_wave.get("depends_on_waves", [])
+        if isinstance(selected_wave, dict)
+        else []
+    )
+    if dependencies:
+        if not isinstance(depends_on_gate_id, str) or not depends_on_gate_id:
+            raise DriverBlocked(
+                ["dependent-wave spawn requires a non-empty passed gate identifier"]
+            )
+        matching_gates = [
+            event
+            for event in events
+            if event.get("event") == "gate_decided"
+            and event.get("gate_id") == depends_on_gate_id
+            and event.get("decision") == "gate_pass"
+            and event.get("wave_id") in dependencies
+        ]
+        if len(matching_gates) != 1:
+            raise DriverBlocked(
+                ["dependent-wave spawn gate does not match one passed dependency gate"]
+            )
     if any(
         event.get("event") == "host_spawn_failed"
         and event.get("dispatch_id") == action["dispatch_id"]
@@ -381,20 +414,179 @@ def _validated_prefix(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def _load_exact_action_directory(
+    actions_dir: Path, action_set: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Admit only canonical action files that exactly equal the action set."""
+
+    actions = action_set.get("actions")
+    if not isinstance(actions, list) or not actions:
+        raise DriverBlocked(["next action set has no actions"])
+    expected_by_name: dict[str, dict[str, Any]] = {}
+    for action in actions:
+        if not isinstance(action, dict):
+            raise DriverBlocked(["next action set contains a non-object action"])
+        action_id = action.get("action_id")
+        if not isinstance(action_id, str) or not action_id:
+            raise DriverBlocked(["next action set contains an invalid action_id"])
+        filename = f"{action_id}.json"
+        if filename in expected_by_name:
+            raise DriverBlocked([f"duplicate next action identifier: {action_id}"])
+        expected_by_name[filename] = action
+
+    if not actions_dir.is_dir():
+        raise DriverBlocked([f"action directory does not exist: {actions_dir}"])
+    actual_entries = {path.name: path for path in actions_dir.iterdir()}
+    unexpected = sorted(set(actual_entries) - set(expected_by_name))
+    missing = sorted(set(expected_by_name) - set(actual_entries))
+    blockers = [f"unexpected action entry '{name}'" for name in unexpected]
+    blockers.extend(f"missing action entry '{name}'" for name in missing)
+    for name in sorted(set(actual_entries) & set(expected_by_name)):
+        path = actual_entries[name]
+        if not path.is_file() or path.is_symlink():
+            blockers.append(f"action entry is not a regular file: {name}")
+            continue
+        try:
+            actual_bytes = path.read_bytes()
+        except OSError as exc:
+            blockers.append(f"cannot read persisted action {name}: {exc}")
+            continue
+        expected_bytes = _json_payload(expected_by_name[name]).encode("utf-8")
+        if actual_bytes != expected_bytes:
+            blockers.append(
+                f"persisted action bytes do not exactly match next action set: {name}"
+            )
+    if blockers:
+        raise DriverBlocked(blockers)
+    return [expected_by_name[f"{action['action_id']}.json"] for action in actions]
+
+
+def _validate_next_wave_event_prefix(
+    events: list[dict[str, Any]],
+    gate_decision: dict[str, Any],
+    run_plan: dict[str, Any],
+) -> None:
+    if not events:
+        raise DriverBlocked(["next-wave planning requires a causal event prefix"])
+    if any(event.get("event") == "run_blocked" for event in events):
+        raise DriverBlocked(["terminally blocked runs cannot emit a next-wave plan"])
+    action_ids = {str(action["action_id"]) for action in run_plan["actions"]}
+    replayed = sorted(
+        {
+            str(event.get("action_id"))
+            for event in events
+            if event.get("event") == "action_attempted"
+            and event.get("action_id") in action_ids
+        }
+    )
+    if replayed:
+        raise DriverBlocked(
+            ["next-wave actions already have attempt evidence: " + ", ".join(replayed)]
+        )
+
+    last = events[-1]
+    expected = {
+        "event": "gate_decided",
+        "dispatch_id": gate_decision["dispatch_id"],
+        "run_id": gate_decision["run_id"],
+        "wave_id": gate_decision["wave_id"],
+        "action_id": None,
+        "agent_id": None,
+        "operation": "orchestrate.reduce",
+        "gate_id": gate_decision["gate_id"],
+        "decision": gate_decision["decision"],
+        "required_action_ids": gate_decision["required_action_ids"],
+        "admitted_receipt_action_ids": gate_decision[
+            "admitted_receipt_action_ids"
+        ],
+    }
+    mismatches = sorted(
+        field for field, expected_value in expected.items() if last.get(field) != expected_value
+    )
+    if mismatches:
+        raise DriverBlocked(
+            ["last causal event does not match the source gate decision: " + ", ".join(mismatches)]
+        )
+
+
+def prepare_next_wave_plan(
+    dispatch_path: Path,
+    prior_run_plan_path: Path,
+    gate_decision_path: Path,
+    action_set_path: Path,
+    next_state_path: Path,
+    event_stream: Path,
+    actions_dir: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    """Exclusively emit a dependent plan without writing a causal event."""
+
+    if output_path.exists():
+        raise DriverBlocked([f"output already exists: {output_path}"])
+    dispatch = _load_json_object(dispatch_path, "dispatch")
+    prior_run_plan = _load_json_object(prior_run_plan_path, "prior run plan")
+    gate_decision = _load_json_object(gate_decision_path, "gate decision")
+    action_set = _load_json_object(action_set_path, "next action set")
+    next_state = _load_json_object(next_state_path, "next state")
+    persisted_actions = _load_exact_action_directory(actions_dir, action_set)
+
+    try:
+        with event_stream.open("r", encoding="utf-8") as handle:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            try:
+                events = _load_jsonl_handle(handle, event_stream)
+                validation = evidence.validate_events(
+                    events, str(event_stream), require_complete=True
+                )
+                if not validation["valid"]:
+                    raise DriverBlocked(_causal_blockers(validation))
+                try:
+                    run_plan = coordinator.build_next_wave_plan(
+                        dispatch,
+                        prior_run_plan,
+                        gate_decision,
+                        action_set,
+                        next_state,
+                        persisted_actions,
+                    )
+                except coordinator.CompileBlocked as exc:
+                    raise DriverBlocked(exc.blockers) from exc
+                _validate_next_wave_event_prefix(events, gate_decision, run_plan)
+                _write_json(output_path, run_plan, exclusive=True)
+                return run_plan
+            finally:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+    except OSError as exc:
+        raise DriverBlocked([f"cannot load causal event stream: {exc}"]) from exc
+
+
 def prepare_wait(
     run_plan_path: Path, event_stream: Path, request_output: Path
 ) -> dict[str, Any]:
+    if request_output.exists():
+        raise DriverBlocked([f"output already exists: {request_output}"])
     run_plan = _load_json_object(run_plan_path, "run plan")
     actions = run_plan.get("actions")
     if not isinstance(actions, list) or not actions:
         raise DriverBlocked(["run plan has no actions to wait for"])
     events = _validated_prefix(event_stream)
     successful_results: dict[str, dict[str, Any]] = {}
+    registrations: dict[str, dict[str, Any]] = {}
+    terminal_action_ids: set[str] = set()
     for event in events:
         if event.get("event") == "host_spawn_returned":
             successful_results[str(event["action_id"])] = event
+        elif event.get("event") == "agent_wait_registered":
+            registrations[str(event["action_id"])] = event
+        elif event.get("event") in {
+            "agent_terminal",
+            "wait_timed_out",
+            "agent_interrupted",
+        }:
+            terminal_action_ids.add(str(event["action_id"]))
 
     records: list[dict[str, Any]] = []
+    bound_agent_ids: list[str] = []
     pending_agent_ids: list[str] = []
     for action in actions:
         action_id = str(action.get("action_id", ""))
@@ -408,20 +600,31 @@ def prepare_wait(
         agent_id = str(host_result.get("agent_id", ""))
         if not agent_id:
             raise DriverBlocked([f"action '{action_id}' has no native agent binding"])
-        pending_agent_ids.append(agent_id)
-        records.append(
-            {
-                "event": "agent_wait_registered",
-                "dispatch_id": action["dispatch_id"],
-                "run_id": action["run_id"],
-                "wave_id": action["wave_id"],
-                "action_id": action_id,
-                "agent_id": agent_id,
-                "operation": "logical-register",
-            }
-        )
-    if len(set(pending_agent_ids)) != len(pending_agent_ids):
+        bound_agent_ids.append(agent_id)
+        registration = registrations.get(action_id)
+        if registration is None:
+            records.append(
+                {
+                    "event": "agent_wait_registered",
+                    "dispatch_id": action["dispatch_id"],
+                    "run_id": action["run_id"],
+                    "wave_id": action["wave_id"],
+                    "action_id": action_id,
+                    "agent_id": agent_id,
+                    "operation": "logical-register",
+                }
+            )
+        elif (
+            registration.get("agent_id") != agent_id
+            or registration.get("wave_id") != action.get("wave_id")
+        ):
+            raise DriverBlocked([f"action '{action_id}' wait registration mismatch"])
+        if action_id not in terminal_action_ids:
+            pending_agent_ids.append(agent_id)
+    if len(set(bound_agent_ids)) != len(bound_agent_ids):
         raise DriverBlocked(["native agent bindings must be unique within a wave"])
+    if not pending_agent_ids:
+        raise DriverBlocked(["selected wave has no unresolved native agents"])
     selected_wave = run_plan.get("selected_wave") or {}
     records.append(
         {
@@ -1005,6 +1208,16 @@ def main() -> int:
     spawn_result.add_argument("--agent-id")
     spawn_result.add_argument("--failed", action="store_true")
 
+    next_plan_parser = subparsers.add_parser("prepare-next-wave-plan")
+    next_plan_parser.add_argument("dispatch", type=Path)
+    next_plan_parser.add_argument("--prior-run-plan", required=True, type=Path)
+    next_plan_parser.add_argument("--gate-decision", required=True, type=Path)
+    next_plan_parser.add_argument("--next-actions", required=True, type=Path)
+    next_plan_parser.add_argument("--next-state", required=True, type=Path)
+    next_plan_parser.add_argument("--events", required=True, type=Path)
+    next_plan_parser.add_argument("--actions-dir", required=True, type=Path)
+    next_plan_parser.add_argument("--output", required=True, type=Path)
+
     prepare_wait_parser = subparsers.add_parser("prepare-wait")
     prepare_wait_parser.add_argument("--run-plan", required=True, type=Path)
     prepare_wait_parser.add_argument("--events", required=True, type=Path)
@@ -1094,6 +1307,24 @@ def main() -> int:
                 "state": event["event"],
                 "action_id": event["action_id"],
                 "agent_id": event["agent_id"],
+            }
+        elif args.command == "prepare-next-wave-plan":
+            run_plan = prepare_next_wave_plan(
+                args.dispatch,
+                args.prior_run_plan,
+                args.gate_decision,
+                args.next_actions,
+                args.next_state,
+                args.events,
+                args.actions_dir,
+                args.output,
+            )
+            summary = {
+                "status": "pass",
+                "state": "wave_ready",
+                "wave_id": run_plan["selected_wave"]["wave_id"],
+                "action_count": len(run_plan["actions"]),
+                "output": str(args.output),
             }
         elif args.command == "prepare-wait":
             request = prepare_wait(args.run_plan, args.events, args.output)

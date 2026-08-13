@@ -12,16 +12,20 @@ Options:
   --target <path>       Consuming Git repository root. Default: current directory.
   --sigil <id>          Generate and sync one canonical sigil package.
   --spell <id>          Generate and sync one canonical spell package.
+  --runtime <id>        Generate and sync one canonical runtime package.
+                        Currently supported: orchestrate.
   --profiles <list>     repo-codex, claude, or repo-codex,claude.
                         Default: repo-codex.
   --apply               Apply the selective sync. Without this flag, preview only.
   -h, --help            Show this help.
 
-Exactly one of --sigil or --spell is required.
+Exactly one of --sigil, --spell, or --runtime is required.
 
 Examples:
   tools/sync-generated-skill-package.sh --target .. --sigil task-session
   tools/sync-generated-skill-package.sh --target .. --spell invoke --apply
+  tools/sync-generated-skill-package.sh --target .. --runtime orchestrate \
+    --profiles repo-codex,claude --apply
   tools/sync-generated-skill-package.sh --target .. --spell ontology-harness \
     --profiles repo-codex,claude --apply
 USAGE
@@ -33,6 +37,7 @@ bootstrap="$script_dir/bootstrap_arcanum.sh"
 target_root="$PWD"
 sigil_id=""
 spell_id=""
+runtime_id=""
 profiles="repo-codex"
 apply="false"
 stage_root=""
@@ -54,6 +59,7 @@ while [[ $# -gt 0 ]]; do
     --target) target_root="$2"; shift 2 ;;
     --sigil) sigil_id="$2"; shift 2 ;;
     --spell) spell_id="$2"; shift 2 ;;
+    --runtime) runtime_id="$2"; shift 2 ;;
     --profile|--profiles) profiles="$2"; shift 2 ;;
     --apply) apply="true"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -77,11 +83,15 @@ git_root="$(cd "$git_root" && pwd)"
 [[ "$target_root" == "$git_root" ]] ||
   fail "target must be the repository root: expected $git_root"
 
-if [[ -n "$sigil_id" && -n "$spell_id" ]] || [[ -z "$sigil_id" && -z "$spell_id" ]]; then
-  fail "exactly one of --sigil or --spell is required"
+selection_count=0
+[[ -n "$sigil_id" ]] && selection_count=$((selection_count + 1))
+[[ -n "$spell_id" ]] && selection_count=$((selection_count + 1))
+[[ -n "$runtime_id" ]] && selection_count=$((selection_count + 1))
+if [[ "$selection_count" -ne 1 ]]; then
+  fail "exactly one of --sigil, --spell, or --runtime is required"
 fi
 
-capability_id="${sigil_id:-$spell_id}"
+capability_id="${sigil_id:-${spell_id:-$runtime_id}}"
 [[ "$capability_id" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   fail "capability ID must contain only lowercase letters, digits, and hyphens"
 if [[ "$sigil_id" == "structured-interview-kits" ]]; then
@@ -103,7 +113,13 @@ done
 [[ -n "$normalized_profiles" ]] || fail "at least one profile is required"
 profiles="$normalized_profiles"
 
-if [[ -n "$sigil_id" ]]; then
+if [[ -n "$runtime_id" ]]; then
+  [[ "$runtime_id" == "orchestrate" ]] || fail "unsupported runtime package: $runtime_id"
+  canonical_source="$arcanum_root/runtime/$runtime_id/SKILL.md"
+  [[ -f "$canonical_source" ]] || fail "unknown runtime package: $runtime_id"
+  selection_args=(--sigils "" --spells none)
+  capability_kind="runtime"
+elif [[ -n "$sigil_id" ]]; then
   canonical_source=""
   for tier in formulae transmutations arcana; do
     if [[ -f "$arcanum_root/$tier/$sigil_id/SKILL.md" ]]; then

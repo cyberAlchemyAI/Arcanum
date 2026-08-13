@@ -134,6 +134,7 @@ def validate_events(
     joined: dict[str, dict[str, Any]] = {}
     gate_decisions: dict[str, int] = {}
     gate_passes: dict[str, int] = {}
+    gate_decision_waves: set[str] = set()
     run_blocks: list[dict[str, Any]] = []
     dispatch_id: str | None = None
     run_id: str | None = None
@@ -328,27 +329,48 @@ def validate_events(
                 block_valid = False
             failed_action_ids = event.get("failed_action_ids", [])
             cleaned_action_ids = event.get("cleaned_action_ids", [])
+            blocked_wave_id = event.get("wave_id")
+            failed_spawn_action_ids = {
+                candidate_action_id
+                for candidate_action_id, host_result in host_results.items()
+                if host_result.get("event") == "host_spawn_failed"
+                and host_result.get("wave_id") == blocked_wave_id
+            }
+            if set(failed_action_ids) != failed_spawn_action_ids:
+                reject("blocked_closeout_failure_set_mismatch", event, "blocked closeout must name every and only failed spawns in its wave")
+                block_valid = False
             for failed_action_id in failed_action_ids:
                 host_result = host_results.get(failed_action_id)
                 if host_result is None or host_result.get("event") != "host_spawn_failed":
                     reject("blocked_closeout_missing_failed_spawn", event, "blocked closeout references an action without host_spawn_failed", failed_action_id)
                     block_valid = False
+                elif host_result.get("wave_id") != blocked_wave_id:
+                    reject("blocked_closeout_failed_spawn_wave_mismatch", event, "blocked closeout references a failed action from another wave", failed_action_id)
+                    block_valid = False
             successful_action_ids = {
                 candidate_action_id
                 for candidate_action_id, host_result in host_results.items()
                 if host_result.get("event") == "host_spawn_returned"
+                and host_result.get("wave_id") == blocked_wave_id
             }
             if set(cleaned_action_ids) != successful_action_ids:
                 reject("blocked_closeout_cleanup_set_mismatch", event, "blocked closeout must name every and only successfully spawned action")
                 block_valid = False
             for cleaned_action_id in cleaned_action_ids:
-                if cleaned_action_id not in closes and cleaned_action_id not in interrupts:
+                cleanup = closes.get(cleaned_action_id) or interrupts.get(cleaned_action_id)
+                if cleanup is None:
                     reject("blocked_closeout_uncleaned_agent", event, "blocked closeout names an agent without terminal cleanup", cleaned_action_id)
                     block_valid = False
-            if joined:
+                elif cleanup.get("wave_id") != blocked_wave_id:
+                    reject("blocked_closeout_cleanup_wave_mismatch", event, "blocked closeout cleanup belongs to another wave", cleaned_action_id)
+                    block_valid = False
+            if any(
+                joined_receipt.get("wave_id") == blocked_wave_id
+                for joined_receipt in joined.values()
+            ):
                 reject("blocked_closeout_after_join", event, "blocked closeout cannot follow a joined receipt")
                 block_valid = False
-            if gate_decisions:
+            if blocked_wave_id in gate_decision_waves:
                 reject("blocked_closeout_after_gate", event, "blocked closeout cannot follow a gate decision")
                 block_valid = False
             if block_valid:
@@ -377,30 +399,42 @@ def validate_events(
                         reject("gate_admitted_non_pass", event, "gate_pass admitted a non-pass receipt", required_action_id)
             if len(errors) == gate_error_count and isinstance(gate_id, str):
                 gate_decisions[gate_id] = event.get("sequence")
+                gate_decision_waves.add(str(event.get("wave_id")))
                 if event.get("decision") == "gate_pass":
                     gate_passes[gate_id] = event.get("sequence")
 
     if run_blocks and events and events[-1].get("event") != "run_blocked":
         reject("blocked_closeout_not_terminal", run_blocks[-1], "run_blocked must be the final causal event")
 
-    if require_complete and not run_blocks:
+    if require_complete:
         failed_results = [
             event
             for event in host_results.values()
             if event.get("event") == "host_spawn_failed"
         ]
-        if failed_results:
+        if failed_results and not run_blocks:
             reject(
                 "missing_blocked_closeout",
                 failed_results[0],
                 "a host_spawn_failed action requires a terminal run_blocked closeout",
                 failed_results[0].get("action_id"),
             )
+        blocked_wave_id = run_blocks[0].get("wave_id") if run_blocks else None
+        blocked_cleaned_action_ids = (
+            set(run_blocks[0].get("cleaned_action_ids", [])) if run_blocks else set()
+        )
         for action_id, attempt in attempts.items():
             host_result = host_results.get(action_id)
             if host_result is None:
                 reject("missing_host_result", attempt, "attempted action has no host result", action_id)
-            elif host_result.get("event") == "host_spawn_returned" and action_id not in joined:
+            elif (
+                host_result.get("event") == "host_spawn_returned"
+                and action_id not in joined
+                and not (
+                    host_result.get("wave_id") == blocked_wave_id
+                    and action_id in blocked_cleaned_action_ids
+                )
+            ):
                 reject("missing_joined_receipt", host_result, "successful host result has no joined receipt", action_id)
 
     valid = not errors
