@@ -1,0 +1,132 @@
+{
+  "$id": "https://arcanum.dev/schemas/ux-evidence-validator/terminal-outcome/1-0-0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "validate-interface"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "oracle_comparison": {
+            "const": "NOT_APPLICABLE"
+          },
+          "repeatability_match": {
+            "const": false
+          },
+          "required_repeats_complete": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "report"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "oracle_comparison": {
+            "const": "NOT_APPLICABLE"
+          },
+          "repeatability_match": {
+            "const": false
+          },
+          "required_repeats_complete": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "calibrate"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "oracle_comparison": {
+            "enum": [
+              "MATCH",
+              "MISMATCH",
+              "INCONCLUSIVE"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "description": "Strict typed input for the deterministic L0 terminal outcome mapper.",
+  "properties": {
+    "contract_valid": {
+      "type": "boolean"
+    },
+    "evidence_status": {
+      "enum": [
+        "PASS",
+        "PASS_WITH_FLAGS",
+        "BLOCK",
+        "INCONCLUSIVE"
+      ]
+    },
+    "evidence_valid": {
+      "type": "boolean"
+    },
+    "input_complete": {
+      "type": "boolean"
+    },
+    "mode": {
+      "enum": [
+        "validate-interface",
+        "calibrate",
+        "report"
+      ]
+    },
+    "oracle_comparison": {
+      "enum": [
+        "MATCH",
+        "MISMATCH",
+        "NOT_APPLICABLE",
+        "INCONCLUSIVE"
+      ]
+    },
+    "repeatability_match": {
+      "type": "boolean"
+    },
+    "required_repeats_complete": {
+      "type": "boolean"
+    },
+    "runtime_valid": {
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mode",
+    "contract_valid",
+    "runtime_valid",
+    "evidence_valid",
+    "input_complete",
+    "evidence_status",
+    "oracle_comparison",
+    "required_repeats_complete",
+    "repeatability_match"
+  ],
+  "title": "UxEvidenceTerminalOutcomeInput",
+  "type": "object"
+}
