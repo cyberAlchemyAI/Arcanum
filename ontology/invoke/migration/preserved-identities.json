@@ -87,6 +87,82 @@
       "SR-ROUTER-RESOLVER"
     ]
   },
+  "schema_amendments": [
+    {
+      "added_fields": [
+        "concept.meaning",
+        "concept.name",
+        "concept.plain_language",
+        "concept.role"
+      ],
+      "affected_files": [
+        "ontology/invoke/README.md",
+        "ontology/invoke/INDEX.md",
+        "ontology/invoke/nodes/business.json",
+        "ontology/invoke/schemas/package.schema.json",
+        "ontology/invoke/migration/preserved-identities.json",
+        "arcana/ontology-vault/scripts/ontology_package.py",
+        "arcana/ontology-vault/development/package-materialization/test_invoke_package.py"
+      ],
+      "affected_node_ids": [
+        "B-AUTHORING",
+        "B-DEFINE-BASELINE",
+        "B-PLAN-READY-DESIGN",
+        "B-EXECUTABLE-PLAN",
+        "B-CONTINUITY",
+        "B-EVIDENCE-REFRESH",
+        "B-NON-COLLAPSE",
+        "B-NARROW-FIRST",
+        "B-DOWNSTREAM-OWNER"
+      ],
+      "authority_effect": "none",
+      "canonicalization": "sha256(json.dumps(record, sort_keys=True, separators=(',', ':')).encode('utf-8'))",
+      "current_rule": "Business nodes expose label and role at top level with the v1 model binding and no first-class concept surface.",
+      "field_moves": [
+        {
+          "from": "label",
+          "mode": "copied compatibility projection",
+          "to": "concept.name"
+        },
+        {
+          "from": "role",
+          "mode": "copied compatibility projection",
+          "to": "concept.role"
+        }
+      ],
+      "from_binding": "invoke-business-node/public-contract-v1",
+      "id": "SAW-INVOKE-BUSINESS-CONCEPT-V2-20260820",
+      "legacy_projection_sha256": {
+        "B-AUTHORING": "fe07acc65ce69d2493fb447538cbbd70c8f42e1e10b36c7130ccecc2f6ea269f",
+        "B-CONTINUITY": "172f87bfdcd3e3eb2e28ca6d749d832d04174a370db14591272bbc3a1b61e66d",
+        "B-DEFINE-BASELINE": "8439a8a8ac1551317d7644e55c60c94f062a0531a056eed3e08cebc3f6a2de8e",
+        "B-DOWNSTREAM-OWNER": "24da76d7ab4a93e0bc0b02c5002d63bb0b62e7c1f7717e6005a468a12f4f75db",
+        "B-EVIDENCE-REFRESH": "7ccfada46cc684e0beeaa7c95a4ad2adea9c8295a88405aae5269acce5d7227e",
+        "B-EXECUTABLE-PLAN": "76541b1d16a59c31a35bbee1758694f03655fcd62a2563c5f7ef05cb83aa6fce",
+        "B-NARROW-FIRST": "a97ac119d348604edfa589f748add837cee218e934c906f90112fa0d597f4315",
+        "B-NON-COLLAPSE": "04bb98e8d1357f4e1d618de2575b517b1f14e35b49a6fea828cfe198d73d1726",
+        "B-PLAN-READY-DESIGN": "de704279f070ce438bdaac6019eded652a27b9a622e4bb32b6705208a5225c8d"
+      },
+      "migration_impact": {
+        "business_node_count": 9,
+        "changed_branch": "business",
+        "relations_changed": false,
+        "shared_public_contract_changed": false,
+        "stable_node_ids_preserved": true,
+        "system_nodes_changed": false,
+        "views_changed": false
+      },
+      "proposed_rule": "Business node v2 requires an exact concept object with name, role, meaning, and plain_language; label and role remain compatibility projections and must equal concept.name and concept.role.",
+      "rationale": "Readers need a first-class statement of each business concept without reconstructing meaning from claim, scope, and obligations or turning the ontology into canonical definition authority.",
+      "rollback": {
+        "history_preserved": true,
+        "rule": "Apply a new witnessed reverse amendment that restores the v1 binding and removes concept only after verifying the frozen v1 projections; never erase validation receipts or this amendment history."
+      },
+      "scope": "nodes/business.json#nodes",
+      "status": "candidate",
+      "to_binding": "invoke-business-node/public-contract-v2"
+    }
+  ],
   "schema_version": "arcanum.ontology.invoke.migration.v1",
   "schema_witness": {
     "added_package_surfaces": [

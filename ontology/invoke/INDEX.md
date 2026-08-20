@@ -7,8 +7,14 @@
 - Bridge view: `views/bridge.json`
 - Residue: `residue.json`
 - Operation composition: `extensions/operation-composition.json`
-- Preserved identities: `migration/preserved-identities.json`
+- Preserved identities and schema amendments: `migration/preserved-identities.json`
 - Validation history: `history/legacy-validation.json`
+
+## Business concept model
+
+Every business node uses `invoke-business-node/public-contract-v2` and carries an exact `concept` object with `name`, `role`, `meaning`, and `plain_language`. Top-level `label` and `role` remain compatibility projections required by the shared public node contract; the validator requires them to equal `concept.name` and `concept.role`.
+
+The concept text is a public candidate explanation bounded by the node's existing evidence and obligations. It is not canonical definition authority. The atomic v1-to-v2 migration witness is `migration/preserved-identities.json#schema_amendments/0`.
 
 ## Stable nodes
 

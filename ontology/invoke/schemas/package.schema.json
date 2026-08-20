@@ -3,6 +3,163 @@
     "authorityEffect": {
       "const": "none"
     },
+    "businessConceptV2": {
+      "additionalProperties": false,
+      "properties": {
+        "meaning": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "plain_language": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "actor",
+            "business rule",
+            "capability",
+            "outcome",
+            "policy",
+            "workflow"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "meaning",
+        "plain_language"
+      ],
+      "type": "object"
+    },
+    "businessNodeV2": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_effect": {
+          "$ref": "#/$defs/authorityEffect"
+        },
+        "branch": {
+          "const": "business"
+        },
+        "candidate_status": {
+          "const": "candidate"
+        },
+        "challenge_contract": {
+          "type": "object"
+        },
+        "claim": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "commitment_confidence": {
+          "enum": [
+            "committed",
+            "conditional"
+          ],
+          "type": "string"
+        },
+        "concept": {
+          "$ref": "#/$defs/businessConceptV2"
+        },
+        "evidence_confidence": {
+          "const": "high"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/sourceReference"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "forbidden_collapse": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "invalidation_route": {
+          "type": "object"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model_binding": {
+          "const": "invoke-business-node/public-contract-v2"
+        },
+        "owner_route": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "promotion_state": {
+          "const": "not_requested"
+        },
+        "provenance": {
+          "type": "object"
+        },
+        "residue": {
+          "type": "array"
+        },
+        "role": {
+          "enum": [
+            "actor",
+            "business rule",
+            "capability",
+            "outcome",
+            "policy",
+            "workflow"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "semantic_definition_refs": {
+          "items": {
+            "pattern": "^CAV2-D[0-9]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "use_obligations": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "branch",
+        "role",
+        "concept",
+        "model_binding",
+        "scope",
+        "owner_route",
+        "candidate_status",
+        "promotion_state",
+        "authority_effect",
+        "claim",
+        "evidence_refs",
+        "evidence_confidence",
+        "commitment_confidence",
+        "semantic_definition_refs",
+        "provenance",
+        "use_obligations",
+        "challenge_contract",
+        "residue",
+        "invalidation_route",
+        "forbidden_collapse"
+      ],
+      "type": "object"
+    },
     "relationCore": {
       "properties": {
         "authority_effect": {
@@ -94,6 +251,7 @@
     "profile": "profile.json",
     "receipts": "receipts/validation-*.json",
     "residue": "residue.json#gaps",
+    "schema_amendment_witness": "migration/preserved-identities.json#schema_amendments/0",
     "sources": "sources.json#sources",
     "system_nodes": "nodes/system.json#nodes",
     "views": [
@@ -101,6 +259,16 @@
       "views/system.json",
       "views/bridge.json"
     ]
+  },
+  "model_contracts": {
+    "business_node": {
+      "binding": "invoke-business-node/public-contract-v2",
+      "compatibility_invariants": [
+        "concept.name == label",
+        "concept.role == role"
+      ],
+      "record_schema": "#/$defs/businessNodeV2"
+    }
   },
   "title": "Invoke ontology governed package records"
 }
