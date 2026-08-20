@@ -1,0 +1,162 @@
+{
+  "schema_version": "ontology-vault-cav2-public-contracts/v1",
+  "contract_id": "cav2-to-arcanum-ontology-contracts/v1",
+  "artifact_class": "ontology-model-contract",
+  "status": "candidate-public-contract",
+  "source_system": "CyberAlchemy v2",
+  "target_scope": "Ontology Vault package behavior",
+  "authority_effect": "none",
+  "arcanum_definition_authority": false,
+  "ontology_decides_authority": false,
+  "definitions": [
+    {
+      "origin_id": "CAV2-D16",
+      "term": "typed coupling invariant",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A dependency that affects routing, validation, implementation, or authority must be an explicit typed relation with named endpoints, direction, relation kind, owner route, evidence, and effect. Untyped coupling remains residue or a blocker.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D23",
+      "term": "authority lifecycle axis",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "Kind, status, evidence confidence, commitment confidence, provenance, owner route, and residue are separate fields. Movement on one field does not imply movement on another.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D29",
+      "term": "axis orthogonality invariant",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "Governed axes vary independently unless a typed relation, gate, schema rule, validator, or owner decision explicitly relates them.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D32",
+      "term": "method",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A reusable method names scope, inputs, actions, roles, gates, outputs, evidence, residue handling, validation, recomposition, and boundaries.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D33",
+      "term": "definition",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A governed definition carries a stable identity, term, status, aliases, normative meaning, explanatory voice, boundary, provenance, consumers, and a drift route. This exported record does not make the term canonical in Arcanum.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D34",
+      "term": "authority",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "An authority claim names its scope, owner, authority surface, governed object, allowed operation, basis, effect, and challenge route. Authority does not transfer across scopes by proximity.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D35",
+      "term": "provenance",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "Provenance is a typed origin and transformation chain that distinguishes source, adaptation, validation, projection, and owner handling. Missing links remain explicit residue.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D36",
+      "term": "traceability",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "Traceability is a traversable chain of typed links across intent, sources, artifacts, gates, validation, decisions, residue, and next routes. A broken chain is an explicit gap.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D37",
+      "term": "gate",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A gate declares owner route, scope, inputs, criteria, verdicts, evidence, residue handling, record location, and downstream effect. A gate record is not proof or automatic authority.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D38",
+      "term": "claim-proof bound",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A claim's strength, validation posture, and authority effect cannot exceed its cited support. Missing or partial support requires candidate wording, residue, a gate, or a block.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D39",
+      "term": "intent",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "Intent records source, purpose, scope, constraints, target pressure, current output hypothesis, and revision route. An artifact does not silently replace the intent it serves.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D40",
+      "term": "challenge contract",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "A challenge contract names valid challenge modes, contradiction and validation links, owner route, resolution gate, blocking questions, and residue route. Confidence and object residue remain separate fields.",
+      "authority_effect": "none"
+    },
+    {
+      "origin_id": "CAV2-D54",
+      "term": "invariant",
+      "artifact_class": "ontology-definition-contract",
+      "public_contract": "An invariant is a checkable condition that must hold across a declared scope. Its violation is drift or a defect, and enforcement remains with an explicit validator, gate, and owner route.",
+      "authority_effect": "none"
+    }
+  ],
+  "model_contracts": [
+    {
+      "contract_id": "package",
+      "artifact_class": "ontology-model-contract",
+      "required_surfaces": ["profile", "sources", "nodes", "relations", "residue", "human_index", "schemas", "validator", "validation_receipts"],
+      "conditional_surfaces": ["views", "bridge_view", "migration_manifest", "schema_amendment_witness", "operation_composition"],
+      "boundary": "The package models candidate meaning and evidence. Owner routes decide authority.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "node",
+      "artifact_class": "ontology-model-contract",
+      "required_fields": ["id", "label", "branch", "role", "claim", "evidence_refs", "owner_route", "candidate_status", "evidence_confidence", "commitment_confidence", "challenge_contract", "residue", "forbidden_collapse"],
+      "boundary": "A node is a candidate or read-model record, not an authority verdict.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "relation",
+      "artifact_class": "ontology-model-contract",
+      "required_fields": ["id", "type", "from", "to", "direction", "owner_route", "evidence_refs", "authority_effect", "forbidden_collapse"],
+      "boundary": "A relation must close over typed endpoints and evidence. It cannot imply promotion or movement authority.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "branch-view",
+      "artifact_class": "ontology-model-contract",
+      "required_fields": ["view_id", "view_role", "source_refs", "node_refs", "relation_refs", "owner_route", "allowed_readings", "forbidden_authority_moves", "residue_refs"],
+      "boundary": "A branch is an interpretive view. Branch membership does not decide ownership, status, or promotion.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "authority-kind",
+      "artifact_class": "ontology-model-contract",
+      "required_fields": ["kind_id", "label", "owner_route", "authority_surface", "candidate_inputs", "forbidden_collapse"],
+      "boundary": "A kind routes review; it does not decide a candidate.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "authority-posture",
+      "artifact_class": "ontology-model-contract",
+      "required_fields": ["posture_id", "label", "applies_to", "allowed_use", "blocked_use", "owner_route"],
+      "boundary": "Reliance posture is separate from confidence and cannot grant trust by tag.",
+      "authority_effect": "none"
+    },
+    {
+      "contract_id": "lifecycle-separation",
+      "artifact_class": "ontology-model-contract",
+      "required_axes": ["workflow_state", "maturity_status", "promotion_verdict", "projection_state"],
+      "boundary": "Ontology may project an allowed lifecycle state but cannot fill an owner verdict.",
+      "authority_effect": "none"
+    }
+  ],
+  "public_provenance": {
+    "source_system": "CyberAlchemy v2",
+    "origin_id": "cav2-to-arcanum-ontology-contracts/v1",
+    "derivation": "Owner-approved, capability-local re-expression of selected ontology definition and model contracts; no source bytes or private evidence are embedded.",
+    "authority_effect": "none"
+  }
+}

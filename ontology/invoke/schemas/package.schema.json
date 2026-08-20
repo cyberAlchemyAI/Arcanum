@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "authorityEffect": {
+      "const": "none"
+    },
+    "relationCore": {
+      "properties": {
+        "authority_effect": {
+          "$ref": "#/$defs/authorityEffect"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "branch",
+        "from",
+        "to",
+        "direction",
+        "owner_route",
+        "authority_effect",
+        "forbidden_collapse"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "posture": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "visibility": {
+          "const": "public"
+        }
+      },
+      "required": [
+        "id",
+        "locator",
+        "sha256",
+        "posture",
+        "selector",
+        "visibility"
+      ],
+      "type": "object"
+    },
+    "sourceReference": {
+      "pattern": "^SRC-[A-Z0-9-]+(#.+)?$",
+      "type": "string"
+    },
+    "stableId": {
+      "pattern": "^[A-Z]+-[A-Z0-9-]+$",
+      "type": "string"
+    },
+    "validationReceipt": {
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "package_id",
+        "material_digest",
+        "material_inventory",
+        "status",
+        "checks",
+        "counts",
+        "errors",
+        "authority_effect",
+        "promotion_status",
+        "publication_status"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://arcanum.dev/ontology/invoke/package.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Closed record contracts enforced by scripts/validate.py and the canonical Ontology Vault validator.",
+  "governed_files": {
+    "branch_relations": [
+      "relations/business.json#relations",
+      "relations/system.json#relations"
+    ],
+    "bridge_relations": "relations/bridge.json#relations",
+    "business_nodes": "nodes/business.json#nodes",
+    "profile": "profile.json",
+    "receipts": "receipts/validation-*.json",
+    "residue": "residue.json#gaps",
+    "sources": "sources.json#sources",
+    "system_nodes": "nodes/system.json#nodes",
+    "views": [
+      "views/business.json",
+      "views/system.json",
+      "views/bridge.json"
+    ]
+  },
+  "title": "Invoke ontology governed package records"
+}

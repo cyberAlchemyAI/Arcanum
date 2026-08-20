@@ -156,6 +156,45 @@ movement. Blocked outputs include promotion verdicts, spec mutation, canonical
 source mutation, runtime conformance verdicts, and generated projection as
 authority.
 
+## Run Artifact Or Durable Package
+
+Ontology Vault distinguishes evidence about one run from the ontology a
+project intends to keep evolving.
+
+A bounded, single-branch, one-off map may remain one JSON run artifact when it
+does not enrich existing ontology state, claim reusable identity, require a
+bridge or multiple views, or act as a future state store. This keeps small maps
+small.
+
+A package is required as soon as any durable-package trigger is present:
+
+- explicit durable, reusable, evolving, project-owned, or package intent;
+- multiple branches or views, or a business-system bridge;
+- stable IDs intended to survive the run;
+- continued enrichment of existing nodes, relations, operations, sources,
+  views, or residue;
+- independently validated schemas, source bindings, navigation, or reusable
+  projections; or
+- a runtime profile mutation against an owned ontology surface.
+
+Count and file size do not decide this. Ownership intent and reuse do.
+
+The minimum package contains a profile, source identities with digests, nodes,
+typed relations, residue, a human README or index, schemas or schema bindings,
+a deterministic validator, and validation receipts. Branch views and a bridge
+view are required when the package makes branch or alignment claims. Imports
+from earlier run artifacts require a migration manifest. Load-bearing operation
+composition remains an explicit extension rather than being flattened into a
+receipt.
+
+If package intent is clear but the package owner, exact root, or required
+public/private classification is unresolved, Ontology Vault stops. It may emit
+one blocked run receipt with `authority_effect: none`; it must not guess a
+directory or append more product ontology state to an earlier invocation JSON.
+
+Package validation is check-only by default. Writing a new validation receipt
+is an explicit second action, and earlier receipts remain history.
+
 ## Integration
 
 Use [inventory](../inventory/) to persist reusable ontology entries and source summaries.

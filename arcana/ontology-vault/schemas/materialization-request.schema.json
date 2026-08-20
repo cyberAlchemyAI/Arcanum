@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ontology-vault-materialization-request/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "intent", "scope", "state", "ownership"],
+  "properties": {
+    "schema_version": {
+      "const": "ontology-vault-materialization-request/v1"
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["one_off", "durable", "reusable", "evolving", "package_requested"],
+      "properties": {
+        "one_off": {"type": "boolean"},
+        "durable": {"type": "boolean"},
+        "reusable": {"type": "boolean"},
+        "evolving": {"type": "boolean"},
+        "package_requested": {"type": "boolean"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ontology_type_count", "branch_count", "view_count", "bridge"],
+      "properties": {
+        "ontology_type_count": {"type": "integer", "minimum": 0},
+        "branch_count": {"type": "integer", "minimum": 0},
+        "view_count": {"type": "integer", "minimum": 0},
+        "bridge": {"type": "boolean"}
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stable_identity_survives_run",
+        "enriches_existing_ontology",
+        "needs_schemas",
+        "needs_source_bindings",
+        "needs_human_navigation",
+        "needs_reusable_projections",
+        "runtime_profile_mutation",
+        "invocation_evidence_only"
+      ],
+      "properties": {
+        "stable_identity_survives_run": {"type": "boolean"},
+        "enriches_existing_ontology": {"type": "boolean"},
+        "needs_schemas": {"type": "boolean"},
+        "needs_source_bindings": {"type": "boolean"},
+        "needs_human_navigation": {"type": "boolean"},
+        "needs_reusable_projections": {"type": "boolean"},
+        "runtime_profile_mutation": {"type": "boolean"},
+        "invocation_evidence_only": {"type": "boolean"}
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_route", "package_root", "crosses_visibility_boundary", "visibility"],
+      "properties": {
+        "owner_route": {"type": ["string", "null"]},
+        "package_root": {"type": ["string", "null"]},
+        "crosses_visibility_boundary": {"type": "boolean"},
+        "visibility": {
+          "type": ["string", "null"],
+          "enum": ["public", "private", null]
+        }
+      }
+    }
+  }
+}

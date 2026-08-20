@@ -1,10 +1,10 @@
 ---
 name: ontology-vault
 description: "Use when: selecting, mapping, distilling, validating, or evolving a governed ontology with explicit archetype routing, roles, confidence, premises, typed properties, branch-aware edges, and conventions."
-argument-hint: "<map|distill-sessions|promote-confidence|premise-review|convention-update|validate> [--ontology-type <id>] [--path <repo-root>] [--source <path>] [--profile <path>] [--runtime inline|agents] [--branch <business|system|bridge>] [--branches business,system] [--bridge business-system] [--output <path>] [--dry-run]"
+argument-hint: "<map|distill-sessions|promote-confidence|premise-review|convention-update|validate> [--ontology-type <id>] [--path <repo-root>] [--source <path>] [--profile <path>] [--runtime inline|agents] [--branch <business|system|bridge>] [--branches business,system] [--bridge business-system] [--output <path>] [--package-root <path>] [--package-owner <route>] [--visibility public|private] [--dry-run]"
 tier: arcana
 domain: ontology-governance
-version: 0.2.0
+version: 0.5.0
 origin: generalized from governed knowledge-vault maintenance patterns
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -150,13 +150,98 @@ Expected inputs, if available:
   </inputs>
 
 <default-output>
-If the user does not provide `--output`, prefer:
+The sigil's primary output is a machine-readable JSON artifact. Markdown is a
+derived view of it and is never the source of truth.
 
-1. `.arcanum/ontology-vault/<mode>-<date>.md` when `.arcanum/` exists,
-2. `docs/ontology/<mode>-<date>.md` when `docs/ontology/` exists,
-3. `docs/knowledge/<mode>-<date>.md` when `docs/knowledge/` exists,
-4. a markdown report in chat when no safe output location exists.
+This default applies only after `<materialization-contract>` classifies the
+work as `single-artifact-allowed`. A run artifact or validation receipt is not
+the product ontology's state store.
+
+This governs artifacts the sigil writes. It places no requirement on records an
+owner writes, and no consuming repository is obliged to adopt this shape.
+
+If the user does not provide `--output`, write the primary artifact to the first
+suitable location:
+
+1. `.arcanum/ontology-vault/<mode>-<date>.json` when `.arcanum/` exists,
+2. `docs/ontology/<mode>-<date>.json` when `docs/ontology/` exists,
+3. `docs/knowledge/<mode>-<date>.json` when `docs/knowledge/` exists,
+4. a JSON object returned in chat when no safe write location exists.
+
+Render markdown beside the primary artifact only when a human view is wanted, and
+mark it as derived. A markdown view that has drifted from its JSON source is stale,
+not authoritative.
+
+This declaration promotes no candidate schema to canonical and imports no label
+under deferred governance. Authority for it is
+`development/schema-validation-plan/decision-gates/OVS-GATE-004-default-output-declaration.md`.
    </default-output>
+
+<materialization-contract>
+Classify output ownership before resolving `<default-output>`. Use
+`scripts/ontology_package.py classify --request <json>` when a structured
+request is available.
+
+An invocation or validation receipt may remain one machine-readable JSON
+artifact. A durable ontology is different: it owns reusable state across runs
+and must be materialized as a package.
+
+Return `package-required` when any of these deterministic triggers is true:
+
+1. The user requests a durable, reusable, evolving, project-owned, or packaged
+   ontology.
+2. More than one branch or view is modeled, or a bridge is requested.
+3. Stable ontology identity is intended to survive the invocation.
+4. Existing ontology nodes, relations, operations, sources, views, or residue
+   are being enriched or revised.
+5. The output needs independently validated schemas, source bindings, human
+   navigation, or reusable projections.
+6. A runtime profile points at an owned ontology surface and the run would
+   mutate that surface rather than only validate it.
+
+Record count and byte size are never materialization triggers.
+
+Return `single-artifact-allowed` only when all of these are true:
+
+- one bounded ontology type and one branch;
+- one-off mapping or reporting intent;
+- no existing durable ontology is being enriched;
+- no reuse or future evolution is claimed;
+- no bridge or multi-view behavior is requested; and
+- the output is invocation evidence, not the product ontology's state store.
+
+When package intent is clear, require both a package owner route and an exact
+package root. For public/private movement, also require an explicit visibility
+classification. If any required ownership input is unresolved, return
+`block`, write no ontology state into an earlier run artifact, and emit only a
+blocked invocation receipt with the detected trigger, proposed package
+inventory, `authority_effect: none`, and typed blockers such as
+`package_owner_unresolved`, `package_output_unresolved`, or
+`package_visibility_unresolved`.
+
+A governed durable package has these minimum surfaces:
+
+- required: profile, source identities and digests, nodes, typed relations
+  (an explicitly empty collection is allowed), residue ledger, human README or
+  index, owned schemas or schema bindings, deterministic validator, and
+  append-only validation receipts;
+- conditional: branch views and bridge view for branch-aware work; migration
+  manifest for prior-run imports; schema-amendment witness for evolving record
+  shape; operation composition when it is load-bearing ontology state;
+- optional: projections, visualizations, generated read models, context packs,
+  and domain-specific indexes.
+
+Package validation must check source currency, closed record shapes, stable-ID
+uniqueness, relation endpoint closure, branch polarity, separate bridge-source
+evidence, view and residue references, authority ceilings, and stale receipts.
+Check-only validation must not write. Receipt materialization is a separate,
+explicit operation, and prior receipts remain history rather than being
+overwritten.
+
+This contract governs Ontology Vault output behavior. It does not require an
+unrelated existing ontology to migrate, adopt one universal graph schema, or
+promote package contents into authority.
+</materialization-contract>
 
 <process>
 ## Step 0 - Select The Ontology Type
@@ -179,6 +264,21 @@ If the user does not provide `--output`, prefer:
    `ontology_type` base. Record the alias but do not register it in the catalog.
 6. Resolve derived branch defaults from the selected type, then apply only
    compatible explicit branch arguments.
+
+## Step 0A - Decide Run Artifact Or Durable Package
+
+A1. Build the materialization facts before choosing an output path: durability
+intent, branch and view count, bridge use, stable cross-run identity, existing
+state enrichment, required reusable surfaces, runtime-profile mutation, owner
+route, package root, and visibility.
+A2. Apply `<materialization-contract>` before `<default-output>`.
+A3. For `single-artifact-allowed`, keep ontology content and the invocation
+receipt distinguishable even when one JSON artifact carries both for the
+bounded run.
+A4. For `package-required`, write ontology state only inside the resolved
+package root and emit validation history under that package's receipt surface.
+A5. For `block`, preserve source evidence and existing run artifacts byte for
+byte. Never keep appending product ontology state to one invocation receipt.
 
 ## Step 1 - Resolve Scope And Local Vocabulary
 
@@ -361,6 +461,13 @@ A successful execution must:
   authority,
 - block profile outputs that would mutate specs, canonical sources, runtime
   conformance, or promotion state without owner approval.
+- classify receipt versus package before selecting an output path,
+- keep genuinely small one-off maps eligible for a single run artifact,
+- require a package for durable, multi-view, bridged, reusable, or evolving
+  ontology state,
+- fail closed when package ownership, root, or visibility is unresolved,
+- keep validation receipts separate from durable ontology state and preserve
+  prior receipts as history.
   </quality-bar>
 
 <anti-patterns>
@@ -389,10 +496,55 @@ Avoid:
   governed subagent strategy,
 - letting a generated projection or profile report become canonical authority
   by proximity.
+- growing one invocation or validation receipt into the product ontology's
+  long-lived state store,
+- using record count or file size as a substitute for ownership intent,
+- guessing a package directory or owner when durable-package intent is clear,
+- forcing a package when a bounded single-branch one-off map is sufficient,
+- overwriting prior validation receipts during package enrichment.
   </anti-patterns>
 
+<emission-contract>
+The sigil emits one validation record per meaningful invocation when
+`.arcanum/observability/` exists. That record is an evidence artifact:
+`authority_effect` is always `none`, and it never carries promotion, source,
+or conformance authority. It also never becomes the durable ontology state
+store. A package validation receipt may bind package counts and digests, but
+nodes, relations, views, operations, and residue remain package-owned records.
+
+Record identity:
+
+```text
+schema_version: domainspec.ontology-vault.validation.v1
+```
+
+Required keys: `schema_version`, `invocation_id`, `validated_at`, `mode`,
+`repository`, `ontology_type`, `ontology_type_selection`, `branch`, `runtime`,
+`authority_effect`, `result`.
+
+Optional keys: `promotion_status`, `source_identities`, `outputs`, `counts`,
+`checks`, `promoted_candidates`, `blockers`, `next_action`.
+
+The record describes what the sigil wrote. It never describes, constrains, or
+requires anything about records an owner writes. Emitting it creates no
+obligation for any consuming repository to adopt its keys or its grammar.
+
+Known inconsistency, owner-routed, deliberately not normalized: this identity
+uses dot grammar under the `domainspec.*` namespace, while every artifact this
+package ships uses slash grammar under `ontology-vault-*`
+(`catalogs/ontology-types.json` declares `catalog_version:
+ontology-vault-types/v1`). Records already emitted are held by consuming
+repositories, and the rule against emitting a source mutation over owner
+evidence bars the sigil from rewriting them. The identity is therefore
+preserved exactly as emitted and the divergence is recorded here rather than
+silently repaired. Resolving it is a convention-change decision with a named
+owner, not an editorial fix.
+</emission-contract>
+
 <observability>
-When `.arcanum/observability/` exists, emit post-run signals for:
+When `.arcanum/observability/` exists, emit post-run signals for the
+fields below. The record identity, required keys, and authority ceiling
+are fixed by `<emission-contract>` above.
 
 - mode,
 - selected ontology type,
@@ -424,6 +576,9 @@ When `.arcanum/observability/` exists, emit post-run signals for:
   </observability>
 
 <output-contract>
+The fields below are the human-readable summary. They are a projection of the
+primary JSON artifact named in `<default-output>`, not a substitute for it.
+
 Return:
 
 ```markdown
@@ -440,6 +595,9 @@ Return:
 - Branch: business | system | bridge | mixed | none
 - Runtime profile: <path | none>
 - Runtime mode: inline | agents | none
+- Materialization: single-artifact-allowed | package-required | block
+- Package root: <path | none | unresolved>
+- Package owner: <route | none | unresolved>
 - Sources reviewed: <count>
 - Business documents mapped: <count>
 - System documents mapped: <count>

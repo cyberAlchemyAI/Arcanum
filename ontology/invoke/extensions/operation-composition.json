@@ -1,0 +1,766 @@
+{
+  "authority_effect": "none",
+  "operation_composition": {
+    "capability_usage": [
+      {
+        "conditional": [
+          "CAP-DISTILL"
+        ],
+        "next_owner": [
+          "CAP-SPELLCRAFT",
+          "CAP-SIGIL-DEVELOPMENT"
+        ],
+        "operation": "OP-DEFINE",
+        "optional": [
+          "CAP-DECISION-GATE"
+        ],
+        "required": [
+          "CAP-CONTEXT-BUILDER",
+          "CAP-STRUCTURED-INTERVIEW",
+          "CAP-INVENTORY",
+          "CAP-DISPATCH-SPEC"
+        ]
+      },
+      {
+        "conditional": [
+          "CAP-DISTILL"
+        ],
+        "next_owner": [
+          "CAP-SPELLCRAFT",
+          "CAP-SIGIL-DEVELOPMENT"
+        ],
+        "operation": "OP-DESIGN",
+        "optional": [
+          "CAP-ARCHITECTURE-PATTERN-INVENTORY",
+          "CAP-DECISION-GATE"
+        ],
+        "required": [
+          "CAP-CONTEXT-BUILDER",
+          "CAP-STRUCTURED-INTERVIEW",
+          "CAP-INVENTORY",
+          "CAP-DISPATCH-SPEC"
+        ]
+      },
+      {
+        "conditional": [],
+        "next_owner": [
+          "CAP-TASK-SESSION",
+          "CAP-SPELLCRAFT",
+          "CAP-SIGIL-DEVELOPMENT"
+        ],
+        "operation": "OP-PLAN",
+        "optional": [
+          "CAP-DECISION-GATE"
+        ],
+        "required": [
+          "CAP-CONTEXT-BUILDER",
+          "CAP-STRUCTURED-INTERVIEW",
+          "CAP-INVENTORY",
+          "CAP-DISPATCH-SPEC",
+          "CAP-DISTILL"
+        ]
+      },
+      {
+        "conditional": [
+          "CAP-STRUCTURED-INTERVIEW",
+          "CAP-DISTILL"
+        ],
+        "next_owner": [
+          "CAP-WORKFLOW-REFLECT",
+          "CAP-TASK-SESSION",
+          "CAP-SPELLCRAFT",
+          "CAP-SIGIL-DEVELOPMENT"
+        ],
+        "operation": "OP-HANDOFF",
+        "optional": [
+          "CAP-DECISION-GATE"
+        ],
+        "required": [
+          "CAP-CONTEXT-BUILDER",
+          "CAP-INVENTORY",
+          "CAP-DISPATCH-SPEC"
+        ]
+      },
+      {
+        "conditional": [
+          "CAP-STRUCTURED-INTERVIEW",
+          "CAP-DISTILL"
+        ],
+        "next_owner": [
+          "CAP-WORKFLOW-REFLECT",
+          "CAP-TASK-SESSION"
+        ],
+        "operation": "OP-REFRESH",
+        "optional": [
+          "CAP-DECISION-GATE"
+        ],
+        "required": [
+          "CAP-CONTEXT-BUILDER",
+          "CAP-INVENTORY",
+          "CAP-DISPATCH-SPEC"
+        ]
+      }
+    ],
+    "choreography": [
+      {
+        "condition": "The definition baseline is approved and Design activation inputs are present.",
+        "from": "OP-DEFINE",
+        "relation": "may_precede",
+        "to": "OP-DESIGN"
+      },
+      {
+        "condition": "Normal planning requires design-validator-pass; remediation planning is explicitly bounded.",
+        "from": "OP-DESIGN",
+        "relation": "may_precede",
+        "to": "OP-PLAN"
+      },
+      {
+        "condition": "Handoff preserves continuity but is not an additional lifecycle stage.",
+        "from": "OP-HANDOFF",
+        "relation": "lateral_route",
+        "to": "B-DOWNSTREAM-OWNER"
+      },
+      {
+        "condition": "Refresh updates or proposes exact artifact state and never substitutes for target execution.",
+        "from": "OP-REFRESH",
+        "relation": "state_reconciliation_route",
+        "to": "B-DOWNSTREAM-OWNER"
+      }
+    ],
+    "deferred_operations": [
+      {
+        "composition": "not asserted",
+        "evidence_refs": [
+          "SRC-ROOT#L48-L58",
+          "SRC-CAPABILITIES#L74-L80"
+        ],
+        "id": "OP-FULL",
+        "mode": "full",
+        "reason": "The canonical mode and capability table mark Full deferred and unsupported; routes naming Full do not make it active.",
+        "status": "deferred"
+      },
+      {
+        "composition": "not asserted",
+        "evidence_refs": [
+          "SRC-ROOT#L48-L58",
+          "SRC-CAPABILITIES#L81-L88"
+        ],
+        "id": "OP-VALIDATE",
+        "mode": "validate",
+        "reason": "The canonical mode and capability table mark Validate deferred and unsupported.",
+        "status": "deferred"
+      }
+    ],
+    "evidence_refs": [
+      "SRC-ROOT#L48-L121",
+      "SRC-ROOT#L161-L192",
+      "SRC-DEFINE#L20-L81",
+      "SRC-DESIGN#L35-L205",
+      "SRC-PLAN#L68-L165",
+      "SRC-PLAN#L348-L417",
+      "SRC-HANDOFF#L9-L132",
+      "SRC-REFRESH#L9-L129",
+      "SRC-REFRESH#L185-L264",
+      "SRC-CAPABILITIES#L18-L88"
+    ],
+    "invariants": [
+      "Exactly five operations are active; Full and Validate remain deferred and undecomposed.",
+      "Every active operation realizes exactly one existing B-* outcome or workflow without duplicating its claim.",
+      "Required, conditional, optional, and next-owner capability roles remain distinct.",
+      "Artifacts, templates, receipts, validators, and projections are operation inputs or outputs, not supporting business capabilities.",
+      "Handoff and Refresh sequences are derived and cannot be presented as canonical phase tables.",
+      "Dispatch trace is required for every active operation; Distill follows its mode-specific trigger.",
+      "Phase status, handoff readiness, and durable capability axes never collapse into one readiness label.",
+      "Every next route preserves a separate owner and never implies Invoke completed that owner's lifecycle."
+    ],
+    "model": "Each operation is a composite business behavior owned by B-AUTHORING. It references an existing B-* outcome or workflow, orders mode activities, binds supporting capabilities by obligation, and stops at the downstream-owner boundary.",
+    "operations": [
+      {
+        "activation_inputs": [
+          "goal and scope",
+          "existing artifacts and constraints",
+          "template inventory or candidate permission",
+          "discovery evidence or explicit waiver",
+          "optional layering and glossary sources"
+        ],
+        "failure_behavior": "Block on missing core intent, contradictory scope, unresolved blocker ambiguity, or governance violation; otherwise flag usable candidate or evidence gaps.",
+        "gates": [
+          "core goal and scope are coherent",
+          "discovery evidence exists or a waiver is recorded",
+          "template eligibility and ties are explicit",
+          "glossary and upstream-mutation rules hold"
+        ],
+        "governed_by": [
+          "B-NON-COLLAPSE"
+        ],
+        "hands_off_to": "B-DOWNSTREAM-OWNER",
+        "id": "OP-DEFINE",
+        "mode": "define",
+        "next_routes": [
+          "design",
+          "spellcraft",
+          "sigil-development",
+          "deferred"
+        ],
+        "outputs": [
+          "specification",
+          "glossary",
+          "layering seed or explicit gap",
+          "template and dispatch evidence",
+          "Distill status",
+          "transport report",
+          "unresolved gap ledger"
+        ],
+        "phases": [
+          {
+            "activity": "Bound the definition context.",
+            "ordinal": 1,
+            "provenance": "explicit",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Clarify missing intent and capture approval.",
+            "ordinal": 2,
+            "provenance": "explicit",
+            "support": "CAP-STRUCTURED-INTERVIEW"
+          },
+          {
+            "activity": "Select an eligible template with evidence.",
+            "ordinal": 3,
+            "provenance": "explicit",
+            "support": "CAP-INVENTORY"
+          },
+          {
+            "activity": "Author the specification, glossary, layering seed or gap, transport evidence, and gap ledger.",
+            "ordinal": 4,
+            "provenance": "explicit",
+            "support": "invoke:define"
+          },
+          {
+            "activity": "Record the route technique trace and owner boundary.",
+            "ordinal": 5,
+            "provenance": "global-required",
+            "support": "CAP-DISPATCH-SPEC"
+          },
+          {
+            "activity": "Validate definition scope when it is broad, ambiguous, or split-prone.",
+            "ordinal": 6,
+            "provenance": "conditional-mode-gate",
+            "support": "CAP-DISTILL"
+          },
+          {
+            "activity": "Resolve or preserve a consequential blocker.",
+            "ordinal": 7,
+            "provenance": "optional-explicit",
+            "support": "CAP-DECISION-GATE"
+          },
+          {
+            "activity": "Route approved outputs to Design or the target lifecycle owner.",
+            "ordinal": 8,
+            "provenance": "explicit",
+            "support": "B-DOWNSTREAM-OWNER"
+          }
+        ],
+        "preconditioned_by": [],
+        "purpose": "Establish a governed specification and glossary baseline from bounded intent.",
+        "realizes": "B-DEFINE-BASELINE",
+        "sequence_provenance": "explicit mode phase table with Dispatch Spec and Distill controls supplied by mode and root gates",
+        "status": "active"
+      },
+      {
+        "activation_inputs": [
+          "approved specification and glossary",
+          "define decisions and gaps",
+          "design constraints and source contracts",
+          "closed design scope and selector evidence",
+          "template or profile evidence",
+          "explicit approval for discovery mode when normal inputs are absent"
+        ],
+        "failure_behavior": "Block on missing normal inputs, invalid scope or denominator, unowned concerns, illegal selection, fixed-point drift, or incomplete required views; flag non-blocking evidence gaps.",
+        "gates": [
+          "approved Define baseline or explicitly bounded discovery mode",
+          "closed and current scope manifest",
+          "total two-pass design selection",
+          "six required views",
+          "glossary consistency and no silent upstream mutation",
+          "normal Plan requires design-validator-pass"
+        ],
+        "governed_by": [
+          "B-NON-COLLAPSE"
+        ],
+        "hands_off_to": "B-DOWNSTREAM-OWNER",
+        "id": "OP-DESIGN",
+        "mode": "design",
+        "next_routes": [
+          "plan",
+          "bounded-remediation-plan",
+          "define",
+          "spellcraft",
+          "sigil-development",
+          "deferred"
+        ],
+        "outputs": [
+          "six-view architecture bundle",
+          "design scope, denominator, and selection evidence",
+          "glossary consistency report",
+          "decision, risk, dependency, and interface evidence",
+          "selected companion outputs",
+          "layering seed or explicit gap",
+          "transport and planning handoff evidence"
+        ],
+        "phases": [
+          {
+            "activity": "Bound the design context.",
+            "ordinal": 1,
+            "provenance": "explicit",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Clarify design intent and missing-input decisions.",
+            "ordinal": 2,
+            "provenance": "explicit",
+            "support": "CAP-STRUCTURED-INTERVIEW"
+          },
+          {
+            "activity": "Select the architecture profile and templates.",
+            "ordinal": 3,
+            "provenance": "explicit",
+            "support": "CAP-INVENTORY"
+          },
+          {
+            "activity": "Collect bounded pattern or research evidence when needed.",
+            "ordinal": 4,
+            "provenance": "optional-explicit",
+            "support": "CAP-ARCHITECTURE-PATTERN-INVENTORY"
+          },
+          {
+            "activity": "Close design scope and establish an independently extracted evidence denominator.",
+            "ordinal": 5,
+            "provenance": "explicit",
+            "support": "invoke:design-selection-protocol"
+          },
+          {
+            "activity": "Validate total concern ownership, legal dispositions, selected outputs, and two-pass fixed point.",
+            "ordinal": 6,
+            "provenance": "explicit",
+            "support": "invoke:design-selection-protocol"
+          },
+          {
+            "activity": "Produce only evidence-selected companion outputs such as UX or research plans.",
+            "ordinal": 7,
+            "provenance": "conditional-explicit",
+            "support": "invoke:design-companions"
+          },
+          {
+            "activity": "Author the six-view design bundle, consistency report, decisions, risks, interfaces, and layering seed or gap.",
+            "ordinal": 8,
+            "provenance": "explicit",
+            "support": "invoke:design"
+          },
+          {
+            "activity": "Record the route technique trace and owner boundary.",
+            "ordinal": 9,
+            "provenance": "global-required",
+            "support": "CAP-DISPATCH-SPEC"
+          },
+          {
+            "activity": "Validate coherent design-unit size, split pressure, and plan-readiness gaps.",
+            "ordinal": 10,
+            "provenance": "conditional-required-once-material-exists",
+            "support": "CAP-DISTILL"
+          },
+          {
+            "activity": "Resolve or preserve a consequential blocker.",
+            "ordinal": 11,
+            "provenance": "optional-explicit",
+            "support": "CAP-DECISION-GATE"
+          },
+          {
+            "activity": "Route to normal Plan only with design-validator-pass, otherwise to remediation or another owner.",
+            "ordinal": 12,
+            "provenance": "explicit",
+            "support": "B-DOWNSTREAM-OWNER"
+          }
+        ],
+        "preconditioned_by": [
+          "B-DEFINE-BASELINE"
+        ],
+        "purpose": "Convert approved definition outputs into a bounded architecture and design contract suitable for planning.",
+        "realizes": "B-PLAN-READY-DESIGN",
+        "sequence_provenance": "explicit mode phase table with cross-cutting Dispatch Spec and Distill gates",
+        "status": "active"
+      },
+      {
+        "activation_inputs": [
+          "approved design and exact source references",
+          "delivery boundary and implementation objective",
+          "constraints and dependencies",
+          "layering and work-pack artifacts or creation approval",
+          "validation strategy",
+          "complexity, implementation-detail, SWU, closeout, and execution-policy requirements"
+        ],
+        "failure_behavior": "Block on missing Design evidence, required companions, acceptance-critical implementation detail, invalid SWUs, closeout or execution-entry failure, or Distill block; carry only owned non-acceptance gaps as flags.",
+        "gates": [
+          "approved Design evidence and exact refs",
+          "required companion artifacts",
+          "complexity-appropriate implementation detail and SWUs",
+          "atomic and narrow first unit",
+          "complete closeout synchronization contract",
+          "valid execution-entry projection",
+          "pass-ready mutation handoff requires strict Distill pass"
+        ],
+        "governed_by": [
+          "B-NON-COLLAPSE",
+          "B-NARROW-FIRST"
+        ],
+        "hands_off_to": "B-DOWNSTREAM-OWNER",
+        "id": "OP-PLAN",
+        "mode": "plan",
+        "next_routes": [
+          "task-session",
+          "spellcraft",
+          "sigil-development",
+          "deferred"
+        ],
+        "outputs": [
+          "implementation-layering artifact",
+          "work-pack and optional execution pack",
+          "waves, tasks, implementation-detail contracts, and SWUs",
+          "validation strategy and execution-entry projection",
+          "Task Session closeout synchronization contracts",
+          "dispatch and Distill evidence",
+          "blocker and gap ledger",
+          "transport and owner handoff evidence"
+        ],
+        "phases": [
+          {
+            "activity": "Bound the planning context.",
+            "ordinal": 1,
+            "provenance": "explicit",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Clarify and approve planning intent.",
+            "ordinal": 2,
+            "provenance": "explicit",
+            "support": "CAP-STRUCTURED-INTERVIEW"
+          },
+          {
+            "activity": "Select work-pack, layering, and execution-pack templates.",
+            "ordinal": 3,
+            "provenance": "explicit",
+            "support": "CAP-INVENTORY"
+          },
+          {
+            "activity": "Establish the route technique trace or validate a full dispatch when required.",
+            "ordinal": 4,
+            "provenance": "explicit",
+            "support": "CAP-DISPATCH-SPEC"
+          },
+          {
+            "activity": "Author layering, work-pack, tasks, SWUs, validation, closeout contracts, blockers, and execution-entry projection.",
+            "ordinal": 5,
+            "provenance": "explicit",
+            "support": "invoke:plan"
+          },
+          {
+            "activity": "Validate smallest-unit closure, narrow-first choice, recomposition, hidden gaps, and navigation.",
+            "ordinal": 6,
+            "provenance": "required-explicit",
+            "support": "CAP-DISTILL"
+          },
+          {
+            "activity": "Resolve or preserve a consequential planning blocker.",
+            "ordinal": 7,
+            "provenance": "optional-explicit",
+            "support": "CAP-DECISION-GATE"
+          },
+          {
+            "activity": "Hand off one bounded executable unit to the correct execution or lifecycle owner.",
+            "ordinal": 8,
+            "provenance": "explicit",
+            "support": "B-DOWNSTREAM-OWNER"
+          }
+        ],
+        "preconditioned_by": [
+          "B-PLAN-READY-DESIGN"
+        ],
+        "purpose": "Make approved design executable as a layered work-pack without executing implementation.",
+        "realizes": "B-EXECUTABLE-PLAN",
+        "sequence_provenance": "explicit mode phase table",
+        "status": "active"
+      },
+      {
+        "activation_inputs": [
+          "new-session prompt",
+          "source session, thread, run, or evidence reference",
+          "handoff type or selection rationale",
+          "permission to inspect source evidence",
+          "output destination and sufficient source material"
+        ],
+        "failure_behavior": "Block on missing or unreadable source material or insufficient execution-continuation coverage; allow named gaps only when a non-execution next session can resolve them safely.",
+        "gates": [
+          "prompt and source reference exist and are readable",
+          "handoff type is explicit or rationally selected",
+          "selected context maps to obligations",
+          "execution continuation has strict coverage",
+          "target work remains unchanged"
+        ],
+        "governed_by": [
+          "B-NON-COLLAPSE"
+        ],
+        "hands_off_to": "B-DOWNSTREAM-OWNER",
+        "id": "OP-HANDOFF",
+        "mode": "handoff",
+        "next_routes": [
+          "workflow-reflect",
+          "define",
+          "design",
+          "research",
+          "task-session",
+          "spellcraft",
+          "sigil-development",
+          "deferred"
+        ],
+        "outputs": [
+          "session handoff artifact",
+          "optional bounded context pack and index",
+          "obligation coverage and exclusion evidence",
+          "next-session prompt",
+          "route rationale and next owner"
+        ],
+        "phases": [
+          {
+            "activity": "Validate the prompt, source reference, access, and destination.",
+            "ordinal": 1,
+            "provenance": "derived",
+            "support": "invoke:handoff"
+          },
+          {
+            "activity": "Resolve source evidence and handoff template paths.",
+            "ordinal": 2,
+            "provenance": "derived",
+            "support": "CAP-INVENTORY"
+          },
+          {
+            "activity": "Select or clarify the handoff type and target route.",
+            "ordinal": 3,
+            "provenance": "derived-conditional",
+            "support": "CAP-STRUCTURED-INTERVIEW"
+          },
+          {
+            "activity": "Derive obligations from the prompt and handoff type.",
+            "ordinal": 4,
+            "provenance": "derived",
+            "support": "invoke:handoff"
+          },
+          {
+            "activity": "Select relevant context and record tempting exclusions.",
+            "ordinal": 5,
+            "provenance": "derived",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Assess obligation coverage, using strict coverage for execution continuation.",
+            "ordinal": 6,
+            "provenance": "derived",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Author the handoff artifact, next-session prompt, and route trace.",
+            "ordinal": 7,
+            "provenance": "derived-global-required",
+            "support": "CAP-DISPATCH-SPEC"
+          },
+          {
+            "activity": "Transfer the bounded packet to the selected next owner.",
+            "ordinal": 8,
+            "provenance": "derived",
+            "support": "B-DOWNSTREAM-OWNER"
+          }
+        ],
+        "preconditioned_by": [],
+        "purpose": "Preserve obligation-linked continuity in a new session without carrying the whole prior conversation.",
+        "realizes": "B-CONTINUITY",
+        "sequence_provenance": "derived from ordered policies and gates because the mode contract has no explicit phase table",
+        "status": "active"
+      },
+      {
+        "activation_inputs": [
+          "source evidence",
+          "target workflow and exact artifact inventory",
+          "declared refresh scope and evidence date",
+          "activation source and optional mutation mode",
+          "bounded context when evidence is broad",
+          "exact approval and material-package evidence for apply-approved"
+        ],
+        "failure_behavior": "Block when mandatory authoring inputs are absent; additionally block apply-approved on approval or material mismatch. A complete proposal may pass while apply, target work, or audit remains gated.",
+        "gates": [
+          "source evidence, target inventory, and declared scope exist",
+          "every delta maps to a RefreshSignal",
+          "proposal completeness remains separate from later authorization",
+          "apply-approved has exact path equality and current material evidence",
+          "setup evidence never becomes completion evidence",
+          "no-op remains valid"
+        ],
+        "governed_by": [
+          "B-NON-COLLAPSE"
+        ],
+        "hands_off_to": "B-DOWNSTREAM-OWNER",
+        "id": "OP-REFRESH",
+        "mode": "refresh",
+        "next_routes": [
+          "task-session",
+          "workflow-reflect",
+          "plan",
+          "deferred"
+        ],
+        "outputs": [
+          "refresh report in Markdown and JSON",
+          "optional patch proposal",
+          "exact approved target deltas and validation evidence when apply-approved",
+          "separate phase and handoff statuses",
+          "typed blockers and next route"
+        ],
+        "phases": [
+          {
+            "activity": "Validate source evidence, target inventory, scope, date, and activation source.",
+            "ordinal": 1,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Resolve proposal-only or apply-approved without broadening the approval boundary.",
+            "ordinal": 2,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Resolve target artifacts and report paths.",
+            "ordinal": 3,
+            "provenance": "derived",
+            "support": "CAP-INVENTORY"
+          },
+          {
+            "activity": "Select bounded source and target context.",
+            "ordinal": 4,
+            "provenance": "derived",
+            "support": "CAP-CONTEXT-BUILDER"
+          },
+          {
+            "activity": "Normalize evidence into typed RefreshSignals.",
+            "ordinal": 5,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Classify exact deltas, drift, blockers, or no-op.",
+            "ordinal": 6,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Author a proposal or apply only the exact approved and validated delta.",
+            "ordinal": 7,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Derive current phase status separately from handoff and durable capability readiness.",
+            "ordinal": 8,
+            "provenance": "derived",
+            "support": "invoke:refresh"
+          },
+          {
+            "activity": "Record the route trace and transfer the report or next-work context to its owner.",
+            "ordinal": 9,
+            "provenance": "derived-global-required",
+            "support": "CAP-DISPATCH-SPEC"
+          }
+        ],
+        "preconditioned_by": [],
+        "purpose": "Reconcile Invoke-authored artifact state with new evidence without replaying the lifecycle or overstating proof.",
+        "realizes": "B-EVIDENCE-REFRESH",
+        "sequence_provenance": "derived from ordered normalization, mutation-mode, status, and gate policies because the mode contract has no explicit phase table",
+        "status": "active"
+      }
+    ],
+    "relation_semantics": {
+      "governed_by": "The operation remains subject to the referenced business rule or policy.",
+      "hands_off_to": "The operation transfers bounded artifacts or context to a separate lifecycle owner.",
+      "preconditioned_by": "The operation requires the referenced prior business outcome or evidence state.",
+      "realizes": "The operation produces or maintains the referenced business outcome or workflow.",
+      "supported_by": "A normalized capability contributes a bounded business function without becoming the operation owner."
+    },
+    "supporting_capabilities": [
+      {
+        "authority_boundary": "Selects context; it does not decide the authored subject or execute downstream work.",
+        "business_role": "Select bounded, obligation-relevant context and preserve source links.",
+        "canonical_handle": "context-builder",
+        "id": "CAP-CONTEXT-BUILDER"
+      },
+      {
+        "authority_boundary": "Clarifies operator intent; it does not infer consequential approval.",
+        "business_role": "Resolve missing intent one question at a time and capture explicit approvals.",
+        "canonical_handle": "structured-interview-kits",
+        "id": "CAP-STRUCTURED-INTERVIEW"
+      },
+      {
+        "authority_boundary": "Finds and evaluates candidates; it does not promote them automatically.",
+        "business_role": "Resolve eligible templates, artifacts, selectors, and selection evidence.",
+        "canonical_handle": "inventory",
+        "id": "CAP-INVENTORY"
+      },
+      {
+        "authority_boundary": "Validates route shape; it does not grant lifecycle or mutation authority.",
+        "business_role": "Make route, owner, gate, evidence, and handoff choices auditable.",
+        "canonical_handle": "dispatch-spec",
+        "id": "CAP-DISPATCH-SPEC"
+      },
+      {
+        "authority_boundary": "Returns a scope-quality verdict; it does not execute the selected unit.",
+        "business_role": "Test whether a proposed definition, design, plan, or handoff is the smallest coherent unit and still recomposes.",
+        "canonical_handle": "distill",
+        "id": "CAP-DISTILL"
+      },
+      {
+        "authority_boundary": "Requires an explicit decision; it does not turn a non-blocker into a gate.",
+        "business_role": "Resolve a consequential blocker choice that evidence alone cannot settle.",
+        "canonical_handle": "decision-gate",
+        "id": "CAP-DECISION-GATE"
+      },
+      {
+        "authority_boundary": "Supplies evidence; Design retains selection responsibility.",
+        "business_role": "Supply bounded pattern evidence and design alternatives.",
+        "canonical_handle": "architecture-pattern-inventory",
+        "id": "CAP-ARCHITECTURE-PATTERN-INVENTORY"
+      },
+      {
+        "authority_boundary": "Owns reflection analysis, not Invoke artifact authoring.",
+        "business_role": "Analyze a felt workflow gap after Handoff or Refresh identifies it.",
+        "canonical_handle": "workflow-reflect",
+        "id": "CAP-WORKFLOW-REFLECT"
+      },
+      {
+        "authority_boundary": "Owns downstream execution; Invoke only prepares its handoff.",
+        "business_role": "Execute one approved bounded task or smallest working unit.",
+        "canonical_handle": "task-session",
+        "id": "CAP-TASK-SESSION"
+      },
+      {
+        "authority_boundary": "Invoke may prepare a spell handoff but cannot claim spell lifecycle completion.",
+        "business_role": "Own the lifecycle of an authored or revised spell.",
+        "canonical_handle": "spellcraft",
+        "id": "CAP-SPELLCRAFT"
+      },
+      {
+        "authority_boundary": "Invoke may prepare a sigil handoff but cannot claim sigil lifecycle completion.",
+        "business_role": "Own the lifecycle of an authored or revised sigil.",
+        "canonical_handle": "sigil-development",
+        "id": "CAP-SIGIL-DEVELOPMENT"
+      }
+    ]
+  },
+  "package_id": "arcanum.invoke.ontology",
+  "schema_version": "arcanum.ontology.invoke.operation-composition.v1"
+}

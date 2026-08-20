@@ -1,0 +1,60 @@
+{
+  "fixture_version": "ontology-vault-package-materialization-cases/v1",
+  "cases": [
+    {
+      "case_id": "simple-one-off-map",
+      "request": {
+        "schema_version": "ontology-vault-materialization-request/v1",
+        "intent": {"one_off": true, "durable": false, "reusable": false, "evolving": false, "package_requested": false},
+        "scope": {"ontology_type_count": 1, "branch_count": 1, "view_count": 1, "bridge": false},
+        "state": {"stable_identity_survives_run": false, "enriches_existing_ontology": false, "needs_schemas": false, "needs_source_bindings": false, "needs_human_navigation": false, "needs_reusable_projections": false, "runtime_profile_mutation": false, "invocation_evidence_only": true},
+        "ownership": {"owner_route": null, "package_root": null, "crosses_visibility_boundary": false, "visibility": null}
+      },
+      "expected": {"result": "single-artifact-allowed", "triggers": [], "blockers": []}
+    },
+    {
+      "case_id": "durable-bridge-package",
+      "request": {
+        "schema_version": "ontology-vault-materialization-request/v1",
+        "intent": {"one_off": false, "durable": true, "reusable": true, "evolving": true, "package_requested": true},
+        "scope": {"ontology_type_count": 3, "branch_count": 3, "view_count": 3, "bridge": true},
+        "state": {"stable_identity_survives_run": true, "enriches_existing_ontology": false, "needs_schemas": true, "needs_source_bindings": true, "needs_human_navigation": true, "needs_reusable_projections": false, "runtime_profile_mutation": false, "invocation_evidence_only": false},
+        "ownership": {"owner_route": "example.ontology-owner", "package_root": "ontology/example", "crosses_visibility_boundary": false, "visibility": "private"}
+      },
+      "expected": {"result": "package-required", "triggers": ["explicit_durable_intent", "multiple_branches_or_views", "bridge_requested", "stable_identity_survives_run", "reusable_surfaces_required"], "blockers": []}
+    },
+    {
+      "case_id": "continued-enrichment-cannot-append-to-receipt",
+      "request": {
+        "schema_version": "ontology-vault-materialization-request/v1",
+        "intent": {"one_off": false, "durable": false, "reusable": false, "evolving": true, "package_requested": false},
+        "scope": {"ontology_type_count": 1, "branch_count": 1, "view_count": 1, "bridge": false},
+        "state": {"stable_identity_survives_run": true, "enriches_existing_ontology": true, "needs_schemas": true, "needs_source_bindings": true, "needs_human_navigation": false, "needs_reusable_projections": false, "runtime_profile_mutation": false, "invocation_evidence_only": false},
+        "ownership": {"owner_route": null, "package_root": null, "crosses_visibility_boundary": false, "visibility": null}
+      },
+      "expected": {"result": "block", "triggers": ["explicit_durable_intent", "stable_identity_survives_run", "enriches_existing_ontology", "reusable_surfaces_required"], "blockers": ["package_owner_unresolved", "package_output_unresolved"]}
+    },
+    {
+      "case_id": "profile-validation-only-does-not-mutate",
+      "request": {
+        "schema_version": "ontology-vault-materialization-request/v1",
+        "intent": {"one_off": true, "durable": false, "reusable": false, "evolving": false, "package_requested": false},
+        "scope": {"ontology_type_count": 1, "branch_count": 1, "view_count": 0, "bridge": false},
+        "state": {"stable_identity_survives_run": false, "enriches_existing_ontology": false, "needs_schemas": false, "needs_source_bindings": false, "needs_human_navigation": false, "needs_reusable_projections": false, "runtime_profile_mutation": false, "invocation_evidence_only": true},
+        "ownership": {"owner_route": "example.ontology-owner", "package_root": "ontology/example", "crosses_visibility_boundary": false, "visibility": "private"}
+      },
+      "expected": {"result": "single-artifact-allowed", "triggers": [], "blockers": []}
+    },
+    {
+      "case_id": "public-package-visibility-unresolved",
+      "request": {
+        "schema_version": "ontology-vault-materialization-request/v1",
+        "intent": {"one_off": false, "durable": true, "reusable": true, "evolving": false, "package_requested": true},
+        "scope": {"ontology_type_count": 1, "branch_count": 1, "view_count": 1, "bridge": false},
+        "state": {"stable_identity_survives_run": true, "enriches_existing_ontology": false, "needs_schemas": true, "needs_source_bindings": true, "needs_human_navigation": true, "needs_reusable_projections": false, "runtime_profile_mutation": false, "invocation_evidence_only": false},
+        "ownership": {"owner_route": "example.ontology-owner", "package_root": "ontology/example", "crosses_visibility_boundary": true, "visibility": null}
+      },
+      "expected": {"result": "block", "triggers": ["explicit_durable_intent", "stable_identity_survives_run", "reusable_surfaces_required"], "blockers": ["package_visibility_unresolved"]}
+    }
+  ]
+}
