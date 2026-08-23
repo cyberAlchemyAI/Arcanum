@@ -126,4 +126,3 @@ Do not import Weaver's repository split as Arcanum structure. Arcanum already ha
 - Spells for composition.
 
 Do not make dispatch shapes a closed enum forever. Arcanum needs an open poetic/operator surface, but the first schema should still name common starter patterns so validators and examples have traction.
-

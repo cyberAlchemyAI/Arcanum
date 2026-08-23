@@ -99,6 +99,14 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 33. A capability-bound lifecycle closeout requires prior authorization and must identify each agent's capability, target, mode, wave, and effective write scope.
 34. A passing capability-bound closeout must contain exactly the declared number of agent records for every role.
 35. Every agent in a passing capability-bound closeout must have spawned, completed its join, closed, and returned its declared receipt; every applied step must also have a passing native-stage receipt containing the role output.
+36. Every confirmation-ready or executable capability-bound role must bind one
+    versioned typed briefing to an immutable dispatch-relative JSON artifact and
+    selector. The validator recomputes the artifact, selected-payload, and
+    canonical briefing digests and requires exact payload equality.
+37. The briefing must preserve identity, angle, instructions, distinct task and
+    domain-gate status semantics, explicit read policy, exact write policy,
+    receipt shape, and authority ceiling. Forbidden-write scopes never imply
+    forbidden reads.
 
 ## Subagent Strategy
 

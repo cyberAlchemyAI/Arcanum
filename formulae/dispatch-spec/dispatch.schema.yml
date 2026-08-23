@@ -206,6 +206,8 @@ properties:
               type: array
               items:
                 type: string
+            briefing_binding:
+              $ref: '#/$defs/role_briefing_binding'
             depends_on_roles:
               type: array
               items:
@@ -688,6 +690,168 @@ properties:
     items:
       type: string
 $defs:
+  role_briefing_binding:
+    type: object
+    required:
+    - contract_version
+    - source_binding
+    - briefing
+    - briefing_sha256
+    properties:
+      contract_version:
+        const: arcanum.confirmed-role-briefing.v0.1
+      source_binding:
+        type: object
+        required:
+        - artifact_path
+        - artifact_sha256
+        - selector
+        - selected_payload_sha256
+        properties:
+          artifact_path:
+            type: string
+            minLength: 1
+          artifact_sha256:
+            type: string
+            pattern: '^[0-9a-f]{64}$'
+          selector:
+            type: string
+            pattern: '^/'
+          selected_payload_sha256:
+            type: string
+            pattern: '^[0-9a-f]{64}$'
+        additionalProperties: false
+      briefing:
+        type: object
+        required:
+        - agent_identity
+        - angle
+        - instructions
+        - status_semantics
+        - read_policy
+        - write_policy
+        - receipt_shape
+        - authority_ceiling
+        properties:
+          agent_identity:
+            type: string
+            minLength: 1
+          angle:
+            type: string
+            minLength: 1
+          instructions:
+            type: string
+            minLength: 1
+          status_semantics:
+            type: object
+            required:
+            - task_status_field
+            - task_complete_value
+            - task_blocked_value
+            - domain_gate_status_field
+            - domain_gate_is_separate
+            properties:
+              task_status_field:
+                type: string
+                minLength: 1
+              task_complete_value:
+                type: string
+                minLength: 1
+              task_blocked_value:
+                type: string
+                minLength: 1
+              domain_gate_status_field:
+                type: string
+                minLength: 1
+              domain_gate_is_separate:
+                const: true
+            additionalProperties: false
+          read_policy:
+            type: object
+            required:
+            - input_refs
+            - allowed_read_scopes
+            - forbidden_read_scopes
+            - required_input_refs_readable
+            properties:
+              input_refs:
+                type: array
+                items:
+                  type: string
+              allowed_read_scopes:
+                type: array
+                items:
+                  type: string
+              forbidden_read_scopes:
+                type: array
+                items:
+                  type: string
+              required_input_refs_readable:
+                const: true
+            additionalProperties: false
+          write_policy:
+            type: object
+            required:
+            - mutation_policy
+            - write_scope
+            - forbidden_write_scopes
+            properties:
+              mutation_policy:
+                type: string
+                enum:
+                - read-only
+                - proposal-only
+                - lifecycle-owned
+                - artifact-only
+              write_scope:
+                type: array
+                items:
+                  type: string
+              forbidden_write_scopes:
+                type: array
+                items:
+                  type: string
+            additionalProperties: false
+          receipt_shape:
+            type: object
+            required:
+            - required_fields
+            - completion_requires_all_fields
+            properties:
+              required_fields:
+                type: array
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: string
+                  minLength: 1
+              completion_requires_all_fields:
+                const: true
+            additionalProperties: false
+          authority_ceiling:
+            type: object
+            required:
+            - summary
+            - allowed_actions
+            - forbidden_actions
+            properties:
+              summary:
+                type: string
+                minLength: 1
+              allowed_actions:
+                type: array
+                items:
+                  type: string
+              forbidden_actions:
+                type: array
+                items:
+                  type: string
+            additionalProperties: false
+        additionalProperties: false
+      briefing_sha256:
+        type: string
+        pattern: '^[0-9a-f]{64}$'
+    additionalProperties: false
   technique_ref:
     oneOf:
     - type: string

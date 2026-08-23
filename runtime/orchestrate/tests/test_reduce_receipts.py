@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
 import json
 import tempfile
@@ -50,6 +51,55 @@ def pass_receipt_for_action(action):
         "blockers": [],
         "started_at": "2026-07-22T15:00:00Z",
         "finished_at": "2026-07-22T15:00:01Z",
+    }
+
+
+def bind_test_briefing(role):
+    briefing = {
+        "agent_identity": role["role_id"],
+        "angle": "Exercise run-global allocation without widening authority.",
+        "instructions": "Read the declared inputs and return the complete bounded review receipt.",
+        "status_semantics": {
+            "task_status_field": "task_status",
+            "task_complete_value": "completed",
+            "task_blocked_value": "blocked",
+            "domain_gate_status_field": "domain_gate_status",
+            "domain_gate_is_separate": True,
+        },
+        "read_policy": {
+            "input_refs": list(role.get("input_refs", []) or []),
+            "allowed_read_scopes": ["tmp/native-dispatch/"],
+            "forbidden_read_scopes": [],
+            "required_input_refs_readable": True,
+        },
+        "write_policy": {
+            "mutation_policy": role["mutation_policy"],
+            "write_scope": list(role.get("write_scope", []) or []),
+            "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+        },
+        "receipt_shape": {
+            "required_fields": ["task_status", "domain_gate_status", "findings"],
+            "completion_requires_all_fields": True,
+        },
+        "authority_ceiling": {
+            "summary": "Review only the declared frontier.",
+            "allowed_actions": ["read_declared_inputs"],
+            "forbidden_actions": ["write", "promotion"],
+        },
+    }
+    digest = hashlib.sha256(
+        json.dumps(briefing, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    role["briefing_binding"] = {
+        "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+        "source_binding": {
+            "artifact_path": "test-only.json",
+            "artifact_sha256": "0" * 64,
+            "selector": "/briefing",
+            "selected_payload_sha256": digest,
+        },
+        "briefing": briefing,
+        "briefing_sha256": digest,
     }
 
 
@@ -154,8 +204,7 @@ class ReduceWaveReceiptsTests(unittest.TestCase):
         dispatch, state, run_plan = inputs()
         expected = load_json(REDUCE_FIXTURES / "run-global-action-ids.json")
         dispatch = copy.deepcopy(dispatch)
-        dispatch["subagent_strategy"]["roles"].append(
-            {
+        final_reviewer = {
                 "role_id": "final-reviewer",
                 "capability_ref": "sigil-development",
                 "capability_target": "final-review",
@@ -169,7 +218,8 @@ class ReduceWaveReceiptsTests(unittest.TestCase):
                 "output_refs": [],
                 "applies_to_steps": ["s-final-review"],
             }
-        )
+        bind_test_briefing(final_reviewer)
+        dispatch["subagent_strategy"]["roles"].append(final_reviewer)
         dispatch["subagent_strategy"]["execution_waves"].append(
             {
                 "wave_id": "final-review",

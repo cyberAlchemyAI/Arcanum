@@ -35,6 +35,21 @@
         "mutation_policy": "lifecycle-owned",
         "write_scope": ["arcana/x-ray/"],
         "forbidden_write_scopes": ["examples/architecture-explainer/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "capability-bound-artifact-repair-briefings.json", "artifact_sha256": "b119f6e5a0d72f5caa3e50162a504dfc7315e59aa4fcaa9f678d2a8218aadbc6", "selector": "/roles/xray-lifecycle", "selected_payload_sha256": "3c2f10c410d8d4b1beb126d7097c90bda060b712207e0f0573886b773b69f59c"},
+          "briefing": {
+            "agent_identity": "X-Ray lifecycle worker",
+            "angle": "Improve the lifecycle contract while preserving its owner boundary.",
+            "instructions": "Operate X-Ray through Sigil Development, write only its declared lifecycle scope, and return the declared receipt.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["operator-language-reflection"], "allowed_read_scopes": ["arcana/x-ray/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["arcana/x-ray/"], "forbidden_write_scopes": ["examples/architecture-explainer/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only the X-Ray lifecycle candidate and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+          },
+          "briefing_sha256": "3c2f10c410d8d4b1beb126d7097c90bda060b712207e0f0573886b773b69f59c"
+        },
         "depends_on_roles": [],
         "input_refs": ["operator-language-reflection"],
         "output_refs": ["receipts/xray-iteration.json"],
@@ -51,6 +66,21 @@
         "mutation_policy": "lifecycle-owned",
         "write_scope": ["spells/whisper/"],
         "forbidden_write_scopes": ["examples/architecture-explainer/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "capability-bound-artifact-repair-briefings.json", "artifact_sha256": "b119f6e5a0d72f5caa3e50162a504dfc7315e59aa4fcaa9f678d2a8218aadbc6", "selector": "/roles/whisper-lifecycle", "selected_payload_sha256": "bca1c28e9c9ab4891b56727aa5e949dd360876279535f987e817c05d16cc1f3f"},
+          "briefing": {
+            "agent_identity": "Whisper lifecycle worker",
+            "angle": "Reflect on the composition without editing its consumer artifact.",
+            "instructions": "Operate Whisper through Spellcraft, write only its declared lifecycle scope, and return the declared receipt.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["operator-language-reflection"], "allowed_read_scopes": ["spells/whisper/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["spells/whisper/"], "forbidden_write_scopes": ["examples/architecture-explainer/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only the Whisper lifecycle candidate and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+          },
+          "briefing_sha256": "bca1c28e9c9ab4891b56727aa5e949dd360876279535f987e817c05d16cc1f3f"
+        },
         "depends_on_roles": [],
         "input_refs": ["operator-language-reflection"],
         "output_refs": ["receipts/whisper-iteration.json"],
@@ -67,6 +97,21 @@
         "mutation_policy": "artifact-only",
         "write_scope": ["examples/architecture-explainer/index.html"],
         "forbidden_write_scopes": ["arcana/x-ray/", "spells/whisper/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "capability-bound-artifact-repair-briefings.json", "artifact_sha256": "b119f6e5a0d72f5caa3e50162a504dfc7315e59aa4fcaa9f678d2a8218aadbc6", "selector": "/roles/artifact-repair", "selected_payload_sha256": "d75672faa75e1f017a230e744d1aa03da6bbe9cf385817d9c040ff595e8776a2"},
+          "briefing": {
+            "agent_identity": "Bounded explainer artifact worker",
+            "angle": "Apply only evidence admitted from both lifecycle owners.",
+            "instructions": "Wait for both passing lifecycle receipts, then edit only the declared explainer artifact and return its receipt.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["receipts/xray-iteration.json", "receipts/whisper-iteration.json"], "allowed_read_scopes": ["receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["examples/architecture-explainer/index.html"], "forbidden_write_scopes": ["arcana/x-ray/", "spells/whisper/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only the bounded explainer artifact and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["lifecycle_mutation", "promotion", "publication"]}
+          },
+          "briefing_sha256": "d75672faa75e1f017a230e744d1aa03da6bbe9cf385817d9c040ff595e8776a2"
+        },
         "depends_on_roles": ["xray-lifecycle", "whisper-lifecycle"],
         "input_refs": ["receipts/xray-iteration.json", "receipts/whisper-iteration.json"],
         "output_refs": ["receipts/artifact-repair.json"],

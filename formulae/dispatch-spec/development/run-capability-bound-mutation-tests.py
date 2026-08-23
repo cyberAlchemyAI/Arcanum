@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import json
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -14,6 +15,7 @@ from typing import Any, Callable
 PACKAGE = Path(__file__).resolve().parents[1]
 VALIDATOR = PACKAGE / "scripts" / "validate-dispatch.py"
 BASE_FIXTURE = PACKAGE / "examples" / "capability-bound-artifact-repair.json"
+SOURCE_FIXTURE = PACKAGE / "examples" / "capability-bound-artifact-repair-briefings.json"
 
 
 def role(doc: dict[str, Any], role_id: str) -> dict[str, Any]:
@@ -185,6 +187,18 @@ def main() -> int:
     base = json.loads(BASE_FIXTURE.read_text(encoding="utf-8"))
     failures: list[str] = []
 
+    baseline = subprocess.run(
+        [str(VALIDATOR), str(BASE_FIXTURE), "--json"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    baseline_result = json.loads(baseline.stdout)
+    if baseline_result.get("validation") != "pass":
+        print(f"CAPABILITY_BOUND_MUTATIONS=block BASELINE={baseline_result}")
+        return 1
+    print("MUTATION_BASELINE=pass")
+
     with tempfile.TemporaryDirectory(prefix="dispatch-spec-mutations-") as temp_dir:
         temp_root = Path(temp_dir)
         for index, (name, mutate, expected_block) in enumerate(CASES, start=1):
@@ -192,6 +206,10 @@ def main() -> int:
             candidate["dispatch_id"] = f"mutation-{index}"
             mutate(candidate)
             candidate_path = temp_root / f"case-{index}.json"
+            shutil.copyfile(
+                SOURCE_FIXTURE,
+                temp_root / "capability-bound-artifact-repair-briefings.json",
+            )
             candidate_path.write_text(json.dumps(candidate, indent=2) + "\n", encoding="utf-8")
             completed = subprocess.run(
                 [str(VALIDATOR), str(candidate_path), "--json"],

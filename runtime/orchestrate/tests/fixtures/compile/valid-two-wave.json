@@ -24,6 +24,21 @@
         "mutation_policy": "lifecycle-owned",
         "write_scope": ["tmp/native-dispatch/receipts/beta.json"],
         "forbidden_write_scopes": ["arcana/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "9d015d9f9211871dcefb4c4019f9cabd66596a50d52c139da01863824cac3b04", "selector": "/roles/beta-check", "selected_payload_sha256": "b75a2462502e327a853ef3fdd242b52937e9eeb3888dbd865cc4e112881db2b9"},
+          "briefing": {
+            "agent_identity": "Beta check verifier",
+            "angle": "Test the beta evidence independently.",
+            "instructions": "Read the declared beta input, write only the declared beta receipt, and report the bounded verification result.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["tmp/native-dispatch/inputs/beta.json"], "allowed_read_scopes": ["tmp/native-dispatch/inputs/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["tmp/native-dispatch/receipts/beta.json"], "forbidden_write_scopes": ["arcana/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "findings", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Verify the beta input and own only the declared receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+          },
+          "briefing_sha256": "b75a2462502e327a853ef3fdd242b52937e9eeb3888dbd865cc4e112881db2b9"
+        },
         "depends_on_roles": [],
         "input_refs": ["tmp/native-dispatch/inputs/beta.json"],
         "output_refs": ["tmp/native-dispatch/receipts/beta.json"],
@@ -40,6 +55,21 @@
         "mutation_policy": "lifecycle-owned",
         "write_scope": ["tmp/native-dispatch/receipts/alpha.json"],
         "forbidden_write_scopes": ["spells/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "9d015d9f9211871dcefb4c4019f9cabd66596a50d52c139da01863824cac3b04", "selector": "/roles/alpha-check", "selected_payload_sha256": "6e9d0764d4543f7a88b6d745e01b29af73e349aaec44444ef1911bf70b986a16"},
+          "briefing": {
+            "agent_identity": "Alpha reflection verifier",
+            "angle": "Reflect on the alpha evidence without borrowing beta conclusions.",
+            "instructions": "Read the declared alpha input, write only the declared alpha receipt, and report the bounded reflection result.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["tmp/native-dispatch/inputs/alpha.json"], "allowed_read_scopes": ["tmp/native-dispatch/inputs/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["tmp/native-dispatch/receipts/alpha.json"], "forbidden_write_scopes": ["spells/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "findings", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Reflect on the alpha input and own only the declared receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+          },
+          "briefing_sha256": "6e9d0764d4543f7a88b6d745e01b29af73e349aaec44444ef1911bf70b986a16"
+        },
         "depends_on_roles": [],
         "input_refs": ["tmp/native-dispatch/inputs/alpha.json"],
         "output_refs": ["tmp/native-dispatch/receipts/alpha.json"],
@@ -56,6 +86,21 @@
         "mutation_policy": "artifact-only",
         "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"],
         "forbidden_write_scopes": ["arcana/", "spells/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "9d015d9f9211871dcefb4c4019f9cabd66596a50d52c139da01863824cac3b04", "selector": "/roles/artifact-writer", "selected_payload_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c"},
+          "briefing": {
+            "agent_identity": "Dependent artifact writer",
+            "angle": "Apply only conclusions proved by both upstream receipts.",
+            "instructions": "Read both declared receipts and write only the declared artifact and artifact receipt after the upstream gate passes.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"], "allowed_read_scopes": ["tmp/native-dispatch/receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"], "forbidden_write_scopes": ["arcana/", "spells/"]},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Apply admitted receipts to the bounded artifact only.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+          },
+          "briefing_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c"
+        },
         "depends_on_roles": ["beta-check", "alpha-check"],
         "input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
         "output_refs": ["tmp/native-dispatch/receipts/artifact.json"],

@@ -91,10 +91,19 @@ For one admitted `spawn` action, call `collaboration.spawn_agent` exactly once w
 
 - a stable `task_name` derived from the action role and action identifier;
 - `fork_turns: none`, so the child receives only explicitly bounded action context;
-- a `message` containing the action identifier, role, capability, target, mode, mutation policy, write scope, forbidden scopes, input references, output references, and required receipt shape.
+- a `message` containing the action identifier, role, capability, target, mode,
+  mutation policy, input/output references, and the exact digest-bound role
+  briefing: identity, angle, instructions, task-completion semantics, separate
+  domain-gate semantics, explicit read policy, exact write policy, required
+  receipt shape, and authority ceiling;
+- a structured `briefing_binding` envelope equal to the persisted action so a
+  host adapter can audit the text projection without inferring policy. A
+  forbidden-write scope remains readable unless the explicit forbidden-read
+  policy also prohibits it.
 
-Use `native_dispatch_driver.py prepare-spawn` to persist `action_attempted`
-before the call and expose the exact request only after that append succeeds.
+Use `native_dispatch_driver.py prepare-spawn` to revalidate the canonical
+briefing digest and action-policy equality before persisting `action_attempted`.
+Expose the exact request only after both validation and append succeed.
 On success, use `record-spawn --agent-id` to persist
 `host_spawn_returned` with the native `agent_id` bound to the action. On error
 or a missing identifier, use `record-spawn --failed`, preserve any diagnostic
@@ -109,8 +118,11 @@ mapping.
 A completed known agent is logically closed once and needs no interrupt. An unresolved known agent is interrupted at most once through `collaboration.interrupt_agent`; its expected action receives an explicit `timed_out` receipt. Unknown or duplicated result identities are blocking evidence.
 
 Use `prepare-wait` before every mailbox-wide wait. After terminal cleanup,
-persist exactly one closed-schema `<action_id>.json` receipt per current action
-and call `advance-wave`. That command owns exact receipt admission,
+persist exactly one raw `<action_id>.json` task result and one closed-schema
+normalized `<action_id>.json` receipt per current action, then call
+`advance-wave --raw-results-dir ...`. That command first proves the raw result
+satisfies the action briefing and that blocked task status cannot normalize as
+PASS, then owns exact receipt admission,
 `receipt_joined`, deterministic reduction, `gate_decided`, and full event
 validation before dependent actions are written. The coordinator's pure
 `reduce` command is offline reducer evidence only and must not be cited as a

@@ -5,21 +5,98 @@
       "action_id": "spawn-0004",
       "agent_count": 1,
       "agent_ordinal": 0,
-      "applies_to_steps": ["s-artifact"],
+      "applies_to_steps": [
+        "s-artifact"
+      ],
+      "briefing_binding": {
+        "briefing": {
+          "agent_identity": "Dependent artifact writer",
+          "angle": "Apply only conclusions proved by both upstream receipts.",
+          "authority_ceiling": {
+            "allowed_actions": [
+              "read_declared_inputs",
+              "write_declared_scope"
+            ],
+            "forbidden_actions": [
+              "promotion",
+              "publication"
+            ],
+            "summary": "Apply admitted receipts to the bounded artifact only."
+          },
+          "instructions": "Read both declared receipts and write only the declared artifact and artifact receipt after the upstream gate passes.",
+          "read_policy": {
+            "allowed_read_scopes": [
+              "tmp/native-dispatch/receipts/"
+            ],
+            "forbidden_read_scopes": [],
+            "input_refs": [
+              "tmp/native-dispatch/receipts/beta.json",
+              "tmp/native-dispatch/receipts/alpha.json"
+            ],
+            "required_input_refs_readable": true
+          },
+          "receipt_shape": {
+            "completion_requires_all_fields": true,
+            "required_fields": [
+              "task_status",
+              "domain_gate_status",
+              "artifacts",
+              "validation"
+            ]
+          },
+          "status_semantics": {
+            "domain_gate_is_separate": true,
+            "domain_gate_status_field": "domain_gate_status",
+            "task_blocked_value": "blocked",
+            "task_complete_value": "completed",
+            "task_status_field": "task_status"
+          },
+          "write_policy": {
+            "forbidden_write_scopes": [
+              "arcana/",
+              "spells/"
+            ],
+            "mutation_policy": "artifact-only",
+            "write_scope": [
+              "tmp/native-dispatch/artifact.json",
+              "tmp/native-dispatch/receipts/artifact.json"
+            ]
+          }
+        },
+        "briefing_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c",
+        "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+        "source_binding": {
+          "artifact_path": "confirmed-briefings.json",
+          "artifact_sha256": "9d015d9f9211871dcefb4c4019f9cabd66596a50d52c139da01863824cac3b04",
+          "selected_payload_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c",
+          "selector": "/roles/artifact-writer"
+        }
+      },
       "capability_ref": "task-session",
       "dispatch_id": "fixture-native-dispatch-two-wave",
-      "forbidden_write_scopes": ["arcana/", "spells/"],
-      "input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
+      "forbidden_write_scopes": [
+        "arcana/",
+        "spells/"
+      ],
+      "input_refs": [
+        "tmp/native-dispatch/receipts/beta.json",
+        "tmp/native-dispatch/receipts/alpha.json"
+      ],
       "mode": "execute",
       "mutation_policy": "artifact-only",
-      "output_refs": ["tmp/native-dispatch/receipts/artifact.json"],
+      "output_refs": [
+        "tmp/native-dispatch/receipts/artifact.json"
+      ],
       "role": "artifact-writer",
       "run_id": "run-fixture-001",
       "schema_version": "arcanum.native-dispatch-runner.action.v0.1",
       "step_id": "s-artifact",
       "target": "tmp/native-dispatch/artifact.json",
       "wave_id": "artifact",
-      "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"]
+      "write_scope": [
+        "tmp/native-dispatch/artifact.json",
+        "tmp/native-dispatch/receipts/artifact.json"
+      ]
     }
   ],
   "decision": "gate_pass",
