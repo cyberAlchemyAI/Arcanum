@@ -23,6 +23,7 @@ MATERIAL_PACKAGE_RUNNER="$INVOKE_DIR/development/run-material-package-fixtures.s
 CAPABILITY_STATUS_RUNNER="$INVOKE_DIR/development/run-capability-status-fixtures.sh"
 DEFINE_IDENTITY_DENOMINATOR_RUNNER="$INVOKE_DIR/development/run-define-identity-denominator-fixtures.sh"
 DESIGN_SELECTION_RUNNER="$INVOKE_DIR/development/run-design-selection-fixtures.sh"
+PREACCEPTANCE_CLOSURE_RUNNER="$INVOKE_DIR/development/preacceptance-closure/test_preacceptance_closure.py"
 DESIGN_SELECTION_REPORT="$INVOKE_DIR/development/fixtures/design-selection/results/latest-summary.json"
 MATERIAL_PACKAGE_VALIDATOR="$INVOKE_DIR/scripts/material_package_validator.py"
 REFRESH_MATERIAL_HANDOFF="$INVOKE_DIR/scripts/refresh_material_handoff.py"
@@ -439,6 +440,26 @@ run_capability_status_checks() {
 	fi
 }
 
+run_preacceptance_closure_checks() {
+	local output
+	require_file "$PREACCEPTANCE_CLOSURE_RUNNER"
+	if output="$(PYTHONDONTWRITEBYTECODE=1 TMPDIR=/tmp TMP=/tmp TEMP=/tmp python3 "$PREACCEPTANCE_CLOSURE_RUNNER" 2>&1)"; then
+		passed_fixtures+=('INV-PREACCEPTANCE-CLOSURE')
+		output_artifacts+=("${PREACCEPTANCE_CLOSURE_RUNNER#$ROOT_DIR/}")
+		record 'PASS: INV-PREACCEPTANCE-CLOSURE'
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	else
+		record 'FAIL: INV-PREACCEPTANCE-CLOSURE'
+		failed_checks+=('preacceptance closure suite failed')
+		failures=$((failures + 1))
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	fi
+}
+
 run_fixture() {
 	local fixture="$1"
 	local expected="$2"
@@ -835,6 +856,7 @@ require_file "$INVOKE_EXAMPLE_RUNNER_README"
 require_file "$MATERIAL_PACKAGE_RUNNER"
 require_file "$CAPABILITY_STATUS_RUNNER"
 require_file "$DEFINE_IDENTITY_DENOMINATOR_RUNNER"
+require_file "$PREACCEPTANCE_CLOSURE_RUNNER"
 require_file "$MATERIAL_PACKAGE_VALIDATOR"
 require_file "$REFRESH_MATERIAL_HANDOFF"
 require_file "$MATERIAL_PACKAGE_SCHEMA"
@@ -907,6 +929,7 @@ run_define_identity_denominator_checks
 run_design_selection_checks
 run_material_package_checks
 run_capability_status_checks
+run_preacceptance_closure_checks
 
 run_fixture \
 	"$FIXTURE_DIR/INV-DEFINE-PASS-001.md" \

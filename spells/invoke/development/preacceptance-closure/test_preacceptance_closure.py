@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -14,6 +15,8 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 
 HERE = Path(__file__).resolve().parent
 INVOKE_ROOT = HERE.parents[1]
@@ -22,7 +25,6 @@ REPOSITORY_ROOT = ARCANUM_ROOT.parent
 SOURCE_RUNNER = INVOKE_ROOT / "scripts/preacceptance_closure.py"
 SOURCE_SCHEMAS = INVOKE_ROOT / "schemas"
 NEGATIVE_CASES = HERE / "fixtures/negative-cases.json"
-
 STAGES = [
     "invoke_material_validation",
     "invoke_file_bound_handoff",
@@ -46,7 +48,7 @@ REAL_CONSUMER_ENTRYPOINTS = [
     "arcanum/arcana/task-session/scripts/verify-mutation-readiness.py",
     "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
     "arcanum/arcana/task-session/scripts/plan-once-material-controller.py",
-    "arcanum/spells/invoke/development/validate-precloseout-refresh-closeout.py",
+    "arcanum/spells/invoke/schemas/precloseout-refresh-closeout-receipt.schema.json",
     "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
     "arcanum/arcana/continuation-router/scripts/work_pack_route.py",
 ]
@@ -58,6 +60,15 @@ def canonical_digest(value: Any) -> str:
             value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
         ).encode("utf-8")
     ).hexdigest()
+
+
+def load_module(path: Path, module_name: str) -> Any:
+    specification = importlib.util.spec_from_file_location(module_name, path)
+    if specification is None or specification.loader is None:
+        raise AssertionError(f"cannot load integration helper: {path}")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
 
 
 class Fixture:
@@ -74,10 +85,106 @@ class Fixture:
             SOURCE_SCHEMAS / "owner-acceptance-request-v2.schema.json",
             self.invoke / "schemas/owner-acceptance-request-v2.schema.json",
         )
+        support_paths = [
+            *REAL_CONSUMER_ENTRYPOINTS,
+            "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+            "arcanum/spells/work-pack-readiness-audit/scripts/plan_semantics.py",
+            "arcanum/spells/task-session-until-blocker/scripts/task_session_until_blocker_runtime_paths.py",
+            "arcanum/arcana/continuation-router/scripts/continuation_router_runtime_paths.py",
+            "arcanum/spells/implementation-readiness/scripts/execution_contracts.py",
+            "arcanum/arcana/task-session/schemas/precloseout-execution-receipt.schema.json",
+            "arcanum/arcana/task-session/continuity.schema.json",
+            "arcanum/arcana/continuation-router/schemas/work-pack-route-admission.schema.json",
+        ]
+        for relative in support_paths:
+            source = REPOSITORY_ROOT / relative
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        shutil.copytree(
+            REPOSITORY_ROOT / "arcanum/arcana/task-session",
+            self.root / "arcanum/arcana/task-session",
+            dirs_exist_ok=True,
+        )
+        shutil.copytree(
+            REPOSITORY_ROOT / "arcanum/spells/implementation-readiness",
+            self.root / "arcanum/spells/implementation-readiness",
+            dirs_exist_ok=True,
+        )
         (self.root / "fixture").mkdir()
+        governance_fixtures = load_module(
+            self.root
+            / "arcanum/arcana/task-session/development/"
+            "validate-governance-runner.py",
+            "preacceptance_projection_bound_governance_fixtures",
+        )
+        lifecycle_scopes = [
+            {
+                "path": "records/lifecycle-status.json",
+                "owner_capability": "invoke",
+                "write_class": "lifecycle-synchronization",
+            },
+            {
+                "path": "records/precloseout.json",
+                "owner_capability": "task-session",
+                "write_class": "precloseout-receipt",
+            },
+            {
+                "path": "records/owner-closeout.json",
+                "owner_capability": "invoke",
+                "write_class": "owner-closeout-receipt",
+            },
+            {
+                "path": "records/continuation.json",
+                "owner_capability": "continuation-router",
+                "write_class": "continuation-receipt",
+            },
+            {
+                "path": ".runtime/continuity.json",
+                "owner_capability": "task-session",
+                "write_class": "continuity-cursor",
+            },
+        ]
+        with tempfile.TemporaryDirectory(
+            prefix="preacceptance-governance-build-"
+        ) as build_root:
+            governance_repository = governance_fixtures.plan_fast_entry_scenario(
+                Path(build_root),
+                self.root / "arcanum/arcana/task-session",
+                self.root / "arcanum/arcana/task-session",
+                "projection-bound",
+                terminal_in_route_scope=True,
+                output_only=True,
+                lifecycle_owner_scopes=lifecycle_scopes,
+            )
+            shutil.copytree(governance_repository, self.root, dirs_exist_ok=True)
+        governance_request = json.loads(
+            self.path("scenario/request.json").read_text(encoding="utf-8")
+        )
+        fast_entry_request = json.loads(
+            self.path("scenario/fast-entry-request.json").read_text(encoding="utf-8")
+        )
         self.write_json("fixture/target.json", {"status": "baseline"})
         self.write_json("fixture/candidate.json", {"status": "final"})
-        self.write_json("fixture/projection.json", {"kind": "execution-projection"})
+        self.write_json(
+            "fixture/projection.json",
+            {
+                "kind": "execution-projection",
+                "governance_prepare_rehearsal": {
+                    "schema_version": (
+                        "invoke.preacceptance-governance-prepare-rehearsal.v1"
+                    ),
+                    "request_ref": self.exact_ref("scenario/request.json"),
+                    "selected_route": fast_entry_request["execution_binding"][
+                        "current_route"
+                    ],
+                    "route_scope_partition": governance_request[
+                        "fast_execution_entry"
+                    ]["route_scope_partition"],
+                    "run_dir": "rehearsal/task-session-run",
+                },
+            },
+        )
         self.write_json(
             "fixture/schema.json",
             {
@@ -161,27 +268,48 @@ root = Path(sys.argv[2])
         self.write_json("fixture/adoption.json", adoption)
 
     def base_manifest(self) -> dict[str, Any]:
-        runner_ref = self.exact_ref("fixture/consumer.py")
+        adapter_path = (
+            "arcanum/spells/invoke/development/preacceptance-closure/"
+            "real_consumer_rehearsal.py"
+        )
+        adapter_ref = self.exact_ref(adapter_path)
         projection_ref = self.exact_ref("fixture/projection.json")
         schema_ref = self.exact_ref("fixture/schema.json")
         stages = []
-        for stage in STAGES:
+        for stage, consumer in zip(STAGES, REAL_CONSUMER_ENTRYPOINTS, strict=True):
+            consumer_ref = self.exact_ref(consumer)
+            if consumer.endswith(".json") or stage == "task_session_governance_runner":
+                runner_ref = adapter_ref
+                argv = [
+                    sys.executable,
+                    adapter_path,
+                    "--stage",
+                    stage,
+                    "--consumer",
+                    consumer,
+                    "--projection",
+                    projection_ref["path"],
+                    "--rehearsal-root",
+                    "{rehearsal_root}",
+                ]
+            else:
+                runner_ref = consumer_ref
+                argv = [sys.executable, consumer, "--help"]
             stages.append(
                 {
                     "stage_id": stage,
                     "projection_ref": projection_ref,
                     "runner_ref": runner_ref,
-                    "exercised_runner_ref": runner_ref,
-                    "argv": [
-                        sys.executable,
-                        "fixture/consumer.py",
-                        stage,
-                        "{rehearsal_root}",
-                    ],
+                    "exercised_runner_ref": consumer_ref,
+                    "argv": argv,
                     "cwd": ".",
                     "environment_names": ["PATH"],
-                    "environment": {},
-                    "timeout_seconds": 30,
+                    "environment": {
+                        "PREACCEPTANCE_PROJECTION_REF": projection_ref["path"]
+                    },
+                    "timeout_seconds": (
+                        90 if stage == "task_session_governance_runner" else 30
+                    ),
                     "strict_exit_propagation": True,
                     "allowed_effect": "isolated-rehearsal-output-only",
                     "schema_checks": [
@@ -257,8 +385,18 @@ root = Path(sys.argv[2])
                     "protected_paths": ["fixture/target.json", "fixture/candidate.json"],
                 },
                 "runner": {
-                    "ref": runner_ref,
-                    "argv": [sys.executable, "fixture/consumer.py", "{stage}", "{rehearsal_root}"],
+                    "ref": self.exact_ref(
+                        "arcanum/arcana/task-session/scripts/"
+                        "task-session-governance-runner.py"
+                    ),
+                    "argv": [
+                        sys.executable,
+                        "arcanum/arcana/task-session/scripts/"
+                        "task-session-governance-runner.py",
+                        "prepare",
+                        "--repo-root",
+                        ".",
+                    ],
                     "cwd": ".",
                     "environment_names": ["PATH"],
                     "environment": {},
@@ -277,7 +415,32 @@ root = Path(sys.argv[2])
                         "resolution_count": 1,
                         "allow_equivalent_path": False,
                     }
-                ],
+                    ],
+                "task_session_closeout_contract": {
+                    "receipt_profile": "precloseout-execution-v1",
+                    "precloseout_execution_schema_ref": self.exact_ref(
+                        "arcanum/arcana/task-session/schemas/"
+                        "precloseout-execution-receipt.schema.json"
+                    ),
+                    "expected_owner_receipt_schema_ref": self.exact_ref(
+                        "arcanum/spells/invoke/schemas/"
+                        "precloseout-refresh-closeout-receipt.schema.json"
+                    ),
+                    "declared_owner_receipt_schema_identity": (
+                        "invoke.precloseout-refresh-closeout-receipt.v1"
+                    ),
+                    "final_terminal_schema_ref": self.exact_ref(
+                        "arcanum/arcana/task-session/schemas/"
+                        "governance-terminal-receipt.schema.json"
+                    ),
+                    "continuity_schema_ref": self.exact_ref(
+                        "arcanum/arcana/task-session/continuity.schema.json"
+                    ),
+                    "continuation_router_schema_ref": self.exact_ref(
+                        "arcanum/arcana/continuation-router/schemas/"
+                        "work-pack-route-admission.schema.json"
+                    ),
+                },
             },
             "runtime_receipt_derivations": derivations,
             "consumer_rehearsal": {
@@ -398,6 +561,9 @@ class PreacceptanceClosureTests(unittest.TestCase):
             manifest["consumer_rehearsal"]["stages"][0]["projection_ref"] = self.fixture.exact_ref(
                 "fixture/other-projection.json"
             )
+        elif case_id == "projection-not-in-stage-invocation":
+            stage = manifest["consumer_rehearsal"]["stages"][0]
+            stage["environment"].pop("PREACCEPTANCE_PROJECTION_REF")
         elif case_id == "frontier-budget-mismatch":
             projection["request_budget"] = 5
         elif case_id == "missing-admission-binding":
@@ -451,6 +617,36 @@ class PreacceptanceClosureTests(unittest.TestCase):
         elif case_id == "create-target-hygiene-failure":
             self.fixture.write_text("fixture/candidate.json", '{"status":"final"}  ')
             self.fixture.refresh_ref(manifest, "fixture/candidate.json")
+        elif case_id == "generic-stage-consumer":
+            manifest["consumer_rehearsal"]["stages"][0][
+                "exercised_runner_ref"
+            ] = self.fixture.exact_ref("fixture/consumer.py")
+        elif case_id == "skipped-stage":
+            manifest["consumer_rehearsal"]["stages"].pop()
+        elif case_id == "missing-owner-schema-ref":
+            del projection["task_session_closeout_contract"][
+                "expected_owner_receipt_schema_ref"
+            ]
+        elif case_id == "stale-owner-schema-hash":
+            projection["task_session_closeout_contract"][
+                "expected_owner_receipt_schema_ref"
+            ]["sha256"] = "0" * 64
+        elif case_id == "wrong-owner-schema-identity":
+            owner_path = (
+                "arcanum/spells/invoke/schemas/"
+                "precloseout-refresh-closeout-receipt.schema.json"
+            )
+            schema = json.loads(
+                self.fixture.path(owner_path).read_text(encoding="utf-8")
+            )
+            schema["properties"]["schema_version"]["const"] = "wrong.identity.v1"
+            self.fixture.write_json(owner_path, schema)
+            projection["task_session_closeout_contract"][
+                "expected_owner_receipt_schema_ref"
+            ] = self.fixture.exact_ref(owner_path)
+            manifest["consumer_rehearsal"]["stages"][8][
+                "exercised_runner_ref"
+            ] = self.fixture.exact_ref(owner_path)
         else:
             raise AssertionError(f"unknown case {case_id}")
 
@@ -467,9 +663,284 @@ class PreacceptanceClosureTests(unittest.TestCase):
         self.assertTrue(receipt["determinism"]["byte_stable"])
         self.assertEqual([item["stage_id"] for item in receipt["stage_results"]], STAGES)
 
-    def test_all_sixteen_negative_cases_fail_before_request_generation(self) -> None:
+    def test_governance_stage_requires_projection_bound_request(self) -> None:
+        manifest = self.fixture.base_manifest()
+        projection_path = self.fixture.path("fixture/projection.json")
+        projection = json.loads(projection_path.read_text(encoding="utf-8"))
+        del projection["governance_prepare_rehearsal"]
+        self.fixture.write_json("fixture/projection.json", projection)
+        self.fixture.refresh_ref(manifest, "fixture/projection.json")
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/unbound-governance-receipt.json"
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        receipt = json.loads(
+            self.fixture.path("fixture/unbound-governance-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertIn(
+            "consumer stage failed with exit 1: task_session_governance_runner",
+            receipt["blockers"],
+        )
+
+    def test_generated_task_session_runner_is_exact_deployment_surface(self) -> None:
+        generated_runner = (
+            ".agents/skills/task-session/scripts/"
+            "task-session-governance-runner.py"
+        )
+        shutil.copytree(
+            self.fixture.path("arcanum/arcana/task-session"),
+            self.fixture.path(".agents/skills/task-session"),
+            dirs_exist_ok=True,
+        )
+        shutil.copytree(
+            self.fixture.path("arcanum/spells/implementation-readiness"),
+            self.fixture.path(".agents/skills/implementation-readiness"),
+            dirs_exist_ok=True,
+        )
+        manifest = self.fixture.base_manifest()
+        governance = manifest["consumer_rehearsal"]["stages"][6]
+        canonical_runner = governance["exercised_runner_ref"]["path"]
+        governance["exercised_runner_ref"] = self.fixture.exact_ref(
+            generated_runner
+        )
+        governance["argv"] = [
+            generated_runner if value == canonical_runner else value
+            for value in governance["argv"]
+        ]
+        projection_runner = manifest["normalized_execution_projection"]["runner"]
+        projection_runner["ref"] = self.fixture.exact_ref(generated_runner)
+        projection_runner["argv"] = [
+            generated_runner if value == canonical_runner else value
+            for value in projection_runner["argv"]
+        ]
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/generated-runner-receipt.json"
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        receipt = json.loads(
+            self.fixture.path("fixture/generated-runner-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(receipt["result"], "pass")
+
+    def test_real_cross_capability_preparation_and_closeout_chain(self) -> None:
+        task_session_root = REPOSITORY_ROOT / "arcanum/arcana/task-session"
+        governance_fixtures = load_module(
+            task_session_root / "development/validate-governance-runner.py",
+            "preacceptance_task_session_governance_fixtures",
+        )
+        invoke_closeout = load_module(
+            REPOSITORY_ROOT
+            / "arcanum/spells/invoke/development/"
+            "validate-precloseout-refresh-closeout.py",
+            "preacceptance_invoke_closeout_validator",
+        )
+
+        with tempfile.TemporaryDirectory(
+            prefix="preacceptance-cross-capability-"
+        ) as raw:
+            integration_root = Path(raw)
+            repository = governance_fixtures.scenario(
+                integration_root,
+                task_session_root,
+                task_session_root,
+                "cross-capability",
+            )
+            schema_paths = (
+                "arcanum/arcana/task-session/schemas/"
+                "precloseout-execution-receipt.schema.json",
+                "arcanum/arcana/task-session/schemas/"
+                "governance-terminal-receipt.schema.json",
+                "arcanum/spells/invoke/schemas/"
+                "precloseout-refresh-closeout-receipt.schema.json",
+            )
+            for relative in schema_paths:
+                source = REPOSITORY_ROOT / relative
+                target = repository / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+
+            request_path = repository / "scenario/request.json"
+            request = json.loads(request_path.read_text(encoding="utf-8"))
+            request["closeout_contract"] = {
+                "required_owner_capabilities": ["invoke"],
+                "continuation_policy": "emit-cursor-never-execute-successor",
+                "terminal_receipt_path": (
+                    "project/runs/synthetic/final-terminal-receipt.json"
+                ),
+                "receipt_profile": "precloseout-execution-v1",
+                "precloseout_execution_receipt_path": (
+                    "project/work-packs/synthetic/results/"
+                    "precloseout-execution-receipt.json"
+                ),
+                "precloseout_execution_schema_ref": governance_fixtures.exact_ref(
+                    repository, repository / schema_paths[0]
+                ),
+                "expected_owner_receipt_path": (
+                    "project/work-packs/synthetic/closeout/"
+                    "invoke-refresh-receipt.json"
+                ),
+                "expected_owner_receipt_schema_ref": governance_fixtures.exact_ref(
+                    repository, repository / schema_paths[2]
+                ),
+                "final_terminal_schema_ref": governance_fixtures.exact_ref(
+                    repository, repository / schema_paths[1]
+                ),
+            }
+            governance_fixtures.write_json(request_path, request)
+
+            prepare_command = governance_fixtures.runner_command(
+                repository, "prepare", request="scenario/request.json"
+            )
+            code, payload, stderr = governance_fixtures.invoke(prepare_command)
+            self.assertEqual(code, 0, stderr)
+            self.assertEqual(payload.get("result"), "pass")
+            self.assertEqual(payload.get("current_phase"), "ticketed")
+            ticket = json.loads(
+                (repository / "runs/run-1/execution-ticket.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(ticket["closeout_contract"], request["closeout_contract"])
+
+            task_identity = {
+                "task_id": request["task_id"],
+                "run_id": request["run_id"],
+                "swu_id": request["swu_id"],
+                "attempt_id": "attempt-synthetic-001",
+                "idempotency_key": request["idempotency_key"],
+            }
+            source_path = repository / request["closeout_contract"][
+                "precloseout_execution_receipt_path"
+            ]
+            governance_fixtures.write_json(
+                source_path,
+                {
+                    "schema_version": (
+                        "task-session.precloseout-execution-receipt.v1"
+                    ),
+                    "task_identity": task_identity,
+                    "result": "pass",
+                },
+            )
+            source_precloseout = {
+                "receipt_ref": governance_fixtures.exact_ref(
+                    repository, source_path
+                ),
+                "schema_ref": request["closeout_contract"][
+                    "precloseout_execution_schema_ref"
+                ],
+                "task_identity": task_identity,
+            }
+            validation_inventory = []
+            for index, kind in enumerate(
+                (
+                    "source-precloseout",
+                    "material-reconciliation",
+                    "target-validation",
+                ),
+                1,
+            ):
+                evidence_path = repository / f"project/evidence/{kind}.json"
+                governance_fixtures.write_json(
+                    evidence_path, {"kind": kind, "result": "pass"}
+                )
+                validation_inventory.append(
+                    {
+                        "validation_id": f"synthetic-validation-{index}",
+                        "kind": kind,
+                        "result": "pass",
+                        "evidence_ref": governance_fixtures.exact_ref(
+                            repository, evidence_path
+                        ),
+                    }
+                )
+            closeout_output = {
+                "path": request["closeout_contract"][
+                    "expected_owner_receipt_path"
+                ]
+            }
+            owner_receipt = {
+                "schema_version": (
+                    "invoke.precloseout-refresh-closeout-receipt.v1"
+                ),
+                "receipt_id": "invoke-synthetic-closeout-001",
+                "owner_identity": {
+                    "capability": "invoke",
+                    "mode": "refresh",
+                    "mutation_mode": "apply-approved",
+                    "activation_source": "delegated",
+                    "subject": "invoke:refresh:synthetic-integration",
+                },
+                "task_identity": task_identity,
+                "precloseout_source": source_precloseout,
+                "closeout_output": closeout_output,
+                "validation_inventory": validation_inventory,
+                "result": "pass",
+                "final_owner_write": {
+                    "write_class": "invoke-closeout-receipt",
+                    "owner_capability": "invoke",
+                    "completed": True,
+                    "output_ref": closeout_output,
+                },
+            }
+            owner_receipt["receipt_digest"] = (
+                invoke_closeout.receipt_projection_digest(owner_receipt)
+            )
+            owner_schema = json.loads(
+                (repository / schema_paths[2]).read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                list(Draft202012Validator(owner_schema).iter_errors(owner_receipt)),
+                [],
+            )
+            self.assertEqual(
+                invoke_closeout.semantic_errors(
+                    owner_receipt, source_precloseout
+                ),
+                [],
+            )
+
+        downstream_commands = (
+            [
+                sys.executable,
+                str(
+                    task_session_root
+                    / "development/validate-governance-run-contracts.py"
+                ),
+                "--task-session-dir",
+                str(task_session_root),
+            ],
+            [
+                sys.executable,
+                str(
+                    REPOSITORY_ROOT
+                    / "arcanum/arcana/continuation-router/development/"
+                    "validate-work-pack-route-fixtures.py"
+                ),
+            ],
+        )
+        for command in downstream_commands:
+            completed = subprocess.run(
+                command,
+                cwd=REPOSITORY_ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertEqual(
+                completed.returncode,
+                0,
+                f"command={command!r}\nstdout={completed.stdout}\nstderr={completed.stderr}",
+            )
+
+    def test_all_negative_cases_fail_before_request_generation(self) -> None:
         cases = json.loads(NEGATIVE_CASES.read_text(encoding="utf-8"))["cases"]
-        self.assertEqual(len(cases), 16)
+        self.assertEqual(len(cases), 22)
         for index, case in enumerate(cases, 1):
             with self.subTest(case_id=case["case_id"]):
                 manifest = copy.deepcopy(self.fixture.base_manifest())
@@ -529,88 +1000,72 @@ class PreacceptanceClosureTests(unittest.TestCase):
         self.assertEqual(request["emission_gate"], "pass")
         self.assertEqual(request["authority_effect"], "none")
 
-    def test_incomplete_consumer_invocations_fail_at_the_exact_stage(self) -> None:
-        self.fixture.write_text(
-            "fixture/invocation-guard.py",
-            """#!/usr/bin/env python3
-import argparse
-import os
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--family", required=True)
-parser.add_argument("--fixture", required=True)
-parser.add_argument("--schema", required=True)
-parser.parse_args()
-if not os.environ.get("INVOKE_CANDIDATE_SCHEMA"):
-    raise SystemExit(19)
-""",
-        )
-        required_argv = [
+        validate = [
             sys.executable,
-            "fixture/invocation-guard.py",
-            "--family",
-            "commit-resume",
-            "--fixture",
-            "fixture/projection.json",
-            "--schema",
-            "fixture/schema.json",
+            str(self.fixture.invoke / "scripts/preacceptance_closure.py"),
+            "--repository-root",
+            str(self.fixture.root),
+            "validate-request",
+            "--request",
+            str(self.fixture.path("fixture/owner-request-v2.json")),
         ]
-        cases = {
-            "missing-family": ["--family", "commit-resume"],
-            "missing-fixture": ["--fixture", "fixture/projection.json"],
-            "missing-schema": ["--schema", "fixture/schema.json"],
-        }
-        for index, (case_id, removed) in enumerate(cases.items(), 1):
+        validated = subprocess.run(validate, check=False, capture_output=True, text=True)
+        self.assertEqual(validated.returncode, 0, validated.stderr)
+
+        hand_authored = copy.deepcopy(request)
+        hand_authored["preacceptance_closure"]["closure_receipt_ref"] = (
+            hand_authored["preacceptance_closure"]["adoption_ref"]
+        )
+        hand_authored["request_digest"] = canonical_digest(
+            {
+                key: value
+                for key, value in hand_authored.items()
+                if key != "request_digest"
+            }
+        )
+        self.fixture.write_json("fixture/hand-authored-v2.json", hand_authored)
+        validate[-1] = str(self.fixture.path("fixture/hand-authored-v2.json"))
+        bypass = subprocess.run(validate, check=False, capture_output=True, text=True)
+        self.assertNotEqual(bypass.returncode, 0)
+        self.assertIn("owner request emission proof is invalid", bypass.stderr)
+
+        validate[-1] = str(self.fixture.path("fixture/base-request.json"))
+        bypass = subprocess.run(validate, check=False, capture_output=True, text=True)
+        self.assertNotEqual(bypass.returncode, 0)
+        self.assertIn("OWNER_REQUEST_V2_REQUIRED", bypass.stderr)
+
+    def test_generic_noop_or_ignoring_adapter_cannot_pass(self) -> None:
+        self.fixture.write_text(
+            "fixture/noop-adapter.py",
+            "#!/usr/bin/env python3\nraise SystemExit(0)\n",
+        )
+        cases = ("generic-noop", "adapter-ignores-consumer")
+        for index, case_id in enumerate(cases, 1):
             with self.subTest(case_id=case_id):
                 manifest = copy.deepcopy(self.fixture.base_manifest())
-                stage = manifest["consumer_rehearsal"]["stages"][0]
-                guard_ref = self.fixture.exact_ref("fixture/invocation-guard.py")
-                stage["runner_ref"] = guard_ref
-                stage["exercised_runner_ref"] = guard_ref
-                stage["argv"] = required_argv[:]
-                position = stage["argv"].index(removed[0])
-                del stage["argv"][position : position + 2]
-                stage["environment"] = {
-                    "INVOKE_CANDIDATE_SCHEMA": "fixture/schema.json"
-                }
+                if case_id == "generic-noop":
+                    stage = manifest["consumer_rehearsal"]["stages"][0]
+                    stage["runner_ref"] = self.fixture.exact_ref(
+                        "fixture/noop-adapter.py"
+                    )
+                    stage["argv"][1] = "fixture/noop-adapter.py"
+                else:
+                    stage = manifest["consumer_rehearsal"]["stages"][8]
+                    consumer_index = stage["argv"].index("--consumer")
+                    del stage["argv"][consumer_index : consumer_index + 2]
                 completed = self.fixture.run_rehearsal(
-                    manifest, f"fixture/incomplete-invocation-{index}.json"
+                    manifest, f"fixture/noop-adapter-{index}.json"
                 )
                 self.assertNotEqual(completed.returncode, 0, completed.stderr)
                 receipt = json.loads(
                     self.fixture.path(
-                        f"fixture/incomplete-invocation-{index}.json"
+                        f"fixture/noop-adapter-{index}.json"
                     ).read_text(encoding="utf-8")
                 )
-                self.assertEqual(receipt["result"], "block")
                 self.assertIn(
-                    "consumer stage failed with exit",
+                    "E17_CANONICAL_CONSUMER_IDENTITY",
                     "\n".join(receipt["blockers"]),
                 )
-                self.assertEqual(
-                    [item["stage_id"] for item in receipt["stage_results"]],
-                    [STAGES[0]],
-                )
-
-        with self.subTest(case_id="missing-fixed-environment"):
-            manifest = copy.deepcopy(self.fixture.base_manifest())
-            stage = manifest["consumer_rehearsal"]["stages"][0]
-            guard_ref = self.fixture.exact_ref("fixture/invocation-guard.py")
-            stage["runner_ref"] = guard_ref
-            stage["exercised_runner_ref"] = guard_ref
-            stage["argv"] = required_argv
-            stage["environment"] = {}
-            completed = self.fixture.run_rehearsal(
-                manifest, "fixture/incomplete-invocation-environment.json"
-            )
-            self.assertNotEqual(completed.returncode, 0, completed.stderr)
-            receipt = json.loads(
-                self.fixture.path(
-                    "fixture/incomplete-invocation-environment.json"
-                ).read_text(encoding="utf-8")
-            )
-            self.assertEqual(receipt["result"], "block")
-            self.assertEqual(receipt["stage_results"][0]["exit_code"], 19)
 
     def test_actual_consumer_entrypoints_are_the_required_public_boundaries(self) -> None:
         self.assertEqual(len(REAL_CONSUMER_ENTRYPOINTS), len(STAGES))

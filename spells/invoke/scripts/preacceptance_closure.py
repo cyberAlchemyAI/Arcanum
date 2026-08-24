@@ -38,6 +38,81 @@ REQUIRED_STAGE_ORDER = [
     "continuity",
 ]
 
+CANONICAL_STAGE_CONSUMERS = {
+    "invoke_material_validation":
+        "arcanum/spells/invoke/scripts/material_package_validator.py",
+    "invoke_file_bound_handoff":
+        "arcanum/spells/invoke/scripts/refresh_material_handoff.py",
+    "work_pack_readiness":
+        "arcanum/spells/work-pack-readiness-audit/scripts/audit_work_pack.py",
+    "task_session_until_blocker_preflight":
+        "arcanum/spells/task-session-until-blocker/scripts/run_chain.py",
+    "task_session_fast_entry":
+        "arcanum/arcana/task-session/scripts/fast_execution_entry_guard.py",
+    "task_session_mutation_admission":
+        "arcanum/arcana/task-session/scripts/verify-mutation-readiness.py",
+    "task_session_governance_runner":
+        "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+    "precloseout":
+        "arcanum/arcana/task-session/scripts/plan-once-material-controller.py",
+    "invoke_closeout":
+        "arcanum/spells/invoke/schemas/"
+        "precloseout-refresh-closeout-receipt.schema.json",
+    "task_session_terminal":
+        "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+    "continuity":
+        "arcanum/arcana/continuation-router/scripts/work_pack_route.py",
+}
+
+CANONICAL_STAGE_CONSUMER_ALIASES = {
+    "task_session_governance_runner": {
+        "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
+        ".agents/skills/task-session/scripts/task-session-governance-runner.py",
+        ".claude/skills/task-session/scripts/task-session-governance-runner.py",
+    },
+}
+
+PROJECTION_BOUND_ADAPTER = (
+    "arcanum/spells/invoke/development/preacceptance-closure/"
+    "real_consumer_rehearsal.py"
+)
+
+CANONICAL_STAGE_ADAPTERS = {
+    "invoke_material_validation": {
+        "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    },
+    "invoke_file_bound_handoff": {
+        "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    },
+    "task_session_until_blocker_preflight": {
+        "arcanum/spells/task-session-until-blocker/development/validate-chain-v2.py",
+    },
+    "task_session_fast_entry": {
+        "arcanum/arcana/task-session/development/test_fast_execution_entry_guard.py",
+    },
+    "task_session_mutation_admission": {
+        "arcanum/arcana/task-session/development/validate-mutation-admission.py",
+    },
+    "task_session_governance_runner": {
+        PROJECTION_BOUND_ADAPTER,
+    },
+    "precloseout": {
+        "arcanum/arcana/task-session/development/test_plan_once_governance.py",
+    },
+    "invoke_closeout": {
+        PROJECTION_BOUND_ADAPTER,
+    },
+    "task_session_terminal": {
+        PROJECTION_BOUND_ADAPTER,
+    },
+    "continuity": {
+        "arcanum/arcana/continuation-router/development/"
+        "validate-work-pack-route-fixtures.py",
+    },
+}
+
+CLOSEOUT_SCHEMA_IDENTITY = "invoke.precloseout-refresh-closeout-receipt.v1"
+
 REQUIRED_RUNTIME_RECEIPTS = {
     "governance_request",
     "execution_ticket",
@@ -393,6 +468,14 @@ def validate_manifest(
     for stage in rehearsal["stages"]:
         if stage["projection_ref"] != source_ref:
             blockers.append(f"E03_SPLIT_PROJECTION {stage['stage_id']} uses another execution projection")
+        if (
+            source_ref["path"] not in stage["argv"]
+            and source_ref["path"] not in stage["environment"].values()
+        ):
+            blockers.append(
+                "E19_PROJECTION_INVOCATION_BINDING stage invocation does not carry "
+                f"the finalized projection: {stage['stage_id']}"
+            )
         if stage["runner_ref"]["path"] not in stage["argv"]:
             blockers.append(f"runner invocation does not bind exact runner: {stage['stage_id']}")
         if (
@@ -409,11 +492,63 @@ def validate_manifest(
             set(projection["runner"]["environment_names"])
         ):
             blockers.append(f"stage environment exceeds runner allowlist: {stage['stage_id']}")
+        expected_consumer = CANONICAL_STAGE_CONSUMERS[stage["stage_id"]]
+        actual_consumer = stage["exercised_runner_ref"]["path"]
+        admitted_consumers = CANONICAL_STAGE_CONSUMER_ALIASES.get(
+            stage["stage_id"], {expected_consumer}
+        )
+        if actual_consumer not in admitted_consumers:
+            blockers.append(
+                "E17_CANONICAL_CONSUMER_IDENTITY "
+                f"{stage['stage_id']} must exercise one closed canonical surface"
+            )
+        runner_path = stage["runner_ref"]["path"]
+        if runner_path != actual_consumer:
+            expected_adapters = CANONICAL_STAGE_ADAPTERS.get(
+                stage["stage_id"], set()
+            )
+            if runner_path not in expected_adapters:
+                blockers.append(
+                    "E17_CANONICAL_CONSUMER_IDENTITY direct execution required "
+                    "or adapter is not canonical: "
+                    f"{stage['stage_id']}"
+                )
+            if runner_path == PROJECTION_BOUND_ADAPTER:
+                required_tokens = (
+                    "--stage",
+                    stage["stage_id"],
+                    "--consumer",
+                    actual_consumer,
+                )
+                for token in required_tokens:
+                    if token not in stage["argv"]:
+                        blockers.append(
+                            "E17_CANONICAL_CONSUMER_IDENTITY adapter does not bind "
+                            f"{token}: {stage['stage_id']}"
+                        )
     governance = rehearsal["stages"][REQUIRED_STAGE_ORDER.index("task_session_governance_runner")]
     if governance["exercised_runner_ref"] != projection["runner"]["ref"]:
         blockers.append("E13_RUNNER_IDENTITY tested governance runner differs from authorized runner")
     if projection["runner"]["ref"]["path"] not in projection["runner"]["argv"]:
         blockers.append("authorized runtime invocation omits exact runner path")
+
+    closeout = projection["task_session_closeout_contract"]
+    if closeout["declared_owner_receipt_schema_identity"] != CLOSEOUT_SCHEMA_IDENTITY:
+        blockers.append("E18_OWNER_SCHEMA_IDENTITY declared owner schema identity mismatch")
+    owner_schema_path, owner_schema_error = resolve_path(
+        repository_root, closeout["expected_owner_receipt_schema_ref"]["path"]
+    )
+    if owner_schema_error or owner_schema_path is None:
+        blockers.append("E18_OWNER_SCHEMA_IDENTITY owner schema path is unsafe")
+    else:
+        try:
+            owner_schema = load_json(owner_schema_path)
+            owner_identity = owner_schema["properties"]["schema_version"]["const"]
+        except (OSError, KeyError, TypeError, json.JSONDecodeError, ValueError):
+            blockers.append("E18_OWNER_SCHEMA_IDENTITY owner schema identity is unreadable")
+        else:
+            if owner_identity != closeout["declared_owner_receipt_schema_identity"]:
+                blockers.append("E18_OWNER_SCHEMA_IDENTITY Work Pack identity differs from schema")
 
     derivation_classes = {
         derivation["receipt_class"]
@@ -715,7 +850,8 @@ def emit_request(
     adoption = load_json(adoption_path)
     base_request = load_json(base_request_path)
     blockers: list[str] = []
-    blockers.extend(schema_errors(manifest, load_json(MANIFEST_SCHEMA), "manifest"))
+    manifest_blockers, _ = validate_manifest(manifest, repository_root)
+    blockers.extend(manifest_blockers)
     blockers.extend(schema_errors(receipt, load_json(RECEIPT_SCHEMA), "receipt"))
     blockers.extend(verify_receipt_digest(receipt, "closure receipt"))
     blockers.extend(validate_review(review, manifest, receipt))
@@ -769,6 +905,78 @@ def emit_request(
     return request
 
 
+def validate_emitted_request(
+    repository_root: Path, request_path: Path
+) -> list[str]:
+    """Reject any current owner request that did not cross the v2 emission gate."""
+    request = load_json(request_path)
+    blockers = schema_errors(request, load_json(REQUEST_SCHEMA), "owner request")
+    if request.get("schema_version") != "invoke.owner-acceptance-request.v2":
+        blockers.append("OWNER_REQUEST_V2_REQUIRED")
+    if request.get("emission_gate") != "pass":
+        blockers.append("PREACCEPTANCE_CLOSURE_REQUIRED")
+    projection = dict(request)
+    expected_digest = projection.pop("request_digest", None)
+    if expected_digest != canonical_digest(projection):
+        blockers.append("owner request digest mismatch")
+    base_reference = request.get("base_request_ref")
+    if not isinstance(base_reference, dict):
+        blockers.append("missing base request binding")
+    else:
+        blockers.extend(
+            validate_exact_ref(repository_root, base_reference, "base_request_ref")
+        )
+    closure = request.get("preacceptance_closure")
+    if isinstance(closure, dict):
+        for name in (
+            "manifest_ref",
+            "closure_receipt_ref",
+            "independent_review_ref",
+            "adoption_ref",
+        ):
+            reference = closure.get(name)
+            if not isinstance(reference, dict):
+                blockers.append(f"missing preacceptance binding: {name}")
+            else:
+                blockers.extend(validate_exact_ref(repository_root, reference, name))
+    if blockers:
+        return sorted(set(blockers))
+
+    assert isinstance(base_reference, dict)
+    assert isinstance(closure, dict)
+    paths: dict[str, Path] = {}
+    references = {
+        "base_request": base_reference,
+        "manifest": closure["manifest_ref"],
+        "receipt": closure["closure_receipt_ref"],
+        "review": closure["independent_review_ref"],
+        "adoption": closure["adoption_ref"],
+    }
+    for name, reference in references.items():
+        path, error = resolve_path(repository_root, reference["path"])
+        if error or path is None:
+            blockers.append(f"unsafe request binding: {name}")
+        else:
+            paths[name] = path
+    if blockers:
+        return sorted(set(blockers))
+    try:
+        expected = emit_request(
+            repository_root,
+            paths["manifest"],
+            paths["receipt"],
+            paths["review"],
+            paths["adoption"],
+            paths["base_request"],
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        blockers.append(f"owner request emission proof is invalid: {error}")
+    else:
+        if request != expected:
+            blockers.append("owner request does not equal canonical v2 emission")
+    return sorted(set(blockers))
+
+
 def write_json_idempotent(path: Path, value: dict[str, Any], exclusive: bool) -> None:
     rendered = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
     if path.exists():
@@ -798,6 +1006,9 @@ def main() -> int:
     emit.add_argument("--base-request", required=True)
     emit.add_argument("--output", required=True)
 
+    validate_request = subparsers.add_parser("validate-request")
+    validate_request.add_argument("--request", required=True)
+
     args = parser.parse_args()
     repository_root = Path(args.repository_root).resolve()
     try:
@@ -805,6 +1016,13 @@ def main() -> int:
             receipt, status = render_receipt(Path(args.manifest), repository_root)
             write_json_idempotent(Path(args.output), receipt, exclusive=False)
             return status
+        if args.command == "validate-request":
+            blockers = validate_emitted_request(
+                repository_root, Path(args.request)
+            )
+            if blockers:
+                raise ValueError("owner request blocked: " + "; ".join(blockers))
+            return 0
         request = emit_request(
             repository_root,
             Path(args.manifest),

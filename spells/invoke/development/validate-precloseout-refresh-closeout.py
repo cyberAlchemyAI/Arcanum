@@ -153,6 +153,13 @@ def mutate(
     elif mutation == "receipt-digest-drift":
         result["receipt_digest"] = "0" * 64
         return result
+    elif mutation == "unsafe-source-parent-traversal":
+        result["precloseout_source"]["receipt_ref"]["path"] = "../private/receipt.json"
+    elif mutation == "unsafe-schema-absolute-path":
+        result["precloseout_source"]["schema_ref"]["path"] = "/tmp/schema.json"
+    elif mutation == "unsafe-closeout-drive-path":
+        result["closeout_output"]["path"] = "C:/temp/receipt.json"
+        result["final_owner_write"]["output_ref"]["path"] = "C:/temp/receipt.json"
     else:
         raise ValueError(f"unknown fixture mutation: {mutation}")
     if mutation != "none":

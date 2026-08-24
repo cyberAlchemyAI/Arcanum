@@ -331,7 +331,10 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   passing independent review over the same closure-graph digest, and an
   implemented or enforced reflection-adoption receipt with a passing
   cross-capability regression. Historical v1 requests remain readable but do
-  not satisfy this gate.
+  not satisfy this gate. The ordinary Invoke owner-request path must execute
+  `scripts/preacceptance_closure.py validate-request` on the emitted artifact
+  before presentation; a direct base request, v1 request, or hand-authored v2
+  wrapper is not an alternate mutation-capable request path.
 - `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
 - `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
 - Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.

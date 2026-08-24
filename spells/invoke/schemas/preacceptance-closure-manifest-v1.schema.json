@@ -376,7 +376,8 @@
         "successor_execution_allowed",
         "write_partitions",
         "runner",
-        "schemas_and_locators"
+        "schemas_and_locators",
+        "task_session_closeout_contract"
       ],
       "properties": {
         "source_ref": {
@@ -435,6 +436,45 @@
           "items": {
             "$ref": "#/$defs/schemaLocator"
           }
+        },
+        "task_session_closeout_contract": {
+          "$ref": "#/$defs/taskSessionCloseoutContract"
+        }
+      }
+    },
+    "taskSessionCloseoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_profile",
+        "precloseout_execution_schema_ref",
+        "expected_owner_receipt_schema_ref",
+        "declared_owner_receipt_schema_identity",
+        "final_terminal_schema_ref",
+        "continuity_schema_ref",
+        "continuation_router_schema_ref"
+      ],
+      "properties": {
+        "receipt_profile": {
+          "const": "precloseout-execution-v1"
+        },
+        "precloseout_execution_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "expected_owner_receipt_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "declared_owner_receipt_schema_identity": {
+          "const": "invoke.precloseout-refresh-closeout-receipt.v1"
+        },
+        "final_terminal_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "continuity_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "continuation_router_schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
         }
       }
     },

@@ -69,6 +69,11 @@
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
     },
+    "repositoryRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\/])\\.\\.(?:[\\/]|$))(?!.*\\\\)[^\\u0000]+$"
+    },
     "exactArtifactRef": {
       "type": "object",
       "additionalProperties": false,
@@ -79,9 +84,7 @@
       ],
       "properties": {
         "path": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[^\\u0000]+$"
+          "$ref": "#/$defs/repositoryRelativePath"
         },
         "sha256": {
           "$ref": "#/$defs/sha256"
@@ -149,38 +152,10 @@
       }
     },
     "precloseoutReceiptRef": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/exactArtifactRef"
-        },
-        {
-          "properties": {
-            "path": {
-              "pattern": "^arcanum/arcana/.+/results/SWU-[A-Z0-9-]+-PRECLOSEOUT-EXECUTION-RECEIPT\\.json$"
-            }
-          },
-          "required": [
-            "path"
-          ]
-        }
-      ]
+      "$ref": "#/$defs/exactArtifactRef"
     },
     "precloseoutSchemaRef": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/exactArtifactRef"
-        },
-        {
-          "properties": {
-            "path": {
-              "const": "arcanum/arcana/task-session/schemas/precloseout-execution-receipt.schema.json"
-            }
-          },
-          "required": [
-            "path"
-          ]
-        }
-      ]
+      "$ref": "#/$defs/exactArtifactRef"
     },
     "precloseoutSource": {
       "type": "object",
@@ -210,8 +185,7 @@
       ],
       "properties": {
         "path": {
-          "type": "string",
-          "pattern": "^arcanum/arcana/.+/closeout/SWU-[A-Z0-9-]+-REFRESH-RECEIPT\\.json$"
+          "$ref": "#/$defs/repositoryRelativePath"
         }
       },
       "description": "Path-only declaration for the containing closeout receipt. Hash and size of the actual written receipt are bound later by the final Task Session terminal receipt, avoiding an impossible self-reference."
