@@ -8,6 +8,8 @@ does not call any host-native agent operation.
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
 import json
 import subprocess
 import sys
@@ -23,6 +25,7 @@ RECEIPT_SCHEMA_VERSION = "arcanum.native-dispatch-runner.receipt.v0.1"
 GATE_DECISION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.gate-decision.v0.1"
 ACTION_SET_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action-set.v0.1"
 MAX_ACTION_NUMBER = 9999
+BRIEFING_CONTRACT_VERSION = "arcanum.confirmed-role-briefing.v0.1"
 
 RECEIPT_REQUIRED_FIELDS = {
     "schema_version",
@@ -49,6 +52,58 @@ class CompileBlocked(RuntimeError):
     def __init__(self, blockers: list[str]) -> None:
         super().__init__("; ".join(blockers))
         self.blockers = blockers
+
+
+def _canonical_payload_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _validated_briefing_binding(
+    role: dict[str, Any], role_id: str
+) -> dict[str, Any]:
+    binding = role.get("briefing_binding")
+    if not isinstance(binding, dict):
+        raise CompileBlocked([f"role has no briefing_binding: {role_id}"])
+    if binding.get("contract_version") != BRIEFING_CONTRACT_VERSION:
+        raise CompileBlocked([f"role has unsupported briefing contract: {role_id}"])
+    briefing = binding.get("briefing")
+    source = binding.get("source_binding")
+    if not isinstance(briefing, dict) or not isinstance(source, dict):
+        raise CompileBlocked([f"role briefing binding is incomplete: {role_id}"])
+    briefing_sha = _canonical_payload_sha256(briefing)
+    if binding.get("briefing_sha256") != briefing_sha:
+        raise CompileBlocked([f"role briefing digest mismatch: {role_id}"])
+    if source.get("selected_payload_sha256") != briefing_sha:
+        raise CompileBlocked([f"role selected payload digest mismatch: {role_id}"])
+    read_policy = briefing.get("read_policy")
+    write_policy = briefing.get("write_policy")
+    if not isinstance(read_policy, dict) or not isinstance(write_policy, dict):
+        raise CompileBlocked([f"role briefing policy is incomplete: {role_id}"])
+    if read_policy.get("input_refs") != list(role.get("input_refs", []) or []):
+        raise CompileBlocked([f"role briefing read policy mismatch: {role_id}"])
+    expected_write_policy = {
+        "mutation_policy": role.get("mutation_policy"),
+        "write_scope": list(role.get("write_scope", []) or []),
+        "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+    }
+    if write_policy != expected_write_policy:
+        raise CompileBlocked([f"role briefing write policy mismatch: {role_id}"])
+    status = briefing.get("status_semantics")
+    receipt = briefing.get("receipt_shape")
+    if not isinstance(status, dict) or not isinstance(receipt, dict):
+        raise CompileBlocked([f"role briefing status or receipt shape is incomplete: {role_id}"])
+    required_fields = receipt.get("required_fields", [])
+    if (
+        status.get("task_status_field") == status.get("domain_gate_status_field")
+        or status.get("task_status_field") not in required_fields
+        or status.get("domain_gate_status_field") not in required_fields
+        or receipt.get("completion_requires_all_fields") is not True
+    ):
+        raise CompileBlocked([f"role briefing status/receipt contract mismatch: {role_id}"])
+    return copy.deepcopy(binding)
 
 
 def _format_action_id(action_number: int) -> str:
@@ -294,6 +349,7 @@ def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str,
             raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
 
         for agent_ordinal in range(agent_count):
+            briefing_binding = _validated_briefing_binding(role, role_id)
             action_number = len(actions) + 1
             action = {
                 "schema_version": ACTION_SCHEMA_VERSION,
@@ -313,6 +369,7 @@ def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str,
                 "mutation_policy": str(role.get("mutation_policy")),
                 "write_scope": list(role.get("write_scope", []) or []),
                 "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+                "briefing_binding": briefing_binding,
                 "input_refs": list(role.get("input_refs", []) or []),
                 "output_refs": list(role.get("output_refs", []) or []),
             }
@@ -439,6 +496,7 @@ def _compile_named_wave_actions(
             raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
 
         for agent_ordinal in range(agent_count):
+            briefing_binding = _validated_briefing_binding(role, role_id)
             action_number = start_action_number + len(actions)
             actions.append(
                 {
@@ -459,6 +517,7 @@ def _compile_named_wave_actions(
                     "mutation_policy": str(role.get("mutation_policy")),
                     "write_scope": list(role.get("write_scope", []) or []),
                     "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+                    "briefing_binding": briefing_binding,
                     "input_refs": list(role.get("input_refs", []) or []),
                     "output_refs": list(role.get("output_refs", []) or []),
                 }

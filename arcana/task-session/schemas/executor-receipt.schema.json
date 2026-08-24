@@ -67,6 +67,14 @@
         "$ref": "#/$defs/exactArtifactRef"
       }
     },
+    "transient_results": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/transientResult"
+      }
+    },
     "validation_results": {
       "type": "array",
       "minItems": 1,
@@ -160,6 +168,38 @@
         "size_bytes": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "transientResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "path_kind",
+        "touched",
+        "cleanup_attempted",
+        "cleanup_result",
+        "terminal_state"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "path_kind": {
+          "enum": ["directory", "file"]
+        },
+        "touched": {
+          "const": true
+        },
+        "cleanup_attempted": {
+          "const": true
+        },
+        "cleanup_result": {
+          "const": "removed"
+        },
+        "terminal_state": {
+          "const": "absent"
         }
       }
     },

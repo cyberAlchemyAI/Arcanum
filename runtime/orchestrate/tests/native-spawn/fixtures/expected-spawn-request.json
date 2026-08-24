@@ -1,7 +1,69 @@
 {
   "action_id": "spawn-0001",
-  "operation": "collaboration.spawn_agent",
-  "task_name": "orchestrate_677326bf7ba5b6cee0232bdffbf376cf5216836a8491234b07193f691e85f069_spawn_0001",
+  "briefing_binding": {
+    "briefing": {
+      "agent_identity": "Native spawn proof worker",
+      "angle": "Prove the exact host projection without mutating the target.",
+      "authority_ceiling": {
+        "allowed_actions": [
+          "read_declared_inputs"
+        ],
+        "forbidden_actions": [
+          "write",
+          "promotion",
+          "publication"
+        ],
+        "summary": "Read and verify the declared fixture only."
+      },
+      "instructions": "Read the declared action fixture, make no writes, and return the complete bounded proof receipt.",
+      "read_policy": {
+        "allowed_read_scopes": [
+          "runtime/orchestrate/tests/native-spawn/fixtures/"
+        ],
+        "forbidden_read_scopes": [],
+        "input_refs": [
+          "runtime/orchestrate/tests/native-spawn/fixtures/action.json"
+        ],
+        "required_input_refs_readable": true
+      },
+      "receipt_shape": {
+        "completion_requires_all_fields": true,
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "action_id",
+          "validation"
+        ]
+      },
+      "status_semantics": {
+        "domain_gate_is_separate": true,
+        "domain_gate_status_field": "domain_gate_status",
+        "task_blocked_value": "blocked",
+        "task_complete_value": "completed",
+        "task_status_field": "task_status"
+      },
+      "write_policy": {
+        "forbidden_write_scopes": [
+          "runtime/",
+          "formulae/",
+          "arcana/",
+          "spells/"
+        ],
+        "mutation_policy": "read-only",
+        "write_scope": []
+      }
+    },
+    "briefing_sha256": "5b9ff7b0ddf5a305422ffa7625bd8ac4c1cfb3b631b323f4c20442319a5b7236",
+    "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+    "source_binding": {
+      "artifact_path": "confirmed-briefing.json",
+      "artifact_sha256": "c90d8671e40c09d3e4939ba39a5ad725c71115b6defa82e9dc968a46bcc089bc",
+      "selected_payload_sha256": "5b9ff7b0ddf5a305422ffa7625bd8ac4c1cfb3b631b323f4c20442319a5b7236",
+      "selector": "/briefing"
+    }
+  },
   "fork_turns": "none",
-  "message": "Execute one bounded host-native proof action.\nAction: spawn-0001\nRole: ndr004-native-spawn-proof\nCapability: task-session\nTarget: runtime/orchestrate/tests/native-spawn/fixtures/action.json\nMode: verify\nMutation policy: read-only\nWrite scope: []\nForbidden write scopes: [runtime/, formulae/, arcana/, spells/]\nInput refs: [runtime/orchestrate/tests/native-spawn/fixtures/action.json]\nOutput refs: []\nDo not edit or create files. Do not spawn child agents. Read the target and return one compact acknowledgement containing action_id, status, and validation."
+  "message": "Execute one bounded host-native action.\nAction: spawn-0001\nRole: ndr004-native-spawn-proof\nCapability: task-session\nTarget: runtime/orchestrate/tests/native-spawn/fixtures/action.json\nMode: verify\nMutation policy: read-only\nWrite scope: []\nForbidden write scopes: [runtime/, formulae/, arcana/, spells/]\nInput refs: [runtime/orchestrate/tests/native-spawn/fixtures/action.json]\nOutput refs: []\nBriefing digest: 5b9ff7b0ddf5a305422ffa7625bd8ac4c1cfb3b631b323f4c20442319a5b7236\nAgent identity: Native spawn proof worker\nAngle: Prove the exact host projection without mutating the target.\nInstructions (exact):\nRead the declared action fixture, make no writes, and return the complete bounded proof receipt.\nTask status semantics (canonical JSON): {\"domain_gate_is_separate\":true,\"domain_gate_status_field\":\"domain_gate_status\",\"task_blocked_value\":\"blocked\",\"task_complete_value\":\"completed\",\"task_status_field\":\"task_status\"}\nRead policy (canonical JSON): {\"allowed_read_scopes\":[\"runtime/orchestrate/tests/native-spawn/fixtures/\"],\"forbidden_read_scopes\":[],\"input_refs\":[\"runtime/orchestrate/tests/native-spawn/fixtures/action.json\"],\"required_input_refs_readable\":true}\nWrite policy (canonical JSON): {\"forbidden_write_scopes\":[\"runtime/\",\"formulae/\",\"arcana/\",\"spells/\"],\"mutation_policy\":\"read-only\",\"write_scope\":[]}\nRequired receipt shape (canonical JSON): {\"completion_requires_all_fields\":true,\"required_fields\":[\"task_status\",\"domain_gate_status\",\"action_id\",\"validation\"]}\nAuthority ceiling (canonical JSON): {\"allowed_actions\":[\"read_declared_inputs\"],\"forbidden_actions\":[\"write\",\"promotion\",\"publication\"],\"summary\":\"Read and verify the declared fixture only.\"}\nForbidden write scopes do not imply forbidden reads. Follow only the explicit read policy.\nReturn every required receipt field. Do not widen scope or merge task completion with domain-gate status.",
+  "operation": "collaboration.spawn_agent",
+  "task_name": "orchestrate_677326bf7ba5b6cee0232bdffbf376cf5216836a8491234b07193f691e85f069_spawn_0001"
 }

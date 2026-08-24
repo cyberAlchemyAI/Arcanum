@@ -43,8 +43,13 @@ run_case block "$fixtures/block-command-interface-active-proof.json"
 run_case pass "$root/formulae/dispatch-spec/examples/capability-bound-artifact-repair.json"
 run_case block "$fixtures/block-capability-bound-dependency-same-wave.json"
 run_case pass "$root/arcana/refine/templates/refine-dispatch.json"
+run_case pass "$root/runtime/orchestrate/tests/fixtures/compile/valid-two-wave.json"
 
 if ! python3 "$root/formulae/dispatch-spec/development/run-capability-bound-mutation-tests.py"; then
+	overall="block"
+fi
+
+if ! python3 "$root/formulae/dispatch-spec/development/run-confirmed-role-briefing-tests.py"; then
 	overall="block"
 fi
 

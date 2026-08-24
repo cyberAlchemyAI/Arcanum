@@ -1,0 +1,24 @@
+{
+  "roles": {
+    "xray-lifecycle": {
+      "agent_identity": "Lifecycle dependency producer",
+      "angle": "Produce the lifecycle receipt before any consumer may run.",
+      "instructions": "Update only the declared lifecycle scope and return its receipt.",
+      "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+      "read_policy": {"input_refs": ["operator-intent"], "allowed_read_scopes": ["arcana/x-ray/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+      "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["arcana/x-ray/"], "forbidden_write_scopes": []},
+      "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+      "authority_ceiling": {"summary": "Own only the lifecycle candidate.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion"]}
+    },
+    "artifact-repair": {
+      "agent_identity": "Dependent artifact consumer",
+      "angle": "Consume the lifecycle receipt only after its gate passes.",
+      "instructions": "Wait for the lifecycle receipt, then write only the declared example artifact.",
+      "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+      "read_policy": {"input_refs": ["receipts/xray-iteration.json"], "allowed_read_scopes": ["receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+      "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["examples/architecture-explainer/index.html"], "forbidden_write_scopes": []},
+      "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+      "authority_ceiling": {"summary": "Own only the bounded example artifact.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["lifecycle_mutation", "promotion"]}
+    }
+  }
+}

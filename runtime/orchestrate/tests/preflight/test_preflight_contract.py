@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -173,6 +174,10 @@ class PreflightContractTests(unittest.TestCase):
             dispatch = copy.deepcopy(load_json(COMPILE_FIXTURES / "valid-two-wave.json"))
             dispatch["subagent_strategy"]["authorization"] = "requires_user_permission"
             dispatch_path = root / "authorization-pending.json"
+            shutil.copyfile(
+                COMPILE_FIXTURES / "confirmed-briefings.json",
+                root / "confirmed-briefings.json",
+            )
             dispatch_path.write_text(json.dumps(dispatch, indent=2) + "\n", encoding="utf-8")
             actual = evaluate_preflight(dispatch_path, "preflight-auth", self.available, root / "run")
             self.assert_receipt(actual, "expected-authorization-pending.json")

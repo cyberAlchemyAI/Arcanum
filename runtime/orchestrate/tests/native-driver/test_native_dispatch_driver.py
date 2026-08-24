@@ -75,6 +75,19 @@ class NativeDispatchDriverTests(unittest.TestCase):
         shutil.copytree(REDUCE / "pass", receipts)
         return receipts
 
+    def write_raw_results(self, root: Path) -> Path:
+        raw_results = root / "raw-results"
+        for action in self.run_plan["actions"]:
+            briefing = action["briefing_binding"]["briefing"]
+            status = briefing["status_semantics"]
+            value: dict[str, Any] = {}
+            for field in briefing["receipt_shape"]["required_fields"]:
+                value[field] = [] if field in {"findings", "artifacts"} else "pass"
+            value[status["task_status_field"]] = status["task_complete_value"]
+            value[status["domain_gate_status_field"]] = "pass"
+            write_json(raw_results / f"{action['action_id']}.json", value)
+        return raw_results
+
     def build_pre_join_stream(self, root: Path) -> Path:
         events = root / "events.jsonl"
         action_paths = self.persist_actions(root)
@@ -139,6 +152,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
             self.state_path,
             self.run_plan_path,
             self.copy_receipts(root),
+            self.write_raw_results(root),
             events,
             output,
         )
@@ -483,6 +497,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 self.state_path,
                 self.run_plan_path,
                 self.copy_receipts(root),
+                self.write_raw_results(root),
                 events,
                 root / "advance",
             )
@@ -685,6 +700,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 self.state_path,
                 self.run_plan_path,
                 receipts,
+                self.write_raw_results(root),
                 events,
                 output,
             )
@@ -907,6 +923,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 self.state_path,
                 self.run_plan_path,
                 receipts,
+                self.write_raw_results(root),
                 events,
                 root / "advance",
             )
@@ -914,6 +931,35 @@ class NativeDispatchDriverTests(unittest.TestCase):
             self.assertEqual(result["gate_decision"]["decision"], "gate_block")
             self.assertEqual(result["action_set"]["actions"], [])
             self.assertEqual(result["event_validation"]["status"], "pass")
+
+    def test_blocked_raw_task_cannot_normalize_as_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            events = self.build_pre_join_stream(root)
+            receipts = self.copy_receipts(root)
+            raw_results = self.write_raw_results(root)
+            blocked = load_json(raw_results / "spawn-0002.json")
+            blocked["task_status"] = "blocked"
+            write_json(raw_results / "spawn-0002.json", blocked)
+            output = root / "advance"
+            with self.assertRaises(driver.DriverBlocked) as raised:
+                driver.advance_wave(
+                    self.dispatch_path,
+                    self.state_path,
+                    self.run_plan_path,
+                    receipts,
+                    raw_results,
+                    events,
+                    output,
+                )
+            self.assertIn("normalized status=block", str(raised.exception))
+            validation = load_json(output / "task-result-validation.json")
+            self.assertEqual(validation["status"], "block")
+            self.assertFalse((output / "gate-decision.json").exists())
+            self.assertNotIn(
+                "receipt_joined",
+                [event["event"] for event in validator.load_events(events)],
+            )
 
     def test_residue_is_separate_and_cannot_enter_causal_validation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

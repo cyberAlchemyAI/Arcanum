@@ -1,0 +1,680 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/preacceptance-closure-manifest/1-0-0",
+  "title": "InvokePreacceptanceClosureManifestV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "closure_id",
+    "authority_effect",
+    "repository_root",
+    "final_postimages",
+    "normalized_execution_projection",
+    "runtime_receipt_derivations",
+    "consumer_rehearsal",
+    "requested_effect",
+    "reflection_adoption_ref",
+    "claim_ceiling"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.preacceptance-closure-manifest.v1"
+    },
+    "closure_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "repository_root": {
+      "const": "."
+    },
+    "final_postimages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/finalPostimage"
+      }
+    },
+    "normalized_execution_projection": {
+      "$ref": "#/$defs/executionProjection"
+    },
+    "runtime_receipt_derivations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/receiptDerivation"
+      }
+    },
+    "consumer_rehearsal": {
+      "$ref": "#/$defs/consumerRehearsal"
+    },
+    "requested_effect": {
+      "$ref": "#/$defs/requestedEffect"
+    },
+    "reflection_adoption_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "claim_ceiling": {
+      "$ref": "#/$defs/nonEmptyString"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\/])\\.\\.(?:[\\/]|$))[^\\u0000]+$"
+    },
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "pathSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/relativePath"
+      }
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "present",
+            "absent"
+          ]
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "size_bytes": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "lifecycleAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "json_pointer",
+        "operator"
+      ],
+      "properties": {
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(?:$|/)"
+        },
+        "operator": {
+          "enum": [
+            "equals",
+            "not_equals",
+            "absent"
+          ]
+        },
+        "value": {}
+      }
+    },
+    "finalPostimage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "operation",
+        "baseline",
+        "postimage_ref",
+        "lifecycle_assertions"
+      ],
+      "properties": {
+        "target_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "operation": {
+          "enum": [
+            "create",
+            "replace"
+          ]
+        },
+        "baseline": {
+          "$ref": "#/$defs/baseline"
+        },
+        "postimage_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "lifecycle_assertions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/lifecycleAssertion"
+          }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effects"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "mode": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "target": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "write_scope": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "effects": {
+          "$ref": "#/$defs/stringSet"
+        }
+      }
+    },
+    "writePartitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_writes",
+        "execution_outputs",
+        "transient_outputs",
+        "allowed_writes",
+        "protected_paths"
+      ],
+      "properties": {
+        "material_writes": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "execution_outputs": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "transient_outputs": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "allowed_writes": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "protected_paths": {
+          "$ref": "#/$defs/pathSet"
+        }
+      }
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "argv",
+        "cwd",
+        "environment_names",
+        "environment",
+        "mode",
+        "authority_role",
+        "timeout_seconds"
+      ],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "environment_names": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "mode": {
+          "const": "no-effect-rehearsal"
+        },
+        "authority_role": {
+          "const": "spellcraft-preacceptance-rehearsal"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        }
+      }
+    },
+    "schemaLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_ref",
+        "canonical_locator",
+        "document_ref",
+        "json_pointer",
+        "expected_json_type",
+        "consumer_stage",
+        "resolution_count",
+        "allow_equivalent_path"
+      ],
+      "properties": {
+        "schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "canonical_locator": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "document_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(?:$|/)"
+        },
+        "expected_json_type": {
+          "enum": [
+            "object",
+            "array",
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        },
+        "consumer_stage": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "resolution_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "allow_equivalent_path": {
+          "type": "boolean"
+        }
+      }
+    },
+    "executionProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "task_id",
+        "unit_id",
+        "current_unit",
+        "admitted_frontier",
+        "routes",
+        "request_budget",
+        "risk_ceiling",
+        "successor_policy",
+        "successor_execution_allowed",
+        "write_partitions",
+        "runner",
+        "schemas_and_locators"
+      ],
+      "properties": {
+        "source_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "task_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "unit_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "current_unit": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "admitted_frontier": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "routes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/route"
+          }
+        },
+        "request_budget": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "risk_ceiling": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "successor_policy": {
+          "enum": [
+            "stop-after-current-unit",
+            "expose-only",
+            "fresh-owner-gate"
+          ]
+        },
+        "successor_execution_allowed": {
+          "type": "boolean"
+        },
+        "write_partitions": {
+          "$ref": "#/$defs/writePartitions"
+        },
+        "runner": {
+          "$ref": "#/$defs/runner"
+        },
+        "schemas_and_locators": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/schemaLocator"
+          }
+        }
+      }
+    },
+    "receiptDerivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_class",
+        "schema_ref",
+        "predecessor_classes",
+        "authoritative_fields",
+        "dynamic_fields",
+        "output_path_pattern",
+        "authority_effect"
+      ],
+      "properties": {
+        "receipt_class": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "predecessor_classes": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "authoritative_fields": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "dynamic_fields": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "output_path_pattern": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "authority_effect": {
+          "const": "none"
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_id",
+        "projection_ref",
+        "runner_ref",
+        "exercised_runner_ref",
+        "argv",
+        "cwd",
+        "environment_names",
+        "environment",
+        "timeout_seconds",
+        "strict_exit_propagation",
+        "allowed_effect",
+        "schema_checks"
+      ],
+      "properties": {
+        "stage_id": {
+          "enum": [
+            "invoke_material_validation",
+            "invoke_file_bound_handoff",
+            "work_pack_readiness",
+            "task_session_until_blocker_preflight",
+            "task_session_fast_entry",
+            "task_session_mutation_admission",
+            "task_session_governance_runner",
+            "precloseout",
+            "invoke_closeout",
+            "task_session_terminal",
+            "continuity"
+          ]
+        },
+        "projection_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "runner_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "exercised_runner_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "cwd": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "environment_names": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "strict_exit_propagation": {
+          "type": "boolean"
+        },
+        "allowed_effect": {
+          "const": "isolated-rehearsal-output-only"
+        },
+        "schema_checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/schemaCheck"
+          }
+        }
+      }
+    },
+    "schemaCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_ref",
+        "schema_ref"
+      ],
+      "properties": {
+        "document_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "consumerRehearsal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "external_effects_allowed",
+        "output_root_policy",
+        "determinism_runs",
+        "protected_refs",
+        "stages"
+      ],
+      "properties": {
+        "mode": {
+          "const": "no-effect"
+        },
+        "external_effects_allowed": {
+          "const": false
+        },
+        "output_root_policy": {
+          "const": "isolated-temporary-directory"
+        },
+        "determinism_runs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "protected_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/exactArtifactRef"
+          }
+        },
+        "stages": {
+          "type": "array",
+          "minItems": 11,
+          "maxItems": 11,
+          "items": {
+            "$ref": "#/$defs/stage"
+          }
+        }
+      }
+    },
+    "requestedEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effect_id",
+        "lifecycle_owner",
+        "human_authorization_provenance",
+        "material_approval_owner",
+        "target_paths",
+        "authority_write_ceiling",
+        "allowed_effects",
+        "forbidden_effects",
+        "postimage_lifecycle_state",
+        "renewed_acceptance_triggers"
+      ],
+      "properties": {
+        "effect_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "lifecycle_owner": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "human_authorization_provenance": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "material_approval_owner": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          }
+        },
+        "authority_write_ceiling": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "allowed_effects": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "forbidden_effects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "postimage_lifecycle_state": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "renewed_acceptance_triggers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    }
+  }
+}

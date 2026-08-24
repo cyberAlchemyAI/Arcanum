@@ -502,6 +502,7 @@ EXECUTOR_HELPER = r'''#!/usr/bin/env python3
 import argparse
 import hashlib
 import json
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -509,7 +510,19 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument("--repo-root", required=True)
 parser.add_argument("--run-dir", required=True)
-parser.add_argument("--behavior", choices=("pass", "nonzero", "sleep"), required=True)
+parser.add_argument(
+    "--behavior",
+    choices=(
+        "pass",
+        "nonzero",
+        "sleep",
+        "missing-transient-evidence",
+        "substituted-transient-evidence",
+        "false-transient-cleanup",
+        "transient-residue",
+    ),
+    required=True,
+)
 args = parser.parse_args()
 root = Path(args.repo_root).resolve()
 run_dir = (root / args.run_dir).resolve()
@@ -524,6 +537,31 @@ output = root / "outputs/artifact.txt"
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text("executor-output\n", encoding="utf-8")
 output_data = output.read_bytes()
+transient_results = []
+for contract in ticket.get("transient_outputs", []):
+    transient = root / contract["path"]
+    if contract["path_kind"] == "directory":
+        transient.mkdir(parents=True, exist_ok=False)
+        (transient / "touch-evidence").write_text("touched\n", encoding="utf-8")
+        if args.behavior != "transient-residue":
+            shutil.rmtree(transient)
+    else:
+        transient.parent.mkdir(parents=True, exist_ok=True)
+        transient.write_text("touched\n", encoding="utf-8")
+        if args.behavior != "transient-residue":
+            transient.unlink()
+    transient_results.append({
+        "path": (
+            contract["path"] + ".substituted"
+            if args.behavior == "substituted-transient-evidence"
+            else contract["path"]
+        ),
+        "path_kind": contract["path_kind"],
+        "touched": True,
+        "cleanup_attempted": args.behavior != "false-transient-cleanup",
+        "cleanup_result": "removed",
+        "terminal_state": "absent",
+    })
 receipt_path = run_dir / "terminal-executor-receipt.json"
 receipt = {
     "schema_version": "task-session.executor-receipt.v1",
@@ -568,6 +606,8 @@ receipt = {
     },
     "residue": [],
 }
+if ticket.get("transient_outputs") and args.behavior != "missing-transient-evidence":
+    receipt["transient_results"] = transient_results
 receipt_path.write_text(
     json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
 )
@@ -1694,7 +1734,11 @@ def main() -> int:
                     and exact_receipt["target_results"][0]["outcome"]
                     == "already-present-exact-output"
                     and not stderr,
-                    f"code={code} target_unchanged={exact_mtime == exact_target.stat().st_mtime_ns}",
+                    (
+                        f"code={code} target_unchanged="
+                        f"{exact_mtime == exact_target.stat().st_mtime_ns} "
+                        f"diagnostics={payload.get('diagnostics')}"
+                    ),
                 )
             )
 

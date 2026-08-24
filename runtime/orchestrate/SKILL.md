@@ -136,11 +136,18 @@ the partial stream and close with error; never reconstruct the missing event.
 Consume exactly one persisted action document whose `action` is `spawn` and whose complete shape validates against `schemas/action.schema.json`.
 
 1. Admit the action only when its `action_id` exists in the current run plan, its persisted document matches that plan entry, and no attempt event already exists for the identifier.
-2. Build bounded host context from only the action's role, capability, target, mode, mutation policy, write scope, forbidden scopes, input references, and output references.
+2. Revalidate the action's canonical `briefing_binding` digest and exact
+   read/write-policy equality, then build bounded host context from the action's
+   role, capability, target, mode, mutation policy, references, and complete
+   typed briefing. Preserve task-completion status separately from domain-gate
+   status. Never infer forbidden reads from forbidden-write scopes.
    The host task name must be an opaque deterministic function of dispatch ID,
    run ID, and action ID. It must differ across fresh runs and must not include
    raw role, target, reference, dispatch, or run prose.
-3. Run driver `prepare-spawn`; it must append `action_attempted` before exposing the exact host request. If preparation blocks, do not invoke the host.
+3. Run driver `prepare-spawn`; it must block on missing, changed, or incomplete
+   briefing material before appending `action_attempted`, then append that event
+   before exposing the exact host request. If preparation blocks, do not invoke
+   the host.
 4. Invoke that operation exactly once. Do not retry implicitly.
 5. On return, run driver `record-spawn --agent-id <id>` to append `host_spawn_returned` and bind the returned `agent_id` to the `action_id`. A missing agent identifier is a blocking host failure.
 6. On host error, run driver `record-spawn --failed` to append `host_spawn_failed`, persist the failure in the non-causal residue stream when useful, and stop dependent execution.
@@ -157,7 +164,13 @@ Consume one persisted wave plan and the complete action-to-native-agent bindings
 4. For a terminal known agent, validate its declared action and agent identities, normalize its bounded result to `schemas/receipt.schema.json`, append `agent_terminal`, and mark it logically closed exactly once with `agent_closed`.
 5. For an unresolved known agent when the wait policy expires, append `wait_timed_out`, invoke the mapped interrupt operation once, append `agent_interrupted`, and normalize an explicit `timed_out` receipt for its expected action.
 6. Persist normalized receipts in a directory containing exactly one `<action_id>.json` file per current-wave action and no other entries.
-7. Run driver `advance-wave`. It validates closed receipt shape and identity into `schemas/receipt-admission.schema.yml`, appends `receipt_joined`, invokes the deterministic reducer, appends `gate_decided` before exposing dependents, and validates the complete causal stream. Return its state, gate decision, and next action set without reinterpretation.
+7. Persist exactly one raw task-result JSON object per current-wave action, then
+   run driver `advance-wave` with that exact directory. It validates every
+   briefing-required field and task-completion status before receipt admission,
+   requires a blocked task result to normalize as `status=block`, validates
+   closed receipt shape and identity, and only then appends `receipt_joined`,
+   invokes the reducer, appends `gate_decided`, and exposes dependents. A failed
+   task-result validation writes blocking evidence and emits no join or gate.
 8. When a passing gate exposes dependents, run driver `prepare-next-wave-plan` with the exact dispatch, prior run plan, gate decision, next action set, next state, causal prefix, and action directory emitted by `advance-wave`. Continue only with its exclusively created current-wave plan.
 
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.

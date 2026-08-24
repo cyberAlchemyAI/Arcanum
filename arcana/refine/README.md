@@ -37,6 +37,14 @@ Users often have a target, concern, folder, repository area, or rough idea, but 
 
 Task Session and Sigil Development may be recommended after refinement, but they are not stages in the refine loop.
 
+For an implementation outcome, Invoke Plan owns one additional producer gate:
+it must emit a proof-only `IMPLEMENTATION-READINESS-PREFLIGHT.json` from the
+exact final WPRA bytes. Refine records an exact binding to that receipt and
+validates it before final synthesis. Refine does not rebuild the execution
+contracts, self-approve the candidate, enter Task Session, or admit mutation.
+Conceptual and research-only plans declare `non-executing` with a reason and
+cannot recommend Task Session.
+
 ## Refinement Loop
 
 The canonical loop is defined in [Refinement Loop](REFINEMENT-LOOP.md):
@@ -101,6 +109,7 @@ That folder contains:
 - `REFINE-DISPATCH.json`
 - `RUNTIME-HANDOFF.md`
 - `RESULT.md`
+- `INVOKE-PLAN-READINESS-BINDING.json`
 - `stages/`
 
 The manifest references artifacts produced by Context Builder, Invoke, Interrogation, and Distill. It does not duplicate those artifacts.

@@ -1,0 +1,70 @@
+{
+  "schema_version": "app-server.fixture-profile.v0",
+  "fixture_id": "F-01",
+  "adapter_id": "app-server-fixture",
+  "profile_mode": "synthetic-replay-only",
+  "live_app_server": false,
+  "proof_status": "fixture-observed",
+  "protocol": {
+    "installed_binary_parity": "unverified",
+    "source_commit": "9946da9af1829410271f6b76f9159961f7281e0a"
+  },
+  "runtime": {
+    "run_id": "rt-refine-001",
+    "target_kind": "refine-stage"
+  },
+  "refine": {
+    "first_stop": "owner-local-stage-verdict",
+    "run_id": "refine-candidate-001",
+    "stage": "invoke-design"
+  },
+  "identity": {
+    "process_instance_id": "asp-fixture-01",
+    "listener_id": "listener-stdio-01",
+    "connection_id": "conn-stdio-01",
+    "thread_id": "thr-refine-001",
+    "turn_id": "turn-refine-001",
+    "item_id": "item-agent-message-001"
+  },
+  "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "skill": {
+    "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "digest_pinned": true,
+    "id": "invoke"
+  },
+  "policy": {
+    "allowed_write_paths": [
+      "/fixture/out/design.md"
+    ],
+    "filesystem": "read-only-except-allowlist",
+    "forbidden_effects": [
+      "automatic-next-stage",
+      "craft-mutation",
+      "goal-control",
+      "lifecycle-promotion",
+      "orchestrate-dispatch",
+      "task-session-admission"
+    ],
+    "network": "denied",
+    "outbound_connector": "denied",
+    "realtime": "denied",
+    "shell": "denied",
+    "transport": "stdio",
+    "turn_limit": 1,
+    "unsandboxed_process": "denied"
+  },
+  "expected_output": {
+    "path": "/fixture/out/design.md",
+    "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "expected_event_types": [
+    "runtime.created",
+    "app_server.initialized",
+    "thread.started",
+    "turn.started",
+    "item.started",
+    "item.completed",
+    "turn.completed"
+  ],
+  "handoff_sha256": "sha256:dd39ff81bff03633d1b24871ff33ef8a82006f56d865386ae4eacd5bd86cf908"
+}

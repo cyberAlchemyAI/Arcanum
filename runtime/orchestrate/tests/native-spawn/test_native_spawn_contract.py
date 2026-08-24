@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import importlib.util
 import unittest
 from pathlib import Path
 from typing import Any, Callable
@@ -18,6 +19,13 @@ HOST = ARCANUM_ROOT / "runtime/orchestrate/hosts/codex-native.md"
 ACTION_SCHEMA = ARCANUM_ROOT / "runtime/orchestrate/schemas/action.schema.json"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 RECEIPT_SCHEMA = Path(__file__).resolve().parent / "native-spawn-receipt.schema.json"
+DRIVER_PATH = ARCANUM_ROOT / "runtime/orchestrate/scripts/native_dispatch_driver.py"
+
+DRIVER_SPEC = importlib.util.spec_from_file_location("native_spawn_driver", DRIVER_PATH)
+if DRIVER_SPEC is None or DRIVER_SPEC.loader is None:
+    raise RuntimeError(f"cannot import driver: {DRIVER_PATH}")
+driver = importlib.util.module_from_spec(DRIVER_SPEC)
+DRIVER_SPEC.loader.exec_module(driver)
 
 
 def load_json(path: Path) -> Any:
@@ -40,31 +48,10 @@ def compact_list(values: list[str]) -> str:
 
 
 def build_spawn_request(action: dict[str, Any], host: dict[str, Any]) -> dict[str, Any]:
-    action_stem = action["action_id"].replace("-", "_")
-    run_scope = hashlib.sha256(
-        f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
-    ).hexdigest()
-    lines = [
-        "Execute one bounded host-native proof action.",
-        f"Action: {action['action_id']}",
-        f"Role: {action['role']}",
-        f"Capability: {action['capability_ref']}",
-        f"Target: {action['target']}",
-        f"Mode: {action['mode']}",
-        f"Mutation policy: {action['mutation_policy']}",
-        f"Write scope: {compact_list(action['write_scope'])}",
-        f"Forbidden write scopes: {compact_list(action['forbidden_write_scopes'])}",
-        f"Input refs: {compact_list(action['input_refs'])}",
-        f"Output refs: {compact_list(action['output_refs'])}",
-        "Do not edit or create files. Do not spawn child agents. Read the target and return one compact acknowledgement containing action_id, status, and validation.",
-    ]
-    return {
-        "action_id": action["action_id"],
-        "operation": host["spawn_contract"]["operation"],
-        "task_name": f"orchestrate_{run_scope}_{action_stem}",
-        "fork_turns": host["spawn_contract"]["fork_turns"],
-        "message": "\n".join(lines),
-    }
+    request = driver._spawn_request(action)
+    assert request["operation"] == host["spawn_contract"]["operation"]
+    assert request["fork_turns"] == host["spawn_contract"]["fork_turns"]
+    return request
 
 
 class NativeSpawnAdmission:

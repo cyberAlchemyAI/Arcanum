@@ -119,6 +119,48 @@ it never launches Task Session itself. Repeated cursors, epoch/frontier drift,
 out-of-order or ambiguous successors, risk or budget overflow, missing joins,
 and invalid `NO_OP` proofs stop fail-closed.
 
+For a current WPRA v2 manifest, `chain-config.json` also supplies the exact
+audit-config, execution-contracts, selection-handoff, initial selection request,
+and initial selection receipt refs through `wpra_v2`. The controller accepts
+the canonical `execute-one-swu` Task Session route and `refresh` Work-Pack
+closeout route without rewriting them. It rechecks the complete per-unit
+projection and requires a chain-selection-only epoch approval that binds those
+three frozen semantic artifacts. A selection receipt authorizes only the named
+selector; it never authorizes repository mutation.
+
+The selected-unit-at-task-session projection may instead expose one
+`mode: execute` route per frontier unit using a safe relative
+`*.md#unit-anchor` selector. In that profile, the anchor is compared to the
+frontier unit with ASCII-only case folding. Absolute, parent-traversing,
+non-Markdown, non-ASCII, different, empty, or multi-fragment selectors block.
+The profile is detected from the exact `wpra_v2` envelope and its frozen
+admission timing, never inferred from route-mode tokens.
+
+Inline Invoke routes may be omitted only when the frozen audit bindings and a
+nested `/execution_contracts` projection close every frontier unit. The
+controller rechecks each exact owner-contract and allowed-delta selector,
+target inventory, precloseout and final-terminal contract, owner and
+Continuation Router receipt paths, and all five bound schemas. It then derives
+an internal closeout route from those exact values. Partial inline coverage or
+any missing binding remains a pre-mutation block. The lifecycle order stays
+Task Session execution, precloseout receipt, Invoke/Router/owner join, Task
+Session final terminal receipt, and only then chain successor exposure.
+
+Before a WPRA successor can be exposed, the controller validates the closed
+snake-case terminal and closeout-owner receipts against the frozen unit,
+terminal, target-inventory, and declared SWU-successor bindings. Epoch and unit
+digest continuity remain transitively bound by the chain state and frozen plan;
+they are not invented as project-receipt fields. The transition's typed
+`wpra_v2_evidence` object supplies exact selection-request, selection-receipt,
+mutation-request, and mutation-receipt refs. Receipt paths must match the
+successor route, dependency and gate refs are rehashed from the accepted
+selection request, and mutation readiness is re-resolved by Task Session's
+canonical verifier. Material-bound baselines cover only material writes;
+Task Session retains collision and post-validation ownership for declared
+execution outputs, which need not exist at admission. A bare
+`dependency_ready` assertion is never sufficient.
+Native/legacy epoch manifests retain their existing behavior.
+
 `NO_OP` is semantic, not a boolean: before and after inventories must match,
 the observed delta must be empty, the closeout contract must be the approved
 one, and validator identity plus Router verification must be bound.
@@ -128,6 +170,83 @@ Compensation is never automatic. A `none` policy requires rationale; an
 This candidate proves finite-frontier control only. Task Session continues to
 own each implementation, Invoke Refresh owns closeout mutation, and the
 approved manifest remains authority-none evidence.
+
+### Fresh multi-epoch supervisor candidate
+
+[`scripts/run_multi_epoch_supervisor.py`](scripts/run_multi_epoch_supervisor.py)
+adds a supervisory layer for work packs that expose only the current unit and
+require a fresh WPRA manifest, selection, and owner approval after every
+Task Session plus Invoke closeout. Its immutable configuration uses
+[`multi-epoch-supervisor-config.schema.json`](schemas/multi-epoch-supervisor-config.schema.json)
+to bind the exact work pack, exact owner inputs, captured ordered frontier,
+maximum epoch count, risk ceiling, flag allowlist, persistence, and
+compensation policy.
+
+Each inner chain config uses `admission_window.mode: fresh-current-unit`. The
+window must select the first unit of the newly observed ready frontier, expose
+only that unit's Task Session route, set the inner frontier to that unit, and
+set `max_task_session_requests` to `1`. Its exact epoch approval additionally
+binds the window, one-unit frontier, budget, risk ceiling, and the canonical
+non-circular config projection digest. Changing any of those values invalidates
+the approval.
+
+After the inner Task Session and Invoke closeout join, the inner controller
+returns `FRESH_EPOCH_REQUIRED`; it validates the declared semantic successor
+but does not accept old-manifest selection or mutation evidence for it. The
+supervisor then exclusively creates one hash-linked epoch record and returns
+`work-pack-readiness-audit` for the next captured unit. A later epoch must use
+a new epoch id, new manifest digest, and new approval digest, and its ready
+frontier must equal the remaining captured suffix.
+
+Invoke the controller without an epoch config to ask which fresh epoch is
+required, or supply one exact fresh candidate:
+
+```text
+python3 scripts/run_multi_epoch_supervisor.py --config supervisor-config.json
+python3 scripts/run_multi_epoch_supervisor.py --config supervisor-config.json --epoch-config epoch-config.json
+```
+
+The supervisor never launches Work Pack Readiness Audit, Task Session, Invoke,
+or a product command. It emits one exact next route and replays the complete
+inner and outer ledgers on every call. Owner-input drift, approval widening,
+route leakage, stale epoch reuse, frontier drift, risk overflow, more than one
+inner request, an unjoined closeout, or a broken hash link stops fail-closed.
+This is a candidate controller, not execution authorization, promotion,
+publication, release, deployment, or production evidence.
+
+#### Accepted finite-stream mode
+
+The additive `accepted-finite-stream` mode removes repeated compatibility and
+epoch-approval choreography when the complete finite frontier is already
+frozen and accepted. One exact
+`finite-stream-execution-acceptance/v1` receipt binds the full-frontier chain
+config, direct execution-intent binding, risk and request ceilings, automatic
+and stop policies, work-pack and semantic identity, allowed-route digest, and
+the actual staged Task Session fast-entry request and receipt. The supervisor
+cross-checks the chain epoch semantic digest against the acceptance and fast
+entry, revalidates the real guard result, and will not expose the first Task
+Session unless it is exactly `proceed/TASK_READY`.
+
+The same command surface then consumes at most one Task Session transition and
+exposes at most one next unit:
+
+```text
+python3 scripts/run_multi_epoch_supervisor.py --config supervisor-config.json
+python3 scripts/run_multi_epoch_supervisor.py \
+  --config supervisor-config.json \
+  --transition transition.json \
+  --fast-entry-request next-fast-entry-request.json \
+  --fast-entry-receipt next-fast-entry-receipt.json
+```
+
+Every later unit still requires a fresh selection projection, fast-entry
+receipt, live target baselines, single-use mutation admission, Task Session
+terminal receipt, and joined closeout. Those are per-unit execution evidence,
+not new stream acceptance. A real owner prerequisite returns its exact owner
+packet and stops before Task Session. Semantic, route, frontier, validation,
+risk, or authority drift invalidates the frozen stream instead of being
+silently absorbed. The supervisor remains a reducer and never impersonates
+Task Session, Invoke, or a prerequisite owner.
 
 ### Work-Pack prerequisite resumption
 

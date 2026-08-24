@@ -1,0 +1,34 @@
+{
+  "briefing": {
+    "agent_identity": "Native spawn proof worker",
+    "angle": "Prove the exact host projection without mutating the target.",
+    "instructions": "Read the declared action fixture, make no writes, and return the complete bounded proof receipt.",
+    "status_semantics": {
+      "task_status_field": "task_status",
+      "task_complete_value": "completed",
+      "task_blocked_value": "blocked",
+      "domain_gate_status_field": "domain_gate_status",
+      "domain_gate_is_separate": true
+    },
+    "read_policy": {
+      "input_refs": ["runtime/orchestrate/tests/native-spawn/fixtures/action.json"],
+      "allowed_read_scopes": ["runtime/orchestrate/tests/native-spawn/fixtures/"],
+      "forbidden_read_scopes": [],
+      "required_input_refs_readable": true
+    },
+    "write_policy": {
+      "mutation_policy": "read-only",
+      "write_scope": [],
+      "forbidden_write_scopes": ["runtime/", "formulae/", "arcana/", "spells/"]
+    },
+    "receipt_shape": {
+      "required_fields": ["task_status", "domain_gate_status", "action_id", "validation"],
+      "completion_requires_all_fields": true
+    },
+    "authority_ceiling": {
+      "summary": "Read and verify the declared fixture only.",
+      "allowed_actions": ["read_declared_inputs"],
+      "forbidden_actions": ["write", "promotion", "publication"]
+    }
+  }
+}

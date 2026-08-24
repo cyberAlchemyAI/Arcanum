@@ -1,0 +1,34 @@
+{
+  "roles": {
+    "xray-lifecycle": {
+      "agent_identity": "X-Ray lifecycle worker",
+      "angle": "Improve the lifecycle contract while preserving its owner boundary.",
+      "instructions": "Operate X-Ray through Sigil Development, write only its declared lifecycle scope, and return the declared receipt.",
+      "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+      "read_policy": {"input_refs": ["operator-language-reflection"], "allowed_read_scopes": ["arcana/x-ray/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+      "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["arcana/x-ray/"], "forbidden_write_scopes": ["examples/architecture-explainer/"]},
+      "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+      "authority_ceiling": {"summary": "Own only the X-Ray lifecycle candidate and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+    },
+    "whisper-lifecycle": {
+      "agent_identity": "Whisper lifecycle worker",
+      "angle": "Reflect on the composition without editing its consumer artifact.",
+      "instructions": "Operate Whisper through Spellcraft, write only its declared lifecycle scope, and return the declared receipt.",
+      "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+      "read_policy": {"input_refs": ["operator-language-reflection"], "allowed_read_scopes": ["spells/whisper/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+      "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["spells/whisper/"], "forbidden_write_scopes": ["examples/architecture-explainer/"]},
+      "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+      "authority_ceiling": {"summary": "Own only the Whisper lifecycle candidate and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
+    },
+    "artifact-repair": {
+      "agent_identity": "Bounded explainer artifact worker",
+      "angle": "Apply only evidence admitted from both lifecycle owners.",
+      "instructions": "Wait for both passing lifecycle receipts, then edit only the declared explainer artifact and return its receipt.",
+      "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+      "read_policy": {"input_refs": ["receipts/xray-iteration.json", "receipts/whisper-iteration.json"], "allowed_read_scopes": ["receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+      "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["examples/architecture-explainer/index.html"], "forbidden_write_scopes": ["arcana/x-ray/", "spells/whisper/"]},
+      "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+      "authority_ceiling": {"summary": "Own only the bounded explainer artifact and receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["lifecycle_mutation", "promotion", "publication"]}
+    }
+  }
+}

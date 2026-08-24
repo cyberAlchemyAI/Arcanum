@@ -287,7 +287,135 @@ def _compact(values: list[str]) -> str:
     return "[" + ", ".join(values) + "]"
 
 
+def _canonical_payload_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _validated_action_briefing(action: dict[str, Any]) -> dict[str, Any]:
+    binding = action.get("briefing_binding")
+    if not isinstance(binding, dict):
+        raise DriverBlocked(["persisted action has no briefing_binding"])
+    if binding.get("contract_version") != "arcanum.confirmed-role-briefing.v0.1":
+        raise DriverBlocked(["persisted action has unsupported briefing contract"])
+    briefing = binding.get("briefing")
+    source = binding.get("source_binding")
+    if not isinstance(briefing, dict) or not isinstance(source, dict):
+        raise DriverBlocked(["persisted action briefing binding is incomplete"])
+    briefing_sha = _canonical_payload_sha256(briefing)
+    if binding.get("briefing_sha256") != briefing_sha:
+        raise DriverBlocked(["persisted action briefing digest mismatch"])
+    if source.get("selected_payload_sha256") != briefing_sha:
+        raise DriverBlocked(["persisted action selected payload digest mismatch"])
+    if briefing.get("read_policy", {}).get("input_refs") != action.get("input_refs"):
+        raise DriverBlocked(["persisted action briefing read policy mismatch"])
+    expected_write_policy = {
+        "mutation_policy": action.get("mutation_policy"),
+        "write_scope": action.get("write_scope"),
+        "forbidden_write_scopes": action.get("forbidden_write_scopes"),
+    }
+    if briefing.get("write_policy") != expected_write_policy:
+        raise DriverBlocked(["persisted action briefing write policy mismatch"])
+    status = briefing.get("status_semantics")
+    receipt = briefing.get("receipt_shape")
+    if not isinstance(status, dict) or not isinstance(receipt, dict):
+        raise DriverBlocked(["persisted action status or receipt contract is incomplete"])
+    required_fields = receipt.get("required_fields", [])
+    if (
+        status.get("task_status_field") == status.get("domain_gate_status_field")
+        or status.get("task_status_field") not in required_fields
+        or status.get("domain_gate_status_field") not in required_fields
+        or receipt.get("completion_requires_all_fields") is not True
+    ):
+        raise DriverBlocked(["persisted action status and receipt contract mismatch"])
+    return binding
+
+
+def task_receipt_blockers(action: dict[str, Any], raw_result: Any) -> list[str]:
+    """Return task-completion blockers before a raw result may be normalized."""
+
+    binding = _validated_action_briefing(action)
+    briefing = binding["briefing"]
+    required = briefing["receipt_shape"]["required_fields"]
+    if not isinstance(raw_result, dict):
+        return ["raw task result must be an object"]
+    missing = [field for field in required if field not in raw_result]
+    if missing:
+        return ["raw task result is missing required fields: " + ", ".join(missing)]
+    status = briefing["status_semantics"]
+    task_value = raw_result.get(status["task_status_field"])
+    allowed_values = {
+        status["task_complete_value"],
+        status["task_blocked_value"],
+    }
+    if task_value not in allowed_values:
+        return ["raw task result has an unsupported task-completion status"]
+    return []
+
+
+def validate_raw_task_results(
+    actions: list[dict[str, Any]], raw_results_dir: Path
+) -> dict[str, Any]:
+    """Bind one complete raw task result to every current-wave action."""
+
+    expected = [str(action.get("action_id")) for action in actions]
+    if not raw_results_dir.is_dir():
+        return {
+            "schema_version": "arcanum.native-dispatch-runner.task-result-validation.v0.1",
+            "status": "block",
+            "action_ids": expected,
+            "results": [],
+            "blockers": [f"raw task result directory does not exist: {raw_results_dir}"],
+        }
+    actual = sorted(path.name for path in raw_results_dir.iterdir())
+    expected_files = sorted(f"{action_id}.json" for action_id in expected)
+    if actual != expected_files:
+        return {
+            "schema_version": "arcanum.native-dispatch-runner.task-result-validation.v0.1",
+            "status": "block",
+            "action_ids": expected,
+            "results": [],
+            "blockers": ["raw task result directory must contain exactly one JSON file per action"],
+        }
+    rows: list[dict[str, Any]] = []
+    blockers: list[str] = []
+    for action in actions:
+        action_id = str(action["action_id"])
+        path = raw_results_dir / f"{action_id}.json"
+        try:
+            raw_result = _load_json_object(path, f"raw task result {action_id}")
+        except DriverBlocked as exc:
+            blockers.extend(f"{action_id}: {item}" for item in exc.blockers)
+            continue
+        result_blockers = task_receipt_blockers(action, raw_result)
+        blockers.extend(f"{action_id}: {item}" for item in result_blockers)
+        semantics = action["briefing_binding"]["briefing"]["status_semantics"]
+        rows.append(
+            {
+                "action_id": action_id,
+                "path": str(path),
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "status": "pass" if not result_blockers else "block",
+                "task_status": raw_result.get(semantics["task_status_field"]),
+                "task_complete_value": semantics["task_complete_value"],
+                "task_blocked_value": semantics["task_blocked_value"],
+            }
+        )
+    validation = {
+        "schema_version": "arcanum.native-dispatch-runner.task-result-validation.v0.1",
+        "status": "pass" if not blockers else "block",
+        "action_ids": expected,
+        "results": rows,
+        "blockers": blockers,
+    }
+    return validation
+
+
 def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
+    binding = _validated_action_briefing(action)
+    briefing = binding["briefing"]
     action_stem = action["action_id"].replace("-", "_")
     run_scope = hashlib.sha256(
         f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
@@ -304,13 +432,25 @@ def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
         f"Forbidden write scopes: {_compact(action['forbidden_write_scopes'])}",
         f"Input refs: {_compact(action['input_refs'])}",
         f"Output refs: {_compact(action['output_refs'])}",
-        "Return one bounded receipt for the persisted action. Do not widen scope.",
+        f"Briefing digest: {binding['briefing_sha256']}",
+        f"Agent identity: {briefing['agent_identity']}",
+        f"Angle: {briefing['angle']}",
+        "Instructions (exact):",
+        briefing["instructions"],
+        "Task status semantics (canonical JSON): " + json.dumps(briefing["status_semantics"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "Read policy (canonical JSON): " + json.dumps(briefing["read_policy"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "Write policy (canonical JSON): " + json.dumps(briefing["write_policy"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "Required receipt shape (canonical JSON): " + json.dumps(briefing["receipt_shape"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "Authority ceiling (canonical JSON): " + json.dumps(briefing["authority_ceiling"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "Forbidden write scopes do not imply forbidden reads. Follow only the explicit read policy.",
+        "Return every required receipt field. Do not widen scope or merge task completion with domain-gate status.",
     ]
     return {
         "action_id": action["action_id"],
         "operation": "collaboration.spawn_agent",
         "task_name": f"orchestrate_{run_scope}_{action_stem}",
         "fork_turns": "none",
+        "briefing_binding": binding,
         "message": "\n".join(lines),
     }
 
@@ -323,6 +463,7 @@ def prepare_spawn(
     depends_on_gate_id: str | None,
 ) -> dict[str, Any]:
     action, run_plan = _admit_persisted_action(action_path, run_plan_path)
+    _validated_action_briefing(action)
     events = _validated_prefix(event_stream) if event_stream.exists() else []
     selected_wave = run_plan.get("selected_wave")
     dependencies = (
@@ -1112,6 +1253,7 @@ def advance_wave(
     state_path: Path,
     run_plan_path: Path,
     receipts_dir: Path,
+    raw_results_dir: Path,
     event_stream: Path,
     output_dir: Path,
 ) -> dict[str, Any]:
@@ -1119,10 +1261,35 @@ def advance_wave(
     dispatch = _load_json_object(dispatch_path, "dispatch")
     state = _load_json_object(state_path, "state")
     run_plan = _load_json_object(run_plan_path, "run plan")
+    actions = run_plan.get("actions")
+    if not isinstance(actions, list) or any(not isinstance(action, dict) for action in actions):
+        raise DriverBlocked(["run plan actions must be an array of objects"])
+    task_result_validation = validate_raw_task_results(actions, raw_results_dir)
+    _write_json(output_dir / "task-result-validation.json", task_result_validation)
+    if task_result_validation["status"] != "pass":
+        raise DriverBlocked(task_result_validation["blockers"])
     receipts, admission = admit_receipt_directory(run_plan, receipts_dir)
     _write_json(output_dir / "receipt-admission.json", admission)
     if admission["status"] != "pass":
         raise DriverBlocked(admission["blockers"])
+    receipt_by_id = {receipt["action_id"]: receipt for receipt in receipts}
+    status_binding_blockers: list[str] = []
+    for row in task_result_validation["results"]:
+        normalized_status = receipt_by_id[row["action_id"]]["status"]
+        if row["task_status"] == row["task_blocked_value"] and normalized_status != "block":
+            status_binding_blockers.append(
+                f"{row['action_id']}: blocked task result requires normalized status=block"
+            )
+        if normalized_status == "pass" and row["task_status"] != row["task_complete_value"]:
+            status_binding_blockers.append(
+                f"{row['action_id']}: normalized status=pass requires completed task result"
+            )
+        row["normalized_status"] = normalized_status
+    if status_binding_blockers:
+        task_result_validation["status"] = "block"
+        task_result_validation["blockers"] = status_binding_blockers
+        _write_json(output_dir / "task-result-validation.json", task_result_validation)
+        raise DriverBlocked(status_binding_blockers)
 
     next_state, gate, action_set = coordinator.reduce_wave_receipts(
         dispatch, state, run_plan, receipts
@@ -1179,6 +1346,7 @@ def advance_wave(
         "gate_decision": gate,
         "action_set": action_set,
         "receipt_admission": admission,
+        "task_result_validation": task_result_validation,
         "event_validation": validation,
     }
 
@@ -1267,6 +1435,7 @@ def main() -> int:
     advance_parser.add_argument("--state", required=True, type=Path)
     advance_parser.add_argument("--run-plan", required=True, type=Path)
     advance_parser.add_argument("--receipts-dir", required=True, type=Path)
+    advance_parser.add_argument("--raw-results-dir", required=True, type=Path)
     advance_parser.add_argument("--events", required=True, type=Path)
     advance_parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
@@ -1408,6 +1577,7 @@ def main() -> int:
                 args.state,
                 args.run_plan,
                 args.receipts_dir,
+                args.raw_results_dir,
                 args.events,
                 args.output_dir,
             )

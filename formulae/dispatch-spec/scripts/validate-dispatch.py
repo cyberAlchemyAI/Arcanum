@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import posixpath
 import re
@@ -178,6 +179,12 @@ CANONICAL_CAPABILITY_IDS = {
     "spellcraft",
 }
 CAPABILITY_REF_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*(?:/[a-z][a-z0-9_.-]*)?$")
+BRIEFING_CONTRACT_VERSION = "arcanum.confirmed-role-briefing.v0.1"
+BRIEFING_REQUIRED_AUTHORIZATION_STATES = {
+    "requires_user_permission",
+    "approved",
+    "not_needed",
+}
 
 
 def load_json(path: Path) -> Any:
@@ -353,12 +360,143 @@ def path_scopes_overlap(left: str, right: str) -> bool:
     )
 
 
+def canonical_payload_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def select_json_pointer(value: Any, selector: str) -> Any:
+    if not isinstance(selector, str) or not selector.startswith("/"):
+        raise ValueError("selector must be a non-empty JSON pointer")
+    selected = value
+    for raw_token in selector[1:].split("/"):
+        token = raw_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(selected, dict):
+            if token not in selected:
+                raise ValueError(f"selector token not found: {token}")
+            selected = selected[token]
+        elif isinstance(selected, list):
+            if not token.isdigit() or int(token) >= len(selected):
+                raise ValueError(f"selector list index not found: {token}")
+            selected = selected[int(token)]
+        else:
+            raise ValueError(f"selector cannot descend through token: {token}")
+    return selected
+
+
+def validate_role_briefing_binding(
+    role: dict[str, Any], role_id: str, dispatch_path: Path, blocks: list[str]
+) -> None:
+    prefix = f"subagent_strategy:{role_id}: briefing_binding"
+    binding = role.get("briefing_binding")
+    if not isinstance(binding, dict):
+        blocks.append(f"{prefix} is required for confirmation-ready capability execution")
+        return
+    if binding.get("contract_version") != BRIEFING_CONTRACT_VERSION:
+        blocks.append(f"{prefix} has an unsupported contract_version")
+
+    source = binding.get("source_binding")
+    briefing = binding.get("briefing")
+    if not isinstance(source, dict) or not isinstance(briefing, dict):
+        blocks.append(f"{prefix} requires source_binding and briefing objects")
+        return
+
+    artifact_path = source.get("artifact_path")
+    normalized = (
+        normalize_relative_scope(artifact_path)
+        if isinstance(artifact_path, str)
+        else None
+    )
+    if normalized is None:
+        blocks.append(f"{prefix}.source_binding.artifact_path must be dispatch-relative without parent traversal")
+    else:
+        source_path = (dispatch_path.parent / normalized).resolve()
+        try:
+            source_path.relative_to(dispatch_path.parent.resolve())
+        except ValueError:
+            blocks.append(f"{prefix}.source_binding.artifact_path escapes the dispatch directory")
+        else:
+            if not source_path.is_file():
+                blocks.append(f"{prefix}.source_binding artifact does not exist: {normalized}")
+            else:
+                raw = source_path.read_bytes()
+                actual_artifact_sha = hashlib.sha256(raw).hexdigest()
+                if source.get("artifact_sha256") != actual_artifact_sha:
+                    blocks.append(f"{prefix}.source_binding artifact digest mismatch")
+                try:
+                    source_doc = json.loads(raw.decode("utf-8"))
+                    selected = select_json_pointer(source_doc, source.get("selector"))
+                except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                    blocks.append(f"{prefix}.source_binding cannot select payload: {exc}")
+                else:
+                    selected_sha = canonical_payload_sha256(selected)
+                    if source.get("selected_payload_sha256") != selected_sha:
+                        blocks.append(f"{prefix}.source_binding selected payload digest mismatch")
+                    if selected != briefing:
+                        blocks.append(f"{prefix}.source_binding selected payload is not the briefing")
+
+    briefing_sha = canonical_payload_sha256(briefing)
+    if binding.get("briefing_sha256") != briefing_sha:
+        blocks.append(f"{prefix} canonical briefing digest mismatch")
+
+    status = briefing.get("status_semantics")
+    receipt = briefing.get("receipt_shape")
+    read_policy = briefing.get("read_policy")
+    write_policy = briefing.get("write_policy")
+    if not all(isinstance(item, dict) for item in (status, receipt, read_policy, write_policy)):
+        blocks.append(f"{prefix} executable policy fields must be objects")
+        return
+
+    task_field = status.get("task_status_field")
+    domain_field = status.get("domain_gate_status_field")
+    if task_field == domain_field:
+        blocks.append(f"{prefix} task status and domain gate status fields must be distinct")
+    if status.get("task_complete_value") == status.get("task_blocked_value"):
+        blocks.append(f"{prefix} complete and blocked task status values must be distinct")
+    required_fields = receipt.get("required_fields", [])
+    if not isinstance(required_fields, list) or task_field not in required_fields or domain_field not in required_fields:
+        blocks.append(f"{prefix}.receipt_shape must require both task and domain gate status fields")
+
+    expected_inputs = list(role.get("input_refs", []) or [])
+    if read_policy.get("input_refs") != expected_inputs:
+        blocks.append(f"{prefix}.read_policy.input_refs does not match the role")
+    if read_policy.get("required_input_refs_readable") is not True:
+        blocks.append(f"{prefix}.read_policy must keep required input refs readable")
+    forbidden_reads = read_policy.get("forbidden_read_scopes", []) or []
+    allowed_reads = read_policy.get("allowed_read_scopes", []) or []
+    for scope in list(allowed_reads) + list(forbidden_reads):
+        if not isinstance(scope, str) or normalize_relative_scope(scope) is None:
+            blocks.append(f"{prefix}.read_policy contains an unsafe repository scope")
+    for allowed_scope in allowed_reads:
+        for forbidden_scope in forbidden_reads:
+            if isinstance(allowed_scope, str) and isinstance(forbidden_scope, str) and path_scopes_overlap(allowed_scope, forbidden_scope):
+                blocks.append(f"{prefix}.read_policy allowed and forbidden read scopes overlap")
+
+    expected_write_policy = {
+        "mutation_policy": role.get("mutation_policy"),
+        "write_scope": list(role.get("write_scope", []) or []),
+        "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+    }
+    if write_policy != expected_write_policy:
+        blocks.append(f"{prefix}.write_policy does not exactly match the role")
+
+    ceiling = briefing.get("authority_ceiling")
+    if isinstance(ceiling, dict):
+        allowed = set(ceiling.get("allowed_actions", []) or [])
+        forbidden = set(ceiling.get("forbidden_actions", []) or [])
+        if allowed & forbidden:
+            blocks.append(f"{prefix}.authority_ceiling allows and forbids the same action")
+
+
 def validate_capability_bound_strategy(
     subagent_strategy: dict[str, Any],
     subagent_lifecycle: dict[str, Any],
     steps: list[Any],
     gates: list[Any],
     native_stage_receipts: list[Any],
+    dispatch_path: Path,
     blocks: list[str],
     flags: list[str],
 ) -> None:
@@ -374,6 +512,11 @@ def validate_capability_bound_strategy(
 
     if not subagent_strategy.get("execution_owner"):
         blocks.append("capability-bound subagent_strategy requires execution_owner")
+
+    briefing_required = (
+        subagent_strategy.get("authorization")
+        in BRIEFING_REQUIRED_AUTHORIZATION_STATES
+    )
 
     receipt_requirements = {
         str(item)
@@ -414,6 +557,11 @@ def validate_capability_bound_strategy(
             blocks.append(f"capability-bound role_id is duplicated: {role_id}")
             continue
         role_by_id[role_id] = role
+
+        if briefing_required:
+            validate_role_briefing_binding(role, role_id, dispatch_path, blocks)
+        elif role.get("briefing_binding") is not None:
+            validate_role_briefing_binding(role, role_id, dispatch_path, blocks)
 
         missing = sorted(field for field in CAPABILITY_BOUND_ROLE_FIELDS if not role.get(field))
         if missing:
@@ -835,7 +983,12 @@ def validate_command_interface_gates(doc: dict[str, Any], gates: list[Any], bloc
             blocks.append(f"{gate_id}: active dispatch gate requires deprecated command-interface proof")
 
 
-def validate(doc: dict[str, Any], schema: dict[str, Any], known_techniques: set[str]) -> tuple[str, list[str], list[str]]:
+def validate(
+    doc: dict[str, Any],
+    schema: dict[str, Any],
+    known_techniques: set[str],
+    dispatch_path: Path,
+) -> tuple[str, list[str], list[str]]:
     blocks: list[str] = []
     flags: list[str] = []
 
@@ -952,6 +1105,7 @@ def validate(doc: dict[str, Any], schema: dict[str, Any], known_techniques: set[
         steps,
         gates,
         native_stage_receipts,
+        dispatch_path,
         blocks,
         flags,
     )
@@ -1088,7 +1242,7 @@ def main() -> int:
     doc = load_json(args.dispatch)
     schema = load_schema(args.schema)
     known = catalog_ids(args.catalog)
-    status, blocks, flags = validate(doc, schema, known)
+    status, blocks, flags = validate(doc, schema, known, args.dispatch.resolve())
 
     if args.json:
         print(json.dumps({"validation": status, "blocks": blocks, "flags": flags}, indent=2))

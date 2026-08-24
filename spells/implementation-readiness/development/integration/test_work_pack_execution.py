@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import shutil
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -21,6 +22,7 @@ READINESS_ROOT = INTEGRATION_ROOT.parents[1]
 ARCANUM_ROOT = READINESS_ROOT.parents[1]
 OUTER_VALIDATOR_PATH = READINESS_ROOT / "development" / "validate-outer-loop.py"
 READINESS_EXECUTION_PATH = READINESS_ROOT / "scripts" / "readiness_execution.py"
+RUN_EXECUTION_LOOP_PATH = READINESS_ROOT / "scripts" / "run_execution_loop.py"
 PLAN_ONCE_PATH = (
     ARCANUM_ROOT
     / "spells"
@@ -250,7 +252,7 @@ class WorkPackExecutionIntegrationTests(unittest.TestCase):
                 selection,
                 selection_binding,
             )
-            self.assertEqual(context_entry["entry_state"], "context-ready")
+            self.assertEqual(context_entry["entry_state"], "task-ready")
             self.assertFalse(selection["mutationReady"])
             self.assertTrue(admission["mutationReady"])
             state = OUTER.join_event(
@@ -264,22 +266,72 @@ class WorkPackExecutionIntegrationTests(unittest.TestCase):
                     next_entry=context_entry,
                 ),
             )
-            fast_entry = FAST_GUARD.classify_fast_entry(
-                {
-                    "schema_version": "1.0.0",
-                    "execution_policy": policy,
-                    "execution_entry": state["current_entry"],
-                    "execution_binding": state["current_binding"],
-                    "selected_unit": {
-                        "work_pack_id": policy["work_pack_id"],
-                        "swu_id": context_entry["selected_unit"],
-                    },
-                    "authority_effect": "none",
-                }
+            fast_request, fast_entry = READINESS.compile_plan_once_fast_entry(
+                policy,
+                config,
+                report,
+                selection,
+                selection_binding,
             )
             self.assertEqual(fast_entry["decision"], "proceed")
-            self.assertEqual(fast_entry["code"], "CONTEXT_READY")
+            self.assertEqual(fast_entry["code"], "TASK_READY")
             self.assertEqual(fast_entry["mutation_count"], 0)
+            self.assertEqual(
+                fast_request["execution_binding"], state["current_binding"]
+            )
+            self.assertTrue(
+                all(
+                    json.loads(item)["validation_contract"]
+                    for item in policy["validation_commands"]
+                )
+            )
+            staged_request_path = (
+                plan_case.fixture.root / "staged-fast-entry-command.json"
+            )
+            staged_output_path = (
+                plan_case.fixture.root / "staged-fast-entry-output.json"
+            )
+            staged_request_path.write_text(
+                json.dumps(
+                    {
+                        "operation": "selection-fast-entry",
+                        "policy": policy,
+                        "audit_config": config,
+                        "audit_report": report,
+                        "selection_receipt": selection,
+                        "execution_binding": selection_binding,
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(RUN_EXECUTION_LOOP_PATH),
+                    "--request",
+                    str(staged_request_path),
+                    "--output",
+                    str(staged_output_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(
+                completed.returncode,
+                0,
+                msg=completed.stderr or completed.stdout,
+            )
+            staged = json.loads(staged_output_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                staged["fast_entry_request"], fast_request
+            )
+            self.assertEqual(
+                staged["fast_entry_receipt"]["code"], "TASK_READY"
+            )
             task_route = state["current_binding"]["current_route"]
             state, task_action = OUTER.decide_next_action(
                 state,
@@ -1150,6 +1202,56 @@ class WorkPackExecutionIntegrationTests(unittest.TestCase):
             ],
         )
         assert_no_prompt(self, state, first_owner, retried_owner, task_action)
+
+    def test_15_invoke_plan_preflight_proves_real_guard_without_admission(self) -> None:
+        plan_case = PLAN_ONCE.PLAN.PlanOnceSelectionTests()
+        plan_case.setUp()
+        try:
+            config = plan_case.config()
+            report = plan_case.audit(config)
+            receipt = READINESS.compile_plan_readiness_preflight(
+                config,
+                report,
+                proof_invocation_id="invoke-plan-preflight-integration-001",
+                proof_created_at="2026-08-24T14:00:00Z",
+            )
+            self.assertEqual(receipt["code"], "PLAN_IMPLEMENTATION_READY")
+            self.assertEqual(receipt["fast_entry_proof"]["decision"], "proceed")
+            self.assertEqual(receipt["fast_entry_proof"]["code"], "TASK_READY")
+            self.assertEqual(receipt["fast_entry_proof"]["mutation_count"], 0)
+            self.assertFalse(receipt["reusable_for_execution"])
+            self.assertFalse(receipt["mutation_ready"])
+            self.assertEqual(receipt["authority_effect"], "none")
+            self.assertEqual(
+                [item["unit_id"] for item in receipt["route_coverage"]],
+                receipt["frontier"],
+            )
+            self.assertEqual(
+                [item["unit_id"] for item in receipt["validation_contract_digests"]],
+                receipt["frontier"],
+            )
+
+            invalid_config = copy.deepcopy(config)
+            invalid_report = copy.deepcopy(report)
+            routes = copy.deepcopy(invalid_config["execution_policy"]["allowed_routes"])
+            routes[0]["capability"] = "invoke"
+            route_digest = READINESS.allowed_routes_digest(routes)
+            invalid_config["execution_policy"]["allowed_routes"] = routes
+            invalid_config["execution_policy"]["allowed_routes_digest"] = route_digest
+            invalid_report["manifest"]["allowed_routes"] = copy.deepcopy(routes)
+            invalid_report["manifest"]["allowed_routes_digest"] = route_digest
+            with self.assertRaisesRegex(
+                READINESS.ReadinessExecutionError,
+                "PLAN_TASK_SESSION_ROUTE_NOT_UNIQUE",
+            ):
+                READINESS.compile_plan_readiness_preflight(
+                    invalid_config,
+                    invalid_report,
+                    proof_invocation_id="invoke-plan-preflight-invalid-001",
+                    proof_created_at="2026-08-24T14:00:00Z",
+                )
+        finally:
+            plan_case.tearDown()
 
 
 def main() -> int:

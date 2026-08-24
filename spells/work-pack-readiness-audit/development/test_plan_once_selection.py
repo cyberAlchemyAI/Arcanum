@@ -179,9 +179,20 @@ class PlanOnceSelectionTests(unittest.TestCase):
 
         output = self.fixture.root / "audit-output"
         AUDIT.write_outputs_v2(report, output)
-        self.assertTrue((output / "plan-semantic-manifest.json").is_file())
-        self.assertTrue((output / "selection-handoff.json").is_file())
+        manifest_path = output / "plan-semantic-manifest.json"
+        handoff_path = output / "selection-handoff.json"
+        self.assertTrue(manifest_path.is_file())
+        self.assertTrue(handoff_path.is_file())
         self.assertFalse((output / "objective-execution-manifest.json").exists())
+
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        handoff = json.loads(handoff_path.read_text(encoding="utf-8"))
+        self.assertEqual(manifest["approval_status"], "unapproved")
+        self.assertEqual(handoff["approval_status"], "unapproved")
+        self.assertIsNone(manifest["selected_unit"])
+        self.assertIsNone(handoff["execution_entry"]["selected_unit"])
+        self.assertFalse(manifest["mutation_ready"])
+        self.assertFalse(handoff["mutation_ready"])
 
     def test_closeout_only_effect_subtype_is_schema_invalid(self) -> None:
         config = self.config()

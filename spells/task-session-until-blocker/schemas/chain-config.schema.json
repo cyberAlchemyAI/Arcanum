@@ -29,6 +29,53 @@
     "scope_id": {"type": "string", "minLength": 1},
     "manifest_ref": {"$ref": "#/$defs/exactArtifactRef"},
     "audit_report_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "wpra_v2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audit_config_ref",
+        "execution_contracts_ref",
+        "selection_handoff_ref",
+        "initial_selection_request_ref",
+        "initial_selection_receipt_ref"
+      ],
+      "properties": {
+        "audit_config_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "execution_contracts_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "selection_handoff_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "initial_selection_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "initial_selection_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "admission_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "supervisor_id",
+        "epoch_ordinal",
+        "selected_unit",
+        "supervisor_frontier_digest",
+        "observed_ready_frontier_digest"
+      ],
+      "properties": {
+        "mode": {"const": "fresh-current-unit"},
+        "supervisor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+        },
+        "epoch_ordinal": {"type": "integer", "minimum": 1},
+        "selected_unit": {"type": "string", "minLength": 1},
+        "supervisor_frontier_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "observed_ready_frontier_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
     "audit_verdict": {"enum": ["pass", "flag"]},
     "audit_flags": {
       "type": "array",
@@ -90,6 +137,22 @@
     },
     "compensation": {"$ref": "#/$defs/compensation"}
   },
+  "allOf": [
+    {
+      "if": {"required": ["admission_window"]},
+      "then": {
+        "required": ["audit_report_ref", "wpra_v2"],
+        "properties": {
+          "finite_frontier": {"maxItems": 1},
+          "run_budget": {
+            "properties": {
+              "max_task_session_requests": {"const": 1}
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "exactArtifactRef": {
       "type": "object",

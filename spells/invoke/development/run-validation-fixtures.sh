@@ -21,6 +21,7 @@ CODEX_EXAMPLE_RUNNER="$INVOKE_DIR/development/run-template-example-with-codex.sh
 EXPERIMENT_CODEX_RUNNER="$ROOT_DIR/arcanum/arcana/experiment-harness/scripts/run-with-codex.sh"
 MATERIAL_PACKAGE_RUNNER="$INVOKE_DIR/development/run-material-package-fixtures.sh"
 CAPABILITY_STATUS_RUNNER="$INVOKE_DIR/development/run-capability-status-fixtures.sh"
+DEFINE_IDENTITY_DENOMINATOR_RUNNER="$INVOKE_DIR/development/run-define-identity-denominator-fixtures.sh"
 DESIGN_SELECTION_RUNNER="$INVOKE_DIR/development/run-design-selection-fixtures.sh"
 DESIGN_SELECTION_REPORT="$INVOKE_DIR/development/fixtures/design-selection/results/latest-summary.json"
 MATERIAL_PACKAGE_VALIDATOR="$INVOKE_DIR/scripts/material_package_validator.py"
@@ -357,6 +358,26 @@ run_material_package_checks() {
 	else
 		record 'FAIL: INV-MATERIAL-PACKAGE'
 		failed_checks+=('material package fixture suite failed')
+		failures=$((failures + 1))
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	fi
+}
+
+run_define_identity_denominator_checks() {
+	local output
+	require_file "$DEFINE_IDENTITY_DENOMINATOR_RUNNER"
+	if output="$(bash "$DEFINE_IDENTITY_DENOMINATOR_RUNNER" 2>&1)"; then
+		passed_fixtures+=('INV-DEFINE-IDENTITY-DENOMINATOR')
+		output_artifacts+=("${DEFINE_IDENTITY_DENOMINATOR_RUNNER#$ROOT_DIR/}")
+		record 'PASS: INV-DEFINE-IDENTITY-DENOMINATOR'
+		while IFS= read -r line; do
+			record "  $line"
+		done <<< "$output"
+	else
+		record 'FAIL: INV-DEFINE-IDENTITY-DENOMINATOR'
+		failed_checks+=('Define identity-denominator fixture suite failed')
 		failures=$((failures + 1))
 		while IFS= read -r line; do
 			record "  $line"
@@ -813,6 +834,7 @@ require_file "$INVOKE_EXAMPLE_RUNNER_SKILL"
 require_file "$INVOKE_EXAMPLE_RUNNER_README"
 require_file "$MATERIAL_PACKAGE_RUNNER"
 require_file "$CAPABILITY_STATUS_RUNNER"
+require_file "$DEFINE_IDENTITY_DENOMINATOR_RUNNER"
 require_file "$MATERIAL_PACKAGE_VALIDATOR"
 require_file "$REFRESH_MATERIAL_HANDOFF"
 require_file "$MATERIAL_PACKAGE_SCHEMA"
@@ -839,6 +861,9 @@ require_pattern "$DEFINE_CONTRACT" 'Candidate glossary promotion is never automa
 require_pattern "$DEFINE_CONTRACT" 'Define-stage transport appends stage reports' 'define transport coverage'
 require_pattern "$DEFINE_CONTRACT" 'Define mode must record a Dispatch Spec technique trace' 'define dispatch technique trace'
 require_pattern "$DEFINE_CONTRACT" 'Define mode runs a Distill sanity check' 'define distill sanity check'
+require_pattern "$INVOKE_CONTRACT" 'Every Define output must classify identity-denominator validation' 'invoke Define identity-denominator trigger gate'
+require_pattern "$DEFINE_CONTRACT" 'A required identity-denominator gate uses' 'define identity-denominator validator gate'
+require_pattern "$DEFINE_CONTRACT" 'blocking required receipt stops Design and Plan activation' 'define identity-denominator downstream block'
 require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract with deterministic selection validation\)' 'design contract status'
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
@@ -878,6 +903,7 @@ require_pattern "$REFRESH_CONTRACT" '`mutation_ready`' 'refresh mutation-ready e
 run_template_task_matrix "$TEMPLATE_TASKS"
 run_prompt_selector_checks
 run_example_output_checks
+run_define_identity_denominator_checks
 run_design_selection_checks
 run_material_package_checks
 run_capability_status_checks

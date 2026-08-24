@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import copy
 import json
 import subprocess
 import sys
@@ -15,6 +16,7 @@ from jsonschema import Draft202012Validator, RefResolver
 
 ARCanum_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ARCanum_ROOT / "runtime/orchestrate/scripts/native_dispatch_coordinator.py"
+DRIVER = ARCanum_ROOT / "runtime/orchestrate/scripts/native_dispatch_driver.py"
 FIXTURES = Path(__file__).resolve().parent / "fixtures/compile"
 SCHEMAS = ARCanum_ROOT / "runtime/orchestrate/schemas"
 VALIDATOR = ARCanum_ROOT / "formulae/dispatch-spec/scripts/validate-dispatch.py"
@@ -24,6 +26,12 @@ if SPEC is None or SPEC.loader is None:
     raise RuntimeError(f"cannot import coordinator: {SCRIPT}")
 coordinator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(coordinator)
+
+DRIVER_SPEC = importlib.util.spec_from_file_location("native_dispatch_driver_compile_test", DRIVER)
+if DRIVER_SPEC is None or DRIVER_SPEC.loader is None:
+    raise RuntimeError(f"cannot import driver: {DRIVER}")
+driver = importlib.util.module_from_spec(DRIVER_SPEC)
+DRIVER_SPEC.loader.exec_module(driver)
 
 
 def load_json(path: Path):
@@ -107,6 +115,62 @@ class CompileFirstWaveTests(unittest.TestCase):
             coordinator.compile_to_directory(FIXTURES / "valid-two-wave.json", "run-repeat-001", first, VALIDATOR)
             coordinator.compile_to_directory(FIXTURES / "valid-two-wave.json", "run-repeat-001", second, VALIDATOR)
             self.assertEqual(directory_snapshot(first), directory_snapshot(second))
+
+    def test_confirmed_role_briefing_survives_dispatch_compile_and_host_projection(self) -> None:
+        dispatch = load_json(FIXTURES / "valid-two-wave.json")
+        role_by_id = {
+            role["role_id"]: role for role in dispatch["subagent_strategy"]["roles"]
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output = root / "compiled"
+            result = coordinator.compile_to_directory(
+                FIXTURES / "valid-two-wave.json", "run-briefing-fidelity", output, VALIDATOR
+            )
+            role_digests: dict[str, str] = {}
+            for action in result["run_plan"]["actions"]:
+                expected = role_by_id[action["role"]]["briefing_binding"]
+                self.assertEqual(action["briefing_binding"], expected)
+                role_digests[action["role"]] = action["briefing_binding"]["briefing_sha256"]
+                request = driver._spawn_request(action)
+                self.assertEqual(request["briefing_binding"], expected)
+                briefing = expected["briefing"]
+                for value in (
+                    briefing["agent_identity"],
+                    briefing["angle"],
+                    briefing["instructions"],
+                    expected["briefing_sha256"],
+                ):
+                    self.assertIn(value, request["message"])
+            self.assertEqual(len(set(role_digests.values())), 2)
+
+            dependent = coordinator._compile_named_wave_actions(
+                dispatch, "run-briefing-fidelity", "artifact", 4
+            )
+            self.assertEqual(
+                dependent[0]["briefing_binding"],
+                role_by_id["artifact-writer"]["briefing_binding"],
+            )
+            self.assertNotIn(
+                dependent[0]["briefing_binding"]["briefing_sha256"],
+                set(role_digests.values()),
+            )
+
+            action = copy.deepcopy(result["run_plan"]["actions"][0])
+            action["briefing_binding"]["briefing"]["instructions"] = "mutated after compile"
+            run_plan = copy.deepcopy(result["run_plan"])
+            run_plan["actions"][0] = action
+            action_path = root / "mutated" / "actions" / "spawn-0001.json"
+            plan_path = root / "mutated" / "run-plan.json"
+            action_path.parent.mkdir(parents=True)
+            action_path.write_text(json.dumps(action, indent=2) + "\n", encoding="utf-8")
+            plan_path.write_text(json.dumps(run_plan, indent=2) + "\n", encoding="utf-8")
+            events = root / "mutated" / "events.jsonl"
+            request_path = root / "mutated" / "request.json"
+            with self.assertRaises(driver.DriverBlocked):
+                driver.prepare_spawn(action_path, plan_path, events, request_path, None)
+            self.assertFalse(events.exists())
+            self.assertFalse(request_path.exists())
 
 
 def load_json_from_text(value: str):

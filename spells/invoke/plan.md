@@ -39,6 +39,19 @@ canonical digest of exact allowed internal routes. A direct request to run or
 finish the Work Pack is later bound to this projection by Implementation
 Readiness; it does not create a second per-route approval step.
 
+Every newly authored or refreshed mutation-capable Work Pack is also an
+`execution-candidate`. Before Plan may report a pass-ready handoff, Invoke
+must run the exact final WPRA config and report through Implementation
+Readiness `plan-readiness-preflight` and persist
+`IMPLEMENTATION-READINESS-PREFLIGHT.json`. The proof covers the complete
+ordered frontier, one exact Task Session route and typed validation-contract
+digest per unit, and a real in-memory `proceed/TASK_READY` guard result for the
+first unfinished unit. The persisted receipt contains only bound digests and
+is explicitly non-reusable for execution. Conceptual, research-only, and
+other non-executing plans must instead declare `executionDesignation:
+non-executing` with a reason; they do not receive an execution receipt or Task
+Session route.
+
 ## Implementation Coverage
 
 - The L2 plan contract is implemented as a mode-level governance contract.
@@ -74,6 +87,8 @@ Plan mode blocks when approved design references are missing, required standalon
 | `inventory` | Resolve work-pack, implementation-layering, and execution-pack templates and record selection evidence. | lookup, ingest, validate |
 | `dispatch-spec` | Select the planning technique trace and validate a dispatch document when the route crosses capabilities, delegation, subagents, or protected boundaries. | technique trace or dispatch validation |
 | `distill` | Validate the draft plan against smallest coherent unit, SWU, recomposition, hidden-gap, and deferred-complexity expectations. | validate |
+| `work-pack-readiness-audit` | Audit the exact final Work Pack frontier and emit the immutable plan-semantic report and selection handoff consumed by readiness proof. | audit v2, selected-unit-at-task-session |
+| `implementation-readiness` | Compile the exact final WPRA evidence and prove Task Session contract compatibility without granting execution admission. | plan-readiness-preflight |
 
 ## Optional Sigils
 
@@ -104,6 +119,8 @@ Plan mode blocks when approved design references are missing, required standalon
   or `full-frontier` with a named reason),
 - execution policy with exact allowed capability/mode/target/write/effect/input/
   receipt tuples and automatic/stop decision classes,
+- execution designation (`execution-candidate` for mutation-capable Work Packs,
+  or `non-executing` with an exact reason),
 - target artifact type (`spell`, `sigil`, or neutral),
 - Dispatch Spec technique trace requirements,
 - Distill validation target and gap ownership rules,
@@ -237,6 +254,47 @@ Session. The plan must bind the typed prerequisite record and its exact
 authorization-evidence selector rather than treating the execution entry or a
 bare Work-Pack declaration as apply authority.
 
+## Plan Implementation Readiness Producer
+
+For `execution-candidate`, Invoke Plan must persist the exact final WPRA audit
+config, then run one producer command:
+
+```text
+python3 <invoke-package>/scripts/prepare_plan_implementation_readiness.py \
+  --audit-config <audit-config.json> \
+  --audit-output-dir <new-readiness-run>/audit-output \
+  --proof-invocation-id <invoke-plan-run-id> \
+  --proof-created-at <iso-timestamp> \
+  --output <IMPLEMENTATION-READINESS-PREFLIGHT.json>
+```
+
+The command first runs the installed Work Pack Readiness Audit against those
+exact bytes and preserves its nonzero status. Only a passing audit is then
+delegated to Implementation Readiness; Invoke reimplements neither owner's
+semantics. A passing receipt must prove:
+
+- one exact Task Session route for every unit in the ordered finite frontier;
+- nonempty typed validation contracts for every unit, bound by canonical
+  digest rather than rendered shell prose;
+- exact Work Pack semantic, policy, route, WPRA config, and WPRA report
+  digests;
+- the real fast-entry guard returned `proceed/TASK_READY` with zero mutation
+  for the first unfinished unit;
+- `reusable_for_execution: false`, `mutation_ready: false`, and
+  `authority_effect: none`.
+
+The proof is acceptance-critical compatibility evidence, not the eventual
+FastExecutionEntryReceipt. After final plan generation, one exact owner
+acceptance must bind the candidate artifact inventory. When execution is
+later requested, Implementation Readiness must derive a fresh direct-intent
+selection binding and Task Session receipt from the current bytes. A semantic
+change, route change, frontier change, validation-contract change, or byte
+drift invalidates the Plan proof.
+
+`non-executing` is allowed only when the plan has no mutation-capable Work Pack
+and records why execution does not apply. It cannot expose Task Session as the
+next route. `blocked` or incomplete execution plans cannot use the exemption.
+
 ## Implementation Detail Policy
 
 - Low complexity plans may keep implementation detail inline with each task when the task is self-evident and locally bounded.
@@ -355,8 +413,10 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 | 4 | `dispatch-spec` | approved planning intent and route shape | technique trace or dispatch validation result | selected techniques affect phases, gates, evidence, or gaps | block on missing trace; flag on unused technique citations |
 | 5 | `invoke plan` | approved planning intent, template record, and technique trace | work-pack, global layering artifact, blocker ledger, validation strategy, plan transport report | required companions, complexity policy, and layer mapping are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
 | 6 | `distill` | draft implementation plan, layering artifact, work-pack, SWU manifest, handoff route, gap ledger | Distill validation verdict, recomposition proof status, and gap recommendations | selected unit closes and recomposes, hidden gaps are owned, navigation is clear | block on failed SCU/SWU closure, recomposition, acceptance-critical gap, or navigation failure |
-| 7 | optional `decision-gate` | unresolved planning blocker | decision record and next route | blocker resolved or explicitly deferred | keep blocker in gap ledger with recommended next action |
-| 8 | optional handoff (`task-session`, `spellcraft`, `sigil-development`, or `full`) | approved plan outputs | execution or lifecycle-authoring handoff context | target route is explicit and accepted | defer handoff if target authority is unavailable |
+| 7 | `work-pack-readiness-audit` for execution candidates | exact final Work Pack, routes, typed unit contracts, and audit config | immutable v2 audit report, semantic manifest, and selection handoff | plan-semantic verdict is pass over the exact final frontier | block and preserve the audit exit status; route genuine repair evidence to Invoke Refresh |
+| 8 | `implementation-readiness` for execution candidates | exact final WPRA config/report and Invoke Plan run identity | `IMPLEMENTATION-READINESS-PREFLIGHT.json` | full route/validation coverage and real proof-only `TASK_READY` guard result | block execution-candidate handoff; do not reinterpret the proof as acceptance or mutation admission |
+| 9 | optional `decision-gate` | unresolved planning blocker | decision record and next route | blocker resolved or explicitly deferred | keep blocker in gap ledger with recommended next action |
+| 10 | optional handoff (`task-session`, `spellcraft`, `sigil-development`, or `full`) | approved plan outputs plus readiness proof when execution-designated | execution or lifecycle-authoring handoff context | target route is explicit and accepted | defer handoff if target authority is unavailable |
 
 ## Mode Gates
 
@@ -385,6 +445,13 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - The machine-readable execution-entry projection must pass the installed
   Implementation Readiness authoring validator; prose, template resemblance,
   or a later readiness failure is not substitute evidence.
+- Every mutation-capable Work Pack must declare `execution-candidate` and
+  produce a schema-valid `PLAN_IMPLEMENTATION_READY` receipt from the actual
+  final WPRA bytes. Missing, stale, incomplete-route, or non-`TASK_READY`
+  proof blocks Plan handoff.
+- `non-executing` requires a concrete reason, no mutation-capable Work Pack,
+  and no Task Session next route. It is not an exemption for incomplete or
+  blocked implementation planning.
 - SWUs must include source context links, and parent task references should link to task contracts when split task files exist.
 - SWUs intended for runtime-goal handoff must include source anchors, validation surface, write scope, and handoff notes; Invoke must not pre-generate context packs during planning.
 - Split task files must contain useful task-local SWU execution contracts, not just task titles.
@@ -414,6 +481,8 @@ Any scope exceeding one or more low-complexity limits is medium or high complexi
 - dependency plan,
 - blocker and unresolved gap ledger entries,
 - plan transport report,
+- execution designation and implementation-readiness preflight receipt or an
+  exact non-executing reason,
 - recommended next route (`task-session`, `full`, `spellcraft`, `sigil-development`, or deferred follow-up).
 
 ## Observability
@@ -490,6 +559,9 @@ executable, what it prepared or why it stopped, and why that matters.>
 - SWU atomicity: n/a | pass | flag | block, task-shaped count <n>
 - First-unit narrowness: n/a | pass | flag | block
 - Task Session closeout sync: pass | block
+- Execution designation: execution-candidate | non-executing
+- Implementation readiness: <PLAN_IMPLEMENTATION_READY receipt path | n/a with reason | block>
+- Exact acceptance: required after final candidate hashing | n/a
 - Template/profile selection: <selected templates and eligibility evidence>
 - Validation strategy: <summary>
 - Decisions: <summary>
@@ -502,7 +574,8 @@ executable, what it prepared or why it stopped, and why that matters.>
 
 Active plan output must carry `execution_path`, `dispatch_trace`, `work_pack`,
 `implementation_layering`, `swu_manifest`, `validation_strategy`, `result`, and `next_route`
-evidence. Plan Distill is required and must pass. When capability status is
+evidence. An execution-candidate must additionally carry the exact
+Implementation Readiness preflight receipt. Plan Distill is required and must pass. When capability status is
 requested, pass the Plan artifact receipt to
 `scripts/capability_status_resolver.py`. A passing Plan artifact can set only
 `artifact_authored=pass`; it cannot set `registry_released` or

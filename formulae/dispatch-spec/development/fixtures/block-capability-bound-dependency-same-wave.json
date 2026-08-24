@@ -23,6 +23,21 @@
         "agent_count": 1,
         "mutation_policy": "lifecycle-owned",
         "write_scope": ["arcana/x-ray/"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "block-capability-bound-dependency-same-wave-briefings.json", "artifact_sha256": "39a6f9349f0607a0859e14c5ac45f136d6f9d3523d3da9ba43494eef5e6f3960", "selector": "/roles/xray-lifecycle", "selected_payload_sha256": "3724d2d1d82a866b28e3cdb2f40712da5ecfa15ded164c3efaeb5309288ba88b"},
+          "briefing": {
+            "agent_identity": "Lifecycle dependency producer",
+            "angle": "Produce the lifecycle receipt before any consumer may run.",
+            "instructions": "Update only the declared lifecycle scope and return its receipt.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["operator-intent"], "allowed_read_scopes": ["arcana/x-ray/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["arcana/x-ray/"], "forbidden_write_scopes": []},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only the lifecycle candidate.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion"]}
+          },
+          "briefing_sha256": "3724d2d1d82a866b28e3cdb2f40712da5ecfa15ded164c3efaeb5309288ba88b"
+        },
         "depends_on_roles": [],
         "input_refs": ["operator-intent"],
         "output_refs": ["receipts/xray-iteration.json"],
@@ -38,6 +53,21 @@
         "agent_count": 1,
         "mutation_policy": "artifact-only",
         "write_scope": ["examples/architecture-explainer/index.html"],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {"artifact_path": "block-capability-bound-dependency-same-wave-briefings.json", "artifact_sha256": "39a6f9349f0607a0859e14c5ac45f136d6f9d3523d3da9ba43494eef5e6f3960", "selector": "/roles/artifact-repair", "selected_payload_sha256": "6206c94d4ebba9a48d8343b8c73351225fa39bfa02b55c88c3c4688a0c9625d6"},
+          "briefing": {
+            "agent_identity": "Dependent artifact consumer",
+            "angle": "Consume the lifecycle receipt only after its gate passes.",
+            "instructions": "Wait for the lifecycle receipt, then write only the declared example artifact.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["receipts/xray-iteration.json"], "allowed_read_scopes": ["receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["examples/architecture-explainer/index.html"], "forbidden_write_scopes": []},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only the bounded example artifact.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["lifecycle_mutation", "promotion"]}
+          },
+          "briefing_sha256": "6206c94d4ebba9a48d8343b8c73351225fa39bfa02b55c88c3c4688a0c9625d6"
+        },
         "depends_on_roles": ["xray-lifecycle"],
         "input_refs": ["receipts/xray-iteration.json"],
         "output_refs": ["receipts/artifact-repair.json"],

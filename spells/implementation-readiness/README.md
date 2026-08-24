@@ -62,9 +62,33 @@ Implementation Readiness composes planning, decision, routing, and unit executio
 the exact Work Pack Readiness config and report into the policy and entry used
 to initialize the loop. For plan-once execution, `selection-ready` can become
 `task-ready` only when the current execution binding produced the selection
-intent and both the selected-unit receipt and the single-use mutation-admission
-receipt match the plan epoch and unit contract. A separate confirmation cannot
-substitute for the direct Work Pack execution intent.
+intent and the selected-unit receipt matches the plan epoch and unit contract.
+`task-ready` admits the exact SWU into Task Session and Context Builder; it does
+not admit mutation. The later single-use mutation-admission receipt must still
+match the same plan epoch and unit contract immediately before the first write.
+A separate confirmation cannot substitute for the direct Work Pack execution
+intent.
+
+`compile_plan_once_fast_entry` is the acceptance-critical compatibility
+projection. It emits the exact Implementation Readiness policy, post-selection
+entry, task-route binding, Task Session fast-entry request, and the receipt
+returned by the real fast-entry guard. Acceptance may proceed only for
+`proceed/TASK_READY`. The validation surface is carried as lossless canonical
+JSON encodings of the typed validation contracts; it is never rendered as
+shell prose.
+
+`compile_plan_readiness_preflight` is the Invoke Plan producer boundary, exposed
+by `run_execution_loop.py --operation plan-readiness-preflight`. It
+compiles the actual final WPRA config/report, requires one exact Task Session
+route and nonempty typed validation contracts for every frontier unit, and
+exercises the real fast-entry guard for the first unfinished unit with an
+ephemeral proof binding. It persists only a schema-valid receipt of digests and
+`proceed/TASK_READY`; the request and guard receipt are not exposed for reuse.
+The result always declares `reusable_for_execution: false`,
+`mutation_ready: false`, and `authority_effect: none`. Fresh direct execution
+intent, exact candidate acceptance, selection, live baselines, per-SWU Task
+Session receipts, mutation admission, and owner prerequisites remain later
+gates.
 
 Before that boundary, Invoke-authored
 `arcanum.work-pack-execution-entry/v1` artifacts must pass
