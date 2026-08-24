@@ -33,6 +33,10 @@ They are appropriate when the desired result cannot be produced by mechanical va
 
 It belongs here because the procedure transforms scattered project evidence into a bounded reviewable artifact without coordinating a long-running workflow.
 
+[complexity-example-ladder](complexity-example-ladder/) turns one bounded explanation or comparison into aligned low-, medium-, and complex examples while preserving evidence, option semantics, and decision authority.
+
+It belongs here because selecting structural complexity and constructing controlled comparative examples requires judgment, but remains one bounded synthesis with no persistent gate or recursive orchestration.
+
 [feature-glossary](feature-glossary/) creates a concise vocabulary layer for a feature, workflow, product area, or bounded project scope.
 
 It belongs here because it synthesizes terminology from source material into an evidence-linked glossary while avoiding global definition authority.

@@ -1,0 +1,66 @@
+{
+  "schema_version": "arcanum.work-pack-execution-entry/v1",
+  "work_pack_id": "WP-IRC-L0-001",
+  "admission_timing": "selected-unit-at-task-session",
+  "frontier": [
+    "SWU-IRC-001"
+  ],
+  "execution_policy": {
+    "route_policy": "automatic-in-scope",
+    "allowed_routes": [
+      {
+        "route_id": "irc-l0-swu-001-task-session",
+        "frontier_swu": "SWU-IRC-001",
+        "capability": "task-session",
+        "mode": "execute",
+        "target": "SWU-IRC-001",
+        "write_scope": [
+          "spells/inventory-recall-context/runtime/inventory_recall_context.py",
+          "spells/inventory-recall-context/validation/run-fixtures.py",
+          "spells/inventory-recall-context/validation/results/.gitignore",
+          "spells/inventory-recall-context/development/work-pack/closeouts/SWU-IRC-001.json"
+        ],
+        "effect_class": "repository-local-reversible",
+        "required_inputs": [
+          "spells/inventory-recall-context/README.md",
+          "spells/inventory-recall-context/development/WORK-PACK.md#SWU-IRC-001",
+          "spells/inventory-recall-context/development/L0-SCENARIOS.json",
+          "spells/inventory-recall-context/development/DESIGN-SELECTION-RESULT.json"
+        ],
+        "expected_receipt": "spells/inventory-recall-context/development/work-pack/closeouts/SWU-IRC-001.json"
+      }
+    ],
+    "allowed_routes_digest": "261c2e5e8a1db902be266d848f4257654ce762b6c17eb9ea9e9008dd478deac1",
+    "digest_algorithm": "sha256 of RFC8785-compatible canonical JSON for allowed_routes",
+    "automatic_decisions": [
+      "internal-tool-selection",
+      "capability-owner-routing",
+      "reversible-local-default",
+      "fresh-task-session-resumption"
+    ],
+    "stop_decisions": [
+      "product-or-semantic-choice",
+      "scope-expansion",
+      "destructive-or-irreversible-effect",
+      "credentials-or-secret-access",
+      "external-message-or-network-effect",
+      "cost-policy-or-risk-acceptance",
+      "authority-promotion-publication-deployment",
+      "failed-acceptance-critical-validation"
+    ],
+    "scope_source": "exact-work-pack-and-captured-frontier",
+    "validation_policy": "owner-gates-remain-mandatory"
+  },
+  "execution_entry": {
+    "state": "selection-ready",
+    "selected_unit": null,
+    "route_id": null,
+    "next_owner": "implementation-readiness:execute"
+  },
+  "pre_execution_owner_prerequisite": {
+    "owner": "spellcraft:validate",
+    "condition": "revalidate current candidate, design, work-pack, scenario, and allowed-route digests when a unit is explicitly selected"
+  },
+  "continuation_rule": "An explicit later decision may select only SWU-IRC-001. Task Session executes it within the allowed route; Spellcraft validates its closeout before a refreshed projection may expose SWU-IRC-002. No successor is auto-selected.",
+  "authority_effect": "none"
+}
