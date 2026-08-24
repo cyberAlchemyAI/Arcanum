@@ -26,6 +26,28 @@ SCHEMA_FILES = {
         "schemas/governance-terminal-receipt.schema.json"
     ),
 }
+EXPECTED_SCHEMA_IDS = {
+    "governance-run-request": (
+        "https://arcanum.dev/schemas/task-session/governance-run-request/1-1-0"
+    ),
+    "execution-ticket": (
+        "https://arcanum.dev/schemas/task-session/execution-ticket/1-1-0"
+    ),
+    "governance-phase-receipt": (
+        "https://arcanum.dev/schemas/task-session/governance-phase-receipt/1-0-0"
+    ),
+    "executor-receipt": (
+        "https://arcanum.dev/schemas/task-session/executor-receipt/1-0-0"
+    ),
+    "precloseout-execution-receipt": (
+        "https://arcanum.dev/schemas/task-session/"
+        "precloseout-execution-receipt/1-0-0"
+    ),
+    "governance-terminal-receipt": (
+        "https://arcanum.dev/schemas/task-session/"
+        "governance-terminal-receipt/1-0-0"
+    ),
+}
 FIXTURE_FILE = "development/fixtures/governance-run-contract-cases.json"
 VALIDATOR_FILE = "development/validate-governance-run-contracts.py"
 EXPECTED_STAGED_FILES = sorted(
@@ -735,7 +757,9 @@ def semantic_errors(documents: dict[str, dict[str, Any]]) -> list[str]:
     return errors
 
 
-def schema_contract_errors(schema: dict[str, Any], name: str) -> list[str]:
+def schema_contract_errors(
+    schema: dict[str, Any], name: str, expected_schema_id: str
+) -> list[str]:
     errors: list[str] = []
     if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
         errors.append(f"{name}: schema dialect is not Draft 2020-12")
@@ -744,10 +768,10 @@ def schema_contract_errors(schema: dict[str, Any], name: str) -> list[str]:
     schema_version = schema.get("properties", {}).get("schema_version", {})
     if not isinstance(schema_version, dict) or "const" not in schema_version:
         errors.append(f"{name}: schema_version is not const-bound")
-    if not isinstance(schema.get("$id"), str) or not schema["$id"].endswith(
-        "/1-0-0"
-    ):
-        errors.append(f"{name}: schema ID is not versioned")
+    if schema.get("$id") != expected_schema_id:
+        errors.append(
+            f"{name}: schema ID must equal {expected_schema_id}"
+        )
 
     def inspect(value: Any, path: str) -> None:
         if isinstance(value, dict):
@@ -824,7 +848,20 @@ def main() -> int:
             )
 
     for name, schema in schemas.items():
-        contract_issues = schema_contract_errors(schema, name)
+        contract_issues = schema_contract_errors(
+            schema, name, EXPECTED_SCHEMA_IDS[name]
+        )
+        mismatched_identity = copy.deepcopy(schema)
+        mismatched_identity["$id"] = (
+            EXPECTED_SCHEMA_IDS[name].rsplit("/", 1)[0] + "/9-9-9"
+        )
+        mismatch_issues = schema_contract_errors(
+            mismatched_identity, name, EXPECTED_SCHEMA_IDS[name]
+        )
+        if not mismatch_issues:
+            contract_issues.append(
+                f"{name}: mismatched versioned schema ID unexpectedly passed"
+            )
         passed = not contract_issues
         schema_contract_rows.append((name, passed))
         errors.extend(contract_issues)

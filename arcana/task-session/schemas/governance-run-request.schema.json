@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arcanum.dev/schemas/task-session/governance-run-request/1-0-0",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-run-request/1-1-0",
   "title": "TaskSessionGovernanceRunRequest",
   "type": "object",
   "additionalProperties": false,
@@ -484,6 +484,64 @@
         },
         "receipt_ref": {
           "$ref": "#/$defs/exactArtifactRef"
+        },
+        "route_scope_partition": {
+          "$ref": "#/$defs/fastEntryRouteScopePartition"
+        }
+      }
+    },
+    "fastEntryRouteScopePartition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "executor_write_scopes",
+        "terminal_receipt_scope",
+        "lifecycle_owner_scopes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "task-session.fast-entry-route-scope-partition.v1"
+        },
+        "executor_write_scopes": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "terminal_receipt_scope": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "lifecycle_owner_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lifecycleOwnerScope"
+          }
+        }
+      }
+    },
+    "lifecycleOwnerScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "owner_capability",
+        "write_class"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "owner_capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "write_class": {
+          "enum": [
+            "lifecycle-synchronization",
+            "precloseout-receipt",
+            "owner-closeout-receipt",
+            "continuation-receipt",
+            "continuity-cursor"
+          ]
         }
       }
     },

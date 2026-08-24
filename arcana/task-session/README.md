@@ -208,6 +208,14 @@ admission. This replaces only the legacy prose `selected` row check; every
 other context, admission, live-baseline, validation, and closeout gate remains
 mandatory. A receipt without its exact request is not execution authority.
 
+Broad lifecycle routes may opt into
+`task-session.fast-entry-route-scope-partition.v1`. This additive contract
+separates executor write scopes, the exact Task Session terminal receipt, and
+typed lifecycle-owner closeout scopes while requiring their disjoint union to
+equal the already-bound route. Executor scope still closes exactly against the
+mutation admission. Legacy requests without the partition keep the original
+two-way route-to-executor closure behavior.
+
 Task Session must run a context-building pass before decision cards, gate checks, runtime handoff, or mutation. The context pack keeps the selected task/SWU connected to the surrounding architecture, source contracts, work-pack rows, blocker rows, constraints, write scope, validation surface, and local repository conventions.
 
 If required source context is missing, contradictory, or too weak to check the task safely, Task Session returns `BLOCK` with the smallest context gap to resolve. It should not execute from the task file alone when linked architecture or work-pack context can change the correct implementation choice.

@@ -294,6 +294,9 @@ def plan_fast_entry_scenario(
     *,
     terminal_in_route_scope: bool,
     terminal_as_directory_scope: bool = False,
+    output_only: bool = False,
+    lifecycle_owner_scopes: list[dict[str, str]] | None = None,
+    partition_mutation: str | None = None,
 ) -> Path:
     repo = scenario(root, source_task_session, canonical_task_session, name)
     scenario_dir = repo / "scenario"
@@ -301,9 +304,17 @@ def plan_fast_entry_scenario(
     request_path = scenario_dir / "request.json"
     request = load_json(request_path)
 
-    material_writes = request["execution_contract"]["allowed_writes"]
+    if output_only:
+        request["execution_contract"]["allowed_writes"] = [
+            "artifacts/report.json"
+        ]
+        request["execution_contract"]["declared_outputs"] = [
+            "artifacts/report.json"
+        ]
+    execution_writes = request["execution_contract"]["allowed_writes"]
+    material_writes = [] if output_only else execution_writes
     terminal_output = request["closeout_contract"]["terminal_receipt_path"]
-    route_scope = [*material_writes]
+    route_scope = [*execution_writes]
     expected_receipt = terminal_output
     if terminal_in_route_scope:
         if terminal_as_directory_scope:
@@ -311,6 +322,8 @@ def plan_fast_entry_scenario(
             expected_receipt = "runs/run-1/attempt-receipts"
             request["closeout_contract"]["terminal_receipt_path"] = terminal_output
         route_scope.append(expected_receipt)
+    lifecycle_owner_scopes = lifecycle_owner_scopes or []
+    route_scope.extend(item["path"] for item in lifecycle_owner_scopes)
     route = {
         "route_id": "route-task-session-synthetic-003",
         "frontier_swu": request["swu_id"],
@@ -406,7 +419,7 @@ def plan_fast_entry_scenario(
 
     target_baselines = [
         {"path": path, "state": "absent", "sha256": None, "sizeBytes": None}
-        for path in material_writes
+        for path in execution_writes
     ]
     validation_digest = canonical_digest(
         request["execution_contract"]["validation_commands"]
@@ -415,20 +428,20 @@ def plan_fast_entry_scenario(
         "schemaVersion": "1.2.0",
         "admissionProfile": "plan-once-selected-unit",
         "executionMode": "reusable-mutation",
-        "writeProfile": "material-bound",
+        "writeProfile": "execution-output-only" if output_only else "material-bound",
         "admissionVerdict": "admit",
         "mutationReady": True,
         "taskId": request["task_id"],
         "swuId": request["swu_id"],
         "requestDigest": "4" * 64,
-        "producerSchemaDigest": "5" * 64,
-        "materialReceiptDigest": "6" * 64,
-        "materialPackageDigest": "7" * 64,
+        "producerSchemaDigest": None if output_only else "5" * 64,
+        "materialReceiptDigest": None if output_only else "6" * 64,
+        "materialPackageDigest": None if output_only else "7" * 64,
         "controllingPaths": ["scenario/TASK.md"],
         "dependencyIds": [],
         "materialWrites": material_writes,
-        "executionOutputs": [terminal_output],
-        "allowedWrites": [*material_writes, terminal_output],
+        "executionOutputs": execution_writes if output_only else [terminal_output],
+        "allowedWrites": execution_writes if output_only else [*material_writes, terminal_output],
         "validationCommands": ["validate-artifact"],
         "lifecycleOwner": "task-session",
         "authorityClass": "public",
@@ -462,6 +475,23 @@ def plan_fast_entry_scenario(
         "request_ref": exact_ref(repo, fast_request_path),
         "receipt_ref": exact_ref(repo, fast_receipt_path),
     }
+    if lifecycle_owner_scopes:
+        partition = {
+            "schema_version": "task-session.fast-entry-route-scope-partition.v1",
+            "executor_write_scopes": [*execution_writes],
+            "terminal_receipt_scope": expected_receipt,
+            "lifecycle_owner_scopes": [*lifecycle_owner_scopes],
+        }
+        if partition_mutation == "omit-lifecycle-scope":
+            partition["lifecycle_owner_scopes"] = partition[
+                "lifecycle_owner_scopes"
+            ][:-1]
+        elif partition_mutation == "lifecycle-as-executor":
+            relabeled = partition["lifecycle_owner_scopes"].pop(0)
+            partition["executor_write_scopes"].append(relabeled["path"])
+        elif partition_mutation == "terminal-mismatch":
+            partition["terminal_receipt_scope"] = "records/wrong-terminal.json"
+        request["fast_execution_entry"]["route_scope_partition"] = partition
     request["admission_profile"] = "plan-once-selected-unit"
     request["plan_admission"] = {
         "plan_epoch_id": plan_epoch,
@@ -477,6 +507,16 @@ def plan_fast_entry_scenario(
             f"{admission_ref['sha256']}.json"
         ),
     }
+    if partition_mutation == "request-expansion":
+        request["execution_contract"]["allowed_writes"].append(
+            "artifacts/undeclared-extra.json"
+        )
+        request["execution_contract"]["declared_outputs"].append(
+            "artifacts/undeclared-extra.json"
+        )
+        request["fast_execution_entry"]["route_scope_partition"][
+            "executor_write_scopes"
+        ].append("artifacts/undeclared-extra.json")
     write_json(request_path, request)
     return repo
 
@@ -1020,6 +1060,114 @@ def main() -> int:
                 f"code={code} phase={payload.get('current_phase')}",
             )
         )
+
+        lifecycle_scopes = [
+            {
+                "path": "records/precloseout.json",
+                "owner_capability": "task-session",
+                "write_class": "precloseout-receipt",
+            },
+            {
+                "path": "records/owner-closeout.json",
+                "owner_capability": "invoke",
+                "write_class": "owner-closeout-receipt",
+            },
+            {
+                "path": "records/continuation.json",
+                "owner_capability": "continuation-router",
+                "write_class": "continuation-receipt",
+            },
+            {
+                "path": ".runtime/continuity.json",
+                "owner_capability": "task-session",
+                "write_class": "continuity-cursor",
+            },
+        ]
+        output_only_partitioned = plan_fast_entry_scenario(
+            temporary,
+            source_task_session,
+            canonical_task_session,
+            "plan-fast-entry-output-only-lifecycle-partition",
+            terminal_in_route_scope=True,
+            output_only=True,
+            lifecycle_owner_scopes=lifecycle_scopes,
+        )
+        code, payload, stderr = invoke(
+            runner_command(
+                output_only_partitioned,
+                "prepare",
+                request="scenario/request.json",
+            )
+        )
+        partition_ticket = (
+            load_json(output_only_partitioned / "runs/run-1/execution-ticket.json")
+            if code == 0
+            else {}
+        )
+        partition = load_json(
+            output_only_partitioned / "scenario/request.json"
+        )["fast_execution_entry"]["route_scope_partition"]
+        expected_partition = {
+            **partition,
+            "executor_write_scopes": sorted(
+                partition["executor_write_scopes"]
+            ),
+            "lifecycle_owner_scopes": sorted(
+                partition["lifecycle_owner_scopes"],
+                key=lambda item: item["path"],
+            ),
+        }
+        results.append(
+            (
+                "prepare-plan-fast-entry-output-only-lifecycle-partition",
+                code == 0
+                and payload.get("result") == "pass"
+                and payload.get("current_phase") == "ticketed"
+                and partition_ticket.get("fast_execution_entry", {}).get(
+                    "route_scope_partition"
+                )
+                == expected_partition
+                and not (
+                    output_only_partitioned
+                    / "scenario/controls/.admission-consumption"
+                ).exists()
+                and not stderr,
+                f"code={code} phase={payload.get('current_phase')}",
+            )
+        )
+
+        for mutation, case_id in (
+            (
+                "omit-lifecycle-scope",
+                "prepare-plan-fast-entry-undeclared-lifecycle-scope-blocks-before-write",
+            ),
+            (
+                "lifecycle-as-executor",
+                "prepare-plan-fast-entry-owner-scope-relabel-blocks-before-write",
+            ),
+            (
+                "terminal-mismatch",
+                "prepare-plan-fast-entry-terminal-partition-mismatch-blocks-before-write",
+            ),
+            (
+                "request-expansion",
+                "prepare-plan-fast-entry-output-only-request-expansion-blocks-before-write",
+            ),
+        ):
+            partition_negative = plan_fast_entry_scenario(
+                temporary,
+                source_task_session,
+                canonical_task_session,
+                f"plan-fast-entry-{mutation}",
+                terminal_in_route_scope=True,
+                output_only=True,
+                lifecycle_owner_scopes=lifecycle_scopes,
+                partition_mutation=mutation,
+            )
+            passed, details = assert_block_before_write(
+                partition_negative, case_id
+            )
+            results.append((case_id, passed, details))
 
         terminal_escape = plan_fast_entry_scenario(
             temporary,

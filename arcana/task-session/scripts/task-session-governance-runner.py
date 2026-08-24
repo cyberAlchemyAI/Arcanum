@@ -768,6 +768,94 @@ def execution_writes_fit_route_scope(
     )
 
 
+def fast_entry_route_scope_partition(
+    profile: dict[str, Any],
+    route: dict[str, Any],
+    request: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Validate the opt-in executor/terminal/lifecycle route-scope partition."""
+
+    raw = profile.get("route_scope_partition")
+    if raw is None:
+        return None
+
+    executor_scopes = sorted(
+        normalized_relative(item, "fast-entry executor write scope")
+        for item in raw["executor_write_scopes"]
+    )
+    terminal_scope = normalized_relative(
+        raw["terminal_receipt_scope"], "fast-entry terminal receipt scope"
+    )
+    lifecycle_scopes = sorted(
+        (
+            normalized_relative(item["path"], "fast-entry lifecycle owner scope"),
+            item["owner_capability"],
+            item["write_class"],
+        )
+        for item in raw["lifecycle_owner_scopes"]
+    )
+    route_scopes = sorted(
+        normalized_relative(item, "fast-entry route write scope")
+        for item in route["write_scope"]
+    )
+    partition_paths = [
+        *executor_scopes,
+        terminal_scope,
+        *(item[0] for item in lifecycle_scopes),
+    ]
+    if len(partition_paths) != len(set(partition_paths)):
+        raise RunnerBlock("fast-entry route scope partition contains duplicate paths")
+
+    partition_parts = [PurePosixPath(item).parts for item in partition_paths]
+    for left_index, left in enumerate(partition_parts):
+        for right in partition_parts[left_index + 1 :]:
+            shorter = min(len(left), len(right))
+            if left[:shorter] == right[:shorter]:
+                raise RunnerBlock(
+                    "fast-entry route scope partitions overlap by equality or ancestry"
+                )
+
+    if sorted(partition_paths) != route_scopes:
+        raise RunnerBlock(
+            "fast-entry route scope partition does not equal the bound route scope"
+        )
+
+    execution_writes = [
+        *request["execution_contract"]["allowed_writes"],
+        *transient_output_paths(request["execution_contract"]),
+    ]
+    if not execution_writes_fit_route_scope(executor_scopes, execution_writes):
+        raise RunnerBlock(
+            "fast-entry executor scope does not close over exact execution writes"
+        )
+
+    expected_receipt = normalized_relative(
+        route["expected_receipt"], "fast-entry route expected receipt"
+    )
+    terminal_receipt = normalized_relative(
+        request["closeout_contract"]["terminal_receipt_path"],
+        "fast-entry terminal receipt path",
+    )
+    if terminal_scope != expected_receipt or terminal_scope != terminal_receipt:
+        raise RunnerBlock(
+            "fast-entry terminal scope differs from the exact route receipt"
+        )
+
+    return {
+        "schema_version": raw["schema_version"],
+        "executor_write_scopes": executor_scopes,
+        "terminal_receipt_scope": terminal_scope,
+        "lifecycle_owner_scopes": [
+            {
+                "path": path,
+                "owner_capability": owner,
+                "write_class": write_class,
+            }
+            for path, owner, write_class in lifecycle_scopes
+        ],
+    }
+
+
 def fast_execution_entry_contract(
     repo_root: Path,
     request: dict[str, Any],
@@ -797,6 +885,20 @@ def fast_execution_entry_contract(
     binding = guard_request["execution_binding"]
     route = binding["current_route"]
     selected = guard_request["selected_unit"]
+    route_scope_partition = fast_entry_route_scope_partition(
+        profile, route, request
+    )
+    if route_scope_partition is None:
+        route_scope_matches = execution_writes_fit_route_scope(
+            route["write_scope"],
+            [
+                *request["execution_contract"]["allowed_writes"],
+                *transient_output_paths(request["execution_contract"]),
+                request["closeout_contract"]["terminal_receipt_path"],
+            ],
+        )
+    else:
+        route_scope_matches = True
     entry_pair = (receipt.get("code"), receipt.get("entry_state"))
     expected = (
         receipt.get("decision") == "proceed"
@@ -818,14 +920,7 @@ def fast_execution_entry_contract(
         and route["frontier_swu"] == request["swu_id"]
         and route["capability"] == "task-session"
         and route["mode"] == "execute"
-        and execution_writes_fit_route_scope(
-            route["write_scope"],
-            [
-                *request["execution_contract"]["allowed_writes"],
-                *transient_output_paths(request["execution_contract"]),
-                request["closeout_contract"]["terminal_receipt_path"],
-            ],
-        )
+        and route_scope_matches
         and execution_writes_fit_route_scope(
             [route["expected_receipt"]],
             [request["closeout_contract"]["terminal_receipt_path"]],
@@ -835,7 +930,7 @@ def fast_execution_entry_contract(
         raise RunnerBlock(
             "fast-entry request and receipt do not bind this governance route"
         )
-    return {
+    result = {
         "request_ref": profile["request_ref"],
         "receipt_ref": profile["receipt_ref"],
         "binding_id": binding["binding_id"],
@@ -843,6 +938,9 @@ def fast_execution_entry_contract(
         "route_fingerprint": binding["route_fingerprint"],
         "work_pack_semantic_digest": binding["work_pack_semantic_digest"],
     }
+    if route_scope_partition is not None:
+        result["route_scope_partition"] = route_scope_partition
+    return result
 
 
 def plan_admission_contract(

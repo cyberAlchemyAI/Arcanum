@@ -4,7 +4,7 @@ description: "Use when: executing or resuming one nearest evidence-backed bounde
 argument-hint: "[<task-reference|to <target>>] [--task <TASK-ID>] [--swu <SWU-ID>] [--until-blocker] [--list-nearest] [--from <path>] [--session <id>] [--runtime <id>] [--via runtime] [--follow-next-route] [--authorize-route <capability>:<mode>[:<mutation-mode>]] [--auto] [--dry-run] [--output <path>]"
 tier: arcana
 domain: guided-execution
-version: 0.8.2
+version: 0.8.3
 origin: generalized from recurring single-task execution governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions, Task, Bash
 ---
@@ -183,6 +183,16 @@ path, selected SWU, Task Session route, route write scope, expected terminal
 receipt, plan selection, and single-use admission. A path-only receipt or a
 receipt detached from its four logical inputs returns `BLOCK` before run-state
 writes.
+
+When the bound route also carries lifecycle synchronization and closeout
+scopes that are intentionally outside the executor admission, use the optional
+`task-session.fast-entry-route-scope-partition.v1` contract. It must partition
+the exact route scope into executor writes, one exact terminal receipt, and
+typed lifecycle-owner scopes. The normalized union must equal the bound route,
+the partitions must be disjoint, executor writes must still close two-way
+against admission, and every lifecycle scope must name its owner and closed
+write class. Requests without this opt-in contract retain the legacy exact
+route-to-executor closure rule.
 
 9a. After exact task/SWU resolution and before Context Builder, classify any
 declared `PreExecutionOwnerPrerequisite` with
@@ -536,6 +546,9 @@ A successful execution of this sigil must:
   class,
 - derive `material-bound` versus `execution-output-only` from normalized write
   partitions and bind it to the strict context execution contract,
+- for broad fast-entry routes, require an explicit versioned partition whose
+  executor, terminal, and typed lifecycle-owner scopes exactly reconstruct the
+  already-bound route and remain ticket-bound through closure,
 - require producer material evidence only for `material-bound` and forbid it
   for `execution-output-only`,
 - leave standalone non-mutating execution outside the receipt requirement,
@@ -584,6 +597,9 @@ Avoid:
 - treating a plan-once selection receipt as mutation authority, omitting the
   live target-baseline recheck, or launching an executor before atomic
   admission consumption,
+- globally weakening fast-entry route closure to subset containment, inferring
+  lifecycle ownership from pathnames, or relabeling lifecycle-owner scopes as
+  executor writes,
 - treating mutation admission as a substitute for live validation or as
   lifecycle authority,
 - falling through to a lower-priority candidate when the selected evidence is
