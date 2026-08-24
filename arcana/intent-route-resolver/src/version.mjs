@@ -1,0 +1,10 @@
+export const CORE_VERSION = "0.1.0";
+export const MANIFEST_VERSION = "0.1.0";
+export const REQUEST_PROTOCOL = "intent-route.request@1";
+export const CATALOG_PROTOCOL = "intent-route.catalog@1";
+export const DISPOSITION_PROTOCOL = "intent-route.disposition@1";
+export const RUNTIME_PORT_PROTOCOL = "intent-route.runtime-port@1";
+export const RUNTIME_PORT_REQUEST_PROTOCOL = "intent-route.runtime-port.request@1";
+export const ERROR_PROTOCOL = "intent-route.error@1";
+export const CAPABILITY_TOKEN = "intent-route.resolve@1";
+export const CLOSURE_DIGEST = "5ff017abf7bf98880b4a0dab7095a7dc59a9aac08993e04fbaa31b808e09ab8f";

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/intent-route/request/1",
+  "title": "IntentRouteRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "intent", "support_evidence_refs", "constraints", "catalog_id", "catalog_digest"],
+  "properties": {
+    "schema": {"const": "intent-route.request@1"},
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "discriminators"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 8192},
+        "discriminators": {
+          "type": "object",
+          "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$"},
+          "additionalProperties": {"$ref": "#/$defs/discriminator"}
+        }
+      }
+    },
+    "support_evidence_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/evidenceRef"}
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_capabilities", "forbidden_route_ids"],
+      "properties": {
+        "required_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "forbidden_route_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "catalog_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "catalog_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "supersedes_request_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"}
+  },
+  "$defs": {
+    "jsonScalar": {"type": ["string", "number", "integer", "boolean", "null"]},
+    "discriminator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["posture", "value"],
+      "properties": {
+        "posture": {"enum": ["declared", "inferred", "unresolved"]},
+        "value": {"$ref": "#/$defs/jsonScalar"}
+      },
+      "allOf": [
+        {"if": {"properties": {"posture": {"const": "unresolved"}}}, "then": {"properties": {"value": {"type": "null"}}}},
+        {"if": {"properties": {"posture": {"enum": ["declared", "inferred"]}}}, "then": {"properties": {"value": {"not": {"type": "null"}}}}}
+      ]
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_ref", "content_digest"],
+      "properties": {
+        "artifact_ref": {"type": "string", "minLength": 1},
+        "content_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

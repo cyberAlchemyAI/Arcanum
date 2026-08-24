@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/intent-route/runtime-port/1",
+  "title": "IntentRouteRuntimePortResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "core_version", "manifest_version", "request_protocol", "disposition_protocol", "closure_digest", "disposition", "authority_effect"],
+  "properties": {
+    "schema": {"const": "intent-route.runtime-port@1"},
+    "core_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "manifest_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "request_protocol": {"const": "intent-route.request@1"},
+    "disposition_protocol": {"const": "intent-route.disposition@1"},
+    "closure_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "disposition": {"$ref": "./disposition.schema.json"},
+    "authority_effect": {"const": "none"}
+  }
+}

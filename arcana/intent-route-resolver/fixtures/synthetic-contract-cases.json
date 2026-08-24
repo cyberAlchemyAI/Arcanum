@@ -1,0 +1,40 @@
+{
+  "schema": "intent-route.synthetic-contract-cases@1",
+  "state": "contract-only",
+  "protocols": {
+    "request": "intent-route.request@1",
+    "catalog": "intent-route.catalog@1",
+    "disposition": "intent-route.disposition@1",
+    "runtime_port": "intent-route.runtime-port@1"
+  },
+  "cases": [
+    {
+      "case_id": "SYN-CANDIDATE",
+      "intent_discriminators": {"medium": {"posture": "declared", "value": "text"}},
+      "catalog_shape": "one eligible non-dominated route",
+      "expected_kind": "candidate",
+      "expected_authority_effect": "none"
+    },
+    {
+      "case_id": "SYN-AMBIGUOUS",
+      "intent_discriminators": {"medium": {"posture": "unresolved", "value": null}},
+      "catalog_shape": "missing discriminator can change eligibility",
+      "expected_kind": "ambiguous",
+      "expected_authority_effect": "none"
+    },
+    {
+      "case_id": "SYN-NO-MATCH",
+      "intent_discriminators": {"medium": {"posture": "declared", "value": "image"}},
+      "catalog_shape": "all routes explicitly ineligible",
+      "expected_kind": "no-match",
+      "expected_authority_effect": "none"
+    },
+    {
+      "case_id": "SYN-INVALID",
+      "intent_discriminators": {},
+      "catalog_shape": "digest or structural contract invalid",
+      "expected_kind": "invalid",
+      "expected_authority_effect": "none"
+    }
+  ]
+}

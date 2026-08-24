@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/intent-route/catalog/1",
+  "title": "IntentRouteCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "catalog_id", "content_digest", "derived_from", "routes"],
+  "properties": {
+    "schema": {"const": "intent-route.catalog@1"},
+    "catalog_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "content_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "derived_from": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "revision", "content_digest"],
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "content_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/route"}
+    }
+  },
+  "$defs": {
+    "jsonScalar": {"type": ["string", "number", "integer", "boolean"]},
+    "predicateMap": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$"},
+      "additionalProperties": {"$ref": "#/$defs/jsonScalar"}
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_id", "label", "required", "excluded", "capabilities", "dominates"],
+      "properties": {
+        "route_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 256},
+        "required": {"$ref": "#/$defs/predicateMap"},
+        "excluded": {"$ref": "#/$defs/predicateMap"},
+        "capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "dominates": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

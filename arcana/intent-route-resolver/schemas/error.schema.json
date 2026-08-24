@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/intent-route/error/1",
+  "title": "IntentRouteTransportError",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "reason_code", "message", "authority_effect"],
+  "properties": {
+    "schema": {"const": "intent-route.error@1"},
+    "reason_code": {
+      "enum": [
+        "IR_TRANSPORT_MALFORMED_JSON",
+        "IR_CAPABILITY_DENIED",
+        "IR_REQUEST_VERSION_UNSUPPORTED",
+        "IR_PORT_VERSION_UNSUPPORTED",
+        "IR_CORE_VERSION_MISMATCH",
+        "IR_MANIFEST_VERSION_MISMATCH",
+        "IR_CATALOG_DIGEST_MISMATCH",
+        "IR_CONTENT_DIGEST_MISMATCH"
+      ]
+    },
+    "message": {"type": "string", "minLength": 1},
+    "authority_effect": {"type": "null"}
+  }
+}

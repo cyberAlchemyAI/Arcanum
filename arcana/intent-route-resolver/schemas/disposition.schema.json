@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/intent-route/disposition/1",
+  "title": "IntentRouteDisposition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "catalog_id", "catalog_digest", "kind", "reason_code", "evaluated_routes", "candidate_route_id", "clarification", "integrity_digest", "authority_effect"],
+  "properties": {
+    "schema": {"const": "intent-route.disposition@1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "catalog_id": {"type": "string", "minLength": 1},
+    "catalog_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "kind": {"enum": ["candidate", "ambiguous", "no-match", "invalid"]},
+    "reason_code": {"enum": ["IR_CANDIDATE", "IR_AMBIGUOUS", "IR_NO_MATCH", "IR_INVALID_REQUEST", "IR_INVALID_CATALOG"]},
+    "evaluated_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["route_id", "eligibility", "reason_codes", "unresolved_discriminators"],
+        "properties": {
+          "route_id": {"type": "string", "minLength": 1},
+          "eligibility": {"enum": ["eligible", "ineligible", "unresolved", "dominated"]},
+          "reason_codes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "unresolved_discriminators": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "candidate_route_id": {"type": ["string", "null"], "minLength": 1},
+    "clarification": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["discriminator", "prompt"],
+          "properties": {
+            "discriminator": {"type": "string", "minLength": 1},
+            "prompt": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "integrity_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "authority_effect": {"const": "none"}
+  }
+}
