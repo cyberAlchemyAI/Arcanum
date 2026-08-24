@@ -11,6 +11,7 @@ on:
       - "spells/**"
       - "tools/bootstrap_arcanum.sh"
       - "tools/validate-claude-skills.sh"
+      - "tools/test-validate-claude-skills.sh"
       - ".github/workflows/claude-skills.yml"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "spells/**"
       - "tools/bootstrap_arcanum.sh"
       - "tools/validate-claude-skills.sh"
+      - "tools/test-validate-claude-skills.sh"
       - ".github/workflows/claude-skills.yml"
   workflow_dispatch:
 
@@ -32,6 +34,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Test validator boundaries
+        run: bash tools/test-validate-claude-skills.sh
 
       - name: Generate Claude skill surface to a throwaway target
         run: |

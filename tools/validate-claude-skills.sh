@@ -132,6 +132,33 @@ validate_agents() {
   done
 }
 
+# Some repository-owned directories share the Claude skills root without being
+# skill packages. Keep this allowlist closed and validate each container's exact
+# shape so an arbitrary directory cannot silently bypass package validation.
+validate_non_package_container() {
+  local dir="$1" name entry guide_count=0
+  name="$(basename "$dir")"
+
+  case "$name" in
+    custom)
+      # A future custom/SKILL.md makes this a normal package again.
+      [[ ! -e "$dir/SKILL.md" ]] || return 1
+      while IFS= read -r -d '' entry; do
+        if [[ ! -f "$entry" || -L "$entry" || "$entry" != *.md ]]; then
+          fail "$entry" "custom guide container accepts only regular Markdown files"
+        else
+          guide_count=$((guide_count + 1))
+        fi
+      done < <(find "$dir" -mindepth 1 -maxdepth 1 -print0)
+      [[ "$guide_count" -gt 0 ]] || fail "$dir" "custom guide container has no Markdown guides"
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 for root in "${roots[@]}"; do
   if [[ ! -d "$root" ]]; then
     fail "$root" "skills root does not exist"
@@ -139,6 +166,9 @@ for root in "${roots[@]}"; do
   fi
   for dir in "$root"/*/; do
     [[ -d "$dir" ]] || continue
+    if validate_non_package_container "${dir%/}"; then
+      continue
+    fi
     validate_skill_dir "${dir%/}" "$root"
   done
   # Sibling .claude/agents (root is typically .../.claude/skills)

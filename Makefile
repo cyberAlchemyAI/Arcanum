@@ -2,7 +2,7 @@
 
 TARGET ?= .
 
-.PHONY: claude-skills validate-claude-skills
+.PHONY: claude-skills validate-claude-skills test-validate-claude-skills
 
 # Generate the Claude Code skill surface for TARGET (default: this repo) and
 # validate it. This is the single documented "dogfood / regenerate" command.
@@ -12,3 +12,7 @@ claude-skills:
 # Validate an already-generated Claude skill surface without regenerating.
 validate-claude-skills:
 	bash tools/validate-claude-skills.sh "$(TARGET)/.claude/skills"
+
+# Exercise the closed non-package-container exception and fail-open guards.
+test-validate-claude-skills:
+	bash tools/test-validate-claude-skills.sh
