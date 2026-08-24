@@ -1170,7 +1170,9 @@ def _v2_blocker(code: str, binding_id: str, claim: str) -> dict[str, str]:
     return {"code": code, "binding_id": binding_id, "claim": claim}
 
 
-def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
+def _v2_preflight_blockers(
+    config: dict[str, Any], repository_root: Path
+) -> list[dict[str, str]]:
     blockers: list[dict[str, str]] = []
     plan_once = config.get("admission_timing") == "selected-unit-at-task-session"
     unit_ids = {unit["unit_id"] for unit in config["execution_bindings"]}
@@ -1276,6 +1278,10 @@ def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
     closeout_by_unit = {
         item["unit_id"]: item for item in config["closeout_bindings"]
     }
+    typed_closeout_by_unit = {
+        item["unit_id"]: item
+        for item in config.get("task_session_closeout_contracts", [])
+    }
     for unit_id in sorted(unit_ids):
         closeout = closeout_by_unit.get(unit_id)
         if closeout is None or closeout["owner_receipt_contract_ref"] is None:
@@ -1295,6 +1301,54 @@ def _v2_preflight_blockers(config: dict[str, Any]) -> list[dict[str, str]]:
                     "allowed-delta policy binding is absent",
                 )
             )
+
+        unit = next(item for item in config["execution_bindings"] if item["unit_id"] == unit_id)
+        mutation_capable = (
+            unit["command"]["risk_class"] != "read-only"
+            or bool(unit["allowed_writes"])
+            or bool(unit["material_writes"])
+            or bool(unit["execution_outputs"])
+        )
+        typed_closeout = typed_closeout_by_unit.get(unit_id)
+        if mutation_capable and typed_closeout is None:
+            blockers.append(
+                _v2_blocker(
+                    "MUTATION_EXECUTION_CONTRACT_MISSING",
+                    f"{unit_id}:task-session-closeout-contract",
+                    "mutation-capable units cannot use legacy flat closeout bindings",
+                )
+            )
+            continue
+        if typed_closeout is not None:
+            owner_binding = typed_closeout["expected_owner_receipt_schema_ref"]
+            try:
+                owner_schema = _binding_selected_value(owner_binding, repository_root)
+            except (OSError, ValueError, json.JSONDecodeError, KeyError, TypeError):
+                # Exact resolution and selector diagnostics are emitted by the
+                # normal binding pass; retain a stable closeout-specific code.
+                blockers.append(
+                    _v2_blocker(
+                        "OWNER_RECEIPT_SCHEMA_UNRESOLVED",
+                        owner_binding["binding_id"],
+                        "owner receipt schema identity cannot be resolved",
+                    )
+                )
+            else:
+                identity = None
+                if isinstance(owner_schema, dict):
+                    identity = (
+                        owner_schema.get("properties", {})
+                        .get("schema_version", {})
+                        .get("const")
+                    )
+                if identity != typed_closeout["declared_owner_receipt_schema_identity"]:
+                    blockers.append(
+                        _v2_blocker(
+                            "OWNER_RECEIPT_SCHEMA_IDENTITY_MISMATCH",
+                            owner_binding["binding_id"],
+                            "Work Pack owner receipt identity differs from exact schema",
+                        )
+                    )
 
     if config["receipt_bindings"]["terminal_schema_ref"] is None:
         blockers.append(
@@ -1732,6 +1786,7 @@ def _v2_semantic_components(config: dict[str, Any]) -> dict[str, Any]:
         "closeout": {
             "semantic": _binding_semantics(semantic["closeout"]),
             "bindings": config["closeout_bindings"],
+            "task_session_contracts": config.get("task_session_closeout_contracts", []),
         },
         "runtime": config["runtime_binding"],
         "frontier": [unit["unit_id"] for unit in execution],
@@ -1788,7 +1843,7 @@ def audit_v2(config: dict[str, Any], repository_root: Path) -> dict[str, Any]:
         _v2_blocker("FROZEN_INPUT_MISMATCH", "snapshot", error)
         for error in snapshot_errors
     )
-    blockers.extend(_v2_preflight_blockers(config))
+    blockers.extend(_v2_preflight_blockers(config, repository_root))
     blockers.extend(_v2_binding_blockers(config, repository_root))
 
     source_digest = snapshot_digest(initial_snapshot)

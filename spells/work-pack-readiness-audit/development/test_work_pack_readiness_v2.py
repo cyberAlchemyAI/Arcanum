@@ -51,6 +51,18 @@ class V2Fixture:
             "successor": "U1",
             "equivalence": {"version": "1"},
             "continuation": "U1",
+            "precloseoutSchema": {"type": "object"},
+            "ownerSchema": {
+                "type": "object",
+                "properties": {
+                    "schema_version": {
+                        "const": "invoke.precloseout-refresh-closeout-receipt.v1"
+                    }
+                },
+            },
+            "terminalSchemaV1": {"type": "object"},
+            "continuitySchema": {"type": "object"},
+            "routerSchema": {"type": "object"},
         }
         self.evidence_path = self.root / "evidence.json"
         self.evidence_path.write_text(
@@ -187,6 +199,30 @@ class V2Fixture:
                     },
                 }
             ],
+            "task_session_closeout_contracts": [
+                {
+                    "unit_id": "U1",
+                    "receipt_profile": "precloseout-execution-v1",
+                    "precloseout_execution_schema_ref": self.binding(
+                        "precloseout-schema", "/precloseoutSchema"
+                    ),
+                    "expected_owner_receipt_schema_ref": self.binding(
+                        "owner-schema", "/ownerSchema"
+                    ),
+                    "declared_owner_receipt_schema_identity": (
+                        "invoke.precloseout-refresh-closeout-receipt.v1"
+                    ),
+                    "final_terminal_schema_ref": self.binding(
+                        "terminal-schema-v1", "/terminalSchemaV1"
+                    ),
+                    "continuity_schema_ref": self.binding(
+                        "continuity-schema", "/continuitySchema"
+                    ),
+                    "continuation_router_schema_ref": self.binding(
+                        "router-schema", "/routerSchema"
+                    ),
+                }
+            ],
             "runtime_binding": {
                 "requested_task_session_execution_mode": "routed-mutation",
                 "task_session_admission_receipt_ref": self.binding(
@@ -283,6 +319,25 @@ class WorkPackReadinessAuditV2Tests(unittest.TestCase):
             (output_dir / "objective-execution-manifest.json").is_file()
         )
 
+    def test_legacy_flat_closeout_remains_read_only_compatibility_only(self) -> None:
+        config = self.fixture.config()
+        unit = config["execution_bindings"][0]
+        unit["command"]["risk_class"] = "read-only"
+        unit["material_writes"] = []
+        unit["execution_outputs"] = []
+        unit["allowed_writes"] = []
+        config.pop("task_session_closeout_contracts")
+        report = self.audit(config)
+        self.assertEqual(report["verdict"], "pass")
+        self.assertEqual(report["terminal_code"], "PROJECTION_READY")
+
+        unit["command"]["risk_class"] = "bounded-write"
+        blocked = self.audit(config)
+        self.assertEqual(blocked["verdict"], "block")
+        self.assertEqual(
+            blocked["terminal_code"], "MUTATION_EXECUTION_CONTRACT_MISSING"
+        )
+
     def test_single_faults_return_stable_preroute_codes(self) -> None:
         cases = [
             (
@@ -330,6 +385,16 @@ class WorkPackReadinessAuditV2Tests(unittest.TestCase):
                 lambda c: c["closeout_bindings"][0].update(
                     owner_receipt_contract_ref=None
                 ),
+            ),
+            (
+                "MUTATION_EXECUTION_CONTRACT_MISSING",
+                lambda c: c.pop("task_session_closeout_contracts"),
+            ),
+            (
+                "OWNER_RECEIPT_SCHEMA_IDENTITY_MISMATCH",
+                lambda c: c["task_session_closeout_contracts"][0][
+                    "expected_owner_receipt_schema_ref"
+                ].update(selector="/terminalSchemaV1"),
             ),
             (
                 "CANONICAL_SUCCESSOR_NON_UNIQUE",

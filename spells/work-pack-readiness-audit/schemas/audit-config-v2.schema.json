@@ -107,6 +107,11 @@
         }
       }
     },
+    "task_session_closeout_contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/taskSessionCloseoutContract"}
+    },
     "runtime_binding": {
       "type": "object",
       "additionalProperties": false,
@@ -499,6 +504,32 @@
           }
         }
       ]
+    },
+    "taskSessionCloseoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id",
+        "receipt_profile",
+        "precloseout_execution_schema_ref",
+        "expected_owner_receipt_schema_ref",
+        "declared_owner_receipt_schema_identity",
+        "final_terminal_schema_ref",
+        "continuity_schema_ref",
+        "continuation_router_schema_ref"
+      ],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "receipt_profile": {"const": "precloseout-execution-v1"},
+        "precloseout_execution_schema_ref": {"$ref": "#/$defs/bindingRef"},
+        "expected_owner_receipt_schema_ref": {"$ref": "#/$defs/bindingRef"},
+        "declared_owner_receipt_schema_identity": {
+          "const": "invoke.precloseout-refresh-closeout-receipt.v1"
+        },
+        "final_terminal_schema_ref": {"$ref": "#/$defs/bindingRef"},
+        "continuity_schema_ref": {"$ref": "#/$defs/bindingRef"},
+        "continuation_router_schema_ref": {"$ref": "#/$defs/bindingRef"}
+      }
     },
     "status": {
       "type": "object",
