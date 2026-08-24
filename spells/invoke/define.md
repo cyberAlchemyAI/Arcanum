@@ -41,6 +41,8 @@ Define mode produces or updates a governed specification and glossary baseline w
 - template inventory or candidate-template permission
 - optional existing implementation-layering artifact for update or reuse
 - glossary sources from Necronomicon context when needed
+- an identity-denominator request when any Define artifact asserts an exact or
+  canonical ID-to-label denominator
 
 ## Execution Phases
 
@@ -50,8 +52,9 @@ Define mode produces or updates a governed specification and glossary baseline w
 | 2     | `structured-interview-kits`                            | bounded define context                              | approved intent record                                                     | one-question cadence and approval captured                           | block on unresolved blocker ambiguity                                            |
 | 3     | `inventory`                                            | approved intent record and local template inventory | template selection record or candidate-template recommendation             | template eligibility is explicit and tie cases request user choice   | flag when no eligible template exists and candidate creation is unapproved       |
 | 4     | `invoke define`                                        | approved intent and template record                 | spec artifact, glossary artifact, optional layering seed or layering gap note, define transport report, unresolved gaps | glossary linking and no-silent-upstream-mutation rules are satisfied | block on violated governance rule; otherwise return partial with unresolved gaps |
-| 5     | optional `decision-gate`                               | unresolved define blocker                           | decision record and next route                                             | blocker decision resolved or explicitly deferred                     | keep blocker in gap ledger with recommended next action                          |
-| 6     | optional handoff (`spellcraft` or `sigil-development`) | approved define outputs                             | lifecycle-authoring handoff pack                                           | handoff target is explicit and accepted                              | defer handoff if target authority is unavailable                                 |
+| 5     | Identity denominator validator                         | exact artifact, request, declared authority source, and optional corroborating sources | `DefineIdentityDenominatorResult` or explicit not-applicable classification | every asserted exact/canonical ID-to-label denominator has one current passing receipt | block on a required-but-missing request or receipt, stale input, source disagreement, malformed denominator, or identity/coverage mismatch |
+| 6     | optional `decision-gate`                               | unresolved define blocker                           | decision record and next route                                             | blocker decision resolved or explicitly deferred                     | keep blocker in gap ledger with recommended next action                          |
+| 7     | optional handoff (`spellcraft` or `sigil-development`) | approved define outputs                             | lifecycle-authoring handoff pack                                           | handoff target is explicit and accepted                              | defer handoff if target authority is unavailable                                 |
 
 ## Mode Gates
 
@@ -66,6 +69,19 @@ Define mode produces or updates a governed specification and glossary baseline w
 - Define mode must record a Dispatch Spec technique trace that names the techniques used to justify template selection, glossary routing, owner boundaries, and next route.
 - Define mode runs a Distill sanity check when the target is broad, ambiguous, or split-prone; otherwise it records `not required` with rationale.
 - A `flag` or `block` Distill result routes to clarification, definition split, or deferred follow-up; it must not be treated as plan readiness.
+- Every Define result classifies identity-denominator validation as `required`
+  or `not-applicable` with a rationale. It is `required` whenever a Define
+  artifact asserts an exact or canonical ID-to-label denominator.
+- A required identity-denominator gate uses
+  `schemas/define-identity-denominator-request.schema.json` and
+  `scripts/define_identity_denominator_validator.py`. Define cannot pass
+  without a current passing `DefineIdentityDenominatorResult` bound to the
+  exact request, artifact, declared authority source, optional corroborating
+  sources, field mappings, equality filters, and exact coverage rule.
+- The validator proves identity consistency against the caller-declared
+  authority source; it does not grant that source authority. A missing or
+  blocking required receipt stops Design and Plan activation rather than being
+  reconstructed from counts, prose, or stable whole-file digests.
 
 ## Handoff Artifacts
 
@@ -76,6 +92,7 @@ Define mode produces or updates a governed specification and glossary baseline w
 - template selection evidence
 - Dispatch Spec technique trace
 - Distill validation status and rationale
+- identity-denominator passing receipt, or a not-applicable classification and rationale
 - unresolved gaps and blocker decisions
 - Necronomicon transport report
 - recommended next route (`design`, `spellcraft`, `sigil-development`, or deferred follow-up)
@@ -116,6 +133,7 @@ what it established or why it stopped, and why that matters.>
 - Template selection: <selected template or candidate recommendation>
 - Dispatch techniques: <technique ids and rationale>
 - Distill validation: not required | pass | flag | block; <rationale>
+- Identity denominator validation: <passing receipt | not-applicable with rationale | block>
 - Decisions: <summary>
 - Unresolved gaps: <summary>
 - Next route: design | spellcraft | sigil-development | deferred
@@ -124,5 +142,8 @@ what it established or why it stopped, and why that matters.>
 ## Evidence Capability Contract
 
 Active define output must carry `execution_path`, `dispatch_trace`, `template_selection`,
-`layering_or_gap`, `result`, and `next_route` evidence. A conditional Distill skip requires a
-rationale. The validator result, not an authored handoff label, controls mutation readiness.
+`layering_or_gap`, `identity_denominator_validation`, `result`, and `next_route`
+evidence. A conditional Distill skip or identity-denominator not-applicable
+classification requires a rationale. A triggered identity-denominator gate
+requires its exact passing receipt. Validator results, not authored handoff
+labels, control downstream readiness.

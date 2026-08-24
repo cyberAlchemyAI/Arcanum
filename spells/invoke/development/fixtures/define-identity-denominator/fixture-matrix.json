@@ -1,0 +1,135 @@
+{
+  "schema_version": "invoke.define-identity-denominator-fixture-matrix/v1",
+  "identities": [
+    {"id": "ref-001", "label": "North"},
+    {"id": "ref-002", "label": "South"},
+    {"id": "ref-003", "label": "East"},
+    {"id": "ref-004", "label": "West"},
+    {"id": "ref-005", "label": "Upper"},
+    {"id": "ref-006", "label": "Lower"}
+  ],
+  "cases": [
+    {
+      "id": "positive-exact-set",
+      "mutation": "none",
+      "expected_exit": 0,
+      "expected_matched": 6,
+      "required_diagnostics": []
+    },
+    {
+      "id": "pair-swap-unchanged-count",
+      "mutation": "pair-swap",
+      "expected_exit": 1,
+      "expected_matched": 4,
+      "required_diagnostics": ["DEFINE_IDENTITY_MISMATCH"]
+    },
+    {
+      "id": "four-label-rotation",
+      "mutation": "four-rotation",
+      "expected_exit": 1,
+      "expected_matched": 2,
+      "required_diagnostics": ["DEFINE_IDENTITY_MISMATCH"]
+    },
+    {
+      "id": "combined-six-row-permutation",
+      "mutation": "six-permutation",
+      "expected_exit": 1,
+      "expected_matched": 0,
+      "required_diagnostics": ["DEFINE_IDENTITY_MISMATCH"]
+    },
+    {
+      "id": "authority-corroboration-disagreement",
+      "mutation": "source-disagreement",
+      "expected_exit": 1,
+      "expected_matched": 5,
+      "required_diagnostics": [
+        "DEFINE_IDENTITY_SOURCE_DISAGREEMENT",
+        "DEFINE_IDENTITY_MISMATCH"
+      ]
+    },
+    {
+      "id": "duplicate-id",
+      "mutation": "duplicate-id",
+      "expected_exit": 1,
+      "expected_matched": 7,
+      "required_diagnostics": ["DEFINE_IDENTITY_DUPLICATE_ID"]
+    },
+    {
+      "id": "duplicate-label",
+      "mutation": "duplicate-label",
+      "expected_exit": 1,
+      "expected_matched": 5,
+      "required_diagnostics": ["DEFINE_IDENTITY_DUPLICATE_LABEL"]
+    },
+    {
+      "id": "missing-row",
+      "mutation": "missing-row",
+      "expected_exit": 1,
+      "expected_matched": 5,
+      "required_diagnostics": ["DEFINE_IDENTITY_COVERAGE_MISMATCH"]
+    },
+    {
+      "id": "extra-row",
+      "mutation": "extra-row",
+      "expected_exit": 1,
+      "expected_matched": 6,
+      "required_diagnostics": ["DEFINE_IDENTITY_COVERAGE_MISMATCH"]
+    },
+    {
+      "id": "missing-section",
+      "mutation": "missing-section",
+      "expected_exit": 1,
+      "expected_matched": 0,
+      "required_diagnostics": ["DEFINE_IDENTITY_SECTION_MISSING"]
+    },
+    {
+      "id": "ambiguous-section",
+      "mutation": "ambiguous-section",
+      "expected_exit": 1,
+      "expected_matched": 0,
+      "required_diagnostics": ["DEFINE_IDENTITY_SECTION_AMBIGUOUS"]
+    },
+    {
+      "id": "missing-table",
+      "mutation": "missing-table",
+      "expected_exit": 1,
+      "expected_matched": 0,
+      "required_diagnostics": ["DEFINE_IDENTITY_TABLE_MISSING"]
+    },
+    {
+      "id": "ambiguous-table",
+      "mutation": "ambiguous-table",
+      "expected_exit": 1,
+      "expected_matched": 0,
+      "required_diagnostics": ["DEFINE_IDENTITY_TABLE_AMBIGUOUS"]
+    },
+    {
+      "id": "stale-artifact-digest",
+      "mutation": "stale-artifact-digest",
+      "expected_exit": 1,
+      "expected_matched": 6,
+      "required_diagnostics": ["DEFINE_IDENTITY_DIGEST_MISMATCH"]
+    },
+    {
+      "id": "stale-authority-digest",
+      "mutation": "stale-authority-digest",
+      "expected_exit": 1,
+      "expected_matched": 6,
+      "required_diagnostics": ["DEFINE_IDENTITY_DIGEST_MISMATCH"]
+    },
+    {
+      "id": "stale-corroborator-digest",
+      "mutation": "stale-corroborator-digest",
+      "expected_exit": 1,
+      "expected_matched": 6,
+      "required_diagnostics": ["DEFINE_IDENTITY_DIGEST_MISMATCH"]
+    },
+    {
+      "id": "stale-request-digest",
+      "mutation": "stale-request-digest",
+      "expected_exit": 1,
+      "expected_matched": 6,
+      "required_diagnostics": ["DEFINE_IDENTITY_DIGEST_MISMATCH"]
+    }
+  ]
+}

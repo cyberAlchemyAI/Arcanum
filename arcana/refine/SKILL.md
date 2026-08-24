@@ -42,7 +42,7 @@ Refine owns the seed, research decision, dispatch request, run manifest, evidenc
 | Capability | Required For | Evidence Required |
 | --- | --- | --- |
 | `context-builder` | Build the evidence baseline and runtime handoff context. | Context pack path or blocked coverage reason. |
-| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, capability handle, and verdict. |
+| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, capability handle, verdict, execution designation, and Implementation Readiness receipt for execution-candidate plans. |
 | `interrogation` | Critique Define, Design, and final synthesis. | Interrogation artifact path, mode, capability handle, and pass/flag/block verdict. |
 | `distill` | Select the coherent unit and run repair/validation before planning. | Distill artifact path, mode, selected unit or repair verdict, and rejected alternatives. |
 | `dispatch-spec` | Validate the canonical stage route, technique references, gates, handoffs, subagent strategy, and observability grouping before execution. | `REFINE-DISPATCH.json`, validation status, blocked fields, cited techniques, subagent strategy, and permission state. |
@@ -177,7 +177,7 @@ Default configuration:
 - Invoke Redefine / Design: capability `invoke`; mode `design`; request explicitly frames the run as redefining/designing from prior artifacts.
 - Interrogation 2: capability `interrogation`; mode `refine-design-review`.
 - Distill Repair: capability `distill`; mode `validate` or an explicitly repair-focused request.
-- Invoke Plan: capability `invoke`; mode `plan`; output is a non-executed plan artifact.
+- Invoke Plan: capability `invoke`; mode `plan`; output is a non-executed plan artifact. Implementation outcomes request `execution-candidate` and must include Invoke's proof-only `IMPLEMENTATION-READINESS-PREFLIGHT.json`; conceptual or research-only outcomes declare `non-executing` with a reason.
 - Final Interrogation and Synthesis: capability `interrogation`; mode `refine-final`, followed by Refine-owned synthesis.
 
 </stage-configuration>
@@ -198,6 +198,7 @@ Required contents:
 - `REFINE-DISPATCH.json`
 - `RUNTIME-HANDOFF.md`
 - `RESULT.md`
+- `INVOKE-PLAN-READINESS-BINDING.json`
 - `stages/`
 
 Refine owns this folder, the seed proposal, the dispatch request, the runtime handoff, the research decision reference, the final result, and the evidence index. Dispatch Spec owns route-shape validation. Stage capabilities own their own artifacts. The manifest and index reference those artifacts; they do not copy or redefine them.
@@ -317,8 +318,9 @@ If no preset is supplied, use `standard`.
 12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, record it as compatibility or handoff preparation; do not count command-interface execution as the native stage proof.
 13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
 14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
-15. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, and final verdict; render its user-facing result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
-16. Recommend next routes only after the final synthesis; do not execute them as part of refine.
+15. After Invoke Plan, validate `INVOKE-PLAN-READINESS-BINDING.json` with `scripts/validate-invoke-plan-readiness.py`. An execution-candidate blocks final implementation-ready synthesis unless the exact Invoke-owned receipt is schema-valid and byte-current. A non-executing plan must carry its reason and cannot recommend Task Session.
+16. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, readiness binding, and final verdict; render its user-facing result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
+17. Recommend next routes only after the final synthesis; do not execute them as part of refine.
 </process>
 
 <quality-bar>
@@ -338,6 +340,9 @@ A successful Refine run must:
 - cite dispatch techniques only when they are expressed by steps, gates, handoffs, or validation notes,
 - block unavailable native capabilities or unsafe runtime handoff with exact missing fields,
 - produce a final refined synthesis,
+- consume Invoke Plan's readiness receipt without recreating its contracts;
+  block an implementation-ready claim when an execution-candidate receipt is
+  missing, stale, reusable, mutation-ready, or invalid,
 - lead both strategy and final user-facing results with a plain-language Outcome Brief and explicit boundary/decision layer,
 - keep Task Session and Sigil Development out of the loop except as optional next-route recommendations.
 </quality-bar>
@@ -389,6 +394,8 @@ Avoid:
 - silently falling back from failed dispatch validation, failed runtime handoff, or failed native stage receipt.
 - running runtime-backed stages or subagents before showing the Dispatch Spec strategy and receiving permission.
 - treating a simple "refine everything" request as permission to run before the strategy proposal is confirmed.
+- treating Refine strategy confirmation, a proof-only readiness receipt, or a
+  final synthesis as exact execution acceptance or mutation admission.
 - leading with stage receipts, paths, or dispatch mechanics before explaining the practical outcome and boundary.
 </anti-patterns>
 
@@ -478,6 +485,9 @@ what the refinement established or why it stopped, and why that matters.>
   - Invoke Plan: <pass | flag | block>
   - Final Interrogation and Synthesis: <pass | flag | block>
 - Final synthesis: <summary or blocked reason>
+- Execution designation: <execution-candidate | non-executing>
+- Implementation readiness: <Invoke receipt path and pass | n/a with reason | block>
+- Exact acceptance: <required next action | n/a>
 - Recommended next routes: <items or none>
 ```
 </output-contract>

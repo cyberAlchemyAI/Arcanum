@@ -83,6 +83,14 @@
         "declared_outputs": {
           "$ref": "#/$defs/pathSet"
         },
+        "transient_outputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/transientOutput"
+          }
+        },
         "validation_commands": {
           "type": "array",
           "minItems": 1,
@@ -215,6 +223,38 @@
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "transientOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "path_kind",
+        "pre_execution_state",
+        "touch_evidence",
+        "cleanup_policy",
+        "terminal_state"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "path_kind": {
+          "enum": ["directory", "file"]
+        },
+        "pre_execution_state": {
+          "const": "absent"
+        },
+        "touch_evidence": {
+          "const": "required"
+        },
+        "cleanup_policy": {
+          "const": "remove-before-executor-receipt"
+        },
+        "terminal_state": {
+          "const": "absent"
+        }
       }
     },
     "timeoutSeconds": {

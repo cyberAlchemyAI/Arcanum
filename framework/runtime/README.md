@@ -70,6 +70,20 @@ V1 adapters:
 - `codex-exec`: legacy explicit adapter that runs Codex CLI using the normal Codex CLI environment by default. Per-run `CODEX_HOME` isolation is opt-in only with `ARCANUM_RUNTIME_ISOLATE_CODEX_HOME=1`.
 - `codex-bypass`: legacy explicit adapter for trusted automation environments that bypasses Codex CLI sandbox and approval prompts.
 
+Development-only fixture profiles:
+
+- `app-server-fixture`: replays deterministic synthetic Codex App Server event traces into provider-local adapter state, a host result, and runtime status. It does not launch App Server or a model turn and is deliberately not registered in `tools/arcanum`. The live adapter id `app-server` remains reserved for a future, separately validated profile.
+
+The fixture profile proves only contract translation. Its `app-server.host-result.v0` output is raw host evidence: it cannot supply a capability-owner verdict, semantic acceptance, an Arcanum gate decision, an executor or owner receipt, Task Session admission, Craft state, Goal control, or lifecycle promotion.
+
+Run the first synthetic Refine-stage fixture with an empty or nonexistent output directory:
+
+```bash
+python3 framework/runtime/development/fixtures/app-server/validate_fixture.py \
+  --fixture-dir framework/runtime/development/fixtures/app-server/f01-refine-success \
+  --output-dir /tmp/arcanum-app-server-f01
+```
+
 Codex is not the runtime model. Claude and Copilot are not runtime models either. Arcanum installs thin agent surfaces for each host and keeps canonical behavior in sigil and spell files.
 
 ## Runtime Config

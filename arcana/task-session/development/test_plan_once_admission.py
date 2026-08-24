@@ -155,6 +155,7 @@ class PlanOnceAdmissionTests(unittest.TestCase):
                 **continuity_payload,
                 "continuity_digest": digest(continuity_payload),
             },
+            "approval_status": "unapproved",
             "selection_required": True,
             "runtime_admission_status": "pending-selection",
             "allowed_routes": allowed_routes,
@@ -389,12 +390,139 @@ class PlanOnceAdmissionTests(unittest.TestCase):
         ]
         return request
 
+    def build_transient_request(self):
+        request = self.build_request()
+        transient_path = "transient/U1-cache"
+        context_path = self.root / "controls/context.json"
+        context = json.loads(context_path.read_text(encoding="utf-8"))
+        contract = context["execution_contract"]
+        contract["transientOutputs"] = [transient_path]
+        contract["executionOutputs"].append(transient_path)
+        contract["allowedWrites"].append(transient_path)
+        write_json(context_path, context)
+        context_ref = {
+            **exact(self.root, "controls/context.json"),
+            "role": "context-pack",
+            "authorityClass": "public",
+        }
+        request["controlArtifacts"] = [
+            context_ref if item["role"] == "context-pack" else item
+            for item in request["controlArtifacts"]
+        ]
+
+        package_path = self.root / "material-package.json"
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        package["source_artifacts"] = [
+            {
+                "path": context_ref["path"],
+                "sha256": context_ref["sha256"],
+                "size_bytes": context_ref["sizeBytes"],
+                "authority_class": context_ref["authorityClass"],
+            }
+            if item["path"] == context_ref["path"]
+            else item
+            for item in package["source_artifacts"]
+        ]
+        receipt = PRODUCER.validate_material_package(
+            package,
+            self.root,
+            json.loads((INVOKE / "schemas/material-package.schema.json").read_text()),
+            json.loads(
+                (INVOKE / "schemas/material-package-receipt.schema.json").read_text()
+            ),
+        )
+        self.assertEqual(receipt["patchVerdict"], "pass")
+        write_json(package_path, package)
+        write_json(self.root / "material-receipt.json", receipt)
+
+        request["schemaVersion"] = "1.3.0"
+        request["transientOutputs"] = [transient_path]
+        request["executionOutputs"].append(transient_path)
+        request["allowedWrites"].append(transient_path)
+        request["materialPackage"] = exact(self.root, "material-package.json")
+        request["materialReceipt"] = exact(self.root, "material-receipt.json")
+        return request
+
     def test_exact_plan_identity_and_live_baseline_admit(self) -> None:
         result = self.resolve(self.build_request())
         self.assertEqual(result["admissionVerdict"], "admit")
         self.assertTrue(result["mutationReady"])
         self.assertTrue(result["singleUse"])
         self.assertIsNotNone(result["admissionToken"])
+
+    def test_transient_partition_admits_without_expanding_material_baselines(self) -> None:
+        request = self.build_transient_request()
+        result = self.resolve(request)
+        self.assertEqual(result["schemaVersion"], "1.3.0")
+        self.assertEqual(result["admissionVerdict"], "admit")
+        self.assertTrue(result["mutationReady"])
+        self.assertEqual(result["materialWrites"], ["target.txt"])
+        self.assertEqual(result["transientOutputs"], ["transient/U1-cache"])
+        self.assertEqual(
+            [item["path"] for item in result["targetBaselines"]],
+            ["target.txt"],
+        )
+
+    def test_legacy_version_rejects_transient_field(self) -> None:
+        request = self.build_transient_request()
+        request["schemaVersion"] = "1.2.0"
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertTrue(
+            any("admission request schema invalid" in item for item in result["reasons"])
+        )
+
+    def test_transient_version_requires_nonempty_transient_field(self) -> None:
+        request = self.build_transient_request()
+        request.pop("transientOutputs")
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertTrue(
+            any("admission request schema invalid" in item for item in result["reasons"])
+        )
+
+    def test_transient_must_be_execution_output_subset(self) -> None:
+        request = self.build_transient_request()
+        request["transientOutputs"] = ["transient/substituted"]
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertIn(
+            "transient outputs are not a subset of execution outputs",
+            result["reasons"],
+        )
+
+    def test_context_transient_partition_substitution_blocks(self) -> None:
+        request = self.build_transient_request()
+        request["transientOutputs"] = ["transient/substituted"]
+        request["executionOutputs"][-1] = "transient/substituted"
+        request["allowedWrites"][-1] = "transient/substituted"
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertIn("context pack transient output scope mismatch", result["reasons"])
+
+    def test_transient_live_collision_blocks_admission(self) -> None:
+        request = self.build_transient_request()
+        transient = self.root / "transient/U1-cache"
+        transient.mkdir(parents=True)
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertIn(
+            "transient output is not absent: transient/U1-cache",
+            result["reasons"],
+        )
+
+    def test_transient_symlink_chain_blocks_admission(self) -> None:
+        request = self.build_transient_request()
+        (self.root / "transient-real").mkdir()
+        (self.root / "transient").symlink_to(
+            "transient-real", target_is_directory=True
+        )
+        result = self.resolve(request)
+        self.assertEqual(result["admissionVerdict"], "block")
+        self.assertIn(
+            "transient output traverses symbolic link: transient/U1-cache",
+            result["reasons"],
+        )
 
     def test_live_target_change_blocks_before_mutation(self) -> None:
         request = self.build_request()

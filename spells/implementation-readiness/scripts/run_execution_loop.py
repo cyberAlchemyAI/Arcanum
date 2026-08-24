@@ -10,7 +10,9 @@ from pathlib import Path
 
 from execution_loop import decide_next_action, initialize_outer_loop, join_event, set_stop_decision
 from readiness_execution import (
+    compile_plan_readiness_preflight,
     compile_plan_once_context_entry,
+    compile_plan_once_fast_entry,
     compile_plan_once_task_entry,
     decide_task_session_with_fresh_resume,
     initialize_from_readiness,
@@ -55,6 +57,27 @@ def main() -> int:
                 request["selection_receipt"],
                 request["execution_binding"],
             )
+        }
+    elif operation == "plan-readiness-preflight":
+        result = {
+            "plan_readiness_receipt": compile_plan_readiness_preflight(
+                request["audit_config"],
+                request["audit_report"],
+                proof_invocation_id=request["proof_invocation_id"],
+                proof_created_at=request["proof_created_at"],
+            )
+        }
+    elif operation == "selection-fast-entry":
+        fast_request, fast_receipt = compile_plan_once_fast_entry(
+            request["policy"],
+            request["audit_config"],
+            request["audit_report"],
+            request["selection_receipt"],
+            request["execution_binding"],
+        )
+        result = {
+            "fast_entry_request": fast_request,
+            "fast_entry_receipt": fast_receipt,
         }
     elif operation == "selection-entry":
         result = {

@@ -16,6 +16,7 @@
 - Dispatch route: `REFINE-DISPATCH.json`
 - Runtime handoff: `RUNTIME-HANDOFF.md`
 - Result: `RESULT.md`
+- Invoke Plan readiness binding: `INVOKE-PLAN-READINESS-BINDING.json`
 - Stage artifacts: `stages/`
 
 ## Stage Evidence
@@ -30,8 +31,16 @@
 | Invoke Redefine / Design | invoke | native capability | design | block |  | blocked |  |  | block | <reason> |
 | Interrogation refine-design-review | interrogation | native capability | refine-design-review | block |  | blocked |  |  | block | <reason> |
 | Distill Repair | distill | native capability | validate or repair-focused request | block |  | blocked |  |  | block | <reason> |
-| Invoke Plan | invoke | native capability | plan | block |  | blocked |  |  | block | <reason> |
+| Invoke Plan | invoke | native capability | plan; execution-candidate for implementation outcomes | block |  | blocked |  |  | block | <reason> |
 | Final Interrogation and Synthesis | interrogation + refine | native capability + refine synthesis | refine-final | block |  | blocked |  |  | block | <reason> |
+
+## Invoke Plan Readiness Evidence
+
+- Execution designation: `execution-candidate | non-executing`
+- Binding: `INVOKE-PLAN-READINESS-BINDING.json`
+- Validator: `scripts/validate-invoke-plan-readiness.py`
+- Result: `pass | not-applicable | block`
+- Exact acceptance: `required after candidate hashing | n/a`
 
 ## Notes
 
@@ -40,3 +49,4 @@
 - A selected stage must have an artifact path or blocked reason.
 - A stage marked `pass` must reference an artifact path or receipt artifact that exists.
 - Task Session and Sigil Development are not loop stages; they may appear only as recommended next routes in `RESULT.md`.
+- Refine cannot report an implementation-ready candidate unless the exact Invoke Plan readiness binding validates. That proof remains non-reusable and non-authoritative.

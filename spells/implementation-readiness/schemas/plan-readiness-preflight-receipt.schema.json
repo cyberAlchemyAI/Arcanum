@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/implementation-readiness/plan-readiness-preflight-receipt/1-0-0",
+  "title": "PlanReadinessPreflightReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "code",
+    "work_pack_id",
+    "work_pack_semantic_digest",
+    "frontier",
+    "initial_unit",
+    "policy_digest",
+    "allowed_routes_digest",
+    "audit_config_digest",
+    "audit_report_digest",
+    "route_coverage",
+    "validation_contract_digests",
+    "proof_invocation_id",
+    "proof_created_at",
+    "fast_entry_proof",
+    "reusable_for_execution",
+    "mutation_ready",
+    "authority_effect",
+    "claim_ceiling"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "implementation-readiness.plan-readiness-preflight-receipt/v1"
+    },
+    "status": {"const": "pass"},
+    "code": {"const": "PLAN_IMPLEMENTATION_READY"},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "work_pack_semantic_digest": {"$ref": "#/$defs/digest"},
+    "frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "initial_unit": {"type": "string", "minLength": 1},
+    "policy_digest": {"$ref": "#/$defs/digest"},
+    "allowed_routes_digest": {"$ref": "#/$defs/digest"},
+    "audit_config_digest": {"$ref": "#/$defs/digest"},
+    "audit_report_digest": {"$ref": "#/$defs/digest"},
+    "route_coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_id", "route_id"],
+        "properties": {
+          "unit_id": {"type": "string", "minLength": 1},
+          "route_id": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "validation_contract_digests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_id", "digest"],
+        "properties": {
+          "unit_id": {"type": "string", "minLength": 1},
+          "digest": {"$ref": "#/$defs/digest"}
+        }
+      }
+    },
+    "proof_invocation_id": {"type": "string", "minLength": 1},
+    "proof_created_at": {"type": "string", "minLength": 1},
+    "fast_entry_proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_digest",
+        "receipt_digest",
+        "binding_digest",
+        "route_fingerprint",
+        "decision",
+        "code",
+        "mutation_count"
+      ],
+      "properties": {
+        "request_digest": {"$ref": "#/$defs/digest"},
+        "receipt_digest": {"$ref": "#/$defs/digest"},
+        "binding_digest": {"$ref": "#/$defs/digest"},
+        "route_fingerprint": {"$ref": "#/$defs/digest"},
+        "decision": {"const": "proceed"},
+        "code": {"const": "TASK_READY"},
+        "mutation_count": {"const": 0}
+      }
+    },
+    "reusable_for_execution": {"const": false},
+    "mutation_ready": {"const": false},
+    "authority_effect": {"const": "none"},
+    "claim_ceiling": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

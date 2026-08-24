@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/schemas/define-identity-denominator-request.schema.json",
+  "title": "Invoke Define Identity Denominator Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "artifact",
+    "selector",
+    "authority_source",
+    "corroborating_sources",
+    "coverage",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.define-identity-denominator-request/v1"
+    },
+    "request_id": {"$ref": "#/$defs/id"},
+    "artifact": {
+      "allOf": [
+        {"$ref": "#/$defs/path_binding"},
+        {
+          "type": "object",
+          "properties": {"format": {"const": "markdown"}},
+          "required": ["format"]
+        }
+      ]
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "heading_level", "id_column", "label_column"],
+      "properties": {
+        "heading": {"type": "string", "minLength": 1},
+        "heading_level": {"type": "integer", "minimum": 1, "maximum": 6},
+        "id_column": {"type": "string", "minLength": 1},
+        "label_column": {"type": "string", "minLength": 1}
+      }
+    },
+    "authority_source": {
+      "allOf": [
+        {"$ref": "#/$defs/identity_source"},
+        {
+          "type": "object",
+          "properties": {"role": {"const": "authority"}},
+          "required": ["role"]
+        }
+      ]
+    },
+    "corroborating_sources": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {"$ref": "#/$defs/identity_source"},
+          {
+            "type": "object",
+            "properties": {"role": {"const": "corroborating"}},
+            "required": ["role"]
+          }
+        ]
+      }
+    },
+    "coverage": {"const": "exact"},
+    "authority_effect": {"const": "none"}
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(^|/)\\.\\.(/|$)).+$"
+    },
+    "path_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "format"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relative_path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "format": {"enum": ["markdown", "json", "yaml"]}
+      }
+    },
+    "filter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "equals"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "equals": {
+          "type": ["string", "number", "integer", "boolean", "null"]
+        }
+      }
+    },
+    "identity_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "role",
+        "path",
+        "sha256",
+        "format",
+        "collection_pointer",
+        "fields",
+        "filters"
+      ],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/id"},
+        "role": {"enum": ["authority", "corroborating"]},
+        "path": {"$ref": "#/$defs/relative_path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "format": {"enum": ["json", "yaml"]},
+        "collection_pointer": {
+          "type": "string",
+          "pattern": "^(/([^/~]|~[01])*)*$"
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "label"],
+          "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "label": {"type": "string", "minLength": 1}
+          }
+        },
+        "filters": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/filter"}
+        }
+      }
+    }
+  }
+}

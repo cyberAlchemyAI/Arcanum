@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
+from material_package_validator import canonical_digest, validate_material_package
 
 MUTATION_MODES = ("proposal-only", "apply-approved")
 ACTIVATION_SOURCES = ("direct-user", "delegated", "continuation")
@@ -223,16 +225,155 @@ def resolve_refresh_handoff(
     }
 
 
+def resolve_file_bound_refresh_handoff(
+    request: dict[str, Any],
+    receipt_schema: dict[str, Any],
+    material_package: dict[str, Any] | None,
+    package_root: Path | None,
+    package_schema: dict[str, Any] | None,
+    material_receipt: dict[str, Any] | None,
+    material_receipt_bytes: bytes | None,
+) -> dict[str, Any]:
+    """Revalidate current material bytes and reject stale embedded handoffs."""
+    mutation_mode, _, _ = resolve_mutation_mode(request)
+    if mutation_mode != "apply-approved":
+        return resolve_refresh_handoff(request, receipt_schema)
+
+    coherence_blockers: list[str] = []
+    expected_package_id = request.get("expectedPackageId")
+    expected_package_digest = request.get("expectedPackageDigest")
+    expected_receipt_digest = request.get("expectedMaterialReceiptSha256")
+    if (
+        not isinstance(expected_receipt_digest, str)
+        or len(expected_receipt_digest) != 64
+        or any(character not in "0123456789abcdef" for character in expected_receipt_digest)
+    ):
+        coherence_blockers.append(
+            "expected material receipt file digest missing or invalid"
+        )
+    if material_package is None or package_root is None or package_schema is None:
+        coherence_blockers.append("current material package validation inputs missing")
+        current_receipt = None
+    else:
+        if material_package.get("package_id") != expected_package_id:
+            coherence_blockers.append("current material package id mismatch")
+        current_package_digest = canonical_digest(material_package)
+        if current_package_digest != expected_package_digest:
+            coherence_blockers.append("current material package digest mismatch")
+        current_receipt = validate_material_package(
+            material_package, package_root, package_schema, receipt_schema
+        )
+    if material_receipt is None or material_receipt_bytes is None:
+        coherence_blockers.append("current material receipt file missing")
+    else:
+        actual_receipt_digest = hashlib.sha256(material_receipt_bytes).hexdigest()
+        if expected_receipt_digest != actual_receipt_digest:
+            coherence_blockers.append("material receipt file digest mismatch")
+        if current_receipt != material_receipt:
+            coherence_blockers.append(
+                "material receipt does not match current package/source validation"
+            )
+        if current_receipt is not None:
+            fresh_receipt_bytes = (
+                json.dumps(current_receipt, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            if material_receipt_bytes != fresh_receipt_bytes:
+                coherence_blockers.append(
+                    "material receipt bytes do not equal fresh validator output"
+                )
+        if request.get("materialReceipt") != material_receipt:
+            coherence_blockers.append(
+                "material handoff request embeds stale material receipt"
+            )
+
+    effective_request = dict(request)
+    effective_request["materialReceipt"] = material_receipt
+    result = resolve_refresh_handoff(effective_request, receipt_schema)
+    blockers = sorted(set(result["blockers"] + coherence_blockers))
+    if blockers:
+        result["phaseStatus"] = "block"
+        result["handoffStatus"] = "blocked"
+        result["mutationReady"] = False
+        result["blockers"] = blockers
+    result["materialReceiptBinding"] = {
+        "expectedSha256": request.get("expectedMaterialReceiptSha256"),
+        "actualSha256": (
+            hashlib.sha256(material_receipt_bytes).hexdigest()
+            if material_receipt_bytes is not None
+            else None
+        ),
+        "currentPackageRevalidated": current_receipt is not None,
+        "receiptMatchesCurrentValidation": (
+            current_receipt is not None
+            and material_receipt is not None
+            and current_receipt == material_receipt
+        ),
+        "requestEmbedsCurrentReceipt": (
+            material_receipt is not None
+            and request.get("materialReceipt") is not None
+            and request.get("materialReceipt") == material_receipt
+        ),
+    }
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("request")
     parser.add_argument("--receipt-schema", required=True)
+    parser.add_argument("--material-package")
+    parser.add_argument("--package-root")
+    parser.add_argument("--package-schema")
+    parser.add_argument("--material-receipt")
     parser.add_argument("--output")
     args = parser.parse_args()
 
-    result = resolve_refresh_handoff(
-        load_json(Path(args.request)),
+    request = load_json(Path(args.request))
+    mutation_mode, _, _ = resolve_mutation_mode(request)
+    if mutation_mode == "proposal-only":
+        result = resolve_refresh_handoff(
+            request, load_json(Path(args.receipt_schema))
+        )
+        rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
+        if args.output:
+            Path(args.output).write_text(rendered, encoding="utf-8")
+        else:
+            print(rendered, end="")
+        return 0 if result["phaseStatus"] in ("pass", "no-op") else 1
+
+    material_package_path = (
+        Path(args.material_package) if args.material_package else None
+    )
+    package_schema_path = Path(args.package_schema) if args.package_schema else None
+    material_receipt_path = Path(args.material_receipt) if args.material_receipt else None
+    material_receipt_bytes = None
+    material_receipt = None
+    if material_receipt_path is not None and material_receipt_path.is_file():
+        material_receipt_bytes = material_receipt_path.read_bytes()
+        try:
+            material_receipt = json.loads(material_receipt_bytes.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            material_receipt = None
+    material_package = None
+    if material_package_path is not None and material_package_path.is_file():
+        try:
+            material_package = load_json(material_package_path)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            material_package = None
+    package_schema = None
+    if package_schema_path is not None and package_schema_path.is_file():
+        try:
+            package_schema = load_json(package_schema_path)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            package_schema = None
+    result = resolve_file_bound_refresh_handoff(
+        request,
         load_json(Path(args.receipt_schema)),
+        material_package,
+        Path(args.package_root) if args.package_root else None,
+        package_schema,
+        material_receipt,
+        material_receipt_bytes,
     )
     rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:

@@ -194,7 +194,7 @@ def classify_controls(
             evaluations.append(reference)
             if document.get("outcome") not in ("PROCEED", "PASS"):
                 raise RunnerBlock("governance evaluator did not pass")
-        if document.get("schemaVersion") == "1.2.0" and (
+        if document.get("schemaVersion") in {"1.2.0", "1.3.0"} and (
             "admissionVerdict" in document
         ):
             admissions.append(reference)
@@ -291,11 +291,28 @@ def executor_contract_from_config(
         raise RunnerBlock("executor argv may not invoke a shell command string")
     if config["cwd"] != ".":
         resolve_repo_path(repo_root, config["cwd"], "executor cwd")
-    expected_path = resolve_repo_path(
-        repo_root, config["expected_receipt_path"], "expected executor receipt"
+    expected_receipt_path = relative_path(
+        repo_root, run_dir / "terminal-executor-receipt.json"
     )
-    if expected_path != (run_dir / "terminal-executor-receipt.json").resolve():
-        raise RunnerBlock("executor receipt path must be the run-scoped terminal path")
+    if config["expected_receipt_path"] != expected_receipt_path:
+        raise RunnerBlock(
+            "executor expected receipt path must equal the run-scoped terminal path"
+        )
+    ensure_no_symlink_chain(
+        repo_root,
+        config["expected_receipt_path"],
+        "expected executor receipt",
+    )
+    for durable in [
+        *request["execution_contract"]["allowed_writes"],
+        *request["execution_contract"]["declared_outputs"],
+        request["closeout_contract"]["terminal_receipt_path"],
+    ]:
+        if paths_overlap(config["expected_receipt_path"], durable):
+            raise RunnerBlock(
+                "executor receipt overlaps durable or terminal scope: "
+                f"{config['expected_receipt_path']} and {durable}"
+            )
     read_exact_bytes(
         repo_root,
         config["expected_receipt_schema_ref"],
@@ -330,6 +347,401 @@ def baseline_inventory(repo_root: Path, paths: list[str]) -> list[dict[str, Any]
                 }
             )
     return inventory
+
+
+def paths_overlap(left: str, right: str) -> bool:
+    left_path = PurePosixPath(normalized_relative(left, "write scope"))
+    right_path = PurePosixPath(normalized_relative(right, "write scope"))
+    return (
+        left_path == right_path
+        or left_path in right_path.parents
+        or right_path in left_path.parents
+    )
+
+
+def ensure_no_symlink_chain(repo_root: Path, raw: str, label: str) -> Path:
+    normalized = normalized_relative(raw, label)
+    path = resolve_repo_path(repo_root, normalized, label)
+    current = repo_root.resolve()
+    for part in PurePosixPath(normalized).parts:
+        current /= part
+        if os.path.lexists(current) and current.is_symlink():
+            raise RunnerBlock(f"{label} path traverses a symbolic link: {raw}")
+    return path
+
+
+def transient_output_paths(document: dict[str, Any]) -> list[str]:
+    return [item["path"] for item in document.get("transient_outputs", [])]
+
+
+def ensure_transients_disjoint_from_governance(
+    repo_root: Path,
+    transient_paths: list[str],
+    reserved_paths: list[tuple[str, str]],
+) -> None:
+    normalized_reserved: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for label, raw in reserved_paths:
+        normalized = normalized_relative(raw, label)
+        ensure_no_symlink_chain(repo_root, normalized, label)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        normalized_reserved.append((label, normalized))
+    for transient in transient_paths:
+        for label, reserved in normalized_reserved:
+            if paths_overlap(transient, reserved):
+                raise RunnerBlock(
+                    "transient output overlaps Task Session governance path: "
+                    f"{transient} and {label} {reserved}"
+                )
+
+
+def request_governance_reservations(
+    repo_root: Path,
+    request: dict[str, Any],
+    run_dir: Path,
+    *,
+    plan_contract: dict[str, Any] | None = None,
+    executor_contract: dict[str, Any] | None = None,
+) -> list[tuple[str, str]]:
+    reserved: list[tuple[str, str]] = []
+    plan = plan_contract or request.get("plan_admission")
+    if plan is not None:
+        reserved.append(
+            (
+                "plan admission consumption ledger",
+                plan["consumption_ledger_path"],
+            )
+        )
+    prerequisite = request.get("pre_execution_prerequisite")
+    if prerequisite is not None:
+        reserved.extend(
+            [
+                (
+                    "pre-execution prerequisite consumption ledger",
+                    prerequisite["consumption_ledger_path"],
+                ),
+                (
+                    "pre-execution prerequisite resume receipt",
+                    prerequisite["resume_receipt_path"],
+                ),
+            ]
+        )
+    if executor_contract is not None:
+        reserved.append(
+            (
+                "executor expected receipt",
+                executor_contract["expected_receipt_path"],
+            )
+        )
+    reserved.append(("run directory", relative_path(repo_root, run_dir)))
+    return reserved
+
+
+def validate_transient_declarations(
+    repo_root: Path,
+    request: dict[str, Any],
+    run_dir: Path,
+    *,
+    plan_contract: dict[str, Any] | None = None,
+    executor_contract: dict[str, Any] | None = None,
+) -> None:
+    paths = transient_output_paths(request["execution_contract"])
+    if len(paths) != len(set(paths)):
+        raise RunnerBlock("transient output paths must be unique")
+    for index, raw in enumerate(paths):
+        if raw != normalized_relative(raw, f"transient output {index}"):
+            raise RunnerBlock(f"transient output path is not canonical: {raw}")
+        target = ensure_no_symlink_chain(
+            repo_root, raw, f"transient output {index}"
+        )
+        if os.path.lexists(target):
+            raise RunnerBlock(f"transient output pre-execution state is not absent: {raw}")
+    for index, left in enumerate(paths):
+        for right in paths[index + 1 :]:
+            if paths_overlap(left, right):
+                raise RunnerBlock(
+                    f"transient output scopes overlap: {left} and {right}"
+                )
+    ensure_transients_disjoint_from_governance(
+        repo_root,
+        paths,
+        request_governance_reservations(
+            repo_root,
+            request,
+            run_dir,
+            plan_contract=plan_contract,
+            executor_contract=executor_contract,
+        ),
+    )
+    durable_paths = [
+        *request["execution_contract"]["allowed_writes"],
+        *request["execution_contract"]["declared_outputs"],
+        request["closeout_contract"]["terminal_receipt_path"],
+    ]
+    for transient in paths:
+        for durable in durable_paths:
+            if paths_overlap(transient, durable):
+                raise RunnerBlock(
+                    f"transient output overlaps durable or terminal scope: "
+                    f"{transient} and {durable}"
+                )
+
+
+def validate_ticket_transient_reservations(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+) -> None:
+    expected_receipt_path = relative_path(
+        repo_root, run_dir / "terminal-executor-receipt.json"
+    )
+    if ticket["executor_contract"]["expected_receipt_path"] != expected_receipt_path:
+        raise RunnerBlock(
+            "ticket executor expected receipt path must equal the run-scoped terminal path"
+        )
+    reserved: list[tuple[str, str]] = []
+    if ticket.get("plan_admission") is not None:
+        reserved.append(
+            (
+                "plan admission consumption ledger",
+                ticket["plan_admission"]["consumption_ledger_path"],
+            )
+        )
+    reserved.extend(
+        [
+            (
+                "pre-execution prerequisite consumption ledger",
+                relative_path(
+                    repo_root, run_dir / "pre-execution-consumption.json"
+                ),
+            ),
+            (
+                "pre-execution prerequisite resume receipt",
+                relative_path(
+                    repo_root, run_dir / "pre-execution-resume-receipt.json"
+                ),
+            ),
+            (
+                "executor expected receipt",
+                ticket["executor_contract"]["expected_receipt_path"],
+            ),
+            ("run directory", relative_path(repo_root, run_dir)),
+        ]
+    )
+    ensure_transients_disjoint_from_governance(
+        repo_root,
+        transient_output_paths(ticket),
+        reserved,
+    )
+
+
+def validate_ticket_checkpoint_binding(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+) -> None:
+    ticket_path = run_dir / "execution-ticket.json"
+    ticket_ref = exact_ref(repo_root, ticket_path)
+    ticketed_path = checkpoint_paths(run_dir)[3]
+    if not ticketed_path.is_file():
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_CHECKPOINT_REF_STALE: "
+            "ticketed checkpoint is missing"
+        )
+    ticketed = load_object(ticketed_path, "ticketed checkpoint")
+    validate_schema(
+        ticketed,
+        load_object(
+            schema_dir() / "governance-phase-receipt.schema.json",
+            "phase receipt schema",
+        ),
+        "ticketed checkpoint",
+    )
+    expected_inputs = [ticketed["predecessor"]["receipt_ref"], ticket_ref]
+    if not (
+        ticketed["phase"] == "ticketed"
+        and ticketed["phase_index"] == 4
+        and ticketed["input_refs"] == expected_inputs
+        and ticketed["output_refs"] == [ticket_ref]
+    ):
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_CHECKPOINT_REF_STALE: "
+            "current execution ticket differs from the ticketed checkpoint binding"
+        )
+
+
+def validate_ticket_request_admission_closure(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+) -> None:
+    _, request = read_exact_ref(
+        repo_root,
+        ticket["request_ref"],
+        "ticket governance request",
+    )
+    validate_schema(
+        request,
+        load_object(
+            schema_dir() / "governance-run-request.schema.json",
+            "request schema",
+        ),
+        "ticket governance request",
+    )
+    expected_identity = (
+        ticket["ticket_id"]
+        == f"ticket:{request['run_id']}:{request['swu_id']}"
+        and ticket["run_id"] == request["run_id"]
+        and ticket["task_id"] == request["task_id"]
+        and ticket["swu_id"] == request["swu_id"]
+        and ticket["owner_identity"] == request["owner_identity"]
+        and ticket["idempotency_key"] == request["idempotency_key"]
+        and ticket["control_refs"] == request["control_refs"]
+        and ticket["allowed_writes"]
+        == request["execution_contract"]["allowed_writes"]
+        and ticket["declared_outputs"]
+        == request["execution_contract"]["declared_outputs"]
+        and ticket["validation_contracts"]
+        == request["execution_contract"]["validation_commands"]
+        and ticket["closeout_contract"] == request["closeout_contract"]
+    )
+    if not expected_identity:
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_REQUEST_CLOSURE_DRIFT: "
+            "execution ticket differs from its exact governance request"
+        )
+
+    controls: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for reference in request["control_refs"]:
+        _, document = read_exact_ref(
+            repo_root,
+            reference,
+            "ticket governance control",
+        )
+        controls.append((reference, document))
+    _, admission_ref, _, executor_config = classify_controls(
+        controls,
+        request["task_id"],
+        request["swu_id"],
+    )
+    expected_executor = executor_contract_from_config(
+        repo_root,
+        request,
+        run_dir,
+        executor_config,
+    )
+    if ticket["executor_contract"] != expected_executor:
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_EXECUTOR_CONTRACT_DRIFT: "
+            "ticket executor contract differs from its exact control"
+        )
+
+    request_transients = request["execution_contract"].get(
+        "transient_outputs", []
+    )
+    ticket_transients = ticket.get("transient_outputs", [])
+    if ticket_transients != request_transients:
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_TRANSIENT_CLOSURE_DRIFT: "
+            "ordered ticket transient outputs differ from the exact request"
+        )
+
+    fast_entry = fast_execution_entry_contract(repo_root, request)
+    if fast_entry is None:
+        if "entry_profile" in ticket or "fast_execution_entry" in ticket:
+            raise RunnerBlock(
+                "TASK_SESSION_TICKET_REQUEST_CLOSURE_DRIFT: "
+                "ticket fast-entry binding is not present in the exact request"
+            )
+    elif not (
+        ticket.get("entry_profile") == "work-pack-fast-entry"
+        and ticket.get("fast_execution_entry") == fast_entry
+    ):
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_REQUEST_CLOSURE_DRIFT: "
+            "ticket fast-entry binding differs from the exact request"
+        )
+
+    expected_plan = plan_admission_contract(
+        repo_root,
+        request,
+        admission_ref,
+        fast_entry,
+    )
+    if expected_plan is None:
+        if "admission_profile" in ticket or "plan_admission" in ticket:
+            raise RunnerBlock(
+                "TASK_SESSION_TICKET_ADMISSION_BINDING_DRIFT: "
+                "ticket plan admission is not present in the exact request"
+            )
+    elif not (
+        ticket.get("admission_profile") == "plan-once-selected-unit"
+        and ticket.get("plan_admission") == expected_plan
+    ):
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_ADMISSION_BINDING_DRIFT: "
+            "ticket plan admission differs from its exact receipt and control"
+        )
+
+    if not request_transients:
+        return
+    _, admission = read_exact_ref(
+        repo_root,
+        admission_ref,
+        "ticket mutation admission receipt",
+    )
+    validate_schema(
+        admission,
+        load_object(
+            schema_dir() / "mutation-admission-receipt.schema.json",
+            "mutation admission receipt schema",
+        ),
+        "ticket mutation admission receipt",
+    )
+    transient_paths = [item["path"] for item in request_transients]
+    material_writes = request["execution_contract"]["allowed_writes"]
+    execution_outputs = [
+        request["closeout_contract"]["terminal_receipt_path"],
+        *transient_paths,
+    ]
+    allowed_writes = [*material_writes, *execution_outputs]
+    if not (
+        admission.get("schemaVersion") == "1.3.0"
+        and admission.get("transientOutputs") == transient_paths
+        and sorted(admission.get("materialWrites", []))
+        == sorted(material_writes)
+        and sorted(admission.get("executionOutputs", []))
+        == sorted(execution_outputs)
+        and sorted(admission.get("allowedWrites", []))
+        == sorted(allowed_writes)
+    ):
+        raise RunnerBlock(
+            "TASK_SESSION_TICKET_ADMISSION_PARTITION_DRIFT: "
+            "ticket mutation admission does not close material, execution, "
+            "transient, and allowed write partitions"
+        )
+
+
+def validate_ticket_execution_closure(
+    repo_root: Path,
+    run_dir: Path,
+    ticket: dict[str, Any],
+) -> None:
+    validate_ticket_checkpoint_binding(repo_root, run_dir, ticket)
+    validate_ticket_request_admission_closure(repo_root, run_dir, ticket)
+
+
+def verify_transient_absence(
+    repo_root: Path,
+    ticket: dict[str, Any],
+    phase: str,
+) -> None:
+    for raw in transient_output_paths(ticket):
+        target = ensure_no_symlink_chain(repo_root, raw, f"{phase} transient output")
+        if os.path.lexists(target):
+            raise RunnerBlock(f"transient output residue at {phase}: {raw}")
 
 
 def execution_writes_fit_route_scope(
@@ -410,6 +822,7 @@ def fast_execution_entry_contract(
             route["write_scope"],
             [
                 *request["execution_contract"]["allowed_writes"],
+                *transient_output_paths(request["execution_contract"]),
                 request["closeout_contract"]["terminal_receipt_path"],
             ],
         )
@@ -456,8 +869,12 @@ def plan_admission_contract(
     _, selection = read_exact_ref(
         repo_root, plan["selection_receipt_ref"], "plan selection receipt"
     )
+    transient_paths = sorted(
+        transient_output_paths(request["execution_contract"])
+    )
+    expected_admission_version = "1.3.0" if transient_paths else "1.2.0"
     expected = (
-        admission.get("schemaVersion") == "1.2.0"
+        admission.get("schemaVersion") == expected_admission_version
         and admission.get("admissionProfile") == "plan-once-selected-unit"
         and admission.get("admissionVerdict") == "admit"
         and admission.get("mutationReady") is True
@@ -499,6 +916,7 @@ def plan_admission_contract(
         )
         material_writes = sorted(admission.get("materialWrites", []))
         execution_outputs = sorted(admission.get("executionOutputs", []))
+        admitted_transients = sorted(admission.get("transientOutputs", []))
         allowed_writes = sorted(admission.get("allowedWrites", []))
         requested_writes = sorted(request["execution_contract"]["allowed_writes"])
         terminal_output = request["closeout_contract"]["terminal_receipt_path"]
@@ -507,15 +925,24 @@ def plan_admission_contract(
                 raise RunnerBlock(
                     "fast-entry execution writes differ from plan material admission"
                 )
-            if execution_outputs != [terminal_output]:
+            expected_execution_outputs = sorted([terminal_output, *transient_paths])
+            if execution_outputs != expected_execution_outputs:
                 raise RunnerBlock(
-                    "fast-entry terminal output differs from plan execution admission"
+                    "fast-entry terminal/transient outputs differ from plan execution admission"
+                )
+            if admitted_transients != transient_paths:
+                raise RunnerBlock(
+                    "fast-entry transient outputs differ from plan transient admission"
                 )
             if allowed_writes != sorted(material_writes + execution_outputs):
                 raise RunnerBlock(
                     "fast-entry plan admission write closure is inconsistent"
                 )
         elif admission.get("writeProfile") == "execution-output-only":
+            if transient_paths:
+                raise RunnerBlock(
+                    "fast-entry transient outputs require material-bound admission"
+                )
             if terminal_output in requested_writes:
                 raise RunnerBlock(
                     "fast-entry output-only plan admission duplicates the terminal receipt"
@@ -989,6 +1416,7 @@ def prerequisite_resume(
         load_object(schema_dir() / "governance-run-request.schema.json", "request schema"),
         "governance run request",
     )
+    validate_transient_declarations(repo_root, request, run_dir)
     chain = validate_pre_execution_chain(repo_root, request_path, request)
     prerequisite = request["pre_execution_prerequisite"]
     ledger_path, receipt_path = pre_execution_paths(repo_root, run_dir, prerequisite)
@@ -1103,6 +1531,8 @@ def status_document(repo_root: Path, run_dir: Path) -> dict[str, Any]:
             load_object(schema_dir() / "execution-ticket.schema.json", "ticket schema"),
             "execution ticket",
         )
+        validate_ticket_transient_reservations(repo_root, run_dir, ticket)
+        validate_ticket_execution_closure(repo_root, run_dir, ticket)
     if current["phase"] == "reconciled":
         reconciliation_path = run_dir / "reconciliation.json"
         if not reconciliation_path.is_file():
@@ -1152,6 +1582,7 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         load_object(schema_dir() / "governance-run-request.schema.json", "request schema"),
         "governance run request",
     )
+    validate_transient_declarations(repo_root, request, run_dir)
     request_ref = exact_ref(repo_root, request_path)
     pre_execution_resume = None
     fast_entry = fast_execution_entry_contract(repo_root, request)
@@ -1200,12 +1631,18 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
     plan_contract = plan_admission_contract(
         repo_root, request, admission_ref, fast_entry
     )
-    baselines = baseline_inventory(
-        repo_root, request["execution_contract"]["allowed_writes"]
-    )
-
     executor_contract = executor_contract_from_config(
         repo_root, request, run_dir, executor_config
+    )
+    validate_transient_declarations(
+        repo_root,
+        request,
+        run_dir,
+        plan_contract=plan_contract,
+        executor_contract=executor_contract,
+    )
+    baselines = baseline_inventory(
+        repo_root, request["execution_contract"]["allowed_writes"]
     )
 
     resolved_inputs = [request_ref, request["work_pack_ref"], request["swu_ref"]]
@@ -1293,6 +1730,10 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         "idempotency_key": request["idempotency_key"],
         "closeout_contract": request["closeout_contract"],
     }
+    if "transient_outputs" in request["execution_contract"]:
+        ticket["transient_outputs"] = request["execution_contract"][
+            "transient_outputs"
+        ]
     if plan_contract is not None:
         ticket["admission_profile"] = "plan-once-selected-unit"
         ticket["plan_admission"] = plan_contract
@@ -1304,6 +1745,7 @@ def prepare(repo_root: Path, request_path: Path, run_dir: Path) -> dict[str, Any
         load_object(schema_dir() / "execution-ticket.schema.json", "ticket schema"),
         "execution ticket",
     )
+    validate_ticket_transient_reservations(repo_root, run_dir, ticket)
     ticket_bytes = rendered_bytes(ticket)
     ticket_path = run_dir / "execution-ticket.json"
     ticket_ref = {
@@ -1389,6 +1831,8 @@ def validate_executor_receipt(
     ticket: dict[str, Any],
     receipt_path: Path,
 ) -> dict[str, Any]:
+    validate_ticket_transient_reservations(repo_root, run_dir, ticket)
+    validate_ticket_execution_closure(repo_root, run_dir, ticket)
     contract = ticket["executor_contract"]
     expected_path = resolve_repo_path(
         repo_root, contract["expected_receipt_path"], "expected executor receipt"
@@ -1416,6 +1860,31 @@ def validate_executor_receipt(
     ]:
         raise RunnerBlock("executor terminal sequence path mismatch")
 
+    expected_transients = ticket.get("transient_outputs", [])
+    received_transients = receipt.get("transient_results")
+    if expected_transients:
+        if not isinstance(received_transients, list):
+            raise RunnerBlock("executor receipt lacks transient output evidence")
+        if len(received_transients) != len(expected_transients):
+            raise RunnerBlock("executor transient output evidence cardinality mismatch")
+        for index, (expected, received) in enumerate(
+            zip(expected_transients, received_transients, strict=True)
+        ):
+            if not (
+                received["path"] == expected["path"]
+                and received["path_kind"] == expected["path_kind"]
+                and received["touched"] is True
+                and received["cleanup_attempted"] is True
+                and received["cleanup_result"] == "removed"
+                and received["terminal_state"] == "absent"
+            ):
+                raise RunnerBlock(
+                    f"executor transient output evidence {index} differs from ticket"
+                )
+    elif received_transients is not None:
+        raise RunnerBlock("executor receipt declares unadmitted transient output evidence")
+    verify_transient_absence(repo_root, ticket, "executor receipt")
+
     receipt_mtime = receipt_path.stat().st_mtime_ns
     for raw in receipt["touched_files"]:
         target = resolve_repo_path(repo_root, raw, "executor touched file")
@@ -1442,12 +1911,16 @@ def executor_join(
 
     ticket_path = run_dir / "execution-ticket.json"
     ticket = load_object(ticket_path, "execution ticket")
+    validate_ticket_transient_reservations(repo_root, run_dir, ticket)
+    validate_ticket_execution_closure(repo_root, run_dir, ticket)
     contract = ticket["executor_contract"]
     expected_receipt = resolve_repo_path(
         repo_root, contract["expected_receipt_path"], "expected executor receipt"
     )
     if joined_receipt is not None and joined_receipt.resolve() != expected_receipt:
         raise RunnerBlock("explicit joined receipt differs from ticket path")
+
+    verify_transient_absence(repo_root, ticket, "executor launch")
 
     if ticket.get("admission_profile") == "plan-once-selected-unit":
         verify_plan_live_baselines(repo_root, ticket)
@@ -1703,6 +2176,8 @@ def reconcile(
 
     ticket_path = run_dir / "execution-ticket.json"
     ticket = load_object(ticket_path, "execution ticket")
+    validate_ticket_transient_reservations(repo_root, run_dir, ticket)
+    validate_ticket_execution_closure(repo_root, run_dir, ticket)
     ticket_ref = exact_ref(repo_root, ticket_path)
 
     expected_receipt_path = resolve_repo_path(
@@ -1713,6 +2188,7 @@ def reconcile(
     executor_receipt = validate_executor_receipt(
         repo_root, run_dir, ticket, expected_receipt_path
     )
+    verify_transient_absence(repo_root, ticket, "reconciliation")
     executor_receipt_ref = exact_ref(repo_root, expected_receipt_path)
     execution_received = load_object(
         checkpoint_paths(run_dir)[4], "execution-received checkpoint"
@@ -1859,6 +2335,9 @@ def transaction_plan(
     ticket_path = run_dir / "execution-ticket.json"
     reconciliation_path = run_dir / "reconciliation.json"
     ticket = load_object(ticket_path, "execution ticket")
+    validate_ticket_transient_reservations(repo_root, run_dir, ticket)
+    validate_ticket_execution_closure(repo_root, run_dir, ticket)
+    verify_transient_absence(repo_root, ticket, "commit")
     reconciliation = load_object(reconciliation_path, "reconciliation evidence")
     ticket_ref = exact_ref(repo_root, ticket_path)
     reconciliation_ref = exact_ref(repo_root, reconciliation_path)

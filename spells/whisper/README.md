@@ -53,6 +53,7 @@ The first proof target is a Substack post for an Arcanum research group. Fundrai
 | `composition_plan` | Whisper | plan phase | transport audition, draft phase, review |
 | `surface_map` | Whisper | transport selection, composition plan | transport audition, draft phase, validation |
 | `language_audition` | Whisper | transport audition | full draft, validation |
+| `interaction_prompt_audit` | Whisper | composition plan, transport audition, validation | draft phase, review, learning residue |
 | `intent_state` | Whisper | intake, operator correction, intent receipt | composition plan, derivative generation, observability |
 | `draft_artifact` | Whisper | draft phase | validation, revision |
 | `learning_residue` | Whisper | validation, reflection | future composition runs |
@@ -70,6 +71,7 @@ Whisper treats composition as an artifact state machine, not as a loose sequence
 | `composition_plan` | construction plan | plan phase | draft phase, review | body parts, sequence, anchor, examples, validation checklist, and the delivery-flow map for public-facing work are ready |
 | `surface_map` | transport surface contract | transport selection, plan phase | transport audition, draft phase, validation | audience-facing, presenter-facing, and authoring-only content have distinct owners |
 | `language_audition` | early transport proof | transport audition | full draft, validation | representative moments pass transport-specific review before full artifact generation |
+| `interaction_prompt_audit` | discriminative prompt review | composition plan, transport audition, validation | draft phase, review, learning residue | every scored prompt either passes the discriminative audit or is explicitly classified as recognition-only |
 | `draft_artifact` | text artifact | draft phase | validation, revision | draft exists, names its schema source, and preserves known citation gaps |
 | `review_html` | review surface | review phase | revision, learning residue | every draft can be rendered into stable comment blocks whose agent payload preserves `block_id`, `part_id`, selected text, and requested change mode |
 | `validation_report` | quality gate | validation | revision, learning residue | checks pass, flag, or block with actionable reasons |
@@ -103,9 +105,9 @@ This keeps review feedback addressable enough for the next Whisper revision pass
 | 1. Transport and intent intake | `structured-interview-kits` | raw author intent | selected transport and blocker decisions | transport, objective, target public, and success signal are named | Ask one focused question; block only when target text cannot be identified. |
 | 2. Substrate distillation | `distill` | intake record | `text_intent_substrate` with resonance, relevance, and trajectory cores | each core has named values and recomposes into the target artifact | Flag unsupported assumptions; route consequential uncertainty to `decision-gate`. |
 | 3. SCU candidate tournament | `distill` | substrate and transport schema | candidate primitive/technique sets | one balanced candidate preserves Pareto trade-offs across all three cores | Keep stable disagreement in the ledger; do not optimize only tone/style. |
-| 4. Composition plan | Whisper | selected candidate set | body-part plan, surface map, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, constraints, transport-owned surfaces, and the default delivery-flow extension for public-facing work | Keep authoring intent out of audience surfaces; stop derivative fan-out while intent is volatile. |
-| 5. Transport audition | Whisper | composition plan and surface map | smallest representative transport sample | required sample moments pass transport-specific review; live presentations require explicit operator voice approval | Stop before full generation when the audition is flagged, blocked, or unapproved. An audition cannot prove a transport. |
-| 6. Draft and review | Whisper | approved audition and composition plan | draft text and review notes | draft passes constraint, audience, resonance, structure, default delivery-flow checks for public-facing work, and transport-specific checks | Produce revision tasks or return flag when quality is below target. Browser, rendering, or density checks cannot promote editorial status. |
+| 4. Composition plan | Whisper | selected candidate set | body-part plan, surface map, template, validation checklist | plan includes introduction policy, narrative anchor, sections, ending, constraints, transport-owned surfaces, the default delivery-flow extension for public-facing work, and a discriminative prompt audit when the transport contains scored questions or choices | Keep authoring intent out of audience surfaces; stop derivative fan-out while intent is volatile. |
+| 5. Transport audition | Whisper | composition plan and surface map | smallest representative transport sample | required sample moments pass transport-specific review; scored prompts pass discriminative prompt safety or are labeled recognition-only; live presentations require explicit operator voice approval | Stop before full generation when the audition is flagged, blocked, or unapproved. An audition cannot prove a transport. |
+| 6. Draft and review | Whisper | approved audition and composition plan | draft text and review notes | draft passes constraint, audience, resonance, structure, default delivery-flow checks for public-facing work, discriminative prompt safety when applicable, and transport-specific checks | Produce revision tasks or return flag when quality is below target. Browser, rendering, density, or answer-key checks cannot promote editorial status. |
 | 7. Learning residue | Whisper | final or flagged draft | reusable lessons, technique results, unresolved gaps | residue distinguishes observed result from canonical truth | Defer promotion to inventory or glossary owners when durable knowledge appears. |
 
 ## SCU Core Model
@@ -211,6 +213,48 @@ asks a participant to enter one. In that case, test whether the audience can
 retell the input or invitation, transformation, immediate consequence, and
 later lifecycle or limit. Other transports do not inherit this structure.
 
+### Discriminative interaction prompts
+
+Activate `discriminative_prompt_safety` whenever a transport asks the audience
+to select, rank, diagnose, or otherwise submit an answer that will be treated as
+correct or incorrect. A scored prompt must create the need for a distinction
+without stating the distinction's answer before the attempt.
+
+For every scored prompt:
+
+1. Name the `target_distinction`, the deciding relation, and the misconception
+   each distractor represents in authoring-only metadata.
+2. Give the audience enough concrete evidence to reason: an actor, object,
+   consequence, and decision when the transport supports them. Complexity,
+   headcount, urgency, or decorative story detail must not substitute for the
+   deciding relation.
+3. Make every alternative locally plausible under the visible facts. Keep
+   choices parallel in grammar, specificity, modality, status, and approximate
+   length; avoid one complete answer surrounded by caricatures.
+4. Audit the complete pre-attempt surface, including headings, setup prose,
+   examples, diagrams, authoritative speakers, notes exposed to the audience,
+   and option text. The correct option must not uniquely repeat the setup's
+   wording, formal token, number, role label, status, emphasis, or conclusion.
+5. Run a counterfactual switch: change only the deciding relation while keeping
+   surface complexity comparable. The intended answer should change for a
+   reason the feedback can explain.
+6. Reveal correctness only after an attempt. Feedback must name the deciding
+   relation and explain why the selected alternative does or does not satisfy
+   it; repeating the answer label is insufficient.
+
+Record `target_distinction`, `pre_attempt_disclosures`,
+`distractor_misconceptions`, `choice_parity`, `counterfactual_switch`,
+`feedback_relation`, and the final status in `interaction_prompt_audit`.
+Intentional lookup, rehearsal, and confirmation prompts may be labeled
+`recognition_only`; they still need honest wording and accessible choices, but
+they cannot count as discrimination, transfer, or comprehension evidence.
+
+Executable lint may flag lexical overlap, length outliers, answer-position
+clustering, implausible absolutes, and formal-token exposure. Those signals are
+review aids, not proof. Human editorial review retains authority over whether
+the alternatives are plausible, the deciding relation is earned, or the prompt
+measures the intended distinction.
+
 ## Preset Extensions
 
 Whisper can use local preset packages when the target document needs a more
@@ -256,7 +300,8 @@ A live-presentation draft cannot receive `pass` unless all of these checks pass:
 - `read_aloud_natural`: a presenter can say the spoken copy naturally.
 - `projected_copy_is_audience_facing`: projected words address the room rather
   than describe the authoring process.
-- `question_does_not_contain_answer`: prompts preserve genuine thinking time.
+- `question_does_not_contain_answer`: prompts pass the applicable
+  `discriminative_prompt_safety` audit and preserve genuine thinking time.
 - `no_unearned_jargon`: formal terms appear only after the audience has a reason
   to need them.
 - `one_visible_thought_per_moment`: the screen does not project title, metadata,
@@ -292,6 +337,7 @@ Record spell-level telemetry when `.arcanum/observability/` exists:
 - intent state and derivative fan-out count,
 - validation result,
 - user corrections and correction scope, including append-only correction events when a prior pass is rejected,
+- interaction prompt audit status, recognition-only classifications, and cue categories when applicable,
 - learning residue and next transport pressure.
 
 Whisper owns the values it emits. Shared envelope fields, ledger projections,
@@ -316,6 +362,7 @@ Return:
 - Draft status: pass | flag | block
 - Human gate: approved | rejected | pending | not_applicable
 - Delivery flow: active | inactive | not_applicable
+- Interaction prompt safety: pass | flag | recognition_only | not_applicable
 - Validation: <checks and result>
 - Learning residue: <durable lessons or none>
 - Next route: revise | publish-prep | task-session | decision-gate | deferred

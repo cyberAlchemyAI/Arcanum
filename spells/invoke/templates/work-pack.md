@@ -30,6 +30,13 @@ This template is standalone at invoke scope and is composed by the DomainSpec im
 | swuAtomicityStatus | pass, flag, block, or n/a | Required for medium/high plans; task-shaped SWUs block handoff. |
 | firstUnitNarrownessStatus | pass, flag, block, or n/a | Required before selecting the first mutation-capable SWU. |
 | closeoutSyncStatus | pass or block | Pass only when every mutation-capable SWU has a complete Task Session closeout contract. |
+| executionDesignation | execution-candidate or non-executing | Mutation-capable Work Packs must be execution-candidate. Non-executing requires a reason and cannot route to Task Session. |
+| implementationReadinessStatus | pass, block, or n/a | Pass requires the exact proof-only receipt from the final WPRA bytes. |
+| implementationReadinessReceiptRef | {exact path, sha256, size or n/a} | `IMPLEMENTATION-READINESS-PREFLIGHT.json`; non-reusable for execution. |
+| finiteStreamSupervisorMode | accepted-finite-stream or n/a | Required for an execution-candidate finite frontier. |
+| finiteStreamRequestBudget | {exact frontier length or n/a} | Must equal the complete ordered frontier length. |
+| finiteStreamRiskCeiling | read-only, bounded-write, browser, network, or n/a | Exact acceptance-bound ceiling; later widening requires renewed acceptance. |
+| exactAcceptanceStatus | unapproved, approved, or n/a | Invoke emits `unapproved`; Decision Gate owns exact post-generation acceptance. |
 | admissionTiming | selected-unit-at-task-session or full-frontier | New plans default to selected-unit timing; full-frontier requires a named reason. |
 | executionEntryState | selection-ready, owner-prerequisite, task-ready, or blocked | Must name exactly one truthful current state. |
 | allowedRoutesDigest | {sha256} | Canonical digest of the exact internal route projection. |
@@ -100,6 +107,36 @@ boundary is expressed by the Invoke Refresh mode, exact target and write scope,
 the Closeout Contract, expected receipt, and derived authorization. Validate
 the machine-readable execution-entry projection with the installed
 Implementation Readiness validator before marking this Work Pack pass-ready.
+
+## Implementation Readiness Candidate
+
+Mutation-capable Work Packs use `executionDesignation:
+execution-candidate`. After the final WPRA config exists, Invoke Plan runs the
+installed `prepare_plan_implementation_readiness.py` producer. The one command
+runs WPRA into a new output directory, preserves a failed audit status, and only
+then stores `IMPLEMENTATION-READINESS-PREFLIGHT.json` beside the plan artifacts.
+
+The receipt must bind the Work Pack semantic digest, complete ordered
+frontier, exact policy and allowed-route digests, one Task Session route and
+typed validation-contract digest per unit, and a real proof-only
+`proceed/TASK_READY` guard result for the first unfinished unit. It must also
+state:
+
+```yaml
+reusable_for_execution: false
+mutation_ready: false
+authority_effect: none
+```
+
+This makes the plan ready for exact acceptance, not self-accepted or
+mutation-ready. Decision Gate must bind the final artifact inventory after
+generation. A later execution request produces a fresh direct-intent binding,
+selection receipt, fast-entry request/receipt, live baselines, and single-use
+mutation admission.
+
+Use `executionDesignation: non-executing` only for a plan with no
+mutation-capable Work Pack. Record the exact reason, set readiness fields to
+`n/a`, and do not expose Task Session as the next route.
 
 When `declared-retry` is present, it authorizes only one retry after the same
 owner route returns `REPAIRABLE_OWNER_CONDITION` for the unchanged entry,
@@ -273,6 +310,12 @@ Split mode:
 13. Every mutation-capable SWU must have a complete Task Session Closeout Sync
     Contract and `closeoutSyncStatus = pass`; missing closeout prerequisites
     block execution before source mutation.
+14. Every `execution-candidate` must have `implementationReadinessStatus =
+    pass`, a byte-current exact readiness receipt, full-frontier request
+    budget, explicit risk ceiling, and `exactAcceptanceStatus = unapproved`
+    until Decision Gate accepts the final candidate. A missing proof, stale
+    digest, partial route set, or reusable/mutation-ready receipt keeps the
+    gate blocked.
 
 ## Handoff To Execution Pack
 

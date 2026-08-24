@@ -280,6 +280,10 @@ assemble a mutation-admission request that binds the live task/SWU, exact
 controlling artifact references, dependency frontier, material writes,
 validation-owned execution outputs, their complete allowed-write union,
 validation commands, lifecycle owner, authority class, and publication class.
+When execution needs temporary repository-local files or directories, declare
+them separately as `transientOutputs`: an exact nonempty subset of execution
+outputs that requires the transient-aware admission version. Material target
+baselines remain material-only.
 The strict context pack must repeat the complete execution contract so the
 consumer can detect a material target relabeled as an execution output.
 Standalone non-mutating execution does not require this request.
@@ -317,6 +321,24 @@ declared output, and persist the terminal Task Session receipt as the final
 write. An `execution-output-only` admission grants no material mutation,
 promotion, publication, or lifecycle authority. Execution outputs are not
 required to exist at admission time and may not expand the admitted union.
+Transient outputs are never durable staged postimages. The governance request
+and ticket must type them separately, require absent pre-execution state,
+repository containment, non-overlap, and no symbolic-link traversal, and the
+executor receipt must record exact touch and cleanup evidence. Every transient
+must be absent before that receipt and remain absent through reconciliation and
+commit. A transient scope must also be disjoint by equality and ancestry from
+the run directory, plan-admission consumption ledger, pre-execution prerequisite
+ledger and resume receipt, the executor receipt, durable material and declared
+outputs, and terminal Task Session receipt. The executor receipt path remains
+exactly `<run-dir>/terminal-executor-receipt.json`; configuration may not move it
+outside the run directory. Enforce the complete reservation before the first
+run write. Bind the exact execution-ticket bytes to the ticketed checkpoint,
+then re-read the ticket's exact governance request and mutation-admission
+control. Require ordered transient equality across request, ticket, and
+admission, plus complete material, execution-output, and allowed-write
+partition closure. Recheck these bindings at status, executor launch and join,
+reconciliation, and commit.
+Existing non-transient requests retain the legacy contract unchanged.
 37h. When the audit profile is `selected-unit-at-task-session`, require the
 exact Plan Semantic Manifest and selection receipt before accepting material.
 Bind task, SWU, plan epoch, unit-contract digest, attempt, complete structured
@@ -356,10 +378,13 @@ ticket or pre-joined executor output cannot reuse or bypass that admission.
     recovery or a named accepted equivalent. Until the original validation or
     accepted equivalent passes, return `BLOCK`; recording a substitute does not
     itself satisfy the obligation.
-48a. For routed or reusable mutation, reconcile paths created or modified by
-     validation against `executionOutputs`. Block on an undeclared output, a
-     missing declared output, or any write outside `allowedWrites`. Write the
-     terminal Task Session receipt only after this reconciliation passes.
+48a. For routed or reusable mutation, reconcile durable staged postimages
+     against the ticket's `declared_outputs` one-to-one with material targets.
+     Separately reconcile every admitted transient against its exact touch and
+     cleanup result and recheck live absence. Block on an undeclared output,
+     missing durable output, missing or substituted transient evidence,
+     transient residue, or any write outside `allowedWrites`. Write the terminal
+     Task Session receipt only after this reconciliation passes.
 49. Return `FLAG` only for named noncritical residue that cannot falsify any
     done criterion. Unnamed residue or residue that can falsify a done criterion
     returns `BLOCK`.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-2-0",
+  "$id": "https://arcanum.dev/schemas/task-session/mutation-admission-receipt/1-3-0",
   "title": "TaskSessionMutationAdmissionReceipt",
   "type": "object",
   "additionalProperties": false,
@@ -29,7 +29,7 @@
     "reasons"
   ],
   "properties": {
-    "schemaVersion": {"const": "1.2.0"},
+    "schemaVersion": {"enum": ["1.2.0", "1.3.0"]},
     "admissionProfile": {
       "oneOf": [
         {"const": "plan-once-selected-unit"},
@@ -82,6 +82,11 @@
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
     },
+    "transientOutputs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
     "allowedWrites": {
       "type": "array",
       "uniqueItems": true,
@@ -118,6 +123,18 @@
   "allOf": [
     {
       "if": {
+        "properties": {"schemaVersion": {"const": "1.3.0"}},
+        "required": ["schemaVersion"]
+      },
+      "then": {
+        "required": ["transientOutputs"]
+      },
+      "else": {
+        "not": {"required": ["transientOutputs"]}
+      }
+    },
+    {
+      "if": {
         "properties": {"admissionVerdict": {"const": "admit"}},
         "required": ["admissionVerdict"]
       },
@@ -125,7 +142,11 @@
         "properties": {
           "mutationReady": {"const": true},
           "liveValidationRequired": {"const": true},
-          "reasons": {"maxItems": 0}
+          "reasons": {"maxItems": 0},
+          "transientOutputs": {
+            "if": {"type": "array"},
+            "then": {"minItems": 1}
+          }
         }
       }
     },

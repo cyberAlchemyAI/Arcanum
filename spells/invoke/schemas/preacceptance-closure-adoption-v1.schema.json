@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/preacceptance-closure-adoption/1-0-0",
+  "title": "InvokePreacceptanceClosureAdoptionV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adoption_id",
+    "proposal_id",
+    "source_reflection_ref",
+    "implementation_owner",
+    "target_contract_refs",
+    "negative_regression_ref",
+    "cross_capability_regression_ref",
+    "rollout_evidence_ref",
+    "later_observability_check",
+    "status",
+    "authority_effect",
+    "claim_ceiling",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.preacceptance-closure-adoption.v1"
+    },
+    "adoption_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "proposal_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "source_reflection_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "implementation_owner": {
+      "const": "spellcraft"
+    },
+    "target_contract_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "negative_regression_ref": {
+      "$ref": "#/$defs/regressionRef"
+    },
+    "cross_capability_regression_ref": {
+      "$ref": "#/$defs/regressionRef"
+    },
+    "rollout_evidence_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "later_observability_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "trigger",
+        "owner"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "scheduled",
+            "pass",
+            "block"
+          ]
+        },
+        "trigger": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "owner": {
+          "const": "workflow-reflect"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "implemented",
+        "enforced",
+        "rejected-with-reason"
+      ]
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "claim_ceiling": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "receipt_digest": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "regressionRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_ref",
+        "result"
+      ],
+      "properties": {
+        "artifact_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "block"
+          ]
+        }
+      }
+    }
+  }
+}

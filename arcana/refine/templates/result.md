@@ -31,6 +31,10 @@ what the refinement established or why it stopped, and why that matters.>
 - Preset: `compact | standard | full | deep`
 - Loop count: canonical default loop, budget tuned by preset
 - Final synthesis: `<summary or blocked reason>`
+- Execution designation: `execution-candidate | non-executing`
+- Invoke Plan readiness binding: `INVOKE-PLAN-READINESS-BINDING.json`
+- Implementation readiness: `<Invoke receipt path and pass | n/a with reason | block>`
+- Exact acceptance: `<required next action | n/a>`
 - Promotion evidence: `yes | no`
 
 ## Dispatch Evidence
@@ -52,6 +56,7 @@ what the refinement established or why it stopped, and why that matters.>
 - Interrogation refine-design-review: `pass | flag | block`
 - Distill Repair: `pass | flag | block`
 - Invoke Plan: `pass | flag | block`
+- Invoke Plan readiness binding: `pass | not-applicable | block`
 - Final Interrogation and Synthesis: `pass | flag | block`
 
 ## Recommended Next Routes

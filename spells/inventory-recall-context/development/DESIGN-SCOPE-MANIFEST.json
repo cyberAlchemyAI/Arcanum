@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "irc-design-scope-20260807",
+  "target_id": "inventory-recall-context",
+  "target_footprint": {
+    "roots": [
+      {
+        "path": "spells/inventory-recall-context/README.md",
+        "digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+      }
+    ],
+    "inclusions": [
+      {
+        "selector": "spellcraft-acceptance",
+        "path": "spells/inventory-recall-context/development/SPELLCRAFT-ACCEPTANCE.md",
+        "digest": "c7fb5db7c58681f7501241dc10cbfd135b062a98da0de46925a651a5f588ec0e"
+      },
+      {
+        "selector": "implementation-layering",
+        "path": "spells/inventory-recall-context/development/IMPLEMENTATION-LAYERING.md",
+        "digest": "7e6a40244d1fe150fb8a1c2d70b1b749fe6345398e90fc0383d57964fb0d966e"
+      },
+      {
+        "selector": "l0-work-pack",
+        "path": "spells/inventory-recall-context/development/WORK-PACK.md",
+        "digest": "c2185d740787133a4d176cae2564780e92f7b6e7188842beeec3aa75bc070e16"
+      },
+      {
+        "selector": "l0-scenarios",
+        "path": "spells/inventory-recall-context/development/L0-SCENARIOS.json",
+        "digest": "5e24caac002ebd95e31a1ced6cec49d66c5d7df2086c0830b3e4e8b791065de5"
+      }
+    ],
+    "exclusions": [
+      {
+        "selector": "spells/inventory-recall-context/runtime",
+        "reason": "runtime files do not exist and implementation is not selected",
+        "evidence_ref": "spells/inventory-recall-context/development/WORK-PACK.md"
+      },
+      {
+        "selector": "registry/SPELLS.md",
+        "reason": "candidate acceptance does not authorize registration",
+        "evidence_ref": "spells/inventory-recall-context/development/SPELLCRAFT-ACCEPTANCE.md"
+      }
+    ]
+  },
+  "source_contracts": [
+    {
+      "source_id": "inventory-contract",
+      "selector": "lookup-process",
+      "path": "arcana/inventory/SKILL.md",
+      "digest": "c26a95a142b0621b0bd7bef82393beb3f8622d1ba5bd96392fa1d6517ff9ae8b"
+    },
+    {
+      "source_id": "context-builder-contract",
+      "selector": "strict-lean-runtime-handoff",
+      "path": "transmutations/context-builder/SKILL.md",
+      "digest": "d37a7c938f8e190d5c8c4f9bbb1796d8122346a90144ebfeb64cd77ee1c1c1b4"
+    }
+  ],
+  "human_actors": [],
+  "rendered_surfaces": [],
+  "interfaces": [
+    {
+      "interface_id": "parent-native-host",
+      "kind": "operator-explicit-native-call",
+      "peer": "parent-native-agent",
+      "direction": "bidirectional",
+      "contract_ref": "RecallRequest and RecallReceipt",
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    },
+    {
+      "interface_id": "inventory-lookup",
+      "kind": "native-sigil-contract",
+      "peer": "inventory",
+      "direction": "outbound",
+      "contract_ref": "arcana/inventory/SKILL.md#lookup-process",
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    },
+    {
+      "interface_id": "context-builder-handoff",
+      "kind": "native-sigil-contract",
+      "peer": "context-builder",
+      "direction": "outbound",
+      "contract_ref": "transmutations/context-builder/SKILL.md#strict-lean-runtime-handoff",
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    }
+  ],
+  "stores": [],
+  "queues": [],
+  "writers": [],
+  "normative_rules": [
+    {
+      "rule_id": "admit-only-derived-pass",
+      "verb": "admit",
+      "subject": "parent-native host",
+      "object": "only a current complete safe within-budget source-bound pack",
+      "enforcement_hint": "derive injectionAllowed from every mandatory predicate",
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    }
+  ],
+  "effects": [
+    {
+      "effect_id": "task-local-context-injection",
+      "reversible": true,
+      "external": false,
+      "privileged": false,
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    }
+  ],
+  "data_and_log_sinks": [
+    {
+      "sink_id": "run-local-recall-receipt",
+      "data_classes": ["request-bindings", "source-digests", "decision-reasons"],
+      "retention_hint": "run-local non-authority evidence only",
+      "source_selector": "spells/inventory-recall-context/README.md",
+      "source_digest": "b25ad8440a95dd86c86a2248e17ed258bfbed2c069eceb14837b317013d4ac22"
+    }
+  ],
+  "deployment_targets": [],
+  "compatibility_boundaries": [],
+  "quality_claims": [],
+  "acceptance_and_readiness_claims": [
+    {
+      "claim_id": "candidate-lifecycle-accepted",
+      "selector": "accepted-for-candidate-development",
+      "evidence_state": "authored-complete",
+      "source_selector": "spells/inventory-recall-context/development/SPELLCRAFT-ACCEPTANCE.md",
+      "source_digest": "c7fb5db7c58681f7501241dc10cbfd135b062a98da0de46925a651a5f588ec0e"
+    }
+  ],
+  "unknowns": [],
+  "input_digest": "594ceae1355ef7342fcfd80fcd0e01b5fb611fe2dcb6852e36798fb798a996a3",
+  "authored_by": "spellcraft-lifecycle-owner"
+}

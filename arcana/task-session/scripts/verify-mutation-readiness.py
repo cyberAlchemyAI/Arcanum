@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
@@ -92,6 +93,51 @@ def normalized_write_set(
     return normalized_paths, errors
 
 
+def scopes_overlap(left: str, right: str) -> bool:
+    left_path = PurePosixPath(left)
+    right_path = PurePosixPath(right)
+    return (
+        left_path == right_path
+        or left_path in right_path.parents
+        or right_path in left_path.parents
+    )
+
+
+def transient_output_failures(
+    repository_root: Path,
+    transient_outputs: set[str],
+    material_writes: set[str],
+    execution_outputs: set[str],
+) -> list[str]:
+    failures: list[str] = []
+    root = repository_root.resolve()
+    transients = sorted(transient_outputs)
+    for index, raw in enumerate(transients):
+        candidate = (root / raw).resolve(strict=False)
+        try:
+            candidate.relative_to(root)
+        except ValueError:
+            failures.append(f"transient output path escape: {raw}")
+            continue
+        current = root
+        for part in PurePosixPath(raw).parts:
+            current /= part
+            if os.path.lexists(current) and current.is_symlink():
+                failures.append(f"transient output traverses symbolic link: {raw}")
+                break
+        if os.path.lexists(root / raw):
+            failures.append(f"transient output is not absent: {raw}")
+        for other in transients[index + 1 :]:
+            if scopes_overlap(raw, other):
+                failures.append(f"transient output scopes overlap: {raw} and {other}")
+        for durable in sorted(material_writes | (execution_outputs - transient_outputs)):
+            if scopes_overlap(raw, durable):
+                failures.append(
+                    f"transient output overlaps durable scope: {raw} and {durable}"
+                )
+    return failures
+
+
 def read_exact_artifact(
     repository_root: Path,
     reference: dict[str, Any],
@@ -172,6 +218,7 @@ def context_contract_failures(
     write_profile: str,
     material_writes: set[str],
     execution_outputs: set[str],
+    transient_outputs: set[str],
     allowed_writes: set[str],
 ) -> list[str]:
     if not isinstance(contract, dict):
@@ -192,6 +239,21 @@ def context_contract_failures(
         failures.extend(f"context pack {error}" for error in errors)
         if normalized != expected:
             failures.append(f"context pack {label} scope mismatch")
+    if request.get("schemaVersion") == "1.3.0":
+        raw_transients = contract.get("transientOutputs")
+        if not isinstance(raw_transients, list) or any(
+            not isinstance(item, str) for item in raw_transients
+        ):
+            failures.append("context pack transient output scope is invalid")
+        else:
+            normalized, errors = normalized_write_set(
+                {"transientOutputs": raw_transients},
+                "transientOutputs",
+                "transient output",
+            )
+            failures.extend(f"context pack {error}" for error in errors)
+            if normalized != transient_outputs:
+                failures.append("context pack transient output scope mismatch")
     commands = contract.get("validationCommands")
     if (
         not isinstance(commands, list)
@@ -213,11 +275,13 @@ def base_receipt(
     request: dict[str, Any],
     request_digest: str | None,
 ) -> dict[str, Any]:
+    request_version = request.get("schemaVersion")
+    receipt_version = request_version if request_version in {"1.2.0", "1.3.0"} else "1.2.0"
     execution_mode = request.get("executionMode", "invalid")
     if execution_mode not in MUTATION_MODES | {"standalone-nonmutating"}:
         execution_mode = "invalid"
     receipt = {
-        "schemaVersion": "1.2.0",
+        "schemaVersion": receipt_version,
         "executionMode": execution_mode,
         "writeProfile": (
             "nonmutating"
@@ -284,6 +348,14 @@ def base_receipt(
         "liveValidationRequired": execution_mode in MUTATION_MODES,
         "reasons": [],
     }
+    if receipt_version == "1.3.0":
+        receipt["transientOutputs"] = sorted(
+            {
+                item
+                for item in request.get("transientOutputs", [])
+                if isinstance(item, str) and item
+            }
+        )
     if request.get("admissionProfile") == "plan-once-selected-unit":
         plan = request.get("planAdmission", {})
         receipt.update(
@@ -529,14 +601,31 @@ def resolve_mutation_admission(
     execution_outputs, execution_output_errors = normalized_write_set(
         request, "executionOutputs", "execution output"
     )
+    transient_outputs: set[str] = set()
+    transient_output_errors: list[str] = []
+    if request["schemaVersion"] == "1.3.0":
+        transient_outputs, transient_output_errors = normalized_write_set(
+            request, "transientOutputs", "transient output"
+        )
     allowed_writes, allowed_write_errors = normalized_write_set(
         request, "allowedWrites", "allowed write"
     )
     failures.extend(material_write_errors)
     failures.extend(execution_output_errors)
+    failures.extend(transient_output_errors)
     failures.extend(allowed_write_errors)
     if material_writes & execution_outputs:
         failures.append("material and execution write scopes overlap")
+    if not transient_outputs <= execution_outputs:
+        failures.append("transient outputs are not a subset of execution outputs")
+    failures.extend(
+        transient_output_failures(
+            repository_root,
+            transient_outputs,
+            material_writes,
+            execution_outputs,
+        )
+    )
     if material_writes | execution_outputs != allowed_writes:
         failures.append("allowed write scope partition mismatch")
     if material_writes:
@@ -607,6 +696,7 @@ def resolve_mutation_admission(
                         write_profile,
                         material_writes,
                         execution_outputs,
+                        transient_outputs,
                         allowed_writes,
                     )
                 )

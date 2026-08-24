@@ -226,6 +226,7 @@ result, or mutation authority.
 | template selection record   | spell | `inventory` and `invoke define`                 | define synthesis, validation, handoff |
 | spec artifact               | spell | `invoke define`                                 | downstream design or plan routing     |
 | glossary artifact           | spell | `invoke define`                                 | downstream design or plan routing     |
+| Define identity denominator request and result | spell | `invoke define` and identity denominator validator | Define pass and downstream Design/Plan activation |
 | design artifact             | spell | `invoke design`                                 | downstream plan routing and validation |
 | Design scope manifest       | spell | `invoke design`                                 | denominator extraction and exact source closure |
 | Design denominator receipt  | spell | Design scope extractor                          | total Design selection and stale-input diagnostics |
@@ -281,10 +282,13 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - exact target-artifact gaps that remain outside the Design evidence ceiling
 - glossary consistency report
 - mode selection evidence
+- Define identity-denominator passing receipt, or a not-applicable classification and rationale
 - implementation plan artifact path
 - implementation layering artifact path and layer decision snapshot
 - per-layer planning slice coverage when complexity is medium or high
 - work-pack artifact path and output mode (single-file or split)
+- execution designation plus `IMPLEMENTATION-READINESS-PREFLIGHT.json` for an
+  execution-candidate, or an exact non-executing reason
 - Dispatch Spec technique trace and dispatch validation result when a full dispatch document is required
 - Distill validation verdict, gap summary, and recomposition proof status when run
 - unresolved gaps and blocker decisions
@@ -297,11 +301,37 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - One-question interview cadence when context is missing in interactive mode.
 - Template or recipe selection must show eligibility evidence and explicit user choice on ties.
 - Every mode must include a Dispatch Spec technique trace; missing trace blocks pass-ready output, and unused technique citations flag.
+- Every Define output must classify identity-denominator validation as
+  `required` or `not-applicable` with rationale. It is required whenever a
+  Define artifact asserts an exact or canonical ID-to-label denominator.
+  Required runs cannot pass or activate Design or Plan without a current
+  passing receipt bound to the exact artifact, request, caller-declared
+  authority source, optional corroborating sources, field mappings, equality
+  filters, and exact coverage rule. Missing, stale, blocking, or source-
+  disagreeing evidence remains an upstream blocker; downstream modes cannot
+  reconstruct identity proof from counts, prose, or stable whole-file digests.
 - `plan`, `full`, and `validate` must include an implementation-layering artifact; `define` and `design` may emit a seed or explicit gap.
 - `plan`, `full`, and `validate` must include a work-pack artifact mapped from implementation-plan tasks and layer decisions.
 - `plan`, `full`, and `validate` must validate any machine-readable
   `arcanum.work-pack-execution-entry/v1` projection through the installed
   Implementation Readiness validator before pass-ready handoff.
+- Every newly authored or refreshed mutation-capable Work Pack must be an
+  `execution-candidate`. The installed Plan producer must run WPRA over the
+  exact final bytes, preserve any failed audit status, and then run
+  Implementation Readiness `plan-readiness-preflight`. Plan cannot
+  pass without full frontier route/validation coverage and a proof-only real
+  `TASK_READY` result. The receipt must remain non-reusable, non-mutation-ready,
+  and authority-free.
+- A `non-executing` Plan must name why no mutation-capable Work Pack exists and
+  cannot expose Task Session as its next route.
+- Every new or regenerated exact owner-acceptance request must use the
+  versioned [preacceptance closure](./preacceptance-closure.md). The v2
+  request generator is the only emission path and must block unless the final
+  staged bundle has a passing two-run no-effect consumer-closure receipt, a
+  passing independent review over the same closure-graph digest, and an
+  implemented or enforced reflection-adoption receipt with a passing
+  cross-capability regression. Historical v1 requests remain readable but do
+  not satisfy this gate.
 - `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
 - `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
 - Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
@@ -432,12 +462,16 @@ what it produced or why it stopped, and why that matters.>
 - Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
 - Distill validation: <pass | flag | block | skipped with reason | n/a>
 - Distill telemetry: <recorded child run id | failed with residue | not configured | not emitted because skipped>
+- Identity denominator validation: <passing receipt | not-applicable with rationale | block | n/a>
 - Implementation layering: <artifact path | seed emitted | gap recorded>
 - Work-pack: <artifact path | single-file | split>
 - Complexity: <low | medium | high | n/a>
 - Per-layer planning: <compact | L0, L1, L2, L3 | blocked | n/a>
 - Implementation detail: <inline | task specs complete | detail gaps recorded | blocked | n/a>
 - Smallest working units: <n/a | complete | gaps recorded | blocked>
+- Execution designation: <execution-candidate | non-executing | n/a>
+- Implementation readiness: <PLAN_IMPLEMENTATION_READY receipt | n/a with reason | block>
+- Exact acceptance: <required after candidate hashing | approved receipt | n/a>
 - Refresh: <n/a | report path and delta summary | no-op | blocked>
 - Target artifact: <name, type, owner/cycle>
 - Template or recipe selection: <summary>

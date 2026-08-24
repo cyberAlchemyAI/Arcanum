@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator
 
 from execution_contracts import (
     allowed_routes_digest,
+    build_execution_intent_binding,
     canonical_digest,
     validate_execution_binding,
     validate_execution_entry,
@@ -30,12 +31,16 @@ AUDIT_REPORT_SCHEMA = READINESS_AUDIT_ROOT / "schemas" / "audit-report-v2.schema
 SELECTION_RECEIPT_SCHEMA = (
     READINESS_AUDIT_ROOT / "schemas" / "selection-receipt.schema.json"
 )
+PLAN_PREFLIGHT_RECEIPT_SCHEMA = (
+    SPELL_ROOT / "schemas" / "plan-readiness-preflight-receipt.schema.json"
+)
 MUTATION_ADMISSION_SCHEMA = (
     TASK_SESSION_ROOT / "schemas" / "mutation-admission-receipt.schema.json"
 )
 FRESH_SESSION_RUNTIME_PATH = capability_root(
     "task-session-until-blocker", "spells"
 ) / "scripts" / "fresh_session_resume.py"
+FAST_ENTRY_RUNTIME_PATH = TASK_SESSION_ROOT / "scripts" / "fast_execution_entry_guard.py"
 
 
 def _load_owner_module(name: str, path: Path) -> Any:
@@ -49,6 +54,9 @@ def _load_owner_module(name: str, path: Path) -> Any:
 
 FRESH_SESSION = _load_owner_module(
     "implementation_readiness_fresh_session_owner", FRESH_SESSION_RUNTIME_PATH
+)
+FAST_ENTRY = _load_owner_module(
+    "implementation_readiness_fast_entry_owner", FAST_ENTRY_RUNTIME_PATH
 )
 
 
@@ -80,15 +88,15 @@ def _validate(document: Any, schema_path: Path, label: str) -> None:
 
 
 def _validation_commands(config: dict[str, Any]) -> list[str]:
+    """Return lossless canonical encodings of typed validation contracts."""
+
     commands: list[str] = []
     for unit in config["execution_bindings"]:
         for contract in unit.get("validation_contracts", []):
             rendered = json.dumps(
                 {
-                    "command_id": contract["command_id"],
-                    "argv": contract["argv"],
-                    "cwd": contract["cwd"],
-                    "timeout_seconds": contract["timeout_seconds"],
+                    "unit_id": unit["unit_id"],
+                    "validation_contract": contract,
                 },
                 sort_keys=True,
                 separators=(",", ":"),
@@ -366,7 +374,7 @@ def compile_plan_once_context_entry(
     selection_receipt: dict[str, Any],
     execution_binding: dict[str, Any],
 ) -> dict[str, Any]:
-    """Emit a selected-unit Context Builder entry with no mutation authority."""
+    """Emit a selected-unit Task Session entry with no mutation authority."""
 
     validate_execution_policy(policy)
     _validate(audit_config, AUDIT_CONFIG_SCHEMA, "audit config")
@@ -451,7 +459,7 @@ def compile_plan_once_context_entry(
         "work_pack_id": policy["work_pack_id"],
         "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
         "allowed_routes_digest": policy["allowed_routes_digest"],
-        "entry_state": "context-ready",
+        "entry_state": "task-ready",
         "selected_unit": unit_id,
         "route_id": route["route_id"],
         "next_owner": {
@@ -464,6 +472,200 @@ def compile_plan_once_context_entry(
     }
     validate_execution_entry(entry, policy)
     return entry
+
+
+def compile_plan_once_fast_entry(
+    policy: dict[str, Any],
+    audit_config: dict[str, Any],
+    audit_report: dict[str, Any],
+    selection_receipt: dict[str, Any],
+    selection_binding: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Compile and exercise the real Task Session fast-entry boundary.
+
+    The selection binding proves that direct Work-Pack execution intent
+    produced the selection. The returned task binding is a fresh projection
+    for the selected route. Neither artifact is mutation admission or
+    lifecycle authority.
+    """
+
+    entry = compile_plan_once_context_entry(
+        policy,
+        audit_config,
+        audit_report,
+        selection_receipt,
+        selection_binding,
+    )
+    task_binding = build_execution_intent_binding(
+        policy,
+        entry,
+        source_invocation_id=selection_binding["source_invocation_id"],
+        created_at=selection_binding["created_at"],
+        execution_mode=selection_binding["execution_mode"],
+    )
+    request = {
+        "schema_version": "1.0.0",
+        "execution_policy": copy.deepcopy(policy),
+        "execution_entry": entry,
+        "execution_binding": task_binding,
+        "selected_unit": {
+            "work_pack_id": policy["work_pack_id"],
+            "swu_id": entry["selected_unit"],
+        },
+        "authority_effect": "none",
+    }
+    receipt = FAST_ENTRY.classify_fast_entry(request)
+    FAST_ENTRY.validate_fast_entry_receipt(receipt, request)
+    if receipt["decision"] != "proceed" or receipt["code"] != "TASK_READY":
+        raise ReadinessExecutionError(
+            "FAST_ENTRY_NOT_TASK_READY",
+            f"{receipt['decision']}:{receipt['code']}",
+        )
+    return request, receipt
+
+
+def compile_plan_readiness_preflight(
+    audit_config: dict[str, Any],
+    audit_report: dict[str, Any],
+    *,
+    proof_invocation_id: str,
+    proof_created_at: str,
+) -> dict[str, Any]:
+    """Prove that final Plan bytes are compatible with Task Session.
+
+    This proof intentionally does not consume or manufacture a selection
+    receipt. It exercises the real fast-entry guard with an ephemeral binding
+    for the first unfinished unit, returns only digests, and cannot be reused as
+    execution admission or mutation authority.
+    """
+
+    policy = compile_execution_policy(audit_config, audit_report)
+    compile_readiness_entry(policy, audit_report)
+    frontier = policy["frontier"]
+    initial_unit = policy["completion_continuity"]["next_unit"]
+    if initial_unit is None:
+        raise ReadinessExecutionError(
+            "PLAN_FRONTIER_ALREADY_COMPLETE", policy["work_pack_id"]
+        )
+
+    route_coverage: list[dict[str, str]] = []
+    validation_contract_digests: list[dict[str, str]] = []
+    units_by_id = {
+        item["unit_id"]: item for item in audit_config["execution_bindings"]
+    }
+    for unit_id in frontier:
+        routes = [
+            route
+            for route in policy["allowed_routes"]
+            if route["frontier_swu"] == unit_id
+            and route["capability"] == "task-session"
+            and route["mode"] in {"execute", "execute-one-swu"}
+        ]
+        if len(routes) != 1:
+            raise ReadinessExecutionError(
+                "PLAN_TASK_SESSION_ROUTE_NOT_UNIQUE", f"{unit_id}:{len(routes)}"
+            )
+        contracts = units_by_id[unit_id].get("validation_contracts", [])
+        if not contracts:
+            raise ReadinessExecutionError(
+                "PLAN_VALIDATION_CONTRACT_MISSING", unit_id
+            )
+        route_coverage.append(
+            {"unit_id": unit_id, "route_id": routes[0]["route_id"]}
+        )
+        validation_contract_digests.append(
+            {"unit_id": unit_id, "digest": canonical_digest(contracts)}
+        )
+
+    initial_route = next(
+        item
+        for item in route_coverage
+        if item["unit_id"] == initial_unit
+    )
+    route = next(
+        item
+        for item in policy["allowed_routes"]
+        if item["route_id"] == initial_route["route_id"]
+    )
+    entry = {
+        "schema_version": "1.0.0",
+        "work_pack_id": policy["work_pack_id"],
+        "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
+        "allowed_routes_digest": policy["allowed_routes_digest"],
+        "entry_state": "task-ready",
+        "selected_unit": initial_unit,
+        "route_id": route["route_id"],
+        "next_owner": {
+            "capability": route["capability"],
+            "mode": route["mode"],
+            "target": route["target"],
+        },
+        "blocker_code": None,
+        "authority_effect": "none",
+    }
+    validate_execution_entry(entry, policy)
+    binding = build_execution_intent_binding(
+        policy,
+        entry,
+        source_invocation_id=proof_invocation_id,
+        created_at=proof_created_at,
+        execution_mode="finite-frontier",
+    )
+    request = {
+        "schema_version": "1.0.0",
+        "execution_policy": copy.deepcopy(policy),
+        "execution_entry": entry,
+        "execution_binding": binding,
+        "selected_unit": {
+            "work_pack_id": policy["work_pack_id"],
+            "swu_id": initial_unit,
+        },
+        "authority_effect": "none",
+    }
+    fast_receipt = FAST_ENTRY.classify_fast_entry(request)
+    FAST_ENTRY.validate_fast_entry_receipt(fast_receipt, request)
+    if (
+        fast_receipt["decision"] != "proceed"
+        or fast_receipt["code"] != "TASK_READY"
+        or fast_receipt["mutation_count"] != 0
+    ):
+        raise ReadinessExecutionError(
+            "PLAN_FAST_ENTRY_NOT_TASK_READY",
+            f"{fast_receipt['decision']}:{fast_receipt['code']}",
+        )
+
+    result = {
+        "schema_version": "implementation-readiness.plan-readiness-preflight-receipt/v1",
+        "status": "pass",
+        "code": "PLAN_IMPLEMENTATION_READY",
+        "work_pack_id": policy["work_pack_id"],
+        "work_pack_semantic_digest": policy["work_pack_semantic_digest"],
+        "frontier": frontier,
+        "initial_unit": initial_unit,
+        "policy_digest": canonical_digest(policy),
+        "allowed_routes_digest": policy["allowed_routes_digest"],
+        "audit_config_digest": canonical_digest(audit_config),
+        "audit_report_digest": canonical_digest(audit_report),
+        "route_coverage": route_coverage,
+        "validation_contract_digests": validation_contract_digests,
+        "proof_invocation_id": proof_invocation_id,
+        "proof_created_at": proof_created_at,
+        "fast_entry_proof": {
+            "request_digest": canonical_digest(request),
+            "receipt_digest": canonical_digest(fast_receipt),
+            "binding_digest": binding["binding_digest"],
+            "route_fingerprint": binding["route_fingerprint"],
+            "decision": fast_receipt["decision"],
+            "code": fast_receipt["code"],
+            "mutation_count": fast_receipt["mutation_count"],
+        },
+        "reusable_for_execution": False,
+        "mutation_ready": False,
+        "authority_effect": "none",
+        "claim_ceiling": "Compatibility proof only. Fresh direct execution intent, exact acceptance, per-unit Task Session admission, live baselines, mutation admission, owner prerequisites, and validation remain required.",
+    }
+    _validate(result, PLAN_PREFLIGHT_RECEIPT_SCHEMA, "plan readiness receipt")
+    return result
 
 
 def compile_plan_once_task_entry(

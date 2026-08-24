@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_pack_id": "inventory-recall-context-l0",
+  "authority_effect": "none",
+  "claim_ceiling": "fixture-contract-only",
+  "cases": [
+    {
+      "id": "positive",
+      "lookup_ready": true,
+      "source_states": ["current"],
+      "contradiction": false,
+      "source_scope_safe": true,
+      "obligations_complete": true,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": true, "reason_code": "allowed"}
+    },
+    {
+      "id": "stale",
+      "lookup_ready": true,
+      "source_states": ["stale"],
+      "contradiction": false,
+      "source_scope_safe": true,
+      "obligations_complete": true,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": false, "reason_code": "stale-source"}
+    },
+    {
+      "id": "missing",
+      "lookup_ready": true,
+      "source_states": ["missing"],
+      "contradiction": false,
+      "source_scope_safe": true,
+      "obligations_complete": false,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": false, "reason_code": "missing-source"}
+    },
+    {
+      "id": "contradictory",
+      "lookup_ready": true,
+      "source_states": ["current", "current"],
+      "contradiction": true,
+      "source_scope_safe": true,
+      "obligations_complete": true,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": false, "reason_code": "contradictory-source"}
+    },
+    {
+      "id": "unsafe",
+      "lookup_ready": true,
+      "source_states": ["unsafe"],
+      "contradiction": false,
+      "source_scope_safe": false,
+      "obligations_complete": true,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": false, "reason_code": "unsafe-source"}
+    },
+    {
+      "id": "over-budget",
+      "lookup_ready": true,
+      "source_states": ["current"],
+      "contradiction": false,
+      "source_scope_safe": true,
+      "obligations_complete": true,
+      "pack_within_budget": false,
+      "expected": {"injection_allowed": false, "reason_code": "over-budget"}
+    },
+    {
+      "id": "blocked-index",
+      "lookup_ready": false,
+      "source_states": [],
+      "contradiction": false,
+      "source_scope_safe": true,
+      "obligations_complete": false,
+      "pack_within_budget": true,
+      "expected": {"injection_allowed": false, "reason_code": "blocked-index"}
+    }
+  ]
+}

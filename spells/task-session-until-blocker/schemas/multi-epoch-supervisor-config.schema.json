@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session-until-blocker/multi-epoch-supervisor-config/1-0-0",
+  "title": "TaskSessionUntilBlockerMultiEpochSupervisorConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "supervisor_id",
+    "repository_root",
+    "state_directory",
+    "scope_id",
+    "work_pack_ref",
+    "owner_input_refs",
+    "captured_frontier",
+    "max_epochs",
+    "risk_ceiling",
+    "allowed_task_session_flags",
+    "epoch_policy",
+    "persistence",
+    "compensation"
+  ],
+  "properties": {
+    "schema_version": {"enum": ["1.0.0", "1.1.0"]},
+    "supervisor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+    },
+    "repository_root": {"const": "."},
+    "state_directory": {"type": "string", "minLength": 1},
+    "scope_id": {"type": "string", "minLength": 1},
+    "work_pack_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_input_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exactArtifactRef"}
+    },
+    "captured_frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "max_epochs": {"type": "integer", "minimum": 1},
+    "risk_ceiling": {
+      "enum": ["read-only", "bounded-write", "browser", "network"]
+    },
+    "allowed_task_session_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "epoch_policy": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "max_task_session_requests",
+            "fresh_readiness_required",
+            "approval_authority_effect"
+          ],
+          "properties": {
+            "mode": {"const": "fresh-current-unit"},
+            "max_task_session_requests": {"const": 1},
+            "fresh_readiness_required": {"const": true},
+            "approval_authority_effect": {"const": "chain-selection-only"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "max_task_session_requests",
+            "fresh_readiness_required",
+            "approval_authority_effect"
+          ],
+          "properties": {
+            "mode": {"const": "accepted-finite-stream"},
+            "max_task_session_requests": {"type": "integer", "minimum": 1},
+            "fresh_readiness_required": {"const": false},
+            "approval_authority_effect": {"const": "bounded-execution-only"}
+          }
+        }
+      ]
+    },
+    "accepted_stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chain_config_ref",
+        "execution_acceptance_ref",
+        "initial_fast_entry_request_ref",
+        "initial_fast_entry_receipt_ref"
+      ],
+      "properties": {
+        "chain_config_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "execution_acceptance_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "initial_fast_entry_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "initial_fast_entry_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "collision_policy"],
+      "properties": {
+        "mode": {"const": "append-only-hash-chain"},
+        "collision_policy": {"const": "exclusive-create"}
+      }
+    },
+    "compensation": {"$ref": "#/$defs/compensation"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "epoch_policy": {
+            "properties": {"mode": {"const": "accepted-finite-stream"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {"schema_version": {"const": "1.1.0"}},
+        "required": ["accepted_stream"]
+      },
+      "else": {
+        "properties": {"schema_version": {"const": "1.0.0"}},
+        "not": {"required": ["accepted_stream"]}
+      }
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "compensation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "rationale"],
+          "properties": {
+            "mode": {"const": "none"},
+            "rationale": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "owner_ref", "contract_ref"],
+          "properties": {
+            "mode": {"const": "owner-routed"},
+            "owner_ref": {"type": "string", "minLength": 1},
+            "contract_ref": {"$ref": "#/$defs/exactArtifactRef"}
+          }
+        }
+      ]
+    }
+  }
+}

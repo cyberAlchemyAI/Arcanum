@@ -4,7 +4,7 @@ description: "Use when: resolving blocker-level multi-option decisions before pl
 argument-hint: "<target-scope> [--profile generic|pilot|release|custom] [--output <path>]"
 tier: arcana
 domain: decision-governance
-version: 0.3.0
+version: 0.4.0
 origin: generalized from recurring pre-mutation decision governance practice
 allowed-tools: Read, Write, Glob, Grep, AskQuestions
 ---
@@ -115,6 +115,22 @@ question instead of a choice) — expand the decision before asking again:
 - surface related or dependent decisions,
 - name the recommended option and why, without choosing it.
 
+Then route the explanation through `complexity-example-ladder`:
+
+- produce low, medium, and complex examples that preserve one shared concept or
+  comparison invariant,
+- increase structural complexity rather than prose length or jargon,
+- within each rung, use the same scenario for every admissible action option and
+  give each option equivalent explanatory depth,
+- represent defer and stop only as unchanged or terminated continuation states,
+  not as invented product behavior,
+- label hypothetical details and state what each example does not prove,
+- preserve the recommendation, admissibility receipt, gate result, and owner
+  authority with `decision effect: none`.
+
+If the reusable sidecar is unavailable, apply the same ladder contract locally,
+surface the missing dependency, and do not omit the examples.
+
 After explaining, re-present the same decision with the same real options and the
 standing "Explain / more context" choice again. Loop until the user picks a real
 option or explicitly defers or stops. The explain choice never counts as consent.
@@ -186,6 +202,8 @@ A successful execution of this sigil must:
 - separate blocker decisions from deferrable decisions and assumptions,
 - present options with meaningful trade-offs,
 - offer a non-committal explain / more-context choice on every blocker decision and expand on request before asking again,
+- include aligned low, medium, and complex examples whenever the explain / more-context path is taken,
+- cover every admissible action option evenly inside each shared example scenario without changing the gate,
 - avoid choosing on the user's behalf when the decision is consequential,
 - persist a reviewable decision record,
 - return a clear `PASS` or `BLOCK` result,
@@ -209,6 +227,8 @@ Avoid:
 - silently dropping defer or stop from the candidate set,
 - bundling multiple independent decisions into one vague question,
 - presenting options without trade-offs,
+- increasing example length or jargon without increasing structural complexity,
+- using examples that favor one option, change admissibility, imply consent, or resolve the gate,
 - forcing a choice when the user is unsure instead of offering deeper explanation,
 - treating silence as consent for a blocker decision,
 - proceeding with consequential mutation after a `BLOCK` result,

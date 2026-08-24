@@ -54,6 +54,19 @@ protected owner gate. Its machine contracts are
 `schemas/option-admissibility-request.schema.json` and
 `schemas/option-admissibility-receipt.schema.json`.
 
+## Complexity-Calibrated Explanations
+
+When the user selects “Explain / more context” or otherwise signals uncertainty,
+Decision Gate routes the explanation through
+[`complexity-example-ladder`](../../transmutations/complexity-example-ladder/).
+
+The explanation must include low, medium, and complex examples. Complexity grows
+through interacting concepts, dependencies, state, boundaries, consequences, and
+exceptions—not through extra prose or jargon. Comparative examples reuse one shared
+scenario per rung and cover every admissible action option evenly. The examples are
+explanatory only: they do not change admissibility, recommendation, consent, owner
+authority, or the gate result.
+
 ## Typed One-Use Overrides
 
 Free-form approval is not an override. A reusable caller must supply a typed

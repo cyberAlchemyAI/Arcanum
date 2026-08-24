@@ -10,6 +10,19 @@ Public CAV2-derived content is limited to the definition and model contracts all
 
 Ontology records describe and validate structure. They do not decide authority, promotion, publication, runtime conformance, release admission, or canonical definition ownership.
 
+## Business concept contract
+
+Business nodes bind `invoke-business-node/public-contract-v2` and expose one required `concept` object:
+
+- `name` gives the concept's reader-facing identity.
+- `role` classifies it with the business-role vocabulary.
+- `meaning` states the precise candidate-scoped meaning supported by the node's claim, scope, evidence, and obligations.
+- `plain_language` provides a short non-normative explanation for direct reading.
+
+The shared public node contract still requires top-level `label` and `role`, so v2 retains them as compatibility projections. Validation requires `concept.name == label` and `concept.role == role`; neither copy may drift independently. The concept object does not replace canonical definitions, broaden the cited evidence, or change the node's candidate and non-authoritative posture.
+
+The v1-to-v2 change and frozen v1 projections are recorded in `migration/preserved-identities.json#schema_amendments`.
+
 ## Validate
 
 From the Arcanum repository root:

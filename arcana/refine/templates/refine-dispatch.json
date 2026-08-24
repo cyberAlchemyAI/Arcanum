@@ -263,7 +263,10 @@
       "pattern": "sequential",
       "techniques": ["minimum_component_catalog", "toy_game", "handle_handoff"],
       "inputs": [{"kind": "frame", "ref": "repair-frame"}],
-      "outputs": [{"kind": "artifact", "ref": "stages/09-invoke-plan.md"}],
+      "outputs": [
+        {"kind": "artifact", "ref": "stages/09-invoke-plan.md"},
+        {"kind": "artifact", "ref": "INVOKE-PLAN-READINESS-BINDING.json"}
+      ],
       "evidence_artifact": "stages/09-invoke-plan.md"
     },
     {
@@ -273,7 +276,11 @@
       "mode": "refine-final",
       "pattern": "synthesis",
       "techniques": ["owner_boundary_check", "residue_ledger", "spell_candidate", "protected_context_flag", "data_quality_conformity", "observability_grouping"],
-      "inputs": [{"kind": "artifact", "ref": "stages/09-invoke-plan.md"}, {"kind": "frame", "ref": "repair-frame"}],
+      "inputs": [
+        {"kind": "artifact", "ref": "stages/09-invoke-plan.md"},
+        {"kind": "artifact", "ref": "INVOKE-PLAN-READINESS-BINDING.json"},
+        {"kind": "frame", "ref": "repair-frame"}
+      ],
       "outputs": [{"kind": "artifact", "ref": "RESULT.md"}, {"kind": "trace_event", "ref": "dispatch_completed"}],
       "evidence_artifact": "stages/10-final-interrogation-and-synthesis.md"
     }
@@ -319,6 +326,13 @@
       "kind": "quality",
       "owner": "refine",
       "condition": "Every selected stage has an artifact path or blocked reason before RESULT.md claims completion.",
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g07-invoke-plan-readiness",
+      "kind": "validation",
+      "owner": "refine",
+      "condition": "Before final synthesis, an execution-candidate validates an exact non-reusable PLAN_IMPLEMENTATION_READY receipt through validate-invoke-plan-readiness.py; a non-executing plan records its reason and exposes no Task Session route.",
       "on_fail": "block"
     }
   ],
@@ -438,7 +452,7 @@
       "observer_status": "not_run",
       "blockers": ["stage not executed yet"],
       "residue": "",
-      "handoff_note": "fill when Invoke Plan returns an artifact or blocked reason"
+      "handoff_note": "fill when Invoke Plan returns its artifact plus exact implementation-readiness binding for an execution-candidate, an explicit non-executing reason, or a blocked reason"
     },
     {
       "dispatch_id": "<run-id>",
@@ -462,6 +476,8 @@
   },
   "promotion_guardrails": [
     "Refine may recommend Task Session or Sigil Development only after final synthesis.",
+    "Refine may recommend Task Session only when Invoke Plan's exact readiness binding validates for an execution-candidate.",
+    "A proof-only readiness receipt is not exact acceptance, Task Session admission, or mutation authority.",
     "Refine may not promote inventory, ontology, glossary, sigil, or spell artifacts.",
     "Dispatch validation is route-shape evidence, not proof that semantic stage execution completed."
   ]

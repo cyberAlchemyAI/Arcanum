@@ -12,6 +12,18 @@ from typing import Any
 
 REQUEST_SCHEMA_VERSION = "ontology-vault-materialization-request/v1"
 DECISION_SCHEMA_VERSION = "ontology-vault-materialization-decision/v1"
+INVOKE_BUSINESS_NODE_CONTRACT_V1 = "invoke-business-node/public-contract-v1"
+INVOKE_BUSINESS_NODE_CONTRACT_V2 = "invoke-business-node/public-contract-v2"
+INVOKE_BUSINESS_CONCEPT_FIELDS = {"name", "role", "meaning", "plain_language"}
+INVOKE_BUSINESS_CONCEPT_ROLES = {
+    "actor",
+    "business rule",
+    "capability",
+    "outcome",
+    "policy",
+    "workflow",
+}
+INVOKE_BUSINESS_SCHEMA_AMENDMENT_ID = "SAW-INVOKE-BUSINESS-CONCEPT-V2-20260820"
 
 
 class ContractError(ValueError):
@@ -21,6 +33,11 @@ class ContractError(ValueError):
 def load_json(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _canonical_record_sha256(record: dict[str, Any]) -> str:
+    canonical = json.dumps(record, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def _require_exact_keys(value: dict[str, Any], expected: set[str], at: str) -> None:
@@ -380,6 +397,7 @@ def validate_ontology_package(
 
     try:
         profile = load_json(package_root / "profile.json")
+        schema_document = load_json(package_root / "schemas/package.schema.json")
         sources_document = load_json(package_root / "sources.json")
         business_document = load_json(package_root / "nodes/business.json")
         system_document = load_json(package_root / "nodes/system.json")
@@ -436,6 +454,30 @@ def validate_ontology_package(
     if not required_triggers.issubset(triggers):
         errors.append("materialization triggers do not cover durable Invoke package intent")
 
+    concept_schema = schema_document.get("$defs", {}).get("businessConceptV2", {})
+    if concept_schema.get("additionalProperties") is not False:
+        errors.append("business concept v2 schema must be closed")
+    if set(concept_schema.get("properties", {})) != INVOKE_BUSINESS_CONCEPT_FIELDS:
+        errors.append("business concept v2 schema fields do not match the runtime contract")
+    if set(concept_schema.get("required", [])) != INVOKE_BUSINESS_CONCEPT_FIELDS:
+        errors.append("business concept v2 schema required fields are incomplete")
+    if set(concept_schema.get("properties", {}).get("role", {}).get("enum", [])) != INVOKE_BUSINESS_CONCEPT_ROLES:
+        errors.append("business concept v2 schema role vocabulary does not match the runtime contract")
+    expected_model_contract = {
+        "binding": INVOKE_BUSINESS_NODE_CONTRACT_V2,
+        "compatibility_invariants": [
+            "concept.name == label",
+            "concept.role == role",
+        ],
+        "record_schema": "#/$defs/businessNodeV2",
+    }
+    if schema_document.get("model_contracts", {}).get("business_node") != expected_model_contract:
+        errors.append("business node v2 model contract binding or compatibility invariants are invalid")
+    if schema_document.get("governed_files", {}).get("schema_amendment_witness") != (
+        "migration/preserved-identities.json#schema_amendments/0"
+    ):
+        errors.append("business node v2 schema-amendment witness binding is unresolved")
+
     sources = sources_document.get("sources", [])
     _require_record_keys(
         sources,
@@ -465,7 +507,7 @@ def validate_ontology_package(
     business_nodes = business_document.get("nodes", [])
     system_nodes = system_document.get("nodes", [])
     business_required = {
-        "id", "label", "branch", "role", "model_binding", "scope", "owner_route",
+        "id", "label", "branch", "role", "concept", "model_binding", "scope", "owner_route",
         "candidate_status", "promotion_state", "authority_effect", "claim", "evidence_refs",
         "evidence_confidence", "commitment_confidence", "semantic_definition_refs", "provenance",
         "use_obligations", "challenge_contract", "residue", "invalidation_route", "forbidden_collapse",
@@ -476,6 +518,17 @@ def validate_ontology_package(
     }
     _require_record_keys(business_nodes, business_required, business_required, "business nodes", errors)
     _require_record_keys(system_nodes, system_required, system_required, "system nodes", errors)
+    business_node_schema = schema_document.get("$defs", {}).get("businessNodeV2", {})
+    if business_node_schema.get("additionalProperties") is not False:
+        errors.append("business node v2 schema must be closed")
+    if set(business_node_schema.get("properties", {})) != business_required:
+        errors.append("business node v2 schema properties do not match the runtime contract")
+    if set(business_node_schema.get("required", [])) != business_required:
+        errors.append("business node v2 schema required fields do not match the runtime contract")
+    if business_node_schema.get("properties", {}).get("model_binding", {}).get("const") != (
+        INVOKE_BUSINESS_NODE_CONTRACT_V2
+    ):
+        errors.append("business node v2 schema model binding is invalid")
     all_nodes = [*business_nodes, *system_nodes]
     node_ids = [node.get("id") for node in all_nodes]
     if len(node_ids) != len(set(node_ids)):
@@ -486,6 +539,156 @@ def validate_ontology_package(
         errors.append("business branch polarity is invalid")
     if any(node.get("branch") != "system" or not node.get("id", "").startswith("S-") for node in system_nodes):
         errors.append("system branch polarity is invalid")
+    for index, node in enumerate(business_nodes):
+        at = f"business nodes[{index}]"
+        if node.get("model_binding") != INVOKE_BUSINESS_NODE_CONTRACT_V2:
+            errors.append(f"{at}.model_binding must use the v2 business-node contract")
+        if node.get("candidate_status") != "candidate" or node.get("promotion_state") != "not_requested":
+            errors.append(f"{at} exceeds the candidate business-node lifecycle posture")
+        concept = node.get("concept")
+        if not isinstance(concept, dict):
+            errors.append(f"{at}.concept must be an object")
+            continue
+        concept_keys = set(concept)
+        if concept_keys != INVOKE_BUSINESS_CONCEPT_FIELDS:
+            missing = sorted(INVOKE_BUSINESS_CONCEPT_FIELDS - concept_keys)
+            extra = sorted(concept_keys - INVOKE_BUSINESS_CONCEPT_FIELDS)
+            errors.append(f"{at}.concept keys mismatch; missing={missing}, extra={extra}")
+        for field in sorted(INVOKE_BUSINESS_CONCEPT_FIELDS):
+            value = concept.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"{at}.concept.{field} must be a non-empty string")
+        if concept.get("name") != node.get("label"):
+            errors.append(f"{at}.concept.name must equal the label compatibility projection")
+        if concept.get("role") != node.get("role"):
+            errors.append(f"{at}.concept.role must equal the role compatibility projection")
+        if concept.get("role") not in INVOKE_BUSINESS_CONCEPT_ROLES:
+            errors.append(f"{at}.concept.role is not an allowed business role")
+
+    amendment_required = {
+        "added_fields",
+        "affected_files",
+        "affected_node_ids",
+        "authority_effect",
+        "canonicalization",
+        "current_rule",
+        "field_moves",
+        "from_binding",
+        "id",
+        "legacy_projection_sha256",
+        "migration_impact",
+        "proposed_rule",
+        "rationale",
+        "rollback",
+        "scope",
+        "status",
+        "to_binding",
+    }
+    schema_amendments = migration.get("schema_amendments", [])
+    _require_record_keys(
+        schema_amendments,
+        amendment_required,
+        amendment_required,
+        "schema amendments",
+        errors,
+    )
+    matching_amendments = [
+        amendment
+        for amendment in schema_amendments
+        if amendment.get("id") == INVOKE_BUSINESS_SCHEMA_AMENDMENT_ID
+    ]
+    if len(matching_amendments) != 1:
+        errors.append("business node v2 schema-amendment witness must occur exactly once")
+    else:
+        amendment = matching_amendments[0]
+        business_node_ids = [node.get("id") for node in business_nodes]
+        if amendment.get("affected_node_ids") != business_node_ids:
+            errors.append("business node v2 schema-amendment witness does not preserve ordered node IDs")
+        if amendment.get("authority_effect") != "none" or amendment.get("status") != "candidate":
+            errors.append("business node v2 schema-amendment witness exceeds its authority ceiling")
+        if amendment.get("scope") != "nodes/business.json#nodes":
+            errors.append("business node v2 schema-amendment witness scope is invalid")
+        if amendment.get("from_binding") != INVOKE_BUSINESS_NODE_CONTRACT_V1:
+            errors.append("business node v2 schema-amendment source binding is invalid")
+        if amendment.get("to_binding") != INVOKE_BUSINESS_NODE_CONTRACT_V2:
+            errors.append("business node v2 schema-amendment target binding is invalid")
+        expected_added_fields = [
+            "concept.meaning",
+            "concept.name",
+            "concept.plain_language",
+            "concept.role",
+        ]
+        if amendment.get("added_fields") != expected_added_fields:
+            errors.append("business node v2 schema-amendment added fields are invalid")
+        expected_field_moves = [
+            {
+                "from": "label",
+                "mode": "copied compatibility projection",
+                "to": "concept.name",
+            },
+            {
+                "from": "role",
+                "mode": "copied compatibility projection",
+                "to": "concept.role",
+            },
+        ]
+        if amendment.get("field_moves") != expected_field_moves:
+            errors.append("business node v2 compatibility projections are invalid")
+        expected_canonicalization = (
+            "sha256(json.dumps(record, sort_keys=True, separators=(',', ':')).encode('utf-8'))"
+        )
+        if amendment.get("canonicalization") != expected_canonicalization:
+            errors.append("business node v1 projection canonicalization is invalid")
+        for field in ("current_rule", "proposed_rule", "rationale"):
+            value = amendment.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"business node v2 schema-amendment {field} must be non-empty")
+        expected_impact = {
+            "business_node_count": len(business_nodes),
+            "changed_branch": "business",
+            "relations_changed": False,
+            "shared_public_contract_changed": False,
+            "stable_node_ids_preserved": True,
+            "system_nodes_changed": False,
+            "views_changed": False,
+        }
+        if amendment.get("migration_impact") != expected_impact:
+            errors.append("business node v2 migration impact is invalid")
+        rollback = amendment.get("rollback", {})
+        if (
+            rollback.get("history_preserved") is not True
+            or not isinstance(rollback.get("rule"), str)
+            or not rollback.get("rule", "").strip()
+        ):
+            errors.append("business node v2 rollback rule must preserve history and name the reverse path")
+        required_affected_files = {
+            "ontology/invoke/README.md",
+            "ontology/invoke/INDEX.md",
+            "ontology/invoke/nodes/business.json",
+            "ontology/invoke/schemas/package.schema.json",
+            "ontology/invoke/migration/preserved-identities.json",
+            "arcana/ontology-vault/scripts/ontology_package.py",
+            "arcana/ontology-vault/development/package-materialization/test_invoke_package.py",
+        }
+        if set(amendment.get("affected_files", [])) != required_affected_files:
+            errors.append("business node v2 schema-amendment affected-file inventory is invalid")
+        legacy_projection_sha256 = amendment.get("legacy_projection_sha256", {})
+        if set(legacy_projection_sha256) != set(business_node_ids):
+            errors.append("business node v2 legacy-projection digest inventory is incomplete")
+        else:
+            for node in business_nodes:
+                concept = node.get("concept")
+                if not isinstance(concept, dict):
+                    continue
+                legacy_projection = dict(node)
+                legacy_projection.pop("concept", None)
+                legacy_projection["label"] = concept.get("name")
+                legacy_projection["role"] = concept.get("role")
+                legacy_projection["model_binding"] = INVOKE_BUSINESS_NODE_CONTRACT_V1
+                actual_digest = _canonical_record_sha256(legacy_projection)
+                expected_digest = legacy_projection_sha256.get(node.get("id"))
+                if actual_digest != expected_digest:
+                    errors.append(f"node {node.get('id')} does not preserve its frozen v1 projection")
 
     contract_path = repository_root / profile.get("contract_bindings", {}).get("public_contracts", "")
     allowed_definition_ids: set[str] = set()
@@ -636,6 +839,10 @@ def command_validate_package(args: argparse.Namespace) -> int:
     checks = [
         "required_surfaces",
         "closed_record_shapes",
+        "business_concept_v2_shape",
+        "business_concept_compatibility",
+        "business_node_v1_projection_preservation",
+        "schema_amendment_witness",
         "source_digest_currency",
         "stable_id_uniqueness",
         "relation_endpoint_closure",
