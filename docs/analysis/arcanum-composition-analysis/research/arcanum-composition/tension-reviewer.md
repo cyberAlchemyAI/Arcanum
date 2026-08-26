@@ -5,4 +5,3 @@
 - Input boundary: exact revised dispatch bytes plus `formulae/anti-bias-vector-composition/reference/validator-check.md`
 
 Both subject groups independently pass Items 1–8 / Tests 1–4. The DomainSpec findings-contract revision is covered by the writer, the two distinct skeptic gates, and the final auditor; `RQ-0` through `RQ-10` are individually allocated without a coverage gap. No repair is required.
-

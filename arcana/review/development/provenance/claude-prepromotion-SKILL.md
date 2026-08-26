@@ -225,5 +225,3 @@ and never let an attacker verify its own attack.
   adds no second gate.
 - **Anti-bias gate** — the `check-tension` skill runs the pairwise-tension rubric on the sheet at
   the confirm gate.
-
-

@@ -11,4 +11,3 @@ Core rules:
 - Use `arcana/task-session/` for bounded execution.
 - Keep `tools/arcanum` deterministic: resolve, validate, handoff, and legacy adapter compatibility.
 - Prefer native Codex skill execution over nested model-backed CLI execution.
-

@@ -5,4 +5,3 @@
 - Input boundary: exact revised dispatch bytes plus `formulae/anti-bias-vector-composition/reference/validator-check.md`
 
 Both subject groups (`explorers` and `skeptics`) pass Items 1–8 / Tests 1–4. The revised output contract remains covered without changing the canonical/composite axes, angle independence, spread, pairwise predicted-disagreement evidence, or `anti_bias_global` coherence.
-

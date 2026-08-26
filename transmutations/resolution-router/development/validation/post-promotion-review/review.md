@@ -15,9 +15,11 @@ evidence_role: durable-evidence
 
 # Post-Promotion Review — Lens and Resolution Routing
 
-Date: 2026-08-25  
-Dispatch: `routing-post-promotion-review-20260825`  
-Run: `routing-review-20260825-001`  
+Date: 2026-08-25
+
+Dispatch: `routing-post-promotion-review-20260825`
+
+Run: `routing-review-20260825-001`
 Verdict: **FIX**
 
 Five `MAJOR` findings survived independent verification. No `CRITICAL` or

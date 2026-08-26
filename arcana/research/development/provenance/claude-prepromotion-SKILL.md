@@ -179,5 +179,3 @@ sibling repo; unverifiable from this repo) is the math profile (old pre-v0.5.x s
 pending realignment), as is
 `vault/constitution/research-constitution.md` here (cite as pending realignment; do not
 import its R-numbered machinery).
-
-

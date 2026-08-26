@@ -10,7 +10,7 @@ The goal of Arcanum is to help a person produce more and better work without tur
 
 Suppose a user wants to add a new authentication flow to a product. That goal can be broken into smaller pieces of work, like implementing the endpoint and testing the result.
 
-One piece may finish and provide evidence that part of the goal is complete. Another may reveal a blocker because the authentication library no longer supports the SDK. 
+One piece may finish and provide evidence that part of the goal is complete. Another may reveal a blocker because the authentication library no longer supports the SDK.
 
 Arcanum keeps track of these results and where they came from, preserving their provenance as the broader state of the work changes.
 
