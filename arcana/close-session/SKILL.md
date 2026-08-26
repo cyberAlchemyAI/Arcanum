@@ -1,10 +1,4 @@
 ---
-surface_kind: generated-native-runtime-package
-runtime: claude
-canonical_source: arcana/close-session/SKILL.md
-alias_of: null
-generated_by: tools/bootstrap_arcanum.sh --profile
-mutation_policy: regenerate-from-canonical-source
 name: close-session
 description: Close a session and create a governed session node under sessions/.
 ---

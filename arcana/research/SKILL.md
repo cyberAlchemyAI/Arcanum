@@ -1,10 +1,4 @@
 ---
-surface_kind: generated-native-runtime-package
-runtime: claude
-canonical_source: arcana/research/SKILL.md
-alias_of: null
-generated_by: tools/bootstrap_arcanum.sh --profile
-mutation_policy: regenerate-from-canonical-source
 name: research
 description: Run governed, evidence-backed research through internal or external source work, tensioned multi-agent synthesis, skeptic gates, and cited findings. Use for research questions, precedent sweeps, multi-perspective audits, falsification, or synthesis that exceed a direct inline lookup. Every governed research dispatch must use a topic folder beneath a repo-local directory named research and first create or validate its research-initial-definitions.md.
 ---

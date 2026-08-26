@@ -1,10 +1,4 @@
 ---
-surface_kind: generated-native-runtime-package
-runtime: claude
-canonical_source: arcana/review/SKILL.md
-alias_of: null
-generated_by: tools/bootstrap_arcanum.sh --profile
-mutation_policy: regenerate-from-canonical-source
 name: review
 description: Red-team existing skills, constitutions, code, schemas, plans, or documents and return verified, severity-ranked change requests. Use when the target already exists and needs adversarial fidelity, correctness, ownership, operability, or abuse-resistance review. Use research instead when the question is whether a new claim or candidate survives.
 ---

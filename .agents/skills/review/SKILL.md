@@ -1,6 +1,6 @@
 ---
 surface_kind: generated-native-runtime-package
-runtime: claude
+runtime: codex
 canonical_source: arcana/review/SKILL.md
 alias_of: null
 generated_by: tools/bootstrap_arcanum.sh --profile
