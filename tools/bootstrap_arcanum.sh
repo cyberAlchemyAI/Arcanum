@@ -367,6 +367,7 @@ else
 fi
 dest_root="$target_root/$install_prefix"
 arcanum_repo_url="https://github.com/cyberAlchemyAI/arcanum"
+sigil_dependency_manifest="${ARCANUM_SIGIL_DEPENDENCY_MANIFEST:-$arcanum_root/registry/SIGIL-DEPENDENCIES.tsv}"
 
 sigil_path_for() {
   local sigil="$1"
@@ -380,9 +381,47 @@ sigil_path_for() {
   return 1
 }
 
+sigil_dependencies_for() {
+  local sigil="$1"
+  local manifest="$sigil_dependency_manifest"
+  local owner dependency
+  [[ -f "$manifest" ]] || return 0
+  while IFS=$'\t' read -r owner dependency; do
+    [[ -n "$owner" && "${owner:0:1}" != "#" ]] || continue
+    if [[ "$owner" == "$sigil" ]]; then
+      printf '%s\n' "$dependency"
+    fi
+  done < "$manifest"
+}
+
+validate_sigil_dependency_manifest() {
+  local validator="$arcanum_root/tools/validate-sigil-dependencies.py"
+  local output
+  if [[ ! -f "$validator" ]]; then
+    echo "Cannot validate sigil dependencies; validator is missing: $validator" >&2
+    exit 1
+  fi
+  if ! output="$(python3 "$validator" --manifest "$sigil_dependency_manifest" 2>&1)"; then
+    echo "Refusing to install from an invalid sigil dependency manifest:" >&2
+    printf '%s\n' "$output" >&2
+    exit 1
+  fi
+}
+
+sigil_is_installed() {
+  local requested="$1"
+  local installed
+  for installed in "${installed_sigil_ids[@]}"; do
+    [[ "$installed" == "$requested" ]] && return 0
+  done
+  return 1
+}
+
 collect_selected_sigils() {
   local selection="$1"
-  local sigil tier_path tier sigil_name
+  local sigil tier_path tier sigil_name dependency
+  local -a queue=()
+  local index=0
   if [[ "$selection" == "all" ]]; then
     for tier in formulae transmutations arcana; do
       while IFS= read -r tier_path; do
@@ -395,16 +434,26 @@ collect_selected_sigils() {
     return 0
   fi
 
-  IFS=',' read -ra sigils <<< "$selection"
-  for sigil in "${sigils[@]}"; do
+  IFS=',' read -ra queue <<< "$selection"
+  while (( index < ${#queue[@]} )); do
+    sigil="${queue[$index]}"
+    index=$((index + 1))
     sigil="${sigil//[[:space:]]/}"
     [[ -n "$sigil" ]] || continue
+    sigil_is_installed "$sigil" && continue
     if ! tier_path="$(sigil_path_for "$sigil")"; then
       echo "Unknown sigil: $sigil" >&2
       exit 1
     fi
     installed_sigil_ids+=("$sigil")
     installed_sigil_tiers+=("${tier_path%%/*}")
+    while IFS= read -r dependency; do
+      [[ -n "$dependency" ]] || continue
+      if ! sigil_is_installed "$dependency"; then
+        echo "Auto-adding sigil dependency: $sigil -> $dependency" >&2
+        queue+=("$dependency")
+      fi
+    done < <(sigil_dependencies_for "$sigil")
   done
 }
 
@@ -796,14 +845,29 @@ generated_skill_provenance_fields() {
   local runtime="$1"
   local canonical_source="$2"
   local alias_of="$3"
+  local source_file="${4:-}"
   cat <<EOF
-surface_kind: generated-native-runtime-package
-runtime: $runtime
-canonical_source: $canonical_source
-alias_of: $alias_of
-generated_by: tools/bootstrap_arcanum.sh --profile
-mutation_policy: regenerate-from-canonical-source
+metadata:
+  surface_kind: generated-native-runtime-package
+  runtime: $runtime
+  canonical_source: $canonical_source
+  alias_of: $alias_of
+  generated_by: tools/bootstrap_arcanum.sh --profile
+  mutation_policy: regenerate-from-canonical-source
 EOF
+  if [[ -n "$source_file" && -f "$source_file" ]]; then
+    awk '
+      BEGIN { in_fm=0; in_metadata=0 }
+      NR == 1 && $0 == "---" { in_fm=1; next }
+      in_fm && $0 == "---" { exit }
+      in_fm && $0 == "metadata:" { in_metadata=1; next }
+      in_metadata && $0 ~ /^[^[:space:]]/ { exit }
+      in_metadata {
+        if ($0 ~ /^  (surface_kind|runtime|canonical_source|alias_of|generated_by|mutation_policy):/) next
+        print
+      }
+    ' "$source_file"
+  fi
 }
 
 generated_skill_frontmatter() {
@@ -1038,11 +1102,21 @@ emit_generated_skill_stream() {
   local strip_generated_fields="${4:-false}"
 
   tail -n +2 "$source_file" | awk -v name="$name_override" -v runtime="$runtime" -v strip_generated_fields="$strip_generated_fields" '
-    BEGIN { in_fm=1; replaced=0 }
+    BEGIN { in_fm=1; replaced=0; skip_metadata=0 }
     in_fm && $0 == "---" {
       if (name != "" && !replaced) { print "name: " name; replaced=1 }
       print
       in_fm=0
+      skip_metadata=0
+      next
+    }
+    in_fm && skip_metadata && $0 ~ /^[^[:space:]][^:]*:/ { skip_metadata=0 }
+    in_fm && skip_metadata { next }
+    in_fm && strip_generated_fields == "true" && $0 ~ /^metadata:[[:space:]]*$/ {
+      skip_metadata=1
+      next
+    }
+    in_fm && strip_generated_fields == "true" && $0 ~ /^metadata:[[:space:]]*[^[:space:]]/ {
       next
     }
     in_fm && $0 ~ /^name:/ {
@@ -1131,15 +1205,15 @@ write_generated_skill_file() {
   {
     if [[ "$(head -n 1 "$source_file")" == "---" ]]; then
       printf '%s\n' '---'
-      generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of"
-      emit_generated_skill_stream "$source_file" "$runtime" "$name_override"
+      generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of" "$source_file"
+      emit_generated_skill_stream "$source_file" "$runtime" "$name_override" "true"
     else
       if [[ -n "$name_override" ]]; then
         cat <<EOF
 ---
 name: $name_override
 description: "$(derive_skill_description "$source_file" "Composed Arcanum spell: $name_override.")"
-$(generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of")
+$(generated_skill_provenance_fields "$runtime" "$canonical_source" "$alias_of" "$source_file")
 ---
 
 EOF
@@ -2071,6 +2145,7 @@ echo "  profiles: $profile_selection"
 echo "  default adapter: $default_adapter"
 echo "  clean legacy commands: $clean_legacy_codex_commands"
 
+validate_sigil_dependency_manifest
 collect_selected_sigils "$sigil_selection"
 collect_selected_spells "$spell_selection"
 guard_partial_repo_codex_force

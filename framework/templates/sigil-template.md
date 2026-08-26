@@ -1,10 +1,13 @@
 ---
 name: <sigil-name>
-description: "Use when: [Briefly describe the specific trigger or condition for this skill]"
-tier: formulae | transmutations | arcana
-domain: [e.g., dispatch, governance, architecture]
-version: 0.1.0
+description: "[State what the skill does and the concrete requests or contexts that should trigger it.]"
 ---
+
+<!--
+Keep name and description. Add metadata, license, or allowed-tools only when
+the target runtime and this sigil require them. Put Arcanum governance fields
+in SKILL.md.artifact.yml.
+-->
 
 # Sigil: <Sigil Name>
 
@@ -15,6 +18,12 @@ version: 0.1.0
 <logic-type>
 [Formulae: Stateless/Deterministic | Transmutations: Probabilistic/Synthetic | Arcana: Recursive/Sovereign]
 </logic-type>
+
+<observability>
+Define what counts as a meaningful execution, which compact signals are useful,
+and the manual, usage, output, gap, and severe-gap reflection triggers. Emit or
+prepare telemetry only when repository observability is available.
+</observability>
 
 <process>
 1. [Step one of the execution loop]
@@ -30,14 +39,14 @@ A successful execution of this Sigil must:
 
 - [Constraint 1]
 - [Constraint 2]
-  </quality-bar>
+</quality-bar>
 
 <anti-patterns>
 See [Anti-Patterns](../ANTI-PATTERNS.md) for authoring guidance.
 
 - [Avoid X because of Y]
 - [Do not use this Sigil if Z is the primary goal]
-  </anti-patterns>
+</anti-patterns>
 
 <output-contract>
 The result must return:

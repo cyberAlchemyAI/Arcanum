@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build the public skill registry page + per-skill download zips.
+"""Build the public skill registry page + dependency-complete download zips.
 
 Reads every skill folder under the four Arcanum tiers, extracts metadata from
 its manifest (SKILL.md preferred, README.md fallback — handling YAML frontmatter
 or a prose Identity/Purpose section), zips each skill MINUS its `development/`
-package (the dev/experiment surface, never a runtime dependency), and emits
-`docs/registry.html`.
+package (the dev/experiment surface, never a runtime dependency), closes
+declared sigil dependencies, and emits `docs/registry.html`.
 
 Re-run this whenever skills change; never hand-edit the generated rows.
 Stdlib only.
@@ -15,12 +15,13 @@ from __future__ import annotations
 import html
 import re
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent  # arcanum/
 DOCS = ROOT / "docs"
-DL = DOCS / "downloads"
+DEPENDENCIES = ROOT / "registry" / "SIGIL-DEPENDENCIES.tsv"
 
 TIERS = [
     ("arcana", "Arcana", "Sigils — single governed capabilities."),
@@ -45,6 +46,26 @@ def parse_frontmatter(text: str) -> dict:
         if mm:
             fm[mm.group(1)] = mm.group(2).strip().strip('"').strip("'")
     return fm
+
+
+def parse_artifact_sidecar(path: Path) -> dict:
+    """Read scalar fields from a sibling `<artifact>.artifact.yml` block."""
+    if not path.is_file():
+        return {}
+    artifact: dict[str, str] = {}
+    in_artifact = False
+    for raw in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if raw == "artifact:":
+            in_artifact = True
+            continue
+        if not in_artifact:
+            continue
+        if raw and not raw.startswith((" ", "\t")):
+            break
+        match = re.match(r"^  ([A-Za-z0-9_-]+):\s*(.*)$", raw)
+        if match:
+            artifact[match.group(1)] = match.group(2).strip().strip('"').strip("'")
+    return artifact
 
 
 def strip_fm(text: str) -> str:
@@ -101,6 +122,7 @@ def extract(skill_dir: Path, tier: str) -> dict | None:
 
     text = manifest.read_text(encoding="utf-8", errors="replace")
     fm = parse_frontmatter(text)
+    artifact = parse_artifact_sidecar(manifest.with_name(manifest.name + ".artifact.yml"))
     body = strip_fm(text)
 
     name = fm.get("name") or ""
@@ -111,8 +133,8 @@ def extract(skill_dir: Path, tier: str) -> dict | None:
     desc = fm.get("description") or section_para(body, r"Purpose") or first_para(body)
     desc = clean_desc(desc) or "(no description)"
 
-    version = fm.get("version") or "—"
-    domain = fm.get("domain") or ""
+    version = fm.get("version") or artifact.get("version") or "—"
+    domain = fm.get("domain") or artifact.get("domain") or ""
 
     has_dev = (skill_dir / "development").is_dir()
     return {
@@ -127,18 +149,70 @@ def extract(skill_dir: Path, tier: str) -> dict | None:
     }
 
 
-def build_zip(skill_dir: Path, out_zip: Path) -> tuple[int, int]:
+def read_dependency_manifest(path: Path) -> dict[str, list[str]]:
+    """Read the strict two-column dependency TSV used by selective installs."""
+    if not path.is_file():
+        raise FileNotFoundError(f"dependency manifest not found: {path}")
+
+    rows = path.read_text(encoding="utf-8").splitlines()
+    if not rows or rows[0] != "# sigil\tdependency":
+        raise ValueError(f"invalid dependency manifest header: {path}")
+
+    dependencies: dict[str, list[str]] = {}
+    seen: set[tuple[str, str]] = set()
+    for line_number, raw in enumerate(rows[1:], start=2):
+        if not raw.strip() or raw.startswith("#"):
+            continue
+        fields = raw.split("\t")
+        if len(fields) != 2 or any(not field.strip() for field in fields):
+            raise ValueError(f"invalid dependency row {path}:{line_number}")
+        sigil, dependency = (field.strip() for field in fields)
+        edge = (sigil, dependency)
+        if edge in seen:
+            raise ValueError(
+                f"duplicate dependency row {path}:{line_number}: "
+                f"{sigil} -> {dependency}"
+            )
+        seen.add(edge)
+        dependencies.setdefault(sigil, []).append(dependency)
+    return dependencies
+
+
+def dependency_closure(sigil: str, dependencies: dict[str, list[str]]) -> list[str]:
+    """Return the requested sigil followed by its deterministic transitive closure."""
+    closure: list[str] = []
+    visited: set[str] = set()
+
+    def visit(current: str) -> None:
+        if current in visited:
+            return
+        visited.add(current)
+        closure.append(current)
+        for dependency in dependencies.get(current, []):
+            visit(dependency)
+
+    visit(sigil)
+    return closure
+
+
+def build_zip(
+    skill_dir: Path,
+    out_zip: Path,
+    dependency_dirs: tuple[Path, ...] = (),
+) -> tuple[int, int, int]:
     out_zip.parent.mkdir(parents=True, exist_ok=True)
     files = 0
+    package_dirs = (skill_dir, *dependency_dirs)
     with zipfile.ZipFile(out_zip, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(skill_dir.rglob("*")):
-            rel = p.relative_to(skill_dir)
-            if any(part in EXCLUDE_DIRS for part in rel.parts):
-                continue
-            if p.is_file() and p.name not in EXCLUDE_FILES:
-                z.write(p, str(Path(skill_dir.name) / rel))
-                files += 1
-    return files, out_zip.stat().st_size
+        for package_dir in package_dirs:
+            for p in sorted(package_dir.rglob("*")):
+                rel = p.relative_to(package_dir)
+                if any(part in EXCLUDE_DIRS for part in rel.parts):
+                    continue
+                if p.is_file() and p.name not in EXCLUDE_FILES:
+                    z.write(p, str(Path(package_dir.name) / rel))
+                    files += 1
+    return files, out_zip.stat().st_size, len(package_dirs)
 
 
 def human_size(n: int) -> str:
@@ -173,22 +247,28 @@ def nav_html(active: str) -> str:
 
 def card(s: dict) -> str:
     e = html.escape
-    zip_href = f"downloads/{s['tier']}/{s['slug']}.zip"
+    zip_href = f"downloads/{s['tier']}/{s['download_name']}"
     dev_tag = (
         '<span class="mini" title="The development/ experiment package is excluded from the download">dev package excluded</span>'
         if s["has_dev"]
         else ""
     )
     domain = f'<span class="mini">{e(s["domain"])}</span>' if s["domain"] else ""
+    bundle_tag = (
+        '<span class="mini" title="Includes the complete declared dependency closure">'
+        f'dependency-complete · {s["packages"]} skills</span>'
+        if s["packages"] > 1
+        else ""
+    )
     return f"""        <article class="card" data-search="{e((s['slug'] + ' ' + s['name'] + ' ' + s['desc'] + ' ' + s['domain']).lower())}">
           <div class="card-head">
             <code class="cname">{e(s['name'])}</code>
             <span class="ver">{e(s['version'])}</span>
           </div>
           <p class="cdesc">{e(s['desc'])}</p>
-          <div class="meta">{domain}{dev_tag}<span class="mini">{s['files']} files · {human_size(s['size'])}</span></div>
+          <div class="meta">{domain}{dev_tag}{bundle_tag}<span class="mini">{s['files']} files · {human_size(s['size'])}</span></div>
           <div class="cactions">
-            <a class="dl" href="{zip_href}" download>⬇ {e(s['slug'])}.zip</a>
+            <a class="dl" href="{zip_href}" download>⬇ {e(s['download_name'])}</a>
             <a class="src" href="https://github.com/{REPO}/tree/main/{s['path']}">Source ↗</a>
           </div>
         </article>"""
@@ -223,7 +303,7 @@ def render(skills: list[dict], skipped: list[str]) -> str:
     skipped_note = ""
     if skipped:
         skipped_note = (
-            '<p class="note">Not yet released (development-only, no runtime contract): '
+            '<p class="note">Not yet released (development-only or explicitly held): '
             + ", ".join(f"<code>{html.escape(x)}</code>" for x in skipped)
             + ".</p>"
         )
@@ -233,7 +313,7 @@ def render(skills: list[dict], skipped: list[str]) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The Arcanum skill registry — download any sigil, spell, formula, or transmutation on its own. Generated from each skill's manifest.">
+  <meta name="description" content="The Arcanum skill registry — download dependency-complete sigil, spell, formula, and transmutation bundles. Generated from each skill's manifest.">
   <title>Skill registry — CyberAlchemy</title>
   <style>
     :root {{
@@ -321,8 +401,8 @@ def render(skills: list[dict], skipped: list[str]) -> str:
     <section class="hero">
       <div class="inner">
         <p class="eyebrow">Skill registry</p>
-        <h1>Download any Arcanum skill on its own.</h1>
-        <p class="lead">{total} skills across four tiers. Each download is the skill's runtime surface — manifest, templates, scripts, tools — with the <code>development/</code> experiment package stripped out. Drop one into <code>.claude/skills/</code> or <code>.agents/skills/</code> and it is discoverable.</p>
+        <h1>Download dependency-complete Arcanum skill bundles.</h1>
+        <p class="lead">{total} skills across four tiers. Each download contains the requested runtime surface and every dependency declared in <code>registry/SIGIL-DEPENDENCIES.tsv</code>, with <code>development/</code> experiment packages stripped out. Bundles with dependencies use an explicit <code>-bundle.zip</code> suffix.</p>
         <div class="tools">
           <input id="q" type="search" placeholder="Filter skills by name, purpose, or domain…" aria-label="Filter skills">
           <span class="count" id="count">{total} shown</span>
@@ -388,9 +468,112 @@ def render(skills: list[dict], skipped: list[str]) -> str:
 """
 
 
-def main() -> int:
+def run_self_tests() -> None:
+    with tempfile.TemporaryDirectory(prefix="arcanum-registry-builder-") as raw_tmp:
+        tmp = Path(raw_tmp)
+        packages: dict[str, Path] = {}
+        for name in ("resolution-router", "low-resolution-explanation", "lens-router"):
+            package = tmp / name
+            package.mkdir()
+            (package / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: test\n---\n",
+                encoding="utf-8",
+            )
+            packages[name] = package
+
+        manifest = tmp / "dependencies.tsv"
+        manifest.write_text(
+            "# sigil\tdependency\n"
+            "resolution-router\tlens-router\n"
+            "resolution-router\tlow-resolution-explanation\n"
+            "low-resolution-explanation\tlens-router\n"
+            "low-resolution-explanation\tresolution-router\n",
+            encoding="utf-8",
+        )
+        dependencies = read_dependency_manifest(manifest)
+        assert dependency_closure("resolution-router", dependencies) == [
+            "resolution-router",
+            "lens-router",
+            "low-resolution-explanation",
+        ]
+        assert dependency_closure("low-resolution-explanation", dependencies) == [
+            "low-resolution-explanation",
+            "lens-router",
+            "resolution-router",
+        ]
+
+        bundle = tmp / "resolution-router-bundle.zip"
+        closure = dependency_closure("resolution-router", dependencies)
+        files, _, package_count = build_zip(
+            packages[closure[0]],
+            bundle,
+            tuple(packages[name] for name in closure[1:]),
+        )
+        with zipfile.ZipFile(bundle) as archive:
+            roots = {Path(name).parts[0] for name in archive.namelist()}
+        assert roots == set(closure)
+        assert files == 3
+        assert package_count == 3
+
+        rendered_card = card(
+            {
+                "slug": "resolution-router",
+                "name": "resolution-router",
+                "tier": "transmutations",
+                "desc": "test",
+                "version": "0.1.0",
+                "domain": "testing",
+                "path": "transmutations/resolution-router",
+                "has_dev": True,
+                "download_name": "resolution-router-bundle.zip",
+                "files": files,
+                "size": bundle.stat().st_size,
+                "packages": package_count,
+            }
+        )
+        assert "resolution-router-bundle.zip" in rendered_card
+        assert "dependency-complete · 3 skills" in rendered_card
+
+        manifest.write_text(
+            "# sigil dependency\nresolution-router lens-router\n",
+            encoding="utf-8",
+        )
+        try:
+            read_dependency_manifest(manifest)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("malformed dependency TSV must fail closed")
+
+        try:
+            read_dependency_manifest(tmp / "missing.tsv")
+        except FileNotFoundError:
+            pass
+        else:
+            raise AssertionError("missing dependency TSV must fail closed")
+
+
+def main(argv: list[str] | None = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
+    if argv == ["--self-test"]:
+        run_self_tests()
+        print("build-skill-registry self-test: PASS")
+        return 0
+    docs_dir = DOCS
+    if len(argv) == 2 and argv[0] == "--docs-dir":
+        docs_dir = Path(argv[1]).resolve()
+    elif argv:
+        print(
+            "usage: build-skill-registry.py [--self-test | --docs-dir PATH]",
+            file=sys.stderr,
+        )
+        return 2
+    downloads_dir = docs_dir / "downloads"
+
     skills: list[dict] = []
     skipped: list[str] = []
+    skill_dirs: dict[str, Path] = {}
 
     for tid, _, _ in TIERS:
         tdir = ROOT / tid
@@ -399,16 +582,50 @@ def main() -> int:
         for sdir in sorted(tdir.iterdir()):
             if not sdir.is_dir() or sdir.name == "templates":
                 continue
+            hold = sdir / "development" / "REGISTRY-HOLD.md"
+            if hold.is_file():
+                stale_zip = downloads_dir / tid / f"{sdir.name}.zip"
+                stale_zip.unlink(missing_ok=True)
+                skipped.append(f"{tid}/{sdir.name} (registry hold)")
+                continue
             meta = extract(sdir, tid)
             if meta is None:
                 skipped.append(f"{tid}/{sdir.name}")
                 continue
-            files, size = build_zip(sdir, DL / tid / f"{sdir.name}.zip")
-            meta["files"] = files
-            meta["size"] = size
+            if sdir.name in skill_dirs:
+                raise ValueError(f"duplicate released skill id: {sdir.name}")
+            skill_dirs[sdir.name] = sdir
             skills.append(meta)
 
-    (DOCS / "registry.html").write_text(render(skills, skipped), encoding="utf-8")
+    dependencies = read_dependency_manifest(DEPENDENCIES)
+    for sigil, required in dependencies.items():
+        if sigil not in skill_dirs:
+            raise ValueError(f"dependency manifest references unavailable sigil: {sigil}")
+        for dependency in required:
+            if dependency not in skill_dirs:
+                raise ValueError(
+                    f"dependency manifest references unavailable dependency: {sigil} -> {dependency}"
+                )
+
+    for meta in skills:
+        slug = meta["slug"]
+        closure = dependency_closure(slug, dependencies)
+        bundle = len(closure) > 1
+        download_name = f"{slug}-bundle.zip" if bundle else f"{slug}.zip"
+        stale_name = f"{slug}.zip" if bundle else f"{slug}-bundle.zip"
+        (downloads_dir / meta["tier"] / stale_name).unlink(missing_ok=True)
+        files, size, packages = build_zip(
+            skill_dirs[slug],
+            downloads_dir / meta["tier"] / download_name,
+            tuple(skill_dirs[dependency] for dependency in closure[1:]),
+        )
+        meta["download_name"] = download_name
+        meta["files"] = files
+        meta["size"] = size
+        meta["packages"] = packages
+
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    (docs_dir / "registry.html").write_text(render(skills, skipped), encoding="utf-8")
 
     print(f"registry.html written · {len(skills)} skills · {len(skipped)} skipped")
     by_tier: dict[str, int] = {}
@@ -417,7 +634,7 @@ def main() -> int:
     for tid, label, _ in TIERS:
         print(f"  {label:<16} {by_tier.get(tid, 0)}")
     if skipped:
-        print("  skipped (dev-only): " + ", ".join(skipped))
+        print("  skipped: " + ", ".join(skipped))
     return 0
 
 

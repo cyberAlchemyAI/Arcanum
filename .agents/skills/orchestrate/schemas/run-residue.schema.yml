@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/run-residue.schema.yml",
+  "title": "Native Dispatch Runner Non-Causal Residue",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sequence",
+    "recorded_at",
+    "kind",
+    "dispatch_id",
+    "run_id",
+    "wave_id",
+    "action_id",
+    "agent_id",
+    "summary",
+    "source_refs"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.run-residue.v0.1"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "recorded_at": {"type": "string", "minLength": 1},
+    "kind": {
+      "enum": [
+        "feedback",
+        "governance",
+        "commentary",
+        "evidence_closure",
+        "reduction_note",
+        "other"
+      ]
+    },
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "wave_id": {"type": ["string", "null"], "minLength": 1},
+    "action_id": {"type": ["string", "null"], "minLength": 1},
+    "agent_id": {"type": ["string", "null"], "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "source_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "additionalProperties": false
+}

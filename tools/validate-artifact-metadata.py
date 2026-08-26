@@ -41,6 +41,10 @@ VALID_STATUSES = {
     "local-runtime",
 }
 
+
+class MetadataParseError(ValueError):
+    """Raised when governed metadata is not in the supported strict YAML subset."""
+
 GENERATED_PREFIXES = (
     ".arcanum/observability/",
     ".arcanum/runtime/",
@@ -92,41 +96,63 @@ def is_candidate_governed_path(rel: str) -> bool:
     return False
 
 
-def parse_scalar(value: str) -> Any:
+def parse_scalar(value: str, *, line_number: int) -> Any:
     value = value.strip()
     if not value:
         return ""
     if value in {"[]", "null", "~"}:
         return [] if value == "[]" else None
-    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-        return value[1:-1]
+    if value.startswith('"'):
+        if not value.endswith('"') or len(value) == 1:
+            raise MetadataParseError(f"line {line_number}: unterminated double-quoted scalar")
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise MetadataParseError(f"line {line_number}: invalid double-quoted scalar: {exc.msg}") from exc
+        if not isinstance(parsed, str):
+            raise MetadataParseError(f"line {line_number}: quoted metadata scalar must be a string")
+        return parsed
+    if value.startswith("'"):
+        if not value.endswith("'") or len(value) == 1:
+            raise MetadataParseError(f"line {line_number}: unterminated single-quoted scalar")
+        return value[1:-1].replace("''", "'")
+    if value.endswith(('"', "'")):
+        raise MetadataParseError(f"line {line_number}: closing quote has no matching opening quote")
     return value
 
 
-def parse_simple_yaml_mapping(lines: list[str]) -> dict[str, Any]:
+def parse_simple_yaml_mapping(lines: list[str], *, context: str = "metadata") -> dict[str, Any]:
     data: dict[str, Any] = {}
     current_key: str | None = None
-    for raw in lines:
+    for line_number, raw in enumerate(lines, 1):
+        if "\t" in raw:
+            raise MetadataParseError(f"{context} line {line_number}: tabs are forbidden in indentation or content")
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
-        if raw.startswith((" ", "\t")) and current_key:
-            stripped = raw.strip()
-            if stripped.startswith("- "):
-                data.setdefault(current_key, [])
-                if isinstance(data[current_key], list):
-                    data[current_key].append(parse_scalar(stripped[2:]))
+        if raw.startswith(" "):
+            if current_key is None:
+                raise MetadataParseError(f"{context} line {line_number}: unexpected indentation")
+            if not raw.startswith("  - ") or raw.startswith("   "):
+                raise MetadataParseError(
+                    f"{context} line {line_number}: list items must use exactly two spaces followed by `- `"
+                )
+            item = raw[4:]
+            if not item.strip():
+                raise MetadataParseError(f"{context} line {line_number}: empty list item")
+            data[current_key].append(parse_scalar(item, line_number=line_number))
             continue
         match = re.match(r"^([A-Za-z0-9_-]+):(?:\s*(.*))?$", raw)
         if not match:
-            current_key = None
-            continue
+            raise MetadataParseError(f"{context} line {line_number}: unconsumed or invalid YAML line: {raw!r}")
         key, value = match.group(1), match.group(2) or ""
+        if key in data:
+            raise MetadataParseError(f"{context} line {line_number}: duplicate key `{key}`")
         if value.strip() == "":
             data[key] = []
             current_key = key
         else:
-            data[key] = parse_scalar(value)
-            current_key = key
+            data[key] = parse_scalar(value, line_number=line_number)
+            current_key = None
     return data
 
 
@@ -137,7 +163,15 @@ def extract_markdown_frontmatter(text: str) -> dict[str, Any] | None:
     if end == -1:
         return None
     block = text[4:end].strip("\n")
-    return parse_simple_yaml_mapping(block.splitlines())
+    top_level_keys = {
+        match.group(1)
+        for raw in block.splitlines()
+        if not raw.startswith((" ", "\t"))
+        if (match := re.match(r"^([A-Za-z0-9_-]+):", raw))
+    }
+    if not METADATA_FIELDS.intersection(top_level_keys):
+        return None
+    return parse_simple_yaml_mapping(block.splitlines(), context="Markdown frontmatter")
 
 
 def is_artifact_metadata_block(metadata: dict[str, Any] | None) -> bool:
@@ -145,6 +179,8 @@ def is_artifact_metadata_block(metadata: dict[str, Any] | None) -> bool:
 
 
 def extract_yaml_artifact_block(text: str) -> dict[str, Any] | None:
+    if "\t" in text:
+        raise MetadataParseError("YAML document: tabs are forbidden in indentation or content")
     lines = text.splitlines()
     start: int | None = None
     for index, line in enumerate(lines):
@@ -158,7 +194,7 @@ def extract_yaml_artifact_block(text: str) -> dict[str, Any] | None:
         if line and not line.startswith((" ", "\t")):
             break
         block.append(line[2:] if line.startswith("  ") else line.lstrip())
-    return parse_simple_yaml_mapping(block)
+    return parse_simple_yaml_mapping(block, context="YAML artifact block")
 
 
 def extract_json_artifact(text: str) -> dict[str, Any] | None:
@@ -180,16 +216,24 @@ def extract_script_metadata(text: str) -> dict[str, Any] | None:
             lines.append(stripped[2:])
         elif lines:
             break
-    return parse_simple_yaml_mapping(lines) if lines else None
+    return parse_simple_yaml_mapping(lines, context="script metadata comment block") if lines else None
 
 
 def load_sidecar(path: Path) -> dict[str, Any] | None:
     sidecar = path.with_name(path.name + ".artifact.yml")
     if not sidecar.exists():
         return None
-    return extract_yaml_artifact_block(sidecar.read_text(encoding="utf-8")) or parse_simple_yaml_mapping(
-        sidecar.read_text(encoding="utf-8").splitlines()
-    )
+    text = sidecar.read_text(encoding="utf-8")
+    artifact = extract_yaml_artifact_block(text)
+    if artifact is not None:
+        significant = [line for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        if not significant or significant[0] != "artifact:":
+            raise MetadataParseError("sidecar: `artifact` must be the first top-level key")
+        trailing_top_level = [line for line in significant[1:] if not line.startswith("  ")]
+        if trailing_top_level:
+            raise MetadataParseError(f"sidecar: unconsumed top-level YAML line: {trailing_top_level[0]!r}")
+        return artifact
+    return parse_simple_yaml_mapping(text.splitlines(), context="sidecar")
 
 
 def extract_metadata(path: Path) -> tuple[dict[str, Any] | None, str]:
@@ -228,7 +272,11 @@ def validate_metadata(path: Path, root: Path, require_missing: bool) -> tuple[li
     rel = rel_path(path, root)
     errors: list[str] = []
     warnings: list[str] = []
-    metadata, source = extract_metadata(path)
+    try:
+        metadata, source = extract_metadata(path)
+    except MetadataParseError as exc:
+        errors.append(f"{rel}: invalid artifact metadata YAML: {exc}")
+        return errors, warnings
 
     if metadata is None:
         if require_missing and is_candidate_governed_path(rel):
@@ -280,6 +328,36 @@ def changed_paths(root: Path) -> list[Path]:
     return [path for path in paths if path.exists() and path.is_file()]
 
 
+def expand_requested_paths(raw_paths: list[str], root: Path) -> tuple[list[Path], list[str]]:
+    """Expand explicit directories into governed files and reject empty inputs."""
+    seen: set[Path] = set()
+    paths: list[Path] = []
+    errors: list[str] = []
+
+    for raw in raw_paths:
+        requested = Path(raw)
+        if not requested.exists():
+            errors.append(f"requested path does not exist: {raw}")
+            continue
+
+        candidates = [requested] if requested.is_file() else sorted(
+            path
+            for path in requested.rglob("*")
+            if path.is_file() and is_candidate_governed_path(rel_path(path, root))
+        )
+        if not candidates:
+            errors.append(f"requested path contains no governed files: {raw}")
+            continue
+
+        for candidate in candidates:
+            resolved = candidate.resolve()
+            if resolved not in seen:
+                seen.add(resolved)
+                paths.append(candidate)
+
+    return paths, errors
+
+
 def run_self_test() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -290,6 +368,8 @@ def run_self_test() -> int:
         json_good = root / "good.json"
         json_bad = root / "bad.json"
         companion_bad = root / "companion.md"
+        runtime_frontmatter = root / "runtime-skill.md"
+        yaml_adversarial: list[Path] = []
 
         md_good.write_text(
             """---
@@ -358,6 +438,53 @@ validation_profile:
 """,
             encoding="utf-8",
         )
+        runtime_frontmatter.write_text(
+            """---
+metadata:
+  surface_kind: generated-native-runtime-package
+name: runtime-skill
+description: Runtime frontmatter is not artifact metadata.
+required_operations:
+  - collaboration.spawn_agent
+---
+# Runtime skill
+""",
+            encoding="utf-8",
+        )
+
+        adversarial_documents = {
+            "unterminated-quote.md": """---
+artifact_id: "test.unterminated
+artifact_type: constitution
+---
+""",
+            "tab-indent.md": """---
+artifact_id: test.tab
+constitution_selectors:
+\t- framework.artifact-metadata
+---
+""",
+            "bad-indent.md": """---
+artifact_id: test.indent
+constitution_selectors:
+   - framework.artifact-metadata
+---
+""",
+            "duplicate-key.md": """---
+artifact_id: test.first
+artifact_id: test.second
+---
+""",
+            "unconsumed-line.md": """---
+artifact_id: test.line
+this is not yaml
+---
+""",
+        }
+        for name, document in adversarial_documents.items():
+            path = root / name
+            path.write_text(document, encoding="utf-8")
+            yaml_adversarial.append(path)
 
         expectations = [
             (md_good, 0),
@@ -367,6 +494,7 @@ validation_profile:
             (json_good, 0),
             (json_bad, 6),
             (companion_bad, 1),
+            (runtime_frontmatter, 0),
         ]
         for path, minimum_errors in expectations:
             errors, warnings = validate_metadata(path, root, require_missing=False)
@@ -376,6 +504,29 @@ validation_profile:
             if minimum_errors > 0 and len(errors) < minimum_errors:
                 print(f"self-test failed: {path.name} expected at least {minimum_errors} errors, got {len(errors)}", file=sys.stderr)
                 return 1
+
+        for path in yaml_adversarial:
+            errors, _ = validate_metadata(path, root, require_missing=False)
+            if len(errors) != 1 or "invalid artifact metadata YAML" not in errors[0]:
+                print(f"self-test failed: {path.name} did not fail strictly: {errors}", file=sys.stderr)
+                return 1
+
+        nested = root / "transmutations" / "nested"
+        nested.mkdir(parents=True)
+        nested_file = nested / "artifact.md"
+        nested_file.write_text(md_good.read_text(encoding="utf-8"), encoding="utf-8")
+        expanded, expansion_errors = expand_requested_paths([str(nested)], root)
+        if expansion_errors or expanded != [nested_file]:
+            print(
+                f"self-test failed: directory expansion got paths={expanded} errors={expansion_errors}",
+                file=sys.stderr,
+            )
+            return 1
+
+        expanded, expansion_errors = expand_requested_paths([str(root / "missing")], root)
+        if expanded or len(expansion_errors) != 1:
+            print("self-test failed: missing requested path did not fail closed", file=sys.stderr)
+            return 1
 
     print("Artifact metadata validator self-test")
     print("metadata fixtures: pass")
@@ -395,21 +546,22 @@ def main() -> int:
         return run_self_test()
 
     root = repo_root()
+    input_errors: list[str] = []
     if args.changed:
         paths = changed_paths(root)
     elif args.paths:
-        paths = [Path(path) for path in args.paths]
+        paths, input_errors = expand_requested_paths(args.paths, root)
     else:
         paths = []
 
-    errors: list[str] = []
+    errors: list[str] = list(input_errors)
     warnings: list[str] = []
+    checked = 0
     for path in paths:
-        if not path.exists() or not path.is_file():
-            continue
         rel = rel_path(path, root)
         if is_generated_or_runtime(rel):
             continue
+        checked += 1
         item_errors, item_warnings = validate_metadata(path, root, require_missing=args.require_metadata)
         errors.extend(item_errors)
         warnings.extend(item_warnings)
@@ -419,6 +571,7 @@ def main() -> int:
         errors = []
 
     print("Artifact metadata validation")
+    print(f"checked: {checked}")
     if warnings:
         print("\nwarnings:")
         for warning in warnings:

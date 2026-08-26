@@ -101,7 +101,13 @@ JSON artifacts should include a top-level `artifact` object when they are canoni
 
 Scripts should declare equivalent metadata in a leading comment block when they are canonical source artifacts and are expected to be selected by governance.
 
-Binary or format-constrained artifacts may use a sidecar file named `<artifact>.artifact.yml`.
+Binary or format-constrained artifacts may use a sidecar file named
+`<artifact>.artifact.yml`. Codex-native `SKILL.md` requires `name` and
+`description` for activation and may carry runtime-supported optional keys such
+as `metadata`, `license`, and `allowed-tools` when applicable. Arcanum
+repository-governance metadata belongs in `SKILL.md.artifact.yml`, not in the
+runtime frontmatter. That sidecar may additionally record `tier`, `domain`,
+`version`, and `origin` for sigil lifecycle governance.
 
 ## Rules
 

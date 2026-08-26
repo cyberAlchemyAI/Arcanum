@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/runtime/orchestrate/schemas/run-event.schema.json",
+  "title": "Native Dispatch Runner Causal Event",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sequence",
+    "event",
+    "dispatch_id",
+    "run_id",
+    "wave_id",
+    "action_id",
+    "agent_id",
+    "operation"
+  ],
+  "properties": {
+    "schema_version": {"const": "arcanum.native-dispatch-runner.run-event.v0.1"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "event": {
+      "enum": [
+        "action_attempted",
+        "host_spawn_returned",
+        "host_spawn_failed",
+        "agent_wait_registered",
+        "wait_attempted",
+        "agent_terminal",
+        "agent_closed",
+        "wait_timed_out",
+        "agent_interrupted",
+        "run_blocked",
+        "receipt_joined",
+        "gate_decided"
+      ]
+    },
+    "dispatch_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "wave_id": {"type": "string", "minLength": 1},
+    "action_id": {"type": ["string", "null"]},
+    "agent_id": {"type": ["string", "null"]},
+    "operation": {"type": "string", "minLength": 1},
+    "depends_on_gate_id": {"type": ["string", "null"]},
+    "receipt_status": {"enum": ["pass", "block", "fail", "timed_out"]},
+    "gate_id": {"type": "string", "minLength": 1},
+    "decision": {"enum": ["gate_pass", "gate_block"]},
+    "required_action_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "admitted_receipt_action_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "failed_action_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "cleaned_action_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "blocker_code": {
+      "const": "partial_wave_spawn_failure"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"event": {"const": "action_attempted"}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "null"}},
+        "required": ["depends_on_gate_id"]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "host_spawn_returned"}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "string", "minLength": 1}}
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "host_spawn_failed"}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "null"}}
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "wait_attempted"}}},
+      "then": {
+        "properties": {"action_id": {"type": "null"}, "agent_id": {"type": "null"}}
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "run_blocked"}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "null"}},
+        "required": ["failed_action_ids", "cleaned_action_ids", "blocker_code"]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"enum": ["agent_wait_registered", "agent_terminal", "agent_closed", "wait_timed_out", "agent_interrupted", "receipt_joined"]}}},
+      "then": {
+        "properties": {"action_id": {"type": "string", "minLength": 1}, "agent_id": {"type": "string", "minLength": 1}}
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "receipt_joined"}}},
+      "then": {"required": ["receipt_status"]}
+    },
+    {
+      "if": {"properties": {"event": {"const": "gate_decided"}}},
+      "then": {
+        "properties": {"action_id": {"type": "null"}, "agent_id": {"type": "null"}},
+        "required": ["gate_id", "decision", "required_action_ids", "admitted_receipt_action_ids"]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

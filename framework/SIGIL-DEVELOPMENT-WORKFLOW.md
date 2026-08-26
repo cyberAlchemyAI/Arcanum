@@ -10,7 +10,7 @@ The goal is to keep sigils clear, reusable, and governed without making the auth
 | ------------------------------- | --------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
 | 1. Candidate Capture            | Record the capability idea and the problem it should solve.     | Candidate note or draft folder.            | The problem is specific enough to evaluate.              |
 | 2. Tier Classification          | Decide whether the sigil is Formulae, Transmutation, or Arcana. | Tier decision with rationale.              | The epistemic nature is clear.                           |
-| 3. Intent Design                | Define objective, trigger conditions, scope, and authority.     | Human-facing README draft.                 | The sigil has a bounded purpose.                         |
+| 3. Intent Design                | Define objective, trigger conditions, scope, and authority.     | `SKILL.md` intent sections and candidate evidence under `development/`. | The sigil has a bounded purpose.                         |
 | 4. Behavior Contract            | Write the executable `SKILL.md`.                                | Skill instruction contract.                | The agent can execute without hidden assumptions.        |
 | 5. Quality And Failure Design   | Add Quality Bar and Anti-Patterns.                              | Reviewable success and failure boundaries. | The sigil can be accepted or rejected by evidence.       |
 | 6. Template And Artifact Design | Add reusable templates only when needed.                        | Optional `templates/` files.               | Templates reduce ambiguity or repetition.                |
@@ -60,7 +60,14 @@ Create the skill folder under the selected tier:
 <tier>/<sigil-name>/
 ```
 
-Add a `README.md` that explains the sigil to a human reviewer. The README should include:
+Keep the runtime package native to the target skill format. For Codex-native
+skills, do not add a `README.md` or other auxiliary documentation inside the
+skill folder. Express the human-reviewable intent through the `description`,
+`objective`, ownership, inputs, and output contract in `SKILL.md`. Put candidate
+notes, design rationale, and trial evidence under `development/`, which the
+runtime installer excludes.
+
+The intent surface should make clear:
 
 - what the sigil is,
 - what problem it solves,
@@ -70,7 +77,8 @@ Add a `README.md` that explains the sigil to a human reviewer. The README should
 - expected outputs,
 - why it belongs in its tier.
 
-The README is allowed to be explanatory. It should help someone decide whether the sigil should exist and when it should be invoked.
+It should help someone decide whether the sigil should exist and when it should
+be invoked without loading development history at runtime.
 
 ## Stage 4 - Behavior Contract
 
@@ -78,13 +86,20 @@ Create `SKILL.md` from [sigil-template.md](templates/sigil-template.md).
 
 The skill file should define executable behavior, not just describe intent. Include:
 
-- frontmatter name, description, tier, domain, version, and origin,
+- Codex-compatible frontmatter containing required `name` and `description`,
 - objective,
 - logic type,
 - process,
 - quality bar,
 - anti-patterns,
 - output contract.
+
+Codex activation depends on `name` and `description`. Runtime-supported
+optional keys such as `metadata`, `license`, and `allowed-tools` may be used
+when the target host and the skill's behavior require them. Record Arcanum
+repository-governance metadata in `SKILL.md.artifact.yml` rather than mixing it
+into runtime frontmatter. The sidecar should carry the required artifact
+metadata plus `tier`, `domain`, `version`, and `origin`.
 
 The process should be specific enough that two agents following the same sigil produce comparable results.
 
@@ -153,7 +168,8 @@ Before promotion, review the sigil for:
 - complete skill folder structure,
 - working markdown links,
 - no hidden dependency on local project names or private workflows,
-- no contradiction between README, `SKILL.md`, and templates.
+- no contradiction between `SKILL.md`, loaded references, schemas, scripts,
+  runtime metadata, and development evidence.
 
 Recommended validation commands from the repository root:
 
@@ -177,14 +193,18 @@ Check whether:
 - the Quality Bar can be evaluated,
 - the Anti-Patterns catch likely misuse.
 
-If the trial reveals ambiguity, revise the README first when the intent is unclear and revise `SKILL.md` first when the behavior is unclear.
+If the trial reveals ambiguity, revise the intent sections in `SKILL.md` when
+the purpose is unclear and revise the executable process when behavior is
+unclear. Keep trial artifacts under `development/`.
 
 ## Stage 10 - Promotion
 
 A sigil is ready for library use when:
 
 - it lives in the correct tier folder,
-- its folder has `README.md` and `SKILL.md`,
+- its folder has a Codex-compatible `SKILL.md`, matching `agents/openai.yaml`
+  when that surface is used, and governed metadata in the format supported by
+  the artifact,
 - optional templates are present only when useful,
 - Quality Bar and Anti-Patterns are specific,
 - validation passes,
@@ -235,8 +255,10 @@ Avoid broad rewrites unless the sigil's core purpose has changed. If the purpose
 - [ ] Candidate problem is specific and recurring.
 - [ ] Tier classification is documented.
 - [ ] Folder exists under the correct tier.
-- [ ] Folder `README.md` explains intent and usage.
+- [ ] `SKILL.md` explains intent and usage without auxiliary runtime docs.
 - [ ] `SKILL.md` defines executable behavior.
+- [ ] Governed metadata records tier, domain, version, and origin without
+      violating runtime frontmatter constraints.
 - [ ] Quality Bar is observable and tier-appropriate.
 - [ ] Anti-Patterns block likely misuse.
 - [ ] Templates exist only when they reduce ambiguity.

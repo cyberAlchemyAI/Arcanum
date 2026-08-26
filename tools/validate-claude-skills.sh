@@ -84,7 +84,7 @@ validate_skill_dir() {
     fail "$file" "missing YAML frontmatter (no leading ---)"
     return
   fi
-  if [[ "$(tail -n +2 "$file" | grep -c '^---$')" -lt 1 ]]; then
+  if [[ "$(tail -n +2 "$file" | tr -d '\r' | grep -c '^---$')" -lt 1 ]]; then
     fail "$file" "frontmatter is not closed (no second ---)"
   fi
 

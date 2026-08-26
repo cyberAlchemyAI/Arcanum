@@ -5,12 +5,15 @@ description: Subagent dispatch that PROPOSES and pre-registers a falsifiable exp
 
 # experiment — pre-registration (proposal) type skill
 
-The LIVE type skill for `dispatch_type: experiment`. **When and whether to dispatch** — the
-trigger, the human confirm gate, the lifecycle, `final_approver`, `exit_reason`, and the universal
-invariants — belong to the **router** (the `domainspec-subagents-strategy` skill); nothing here
-overrides it. **Record and sheet mechanics** — the two ledger appends, the appender, validation —
-belong to the **register-dispatch** skill, which also owns the field definitions. This skill defines
-no field; it says what a good **experiment** dispatch contains.
+The LIVE type skill for `dispatch_type: experiment`. **When/whether to dispatch** and all
+universal law — triggers, the human gate, lifecycle, `final_approver`, `exit_reason`, the
+invariants — live in the **router** (`.claude/skills/domainspec-subagents-strategy/SKILL.md`);
+nothing here overrides it. **Record/sheet mechanics** — the two appends, the appender,
+validation — and the inline **field definitions** you actually read live in
+**register-dispatch** (`.claude/skills/register-dispatch/SKILL.md`). Constitution §5
+(`internal_tools/subagents-dispatch-hooks/constitution/subagents-strategy-constitution-proposal.md`)
+is the upstream authority for those fields only — not a routine read. This skill defines no
+field; it says what a good **experiment** dispatch contains.
 
 **What this dispatch is — propose, don't run.** An experiment dispatch **pre-registers** a
 falsifiable experiment: the `designer` authors a success/failure criterion and the `skeptic`
@@ -36,11 +39,9 @@ exists (research is judged *after*, by coverage). This dispatch owns the pre-reg
 later, by the run** (below). Justify experiment by its **grader**, never its roles — renamed roles
 over the same grader is a re-skin, not a type (the vacuity trap).
 
-## Roles — experiment semantics over the existing agent roles (no new role names)
+## Roles — experiment semantics over the existing enums (NO new enum values)
 
-The dispatch reuses the standard agent roles (`explorer | synthesizer | skeptic | writer |
-auditor`) with experiment meaning; it invents no new role name. This dispatch (propose) uses the
-first two; the run phase (separate, downstream) uses the last two:
+This dispatch (propose) uses the first two; the run phase (separate, downstream) uses the last two:
 
 | Conceptual role | `agents[].role` | phase | function / guards against |
 |---|---|---|---|
@@ -55,22 +56,20 @@ criterion's validity is worth attacking before freeze (almost always).
 
 ## Criterion freeze — topology + immutability, never a column
 
-Pre-registration is enforced by **topology + the human confirm gate + immutability**, never a
+Pre-registration is enforced by **topology + the human-gate freeze + immutability**, never a
 schema field:
 
 - The `designer` authors the criterion and the `skeptic` attacks it; the criterion lands in
-  `working_folder` as a durable artifact and is **frozen at the human confirm gate** — the single
-  gate where the human approves the proposed sheet before anything runs, so the criterion is fixed
-  before any run exists. That is what "pre-registered" means here.
+  `working_folder` as a durable artifact and is **frozen at the P2 human gate** — before any run
+  exists. That is what "pre-registered" means here.
 - The frozen criterion is **read-only downstream**: any edit after freeze is a *new* criterion
-  (it re-enters the human confirm gate as a fresh proposal), never an in-place mutation. That
-  immutability is what makes "pre-registered" verifiable against an artifact: the criterion file
-  exists and predates any result.
+  (re-enters the P2 gate as a fresh proposal), never an in-place mutation. That immutability is
+  what makes "pre-registered" verifiable against an artifact: the criterion file exists and
+  predates any result.
 - The criterion lives as the designer's output artifact in `working_folder` — **never a ledger
-  column**. The appender rejects an unknown key like `success_metric`; a criterion column would
-  repeat the mistake that got the old `success_metric` field cut — a schema slot agents fill with
-  vacuous restatements of the goal.
-- experiment is a LIVE type, so `working_folder` is **required** — the appender enforces it.
+  column**. The appender rejects `success_metric` as an unknown key; a criterion column would
+  repeat the vacuity error v0.5.2 killed.
+- experiment is a LIVE type, so `working_folder` is **REQUIRED** (appender).
 
 ## The criterion artifact — what `criterion.md` must contain
 
@@ -85,9 +84,9 @@ the skill's job — it defines no field. A good criterion artifact pins, *before
 - **The falsification condition + a mechanical verdict rule** — the observable(s) that will decide
   the outcome and a rule mapping them to a verdict deterministically. The rule resolves **only**
   into `SURVIVED` / `FALSIFIED` / `INVALID` — never an execution-status tier (`pass/flag/block`);
-  that mapping is out of scope here (see the Reserved boundary below). Structure (a metric, a
-  threshold, a counted shape) is encouraged where it sharpens determinism, but it lives **in the
-  artifact** — never promoted to a registry column.
+  that mapping is deferred (Reserved boundary). Structure (a metric, a threshold, a counted shape)
+  is encouraged where it sharpens determinism, but it lives **in the artifact** — never promoted to
+  a registry column.
 - **The discrimination check** — both outcomes must be informative: state what a SURVIVED *and* a
   FALSIFIED each would teach. A criterion only one outcome could ever produce fails the skeptic's
   non-discrimination axis (below) — fix it at design time, before freeze, not after.
@@ -125,24 +124,22 @@ This dispatch closes `resolved` when the `final_approver` accepts a **frozen, va
 `criterion.md`** (the proposal is ready to run later). If the skeptic finds the design
 unfalsifiable, that **INVALID** outcome is a successful detection — the criterion goes back to the
 designer, and a re-designed criterion is a *new* dispatch, not a non-close. SURVIVED/FALSIFIED
-belong to the later run and never close this dispatch. Contrast: research verdicts run GO/…/KILL;
-review verdicts run UPHELD/REFUTED/DOWNGRADED. This verdict vocabulary does **not** map onto the
-execution-status tiers (`pass/flag/block`) — that cross-project unification is deferred and out of
-scope here.
+belong to the later run and never close this dispatch. Contrast: research = GO/…/KILL; review =
+UPHELD/REFUTED/DOWNGRADED. The verdict vocabulary does **not** map onto execution-status
+(`pass/flag/block`) — that cross-project unification is deferred (Arcanum F1).
 
-## Canonical shape
+## Canonical shape (v0.6.0 chassis)
 
-This dispatch (propose) — designer authors, skeptic attacks, criterion frozen at the human confirm
-gate:
+This dispatch (propose) — designer authors, skeptic attacks, criterion frozen at the P2 gate:
 
 ```
 designer ◀──zig-zag──▶ skeptic   ⇒  frozen criterion.md
 ```
 
 The skeptic checks validity in `zig-zag` (or parallel) with the designer; **zig-zag/feedback carry
-`loop_cap`**. A `feedback` back-edge is conditional — instantiated here only when the skeptic's
-validity attack means the criterion must be re-designed before freeze. A bare n = 1 designer (no
-skeptic) is allowed for a trivial pre-registration but forgoes the design-time validity check.
+`loop_cap`**. A `feedback` back-edge is conditional (P6) — here, when the skeptic's validity attack
+means the criterion must be re-designed before freeze. A bare n = 1 designer (no skeptic) is
+allowed for a trivial pre-registration but forgoes the design-time validity check.
 
 The **run is a separate downstream dispatch** (not authored here): it consumes the frozen
 `criterion.md` read-only and renders SURVIVED/FALSIFIED.
@@ -155,23 +152,21 @@ The **run is a separate downstream dispatch** (not authored here): it consumes t
 
 - The **run phase is downstream** — this skill stops at the frozen proposal. How the run is
   dispatched (a follow-up run step, manual, or a future runner) is out of scope here.
-- The **code-execution runner is RESERVED** — gated on the reserved `code` dispatch type landing
-  with an execution substrate. A run needing to execute code waits for `code` going LIVE; the
-  narrow run is reasoning/investigation over artifacts, not code execution.
+- The **code-execution runner is RESERVED** — gated on the `code` type landing with an execution
+  substrate. A run needing to execute code waits for `code` LIVE; the narrow run is
+  reasoning/investigation over artifacts, not code execution.
 - **Reproducibility = deterministic RE-ADJUDICATION** — another agent, same frozen criterion +
   result, reaches the same verdict — NOT re-execution. The criterion artifact is authored *here*
   to make that possible later.
 
-## The no-self-approval rule (restated from the router)
+## Inherited rule (cited, not invented)
 
-The `final_approver` holds the last accept/reject over the whole dispatch and may **never** sit in
-a working group — no agent approves its own work. In the propose dispatch the designer and skeptic
-are both working-group members, so neither may double as `final_approver`; use `parent` (the
-strategist session) or a **dedicated approver group** whose single agent's `role` is `auditor` and
-that does no other work in the dispatch. The same rule binds the run's adjudicator later. This is
-the router's rule, restated because it shapes this dispatch.
+`final_approver` may never sit in a working group (constitution P12 / §5). In the propose dispatch
+the designer and skeptic are working-group members, so neither may double as `final_approver` —
+use `parent` or a dedicated approver group (its single agent's role is `auditor`). The same rule
+binds the run's adjudicator later.
 
-## Outputs
+## Outputs (P9 pattern, experiment flavor)
 
 This dispatch (propose) produces **one artifact** in `working_folder`:
 
@@ -185,8 +180,8 @@ The **later run** (separate dispatch) produces the other two, against the frozen
 - **`findings.md`** — the adjudication: every load-bearing verdict citing the **criterion +
   result** it rests on, ending in SURVIVED/FALSIFIED.
 
-The requirement is the FILES, not who writes them. Append/close mechanics belong to the
-**register-dispatch** skill — do not restate them here.
+The requirement is the FILES, not who writes them. Append/close mechanics are
+**register-dispatch**'s — do not restate them here.
 
 ## Names
 
@@ -195,13 +190,4 @@ the philosophy-of-science figures: **Popper, Lakatos, Hume, Feyerabend, Kuhn**
 (`role_fit: [skeptic, writer]`) for this dispatch's skeptic/designer; primary-`role_fit` explorers
 for the run's runner; an `auditor` fit (**Vlachopulos, Loregian, Brandenburg**) for the run's
 adjudicator. Never reuse a name within one dispatch; never invent one — and the skeptic that
-attacks validity is never the designer whose criterion it attacks (the same no-self-approval
-principle applied at agent scale).
-
-## See also
-
-- **Router** — the `domainspec-subagents-strategy` skill: triggers, the human confirm gate,
-  lifecycle, `final_approver`, `exit_reason` vocabulary, and the anti-bias invariants. Nothing here
-  overrides it.
-- **Record/sheet mechanics + field definitions** — the `register-dispatch` skill: the two appends,
-  the appender, validation, enums.
+attacks validity is never the designer whose criterion it attacks (P12's spirit at agent scale).

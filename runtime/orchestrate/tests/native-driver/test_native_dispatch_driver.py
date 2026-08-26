@@ -209,6 +209,47 @@ class NativeDispatchDriverTests(unittest.TestCase):
             },
         )
 
+    def test_windows_lockfile_fallback_is_exclusive_and_cleans_up(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            stream = Path(temp_dir) / "events.jsonl"
+            original_fcntl = driver.fcntl
+            driver.fcntl = None
+            try:
+                with stream.open("a+", encoding="utf-8") as handle:
+                    lock_path = Path(f"{handle.name}.lock")
+                    with driver._exclusive_stream_lock(handle):
+                        self.assertTrue(lock_path.is_file())
+                        with stream.open("a+", encoding="utf-8") as contender:
+                            with self.assertRaises(driver.DriverBlocked):
+                                with driver._exclusive_stream_lock(contender):
+                                    self.fail("a second Windows lock must not be admitted")
+                    self.assertFalse(lock_path.exists())
+            finally:
+                driver.fcntl = original_fcntl
+
+    def test_windows_lockfile_fallback_supports_causal_append(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            action_path = self.persist_actions(root)["spawn-0001"]
+            events = root / "events.jsonl"
+            original_fcntl = driver.fcntl
+            driver.fcntl = None
+            try:
+                driver.prepare_spawn(
+                    action_path,
+                    self.run_plan_path,
+                    events,
+                    root / "request.json",
+                    None,
+                )
+            finally:
+                driver.fcntl = original_fcntl
+            self.assertEqual(
+                [item["event"] for item in validator.load_events(events)],
+                ["action_attempted"],
+            )
+            self.assertFalse(Path(f"{events}.lock").exists())
+
     def test_prepare_spawn_persists_pre_event_before_request_and_replay_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

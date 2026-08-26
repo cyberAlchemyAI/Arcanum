@@ -7,7 +7,7 @@ fixture_root="$(mktemp -d)"
 trap 'rm -rf -- "$fixture_root"' EXIT
 
 skills_root="$fixture_root/.claude/skills"
-mkdir -p "$skills_root/valid-skill" "$skills_root/custom"
+mkdir -p "$skills_root/valid-skill" "$skills_root/crlf-skill" "$skills_root/custom"
 
 printf '%s\n' \
   '---' \
@@ -16,6 +16,12 @@ printf '%s\n' \
   '---' \
   '# Valid fixture' > "$skills_root/valid-skill/SKILL.md"
 printf '%s\n' '# Repository-owned writing guide' > "$skills_root/custom/writing-guide.md"
+printf '%s\r\n' \
+  '---' \
+  'name: crlf-skill' \
+  'description: A valid CRLF fixture skill.' \
+  '---' \
+  '# Valid CRLF fixture' > "$skills_root/crlf-skill/SKILL.md"
 
 bash "$script_dir/validate-claude-skills.sh" "$skills_root" >/dev/null
 
