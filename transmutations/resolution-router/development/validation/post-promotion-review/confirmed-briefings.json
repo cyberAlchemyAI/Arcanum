@@ -1,0 +1,228 @@
+{
+  "roles": {
+    "governance-attacker": {
+      "agent_identity": "Independent post-promotion governance attacker",
+      "angle": "Attack fidelity, authority, ownership, promotion evidence, and abuse resistance across the complete routing-skill corpus.",
+      "instructions": "Read the complete declared corpus. Test whether canonical status, registry exposure, workflow changes, metadata, validation claims, and lens/resolution ownership remain faithful or merely satisfy promotion rules in form. Run only read-only checks. Return candidate findings with exact file and locator, direct evidence, CRITICAL/MAJOR/MINOR severity, consequence, and one bounded fix. Defend every zero-finding area by naming the attack attempted. Do not edit files, promote artifacts, or write review prose.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          "transmutations/lens-router/",
+          "transmutations/resolution-router/",
+          "transmutations/low-resolution-explanation/",
+          "framework/SIGIL-DEVELOPMENT-WORKFLOW.md",
+          "framework/templates/sigil-template.md",
+          "registry/SIGILS.md",
+          "tools/bootstrap_arcanum.sh",
+          "tools/validate-artifact-metadata.py",
+          "tools/validate-sigil-dependencies.py",
+          ".agents/skills/lens-router",
+          ".agents/skills/resolution-router",
+          ".agents/skills/low-resolution-explanation"
+        ],
+        "allowed_read_scopes": [
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/skills/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": [
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/"
+        ]
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "findings",
+          "coverage",
+          "validation",
+          "zero_findings_defense"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Attack and report on the declared corpus without changing it or exercising promotion authority.",
+        "allowed_actions": [
+          "read_declared_inputs",
+          "run_non_mutating_checks",
+          "return_bounded_receipt"
+        ],
+        "forbidden_actions": [
+          "edit_target",
+          "apply_fix",
+          "promotion",
+          "publication"
+        ]
+      }
+    },
+    "operability-attacker": {
+      "agent_identity": "Independent post-promotion mechanics and operability attacker",
+      "angle": "Attack executable correctness, installation closure, generated surfaces, validators, redirects, route availability, and evidence reproducibility.",
+      "instructions": "Read the complete declared corpus and attempt to falsify the documented operational claims. Exercise read-only validators and use only the declared ignored runtime temp scope for isolated installs. Check canonical versus generated skill fidelity, dependency closure, metadata counts, jsonschema preflight, link resolution, direct-entry termination, cumulative promotion, unavailable medium/high stopping, and forward-test evidence. Return candidate findings with exact file and locator, directly observed behavior, CRITICAL/MAJOR/MINOR severity, consequence, and one bounded fix. Defend every zero-finding area by naming the attack attempted. Do not edit governed source files or write review prose. Clean temporary contents when practical and report any residue.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          "transmutations/lens-router/",
+          "transmutations/resolution-router/",
+          "transmutations/low-resolution-explanation/",
+          "framework/SIGIL-DEVELOPMENT-WORKFLOW.md",
+          "framework/templates/sigil-template.md",
+          "registry/SIGILS.md",
+          "tools/bootstrap_arcanum.sh",
+          "tools/validate-artifact-metadata.py",
+          "tools/validate-sigil-dependencies.py",
+          ".agents/skills/lens-router",
+          ".agents/skills/resolution-router",
+          ".agents/skills/low-resolution-explanation"
+        ],
+        "allowed_read_scopes": [
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/skills/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": [
+          ".arcanum/runtime/routing-post-promotion-review/temp/"
+        ],
+        "forbidden_write_scopes": [
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/"
+        ]
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "findings",
+          "coverage",
+          "validation",
+          "zero_findings_defense"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Attack operational claims through read-only checks and isolated temporary execution only.",
+        "allowed_actions": [
+          "read_declared_inputs",
+          "run_non_mutating_checks",
+          "run_isolated_temporary_install",
+          "return_bounded_receipt"
+        ],
+        "forbidden_actions": [
+          "edit_target",
+          "apply_fix",
+          "promotion",
+          "publication"
+        ]
+      }
+    },
+    "finding-skeptic": {
+      "agent_identity": "Independent verifier of post-promotion review findings",
+      "angle": "Try to refute every provisional finding against literal artifacts and reproduced behavior, while auditing whole-corpus coverage.",
+      "instructions": "Read both attacker receipts and the complete declared target corpus. For every provisional finding, return SURVIVE or REFUTE with exact literal evidence and independently calibrated severity. Drop refuted findings rather than softening them. Check that every declared target was attacked through both lenses and that zero-finding defenses name concrete attacks. Do not introduce fixes beyond one bounded proposed fix for each surviving finding. Do not edit any target or persist attacker transcripts.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          ".arcanum/runtime/routing-post-promotion-review/receipts/governance-attacker.json",
+          ".arcanum/runtime/routing-post-promotion-review/receipts/operability-attacker.json",
+          "transmutations/lens-router/",
+          "transmutations/resolution-router/",
+          "transmutations/low-resolution-explanation/",
+          "framework/SIGIL-DEVELOPMENT-WORKFLOW.md",
+          "framework/templates/sigil-template.md",
+          "registry/SIGILS.md",
+          "tools/bootstrap_arcanum.sh",
+          "tools/validate-artifact-metadata.py",
+          "tools/validate-sigil-dependencies.py",
+          ".agents/skills/"
+        ],
+        "allowed_read_scopes": [
+          ".arcanum/runtime/routing-post-promotion-review/",
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/skills/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": [
+          "transmutations/",
+          "framework/",
+          "registry/",
+          "tools/",
+          ".agents/"
+        ]
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "verified_findings",
+          "coverage_audit",
+          "validation",
+          "verdict_basis"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Verify and filter findings; do not alter artifacts or exercise lifecycle authority.",
+        "allowed_actions": [
+          "read_declared_inputs",
+          "run_non_mutating_checks",
+          "verify_or_refute_findings",
+          "return_bounded_receipt"
+        ],
+        "forbidden_actions": [
+          "edit_target",
+          "apply_fix",
+          "promotion",
+          "publication"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/schemas/lens-packet.schema.json",
+  "title": "Lens Packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "packet_version",
+    "packet_digest",
+    "object",
+    "consumer",
+    "purpose",
+    "evidence_boundary",
+    "known_terms",
+    "reserved_terms",
+    "selected_lenses",
+    "selection_rationale",
+    "per_lens_findings",
+    "composed_findings",
+    "qualitative_audit",
+    "open_questions"
+  ],
+  "properties": {
+    "packet_version": { "const": "2.0" },
+    "packet_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "object": { "type": "string", "minLength": 1 },
+    "consumer": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "evidence_boundary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["locator", "scope"],
+        "properties": {
+          "locator": { "type": "string", "minLength": 1 },
+          "scope": { "$ref": "#/$defs/evidenceScope" }
+        }
+      }
+    },
+    "known_terms": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "reserved_terms": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "selected_lenses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/lens" }
+    },
+    "selection_rationale": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lens", "trigger", "reason"],
+        "properties": {
+          "lens": { "$ref": "#/$defs/lens" },
+          "trigger": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "per_lens_findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "composed_findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/composedFinding" }
+    },
+    "qualitative_audit": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/qualitativeAudit" }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "evidenceScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "whole-resource" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "start_line", "end_line"],
+          "properties": {
+            "kind": { "const": "line-range" },
+            "start_line": { "type": "integer", "minimum": 1 },
+            "end_line": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "exact-locator" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "pointer"],
+          "properties": {
+            "kind": { "const": "json-pointer-prefix" },
+            "pointer": {
+              "type": "string",
+              "pattern": "^(|/(?:[^~/]|~[01])*(?:/(?:[^~/]|~[01])*)*)$"
+            }
+          }
+        }
+      ]
+    },
+    "lens": {
+      "type": "string",
+      "enum": ["epistemic", "systemic", "categorical"]
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lens",
+        "statement",
+        "status",
+        "evidence_refs",
+        "materiality",
+        "uncertainty"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+        "lens": { "$ref": "#/$defs/lens" },
+        "statement": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": [
+            "observed-implemented",
+            "supported-interpretation",
+            "product-direction",
+            "hypothesis",
+            "open-question"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "materiality": { "type": "string", "minLength": 1 },
+        "uncertainty": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": ["observed-implemented", "supported-interpretation"]
+              }
+            }
+          },
+          "then": {
+            "properties": { "evidence_refs": { "minItems": 1 } }
+          }
+        }
+      ]
+    },
+    "composedFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "finding_ids",
+        "statement",
+        "evidence_refs",
+        "uncertainty"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "agreement",
+            "tension",
+            "dependency",
+            "joint-distinction",
+            "new-question"
+          ]
+        },
+        "finding_ids": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "statement": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "uncertainty": { "type": ["string", "null"] }
+      }
+    },
+    "qualitativeAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "status", "reviewed_ids", "note"],
+      "properties": {
+        "check": {
+          "type": "string",
+          "enum": [
+            "claim-status-language",
+            "evidence-authority-permission",
+            "lens-forbidden-jumps"
+          ]
+        },
+        "status": { "const": "pass" },
+        "reviewed_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
