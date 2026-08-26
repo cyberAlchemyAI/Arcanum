@@ -1,148 +1,190 @@
 ---
 name: research
-description: Run governed, evidence-backed research through internal or external source work, tensioned multi-agent synthesis, skeptic gates, and cited findings. Use for research questions, precedent sweeps, multi-perspective audits, falsification, or synthesis that exceed a direct inline lookup. Every governed research dispatch must use a topic folder beneath a repo-local directory named research and first create or validate its research-initial-definitions.md.
+description: >
+  Operating guide for running a `dispatch_type: research` subagent dispatch: shape it, find
+  the evidence, run it, gate it, and write research.md + findings.md. Routed here from
+  domainspec-subagents-strategy.
 ---
 
-# Research
+# research — operating guide for `dispatch_type: research`
 
-<objective>
-Produce bounded, citable findings without inflating claims, confusing ownership
-with truth, or designing a dispatch before the informational starting point is
-explicit.
-</objective>
+**What this is.** You are running a research dispatch: a fan-out of subagents that finds what
+**already exists and can be used**, then records it.
 
-<initial-definitions-precondition>
-This is a hard precondition for every governed research dispatch. It does not
-apply to a trivial lookup completed inline without a dispatch.
+**What is produced.** `research.md` + `findings.md` in the `working_folder`, carrying a verdict on
+every candidate. That is the whole deliverable.
 
-Before designing, proposing, registering, or running a research dispatch:
+**The procedure.** Shape it → Find the evidence → Run it → Gate it → Write the outputs → Close.
 
-1. Resolve the containing `repository_root`; research never lives outside it.
-2. Resolve a `research_root`: a directory literally named `research` at any
-   depth inside the repository. Any repository directory may contain this
-   research container; parent directory names have no special semantics.
-3. Resolve the research `working_folder` beneath that container, normally
-   `<research_root>/<research-id>`. Never use an arbitrary project directory or
-   the shared `research_root` itself as one research's working folder.
-4. Prefer the `research` container nearest to the user's explicit work target,
-   regardless of what that target directory represents or is named.
-   If the target is already inside a research subtree, retain its nearest
-   `research` ancestor. If no scoped container is indicated, use
-   `<repository_root>/research`. Do not guess between unrelated candidates.
-5. Require `<working_folder>/research-initial-definitions.md`.
-6. If the file is absent, or the user materially changed the topic, scope, or
-   confirmed constraints, use the sibling `research-initial-definitions` skill
-   to create or revise it.
-7. Resolve the sibling skill directory independently of the process current
-   directory, then run its validator with absolute paths:
+## 1. Shape it
 
-   ```text
-   python "<research-initial-definitions-skill-dir>/scripts/validate_initial_definitions.py" "<absolute-working-folder>" --repo-root "<absolute-repository-root>" --json
-   ```
-8. Read the validated file completely before shaping the research strategy.
-9. Preserve the validated repository root, research root, working folder,
-   artifact path, and SHA-256 as preflight evidence in the strategy or dispatch
-   record.
-10. Stop with `block` while the location or file is invalid. Never bypass this gate
-   because the intended agents, sources, or solution already appear obvious.
+Pick the agents, their topology, and their tensions.
 
-The initial-definitions file is informational context only. It must not contain
-candidate vocabulary, hypotheses, methods, workstreams, source plans, agent
-roles, topology, budgets, success criteria, stopping conditions, outputs,
-findings, handoffs, implementation steps, or proposed solutions.
-</initial-definitions-precondition>
+**Roles** — each guards one failure mode; no agent guards two:
 
-<applicability>
-Use this skill when:
+| `role` | guards against | model |
+|---|---|---|
+| `explorer` | monoculture — each generates under **one tensioned angle** | lighter — sweeps are mechanical |
+| `skeptic` | folklore / vacuity — each attacks **one named gate** | heavier — adversarial work is hard |
+| `synthesizer` | monocular reconciliation — reconciles explorer returns and exchanges with skeptics; does not persist files | heavier for heavy synthesis |
+| `writer` | "great research, no record" — persists `findings.md` after skeptic convergence | heavier for exact citation-preserving writing |
+| `auditor` | "passed because nothing was checked" — evaluates `findings.md` after the writer | mid — checking, not generating |
 
-- three or more sources, lenses, or returns require synthesis;
-- internal and external evidence must be reconciled;
-- independent challenge is needed before accepting a candidate conclusion;
-- the raw investigation should remain isolated from the parent context;
-- the user asks for a governed research dispatch.
+Model is guidance, not law — chosen per agent by task difficulty, validated at the confirm gate.
 
-Keep a single bounded lookup inline. Use `review` when the target already exists
-and the requested deliverable is a set of verified change requests.
-</applicability>
+**Topology** — the canonical shape:
 
-<ownership-boundary>
-Research owns research-type judgment: evidence discipline, research roles,
-skeptic gates, synthesis, and findings. The repository-local `subagent-strategy`
-skill owns whether a dispatch is justified, proposal and confirmation, runtime
-bindings, dependency execution, final approval, closeout, and observability.
-The consuming repository owns its registrar, sheet schema, agent eligibility,
-artifact destination, privacy boundary, and source authority.
-</ownership-boundary>
+```
+explorers (n 2–4, pairwise tensioned)
+   │ sequential
+synthesizer (1 synthesizer) ◀──zig-zag──▶ reviewers (skeptics; robot_talks when the
+   ▲                          │        question needs confrontation, not collection)
+   └┄┄┄ feedback (conditional) ┄┘
+                                      │ sequential
+                                      ▼
+                                 writer (1 writer) ──sequential──▶ auditor
+```
 
-<research-judgment>
-Research seeks what is supported and usable, not novelty for its own sake.
+The feedback back-edge exists only when there is a reviewer group AND material may be missing —
+never by default. After skeptic convergence, a separate writer persists `findings.md`; an optional
+auditor evaluates that file downstream. Final approval follows the router rather than being inferred
+from the auditor's presence.
 
-- `explorer`: investigates one tensioned angle and returns resolvable evidence.
-- `writer`: synthesizes the collected returns without erasing dissent.
-- `skeptic`: attacks exactly one gate: precedent, non-vacuity, or definitional
-  soundness.
-- `auditor`: checks coverage, citations, dissent preservation, and verdicts.
+**Tension** — classify every angle on four axes: **methodology** (empirical / formal / adversarial
+/ historical / computational), **source-corpus**, **attack-vector** (the skeptic gate),
+**temporal-prior** (modern-only / historical-lineage / mixed).
 
-Ownership is a label, never a negative verdict. An owned result may be
-`build-from-owned` or `already-deployed`. `novel-attempt` is allowed only after
-a bounded precedent search returns clean and must not be restated as a novelty
-claim. A candidate is killed only by `no-witness` or `tautological`.
+- **Reject before proposing** if: all angles share one core noun phrase; all explorers share one
+  methodology or corpus; all skeptics share one gate.
+- **Green-light** when: for every explorer pair you can write "a_i runs [X], a_j runs [Y] on the
+  [axis] axis; a bias in a_i would be exposed by a_j" — and ≥2 distinct axes appear across the group.
 
-Use pairwise-tensioned explorer angles and distinct skeptic gates. Every
-load-bearing external claim cites a retrieved primary or authoritative source;
-every repository claim cites the exact artifact inspected. Claim strength stays
-at or below the evidence.
-</research-judgment>
+## 2. Find the evidence
 
-<process>
-1. Satisfy the initial-definitions precondition.
-2. Ask `subagent-strategy` whether the work merits a dispatch and resolve the
-   repository-local runtime profile.
-3. Design independent explorer angles and explicit skeptic gates. Keep internal
-   and external source work distinct when both are needed.
-4. Pass the local tension and human-confirmation gates before spawning working
-   agents.
-5. Execute groups by declared dependencies and preserve partial failures.
-6. For two or more research agents, persist collected returns verbatim in
-   `<working_folder>/research.md`; for one agent, this file is optional.
-7. Produce `<working_folder>/findings.md` with cited conclusions, implications,
-   dissent, limitations, and a verdict per candidate.
-8. Obtain final approval and close every agent and dispatch record through
-   `subagent-strategy`.
-</process>
+Each explorer **retrieves** — it does not recall. A claim rests on a source the explorer can point
+to (a URL, a file path, a citation), never on model memory. Recall is a starting hypothesis; the
+retrieved source is the proof.
 
-<findings-contract>
-For each candidate, record:
+**Where each explorer looks is set by its tension axes** (see **Shape it**). `source-corpus` and `temporal-prior`
+assign each explorer a distinct search surface so the group covers the space instead of
+overlapping — e.g. one sweeps current literature, one the foundational lineage, one the internal
+repos for prior art.
 
-| candidate | owner | witnessed? | sound? | verdict | use-mode |
+**Two directions, both run before a candidate is judged:**
+
+- **External** — locate with `WebSearch`, then read the actual source with `WebFetch`. A snippet is
+  not a read. This is where papers and references come from.
+- **Internal (ownership)** — search our own repos with `Grep`/`Glob` (and the `inventory` skill
+  where installed) for an existing owner. This is what the `precedent` gate stands on: "already
+  owned here" is retrieved, not assumed.
+
+**Each explorer returns the locator per candidate** — what it found and where. A sweep that names
+its surface and tools and comes back empty certifies `precedent-clean`; an unnamed "found nothing"
+certifies nothing.
+
+## 3. Run it
+
+Spawn each group's agents with the Agent tool — **ALL agents of a group in ONE message**, so they
+run in parallel. Each agent's `initial_prompt` is its launch prompt.
+
+Schedule groups **by dependency**: a group is READY when every group with a `sequential`/`zig-zag`
+edge into it has produced what it must respond to (zig-zag counts only in its `from`→`to`
+direction — the `from` endpoint opens the exchange). Launch all READY groups concurrently;
+independent chains run side by side. `feedback` edges never count as dependencies; a sheet with no
+connections declares its groups independent. Declared order is a narration tiebreak only.
+
+## 4. Write the outputs
+
+Results land in the `working_folder` (a docs path, confirmed at the gate). Which files depends on
+how many agents ran:
+
+| agents | files |
+|---|---|
+| **2 or more** | `research.md` + `findings.md` |
+| **1** | `findings.md` only |
+
+- **`research.md`** — the agent returns pasted in verbatim, after a one-section `## Objective`
+  preamble. Wrap every return in a uniquely identified stable heading and preserve its original
+  source locators. The strategist writes it by hand; it is transcription, so never dispatch an
+  agent to do it. → How: the `domainspec-research-writing` skill
+  (`.claude/skills/custom/domainspec-research-writing.md`)
+- **`findings.md`** — the synthesis that turns those returns into usable claims, opening
+  **Objective → Results → Context**. Every load-bearing claim cites the return it rests on. The
+  downstream `writer` persists it after the synthesizer↔skeptic exchange converges.
+  → How: the `domainspec-findings-writing` skill (`.claude/skills/custom/domainspec-findings-writing.md`)
+- **One-agent dispatches** — persist original citations and reproducible details for every
+  executable observation or independent recomputation directly in `findings.md`; never cite an
+  agent return that was not persisted.
+
+When `research-initial-definitions.md` registers Research Questions, put a **Research-question
+coverage** section in `findings.md` before the candidate matrix. Include one row for every registered
+RQ in the confirmed dispatch scope and one explicit row for every registered RQ outside it; never
+omit an RQ silently. Mark an RQ outside the confirmed dispatch subset `deferred` and state why that
+dispatch excluded it, unless an authoritative scope decision retired it; then mark it `retired` and
+cite that decision.
+
+| RQ id | status | answer | addressable evidence | contrary evidence / material uncertainty | boundary |
 |---|---|---|---|---|---|
 
-- `GO`: witnessed and sound; use-mode is `build-from-owned`,
-  `already-deployed`, or `novel-attempt`.
-- `KILL`: only `no-witness` or `tautological`, preserved as a typed negative
-  naming what would have contributed and the fact that zeroed it.
+Apply these rules to each row:
 
-Close with the one-line answer to the research goal and state the evidence
-boundary.
-</findings-contract>
+- Use `answered`, `unresolved`, `deferred`, or `retired` as the status. Use `answered` only when the
+  cited evidence resolves the entire RQ within its exact confirmed scope. If support is partial,
+  use `unresolved`, record the supported partial conclusion, and name the exact residual gap. Never
+  record a positive answer without evidence.
+- Cite every load-bearing claim. Label support as `documentary assertion`, `executable observation`,
+  `independent recomputation`, or `formal proof`; do not treat these evidence classes as interchangeable.
+- Make `findings.md` self-contained enough to audit the answer. Cite original sources when available;
+  when relying on collected material, cite its stable return ID in `research.md` and the original
+  source when available, without duplicating the transcript. Treat `research.md` as a raw evidence
+  trail, not as accepted evidence by itself.
+- For `unresolved`, cite the material inspected and checks attempted, then name the exact remaining
+  gap. Do not infer absence from failure to find evidence.
+- For `deferred`, retain the reason. For `retired`, cite the authoritative scope decision.
+- State material contrary evidence, residual uncertainty, and the boundary beyond which the answer
+  does not apply; use an explicit `none found in <scope>` only when the inspected scope is named.
 
-<quality-bar>
-- The initial-definitions validator passes before strategy design.
-- The working folder resolves inside the repository and beneath a directory
-  literally named `research` without using that shared container directly.
-- The exact validated file is read and its hash is preserved as preflight
-  evidence.
-- Sources are retrieved or inspected, not merely recalled.
-- Explorer angles are genuinely tensioned and skeptic gates are distinct.
-- Every load-bearing finding cites its evidence.
-- Dissent, reversals, empty searches, and typed negatives remain visible.
-- Research agents write only inside the confirmed working folder unless the
-  user separately authorizes implementation.
-</quality-bar>
+Keep RQ coverage orthogonal to candidate judgment. After the coverage section, put one verdict row
+per candidate. **Ownership is a label, not a verdict**: the `owner` column is always filled (a
+citation, or `precedent-clean`), and being owned never puts KILL in the verdict column.
 
-<anti-patterns>
-Avoid bypassing initial definitions, placing a research plan inside the
-informational baseline, treating an empty search as novelty, treating ownership
-as truth, inventing force from evidence kind, dispatching redundant agents,
-persisting unsupported schemas, or allowing findings to mutate source artifacts.
-</anti-patterns>
+| candidate | owner (precedent) | witnessed? (non-vacuity) | sound? (definitional) | verdict | use-mode |
+|---|---|---|---|---|---|
+
+- **GO** — witnessed and sound. `use-mode` says how: `build-from-owned` (owned but unused — name
+  the owner + the artifact/job it builds; cite honestly, never claim novel), `already-deployed`
+  (owned and already wired — provenance only), or `novel-attempt` (precedent-clean — name the
+  claim, its anchor, and the first obligation a follow-up faces). An owned-but-unused result is a
+  GO, not a negative.
+- **KILL** — **only** no-witness (non-vacuity) or tautological (definitional collapse); bank it as
+  a **typed negative**: what it would have contributed + the exact fact that zeroed it. **Owned is
+  not a KILL.** A clean KILL is a successful run.
+
+## 5. Close
+
+Close with the one-line answer to the dispatch `goal`. The dispatch is `resolved` when the
+`final_approver` accepts — and for research, acceptance includes checking that the findings
+citations hold. Require the auditor and final approver to verify per-RQ coverage, evidence, status
+discipline, and boundaries whenever Research Questions were registered.
+
+## Standing rules
+
+1. **Claim ≤ proof** — for research, demote, never inflate.
+2. **Keystone claims carry their collapse-test inline** — the one fact that would zero the claim, on the same line.
+3. **Precedent-first** — no `novel` verdict ships before a `precedent` skeptic ran. A found owner is
+   not a kill; it relabels the candidate `build-from-owned` (cite, deploy, never claim novel), and
+   every artifact touching an owned result carries its owner label.
+4. **Read-only by default** — research agents write only into `working_folder`, never the source tree.
+
+## Names
+
+Draw `agent_name` from `telemetry/agents/agent-pool.yaml` (ordered `role_fit`). Prefer the primary
+`role_fit` entry and a `field` fit to the corpus. Never reuse a name within one dispatch (the
+skeptic/auditor prohibition is the hard case). Never invent a name outside the pool.
+
+## See also
+
+- **Router** — `.claude/skills/domainspec-subagents-strategy/SKILL.md`: triggers, human gate,
+  anti-bias principle, lifecycle, `final_approver`, `exit_reason` vocabulary. Nothing here overrides it.
+- **Record/sheet mechanics + field definitions** — `register-dispatch`
+  (`.claude/skills/register-dispatch/SKILL.md`): the two appends, the appender, validation, enums.

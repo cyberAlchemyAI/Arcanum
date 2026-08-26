@@ -328,7 +328,8 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   versioned [preacceptance closure](./preacceptance-closure.md). The v2
   request generator is the only emission path and must block unless the final
   staged bundle has a passing two-run no-effect consumer-closure receipt, a
-  passing independent review over the same closure-graph digest, and an
+  passing closure-bound review attestation over the same closure-graph digest,
+  process evidence that the review was independently dispatched, and an
   implemented or enforced reflection-adoption receipt with a passing
   cross-capability regression. Historical v1 requests remain readable but do
   not satisfy this gate. The ordinary Invoke owner-request path must execute

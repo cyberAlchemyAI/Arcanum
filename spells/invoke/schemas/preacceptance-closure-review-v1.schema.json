@@ -39,22 +39,26 @@
       "required": [
         "identity",
         "role",
-        "independent_from"
+        "declared_separation_from",
+        "attestation_ref"
       ],
       "properties": {
         "identity": {
           "$ref": "#/$defs/nonEmptyString"
         },
         "role": {
-          "const": "independent-preacceptance-review"
+          "const": "closure-bound-review-attestor"
         },
-        "independent_from": {
+        "declared_separation_from": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/nonEmptyString"
           }
+        },
+        "attestation_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
         }
       }
     },
@@ -117,7 +121,8 @@
       "required": [
         "check_id",
         "result",
-        "detail"
+        "detail",
+        "evidence_refs"
       ],
       "properties": {
         "check_id": {
@@ -128,7 +133,7 @@
             "write_partition",
             "runner_identity",
             "schema_locator",
-            "runtime_derivation",
+            "stage_binding",
             "requested_effect",
             "reflection_adoption",
             "no_effect_determinism"
@@ -142,6 +147,14 @@
         },
         "detail": {
           "$ref": "#/$defs/nonEmptyString"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/exactArtifactRef"
+          }
         }
       }
     }

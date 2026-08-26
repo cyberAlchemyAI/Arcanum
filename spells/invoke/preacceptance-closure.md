@@ -23,20 +23,26 @@ acceptance remains a separate final decision.
 ## Required closure
 
 One manifest binds final postimages and their live baselines, one normalized
-execution projection, exact runner bytes and invocation, schema and locator
+execution projection whose semantic identity is repeated exactly in its source
+document, exact runner and functional-driver bytes and invocation, schema and locator
 identities, disjoint write partitions, admitted frontier, routes, one-request
-budget, risk ceiling, runtime-receipt derivation rules, requested effect, and
+budget, risk ceiling, requested effect, and
 one reflection-adoption receipt.
 
-Each stage binds both its executable test driver and the downstream runner it
+Each stage binds the projection-bound adapter, its executable functional driver,
+and the downstream runner it
 actually exercises. Indirect harnesses must pass that exercised-runner path in
 the argument vector or fixed environment; inherited environment alone is not
 an identity binding. Required fixture, schema, family, and environment values
 are part of the invocation digest, and a missing value must stop at that stage.
-Every stage invocation must also carry the exact normalized execution-
-projection path in its argument vector or fixed environment. A manifest-only
-projection reference does not prove that the consumer used the finalized
-projection.
+`--help` is never a functional rehearsal. Every stage invocation also carries
+the exact normalized execution-projection path. The adapter loads it, verifies
+its byte and semantic-identity digests, and records a stage/driver/projection
+binding before the driver entrypoint runs. The functional driver then exercises
+the exact consumer boundary. Except for the governance prepare rehearsal, this
+is an adapter-gated composition of projection validation and consumer-boundary
+regression; it is not evidence that the native driver or consumer accepts the
+projection as an input.
 
 The stage-to-consumer relation is canonical and closed:
 
@@ -82,10 +88,25 @@ The deterministic runner executes these real consumer boundaries in order:
 10. Task Session terminalization; and
 11. continuity.
 
-The complete rehearsal runs twice in separate temporary roots. Any skipped,
+The complete rehearsal runs twice in separate temporary roots. Each run records
+normalized stdout and stderr hashes, a complete normalized output-tree digest,
+and an active effect-monitor result. The monitor denies Python network access,
+non-Python subprocesses, and filesystem mutation outside the rehearsal root.
+Any skipped,
 reordered, identity-mismatched, schema-invalid, non-deterministic, or
 repository-mutating stage blocks. Protected inputs and repository state must
 remain byte-identical.
+
+Reflection-adoption evidence is recursively exact-ref validated. Negative and
+cross-capability regression artifacts must be typed execution receipts with an
+exact runner, argv, zero exit status, exact transcript, and canonical receipt
+digest; asserted `result: pass` summaries are insufficient.
+
+When a final postimage contains `accepted_artifacts`, it must bind a typed
+acceptance bundle. The decision, bundle, and passing bundle-validation receipt
+must name exactly the same ordered artifact refs, and every nested ref must be
+current. This proves the accepted denominator without teaching the generic
+spell to infer completeness from product Markdown.
 
 For a mutation-capable Work Pack, the normalized projection also binds one
 typed Task Session closeout contract. It includes the byte-current precloseout,
@@ -102,7 +123,7 @@ terminal, and continuity contract validators.
 ## Request-emission gate
 
 `emit-request` is the only v2 request-generation operation. It requires a
-passing closure receipt, a passing independent-review receipt, and an adoption
+passing closure receipt, a passing closure-bound review attestation, and an adoption
 receipt whose cross-capability regression passed. All four artifacts must bind
 the same manifest and closure-graph digest. The output is exclusively created;
 an existing request is never overwritten.
@@ -110,8 +131,15 @@ an existing request is never overwritten.
 Before any new or regenerated mutation-capable request is presented, the
 ordinary Invoke path must run `validate-request` over the emitted artifact.
 That validator admits only the v2 schema and rechecks the passing closure,
-independent-review, and adoption bindings. A direct base request, historical v1
+review-attestation and adoption bindings. A direct base request, historical v1
 request, or hand-authored wrapper is not an alternate emission path.
+
+The review attestation is not admitted from pass strings alone. Its attestor
+binds an exact attestation receipt to the same manifest and closure receipt, and
+every required check carries current closure-bound exact evidence. The local
+validator proves those bindings only. Actual reviewer separation is a
+human/orchestrator process gate and is not authenticated by the repository-local
+validator; no cryptographic trust root is implied.
 
 An emitted request remains `authority_effect: none`. It asks the lifecycle
 owner for a decision; it is not that decision.
@@ -123,7 +151,7 @@ v2 closure evidence and cannot be reinterpreted as request-emission-ready.
 New or regenerated exact owner requests use the v2 wrapper. A semantic, owner,
 target, postimage, runner, route, write, budget, risk, schema, or successor
 change invalidates the closure and requires a fresh manifest, rehearsal,
-independent review, and request.
+process-level independent review, bound review attestation, and request.
 
 ## Ownership and exclusions
 

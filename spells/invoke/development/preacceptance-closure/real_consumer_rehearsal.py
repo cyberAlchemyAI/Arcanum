@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Stage-specific adapter that loads the exact canonical downstream consumer.
+"""Projection-gated adapter for exact downstream consumer regressions.
 
-The adapter exists only for the two JSON-schema stages and the governance
-prepare stage in the public integration fixture. The mapping is closed: schema
-consumers are parsed and checked, while governance starts the exact runner's
-generic prepare regression against the invocation-bound projection.
+The adapter validates the selected projection before starting the exact
+functional driver. The driver exercises its native consumer boundary; only the
+governance prepare stage consumes the projection semantically. Schema consumers
+are parsed and checked. This is no-effect rehearsal evidence, not a claim that
+native runtime receipts or mutations were produced.
 """
 
 from __future__ import annotations
@@ -12,6 +13,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import re
 import shutil
 import subprocess
 import sys
@@ -22,15 +25,36 @@ from jsonschema import Draft202012Validator
 
 
 CONSUMERS = {
+    "invoke_material_validation": "arcanum/spells/invoke/scripts/material_package_validator.py",
+    "invoke_file_bound_handoff": "arcanum/spells/invoke/scripts/refresh_material_handoff.py",
+    "work_pack_readiness": "arcanum/spells/work-pack-readiness-audit/scripts/audit_work_pack.py",
+    "task_session_until_blocker_preflight": "arcanum/spells/task-session-until-blocker/scripts/run_chain.py",
+    "task_session_fast_entry": "arcanum/arcana/task-session/scripts/fast_execution_entry_guard.py",
+    "task_session_mutation_admission": "arcanum/arcana/task-session/scripts/verify-mutation-readiness.py",
     "task_session_governance_runner": (
         "arcanum/arcana/task-session/scripts/task-session-governance-runner.py",
         ".agents/skills/task-session/scripts/task-session-governance-runner.py",
         ".claude/skills/task-session/scripts/task-session-governance-runner.py",
     ),
+    "precloseout": "arcanum/arcana/task-session/scripts/plan-once-material-controller.py",
     "invoke_closeout": "arcanum/spells/invoke/schemas/precloseout-refresh-closeout-receipt.schema.json",
     "task_session_terminal": "arcanum/arcana/task-session/schemas/governance-terminal-receipt.schema.json",
+    "continuity": "arcanum/arcana/continuation-router/scripts/work_pack_route.py",
 }
 
+DRIVERS = {
+    "invoke_material_validation": "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    "invoke_file_bound_handoff": "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    "work_pack_readiness": "arcanum/spells/work-pack-readiness-audit/development/test_work_pack_readiness_v2.py",
+    "task_session_until_blocker_preflight": "arcanum/spells/task-session-until-blocker/development/validate-chain-v2.py",
+    "task_session_fast_entry": "arcanum/arcana/task-session/development/test_fast_execution_entry_guard.py",
+    "task_session_mutation_admission": "arcanum/arcana/task-session/development/validate-mutation-admission.py",
+    "task_session_governance_runner": "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "precloseout": "arcanum/arcana/task-session/development/test-plan-once-material-controller.py",
+    "invoke_closeout": "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "task_session_terminal": "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "continuity": "arcanum/arcana/continuation-router/development/validate-work-pack-route-fixtures.py",
+}
 
 def safe_path(root: Path, raw_path: str) -> Path:
     relative = PurePosixPath(raw_path)
@@ -60,6 +84,14 @@ def exact_ref_document(root: Path, reference: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(document, dict):
         raise ValueError(f"JSON object required: {reference['path']}")
     return document
+
+
+def canonical_digest(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        ).encode("utf-8")
+    ).hexdigest()
 
 
 def collect_exact_refs(value: Any) -> list[dict[str, Any]]:
@@ -254,10 +286,102 @@ def rehearse_governance(
     }
 
 
+def normalized_driver_output(content: bytes, rehearsal_root: Path) -> bytes:
+    text = content.decode("utf-8", errors="replace")
+    text = text.replace(str(rehearsal_root), "{rehearsal_root}")
+    text = text.replace(str(rehearsal_root).replace("\\", "/"), "{rehearsal_root}")
+    text = re.sub(r"Ran (\d+) tests? in [0-9.]+s", r"Ran \1 tests in {duration}s", text)
+    return text.encode("utf-8")
+
+
+def rehearse_functional_driver(
+    repository_root: Path,
+    stage: str,
+    driver: Path,
+    projection: Path,
+    projection_digest: str,
+    projection_identity_digest: str,
+    rehearsal_root: Path,
+) -> tuple[int, dict[str, Any]]:
+    binding = {
+        "stage": stage,
+        "projection_digest": projection_digest,
+        "projection_identity_digest": projection_identity_digest,
+        "driver": driver.relative_to(repository_root).as_posix(),
+    }
+    binding_digest = canonical_digest(binding)
+    driver_arguments: list[str] = []
+    if stage == "task_session_until_blocker_preflight":
+        driver_arguments.append(
+            "ApprovedEpochChainTests.test_two_transition_chain_persists_and_completes"
+        )
+    projection_gate = (
+        "import hashlib,json,os,runpy,sys;"
+        "driver,projection,stage,*args=sys.argv[1:];"
+        "content=open(projection,'rb').read();"
+        "document=json.loads(content);"
+        "pd=hashlib.sha256(content).hexdigest();"
+        "identity=document.get('preacceptance_identity');"
+        "assert isinstance(identity,dict);"
+        "idg=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':')).encode()).hexdigest();"
+        "binding={'stage':stage,'projection_digest':pd,'projection_identity_digest':idg,'driver':os.environ['PREACCEPTANCE_DRIVER_REF']};"
+        "bd=hashlib.sha256(json.dumps(binding,sort_keys=True,separators=(',',':')).encode()).hexdigest();"
+        "assert pd==os.environ['PREACCEPTANCE_PROJECTION_DIGEST'];"
+        "assert idg==os.environ['PREACCEPTANCE_PROJECTION_IDENTITY_DIGEST'];"
+        "assert bd==os.environ['PREACCEPTANCE_STAGE_BINDING_DIGEST'];"
+        "sys.argv=[driver,*args];"
+        "runpy.run_path(driver,run_name='__main__')"
+    )
+    command = [
+        sys.executable,
+        "-c",
+        projection_gate,
+        str(driver),
+        str(projection),
+        stage,
+        *driver_arguments,
+    ]
+    environment = dict(os.environ)
+    environment.update(
+        {
+            "PREACCEPTANCE_PROJECTION_PATH": str(projection),
+            "PREACCEPTANCE_PROJECTION_DIGEST": projection_digest,
+            "PREACCEPTANCE_PROJECTION_IDENTITY_DIGEST": projection_identity_digest,
+            "PREACCEPTANCE_STAGE_BINDING_DIGEST": binding_digest,
+            "PREACCEPTANCE_DRIVER_REF": driver.relative_to(repository_root).as_posix(),
+        }
+    )
+    if stage in {"invoke_material_validation", "invoke_file_bound_handoff"}:
+        environment["PREACCEPTANCE_FUNCTIONAL_DRIVER"] = "1"
+    if stage == "precloseout":
+        environment["UEV_INVOKE_CANDIDATE_SCHEMA"] = str(
+            repository_root
+            / "arcanum/spells/invoke/schemas/"
+            "precloseout-refresh-closeout-receipt.schema.json"
+        )
+    completed = subprocess.run(
+        command,
+        cwd=repository_root,
+        env=environment,
+        check=False,
+        capture_output=True,
+        timeout=90,
+    )
+    stdout = normalized_driver_output(completed.stdout, rehearsal_root)
+    stderr = normalized_driver_output(completed.stderr, rehearsal_root)
+    return completed.returncode, {
+        "driver": driver.relative_to(repository_root).as_posix(),
+        "adapter_projection_binding_digest": binding_digest,
+        "driver_stdout_sha256": hashlib.sha256(stdout).hexdigest(),
+        "driver_stderr_sha256": hashlib.sha256(stderr).hexdigest(),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", required=True, choices=sorted(CONSUMERS))
     parser.add_argument("--consumer", required=True)
+    parser.add_argument("--driver", required=True)
     parser.add_argument("--projection", required=True)
     parser.add_argument("--rehearsal-root", required=True)
     args = parser.parse_args()
@@ -268,11 +392,20 @@ def main() -> int:
         raise ValueError(f"consumer mismatch for {args.stage}: {args.consumer}")
     repository_root = Path.cwd().resolve()
     consumer = safe_path(repository_root, args.consumer)
+    expected_driver = DRIVERS[args.stage]
+    if args.driver != expected_driver:
+        raise ValueError(f"driver mismatch for {args.stage}: {args.driver}")
+    driver = safe_path(repository_root, args.driver)
     projection = safe_path(repository_root, args.projection)
     projection_document = json.loads(projection.read_text(encoding="utf-8"))
     if not isinstance(projection_document, dict):
         raise ValueError("execution projection must be a JSON object")
+    if not isinstance(projection_document.get("preacceptance_identity"), dict):
+        raise ValueError("execution projection lacks preacceptance semantic identity")
     projection_digest = hashlib.sha256(projection.read_bytes()).hexdigest()
+    projection_identity_digest = canonical_digest(
+        projection_document["preacceptance_identity"]
+    )
     rehearsal_root = Path(args.rehearsal_root).resolve()
     rehearsal_root.mkdir(parents=True, exist_ok=True)
 
@@ -284,10 +417,20 @@ def main() -> int:
             projection_document,
             rehearsal_root,
         )
-    else:
+    elif args.stage in {"invoke_closeout", "task_session_terminal"}:
         schema = json.loads(consumer.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
         return_code = 0
+    else:
+        return_code, evidence = rehearse_functional_driver(
+            repository_root,
+            args.stage,
+            driver,
+            projection,
+            projection_digest,
+            projection_identity_digest,
+            rehearsal_root,
+        )
 
     if return_code == 0:
         output = rehearsal_root / f"{args.stage}.json"
@@ -297,6 +440,7 @@ def main() -> int:
                     "consumer": args.consumer,
                     "projection": args.projection,
                     "projection_digest": projection_digest,
+                    "projection_identity_digest": projection_identity_digest,
                     "result": "pass",
                     "stage": args.stage,
                     **evidence,

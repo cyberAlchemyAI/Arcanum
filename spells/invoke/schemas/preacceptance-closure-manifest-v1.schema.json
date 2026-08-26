@@ -11,7 +11,6 @@
     "repository_root",
     "final_postimages",
     "normalized_execution_projection",
-    "runtime_receipt_derivations",
     "consumer_rehearsal",
     "requested_effect",
     "reflection_adoption_ref",
@@ -39,13 +38,6 @@
     },
     "normalized_execution_projection": {
       "$ref": "#/$defs/executionProjection"
-    },
-    "runtime_receipt_derivations": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "$ref": "#/$defs/receiptDerivation"
-      }
     },
     "consumer_rehearsal": {
       "$ref": "#/$defs/consumerRehearsal"
@@ -193,6 +185,9 @@
           "$ref": "#/$defs/baseline"
         },
         "postimage_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "accepted_bundle_ref": {
           "$ref": "#/$defs/exactArtifactRef"
         },
         "lifecycle_assertions": {
@@ -478,42 +473,6 @@
         }
       }
     },
-    "receiptDerivation": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "receipt_class",
-        "schema_ref",
-        "predecessor_classes",
-        "authoritative_fields",
-        "dynamic_fields",
-        "output_path_pattern",
-        "authority_effect"
-      ],
-      "properties": {
-        "receipt_class": {
-          "$ref": "#/$defs/nonEmptyString"
-        },
-        "schema_ref": {
-          "$ref": "#/$defs/exactArtifactRef"
-        },
-        "predecessor_classes": {
-          "$ref": "#/$defs/stringSet"
-        },
-        "authoritative_fields": {
-          "$ref": "#/$defs/stringSet"
-        },
-        "dynamic_fields": {
-          "$ref": "#/$defs/stringSet"
-        },
-        "output_path_pattern": {
-          "$ref": "#/$defs/nonEmptyString"
-        },
-        "authority_effect": {
-          "const": "none"
-        }
-      }
-    },
     "stage": {
       "type": "object",
       "additionalProperties": false,
@@ -521,6 +480,7 @@
         "stage_id",
         "projection_ref",
         "runner_ref",
+        "driver_ref",
         "exercised_runner_ref",
         "argv",
         "cwd",
@@ -551,6 +511,9 @@
           "$ref": "#/$defs/exactArtifactRef"
         },
         "runner_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "driver_ref": {
           "$ref": "#/$defs/exactArtifactRef"
         },
         "exercised_runner_ref": {

@@ -108,7 +108,8 @@
       "required": [
         "repository_writes",
         "protected_writes",
-        "external_effects_observed"
+        "external_effects_observed",
+        "effect_monitor"
       ],
       "properties": {
         "repository_writes": {
@@ -118,7 +119,36 @@
           "const": 0
         },
         "external_effects_observed": {
-          "const": false
+          "type": "boolean"
+        },
+        "effect_monitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "event_count",
+            "network_policy",
+            "write_policy",
+            "subprocess_policy"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["pass", "block"]
+            },
+            "event_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "network_policy": {
+              "const": "deny"
+            },
+            "write_policy": {
+              "const": "rehearsal-root-only"
+            },
+            "subprocess_policy": {
+              "const": "exact-python-only"
+            }
+          }
         }
       }
     },
@@ -128,6 +158,7 @@
       "required": [
         "runs",
         "run_result_digest",
+        "run_output_digests",
         "byte_stable"
       ],
       "properties": {
@@ -136,6 +167,14 @@
         },
         "run_result_digest": {
           "$ref": "#/$defs/sha256"
+        },
+        "run_output_digests": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
         },
         "byte_stable": {
           "type": "boolean"
@@ -190,6 +229,8 @@
         "runner_ref",
         "invocation_digest",
         "exit_code",
+        "stdout_sha256",
+        "stderr_sha256",
         "schema_checks",
         "result"
       ],
@@ -205,6 +246,12 @@
         },
         "exit_code": {
           "type": "integer"
+        },
+        "stdout_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "stderr_sha256": {
+          "$ref": "#/$defs/sha256"
         },
         "schema_checks": {
           "type": "array",

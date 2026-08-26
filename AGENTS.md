@@ -5,6 +5,7 @@ This repository exposes Arcanum capabilities as repo-scoped Codex skills under `
 Core rules:
 
 - Invoke skills explicitly with `$skill-name` when the request names a capability.
+- When creating or inserting any diagram, always use `$evidence-grounded-diagrams`.
 - Use `registry/SIGILS.md` and `registry/SPELLS.md` for capability lookup when available.
 - Use `formulae/dispatch-spec/` for route-shape validation when installed.
 - Use `spells/invoke/` for lifecycle authoring artifacts.

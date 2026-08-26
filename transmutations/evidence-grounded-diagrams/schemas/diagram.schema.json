@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/evidence-grounded-diagrams/diagram.schema.json",
+  "title": "Minimal Mermaid diagram metadata",
+  "description": "Metadata stored beside one editable Mermaid source file. The record explains what the diagram represents, which structural grammar it uses, the question it answers, its scope, confirmation state, and any source pointers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "created_at",
+    "diagram",
+    "business",
+    "scope",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Version of this metadata contract. It is not a revision number for the diagram.",
+      "const": "1.0",
+      "examples": ["1.0"]
+    },
+    "id": {
+      "description": "Stable diagram identifier and directory name. Start with the creation date in YYYYMMDD form, followed by a short lowercase kebab-case name.",
+      "type": "string",
+      "pattern": "^[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "examples": ["20260826-customer-onboarding"]
+    },
+    "title": {
+      "description": "Short human-readable title. State the subject of the diagram rather than its file format.",
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 160,
+      "examples": ["Customer onboarding flow"]
+    },
+    "created_at": {
+      "description": "Creation date in YYYY-MM-DD form. Its digits must equal the first eight characters of id.",
+      "type": "string",
+      "format": "date",
+      "examples": ["2026-08-26"]
+    },
+    "diagram": {
+      "description": "Technical identity of the diagram: the structural grammar selected, its canonical Mermaid source filename, and its canonical PNG preview filename.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source", "render"],
+      "properties": {
+        "kind": {
+          "description": "Structural grammar chosen from the relation the reader needs to understand. Choose the narrowest applicable kind; do not choose by appearance alone.",
+          "oneOf": [
+            {
+              "const": "process-flow",
+              "description": "Use for steps, decisions, handoffs, branches, or control flow in a process. Arrows usually mean progression or transfer."
+            },
+            {
+              "const": "state-transition",
+              "description": "Use for states and the events or conditions that allow movement between them. Nodes are states; edges are permitted transitions."
+            },
+            {
+              "const": "sequence",
+              "description": "Use for time-ordered interactions among people, systems, or components. Vertical or horizontal order is semantically meaningful."
+            },
+            {
+              "const": "dependency-map",
+              "description": "Use to show what depends on what. An edge means dependency, not chronology, ownership, or causality unless explicitly stated."
+            },
+            {
+              "const": "hierarchy",
+              "description": "Use for parent-child or level relationships. Do not use when an item can have multiple unrelated parents unless that is made explicit."
+            },
+            {
+              "const": "containment-map",
+              "description": "Use for scope, nesting, ownership, or part-whole boundaries. State in business.represents which containment meaning applies."
+            },
+            {
+              "const": "timeline",
+              "description": "Use when dates, periods, or chronological order are the main relation. Position or order must correspond to time."
+            },
+            {
+              "const": "causal-map",
+              "description": "Use only when arrows intentionally assert cause and effect. Do not use it for correlation, sequence, or ordinary dependency."
+            },
+            {
+              "const": "relationship-map",
+              "description": "Use for several typed, non-sequential relationships that do not fit a more specific kind. Label edges so their meanings are explicit."
+            }
+          ]
+        },
+        "source": {
+          "description": "Canonical editable Mermaid source filename stored beside this metadata file.",
+          "const": "diagram.mmd",
+          "examples": ["diagram.mmd"]
+        },
+        "render": {
+          "description": "Canonical PNG preview rendered from diagram.mmd and stored beside the source and metadata.",
+          "const": "diagram.png",
+          "examples": ["diagram.png"]
+        }
+      }
+    },
+    "business": {
+      "description": "Reader-facing business context that makes the diagram understandable without inspecting the Mermaid syntax.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["represents", "process", "applies_to", "reader_question"],
+      "properties": {
+        "represents": {
+          "description": "One factual sentence naming the objects and relationships represented. Explain the semantic content, not the visual appearance.",
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 600,
+          "examples": ["The decisions and handoffs from a submitted application to approval or rejection."]
+        },
+        "process": {
+          "description": "Business process, operational activity, or decision context illuminated by the diagram.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "description"],
+          "properties": {
+            "name": {
+              "description": "Recognizable name of the process or activity. For a non-process diagram, name the broader activity it supports.",
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 160,
+              "examples": ["Customer onboarding"]
+            },
+            "description": {
+              "description": "Brief explanation of what the process or activity does and why this diagram is useful within it.",
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 600,
+              "examples": ["The onboarding team reviews an application, requests corrections when needed, and activates approved accounts."]
+            }
+          }
+        },
+        "applies_to": {
+          "description": "Contexts, teams, products, workflows, or decisions in which the diagram may be used. Each entry should be independently meaningful.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 240
+          },
+          "examples": [["operations onboarding", "account review"]]
+        },
+        "reader_question": {
+          "description": "The single structural question the diagram is intended to answer. Phrase it as a question and keep the diagram focused on that answer.",
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300,
+          "examples": ["What can happen after an onboarding application is submitted?"]
+        }
+      }
+    },
+    "scope": {
+      "description": "Boundary of the diagram. Record both what is represented and material omissions a reader might otherwise assume are included.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["includes", "excludes"],
+      "properties": {
+        "includes": {
+          "description": "Material actors, stages, states, systems, decisions, or relations intentionally represented. Include at least one item.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 240
+          },
+          "examples": [["application review", "correction request", "approval"]]
+        },
+        "excludes": {
+          "description": "Material content deliberately left out. Use an empty array only when there are no omissions worth warning the reader about.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 240
+          },
+          "examples": [["billing after activation", "reviewer assignment"]]
+        }
+      }
+    },
+    "status": {
+      "description": "User-review state of these diagram contents. This is not proof that the represented business facts are correct.",
+      "oneOf": [
+        {
+          "const": "draft",
+          "description": "Use while the diagram is awaiting user review or requested corrections."
+        },
+        {
+          "const": "confirmed",
+          "description": "Use after the user has explicitly accepted the diagram contents for the stated question and scope."
+        }
+      ]
+    },
+    "sources": {
+      "description": "Optional lightweight pointers to material used to construct the diagram. Omit or use an empty array when no sources were supplied; do not fabricate references.",
+      "type": "array",
+      "uniqueItems": true,
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref"],
+        "properties": {
+          "ref": {
+            "description": "Stable file path, URL, record ID, or document identifier for one source.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "examples": ["docs/onboarding-policy.md"]
+          },
+          "locator": {
+            "description": "Optional page, section, line, heading, anchor, or query that locates the relevant material inside the source.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300,
+            "examples": ["section 3.2"]
+          },
+          "note": {
+            "description": "Optional concise explanation of what this source supports or limits in the diagram.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "examples": ["Defines the review outcomes and the correction loop."]
+          }
+        }
+      }
+    }
+  }
+}

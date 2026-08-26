@@ -53,6 +53,20 @@ REAL_CONSUMER_ENTRYPOINTS = [
     "arcanum/arcana/continuation-router/scripts/work_pack_route.py",
 ]
 
+REAL_DRIVER_ENTRYPOINTS = [
+    "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    "arcanum/spells/work-pack-readiness-audit/development/test_work_pack_readiness_v2.py",
+    "arcanum/spells/task-session-until-blocker/development/validate-chain-v2.py",
+    "arcanum/arcana/task-session/development/test_fast_execution_entry_guard.py",
+    "arcanum/arcana/task-session/development/validate-mutation-admission.py",
+    "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "arcanum/arcana/task-session/development/test-plan-once-material-controller.py",
+    "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+    "arcanum/arcana/continuation-router/development/validate-work-pack-route-fixtures.py",
+]
+
 
 def canonical_digest(value: Any) -> str:
     return hashlib.sha256(
@@ -85,12 +99,46 @@ class Fixture:
             SOURCE_SCHEMAS / "owner-acceptance-request-v2.schema.json",
             self.invoke / "schemas/owner-acceptance-request-v2.schema.json",
         )
+        wpra_schema_target = (
+            self.root / "arcanum/spells/work-pack-readiness-audit/schemas"
+        )
+        wpra_schema_target.mkdir(parents=True, exist_ok=True)
+        for schema in (
+            REPOSITORY_ROOT / "arcanum/spells/work-pack-readiness-audit/schemas"
+        ).glob("*.json"):
+            shutil.copy2(schema, wpra_schema_target / schema.name)
+        chain_schema_target = (
+            self.root / "arcanum/spells/task-session-until-blocker/schemas"
+        )
+        chain_schema_target.mkdir(parents=True, exist_ok=True)
+        for schema in (
+            REPOSITORY_ROOT / "arcanum/spells/task-session-until-blocker/schemas"
+        ).glob("*.json"):
+            shutil.copy2(schema, chain_schema_target / schema.name)
+        router_schema_target = (
+            self.root / "arcanum/arcana/continuation-router/schemas"
+        )
+        router_schema_target.mkdir(parents=True, exist_ok=True)
+        for schema in (
+            REPOSITORY_ROOT / "arcanum/arcana/continuation-router/schemas"
+        ).glob("*.json"):
+            shutil.copy2(schema, router_schema_target / schema.name)
         support_paths = [
             *REAL_CONSUMER_ENTRYPOINTS,
             "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py",
+            "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+            "arcanum/spells/invoke/development/fixtures/material-package-cases.json",
+            "arcanum/spells/invoke/development/fixtures/refresh-material-handoff-cases.json",
+            "arcanum/spells/invoke/schemas/material-package.schema.json",
+            "arcanum/spells/invoke/schemas/material-package-receipt.schema.json",
+            "arcanum/spells/work-pack-readiness-audit/development/test_work_pack_readiness_v2.py",
+            "arcanum/spells/task-session-until-blocker/development/validate-chain-v2.py",
+            "arcanum/arcana/continuation-router/development/validate-work-pack-route-fixtures.py",
+            "arcanum/arcana/continuation-router/development/work-pack-route-fixtures/admission-cases.json",
             "arcanum/spells/work-pack-readiness-audit/scripts/plan_semantics.py",
             "arcanum/spells/task-session-until-blocker/scripts/task_session_until_blocker_runtime_paths.py",
             "arcanum/arcana/continuation-router/scripts/continuation_router_runtime_paths.py",
+            "arcanum/arcana/continuation-router/scripts/admit-work-pack-route.py",
             "arcanum/spells/implementation-readiness/scripts/execution_contracts.py",
             "arcanum/arcana/task-session/schemas/precloseout-execution-receipt.schema.json",
             "arcanum/arcana/task-session/continuity.schema.json",
@@ -105,6 +153,7 @@ class Fixture:
             REPOSITORY_ROOT / "arcanum/arcana/task-session",
             self.root / "arcanum/arcana/task-session",
             dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns("invoke-runs", "__pycache__"),
         )
         shutil.copytree(
             REPOSITORY_ROOT / "arcanum/spells/implementation-readiness",
@@ -164,20 +213,46 @@ class Fixture:
         fast_entry_request = json.loads(
             self.path("scenario/fast-entry-request.json").read_text(encoding="utf-8")
         )
+        selected_route = fast_entry_request["execution_binding"]["current_route"]
+        self.execution_identity = {
+            "task_id": governance_request["task_id"],
+            "unit_id": selected_route["frontier_swu"],
+            "current_unit": selected_route["frontier_swu"],
+            "admitted_frontier": [selected_route["frontier_swu"]],
+            "routes": [
+                {
+                    "capability": selected_route["capability"],
+                    "mode": selected_route["mode"],
+                    "target": selected_route["frontier_swu"],
+                    "write_scope": [],
+                    "effects": ["rehearsal-only"],
+                }
+            ],
+            "request_budget": 1,
+            "risk_ceiling": "read-only",
+            "successor_policy": "expose-only",
+            "successor_execution_allowed": False,
+            "write_partitions": {
+                "material_writes": [],
+                "execution_outputs": [],
+                "transient_outputs": [],
+                "allowed_writes": [],
+                "protected_paths": ["fixture/target.json", "fixture/candidate.json"],
+            },
+        }
         self.write_json("fixture/target.json", {"status": "baseline"})
         self.write_json("fixture/candidate.json", {"status": "final"})
         self.write_json(
             "fixture/projection.json",
             {
                 "kind": "execution-projection",
+                "preacceptance_identity": self.execution_identity,
                 "governance_prepare_rehearsal": {
                     "schema_version": (
                         "invoke.preacceptance-governance-prepare-rehearsal.v1"
                     ),
                     "request_ref": self.exact_ref("scenario/request.json"),
-                    "selected_route": fast_entry_request["execution_binding"][
-                        "current_route"
-                    ],
+                    "selected_route": selected_route,
                     "route_scope_partition": governance_request[
                         "fast_execution_entry"
                     ]["route_scope_partition"],
@@ -206,8 +281,18 @@ root = Path(sys.argv[2])
 """,
         )
         self.write_json("fixture/source-reflection.json", {"proposal": "admission-completeness"})
-        self.write_json("fixture/negative-regression.json", {"result": "pass", "cases": 16})
-        self.write_json("fixture/cross-capability-regression.json", {"result": "pass", "stages": STAGES})
+        self.write_text("fixture/negative-regression.log", "canonical negative regression: pass\n")
+        self.write_text("fixture/cross-capability-regression.log", "canonical cross-capability regression: pass\n")
+        self.write_regression_receipt(
+            "fixture/negative-regression.json",
+            "fixture/negative-regression.log",
+            [sys.executable, "test_preacceptance_closure.py", "negative-cases"],
+        )
+        self.write_regression_receipt(
+            "fixture/cross-capability-regression.json",
+            "fixture/cross-capability-regression.log",
+            [sys.executable, "test_preacceptance_closure.py", "cross-capability"],
+        )
         self.write_json("fixture/rollout.json", {"scope": "canonical-source-local", "result": "pass"})
         self.write_adoption()
         self.write_manifest(self.base_manifest())
@@ -235,6 +320,22 @@ root = Path(sys.argv[2])
             "sha256": hashlib.sha256(content).hexdigest(),
             "size_bytes": len(content),
         }
+
+    def write_regression_receipt(
+        self, relative: str, transcript: str, argv: list[str]
+    ) -> None:
+        receipt: dict[str, Any] = {
+            "schema_version": "invoke.preacceptance-regression-execution.v1",
+            "runner_ref": self.exact_ref(
+                "arcanum/spells/invoke/scripts/preacceptance_closure.py"
+            ),
+            "argv": argv,
+            "exit_code": 0,
+            "transcript_ref": self.exact_ref(transcript),
+            "result": "pass",
+        }
+        receipt["receipt_digest"] = canonical_digest(receipt)
+        self.write_json(relative, receipt)
 
     def write_adoption(self) -> None:
         adoption: dict[str, Any] = {
@@ -276,30 +377,32 @@ root = Path(sys.argv[2])
         projection_ref = self.exact_ref("fixture/projection.json")
         schema_ref = self.exact_ref("fixture/schema.json")
         stages = []
-        for stage, consumer in zip(STAGES, REAL_CONSUMER_ENTRYPOINTS, strict=True):
+        for stage, consumer, driver in zip(
+            STAGES, REAL_CONSUMER_ENTRYPOINTS, REAL_DRIVER_ENTRYPOINTS, strict=True
+        ):
             consumer_ref = self.exact_ref(consumer)
-            if consumer.endswith(".json") or stage == "task_session_governance_runner":
-                runner_ref = adapter_ref
-                argv = [
-                    sys.executable,
-                    adapter_path,
-                    "--stage",
-                    stage,
-                    "--consumer",
-                    consumer,
-                    "--projection",
-                    projection_ref["path"],
-                    "--rehearsal-root",
-                    "{rehearsal_root}",
-                ]
-            else:
-                runner_ref = consumer_ref
-                argv = [sys.executable, consumer, "--help"]
+            driver_ref = self.exact_ref(driver)
+            runner_ref = adapter_ref
+            argv = [
+                sys.executable,
+                adapter_path,
+                "--stage",
+                stage,
+                "--consumer",
+                consumer,
+                "--driver",
+                driver,
+                "--projection",
+                projection_ref["path"],
+                "--rehearsal-root",
+                "{rehearsal_root}",
+            ]
             stages.append(
                 {
                     "stage_id": stage,
                     "projection_ref": projection_ref,
                     "runner_ref": runner_ref,
+                    "driver_ref": driver_ref,
                     "exercised_runner_ref": consumer_ref,
                     "argv": argv,
                     "cwd": ".",
@@ -315,26 +418,6 @@ root = Path(sys.argv[2])
                     "schema_checks": [
                         {"document_ref": projection_ref, "schema_ref": schema_ref}
                     ],
-                }
-            )
-        derivations = []
-        for receipt_class in [
-            "governance_request",
-            "execution_ticket",
-            "admission_consumption",
-            "executor_receipt",
-            "reconciliation",
-            "material_commit_disposition",
-        ]:
-            derivations.append(
-                {
-                    "receipt_class": receipt_class,
-                    "schema_ref": schema_ref,
-                    "predecessor_classes": [],
-                    "authoritative_fields": ["kind"],
-                    "dynamic_fields": [],
-                    "output_path_pattern": f"{{rehearsal_root}}/{receipt_class}.json",
-                    "authority_effect": "none",
                 }
             )
         return {
@@ -360,30 +443,7 @@ root = Path(sys.argv[2])
             ],
             "normalized_execution_projection": {
                 "source_ref": projection_ref,
-                "task_id": "TASK-FIXTURE",
-                "unit_id": "SWU-FIXTURE-001",
-                "current_unit": "SWU-FIXTURE-001",
-                "admitted_frontier": ["SWU-FIXTURE-001", "SWU-FIXTURE-002"],
-                "routes": [
-                    {
-                        "capability": "task-session",
-                        "mode": "execute",
-                        "target": "SWU-FIXTURE-001",
-                        "write_scope": [],
-                        "effects": ["rehearsal-only"],
-                    }
-                ],
-                "request_budget": 1,
-                "risk_ceiling": "read-only",
-                "successor_policy": "expose-only",
-                "successor_execution_allowed": False,
-                "write_partitions": {
-                    "material_writes": [],
-                    "execution_outputs": [],
-                    "transient_outputs": [],
-                    "allowed_writes": [],
-                    "protected_paths": ["fixture/target.json", "fixture/candidate.json"],
-                },
+                **copy.deepcopy(self.execution_identity),
                 "runner": {
                     "ref": self.exact_ref(
                         "arcanum/arcana/task-session/scripts/"
@@ -442,7 +502,6 @@ root = Path(sys.argv[2])
                     ),
                 },
             },
-            "runtime_receipt_derivations": derivations,
             "consumer_rehearsal": {
                 "mode": "no-effect",
                 "external_effects_allowed": False,
@@ -508,6 +567,19 @@ root = Path(sys.argv[2])
         receipt = self.exact_ref(receipt_relative)
         manifest = self.exact_ref("fixture/manifest.json")
         receipt_document = json.loads(self.path(receipt_relative).read_text(encoding="utf-8"))
+        attestation: dict[str, Any] = {
+            "schema_version": "invoke.review-attestation.v1",
+            "attestor_identity": "fixture-review-attestor",
+            "attestor_role": "closure-bound-review-attestor",
+            "declared_separation_from": ["spellcraft-preacceptance-rehearsal"],
+            "manifest_ref": manifest,
+            "closure_receipt_ref": receipt,
+            "review_method": "independent-agent-dispatch-declared",
+            "result": "completed",
+            "authority_effect": "none",
+        }
+        attestation["receipt_digest"] = canonical_digest(attestation)
+        self.write_json("fixture/review-attestation.json", attestation)
         review: dict[str, Any] = {
             "schema_version": "invoke.preacceptance-closure-review.v1",
             "review_id": "fixture-independent-review",
@@ -515,13 +587,19 @@ root = Path(sys.argv[2])
             "closure_receipt_ref": receipt,
             "closure_graph_digest": receipt_document["closure_graph_digest"],
             "reviewer": {
-                "identity": "fixture-independent-reviewer",
-                "role": "independent-preacceptance-review",
-                "independent_from": ["spellcraft-preacceptance-rehearsal"],
+                "identity": "fixture-review-attestor",
+                "role": "closure-bound-review-attestor",
+                "declared_separation_from": ["spellcraft-preacceptance-rehearsal"],
+                "attestation_ref": self.exact_ref("fixture/review-attestation.json"),
             },
             "result": "pass",
             "checks": [
-                {"check_id": check_id, "result": "pass", "detail": "verified"}
+                {
+                    "check_id": check_id,
+                    "result": "pass",
+                    "detail": "verified",
+                    "evidence_refs": [manifest, receipt],
+                }
                 for check_id in [
                     "final_postimages",
                     "execution_projection",
@@ -529,7 +607,7 @@ root = Path(sys.argv[2])
                     "write_partition",
                     "runner_identity",
                     "schema_locator",
-                    "runtime_derivation",
+                    "stage_binding",
                     "requested_effect",
                     "reflection_adoption",
                     "no_effect_determinism",
@@ -561,9 +639,28 @@ class PreacceptanceClosureTests(unittest.TestCase):
             manifest["consumer_rehearsal"]["stages"][0]["projection_ref"] = self.fixture.exact_ref(
                 "fixture/other-projection.json"
             )
+        elif case_id == "split-source-semantics":
+            source = json.loads(
+                self.fixture.path("fixture/projection.json").read_text(encoding="utf-8")
+            )
+            source["preacceptance_identity"]["current_unit"] = "SWU-OTHER"
+            self.fixture.write_json("fixture/projection.json", source)
+            self.fixture.refresh_ref(manifest, "fixture/projection.json")
         elif case_id == "projection-not-in-stage-invocation":
             stage = manifest["consumer_rehearsal"]["stages"][0]
             stage["environment"].pop("PREACCEPTANCE_PROJECTION_REF")
+            projection_index = stage["argv"].index("--projection")
+            del stage["argv"][projection_index : projection_index + 2]
+        elif case_id == "help-only-consumer":
+            manifest["consumer_rehearsal"]["stages"][0]["argv"].append("--help")
+        elif case_id == "noncanonical-functional-driver":
+            stage = manifest["consumer_rehearsal"]["stages"][0]
+            old_driver = stage["driver_ref"]["path"]
+            stage["driver_ref"] = self.fixture.exact_ref("fixture/consumer.py")
+            stage["argv"] = [
+                "fixture/consumer.py" if value == old_driver else value
+                for value in stage["argv"]
+            ]
         elif case_id == "frontier-budget-mismatch":
             projection["request_budget"] = 5
         elif case_id == "missing-admission-binding":
@@ -594,12 +691,6 @@ class PreacceptanceClosureTests(unittest.TestCase):
                     "document_ref": self.fixture.exact_ref("fixture/projection.json"),
                     "schema_ref": self.fixture.exact_ref("fixture/failing-schema.json"),
                 }
-            ]
-        elif case_id == "missing-causal-receipt-derivation":
-            manifest["runtime_receipt_derivations"] = [
-                item
-                for item in manifest["runtime_receipt_derivations"]
-                if item["receipt_class"] != "execution_ticket"
             ]
         elif case_id == "tested-runner-not-authorized-runner":
             shutil.copy2(
@@ -647,6 +738,13 @@ class PreacceptanceClosureTests(unittest.TestCase):
             manifest["consumer_rehearsal"]["stages"][8][
                 "exercised_runner_ref"
             ] = self.fixture.exact_ref(owner_path)
+        elif case_id == "accepted-artifacts-without-bundle":
+            candidate = {
+                "status": "final",
+                "accepted_artifacts": [self.fixture.exact_ref("fixture/target.json")],
+            }
+            self.fixture.write_json("fixture/candidate.json", candidate)
+            self.fixture.refresh_ref(manifest, "fixture/candidate.json")
         else:
             raise AssertionError(f"unknown case {case_id}")
 
@@ -662,6 +760,107 @@ class PreacceptanceClosureTests(unittest.TestCase):
         self.assertEqual(receipt["result"], "pass")
         self.assertTrue(receipt["determinism"]["byte_stable"])
         self.assertEqual([item["stage_id"] for item in receipt["stage_results"]], STAGES)
+
+    def test_nested_adoption_reference_drift_blocks_before_rehearsal(self) -> None:
+        manifest = self.fixture.base_manifest()
+        self.fixture.write_text(
+            "fixture/negative-regression.log", "tampered transcript\n"
+        )
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/nested-adoption-drift-receipt.json"
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        receipt = json.loads(
+            self.fixture.path("fixture/nested-adoption-drift-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertIn(
+            "negative-regression-artifact/transcript_ref digest mismatch: "
+            "fixture/negative-regression.log",
+            receipt["blockers"],
+        )
+
+    def test_effect_monitor_blocks_transient_restored_repository_write(self) -> None:
+        manifest = self.fixture.base_manifest()
+        adapter = (
+            "arcanum/spells/invoke/development/preacceptance-closure/"
+            "real_consumer_rehearsal.py"
+        )
+        path = self.fixture.path(adapter)
+        content = path.read_text(encoding="utf-8")
+        marker = '\nif __name__ == "__main__":\n'
+        injection = (
+            '\n_transient = Path("fixture/transient-write.txt")\n'
+            '_transient.write_text("temporary", encoding="utf-8")\n'
+            '_transient.unlink()\n'
+        )
+        path.write_text(content.replace(marker, injection + marker), encoding="utf-8")
+        self.fixture.refresh_ref(manifest, adapter)
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/transient-write-receipt.json"
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        receipt = json.loads(
+            self.fixture.path("fixture/transient-write-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertIn("E21_EFFECT_MONITOR observed a denied effect", receipt["blockers"])
+
+    def test_effect_monitor_blocks_network_attempt(self) -> None:
+        manifest = self.fixture.base_manifest()
+        adapter = (
+            "arcanum/spells/invoke/development/preacceptance-closure/"
+            "real_consumer_rehearsal.py"
+        )
+        path = self.fixture.path(adapter)
+        content = path.read_text(encoding="utf-8")
+        marker = '\nif __name__ == "__main__":\n'
+        injection = (
+            "\nimport socket as _socket\n"
+            '_socket.socket().connect(("127.0.0.1", 9))\n'
+        )
+        path.write_text(content.replace(marker, injection + marker), encoding="utf-8")
+        self.fixture.refresh_ref(manifest, adapter)
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/network-attempt-receipt.json"
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        receipt = json.loads(
+            self.fixture.path("fixture/network-attempt-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertTrue(receipt["write_observation"]["external_effects_observed"])
+        self.assertIn("E21_EFFECT_MONITOR observed a denied effect", receipt["blockers"])
+
+    def test_stdout_nondeterminism_blocks(self) -> None:
+        manifest = self.fixture.base_manifest()
+        adapter = (
+            "arcanum/spells/invoke/development/preacceptance-closure/"
+            "real_consumer_rehearsal.py"
+        )
+        path = self.fixture.path(adapter)
+        content = path.read_text(encoding="utf-8")
+        marker = '\nif __name__ == "__main__":\n'
+        injection = '\nprint(__import__("time").time_ns())\n'
+        path.write_text(content.replace(marker, injection + marker), encoding="utf-8")
+        self.fixture.refresh_ref(manifest, adapter)
+        completed = self.fixture.run_rehearsal(
+            manifest, "fixture/stdout-nondeterminism-receipt.json"
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        receipt = json.loads(
+            self.fixture.path("fixture/stdout-nondeterminism-receipt.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertFalse(receipt["determinism"]["byte_stable"])
+        self.assertIn(
+            "E09_NONDETERMINISM rehearsal result changed across two runs",
+            receipt["blockers"],
+        )
 
     def test_governance_stage_requires_projection_bound_request(self) -> None:
         manifest = self.fixture.base_manifest()
@@ -679,8 +878,11 @@ class PreacceptanceClosureTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
-        self.assertIn(
-            "consumer stage failed with exit 1: task_session_governance_runner",
+        self.assertTrue(
+            any(
+                blocker.startswith("E03_SPLIT_PROJECTION")
+                for blocker in receipt["blockers"]
+            ),
             receipt["blockers"],
         )
 
@@ -940,20 +1142,26 @@ class PreacceptanceClosureTests(unittest.TestCase):
 
     def test_all_negative_cases_fail_before_request_generation(self) -> None:
         cases = json.loads(NEGATIVE_CASES.read_text(encoding="utf-8"))["cases"]
-        self.assertEqual(len(cases), 22)
+        self.assertEqual(len(cases), 25)
         for index, case in enumerate(cases, 1):
             with self.subTest(case_id=case["case_id"]):
-                manifest = copy.deepcopy(self.fixture.base_manifest())
-                self.mutate_case(case["case_id"], manifest)
-                output = f"fixture/negative-{index}.json"
-                completed = self.fixture.run_rehearsal(manifest, output)
-                self.assertNotEqual(completed.returncode, 0, completed.stderr)
-                receipt = json.loads(self.fixture.path(output).read_text(encoding="utf-8"))
-                self.assertEqual(receipt["result"], "block")
-                joined = "\n".join(receipt["blockers"])
-                self.assertIn(case["expected_blocker"], joined)
+                try:
+                    manifest = copy.deepcopy(self.fixture.base_manifest())
+                    self.mutate_case(case["case_id"], manifest)
+                    output = f"fixture/negative-{index}.json"
+                    completed = self.fixture.run_rehearsal(manifest, output)
+                    self.assertNotEqual(completed.returncode, 0, completed.stderr)
+                    receipt = json.loads(
+                        self.fixture.path(output).read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(receipt["result"], "block")
+                    joined = "\n".join(receipt["blockers"])
+                    self.assertIn(case["expected_blocker"], joined)
+                finally:
+                    self.fixture.cleanup()
+                    self.fixture = Fixture()
 
-    def test_request_emission_requires_passing_independent_review(self) -> None:
+    def test_request_emission_requires_passing_review_attestation(self) -> None:
         manifest = self.fixture.base_manifest()
         completed = self.fixture.run_rehearsal(manifest)
         self.assertEqual(completed.returncode, 0, completed.stderr)
@@ -989,7 +1197,29 @@ class PreacceptanceClosureTests(unittest.TestCase):
         self.assertFalse(self.fixture.path("fixture/owner-request-v2.json").exists())
 
         self.fixture.write_review()
+        forged = json.loads(
+            self.fixture.path("fixture/review.json").read_text(encoding="utf-8")
+        )
+        forged["reviewer"]["identity"] = "Mallory"
+        forged["reviewer"].pop("attestation_ref")
+        for check in forged["checks"]:
+            check.pop("evidence_refs")
+            check["detail"] = "asserted without evidence"
+        forged["receipt_digest"] = canonical_digest(
+            {key: value for key, value in forged.items() if key != "receipt_digest"}
+        )
+        self.fixture.write_json("fixture/forged-review.json", forged)
         command[command.index(str(self.fixture.path("fixture/blocked-review.json")))] = str(
+            self.fixture.path("fixture/forged-review.json")
+        )
+        forged_result = subprocess.run(
+            command, check=False, capture_output=True, text=True
+        )
+        self.assertNotEqual(forged_result.returncode, 0)
+        self.assertFalse(self.fixture.path("fixture/owner-request-v2.json").exists())
+
+        self.fixture.write_review()
+        command[command.index(str(self.fixture.path("fixture/forged-review.json")))] = str(
             self.fixture.path("fixture/review.json")
         )
         emitted = subprocess.run(command, check=False, capture_output=True, text=True)

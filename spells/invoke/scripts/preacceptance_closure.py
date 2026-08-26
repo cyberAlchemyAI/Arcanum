@@ -77,12 +77,16 @@ PROJECTION_BOUND_ADAPTER = (
     "real_consumer_rehearsal.py"
 )
 
-CANONICAL_STAGE_ADAPTERS = {
+CANONICAL_STAGE_DRIVERS = {
     "invoke_material_validation": {
         "arcanum/spells/invoke/development/run_material_package_fixtures.py",
     },
     "invoke_file_bound_handoff": {
         "arcanum/spells/invoke/development/run_material_package_fixtures.py",
+    },
+    "work_pack_readiness": {
+        "arcanum/spells/work-pack-readiness-audit/development/"
+        "test_work_pack_readiness_v2.py",
     },
     "task_session_until_blocker_preflight": {
         "arcanum/spells/task-session-until-blocker/development/validate-chain-v2.py",
@@ -97,7 +101,7 @@ CANONICAL_STAGE_ADAPTERS = {
         PROJECTION_BOUND_ADAPTER,
     },
     "precloseout": {
-        "arcanum/arcana/task-session/development/test_plan_once_governance.py",
+        "arcanum/arcana/task-session/development/test-plan-once-material-controller.py",
     },
     "invoke_closeout": {
         PROJECTION_BOUND_ADAPTER,
@@ -111,15 +115,30 @@ CANONICAL_STAGE_ADAPTERS = {
     },
 }
 
+PROJECTION_IDENTITY_FIELDS = (
+    "task_id",
+    "unit_id",
+    "current_unit",
+    "admitted_frontier",
+    "routes",
+    "request_budget",
+    "risk_ceiling",
+    "successor_policy",
+    "successor_execution_allowed",
+    "write_partitions",
+)
+
 CLOSEOUT_SCHEMA_IDENTITY = "invoke.precloseout-refresh-closeout-receipt.v1"
 
-REQUIRED_RUNTIME_RECEIPTS = {
-    "governance_request",
-    "execution_ticket",
-    "admission_consumption",
-    "executor_receipt",
-    "reconciliation",
-    "material_commit_disposition",
+PROJECTION_BOUND_FUNCTIONAL_STAGES = {
+    "invoke_material_validation",
+    "invoke_file_bound_handoff",
+    "work_pack_readiness",
+    "task_session_until_blocker_preflight",
+    "task_session_fast_entry",
+    "task_session_mutation_admission",
+    "precloseout",
+    "continuity",
 }
 
 REQUIRED_REVIEW_CHECKS = {
@@ -129,7 +148,7 @@ REQUIRED_REVIEW_CHECKS = {
     "write_partition",
     "runner_identity",
     "schema_locator",
-    "runtime_derivation",
+    "stage_binding",
     "requested_effect",
     "reflection_adoption",
     "no_effect_determinism",
@@ -152,6 +171,108 @@ def canonical_bytes(value: Any) -> bytes:
 
 def canonical_digest(value: Any) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
+
+
+def projection_identity(projection: dict[str, Any]) -> dict[str, Any]:
+    """Return the non-recursive semantic identity carried by the source file."""
+    return {field: projection[field] for field in PROJECTION_IDENTITY_FIELDS}
+
+
+def normalized_output_bytes(content: bytes, rehearsal_root: Path) -> bytes:
+    replacements = {
+        str(rehearsal_root).encode("utf-8"): b"{rehearsal_root}",
+        str(rehearsal_root).replace("\\", "/").encode("utf-8"): b"{rehearsal_root}",
+    }
+    normalized = content
+    for source, target in replacements.items():
+        normalized = normalized.replace(source, target)
+    return normalized
+
+
+def output_tree_digest(rehearsal_root: Path) -> tuple[str, int]:
+    inventory: list[dict[str, Any]] = []
+    for path in sorted(rehearsal_root.rglob("*")):
+        if not path.is_file() or path.name == "effect-events.jsonl":
+            continue
+        content = normalized_output_bytes(path.read_bytes(), rehearsal_root)
+        inventory.append(
+            {
+                "path": path.relative_to(rehearsal_root).as_posix(),
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "size_bytes": len(content),
+            }
+        )
+    return canonical_digest(inventory), len(inventory)
+
+
+def effect_monitor_source() -> str:
+    """Fail closed on Python writes outside the rehearsal root or network use."""
+    return r'''import json
+import os
+import pathlib
+import sys
+
+root = pathlib.Path(os.environ["PREACCEPTANCE_REHEARSAL_ROOT"]).resolve()
+log_path = pathlib.Path(os.environ["PREACCEPTANCE_EFFECT_LOG"])
+log_path.parent.mkdir(parents=True, exist_ok=True)
+log_fd = os.open(str(log_path), os.O_APPEND | os.O_CREAT | os.O_WRONLY, 0o600)
+
+def inside_root(raw):
+    if isinstance(raw, int):
+        return True
+    try:
+        path = pathlib.Path(os.fsdecode(raw))
+        if not path.is_absolute():
+            path = pathlib.Path.cwd() / path
+        path.resolve(strict=False).relative_to(root)
+        return True
+    except (OSError, TypeError, ValueError):
+        return False
+
+def record(event, detail):
+    payload = json.dumps({"event": event, "detail": str(detail)}, sort_keys=True)
+    os.write(log_fd, (payload + "\n").encode("utf-8"))
+
+def audit(event, args):
+    if event.startswith("socket."):
+        record(event, args)
+        raise PermissionError("preacceptance network effect denied")
+    if event in {"os.system", "os.startfile"}:
+        record(event, args)
+        raise PermissionError("preacceptance external process denied")
+    if event == "subprocess.Popen":
+        command = args[1]
+        raw_executable = args[0]
+        if raw_executable is None:
+            raw_executable = command[0] if isinstance(command, (list, tuple)) else command
+        allowed = os.path.normcase(os.path.abspath(sys.executable))
+        raw_text = os.fsdecode(raw_executable)
+        executable = os.path.normcase(os.path.abspath(raw_text))
+        command_text = os.path.normcase(raw_text)
+        if executable != allowed and not command_text.startswith(allowed + " "):
+            record(event, raw_text)
+            raise PermissionError("preacceptance non-Python subprocess denied")
+    if event == "open":
+        path, mode, flags = args[0], args[1], args[2]
+        writing = (isinstance(mode, str) and any(token in mode for token in "wax+")) or (
+            isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND)
+        )
+        if writing and not inside_root(path):
+            record(event, path)
+            raise PermissionError("preacceptance write outside rehearsal root denied")
+    if event in {"os.remove", "os.rmdir", "os.mkdir", "os.rename", "os.replace", "os.symlink", "os.link"}:
+        if event in {"os.rename", "os.replace"}:
+            paths = args[:2]
+        elif event in {"os.symlink", "os.link"}:
+            paths = args[1:2]
+        else:
+            paths = args[:1]
+        if any(not inside_root(path) for path in paths):
+            record(event, paths)
+            raise PermissionError("preacceptance filesystem mutation outside rehearsal root denied")
+
+sys.addaudithook(audit)
+'''
 
 
 def file_digest(path: Path) -> tuple[str, int]:
@@ -392,7 +513,9 @@ def validate_assertions(
     return blockers
 
 
-def validate_adoption_document(adoption: dict[str, Any]) -> list[str]:
+def validate_adoption_document(
+    adoption: dict[str, Any], repository_root: Path
+) -> list[str]:
     blockers = schema_errors(adoption, load_json(ADOPTION_SCHEMA), "adoption")
     projection = dict(adoption)
     expected_digest = projection.pop("receipt_digest", None)
@@ -406,7 +529,64 @@ def validate_adoption_document(adoption: dict[str, Any]) -> list[str]:
         blockers.append("negative regression has not passed")
     if cross.get("result") != "pass":
         blockers.append("E05_ADMISSION_BINDINGS cross-capability regression has not passed")
+    for pointer, reference in collect_exact_refs(adoption):
+        blockers.extend(
+            validate_exact_ref(repository_root, reference, f"adoption{pointer}")
+        )
+    for label, regression in (
+        ("negative", negative),
+        ("cross-capability", cross),
+    ):
+        artifact_ref = regression.get("artifact_ref", {})
+        artifact_path, error = resolve_path(
+            repository_root, str(artifact_ref.get("path", ""))
+        )
+        if error or artifact_path is None or not artifact_path.is_file():
+            blockers.append(f"{label} regression artifact is unavailable")
+            continue
+        try:
+            artifact = load_json(artifact_path)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error_value:
+            blockers.append(f"{label} regression artifact invalid: {error_value}")
+            continue
+        if artifact.get("schema_version") != "invoke.preacceptance-regression-execution.v1":
+            blockers.append(f"{label} regression lacks a typed execution receipt")
+        if artifact.get("result") != regression.get("result"):
+            blockers.append(f"{label} regression result differs from its execution receipt")
+        artifact_projection = dict(artifact)
+        artifact_digest = artifact_projection.pop("receipt_digest", None)
+        if artifact_digest != canonical_digest(artifact_projection):
+            blockers.append(f"{label} regression execution receipt digest mismatch")
+        if artifact.get("exit_code") != 0:
+            blockers.append(f"{label} regression execution did not exit zero")
+        if not isinstance(artifact.get("argv"), list) or not artifact.get("argv"):
+            blockers.append(f"{label} regression execution argv is missing")
+        for pointer, reference in collect_exact_refs(artifact):
+            blockers.extend(
+                validate_exact_ref(
+                    repository_root,
+                    reference,
+                    f"{label}-regression-artifact{pointer}",
+                )
+            )
     return blockers
+
+
+def validate_exact_ref_or_postimage(
+    repository_root: Path,
+    reference: dict[str, Any],
+    label: str,
+    postimage_shadows: dict[str, dict[str, Any]],
+) -> list[str]:
+    shadow = postimage_shadows.get(str(reference.get("path", "")))
+    if shadow is None:
+        return validate_exact_ref(repository_root, reference, label)
+    if (
+        reference.get("sha256") != shadow.get("sha256")
+        or reference.get("size_bytes") != shadow.get("size_bytes")
+    ):
+        return [f"{label} differs from its exact final postimage"]
+    return []
 
 
 def validate_manifest(
@@ -423,10 +603,46 @@ def validate_manifest(
     requested = manifest["requested_effect"]
     rehearsal = manifest["consumer_rehearsal"]
 
+    source_path, source_error = resolve_path(
+        repository_root, projection["source_ref"]["path"]
+    )
+    if source_error or source_path is None:
+        blockers.append("E03_SPLIT_PROJECTION normalized source path is unsafe")
+    else:
+        try:
+            source_projection = load_json(source_path)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
+            blockers.append(f"E03_SPLIT_PROJECTION normalized source invalid: {error}")
+        else:
+            if source_projection.get("preacceptance_identity") != projection_identity(
+                projection
+            ):
+                blockers.append(
+                    "E03_SPLIT_PROJECTION source semantics differ from manifest projection"
+                )
+            selected_route = source_projection.get(
+                "governance_prepare_rehearsal", {}
+            ).get("selected_route", {})
+            if selected_route.get("frontier_swu") != projection["current_unit"]:
+                blockers.append(
+                    "E03_SPLIT_PROJECTION governance rehearsal frontier differs "
+                    "from manifest current unit"
+                )
+            route_target = str(selected_route.get("target", ""))
+            if projection["task_id"] not in route_target:
+                blockers.append(
+                    "E03_SPLIT_PROJECTION governance rehearsal target differs "
+                    "from manifest task"
+                )
+
     if requested["material_approval_owner"] != requested["lifecycle_owner"]:
         blockers.append("E01_OWNER_PROVENANCE material approval owner must equal lifecycle owner")
 
     final_targets = [item["target_path"] for item in manifest["final_postimages"]]
+    postimage_shadows = {
+        item["target_path"]: item["postimage_ref"]
+        for item in manifest["final_postimages"]
+    }
     if len(final_targets) != len(set(final_targets)):
         blockers.append("duplicate final postimage target")
     if sorted(final_targets) != sorted(requested["target_paths"]):
@@ -478,6 +694,14 @@ def validate_manifest(
             )
         if stage["runner_ref"]["path"] not in stage["argv"]:
             blockers.append(f"runner invocation does not bind exact runner: {stage['stage_id']}")
+        if "--help" in stage["argv"]:
+            blockers.append(
+                f"E20_FUNCTIONAL_CONSUMER_REQUIRED help-only invocation: {stage['stage_id']}"
+            )
+        if stage["driver_ref"]["path"] not in stage["argv"]:
+            blockers.append(
+                f"functional driver invocation is not exact-bound: {stage['stage_id']}"
+            )
         if (
             stage["exercised_runner_ref"]["path"] not in stage["argv"]
             and stage["exercised_runner_ref"]["path"]
@@ -503,29 +727,31 @@ def validate_manifest(
                 f"{stage['stage_id']} must exercise one closed canonical surface"
             )
         runner_path = stage["runner_ref"]["path"]
-        if runner_path != actual_consumer:
-            expected_adapters = CANONICAL_STAGE_ADAPTERS.get(
-                stage["stage_id"], set()
+        if runner_path != PROJECTION_BOUND_ADAPTER:
+            blockers.append(
+                "E17_CANONICAL_CONSUMER_IDENTITY projection-bound adapter required: "
+                f"{stage['stage_id']}"
             )
-            if runner_path not in expected_adapters:
+        admitted_drivers = CANONICAL_STAGE_DRIVERS.get(stage["stage_id"], set())
+        if stage["driver_ref"]["path"] not in admitted_drivers:
+            blockers.append(
+                "E20_FUNCTIONAL_CONSUMER_REQUIRED noncanonical functional driver: "
+                f"{stage['stage_id']}"
+            )
+        required_tokens = (
+            "--stage",
+            stage["stage_id"],
+            "--consumer",
+            actual_consumer,
+            "--driver",
+            stage["driver_ref"]["path"],
+        )
+        for token in required_tokens:
+            if token not in stage["argv"]:
                 blockers.append(
-                    "E17_CANONICAL_CONSUMER_IDENTITY direct execution required "
-                    "or adapter is not canonical: "
-                    f"{stage['stage_id']}"
+                    "E17_CANONICAL_CONSUMER_IDENTITY adapter does not bind "
+                    f"{token}: {stage['stage_id']}"
                 )
-            if runner_path == PROJECTION_BOUND_ADAPTER:
-                required_tokens = (
-                    "--stage",
-                    stage["stage_id"],
-                    "--consumer",
-                    actual_consumer,
-                )
-                for token in required_tokens:
-                    if token not in stage["argv"]:
-                        blockers.append(
-                            "E17_CANONICAL_CONSUMER_IDENTITY adapter does not bind "
-                            f"{token}: {stage['stage_id']}"
-                        )
     governance = rehearsal["stages"][REQUIRED_STAGE_ORDER.index("task_session_governance_runner")]
     if governance["exercised_runner_ref"] != projection["runner"]["ref"]:
         blockers.append("E13_RUNNER_IDENTITY tested governance runner differs from authorized runner")
@@ -549,17 +775,6 @@ def validate_manifest(
         else:
             if owner_identity != closeout["declared_owner_receipt_schema_identity"]:
                 blockers.append("E18_OWNER_SCHEMA_IDENTITY Work Pack identity differs from schema")
-
-    derivation_classes = {
-        derivation["receipt_class"]
-        for derivation in manifest["runtime_receipt_derivations"]
-    }
-    missing_derivations = REQUIRED_RUNTIME_RECEIPTS - derivation_classes
-    if missing_derivations:
-        blockers.append(
-            "E12_CAUSAL_MATERIALIZATION missing runtime receipt derivations: "
-            + ", ".join(sorted(missing_derivations))
-        )
 
     for postimage in manifest["final_postimages"]:
         target, _ = resolve_path(repository_root, postimage["target_path"])
@@ -592,6 +807,86 @@ def validate_manifest(
                     postimage["postimage_ref"]["path"],
                 )
             )
+            accepted_artifacts = postimage_document.get("accepted_artifacts")
+            if isinstance(accepted_artifacts, list):
+                bundle_ref = postimage.get("accepted_bundle_ref")
+                if not isinstance(bundle_ref, dict):
+                    blockers.append(
+                        "E22_ACCEPTANCE_BUNDLE accepted-artifact postimage lacks bundle"
+                    )
+                    continue
+                bundle_path, bundle_error = resolve_path(
+                    repository_root, str(bundle_ref.get("path", ""))
+                )
+                if bundle_error or bundle_path is None or not bundle_path.is_file():
+                    blockers.append("E22_ACCEPTANCE_BUNDLE bundle is unavailable")
+                    continue
+                try:
+                    bundle = load_json(bundle_path)
+                except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
+                    blockers.append(f"E22_ACCEPTANCE_BUNDLE bundle invalid: {error}")
+                    continue
+                for pointer, reference in collect_exact_refs(bundle):
+                    blockers.extend(
+                        validate_exact_ref_or_postimage(
+                            repository_root,
+                            reference,
+                            f"acceptance-bundle{pointer}",
+                            postimage_shadows,
+                        )
+                    )
+                if bundle.get("schema_version") != "invoke.acceptance-bundle.v1":
+                    blockers.append("E22_ACCEPTANCE_BUNDLE bundle is not typed")
+                if accepted_artifacts != bundle.get("artifact_refs"):
+                    blockers.append(
+                        "E22_ACCEPTANCE_BUNDLE decision artifacts differ from bundle"
+                    )
+                bundle_projection = dict(bundle)
+                bundle_digest = bundle_projection.pop("receipt_digest", None)
+                if bundle_digest != canonical_digest(bundle_projection):
+                    blockers.append("E22_ACCEPTANCE_BUNDLE bundle digest mismatch")
+                validation_ref = bundle.get("validation_receipt_ref", {})
+                validation_path, validation_error = resolve_path(
+                    repository_root, str(validation_ref.get("path", ""))
+                )
+                if (
+                    validation_error
+                    or validation_path is None
+                    or not validation_path.is_file()
+                ):
+                    blockers.append(
+                        "E22_ACCEPTANCE_BUNDLE validation receipt unavailable"
+                    )
+                    continue
+                try:
+                    validation_receipt = load_json(validation_path)
+                except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
+                    blockers.append(
+                        f"E22_ACCEPTANCE_BUNDLE validation receipt invalid: {error}"
+                    )
+                    continue
+                for pointer, reference in collect_exact_refs(validation_receipt):
+                    blockers.extend(
+                        validate_exact_ref_or_postimage(
+                            repository_root,
+                            reference,
+                            f"acceptance-validation{pointer}",
+                            postimage_shadows,
+                        )
+                    )
+                validation_projection = dict(validation_receipt)
+                validation_digest = validation_projection.pop("receipt_digest", None)
+                if (
+                    validation_receipt.get("schema_version")
+                    != "invoke.acceptance-bundle-validation.v1"
+                    or validation_receipt.get("result") != "pass"
+                    or validation_receipt.get("artifact_refs")
+                    != bundle.get("artifact_refs")
+                    or validation_digest != canonical_digest(validation_projection)
+                ):
+                    blockers.append(
+                        "E22_ACCEPTANCE_BUNDLE validation receipt did not prove exact bundle"
+                    )
 
     for locator in projection["schemas_and_locators"]:
         if locator["resolution_count"] != 1:
@@ -636,19 +931,78 @@ def validate_manifest(
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
         blockers.append(f"reflection adoption invalid: {error}")
     else:
-        blockers.extend(validate_adoption_document(adoption))
+        blockers.extend(validate_adoption_document(adoption, repository_root))
 
     return sorted(set(blockers)), all_refs
 
 
+def validate_stage_outputs(
+    manifest: dict[str, Any], repository_root: Path, rehearsal_root: Path
+) -> list[str]:
+    blockers: list[str] = []
+    projection = manifest["normalized_execution_projection"]
+    projection_path, projection_error = resolve_path(
+        repository_root, projection["source_ref"]["path"]
+    )
+    if projection_error or projection_path is None:
+        return ["E20_FUNCTIONAL_CONSUMER_REQUIRED projection unavailable during output validation"]
+    projection_digest = file_digest(projection_path)[0]
+    projection_identity_digest = canonical_digest(projection_identity(projection))
+    stages = {
+        stage["stage_id"]: stage for stage in manifest["consumer_rehearsal"]["stages"]
+    }
+
+    for stage_id, stage in stages.items():
+        stage_path = rehearsal_root / f"{stage_id}.json"
+        if not stage_path.is_file():
+            blockers.append(f"E20_FUNCTIONAL_CONSUMER_REQUIRED missing stage output: {stage_id}")
+            continue
+        try:
+            stage_output = load_json(stage_path)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
+            blockers.append(f"E20_FUNCTIONAL_CONSUMER_REQUIRED invalid stage output: {error}")
+            continue
+        if (
+            stage_output.get("projection_digest") != projection_digest
+            or stage_output.get("projection_identity_digest")
+            != projection_identity_digest
+        ):
+            blockers.append(
+                f"E20_FUNCTIONAL_CONSUMER_REQUIRED projection proof mismatch: {stage_id}"
+            )
+        if stage_id in PROJECTION_BOUND_FUNCTIONAL_STAGES:
+            expected_binding = canonical_digest(
+                {
+                    "stage": stage_id,
+                    "projection_digest": projection_digest,
+                    "projection_identity_digest": projection_identity_digest,
+                    "driver": stage["driver_ref"]["path"],
+                }
+            )
+            if stage_output.get("adapter_projection_binding_digest") != expected_binding:
+                blockers.append(
+                    "E20_FUNCTIONAL_CONSUMER_REQUIRED adapter-gated invocation "
+                    f"lost its projection binding: {stage_id}"
+                )
+    return blockers
+
+
 def run_stages(
     manifest: dict[str, Any], repository_root: Path
-) -> tuple[list[dict[str, Any]], list[str]]:
+) -> tuple[list[dict[str, Any]], list[str], dict[str, Any]]:
     projection = manifest["normalized_execution_projection"]
     results: list[dict[str, Any]] = []
     blockers: list[str] = []
     with tempfile.TemporaryDirectory(prefix="arcanum-preacceptance-") as directory:
         rehearsal_root = Path(directory)
+        monitor_root = rehearsal_root / "effect-monitor"
+        monitor_root.mkdir(parents=True, exist_ok=True)
+        (monitor_root / "sitecustomize.py").write_text(
+            effect_monitor_source(), encoding="utf-8"
+        )
+        effect_log = rehearsal_root / "effect-events.jsonl"
+        process_temp = rehearsal_root / "temp"
+        process_temp.mkdir(parents=True, exist_ok=True)
         for stage in manifest["consumer_rehearsal"]["stages"]:
             literal_invocation = {
                 "argv": stage["argv"],
@@ -679,7 +1033,11 @@ def run_stages(
                     "LC_ALL": "C",
                     "TZ": "UTC",
                     "PYTHONDONTWRITEBYTECODE": "1",
+                    "PYTHONPATH": str(monitor_root),
+                    "TEMP": str(process_temp),
+                    "TMP": str(process_temp),
                     "PREACCEPTANCE_REHEARSAL_ROOT": str(rehearsal_root),
+                    "PREACCEPTANCE_EFFECT_LOG": str(effect_log),
                 }
             )
             environment.update(
@@ -698,8 +1056,12 @@ def run_stages(
                     timeout=stage["timeout_seconds"],
                 )
                 exit_code = completed.returncode
+                stdout = normalized_output_bytes(completed.stdout, rehearsal_root)
+                stderr = normalized_output_bytes(completed.stderr, rehearsal_root)
             except subprocess.TimeoutExpired:
                 exit_code = 124
+                stdout = b""
+                stderr = b"consumer stage timed out"
             schema_check_ids = [
                 canonical_digest(check) for check in stage["schema_checks"]
             ]
@@ -708,6 +1070,8 @@ def run_stages(
                 "runner_ref": stage["runner_ref"],
                 "invocation_digest": canonical_digest(literal_invocation),
                 "exit_code": exit_code,
+                "stdout_sha256": hashlib.sha256(stdout).hexdigest(),
+                "stderr_sha256": hashlib.sha256(stderr).hexdigest(),
                 "schema_checks": schema_check_ids,
                 "result": "pass" if exit_code == 0 else "block",
             }
@@ -717,11 +1081,36 @@ def run_stages(
                     f"consumer stage failed with exit {exit_code}: {stage['stage_id']}"
                 )
                 break
+        blockers.extend(
+            validate_stage_outputs(manifest, repository_root, rehearsal_root)
+        )
+        tree_digest, output_file_count = output_tree_digest(rehearsal_root)
+        effect_events = []
+        if effect_log.is_file():
+            effect_events = [
+                line
+                for line in effect_log.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+        if effect_events:
+            blockers.append("E21_EFFECT_MONITOR observed a denied effect")
+        run_evidence = {
+            "stage_results": results,
+            "output_tree_digest": tree_digest,
+            "output_file_count": output_file_count,
+            "effect_monitor": {
+                "status": "pass" if not effect_events else "block",
+                "event_count": len(effect_events),
+                "network_policy": "deny",
+                "write_policy": "rehearsal-root-only",
+                "subprocess_policy": "exact-python-only",
+            },
+        }
     if len(results) != len(REQUIRED_STAGE_ORDER):
         blockers.append("consumer rehearsal stopped before complete closure")
     if projection["successor_execution_allowed"]:
         blockers.append("successor execution observed or allowed")
-    return results, blockers
+    return results, blockers, run_evidence
 
 
 def render_receipt(
@@ -737,12 +1126,16 @@ def render_receipt(
     blockers, _ = validate_manifest(manifest, repository_root)
     first_results: list[dict[str, Any]] = []
     run_digests: list[str] = []
+    first_run_evidence: dict[str, Any] = {}
     if not blockers:
         for run_index in range(2):
-            results, run_blockers = run_stages(manifest, repository_root)
+            results, run_blockers, run_evidence = run_stages(
+                manifest, repository_root
+            )
             if run_index == 0:
                 first_results = results
-            run_digests.append(canonical_digest(results))
+                first_run_evidence = run_evidence
+            run_digests.append(canonical_digest(run_evidence))
             blockers.extend(run_blockers)
             if run_blockers:
                 break
@@ -781,11 +1174,24 @@ def render_receipt(
         "write_observation": {
             "repository_writes": 0 if repository_before == repository_after else 1,
             "protected_writes": 0 if protected_before == protected_after else 1,
-            "external_effects_observed": False,
+            "external_effects_observed": bool(
+                first_run_evidence.get("effect_monitor", {}).get("event_count", 0)
+            ),
+            "effect_monitor": first_run_evidence.get(
+                "effect_monitor",
+                {
+                    "status": "block",
+                    "event_count": 0,
+                    "network_policy": "deny",
+                    "write_policy": "rehearsal-root-only",
+                    "subprocess_policy": "exact-python-only",
+                },
+            ),
         },
         "determinism": {
             "runs": 2,
             "run_result_digest": canonical_digest(run_digests),
+            "run_output_digests": run_digests,
             "byte_stable": byte_stable,
         },
         "authority_effect": "none",
@@ -810,25 +1216,79 @@ def verify_receipt_digest(document: dict[str, Any], label: str) -> list[str]:
 
 
 def validate_review(
-    review: dict[str, Any], manifest: dict[str, Any], receipt: dict[str, Any]
+    review: dict[str, Any],
+    manifest: dict[str, Any],
+    receipt: dict[str, Any],
+    repository_root: Path,
 ) -> list[str]:
     blockers = schema_errors(review, load_json(REVIEW_SCHEMA), "review")
     blockers.extend(verify_receipt_digest(review, "review receipt"))
     check_ids = [check.get("check_id") for check in review.get("checks", [])]
     if set(check_ids) != REQUIRED_REVIEW_CHECKS or len(check_ids) != len(set(check_ids)):
-        blockers.append("independent review does not contain exactly the required checks")
+        blockers.append("review attestation does not contain exactly the required checks")
     if any(check.get("result") != "pass" for check in review.get("checks", [])):
-        blockers.append("independent review contains a blocking check")
+        blockers.append("review attestation contains a blocking check")
     if review.get("result") != "pass":
-        blockers.append("independent review did not pass")
+        blockers.append("review attestation did not pass")
     if review.get("closure_graph_digest") != receipt.get("closure_graph_digest"):
         blockers.append("review closure graph digest mismatch")
     runner_role = manifest["normalized_execution_projection"]["runner"]["authority_role"]
     reviewer = review.get("reviewer", {})
-    if runner_role not in reviewer.get("independent_from", []):
-        blockers.append("reviewer does not declare independence from rehearsal owner")
+    if runner_role not in reviewer.get("declared_separation_from", []):
+        blockers.append("review attestor does not declare separation from rehearsal owner")
     if reviewer.get("identity") == runner_role:
         blockers.append("reviewer identity equals rehearsal owner")
+    attestation_ref = reviewer.get("attestation_ref")
+    if isinstance(attestation_ref, dict):
+        blockers.extend(
+            validate_exact_ref(repository_root, attestation_ref, "review attestation")
+        )
+        attestation_path, attestation_error = resolve_path(
+            repository_root, str(attestation_ref.get("path", ""))
+        )
+        if not attestation_error and attestation_path is not None and attestation_path.is_file():
+            try:
+                attestation = load_json(attestation_path)
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
+                blockers.append(f"review attestation invalid: {error}")
+            else:
+                expected_attestation = {
+                    "schema_version": "invoke.review-attestation.v1",
+                    "attestor_identity": reviewer.get("identity"),
+                    "attestor_role": reviewer.get("role"),
+                    "declared_separation_from": reviewer.get(
+                        "declared_separation_from"
+                    ),
+                    "manifest_ref": review.get("manifest_ref"),
+                    "closure_receipt_ref": review.get("closure_receipt_ref"),
+                    "review_method": "independent-agent-dispatch-declared",
+                    "result": "completed",
+                    "authority_effect": "none",
+                }
+                if any(
+                    attestation.get(key) != value
+                    for key, value in expected_attestation.items()
+                ):
+                    blockers.append("review attestation does not bind attestor and closure")
+                blockers.extend(
+                    verify_receipt_digest(attestation, "review attestation receipt")
+                )
+    manifest_ref = review.get("manifest_ref")
+    receipt_ref = review.get("closure_receipt_ref")
+    for check in review.get("checks", []):
+        evidence_refs = check.get("evidence_refs", [])
+        if not any(reference in (manifest_ref, receipt_ref) for reference in evidence_refs):
+            blockers.append(
+                f"review check lacks closure-bound evidence: {check.get('check_id')}"
+            )
+        for reference in evidence_refs:
+            blockers.extend(
+                validate_exact_ref(
+                    repository_root,
+                    reference,
+                    f"review evidence {check.get('check_id')}",
+                )
+            )
     return blockers
 
 
@@ -854,8 +1314,8 @@ def emit_request(
     blockers.extend(manifest_blockers)
     blockers.extend(schema_errors(receipt, load_json(RECEIPT_SCHEMA), "receipt"))
     blockers.extend(verify_receipt_digest(receipt, "closure receipt"))
-    blockers.extend(validate_review(review, manifest, receipt))
-    blockers.extend(validate_adoption_document(adoption))
+    blockers.extend(validate_review(review, manifest, receipt, repository_root))
+    blockers.extend(validate_adoption_document(adoption, repository_root))
     graph_digest = canonical_digest(manifest)
     if receipt.get("result") != "pass":
         blockers.append("closure receipt did not pass")
@@ -886,15 +1346,16 @@ def emit_request(
         "preacceptance_closure": {
             "manifest_ref": manifest_ref,
             "closure_receipt_ref": receipt_ref,
-            "independent_review_ref": review_ref,
+            "review_attestation_ref": review_ref,
             "adoption_ref": adoption_ref,
             "closure_graph_digest": graph_digest,
         },
         "emission_gate": "pass",
         "authority_effect": "none",
         "claim_ceiling": (
-            "Owner decision request only. Emission proves consumer closure and independent "
-            "review; it does not accept, apply, execute, publish, commit, push, deploy, or "
+            "Owner decision request only. Emission proves exact consumer-rehearsal "
+            "closure and binds a review attestation; it does not authenticate reviewer "
+            "independence, accept, apply, execute, publish, commit, push, deploy, or "
             "create external effects."
         ),
     }
@@ -931,7 +1392,7 @@ def validate_emitted_request(
         for name in (
             "manifest_ref",
             "closure_receipt_ref",
-            "independent_review_ref",
+            "review_attestation_ref",
             "adoption_ref",
         ):
             reference = closure.get(name)
@@ -949,7 +1410,7 @@ def validate_emitted_request(
         "base_request": base_reference,
         "manifest": closure["manifest_ref"],
         "receipt": closure["closure_receipt_ref"],
-        "review": closure["independent_review_ref"],
+        "review": closure["review_attestation_ref"],
         "adoption": closure["adoption_ref"],
     }
     for name, reference in references.items():

@@ -14,11 +14,109 @@ from pathlib import Path
 REQUIRED_SECTIONS = [
     "Context",
     "Purpose",
-    "Research Question (Can be refined)",
+    "Research Questions (Can be refined)",
     "Confirmed Product Constraints",
     "Current Evidence Baseline",
     "Known Gaps",
 ]
+
+FENCE_START = re.compile(r"^[ ]{0,3}(`{3,}|~{3,}).*$")
+PROGRAM_QUESTION = re.compile(r"^\*\*(RQ-00)\.\*\*\s+(.+\?)\s*$")
+SUPPORTING_QUESTION = re.compile(
+    r"^(\d+)\.\s+\*\*(RQ-(\d{2,}))\.\*\*\s+(.+\?)\s*$"
+)
+
+
+def mask_fenced_code_blocks(text: str) -> str:
+    """Replace fenced code with spaces while preserving offsets and line endings."""
+    output: list[str] = []
+    fence_character: str | None = None
+    fence_length = 0
+
+    for line in text.splitlines(keepends=True):
+        content = line.rstrip("\r\n")
+        ending = line[len(content) :]
+
+        if fence_character is None:
+            opening = FENCE_START.match(content)
+            if opening:
+                marker = opening.group(1)
+                fence_character = marker[0]
+                fence_length = len(marker)
+                output.append(" " * len(content) + ending)
+            else:
+                output.append(line)
+            continue
+
+        closing = re.match(
+            rf"^[ ]{{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*$",
+            content,
+        )
+        output.append(" " * len(content) + ending)
+        if closing:
+            fence_character = None
+            fence_length = 0
+
+    return "".join(output)
+
+
+def validate_research_questions(section: str) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    identifiers: list[str] = []
+    headings = list(re.finditer(r"^###\s+(.+?)\s*$", section, flags=re.MULTILINE))
+    titles = [heading.group(1) for heading in headings]
+
+    if titles.count("Program question") != 1:
+        errors.append("Research Questions must contain exactly one '### Program question'")
+    if not titles or titles[0] != "Program question":
+        errors.append("'### Program question' must be the first level-three heading")
+    if len(headings) < 2:
+        errors.append("Research Questions must contain at least one thematic heading")
+        return errors, identifiers
+    if len(set(titles[1:])) != len(titles[1:]):
+        errors.append("thematic headings in Research Questions must be unique")
+
+    program_region = section[headings[0].end() : headings[1].start()]
+    program_lines = [line.strip() for line in program_region.splitlines() if line.strip()]
+    if len(program_lines) != 1:
+        errors.append("Program question must contain exactly one non-empty question line")
+    else:
+        program_match = PROGRAM_QUESTION.fullmatch(program_lines[0])
+        if not program_match:
+            errors.append("Program question must use '**RQ-00.** <question ending in ?>'")
+        else:
+            identifiers.append(program_match.group(1))
+
+    supporting: list[tuple[int, str, int]] = []
+    for index, heading in enumerate(headings[1:], start=1):
+        start = heading.end()
+        end = headings[index + 1].start() if index + 1 < len(headings) else len(section)
+        lines = [line.strip() for line in section[start:end].splitlines() if line.strip()]
+        if not lines:
+            errors.append(f"thematic heading has no supporting questions: {titles[index]}")
+            continue
+        for line in lines:
+            match = SUPPORTING_QUESTION.fullmatch(line)
+            if not match:
+                errors.append(
+                    "supporting questions must use "
+                    "'<n>. **RQ-<nn>.** <question ending in ?>'"
+                )
+                continue
+            supporting.append((int(match.group(1)), match.group(2), int(match.group(3))))
+
+    for expected, (list_number, identifier, suffix) in enumerate(supporting, start=1):
+        if list_number != expected or suffix != expected:
+            errors.append(
+                "supporting question numbers and RQ suffixes must be continuous and matching"
+            )
+            break
+        identifiers.append(identifier)
+
+    if len(identifiers) != len(set(identifiers)):
+        errors.append("research question identifiers must be unique")
+
+    return errors, identifiers
 
 
 def resolve_artifact(raw: str) -> Path:
@@ -73,6 +171,7 @@ def validate(path: Path, repo_root: Path) -> dict[str, object]:
             "artifact": str(path),
             "sha256": None,
             "sections": [],
+            "question_ids": [],
             "errors": [*errors, "missing research-initial-definitions.md"],
         }
 
@@ -88,14 +187,16 @@ def validate(path: Path, repo_root: Path) -> dict[str, object]:
             "artifact": str(path),
             "sha256": None,
             "sections": [],
+            "question_ids": [],
             "errors": [*errors, f"cannot read UTF-8 artifact: {exc}"],
         }
 
-    h1 = re.findall(r"^#\s+(.+?)\s*$", text, flags=re.MULTILINE)
+    visible_text = mask_fenced_code_blocks(text)
+    h1 = re.findall(r"^#\s+(.+?)\s*$", visible_text, flags=re.MULTILINE)
     if len(h1) != 1 or not h1[0].startswith("Research Initial Definitions"):
         errors.append("expected one H1 beginning with 'Research Initial Definitions'")
 
-    matches = list(re.finditer(r"^##\s+(.+?)\s*$", text, flags=re.MULTILINE))
+    matches = list(re.finditer(r"^##\s+(.+?)\s*$", visible_text, flags=re.MULTILINE))
     sections = [match.group(1) for match in matches]
     if sections != REQUIRED_SECTIONS:
         errors.append(
@@ -106,9 +207,19 @@ def validate(path: Path, repo_root: Path) -> dict[str, object]:
     if sections == REQUIRED_SECTIONS:
         for index, match in enumerate(matches):
             start = match.end()
-            end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-            if not text[start:end].strip():
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(visible_text)
+            if not visible_text[start:end].strip():
                 errors.append(f"section is empty: {sections[index]}")
+
+    question_ids: list[str] = []
+    if sections == REQUIRED_SECTIONS:
+        question_index = REQUIRED_SECTIONS.index("Research Questions (Can be refined)")
+        question_start = matches[question_index].end()
+        question_end = matches[question_index + 1].start()
+        question_errors, question_ids = validate_research_questions(
+            visible_text[question_start:question_end]
+        )
+        errors.extend(question_errors)
 
     return {
         "status": "pass" if not errors else "block",
@@ -118,6 +229,7 @@ def validate(path: Path, repo_root: Path) -> dict[str, object]:
         "artifact": str(path),
         "sha256": hashlib.sha256(raw).hexdigest(),
         "sections": sections,
+        "question_ids": question_ids,
         "errors": errors,
     }
 

@@ -1,0 +1,99 @@
+{
+  "profile_id": "arcanum.unified-skill-model.research.v1",
+  "version": "1.0.0",
+  "repository_root": "C:/Users/victo/Arcanum",
+  "dispatch_types": {
+    "research": {
+      "status": "live",
+      "owner_capability": ".agents/skills/research/SKILL.md",
+      "preflights": [
+        {
+          "capability": ".agents/skills/research-initial-definitions/scripts/validate_initial_definitions.py",
+          "mode": "read-only",
+          "required": true
+        }
+      ]
+    }
+  },
+  "form_owner": {
+    "capability": "formulae/dispatch-spec/SKILL.md",
+    "schema": "formulae/dispatch-spec/dispatch.schema.json",
+    "schema_version": "0.3.0",
+    "validator_script": "formulae/dispatch-spec/scripts/validate-dispatch.py",
+    "confirmation_readiness_validator": "python research/unified-skill-model/dispatch-runtime.py readiness research/unified-skill-model/runtime-profile.json research/unified-skill-model/unified-skill-model-research.dispatch.json",
+    "registration_validator": "same composite readiness command before append",
+    "version_drift_policy": "warn-rematerialize-and-revalidate-before-confirmation",
+    "composite_admission": [
+      "form-and-version",
+      "live-type-owner-prerequisites",
+      "agent-eligibility-and-identity-uniqueness",
+      "final-approver-admission",
+      "digest-owned-tension-evidence",
+      "publication-boundary"
+    ]
+  },
+  "tension_gate": {
+    "capability": ".claude/skills/check-tension/SKILL.md",
+    "independent_checks": 2,
+    "input_boundary": "exact-sheet-bytes-and-rubric-only",
+    "protocol": "parallel-independent-verdicts-then-optional-frozen-report-comparison"
+  },
+  "material_confirmation": {
+    "projection_owner": "research/unified-skill-model/dispatch-runtime.py#material_projection",
+    "projection_artifact": "research/unified-skill-model/material-strategy.json",
+    "equivalence_validator": "dispatch-runtime.py readiness compares canonical projection bytes",
+    "material_fields": [
+      "objective-and-evidence-boundary",
+      "dispatch-type",
+      "lanes-agents-roles-angles-prompts-and-source-scope",
+      "expected-outputs-and-destination",
+      "dependency-topology-and-loop-ceilings",
+      "final-approver",
+      "publication-privacy-validation-and-stop-conditions"
+    ],
+    "mechanical_fields": [
+      "whitespace-and-key-order",
+      "machine-digests-and-evidence-handles",
+      "derived-counts-and-schema-defaults"
+    ]
+  },
+  "agent_pool": {
+    "source": "telemetry/agents/agent-pool.yaml",
+    "selection_rules": "Every identity must be unique and list the assigned role in role_fit."
+  },
+  "registration": {
+    "registrar": "python research/unified-skill-model/dispatch-runtime.py register|close",
+    "ledger": "research/unified-skill-model/dispatch-ledger.jsonl",
+    "dispatch_events": 1,
+    "close_events": 1
+  },
+  "dependency_semantics": {
+    "blocking": ["sequential", "zig-zag"],
+    "non_blocking": ["feedback"]
+  },
+  "final_approval": {
+    "default_owner": "parent",
+    "dedicated_auditor_allowed": false,
+    "eligibility_validator": "final_approver must equal parent"
+  },
+  "human_gate": {
+    "revision_authorization_is_confirmation": false,
+    "normal_confirmation_request_count": 1,
+    "confirmation_binds": "material-strategy-projection",
+    "byte_change_policy": "rerun-machine-gates",
+    "material_or_unknown_change_policy": "require-reconfirmation"
+  },
+  "result_hooks": {
+    "inventory": "none",
+    "observability": "local append-only dispatch ledger"
+  },
+  "publication": {
+    "public_paths": ["research/unified-skill-model/"],
+    "private_paths": [],
+    "forbidden_evidence": [
+      "credentials, tokens, personal data, or secrets",
+      "private unrelated workspace contents",
+      "machine-specific absolute paths in published findings"
+    ]
+  }
+}
