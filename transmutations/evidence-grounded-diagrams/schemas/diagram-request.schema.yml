@@ -1,0 +1,215 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://arcanum.local/evidence-grounded-diagrams/diagram-request.schema.yml"
+title: Evidence-Grounded Diagram Request
+description: Machine-validatable request shape. Semantic decisions remain governed by SKILL.md and references.
+type: object
+additionalProperties: false
+required:
+  - contract_version
+  - request_id
+  - mode
+  - reader_question
+  - resolution
+  - evidence_set
+  - publication
+  - output
+  - storage
+properties:
+  contract_version:
+    const: "2.0.0"
+  request_id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9._-]*$"
+  mode:
+    enum: [create, review, revise]
+  reader_question:
+    type: string
+    minLength: 1
+  resolution:
+    type: string
+    minLength: 1
+  evidence_set:
+    type: object
+    additionalProperties: false
+    required: [evidence_set_id, sources]
+    properties:
+      evidence_set_id:
+        type: string
+        pattern: "^[A-Za-z][A-Za-z0-9._-]*$"
+      snapshot_digest:
+        type: [string, "null"]
+        pattern: "^[a-f0-9]{64}$"
+      sources:
+        type: array
+        items:
+          $ref: "#/$defs/source"
+  publication:
+    type: object
+    additionalProperties: false
+    required: [destination, official, requested_readiness]
+    properties:
+      destination:
+        type: [string, "null"]
+      official:
+        type: boolean
+      requested_readiness:
+        enum: [draft, ready]
+  output:
+    type: object
+    additionalProperties: false
+    required: [representation_format, target_renderer, result_encoding]
+    properties:
+      representation_format:
+        type: [string, "null"]
+      target_renderer:
+        type: [string, "null"]
+      result_encoding:
+        enum: [markdown, yaml, json]
+  storage:
+    type: object
+    additionalProperties: false
+    required: [output_root, allow_draft_fallback]
+    properties:
+      output_root:
+        type: [string, "null"]
+      allow_draft_fallback:
+        type: boolean
+  target:
+    $ref: "#/$defs/target"
+  mutation_authorized:
+    type: boolean
+    default: false
+allOf:
+  - if:
+      properties:
+        mode:
+          enum: [review, revise]
+      required: [mode]
+    then:
+      required: [target]
+  - if:
+      properties:
+        mode:
+          const: revise
+      required: [mode]
+    then:
+      required: [mutation_authorized]
+      properties:
+        mutation_authorized:
+          const: true
+        target:
+          $ref: "#/$defs/bundleTarget"
+  - if:
+      properties:
+        mode:
+          const: review
+      required: [mode]
+    then:
+      properties:
+        mutation_authorized:
+          const: false
+  - if:
+      properties:
+        publication:
+          properties:
+            official:
+              const: true
+          required: [official]
+      required: [publication]
+    then:
+      properties:
+        storage:
+          properties:
+            output_root:
+              type: string
+              minLength: 1
+          required: [output_root]
+$defs:
+  locator:
+    type: object
+    additionalProperties: false
+    required: [locator_id, selector]
+    properties:
+      locator_id:
+        type: string
+        pattern: "^[A-Za-z][A-Za-z0-9._-]*$"
+      selector:
+        type: string
+        minLength: 1
+      excerpt:
+        type: string
+  source:
+    type: object
+    additionalProperties: false
+    required: [source_id, source_type, location, authority_role, locators]
+    properties:
+      source_id:
+        type: string
+        pattern: "^[A-Za-z][A-Za-z0-9._-]*$"
+      source_type:
+        enum: [file, url, document, code, observation, user-provided, other]
+      location:
+        type: string
+        minLength: 1
+      authority_role:
+        enum: [governing, primary, secondary, observational, unknown]
+      content_digest:
+        type: [string, "null"]
+        pattern: "^[a-f0-9]{64}$"
+      locators:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/locator"
+  target:
+    oneOf:
+      - $ref: "#/$defs/bundleTarget"
+      - $ref: "#/$defs/sourceTarget"
+  bundleTarget:
+    type: object
+    additionalProperties: false
+    required: [kind, diagram_id, revision, bundle_path, manifest_digest]
+    properties:
+      kind:
+        const: bundle
+      diagram_id:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9-]*$"
+      revision:
+        type: string
+        pattern: "^r[0-9]{4}$"
+      bundle_path:
+        type: string
+        minLength: 1
+      manifest_digest:
+        type: [string, "null"]
+        pattern: "^[a-f0-9]{64}$"
+  sourceTarget:
+    type: object
+    additionalProperties: false
+    required: [kind, source_path, inline_content, normalization, sha256]
+    properties:
+      kind:
+        const: source
+      source_path:
+        type: [string, "null"]
+      inline_content:
+        type: [string, "null"]
+      normalization:
+        const: UTF-8, LF line endings, no trailing newline
+      sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+    oneOf:
+      - properties:
+          source_path:
+            type: string
+            minLength: 1
+          inline_content:
+            type: "null"
+      - properties:
+          source_path:
+            type: "null"
+          inline_content:
+            type: string
+            minLength: 1

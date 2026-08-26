@@ -1,0 +1,79 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://arcanum.local/evidence-grounded-diagrams/diagram-manual-attestation.schema.yml"
+title: Evidence-Grounded Diagram Manual Attestation
+type: object
+additionalProperties: false
+required:
+  - contract_version
+  - attestation_id
+  - assessed_at
+  - assessor
+  - observed_manifest_sha256
+  - observed_members
+  - checks
+properties:
+  contract_version:
+    const: "1.0.0"
+  attestation_id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9._-]*$"
+  assessed_at:
+    type: string
+    format: date-time
+  assessor:
+    type: object
+    additionalProperties: false
+    required: [identity, kind, provenance]
+    properties:
+      identity:
+        type: string
+        minLength: 1
+      kind:
+        enum: [human, tool, governed-review]
+      provenance:
+        type: string
+        minLength: 1
+  observed_manifest_sha256:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  observed_members:
+    type: array
+    minItems: 4
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required: [path, sha256]
+      properties:
+        path:
+          type: string
+          minLength: 1
+        sha256:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+  checks:
+    type: object
+    additionalProperties: false
+    required: [evidence_adequacy, source_validation, render_inspection, semantic_reconciliation, accessibility]
+    properties:
+      evidence_adequacy: {$ref: "#/$defs/attestedCheck"}
+      source_validation: {$ref: "#/$defs/attestedCheck"}
+      render_inspection: {$ref: "#/$defs/attestedCheck"}
+      semantic_reconciliation: {$ref: "#/$defs/attestedCheck"}
+      accessibility: {$ref: "#/$defs/attestedCheck"}
+$defs:
+  attestedCheck:
+    type: object
+    additionalProperties: false
+    required: [status, evidence, limitations]
+    properties:
+      status:
+        enum: [PASS, FAIL, N/A]
+      evidence:
+        type: string
+        minLength: 1
+      limitations:
+        type: array
+        items:
+          type: string
+          minLength: 1

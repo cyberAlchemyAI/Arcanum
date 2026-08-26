@@ -1,0 +1,54 @@
+contract_version: "2.0.0"
+diagram_id: example-diagram
+revision: r0001
+request_binding:
+  request_id: request.example
+  evidence_set_id: evidence.example
+  request_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  evidence_snapshot_digest: null
+reader_question: What exact structural relation should the reader understand?
+caption: Short reader-facing summary.
+rationale: Why a diagram and this family were chosen.
+scope:
+  coverage: State what is represented.
+  completeness: partial
+  exclusions:
+    - State a material exclusion.
+sources:
+  - source_id: SRC-1
+    source_type: file
+    location: path/to/source
+    authority_role: primary
+    content_digest: null
+    locators:
+      - locator_id: LOC-1
+        selector: lines 1-10
+        excerpt: Optional short excerpt.
+claims:
+  - claim_id: C1
+    exact_meaning: A typed relation supported by the locator.
+    relation_kind: flow
+    status: evidence-backed
+    support:
+      - source_id: SRC-1
+        locator_id: LOC-1
+        support_kind: direct
+    qualification: Limited to the declared scope.
+    load_bearing: true
+    included: true
+elements:
+  - element_id: E1
+    element_type: edge
+    label: Relation label
+    selector: source element selector
+    claim_ids: [C1]
+encodings:
+  - encoding_id: ENC1
+    mark: solid directed arrow
+    meaning: evidence-backed flow
+    element_ids: [E1]
+    claim_ids: [C1]
+    redundant_text_channel: Arrow label and legend text.
+textual_equivalent_coverage: [C1]
+aggregate_status: evidence-backed
+residue: []

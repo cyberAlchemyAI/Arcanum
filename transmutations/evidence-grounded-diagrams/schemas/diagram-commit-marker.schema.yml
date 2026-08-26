@@ -1,0 +1,31 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://arcanum.local/evidence-grounded-diagrams/diagram-commit-marker.schema.yml"
+title: Evidence-Grounded Diagram Persistence Commit Marker
+description: External transaction record that permanently reserves one successfully persisted revision identity.
+type: object
+additionalProperties: false
+required:
+  - contract_version
+  - diagram_id
+  - revision
+  - bundle_path
+  - manifest_sha256
+  - committed_at
+properties:
+  contract_version:
+    const: "1.0.0"
+  diagram_id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9-]*$"
+  revision:
+    type: string
+    pattern: "^r[0-9]{4}$"
+  bundle_path:
+    type: string
+    minLength: 1
+  manifest_sha256:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  committed_at:
+    type: string
+    format: date-time

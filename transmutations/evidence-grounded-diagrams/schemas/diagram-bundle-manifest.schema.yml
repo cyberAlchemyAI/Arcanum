@@ -1,0 +1,296 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://arcanum.local/evidence-grounded-diagrams/diagram-bundle-manifest.schema.yml"
+title: Evidence-Grounded Diagram Bundle Manifest
+type: object
+additionalProperties: false
+required:
+  - contract_version
+  - diagram_id
+  - revision
+  - owner
+  - request_binding
+  - reader_question
+  - created_at
+  - lifecycle_status
+  - retention_class
+  - promotion_status
+  - promotion_evidence
+  - aggregate_status
+  - tags
+  - members
+  - persistence
+  - publication
+properties:
+  contract_version:
+    const: "2.0.0"
+  diagram_id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9-]*$"
+  revision:
+    type: string
+    pattern: "^r[0-9]{4}$"
+  owner:
+    type: string
+    minLength: 1
+  request_binding:
+    $ref: "#/$defs/requestBinding"
+  reader_question:
+    type: string
+    minLength: 1
+  created_at:
+    type: string
+    format: date-time
+  lifecycle_status:
+    enum: [draft, validated, published, rejected, superseded]
+  retention_class:
+    enum: [generated, durable-evidence, source, local-runtime]
+  promotion_status:
+    enum: [not-promoted, promoted]
+  promotion_evidence:
+    oneOf:
+      - type: "null"
+      - $ref: "#/$defs/promotionEvidence"
+  aggregate_status:
+    enum: [evidence-backed, inferred, hypothesis, mixed, unknown, not-applicable]
+  supersedes:
+    oneOf:
+      - type: "null"
+      - type: object
+        additionalProperties: false
+        required: [revision, manifest_digest]
+        properties:
+          revision:
+            type: string
+            pattern: "^r[0-9]{4}$"
+          manifest_digest:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+  tags:
+    type: object
+    additionalProperties: false
+    required: [diagram_kind, lifecycle, epistemic, scope, topics, extensions]
+    properties:
+      diagram_kind:
+        enum: [flowchart, state-transition, sequence, dependency-graph, dag, tree, containment, timeline, typed-relation, causal]
+      lifecycle:
+        enum: [draft, validated, published, rejected, superseded]
+      epistemic:
+        enum: [evidence-backed, inferred, hypothesis, mixed, unknown, not-applicable]
+      scope:
+        enum: [complete, partial]
+      topics:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9.-]*$"
+      extensions:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9.-]*:[a-z0-9][a-z0-9.-]*$"
+  members:
+    type: object
+    additionalProperties: false
+    required: [request, source, semantic_model, textual_equivalent, validation_receipt]
+    properties:
+      request:
+        $ref: "#/$defs/member"
+      source:
+        $ref: "#/$defs/member"
+      render:
+        oneOf:
+          - type: "null"
+          - $ref: "#/$defs/member"
+      semantic_model:
+        $ref: "#/$defs/member"
+      textual_equivalent:
+        $ref: "#/$defs/member"
+      validation_receipt:
+        $ref: "#/$defs/receiptMember"
+  renderer:
+    oneOf:
+      - type: "null"
+      - type: object
+        additionalProperties: false
+        required: [name, version, adapter]
+        properties:
+          name:
+            type: string
+            minLength: 1
+          version:
+            type: [string, "null"]
+          adapter:
+            type: string
+            minLength: 1
+  persistence:
+    type: object
+    additionalProperties: false
+    required: [state, output_root, bundle_path, index_path]
+    properties:
+      state:
+        const: saved
+      output_root:
+        type: string
+        minLength: 1
+      bundle_path:
+        type: string
+        minLength: 1
+      index_path:
+        type: string
+        minLength: 1
+  publication:
+    type: object
+    additionalProperties: false
+    required: [destination, official, readiness]
+    properties:
+      destination:
+        type: [string, "null"]
+      official:
+        type: boolean
+      readiness:
+        enum: [draft, ready, blocked]
+allOf:
+  - if:
+      properties:
+        promotion_status:
+          const: promoted
+      required: [promotion_status]
+    then:
+      properties:
+        promotion_evidence:
+          $ref: "#/$defs/promotionEvidence"
+      required: [promotion_evidence]
+    else:
+      properties:
+        promotion_evidence:
+          type: "null"
+  - if:
+      properties:
+        lifecycle_status:
+          const: published
+      required: [lifecycle_status]
+    then:
+      properties:
+        publication:
+          properties:
+            readiness:
+              const: ready
+          required: [readiness]
+        members:
+          required: [render]
+          properties:
+            render:
+              $ref: "#/$defs/member"
+  - if:
+      properties:
+        publication:
+          properties:
+            official:
+              const: true
+            readiness:
+              const: ready
+          required: [official, readiness]
+      required: [publication]
+    then:
+      properties:
+        members:
+          required: [render]
+          properties:
+            render:
+              $ref: "#/$defs/member"
+$defs:
+  promotionEvidence:
+    type: object
+    additionalProperties: false
+    required: [decision_id, decided_at, subject, authority, attestation]
+    properties:
+      decision_id:
+        type: string
+        minLength: 1
+      decided_at:
+        type: string
+        format: date-time
+      subject:
+        type: object
+        additionalProperties: false
+        required: [diagram_id, revision, pre_promotion_manifest_sha256]
+        properties:
+          diagram_id:
+            type: string
+            pattern: "^[a-z0-9][a-z0-9-]*$"
+          revision:
+            type: string
+            pattern: "^r[0-9]{4}$"
+          pre_promotion_manifest_sha256:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+      authority:
+        type: object
+        additionalProperties: false
+        required: [identity, basis]
+        properties:
+          identity:
+            type: string
+            minLength: 1
+          basis:
+            type: string
+            minLength: 1
+      attestation:
+        type: object
+        additionalProperties: false
+        required: [kind, path, media_type, sha256]
+        properties:
+          kind:
+            const: external-attestation
+          path:
+            type: string
+            minLength: 1
+          media_type:
+            type: string
+            minLength: 1
+          sha256:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+  requestBinding:
+    type: object
+    additionalProperties: false
+    required: [request_id, evidence_set_id, request_sha256, evidence_snapshot_digest]
+    properties:
+      request_id:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9._-]*$"
+      evidence_set_id:
+        type: string
+        pattern: "^[A-Za-z][A-Za-z0-9._-]*$"
+      request_sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+      evidence_snapshot_digest:
+        type: [string, "null"]
+        pattern: "^[a-f0-9]{64}$"
+  member:
+    type: object
+    additionalProperties: false
+    required: [path, media_type, sha256]
+    properties:
+      path:
+        type: string
+        minLength: 1
+      media_type:
+        type: string
+        minLength: 1
+      sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+  receiptMember:
+    type: object
+    additionalProperties: false
+    required: [path, media_type]
+    properties:
+      path:
+        type: string
+        minLength: 1
+      media_type:
+        const: application/yaml
