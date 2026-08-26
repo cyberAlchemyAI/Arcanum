@@ -1,26 +1,45 @@
-# Arcanum Manual — Craft View
+# Craft Workspace View
 
 > Human view of [`.craft/ledger.yml`](.craft/ledger.yml). The ledger is the source of truth;
 > this file is a linked rendering only.
 
-- **Project:** Arcanum Manual — Research Strategy and Authoring
-- **Root context:** `CTX-ARCANUM-MANUAL-ROOT`
-- **Stage / gate:** validate / **pass**
+- **Governed contexts:** Arcanum Manual; Craft ledger-integrity research; Arcanum composition analysis;
+  Lens and resolution routing
+- **Root contexts:** `CTX-ARCANUM-MANUAL-ROOT`, `CTX-CRAFT-LEDGER-INTEGRITY`,
+  `CTX-ARCANUM-COMPOSITION-ANALYSIS`, `CTX-LENS-RESOLUTION-ROUTING`
+- **Stage / gate:** manual `validate / pass`; ledger-integrity research `plan / flag`;
+  composition analysis `execute / flag`; routing `review-audit / flag`
 - **Source of truth:** [`.craft/ledger.yml`](.craft/ledger.yml)
 
 ## Quick links
 
-- **Next move:** Operator review of [ARCANUM-MANUAL.md](development/user-guide/ARCANUM-MANUAL.md);
-  optionally render an HTML/PDF companion, then commit inside the arcanum submodule before bumping
-  the parent gitlink.
+- **Next moves:** review [ARCANUM-MANUAL.md](development/user-guide/ARCANUM-MANUAL.md); for ledger
+  integrity, explicitly confirm and execute the prepared governed research dispatch, then produce
+  `research.md` and `findings.md` before proposing canonical Craft changes; for composition, expand
+  the analysis from the accepted per-RQ findings while preserving the four unresolved boundaries,
+  then run a separate adversarial review; for routing, decide whether to repair the four
+  platform-neutral MAJOR findings while preserving the explicit Windows-repair deferral.
 - **Blocking decisions:** none
 - **Active blockers:** none
-- **Active gaps:** none (GAP-AUDIENCE-TAXONOMY-001 resolved)
+- **Active gaps:** `GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001` (research prepared but not executed);
+  `GAP-ARCANUM-COMPOSITION-RESIDUE-001` (four research boundaries remain unresolved);
+  `GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001` (four verified platform-neutral findings remain open)
 - **Deliverables:** [**ARCANUM-MANUAL.md**](development/user-guide/ARCANUM-MANUAL.md) (pass) ·
   [validation evidence](development/user-guide/ARCANUM-MANUAL.validation.md) ·
   [surface x-ray HTML](development/user-guide/arcanum-surface-xray.html) ·
   [distill notes/corpus](.craft/artifacts/arcanum-manual-distill-notes.md) ·
-  [research dispatch](.craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json)
+  [manual research dispatch](.craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json) ·
+  [ledger-integrity dispatch](research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json) ·
+  [composition analysis](docs/analysis/arcanum-composition-analysis/analysis.md) ·
+  [composition research baseline](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research-initial-definitions.md) ·
+  [composition baseline review](docs/analysis/arcanum-composition-analysis/review.md) ·
+  [composition research dispatch](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/arcanum-composition-research.dispatch.json) ·
+  [research returns](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research.md) ·
+  [accepted findings](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md) ·
+  [dispatch lifecycle ledger](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl)
+
+- **Routing evidence:** [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md)
+  · [closing session](sessions/2026-08-25-2130-lens-resolution-routing.md)
 
 ## Purpose
 
@@ -53,12 +72,61 @@ by parent synthesis → distill → whisper authoring → source validation (**p
 
 ### <a id="context-ctx-arcanum-manual-root"></a>CTX-ARCANUM-MANUAL-ROOT — Arcanum Manual
 
-- Stage / gate: design / flag
-- Next move: present the validated dispatch + subagent strategy for approval, then execute the
-  route to produce [ARCANUM-MANUAL.md](development/user-guide/ARCANUM-MANUAL.md).
+- Stage / gate: validate / pass
+- Next move: operator review of [ARCANUM-MANUAL.md](development/user-guide/ARCANUM-MANUAL.md),
+  with an optional HTML/PDF companion, followed by the submodule commit and parent gitlink bump.
 - Owns: [ledger](.craft/ledger.yml), [this view](CRAFT.md),
   [research dispatch](.craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json),
-  [user-guide base](development/user-guide/), [final manual (planned)](development/user-guide/ARCANUM-MANUAL.md)
+  [user-guide base](development/user-guide/), [final manual](development/user-guide/ARCANUM-MANUAL.md)
+
+### <a id="context-ctx-craft-ledger-integrity"></a>CTX-CRAFT-LEDGER-INTEGRITY — Craft ledger-integrity research
+
+- Stage / gate: plan / **flag**
+- Next move: obtain explicit operator confirmation; execute the prepared internal/external governed
+  dispatch; produce `research.md` and `findings.md`; only then evaluate contract, validator, runtime,
+  migration, or operator-discipline changes.
+- Owns: [prepared dispatch](research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json)
+  and [closing session](sessions/2026-08-25-1645-craft-ledger-integrity-review-and-dispatch.md).
+- Evidence boundary: route validation, material readiness, and two tension checks passed, but no
+  research agents were launched and no dispatch event or research findings exist.
+
+### <a id="context-ctx-arcanum-composition-analysis"></a>CTX-ARCANUM-COMPOSITION-ANALYSIS — Arcanum composition analysis
+
+- Stage / gate: execute / **flag**
+- Next move: expand [analysis.md](docs/analysis/arcanum-composition-analysis/analysis.md) from the
+  accepted per-RQ findings while preserving the four unresolved boundaries, then run a separate
+  adversarial review of the completed reader-facing analysis.
+- Owns: [analysis](docs/analysis/arcanum-composition-analysis/analysis.md),
+  [research initial definitions](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research-initial-definitions.md),
+  [review](docs/analysis/arcanum-composition-analysis/review.md),
+  [executed dispatch](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/arcanum-composition-research.dispatch.json),
+  [research returns](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research.md),
+  [accepted findings](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md),
+  [dispatch lifecycle ledger](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl), and
+  [research closeout](sessions/2026-08-25-2056-arcanum-composition-research.md).
+- Evidence boundary: the confirmed dispatch is closed; findings contain one evidence-bounded row
+  for each RQ, with seven answered and four unresolved. Two skeptics passed the final revision and
+  the independent auditor returned `ACCEPT` after resolving all 86 cited locators. The introduction
+  remains preserved and the reader-facing analysis has not yet been expanded from the findings.
+
+### <a id="context-ctx-lens-resolution-routing"></a>CTX-LENS-RESOLUTION-ROUTING — Lens and resolution routing
+
+- Stage / gate: review-audit / **flag**
+- Next move: obtain an operator decision on whether to repair the four platform-neutral `MAJOR`
+  findings; preserve the installed trio and do not alter Windows-specific failure paths meanwhile.
+- Owns: [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md)
+  and [closing session](sessions/2026-08-25-2130-lens-resolution-routing.md).
+- Evidence boundary: the architecture, installation, dependency closure, semantic validators, and
+  focused runtime tests passed. The review still returned `FIX` because promotion/evidence and
+  authoring-governance findings remain. Windows-specific repairs were explicitly deferred.
+
+## Decisions
+
+- **<a id="decision-dec-routing-windows-portability-001"></a>DEC-ROUTING-WINDOWS-PORTABILITY-001**
+  (**closed / deferral**): do not repair Windows-specific
+  fixture, line-ending, WSL/bash, or PowerShell paths in this session. This does not convert those
+  paths to pass; it records their accepted residue and prevents the closeout from implying they
+  were fixed.
 
 ## Definitions (candidate, local)
 
@@ -69,6 +137,20 @@ by parent synthesis → distill → whisper authoring → source validation (**p
 
 ## Gaps
 
+- **<a id="gap-gap-arcanum-composition-research-001"></a>GAP-ARCANUM-COMPOSITION-RESEARCH-001**
+  (**resolved**): the governed dispatch was confirmed, executed, closed, and accepted. Evidence:
+  [findings](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md) and
+  [dispatch lifecycle ledger](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl).
+- **<a id="gap-gap-arcanum-composition-residue-001"></a>GAP-ARCANUM-COMPOSITION-RESIDUE-001**
+  (**active / flag**): generic Craft write-back coordination and adaptation, same-concern source
+  precedence, and product-authorized improvement classification remain unresolved. These are
+  explicit evidence boundaries rather than audit failures. Evidence:
+  [per-RQ findings](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md).
+- **<a id="gap-gap-craft-ledger-integrity-research-001"></a>GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001**
+  (**active / flag**): the reviewed ledger-integrity investigation is ready to dispatch but remains
+  unexecuted. Causes, prevalence, responsibility boundaries, and minimum integrity properties are
+  still unresolved. Evidence: [session record](sessions/2026-08-25-1645-craft-ledger-integrity-review-and-dispatch.md);
+  route: [prepared dispatch](research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json).
 - **<a id="gap-gap-audience-taxonomy-001"></a>GAP-AUDIENCE-TAXONOMY-001** (**resolved**): "How each
   user can leverage it" needed an explicit reader/persona taxonomy. Resolved in the distill step — a
   7-persona taxonomy grounded in README Start-Here, `FRIEND-INSTALL-TUTORIAL.md`, the user-guide
@@ -76,10 +158,26 @@ by parent synthesis → distill → whisper authoring → source validation (**p
   [distill notes](.craft/artifacts/arcanum-manual-distill-notes.md) and
   [manual Part 3](development/user-guide/ARCANUM-MANUAL.md).
 
+- **<a id="gap-gap-routing-platform-neutral-review-001"></a>GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001**
+  (**active / flag**): current-byte forward evidence,
+  durable raw forward artifacts, canonical lifecycle enforcement, and mandatory ownership/input
+  authoring surfaces remain open. Evidence:
+  [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md).
+
 ## Boundary check
 
-Craft governed local state and residue; `dispatch-spec` validated route shape only. The route was
+Craft governed local state and residue; `dispatch-spec` validated route shape only. The manual route was
 executed as documentation work: it created a manual, an x-ray surface, distill notes, and validation
 evidence under `development/user-guide/` and `.craft/`. **No sigil, spell, definition, registry, or
 other canonical Arcanum surface was created, mutated, or promoted.** Subagents were read-only and
-gathered/distilled only; the parent owned synthesis and authoring.
+gathered/distilled only; the parent owned synthesis and authoring. The ledger-integrity route is a
+separate open context and has not been executed; recording it here does not authorize a canonical
+Craft change or repair the `spells/goal` witness. The composition-analysis research was executed as
+a repository-only, evidence-producing route and did not mutate capability owners. Its findings do
+not establish a universal runtime integration or authorize canonical changes. The repository has
+an artifact constitution, validators, flow-local ledgers, and `.craft/artifacts/`, but no packaged
+central service that manages retention, indexing, compaction, or cleanup for every generated JSON.
+The lens/resolution routing work added canonical capability packages and repository skill surfaces
+under explicit user authorization. Its Windows-specific failures remain intentionally unrepaired;
+the platform-neutral review findings remain visible as an active Craft gap rather than being
+silently converted to pass.

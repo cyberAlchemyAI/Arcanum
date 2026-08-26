@@ -1,0 +1,34 @@
+# Review — Craft ledger-integrity research baseline
+
+## Coverage
+
+| attacker | lens | targets checked | findings raised | zero-findings defense |
+| --- | --- | --- | ---: | --- |
+| `root` | fidelity/governance | Entire `research-initial-definitions.md`, checked against Craft authority, source-of-truth boundaries, and the initial-definitions contract | 2 | Not applicable; findings 1 and 3 survived. |
+| `root` | mechanics/correctness | Entire baseline, schema entrypoint and index/core contracts, the `spells/goal` witness, and the adjacent-workspace handoff | 2 | Not applicable; findings 1 and 2 survived. |
+| `root` | ownership/reference integrity and operability | Entire baseline, with emphasis on evidence locators, authority status, and reproducibility by a fresh researcher | 2 | Not applicable; findings 2 and 3 survived. |
+| `verify_review_findings` | independent skeptical refutation | All three provisional findings against the literal target and cited authorities | 0 new; 3 verified | The verifier's task was to refute rather than expand the review. It found no refutation and narrowed finding 1 to avoid overstating the embedded-index contract. |
+
+## Findings
+
+| # | artifact and locator | evidence | severity | consequence | proposed fix |
+| ---: | --- | --- | --- | --- | --- |
+| 1 | `research-initial-definitions.md:5-16, 33-34, 41-42, 49-50, 68-71, 77-81, 98-112` | The baseline alternates among “machine indexes,” “derived indexes,” “generated indexes,” and “required indexes” without consistently naming the surface. The canonical index contract distinguishes embedded `.craft/ledger.yml#indexes` from generated `.craft/index.json` (`index.schema.yml:12-24, 26-80`). The formal `active_blockers` filter appears in the generated-index lookup groups (`index.schema.yml:111-114`), while the observed witness is the embedded `indexes.active_blockers` (`spells/goal/.craft/ledger.yml:32-35`). The witness also contains the separate, unequivocal enum violation `status: closed` (`spells/goal/.craft/ledger.yml:159-170`; `ledger-core.schema.yml:80-89`). | **MAJOR** | The research can assign generated-index freshness/hash obligations to embedded indexes, or present embedded-index drift as a fully formalized violation without first establishing the shared invariant. That would distort both the transition inventory and the Craft responsibility boundary. | Define three surfaces once: embedded indexes in `.craft/ledger.yml#indexes`, generated machine index in `.craft/index.json`, and human view in `CRAFT.md`. Use those names in the question and gaps. Split the witness into (a) the noncanonical typed-item lifecycle value and (b) the embedded-index divergence, naming the exact contractual basis and any current ambiguity for each. |
+| 2 | `research-initial-definitions.md:59-86` | Under “Current Evidence Baseline,” the document says the goal ledger “currently records” the witness (`:77-82`) but records no `observed_at`, repository revision, dirty-state note, stable selector, schema version, or content hash. At review time the baseline and its session record were untracked, while repository `HEAD` was `b07a03d95e4c8bd4d98c05a8eb2916ad7f8341d9`. The structural validator passes and reports target SHA-256 `b6051e641d6657c2754eb173b1eaa3bede856cdb30aadb39cdcfebadf9d680b9`, but that does not freeze the mutable authorities or witness cited by the baseline. | **MAJOR** | If the ledger is corrected or the schemas evolve, a later researcher cannot distinguish the historical observation that justified this scope from a stale claim about the current tree. This is load-bearing for research specifically about integrity and currency. | Inside the existing `Current Evidence Baseline` section, add a compact evidence-snapshot table containing observation time, repository commit, dirty status, path, row ID or selector, schema version, and blob/content hash for the witness and governing contracts. Preserve the six-section initial-definitions shape; do not add a method or seventh level-two section. |
+| 3 | `research-initial-definitions.md:83-86` | The statement “Existing Craft development artifacts discuss receipt application, deterministic reindexing, row-update planning, projections, and validation reports” names no files and does not distinguish canonical deferrals from historical or candidate-local proposals. The one named handoff supports receipt application and reindexing (`development/craft/CRAFT-HANDOFF-AUTO-ARTIFACT-LIFECYCLE-2026-06-13.md:30-44`), but does not bound the remaining proposal corpus. Craft authority explicitly classifies `development/craft/` as historical working material rather than runtime contract (`ARCHITECTURE.md:39-53`), while canonical architecture only records the relevant schema layers as deferred (`ARCHITECTURE.md:168-180, 245-260`). | **MAJOR** | A fresh researcher cannot reproduce the baseline or know which proposal set must be tested. The collective reference permits accidental cherry-picking and can blur candidate material into canonical behavior. | Replace the collective reference with a finite list of exact repository-relative paths, labeling each `canonical deferral`, `historical proposal`, or `candidate-local`. State whether the list is the exhaustive initial corpus or illustrative only; remove any topic that lacks an exact source. |
+
+## Artifact verdicts
+
+| artifact | KEEP or FIX | rationale |
+| --- | --- | --- |
+| `research/craft-ledger-integrity/research-initial-definitions.md` | **FIX** | It is structurally valid and correctly preserves a diagnostic, non-implementation boundary, but three load-bearing ambiguities in index semantics, evidence snapshotting, and proposal-corpus references remain. |
+
+## Change requests
+
+1. Separate embedded indexes, generated machine index, and human view throughout the baseline, and restate the goal-ledger witness without promoting the embedded-index filter to a stronger formal guarantee than the current contract supports.
+2. Anchor the current evidence to a reproducible repository snapshot inside the existing evidence section.
+3. Replace the generic development-artifact claim with exact paths and explicit authority status.
+
+## Evidence boundary
+
+The review read the entire target; the initial-definitions and review contracts; the full Craft architecture baseline; the relevant source/index schema contracts and compatibility entrypoint; the literal `spells/goal` witness; the named adjacent-workspace handoff; and the session as context only. The mandatory initial-definitions validator passed with no structural errors. The review did not inspect private adjacent-workspace evidence, did not establish repository-wide prevalence, did not exhaustively review every Craft development proposal, and cannot assess research findings because no `findings.md` exists. No target artifact was modified.

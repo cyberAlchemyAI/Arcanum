@@ -1,0 +1,193 @@
+{
+  "strategy_id": "craft-ledger-integrity-research-v1",
+  "objective": "Determine where Craft ledger state can diverge, which divergences belong to Craft, and which minimum integrity properties are supported by repository evidence and transferable external precedent.",
+  "evidence_boundary": [
+    "Repository claims require exact repository-relative artifact and line citations.",
+    "External claims require retrieved primary, original, standards-body, or official documentation sources.",
+    "Internal and external evidence remain separate until synthesis.",
+    "Private adjacent-workspace evidence is excluded; only its public historical handoff may be cited.",
+    "No source artifact, Craft contract, ledger, schema, example, or runtime surface may be modified."
+  ],
+  "dispatch_type": "research",
+  "working_folder": "research/craft-ledger-integrity/",
+  "anti_bias_global": "Local-witness minimalism is tensioned against transferable external precedent, then both are independently attacked for source applicability and non-vacuity.",
+  "agents": [
+    {
+      "agent_id": "repo-transition-cartographer",
+      "agent_name": "Hewitt, Carl",
+      "role": "explorer",
+      "angle": "Repository-first transition and mutation-entry inventory, distinguishing implemented, documented, deferred, and historical behavior.",
+      "prompt": "Work read-only in the Arcanum repository. Read the validated baseline first. Discover all live Craft ledgers, canonical operations, mutation entry points, validators, schemas, views, handoffs, receipts, proposals, and runtime consumers needed to map transitions. Build a transition-to-surface-to-invariant matrix with exact repository-relative file:line citations. Keep unequivocal schema violations distinct from semantic drift and from missing enforcement. Do not use the web, edit files, or choose a solution.",
+      "source_scope": ["repository only", "canonical Craft package", "live Craft ledgers", "bounded development corpus named by the baseline", "relevant validators and runtime consumers"],
+      "expected_output": "Citable repository transition matrix, witnessed divergences, implementation-status labels, and unresolved internal gaps.",
+      "mutation_policy": "read-only"
+    },
+    {
+      "agent_id": "external-integrity-precedent",
+      "agent_name": "Peirce, Charles Sanders",
+      "role": "explorer",
+      "angle": "Primary-source precedent for integrity of authoritative state, materialized views, reconciliation, idempotency, failure, and recovery.",
+      "prompt": "Search the web for primary, original, standards-body, or official technical sources only. Investigate authoritative state versus materialized views, event logs and projections, transactions and atomicity, idempotent application, stale-state detection, reconciliation, failed mutation, recovery, and reconstructibility. For every extracted property, cite the retrieved source, state its original system boundary, transfer preconditions, and reasons it may not apply to Craft. Do not infer Craft requirements or treat popularity as evidence.",
+      "source_scope": ["external web", "primary research papers", "standards", "official database, workflow, event-sourcing, reconciliation, and build-system documentation"],
+      "expected_output": "Cited precedent matrix with integrity property, original context, transfer conditions, counterlimits, and source quality.",
+      "mutation_policy": "read-only"
+    },
+    {
+      "agent_id": "boundary-falsifier",
+      "agent_name": "Simon, Herbert",
+      "role": "explorer",
+      "angle": "Counter-hypothesis testing: isolated legacy drift, compatibility mismatch, operator discipline, or validator absence rather than systemic Craft responsibility.",
+      "prompt": "Try to falsify the need for a broader Craft integrity mechanism. Test whether each observed inconsistency is adequately explained by schema-version compatibility, historical manual editing, old ledger data, missing validation execution, or responsibility owned by a called capability or operator. Use repository evidence first and only targeted primary external sources when a boundary claim needs comparison. Preserve negative results and specify what evidence would distinguish isolated drift from a systemic transition defect. Do not edit files or propose implementation.",
+      "source_scope": ["repository first", "targeted primary external sources only for boundary comparison"],
+      "expected_output": "Counter-hypothesis ledger showing survived, weakened, or rejected explanations and discriminating evidence gaps.",
+      "mutation_policy": "read-only"
+    },
+    {
+      "agent_id": "integrity-synthesis-writer",
+      "agent_name": "Shannon, Claude",
+      "role": "writer",
+      "angle": "Claim-evidence synthesis that preserves disagreement and evaluates candidates without designing a solution.",
+      "prompt": "After all three explorer returns are joined, preserve them verbatim in research.md and produce findings.md. Keep internal evidence, external precedent, and inference visibly distinct. Judge the five declared candidates using owner, witnessed, sound, verdict, and use-mode; preserve dissent, reversals, empty searches, limitations, and typed negatives. Do not strengthen a repository claim with external analogy or turn findings into a schema or implementation plan.",
+      "source_scope": ["joined explorer returns and their cited sources only"],
+      "expected_output": "research/craft-ledger-integrity/research.md and research/craft-ledger-integrity/findings.md",
+      "mutation_policy": "artifact-only"
+    },
+    {
+      "agent_id": "precedent-skeptic",
+      "agent_name": "Popper, Karl",
+      "role": "skeptic",
+      "angle": "Precedent gate: authority, retrieval, applicability, and transfer conditions of external sources.",
+      "prompt": "Attack only the precedent gate. Verify that every load-bearing external claim cites a retrieved primary or authoritative source, that the original system boundary is represented correctly, and that transfer to Craft is conditional rather than assumed. Return PASS, FLAG, or BLOCK with exact repairs. Do not introduce new research or edit artifacts.",
+      "source_scope": ["synthesis and cited external sources"],
+      "expected_output": "Precedent-gate verdict with exact unsupported or over-transferred claims.",
+      "mutation_policy": "read-only"
+    },
+    {
+      "agent_id": "nonvacuity-skeptic",
+      "agent_name": "Sattler, Christian",
+      "role": "skeptic",
+      "angle": "Non-vacuity gate: testable integrity properties tied to concrete Craft transitions and consumers.",
+      "prompt": "Attack only the non-vacuity gate. Test whether each claimed integrity property distinguishes pass from failure, maps to a concrete Craft transition and surface, respects the owner boundary, and contributes more than a generic restatement of consistency. Return PASS, FLAG, or BLOCK with exact repairs. Do not add new precedent or edit artifacts.",
+      "source_scope": ["synthesis, repository transition matrix, and candidate verdict table"],
+      "expected_output": "Non-vacuity verdict identifying tautologies, missing witnesses, or untestable properties.",
+      "mutation_policy": "read-only"
+    },
+    {
+      "agent_id": "coverage-auditor",
+      "agent_name": "Brandenburg, Martin",
+      "role": "auditor",
+      "angle": "Final coverage, citation, dissent, boundary, and verdict audit.",
+      "prompt": "Read research.md, findings.md, both skeptic verdicts, and any single bounded writer revision. Check candidate coverage, exact citations, claim strength, preserved dissent, GO/KILL semantics, evidence boundary, and absence of implementation or mutation. Return ACCEPT or REJECT with specific residue. Do not edit artifacts.",
+      "source_scope": ["final research artifacts and gate verdicts"],
+      "expected_output": "Independent audit verdict for the parent final approver.",
+      "mutation_policy": "read-only"
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "explorers",
+      "role": "investigate",
+      "n": 3,
+      "purpose": "Establish internal state, external precedent, and counter-hypotheses in parallel.",
+      "anti_bias": "composite: methodology + source-corpus",
+      "agent_ids": ["repo-transition-cartographer", "external-integrity-precedent", "boundary-falsifier"],
+      "predicted_disagreements": [
+        {
+          "agents": ["repo-transition-cartographer", "external-integrity-precedent"],
+          "sentence": "repo-transition-cartographer runs repository-first empirical transition mapping, while external-integrity-precedent runs primary-source cross-system comparison on the methodology and source-corpus axes; a bias internal to either local-witness minimalism or precedent transfer would be exposed by the other."
+        },
+        {
+          "agents": ["repo-transition-cartographer", "boundary-falsifier"],
+          "sentence": "repo-transition-cartographer runs transition-obligation mapping, while boundary-falsifier runs legacy-drift and ownership counter-hypotheses on the methodology axis; a bias internal to systemic-defect inference would be exposed by the falsifier."
+        },
+        {
+          "agents": ["external-integrity-precedent", "boundary-falsifier"],
+          "sentence": "external-integrity-precedent runs cross-system primary-source extraction, while boundary-falsifier runs transfer-boundary rejection on the source-corpus and methodology axes; a bias internal to external generalization would be exposed by the falsifier."
+        }
+      ]
+    },
+    {
+      "group_id": "synthesis",
+      "role": "synthesize",
+      "n": 1,
+      "purpose": "Join evidence without erasing dissent.",
+      "anti_bias": "not-applicable-single-agent",
+      "agent_ids": ["integrity-synthesis-writer"],
+      "predicted_disagreements": []
+    },
+    {
+      "group_id": "skeptics",
+      "role": "evaluate",
+      "n": 2,
+      "purpose": "Apply distinct precedent and non-vacuity gates in parallel.",
+      "anti_bias": "attack-vector",
+      "agent_ids": ["precedent-skeptic", "nonvacuity-skeptic"],
+      "predicted_disagreements": [
+        {
+          "agents": ["precedent-skeptic", "nonvacuity-skeptic"],
+          "sentence": "precedent-skeptic runs authority-and-transfer attack, while nonvacuity-skeptic runs discriminating-property and transition-witness attack on the attack-vector axis; a bias internal to either source legitimacy or local usefulness would be exposed by the other."
+        }
+      ]
+    },
+    {
+      "group_id": "audit",
+      "role": "meta-evaluate",
+      "n": 1,
+      "purpose": "Independently audit the final package for approval.",
+      "anti_bias": "not-applicable-single-agent",
+      "agent_ids": ["coverage-auditor"],
+      "predicted_disagreements": []
+    }
+  ],
+  "candidates": [
+    "source rows versus embedded ledger indexes",
+    "authoritative ledger versus generated .craft/index.json",
+    "authoritative ledger versus derived CRAFT.md",
+    "native capability result versus Craft handoff, receipt, artifact, residue, and next-move application",
+    "failed mutation, retry, recovery, reconstructibility, and compatibility"
+  ],
+  "expected_outputs": [
+    "research/craft-ledger-integrity/research.md",
+    "research/craft-ledger-integrity/findings.md"
+  ],
+  "dependency_topology": {
+    "connections": [
+      {"from": "explorers", "to": "synthesis", "type": "sequential"},
+      {"from": "synthesis", "to": "skeptics", "type": "zig-zag", "loop_cap": 1},
+      {"from": "skeptics", "to": "synthesis", "type": "feedback", "loop_cap": 1},
+      {"from": "skeptics", "to": "audit", "type": "sequential"}
+    ],
+    "stage_handoff_rules": [
+      "Synthesis waits for all explorer returns or typed partial failures.",
+      "Skeptics wait for both research.md and findings.md.",
+      "At most one writer revision may answer typed skeptic defects.",
+      "Audit waits for both skeptic verdicts and any admitted revision."
+    ]
+  },
+  "loop_ceilings": {"global_feedback_loops": 1, "writer_revision_loops": 1},
+  "final_approver": "parent",
+  "publication": {
+    "public_paths": ["research/craft-ledger-integrity/"],
+    "private_paths": [],
+    "forbidden_evidence": [
+      "private adjacent-workspace paths or contents",
+      "credentials, tokens, personal data, or secrets",
+      "machine-specific absolute paths in published findings"
+    ]
+  },
+  "validation": [
+    "research-initial-definitions validator must remain pass at its admitted SHA-256",
+    "every repository claim cites an inspected repository-relative file and locator",
+    "every load-bearing external claim cites a retrieved primary or authoritative source",
+    "research.md preserves all explorer returns for a multi-agent run",
+    "findings.md contains candidate verdicts, implications, dissent, limitations, and one-line answer",
+    "skeptic gates and final audit must pass before parent approval"
+  ],
+  "stop_conditions": [
+    "Stop before launch if confirmation readiness or either tension checker does not pass.",
+    "Stop external search at bounded primary-source coverage; an empty search is a typed negative, never a novelty claim.",
+    "Stop downstream stages on missing required returns unless a typed partial failure preserves a bounded synthesis.",
+    "Stop after one writer revision loop and propagate remaining disagreement.",
+    "Do not implement, mutate Craft sources, or write outside the confirmed working folder."
+  ]
+}

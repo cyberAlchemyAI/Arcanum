@@ -8,9 +8,11 @@ human_view: CRAFT.md
 indexes:
   by_id:
     CTX-ARCANUM-MANUAL-ROOT: contexts[0]
+    CTX-CRAFT-LEDGER-INTEGRITY: contexts[1]
     DESC-ARCANUM-MANUAL-001: descriptions[0]
     DEF-ARCANUM-MANUAL-001: definitions[0]
     GAP-AUDIENCE-TAXONOMY-001: gaps[0]
+    GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001: gaps[1]
     ART-ARCANUM-MANUAL-LEDGER: artifacts[0]
     ART-ARCANUM-MANUAL-VIEW: artifacts[1]
     ART-MANUAL-RESEARCH-DISPATCH: artifacts[2]
@@ -19,16 +21,52 @@ indexes:
     ART-MANUAL-DISTILL-NOTES: artifacts[5]
     ART-MANUAL-XRAY-HTML: artifacts[6]
     ART-MANUAL-VALIDATION: artifacts[7]
+    ART-CRAFT-LEDGER-INTEGRITY-DISPATCH: artifacts[8]
+    ART-CRAFT-LEDGER-INTEGRITY-SESSION: artifacts[9]
+    CTX-ARCANUM-COMPOSITION-ANALYSIS: contexts[2]
+    DESC-ARCANUM-COMPOSITION-001: descriptions[1]
+    DESC-ARCANUM-COMPOSITION-002: descriptions[2]
+    GAP-ARCANUM-COMPOSITION-RESEARCH-001: gaps[2]
+    GAP-ARCANUM-COMPOSITION-RESIDUE-001: gaps[3]
+    ART-ARCANUM-COMPOSITION-ANALYSIS: artifacts[10]
+    ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS: artifacts[11]
+    ART-ARCANUM-COMPOSITION-REVIEW: artifacts[12]
+    ART-ARCANUM-COMPOSITION-SESSION: artifacts[13]
+    ART-ARCANUM-COMPOSITION-DISPATCH: artifacts[14]
+    ART-ARCANUM-COMPOSITION-RESEARCH-RETURNS: artifacts[15]
+    ART-ARCANUM-COMPOSITION-FINDINGS: artifacts[16]
+    ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER: artifacts[17]
+    ART-ARCANUM-COMPOSITION-RESEARCH-SESSION: artifacts[18]
+    CTX-LENS-RESOLUTION-ROUTING: contexts[3]
+    ART-ROUTING-POST-PROMOTION-REVIEW: artifacts[19]
+    ART-LENS-RESOLUTION-ROUTING-SESSION: artifacts[20]
+    DEC-ROUTING-WINDOWS-PORTABILITY-001: decisions[0]
+    GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001: gaps[4]
   open_decisions: []
   blocking_decisions: []
   active_blockers: []
-  active_gaps: []
+  active_gaps:
+    - GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001
+    - GAP-ARCANUM-COMPOSITION-RESIDUE-001
+    - GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001
   next_moves:
     - context_id: CTX-ARCANUM-MANUAL-ROOT
       next_move: >
-        Operator review of development/user-guide/ARCANUM-MANUAL.md; optionally render a PDF/HTML
-        companion like the existing user-guide, and commit the manual inside the arcanum submodule
-        before bumping the parent gitlink.
+        Operator review of development/user-guide/ARCANUM-MANUAL.md; optionally render an HTML/PDF
+        companion and commit inside the arcanum submodule before bumping the parent gitlink.
+    - context_id: CTX-CRAFT-LEDGER-INTEGRITY
+      next_move: >
+        Obtain explicit operator confirmation, execute the prepared internal/external governed
+        research dispatch, and produce research.md plus findings.md before proposing any canonical
+        Craft contract, validator, runtime, migration, or operator-discipline change.
+    - context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+      next_move: >
+        Expand analysis.md from the accepted per-RQ findings while preserving the four unresolved
+        boundaries, then run a separate adversarial review of the completed reader-facing analysis.
+    - context_id: CTX-LENS-RESOLUTION-ROUTING
+      next_move: >
+        Obtain an operator decision on whether to repair the four platform-neutral MAJOR findings;
+        preserve the installed trio and do not alter Windows-specific failure paths meanwhile.
   trace_events:
     - dispatch-authored
     - subagent-strategy-approved
@@ -37,6 +75,17 @@ indexes:
     - concept-units-distilled
     - manual-whispered
     - arcanum-manual-validated
+    - craft-ledger-integrity-research-deferred-open
+    - arcanum-composition-initial-definitions-validated
+    - arcanum-composition-review-applied
+    - arcanum-composition-session-closed
+    - arcanum-composition-research-dispatched
+    - arcanum-composition-research-audited
+    - arcanum-composition-research-closed
+    - lens-resolution-routing-installed
+    - routing-post-promotion-review-closed
+    - routing-windows-portability-repair-deferred
+    - lens-resolution-routing-session-closed
   artifacts_by_path:
     .craft/ledger.yml: ART-ARCANUM-MANUAL-LEDGER
     CRAFT.md: ART-ARCANUM-MANUAL-VIEW
@@ -46,6 +95,19 @@ indexes:
     .craft/artifacts/arcanum-manual-distill-notes.md: ART-MANUAL-DISTILL-NOTES
     development/user-guide/arcanum-surface-xray.html: ART-MANUAL-XRAY-HTML
     development/user-guide/ARCANUM-MANUAL.validation.md: ART-MANUAL-VALIDATION
+    research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json: ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
+    sessions/2026-08-25-1645-craft-ledger-integrity-review-and-dispatch.md: ART-CRAFT-LEDGER-INTEGRITY-SESSION
+    docs/analysis/arcanum-composition-analysis/analysis.md: ART-ARCANUM-COMPOSITION-ANALYSIS
+    docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research-initial-definitions.md: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+    docs/analysis/arcanum-composition-analysis/review.md: ART-ARCANUM-COMPOSITION-REVIEW
+    sessions/2026-08-25-1941-arcanum-composition-analysis.md: ART-ARCANUM-COMPOSITION-SESSION
+    docs/analysis/arcanum-composition-analysis/research/arcanum-composition/arcanum-composition-research.dispatch.json: ART-ARCANUM-COMPOSITION-DISPATCH
+    docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research.md: ART-ARCANUM-COMPOSITION-RESEARCH-RETURNS
+    docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md: ART-ARCANUM-COMPOSITION-FINDINGS
+    docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl: ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER
+    sessions/2026-08-25-2056-arcanum-composition-research.md: ART-ARCANUM-COMPOSITION-RESEARCH-SESSION
+    transmutations/resolution-router/development/validation/post-promotion-review/review.md: ART-ROUTING-POST-PROMOTION-REVIEW
+    sessions/2026-08-25-2130-lens-resolution-routing.md: ART-LENS-RESOLUTION-ROUTING-SESSION
 
 contexts:
   - context_id: CTX-ARCANUM-MANUAL-ROOT
@@ -78,6 +140,110 @@ contexts:
         target: ART-USER-GUIDE-BASE
         kind: artifact-id
     notes: Root context created by /craft start for the Arcanum manual.
+  - context_id: CTX-CRAFT-LEDGER-INTEGRITY
+    parent_id: root
+    title: Craft ledger-integrity research
+    purpose: >
+      Determine where Craft source rows, embedded indexes, generated indexes, human views, and
+      called-capability results can diverge; establish Craft's responsibility boundary and the
+      minimum integrity properties required for safe navigation and use.
+    stage: plan
+    gate: flag
+    next_move: >
+      Obtain explicit operator confirmation, execute the prepared internal/external governed
+      research dispatch, and produce research.md plus findings.md before proposing any canonical
+      Craft contract, validator, runtime, migration, or operator-discipline change.
+    owned_artifacts:
+      - ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
+      - ART-CRAFT-LEDGER-INTEGRITY-SESSION
+    links:
+      - label: Prepared governed research dispatch
+        target: ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
+        kind: artifact-id
+      - label: Closing session and evidence boundary
+        target: ART-CRAFT-LEDGER-INTEGRITY-SESSION
+        kind: artifact-id
+    notes: >
+      Opened by /craft at session close. Dispatch validation and independent tension checks passed,
+      but no research agents were launched and no dispatch event or research findings exist.
+  - context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    parent_id: root
+    title: Arcanum composition analysis
+    purpose: >
+      Explain the current relationships among Arcanum capabilities and artifacts faithfully, then
+      identify evidence-backed improvement opportunities without presenting intended, inferred, or
+      caller-mediated behavior as implemented automatic integration.
+    stage: execute
+    gate: flag
+    next_move: >
+      Expand analysis.md from the accepted per-RQ findings while preserving the four unresolved
+      boundaries, then run a separate adversarial review of the completed reader-facing analysis.
+    owned_artifacts:
+      - ART-ARCANUM-COMPOSITION-ANALYSIS
+      - ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+      - ART-ARCANUM-COMPOSITION-REVIEW
+      - ART-ARCANUM-COMPOSITION-SESSION
+      - ART-ARCANUM-COMPOSITION-DISPATCH
+      - ART-ARCANUM-COMPOSITION-RESEARCH-RETURNS
+      - ART-ARCANUM-COMPOSITION-FINDINGS
+      - ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER
+      - ART-ARCANUM-COMPOSITION-RESEARCH-SESSION
+    links:
+      - label: Reader-facing analysis
+        target: ART-ARCANUM-COMPOSITION-ANALYSIS
+        kind: artifact-id
+      - label: Governed research baseline
+        target: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+        kind: artifact-id
+      - label: Applied adversarial review
+        target: ART-ARCANUM-COMPOSITION-REVIEW
+        kind: artifact-id
+      - label: Closing session
+        target: ART-ARCANUM-COMPOSITION-SESSION
+        kind: artifact-id
+      - label: Executed governed dispatch
+        target: ART-ARCANUM-COMPOSITION-DISPATCH
+        kind: artifact-id
+      - label: Accepted per-RQ findings
+        target: ART-ARCANUM-COMPOSITION-FINDINGS
+        kind: artifact-id
+      - label: Dispatch lifecycle ledger
+        target: ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER
+        kind: artifact-id
+      - label: Research closing session
+        target: ART-ARCANUM-COMPOSITION-RESEARCH-SESSION
+        kind: artifact-id
+    notes: >
+      The original introduction in analysis.md remains unchanged. The governed research dispatch
+      was confirmed, executed, closed, and accepted after two skeptic passes and an independent
+      coverage audit. Findings answer seven of eleven questions and preserve four explicit
+      unresolved boundaries; the reader-facing analysis has not yet been expanded from them.
+  - context_id: CTX-LENS-RESOLUTION-ROUTING
+    parent_id: root
+    title: Lens and resolution routing
+    purpose: >
+      Maintain the installed separation between investigative lens routing and cumulative
+      reader-facing resolution routing, beginning with the low-resolution writer and preserving
+      explicit unavailability for medium and high writers until separately implemented.
+    stage: review-audit
+    gate: flag
+    next_move: >
+      Obtain an operator decision on whether to repair the four platform-neutral MAJOR findings;
+      preserve the installed trio and do not alter Windows-specific failure paths meanwhile.
+    owned_artifacts:
+      - ART-ROUTING-POST-PROMOTION-REVIEW
+      - ART-LENS-RESOLUTION-ROUTING-SESSION
+    links:
+      - label: Independent post-promotion review
+        target: ART-ROUTING-POST-PROMOTION-REVIEW
+        kind: artifact-id
+      - label: Closing session and operator decision
+        target: ART-LENS-RESOLUTION-ROUTING-SESSION
+        kind: artifact-id
+    notes: >
+      The routing architecture and installation checks passed, but the independent review returned
+      FIX. Windows-specific repair was explicitly deferred by the operator; four platform-neutral
+      evidence, lifecycle, and authoring-governance findings remain open.
 
 artifacts:
   - artifact_id: ART-ARCANUM-MANUAL-LEDGER
@@ -143,6 +309,138 @@ artifacts:
     artifact_type: validation-evidence
     status: pass
     notes: Claim-to-source map for the manual (step s05); verdict pass. Evidence only, no promotion.
+  - artifact_id: ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
+    owner_context_id: CTX-CRAFT-LEDGER-INTEGRITY
+    path: research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json
+    artifact_type: research-dispatch-route
+    status: pass
+    notes: >
+      Prepared seven-lane internal/external research route. Local schema, material-strategy,
+      composite-readiness, and two independent tension checks passed; route-shape evidence only,
+      with no dispatch event or research execution.
+  - artifact_id: ART-CRAFT-LEDGER-INTEGRITY-SESSION
+    owner_context_id: CTX-CRAFT-LEDGER-INTEGRITY
+    path: sessions/2026-08-25-1645-craft-ledger-integrity-review-and-dispatch.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed session record for the reviewed baseline, applied corrections, prepared dispatch,
+      evidence boundary, and deferred next move.
+  - artifact_id: ART-ARCANUM-COMPOSITION-ANALYSIS
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/analysis.md
+    artifact_type: analysis
+    status: active
+    notes: >
+      Reader-facing analysis scaffold containing the user's preserved introduction. It is not yet
+      expanded with researched composition findings or improvement conclusions.
+    links:
+      - label: Research baseline
+        target: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+        kind: artifact-id
+      - label: Baseline review
+        target: ART-ARCANUM-COMPOSITION-REVIEW
+        kind: artifact-id
+  - artifact_id: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research-initial-definitions.md
+    artifact_type: research-initial-definitions
+    status: pass
+    notes: >
+      Validated informational baseline with one program question and ten supporting questions.
+      Every question has a stable ID and explicit necessity; no research execution is implied.
+    links:
+      - label: Reviewed by
+        target: ART-ARCANUM-COMPOSITION-REVIEW
+        kind: artifact-id
+  - artifact_id: ART-ARCANUM-COMPOSITION-REVIEW
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/review.md
+    artifact_type: review
+    status: resolved
+    notes: >
+      Adversarial review that returned FIX with four MAJOR change requests. All four requests were
+      subsequently applied to the research baseline; the report remains historical evidence.
+  - artifact_id: ART-ARCANUM-COMPOSITION-SESSION
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: sessions/2026-08-25-1941-arcanum-composition-analysis.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed session record for the composition questions, scaffold, adversarial review, applied
+      corrections, evidence boundary, and deferred research execution.
+  - artifact_id: ART-ARCANUM-COMPOSITION-DISPATCH
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/research/arcanum-composition/arcanum-composition-research.dispatch.json
+    artifact_type: research-dispatch-route
+    status: pass
+    notes: >
+      Confirmed governed repository-only research dispatch. Dispatch Spec, material readiness, and
+      independent tension checks passed before execution.
+    links:
+      - label: Lifecycle events
+        target: ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER
+        kind: artifact-id
+  - artifact_id: ART-ARCANUM-COMPOSITION-RESEARCH-RETURNS
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research.md
+    artifact_type: research-evidence
+    status: pass
+    notes: >
+      Verbatim explorer returns in dispatch order for contract ownership, runtime witnesses, and
+      authority-boundary falsification.
+  - artifact_id: ART-ARCANUM-COMPOSITION-FINDINGS
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md
+    artifact_type: research-findings
+    status: pass
+    notes: >
+      DomainSpec-compatible findings with one evidence-bounded row for RQ-0 through RQ-10. Seven
+      questions are answered and four remain unresolved. Two skeptics passed the final revision and
+      the independent coverage auditor returned ACCEPT after resolving all 86 cited locators.
+    links:
+      - label: Raw research returns
+        target: ART-ARCANUM-COMPOSITION-RESEARCH-RETURNS
+        kind: artifact-id
+      - label: Research baseline
+        target: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+        kind: artifact-id
+  - artifact_id: ART-ARCANUM-COMPOSITION-DISPATCH-LEDGER
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl
+    artifact_type: dispatch-lifecycle-ledger
+    status: pass
+    notes: >
+      Append-only lifecycle evidence containing exactly one dispatch event and one paired close
+      event for 2026-08-25-arcanum-composition-research.
+  - artifact_id: ART-ARCANUM-COMPOSITION-RESEARCH-SESSION
+    owner_context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    path: sessions/2026-08-25-2056-arcanum-composition-research.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed closeout for the confirmed research dispatch, accepted findings, remaining
+      composition boundaries, and repository artifact-lifecycle observation.
+  - artifact_id: ART-ROUTING-POST-PROMOTION-REVIEW
+    owner_context_id: CTX-LENS-RESOLUTION-ROUTING
+    path: transmutations/resolution-router/development/validation/post-promotion-review/review.md
+    artifact_type: review
+    status: flag
+    notes: >
+      Independent two-lens attack plus skeptic verification. Verdict FIX with five surviving MAJOR
+      findings; routing ownership, unavailable stopping, closure, and package fidelity survived.
+    links:
+      - label: Closing session and operator boundary
+        target: ART-LENS-RESOLUTION-ROUTING-SESSION
+        kind: artifact-id
+  - artifact_id: ART-LENS-RESOLUTION-ROUTING-SESSION
+    owner_context_id: CTX-LENS-RESOLUTION-ROUTING
+    path: sessions/2026-08-25-2130-lens-resolution-routing.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed closeout for the router implementation, installation and test evidence, review
+      verdict, explicit Windows-repair deferral, and remaining platform-neutral decision.
 
 descriptions:
   - description_id: DESC-ARCANUM-MANUAL-001
@@ -156,6 +454,26 @@ descriptions:
       governs state and residue; dispatch-spec governs route shape; it does not execute the route.
     status: active
     evidence: .craft/artifacts/20260616-arcanum-manual-research-strategy.dispatch.json
+  - description_id: DESC-ARCANUM-COMPOSITION-001
+    context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    description: >
+      The composition analysis keeps the user's introduction intact while a governed research
+      baseline determines what the repository can support about capability ownership, artifact
+      handoffs, invocation, Task Session readiness, Craft-backed state, Decision Gate, write-back,
+      evidence class, source authority, and improvement boundaries.
+    status: active
+    evidence: >
+      ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS and ART-ARCANUM-COMPOSITION-REVIEW
+  - description_id: DESC-ARCANUM-COMPOSITION-002
+    context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    description: >
+      Governed research now supports a plural, authority-bound and artifact-mediated model of
+      Arcanum composition rather than one universal linear pipeline. The accepted findings preserve
+      relation-specific evidence classes and leave generic Craft write-back coordination, generic
+      write-back adaptation, same-concern source precedence, and product-authorized improvement
+      classification unresolved for later work.
+    status: active
+    evidence: ART-ARCANUM-COMPOSITION-FINDINGS
 
 definitions:
   - definition_id: DEF-ARCANUM-MANUAL-001
@@ -168,6 +486,34 @@ definitions:
       over the sigils, spells, or definitions it explains.
     status: candidate
     evidence: README.md, framework/CYBERALCHEMY-METHOD.md, development/user-guide/README.md
+
+decisions:
+  - decision_id: DEC-ROUTING-WINDOWS-PORTABILITY-001
+    scope_id: CTX-LENS-RESOLUTION-ROUTING
+    decision_type: deferral
+    question: Should this session repair test and fixture failures that occur specifically on Windows?
+    description: >
+      The broader validation run exposed CRLF-sensitive fixture digests, a hard-coded bash lookup
+      that reaches the broken WSL installation, and a PowerShell UTF-16LE fixture path.
+    options:
+      - repair Windows-specific failures now
+      - defer Windows-specific repairs
+    selected: defer Windows-specific repairs
+    rationale: The operator explicitly directed that the Windows-specific breakages not be changed.
+    evidence: ART-LENS-RESOLUTION-ROUTING-SESSION and ART-ROUTING-POST-PROMOTION-REVIEW
+    status: closed
+    blocking: false
+    impact: >
+      The installed routing trio remains available, but Windows-only test paths stay non-green and
+      must not be represented as repaired by this session.
+    owner: operator
+    links:
+      - label: Closing session
+        target: ART-LENS-RESOLUTION-ROUTING-SESSION
+        kind: artifact-id
+      - label: Verified review evidence
+        target: ART-ROUTING-POST-PROMOTION-REVIEW
+        kind: artifact-id
 
 gaps:
   - gap_id: GAP-AUDIENCE-TAXONOMY-001
@@ -192,4 +538,83 @@ gaps:
         kind: artifact-id
       - label: Rendered in manual Part 3
         target: ART-ARCANUM-MANUAL
+        kind: artifact-id
+  - gap_id: GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001
+    scope_id: CTX-CRAFT-LEDGER-INTEGRITY
+    summary: >
+      The reviewed Craft ledger-integrity investigation has a validated internal/external dispatch
+      route but has not been executed. Causes, repository-wide prevalence, responsibility
+      boundaries, and minimum integrity properties therefore remain unresolved.
+    severity: flag
+    treatment: delegate
+    owner: governed research dispatch after explicit operator confirmation
+    status: active
+    evidence: ART-CRAFT-LEDGER-INTEGRITY-SESSION
+    links:
+      - label: Prepared route
+        target: ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
+        kind: artifact-id
+      - label: Evidence boundary and next steps
+        target: ART-CRAFT-LEDGER-INTEGRITY-SESSION
+        kind: artifact-id
+  - gap_id: GAP-ARCANUM-COMPOSITION-RESEARCH-001
+    scope_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    summary: >
+      The reviewed initial definitions register the questions needed to explain Arcanum's current
+      composition and improvement boundary, but governed research has not been designed or
+      executed. Contract, implementation, observed-execution, authority, and relation findings
+      therefore remain unresolved.
+    severity: flag
+    treatment: delegate
+    owner: governed research dispatch after explicit operator confirmation
+    status: resolved
+    evidence: ART-ARCANUM-COMPOSITION-FINDINGS
+    links:
+      - label: Research baseline
+        target: ART-ARCANUM-COMPOSITION-INITIAL-DEFINITIONS
+        kind: artifact-id
+      - label: Preserved analysis
+        target: ART-ARCANUM-COMPOSITION-ANALYSIS
+        kind: artifact-id
+      - label: Evidence boundary and next steps
+        target: ART-ARCANUM-COMPOSITION-SESSION
+        kind: artifact-id
+      - label: Accepted research findings
+        target: ART-ARCANUM-COMPOSITION-FINDINGS
+        kind: artifact-id
+  - gap_id: GAP-ARCANUM-COMPOSITION-RESIDUE-001
+    scope_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
+    summary: >
+      The accepted research leaves four explicit boundaries unresolved: the generic coordinator
+      and semantic adapter for Craft write-back, authoritative precedence for same-concern source
+      conflicts, and product-authorized classification of which relation gaps warrant improvement.
+    severity: flag
+    treatment: plan
+    owner: separate architecture and product-governance follow-up after analysis expansion
+    status: active
+    evidence: ART-ARCANUM-COMPOSITION-FINDINGS
+    links:
+      - label: Per-RQ evidence and residual gaps
+        target: ART-ARCANUM-COMPOSITION-FINDINGS
+        kind: artifact-id
+      - label: Reader-facing analysis to expand
+        target: ART-ARCANUM-COMPOSITION-ANALYSIS
+        kind: artifact-id
+  - gap_id: GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001
+    scope_id: CTX-LENS-RESOLUTION-ROUTING
+    summary: >
+      Four platform-neutral MAJOR findings remain open: current contracts lack binding forward-test
+      evidence, required raw forward artifacts are absent, promotion does not enforce canonical
+      lifecycle state, and normal authoring/promotion surfaces do not require ownership and entry inputs.
+    severity: flag
+    treatment: plan
+    owner: operator decision followed by a bounded routing-maintenance pass
+    status: active
+    evidence: ART-ROUTING-POST-PROMOTION-REVIEW
+    links:
+      - label: Verified review
+        target: ART-ROUTING-POST-PROMOTION-REVIEW
+        kind: artifact-id
+      - label: Session boundary and next move
+        target: ART-LENS-RESOLUTION-ROUTING-SESSION
         kind: artifact-id
