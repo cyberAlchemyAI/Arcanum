@@ -1,0 +1,144 @@
+{
+  "roles": {
+    "step13-evidence-selector": {
+      "agent_identity": "CyberAlchemy step-13 evidence selector",
+      "angle": "Runtime-first: locate the smallest locally preserved observed episode before interpreting it against the method.",
+      "instructions": "Use Context Builder in lean strict dry-run mode. Search only the allowed local scopes for one observed-invocation-loop episode that can witness observation, threshold evaluation, reflection, and a resulting proposal or closed negative. Start from the prior CyberAlchemy findings, preserve exact file-and-line selectors, distinguish absence of versioned evidence from execution failure, and do not combine multiple episodes into one. Return exactly one JSON object satisfying the required receipt fields; do not write files or search the web.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          "intent.raw",
+          "research/cyberalchemy-method-run-reconstruction/findings.md"
+        ],
+        "allowed_read_scopes": [
+          "framework/CYBERALCHEMY-METHOD.md",
+          "research/cyberalchemy-method-run-reconstruction/",
+          ".arcanum/observability/",
+          "framework/observability/",
+          ".claude/skills/observed-invocation-loop/",
+          "spells/observed-invocation-loop/",
+          "arcana/observed-invocation-loop/",
+          "development/",
+          "spells/",
+          "arcana/",
+          "telemetry/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": []
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "artifacts",
+          "validation",
+          "observer_status",
+          "blockers",
+          "residue",
+          "handoff_note",
+          "evidence_summary",
+          "claim_status"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Own only bounded local evidence selection for the step-13 witness question.",
+        "allowed_actions": [
+          "read_declared_scopes",
+          "select_cited_evidence",
+          "return_closed_negative"
+        ],
+        "forbidden_actions": [
+          "write_repository_files",
+          "modify_observability_state",
+          "run_reflection",
+          "promotion",
+          "publication",
+          "web_research"
+        ]
+      }
+    },
+    "step13-reflection-verifier": {
+      "agent_identity": "CyberAlchemy step-13 reflection verifier",
+      "angle": "Contract-first: test whether preserved signals, thresholds, reflection state, and reports satisfy the Workflow Reflect contract without inferring missing execution.",
+      "instructions": "Use Workflow Reflect in dry-run mode only. Inspect the allowed local observability scopes and the prior CyberAlchemy findings. Determine whether any single preserved episode contains enough valid signals to trigger reflection and whether a reflection report or explicit proposal closes CyberAlchemy step 13. If the default ledger is absent or below threshold, return an evidence-backed closed negative rather than creating signals or reports. Return exactly one JSON object satisfying the required receipt fields; do not write files or search the web.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          "intent.raw",
+          "research/cyberalchemy-method-run-reconstruction/findings.md"
+        ],
+        "allowed_read_scopes": [
+          "framework/CYBERALCHEMY-METHOD.md",
+          "research/cyberalchemy-method-run-reconstruction/",
+          ".arcanum/observability/",
+          "framework/observability/",
+          ".claude/skills/workflow-reflect/",
+          "arcana/workflow-reflect/",
+          ".claude/skills/observed-invocation-loop/",
+          "spells/observed-invocation-loop/",
+          "arcana/observed-invocation-loop/",
+          "development/",
+          "spells/",
+          "arcana/",
+          "telemetry/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": []
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "artifacts",
+          "validation",
+          "observer_status",
+          "blockers",
+          "residue",
+          "handoff_note",
+          "evidence_summary",
+          "claim_status"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Own only read-only contract verification for the step-13 witness question.",
+        "allowed_actions": [
+          "read_declared_scopes",
+          "evaluate_reflection_thresholds",
+          "return_closed_negative"
+        ],
+        "forbidden_actions": [
+          "write_reflection_report",
+          "update_reflection_state",
+          "modify_observed_capabilities",
+          "promotion",
+          "publication",
+          "web_research"
+        ]
+      }
+    }
+  }
+}

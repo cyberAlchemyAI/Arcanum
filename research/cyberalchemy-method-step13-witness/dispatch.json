@@ -1,0 +1,191 @@
+{
+  "dispatch_id": "2026-08-24-cyberalchemy-step13-witness",
+  "intent": {
+    "raw": "Verificar se existe no checkout atualizado do Arcanum um episódio de observed-invocation-loop que preserve observação e reflexão suficientes para testemunhar o passo 13 do CyberAlchemy Method.",
+    "objective": "Produzir um testemunho local citado ou um negativo fechado sobre a operação do outer loop Reflect after use, sem executar novas capabilities nem confundir ausência de evidência versionada com falha histórica.",
+    "target_artifact": "Receipts nativos para síntese parent-owned sobre o passo 13.",
+    "arcanum_vocabulary": [
+      "CyberAlchemy Method",
+      "observed-invocation-loop",
+      "Workflow Reflect",
+      "step 13",
+      "closed negative"
+    ],
+    "operator_sentence": "Localize um episódio observado completo ou demonstre de forma fechada que o checkout não preserva testemunho suficiente."
+  },
+  "mode": "validation",
+  "techniques": [
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "observability_grouping"
+  ],
+  "subagent_strategy": {
+    "status": "required",
+    "trigger": "A pergunta exige duas leituras independentes: seleção runtime-first de evidência e verificação contract-first dos limiares e artefatos de reflexão.",
+    "explanation": "Context Builder limita o corpus e preserva seletores; Workflow Reflect avalia sinais e thresholds sem criar nova evidência. Os dois retornos são unidos pelo parent somente após receipts fechados.",
+    "context": [
+      "O dispatch anterior encontrou recomendação reflect-now, mas não um relatório de reflexão ou o ledger central no checkout.",
+      "O Arcanum foi atualizado para 8ccc16e antes desta proposta.",
+      "O escopo permanece local, read-only e sem pesquisa web."
+    ],
+    "binding_mode": "capability-bound",
+    "execution_owner": "parent-orchestrator",
+    "roles": [
+      {
+        "role_id": "step13-evidence-selector",
+        "purpose": "Selecionar o menor episódio local que possa testemunhar observação, limiar, reflexão e proposta, ou retornar negativo fechado.",
+        "owns": "Receipt de seleção de evidência do passo 13",
+        "capability_ref": "context-builder",
+        "capability_target": "observed-invocation-loop evidence for CyberAlchemy step 13",
+        "capability_mode": "lean-strict-dry-run",
+        "agent_count": 1,
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": [],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "dispatch-briefings.json",
+            "artifact_sha256": "221204dda936a69a1653e3fcf443ec539c00103f446ec6bb2cde241149d4f14a",
+            "selector": "/roles/step13-evidence-selector",
+            "selected_payload_sha256": "c38e0b0054250a358b6dbb229190f6d4d3fd2fd403639d131967df117d0bdbc8"
+          },
+          "briefing": {
+            "agent_identity": "CyberAlchemy step-13 evidence selector",
+            "angle": "Runtime-first: locate the smallest locally preserved observed episode before interpreting it against the method.",
+            "instructions": "Use Context Builder in lean strict dry-run mode. Search only the allowed local scopes for one observed-invocation-loop episode that can witness observation, threshold evaluation, reflection, and a resulting proposal or closed negative. Start from the prior CyberAlchemy findings, preserve exact file-and-line selectors, distinguish absence of versioned evidence from execution failure, and do not combine multiple episodes into one. Return exactly one JSON object satisfying the required receipt fields; do not write files or search the web.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["intent.raw", "research/cyberalchemy-method-run-reconstruction/findings.md"], "allowed_read_scopes": ["framework/CYBERALCHEMY-METHOD.md", "research/cyberalchemy-method-run-reconstruction/", ".arcanum/observability/", "framework/observability/", ".claude/skills/observed-invocation-loop/", "spells/observed-invocation-loop/", "arcana/observed-invocation-loop/", "development/", "spells/", "arcana/", "telemetry/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "read-only", "write_scope": [], "forbidden_write_scopes": []},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation", "observer_status", "blockers", "residue", "handoff_note", "evidence_summary", "claim_status"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only bounded local evidence selection for the step-13 witness question.", "allowed_actions": ["read_declared_scopes", "select_cited_evidence", "return_closed_negative"], "forbidden_actions": ["write_repository_files", "modify_observability_state", "run_reflection", "promotion", "publication", "web_research"]}
+          },
+          "briefing_sha256": "c38e0b0054250a358b6dbb229190f6d4d3fd2fd403639d131967df117d0bdbc8"
+        },
+        "depends_on_roles": [],
+        "input_refs": ["intent.raw", "research/cyberalchemy-method-run-reconstruction/findings.md"],
+        "output_refs": ["receipts/step13-evidence-selector.json"],
+        "applies_to_steps": ["s1"]
+      },
+      {
+        "role_id": "step13-reflection-verifier",
+        "purpose": "Verificar independentemente se os sinais, thresholds, estado e relatórios preservados satisfazem o contrato Workflow Reflect e o passo 13.",
+        "owns": "Receipt de verificação de reflexão do passo 13",
+        "capability_ref": "workflow-reflect",
+        "capability_target": "CyberAlchemy step 13 against preserved observability evidence",
+        "capability_mode": "dry-run",
+        "agent_count": 1,
+        "mutation_policy": "read-only",
+        "write_scope": [],
+        "forbidden_write_scopes": [],
+        "briefing_binding": {
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "dispatch-briefings.json",
+            "artifact_sha256": "221204dda936a69a1653e3fcf443ec539c00103f446ec6bb2cde241149d4f14a",
+            "selector": "/roles/step13-reflection-verifier",
+            "selected_payload_sha256": "6894417d0deba91abe0529415620ea592ff9256063c7675ccce11bbdccb8429c"
+          },
+          "briefing": {
+            "agent_identity": "CyberAlchemy step-13 reflection verifier",
+            "angle": "Contract-first: test whether preserved signals, thresholds, reflection state, and reports satisfy the Workflow Reflect contract without inferring missing execution.",
+            "instructions": "Use Workflow Reflect in dry-run mode only. Inspect the allowed local observability scopes and the prior CyberAlchemy findings. Determine whether any single preserved episode contains enough valid signals to trigger reflection and whether a reflection report or explicit proposal closes CyberAlchemy step 13. If the default ledger is absent or below threshold, return an evidence-backed closed negative rather than creating signals or reports. Return exactly one JSON object satisfying the required receipt fields; do not write files or search the web.",
+            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
+            "read_policy": {"input_refs": ["intent.raw", "research/cyberalchemy-method-run-reconstruction/findings.md"], "allowed_read_scopes": ["framework/CYBERALCHEMY-METHOD.md", "research/cyberalchemy-method-run-reconstruction/", ".arcanum/observability/", "framework/observability/", ".claude/skills/workflow-reflect/", "arcana/workflow-reflect/", ".claude/skills/observed-invocation-loop/", "spells/observed-invocation-loop/", "arcana/observed-invocation-loop/", "development/", "spells/", "arcana/", "telemetry/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
+            "write_policy": {"mutation_policy": "read-only", "write_scope": [], "forbidden_write_scopes": []},
+            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation", "observer_status", "blockers", "residue", "handoff_note", "evidence_summary", "claim_status"], "completion_requires_all_fields": true},
+            "authority_ceiling": {"summary": "Own only read-only contract verification for the step-13 witness question.", "allowed_actions": ["read_declared_scopes", "evaluate_reflection_thresholds", "return_closed_negative"], "forbidden_actions": ["write_reflection_report", "update_reflection_state", "modify_observed_capabilities", "promotion", "publication", "web_research"]}
+          },
+          "briefing_sha256": "6894417d0deba91abe0529415620ea592ff9256063c7675ccce11bbdccb8429c"
+        },
+        "depends_on_roles": [],
+        "input_refs": ["intent.raw", "research/cyberalchemy-method-run-reconstruction/findings.md"],
+        "output_refs": ["receipts/step13-reflection-verifier.json"],
+        "applies_to_steps": ["s2"]
+      }
+    ],
+    "execution_waves": [
+      {
+        "wave_id": "step13-witnesses",
+        "role_ids": ["step13-evidence-selector", "step13-reflection-verifier"],
+        "parallel": true,
+        "join_policy": "all",
+        "gate_after": "g-step13-evidence",
+        "on_incomplete": "block"
+      }
+    ],
+    "parallelism": "fanout",
+    "join_policy": "parent_synthesis",
+    "authorization": "requires_user_permission",
+    "permission_prompt": "Executar dois agentes locais e read-only em paralelo para localizar ou fechar negativamente o testemunho do passo 13?",
+    "receipt_requirements": ["agent_id", "role_id", "spawn_status", "join_status", "close_status", "dispatch_id", "step_id", "capability_ref", "capability_target", "capability_mode", "wave_id", "write_scope", "status", "artifacts", "validation", "observer_status", "blockers", "residue", "reroute", "handoff_note"]
+  },
+  "subagent_lifecycle": {"status": "none", "agents": []},
+  "steps": [
+    {
+      "step_id": "s1",
+      "name": "Selecionar evidência local do passo 13",
+      "capability_ref": "context-builder",
+      "mode": "lean-strict-dry-run",
+      "pattern": "validation",
+      "parallel": true,
+      "techniques": ["role_projection_boundary", "execution_receipt_handoff", "observability_grouping"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}, {"kind": "artifact", "ref": "research/cyberalchemy-method-run-reconstruction/findings.md"}],
+      "outputs": [{"kind": "receipt", "ref": "receipts/step13-evidence-selector.json"}],
+      "join_policy": "all",
+      "evidence_artifact": "receipts/step13-evidence-selector.json",
+      "stop_conditions": ["stop with a closed negative when no single versioned episode witnesses observation through reflection", "stop if the evidence boundary would require web research or repository mutation"]
+    },
+    {
+      "step_id": "s2",
+      "name": "Verificar thresholds e reflexão preservada",
+      "capability_ref": "workflow-reflect",
+      "capability_status": "local-extension",
+      "capability_metadata": {"source": "arcana/workflow-reflect/SKILL.md", "status": "installed-generated-native-package", "validation_note": "Run in dry-run read-only mode; no report or state mutation."},
+      "mode": "dry-run",
+      "pattern": "validation",
+      "parallel": true,
+      "techniques": ["role_projection_boundary", "execution_receipt_handoff", "observability_grouping"],
+      "inputs": [{"kind": "intent", "ref": "intent.raw"}, {"kind": "external_context", "ref": "research/cyberalchemy-method-run-reconstruction/findings.md"}],
+      "outputs": [{"kind": "receipt", "ref": "receipts/step13-reflection-verifier.json"}],
+      "join_policy": "all",
+      "evidence_artifact": "receipts/step13-reflection-verifier.json",
+      "stop_conditions": ["stop with insufficient-evidence status when the signal ledger is absent or below threshold", "never create a reflection report or update reflection state"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "g-step13-evidence",
+      "kind": "validation",
+      "owner": "parent-orchestrator",
+      "condition": "Both agents return complete, cited receipts, keep episodes distinct, and classify the claim as witnessed, partial, or closed-negative without treating missing versioned evidence as execution failure.",
+      "applies_after_wave": "step13-witnesses",
+      "requires_role_receipts": ["receipts/step13-evidence-selector.json", "receipts/step13-reflection-verifier.json"],
+      "on_fail": "block"
+    },
+    {
+      "gate_id": "g-claim-boundary",
+      "kind": "quality",
+      "owner": "parent-orchestrator",
+      "condition": "The final synthesis does not claim end-to-end step-13 operation unless one preserved episode witnesses signals, threshold evaluation, reflection, and resulting proposal or state change.",
+      "on_fail": "block"
+    }
+  ],
+  "boundary_evidence": {
+    "boundaries": [
+      {"boundary_id": "b-selector-return", "kind": "evidence_return", "from_owner": "context-builder", "to_owner": "parent-orchestrator", "applies_to_steps": ["s1"], "contract": "Return selector-level local evidence or a closed negative; no writes or cross-episode synthesis.", "on_violation": "block"},
+      {"boundary_id": "b-reflect-return", "kind": "evidence_return", "from_owner": "workflow-reflect", "to_owner": "parent-orchestrator", "applies_to_steps": ["s2"], "contract": "Return dry-run threshold and reflection verification only; no report, state update, or observed-capability mutation.", "on_violation": "block"}
+    ],
+    "authority": {"lifecycle": "parent-orchestrator", "execution": "runtime/orchestrate", "validation": "dispatch-spec and parent-orchestrator", "evidence": "context-builder and workflow-reflect", "promotion": "human and owning lifecycle capability"},
+    "receipts": [
+      {"receipt_id": "r-step13-selector", "producer": "context-builder", "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation", "observer_status", "blockers", "residue", "handoff_note"], "stores": ["receipts/step13-evidence-selector.json"], "on_missing": "block"},
+      {"receipt_id": "r-step13-reflect", "producer": "workflow-reflect", "required_fields": ["dispatch_id", "step_id", "capability_ref", "status", "artifacts", "validation", "observer_status", "blockers", "residue", "handoff_note"], "stores": ["receipts/step13-reflection-verifier.json"], "on_missing": "block"}
+    ]
+  },
+  "observability": {
+    "dispatch_id_required": true,
+    "trace_events": ["preflight_validated", "action_attempted", "host_spawn_returned", "agent_wait_registered", "agent_terminal", "agent_closed", "receipt_joined", "gate_decided"],
+    "signal_grouping": "dispatch_id, run_id, wave_id, action_id"
+  },
+  "promotion_guardrails": ["The result is evidence about method operation, not authority to modify or promote the CyberAlchemy Method.", "A closed negative triggers a decision about instrumentation or evidence retention, not a fabricated reflection record."]
+}
