@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +16,7 @@ import yaml
 ARCANUM_ROOT = Path(__file__).resolve().parents[4]
 BOOTSTRAP = ARCANUM_ROOT / "tools/bootstrap_arcanum.sh"
 CANONICAL = ARCANUM_ROOT / "runtime/orchestrate"
+GENERATOR = CANONICAL / "scripts/generate_runtime_package.py"
 MANIFEST = json.loads((CANONICAL / "generation-manifest.json").read_text(encoding="utf-8"))
 
 
@@ -45,17 +47,12 @@ class BootstrapGenerationTests(unittest.TestCase):
         cls.target.mkdir()
         cls.completed = subprocess.run(
             [
-                "bash",
-                str(BOOTSTRAP),
+                sys.executable,
+                str(GENERATOR),
                 "--target",
                 str(cls.target),
-                "--sigils",
-                "context-builder",
-                "--spells",
-                "none",
                 "--profiles",
                 "repo-codex,repo-local,claude",
-                "--no-necronomicon",
                 "--force",
             ],
             cwd=ARCANUM_ROOT,
@@ -85,13 +82,14 @@ class BootstrapGenerationTests(unittest.TestCase):
         expected_contract = {key: value for key, value in canonical_frontmatter.items() if key not in generated_only}
         for runtime, package in self.packages.items():
             frontmatter, body = split_skill(package / "SKILL.md")
-            actual_contract = {key: value for key, value in frontmatter.items() if key not in generated_only}
+            provenance = frontmatter.pop("metadata")
+            actual_contract = frontmatter
             self.assertEqual(actual_contract, expected_contract)
             self.assertEqual(body, canonical_body)
-            self.assertEqual(frontmatter["surface_kind"], "generated-native-runtime-package")
-            self.assertEqual(frontmatter["runtime"], runtime)
-            self.assertEqual(frontmatter["canonical_source"], "runtime/orchestrate/SKILL.md")
-            self.assertEqual(frontmatter["mutation_policy"], "regenerate-from-canonical-source")
+            self.assertEqual(provenance["surface_kind"], "generated-native-runtime-package")
+            self.assertEqual(provenance["runtime"], runtime)
+            self.assertEqual(provenance["canonical_source"], "runtime/orchestrate/SKILL.md")
+            self.assertEqual(provenance["mutation_policy"], "regenerate-from-canonical-source")
 
     def test_manifest_selected_support_is_byte_equal(self) -> None:
         for package in self.packages.values():

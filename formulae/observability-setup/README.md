@@ -2,7 +2,7 @@
 
 Observability Setup is a Formulae sigil for installing the standard sigil observability package into any repository.
 
-It creates the repo-local folder structure, configuration files, telemetry ledgers, and reflection state needed for sigils to record post-run JSON events without assuming a specific application stack or agent runtime.
+It creates the repo-local folder structure, configuration files, telemetry ledgers, governance-ledger homes, and reflection state needed by sigils without assuming a specific application stack or agent runtime.
 
 ## Problem It Solves
 
@@ -38,6 +38,8 @@ This sigil solves that by scaffolding a portable observability package that any 
     .gitkeep
   by-capability/
     .gitkeep
+  subagents-strategy/
+    .gitkeep
   reflections/
     .gitkeep
 ```
@@ -50,6 +52,7 @@ Use one central source-of-truth ledger with rebuildable lookup indexes by defaul
 - per-sigil indexes: `.arcanum/observability/by-sigil/<sigil-name>.jsonl`,
 - per-capability indexes: `.arcanum/observability/by-capability/<kind>/<capability-id>.jsonl`,
 - reflection reports: `.arcanum/observability/reflections/`.
+- subagent governance ledger: `.arcanum/observability/subagents-strategy/subagents-dispatch.yaml` (created lazily by its deterministic registrar).
 
 The central ledger preserves chronological history across all capabilities. Index files contain compact references back to central ledger rows, not full duplicate telemetry events. They can be rebuilt with `framework/observability/scripts/rebuild-observability-indexes.sh`.
 

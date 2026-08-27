@@ -7,6 +7,7 @@ import copy
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Callable
@@ -188,7 +189,7 @@ def main() -> int:
     failures: list[str] = []
 
     baseline = subprocess.run(
-        [str(VALIDATOR), str(BASE_FIXTURE), "--json"],
+        [sys.executable, str(VALIDATOR), str(BASE_FIXTURE), "--json"],
         check=False,
         capture_output=True,
         text=True,
@@ -212,7 +213,7 @@ def main() -> int:
             )
             candidate_path.write_text(json.dumps(candidate, indent=2) + "\n", encoding="utf-8")
             completed = subprocess.run(
-                [str(VALIDATOR), str(candidate_path), "--json"],
+                [sys.executable, str(VALIDATOR), str(candidate_path), "--json"],
                 check=False,
                 capture_output=True,
                 text=True,

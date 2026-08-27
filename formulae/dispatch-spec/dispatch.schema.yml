@@ -297,6 +297,37 @@ properties:
         - blocked
       permission_prompt:
         type: string
+      registration:
+        type: object
+        description: Exact-sheet registration proof required by the native runtime before any approved subagent spawn.
+        required:
+        - schema_version
+        - ledger
+        - sheet_schema_version
+        - sheet_sha256
+        - execution_projection_sha256
+        - temporary_sheet
+        - temporary_close
+        properties:
+          schema_version:
+            const: arcanum.subagent-strategy-registration.v0.2
+          ledger:
+            const: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
+          sheet_schema_version:
+            const: 0.6.1
+          sheet_sha256:
+            type: string
+            pattern: ^[0-9a-f]{64}$
+          execution_projection_sha256:
+            type: string
+            pattern: ^[0-9a-f]{64}$
+          temporary_sheet:
+            type: string
+            minLength: 1
+          temporary_close:
+            type: string
+            minLength: 1
+        additionalProperties: false
       receipt_requirements:
         type: array
         items:

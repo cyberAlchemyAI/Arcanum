@@ -11,6 +11,8 @@ import argparse
 import copy
 import hashlib
 import json
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,6 +28,20 @@ GATE_DECISION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.gate-decision.v0.
 ACTION_SET_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action-set.v0.1"
 MAX_ACTION_NUMBER = 9999
 BRIEFING_CONTRACT_VERSION = "arcanum.confirmed-role-briefing.v0.1"
+STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.2"
+STRATEGY_LEDGER = Path(".arcanum/observability/subagents-strategy/subagents-dispatch.yaml")
+STRATEGY_TEMP_ROOT = Path(".arcanum/runtime/subagents-strategy")
+SHEET_SCHEMA_VERSION = "0.6.1"
+EXECUTION_PROJECTION_FIELDS = (
+    "binding_mode",
+    "execution_owner",
+    "roles",
+    "execution_waves",
+    "parallelism",
+    "join_policy",
+    "authorization",
+    "receipt_requirements",
+)
 
 RECEIPT_REQUIRED_FIELDS = {
     "schema_version",
@@ -52,6 +68,259 @@ class CompileBlocked(RuntimeError):
     def __init__(self, blockers: list[str]) -> None:
         super().__init__("; ".join(blockers))
         self.blockers = blockers
+
+
+def _project_root_for_dispatch(
+    dispatch_path: Path, project_root: Path | None = None
+) -> Path:
+    if project_root is not None:
+        root = project_root.resolve()
+        if not root.is_dir():
+            raise CompileBlocked([f"project root is not a directory: {root}"])
+        return root
+
+    configured = os.environ.get("ARCANUM_PROJECT_DIR")
+    if configured:
+        root = Path(configured).resolve()
+        if not root.is_dir():
+            raise CompileBlocked([f"ARCANUM_PROJECT_DIR is not a directory: {root}"])
+        return root
+
+    resolved_dispatch = dispatch_path.resolve()
+    for candidate in (resolved_dispatch.parent, *resolved_dispatch.parents):
+        if (candidate / STRATEGY_LEDGER).is_file():
+            return candidate
+    for candidate in (resolved_dispatch.parent, *resolved_dispatch.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    raise CompileBlocked(["cannot resolve project root for subagent strategy registration"])
+
+
+def _decode_ledger_scalar(raw: str, line_number: int) -> Any:
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise CompileBlocked(
+            [f"strategy ledger line {line_number} has an invalid scalar: {exc.msg}"]
+        ) from exc
+
+
+def _strategy_ledger_rows(ledger_path: Path) -> list[dict[str, Any]]:
+    try:
+        text = ledger_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise CompileBlocked([f"cannot read strategy ledger {ledger_path}: {exc}"]) from exc
+
+    rows: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        start = re.fullmatch(r"  - (dispatch_id|close_of): (.+)", line)
+        if start:
+            if current is not None:
+                rows.append(current)
+            current = {
+                start.group(1): _decode_ledger_scalar(start.group(2), line_number)
+            }
+            continue
+        field = re.fullmatch(r"    ([a-z][a-z0-9_]*): (.+)", line)
+        if field and current is not None:
+            current[field.group(1)] = _decode_ledger_scalar(
+                field.group(2), line_number
+            )
+    if current is not None:
+        rows.append(current)
+    return rows
+
+
+def strategy_execution_projection(dispatch: dict[str, Any]) -> dict[str, Any]:
+    """Return the complete executable strategy subset committed at confirmation."""
+
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(strategy, dict):
+        raise CompileBlocked(["dispatch must declare a subagent_strategy"])
+    return {field: copy.deepcopy(strategy.get(field)) for field in EXECUTION_PROJECTION_FIELDS}
+
+
+def strategy_execution_projection_sha256(dispatch: dict[str, Any]) -> str:
+    return _canonical_payload_sha256(strategy_execution_projection(dispatch))
+
+
+def _registered_topology(row: dict[str, Any]) -> list[dict[str, Any]]:
+    groups = row.get("groups")
+    connections = row.get("connections", [])
+    if not isinstance(groups, list) or not all(isinstance(group, dict) for group in groups):
+        raise CompileBlocked(["registered strategy topology has no valid groups"])
+    if not isinstance(connections, list):
+        raise CompileBlocked(["registered strategy topology has invalid connections"])
+    blocking = {"sequential", "zig-zag"}
+    topology = []
+    for group in groups:
+        group_id = group.get("group_id")
+        agents = group.get("agents")
+        if not isinstance(group_id, str) or not isinstance(agents, list):
+            raise CompileBlocked(["registered strategy topology has an invalid group"])
+        dependencies = []
+        for connection in connections:
+            if not isinstance(connection, dict):
+                raise CompileBlocked(["registered strategy topology has an invalid connection"])
+            if connection.get("to") == group_id and connection.get("type") in blocking:
+                source = connection.get("from")
+                if not isinstance(source, str):
+                    raise CompileBlocked(["registered strategy topology has an invalid dependency"])
+                dependencies.append(source)
+        topology.append({"wave_id": group_id, "agent_count": len(agents), "depends_on_waves": sorted(dependencies)})
+    return topology
+
+
+def _runtime_topology(dispatch: dict[str, Any]) -> list[dict[str, Any]]:
+    strategy = dispatch.get("subagent_strategy", {})
+    roles = strategy.get("roles", [])
+    waves = strategy.get("execution_waves", [])
+    role_counts = {
+        role.get("role_id"): role.get("agent_count")
+        for role in roles
+        if isinstance(role, dict)
+    }
+    topology = []
+    for wave in waves:
+        if not isinstance(wave, dict):
+            raise CompileBlocked(["runtime strategy topology has an invalid execution wave"])
+        wave_roles = wave.get("role_ids", [])
+        if not isinstance(wave_roles, list) or any(
+            not isinstance(role_counts.get(role_id), int) or role_counts[role_id] < 1
+            for role_id in wave_roles
+        ):
+            raise CompileBlocked(["runtime strategy topology has invalid role cardinality"])
+        topology.append(
+            {
+                "wave_id": wave.get("wave_id"),
+                "agent_count": sum(role_counts[role_id] for role_id in wave_roles),
+                "depends_on_waves": sorted(wave.get("depends_on_waves", []) or []),
+            }
+        )
+    return topology
+
+
+def verify_strategy_registration(
+    dispatch: dict[str, Any],
+    dispatch_path: Path,
+    project_root: Path | None = None,
+    *,
+    require_close: bool = False,
+) -> dict[str, Any]:
+    """Verify the exact-sheet ledger row and temporary-file lifecycle."""
+
+    dispatch_id = dispatch.get("dispatch_id")
+    strategy = dispatch.get("subagent_strategy")
+    if not isinstance(dispatch_id, str) or not dispatch_id:
+        raise CompileBlocked(["dispatch_id is required for strategy registration"])
+    if not isinstance(strategy, dict):
+        raise CompileBlocked(["dispatch must declare a subagent_strategy"])
+    registration = strategy.get("registration")
+    if not isinstance(registration, dict):
+        raise CompileBlocked(["approved subagent execution has no strategy registration"])
+    if registration.get("schema_version") != STRATEGY_REGISTRATION_SCHEMA_VERSION:
+        raise CompileBlocked(["strategy registration schema_version mismatch"])
+    if registration.get("ledger") != STRATEGY_LEDGER.as_posix():
+        raise CompileBlocked(["strategy registration ledger path is not canonical"])
+    if registration.get("sheet_schema_version") != SHEET_SCHEMA_VERSION:
+        raise CompileBlocked(["strategy registration sheet_schema_version mismatch"])
+    sheet_sha = registration.get("sheet_sha256")
+    if not isinstance(sheet_sha, str) or re.fullmatch(r"[0-9a-f]{64}", sheet_sha) is None:
+        raise CompileBlocked(["strategy registration sheet_sha256 is invalid"])
+    projection_sha = registration.get("execution_projection_sha256")
+    if not isinstance(projection_sha, str) or re.fullmatch(r"[0-9a-f]{64}", projection_sha) is None:
+        raise CompileBlocked(["strategy registration execution_projection_sha256 is invalid"])
+    computed_projection_sha = strategy_execution_projection_sha256(dispatch)
+    if projection_sha != computed_projection_sha:
+        raise CompileBlocked(["strategy registration execution projection digest mismatch"])
+
+    root = _project_root_for_dispatch(dispatch_path, project_root)
+    sheet_raw = str(registration.get("temporary_sheet", ""))
+    close_raw = str(registration.get("temporary_close", ""))
+    sheet_rel = Path(sheet_raw)
+    close_rel = Path(close_raw)
+    for label, raw, relative, suffix in (
+        ("temporary_sheet", sheet_raw, sheet_rel, ".tmp.json"),
+        ("temporary_close", close_raw, close_rel, ".close.tmp.json"),
+    ):
+        if "\\" in raw or not raw.startswith(STRATEGY_TEMP_ROOT.as_posix() + "/"):
+            raise CompileBlocked(
+                [f"strategy registration {label} must use a portable project-relative path"]
+            )
+        try:
+            resolved = (root / relative).resolve()
+            resolved.relative_to((root / STRATEGY_TEMP_ROOT).resolve())
+        except (OSError, ValueError) as exc:
+            raise CompileBlocked([f"strategy registration {label} escapes its runtime root"]) from exc
+        if not relative.as_posix().endswith(suffix):
+            raise CompileBlocked([f"strategy registration {label} has the wrong suffix"])
+
+    if (root / sheet_rel).exists():
+        raise CompileBlocked(["confirmed strategy sheet was not consumed before preflight"])
+
+    ledger_path = root / STRATEGY_LEDGER
+    if not ledger_path.is_file():
+        raise CompileBlocked([f"strategy ledger does not exist: {ledger_path}"])
+    rows = _strategy_ledger_rows(ledger_path)
+    dispatch_rows = [row for row in rows if row.get("dispatch_id") == dispatch_id]
+    if len(dispatch_rows) != 1:
+        raise CompileBlocked(
+            [f"strategy ledger must contain exactly one dispatch row for {dispatch_id}"]
+        )
+    row = dispatch_rows[0]
+    if row.get("schema_version") != SHEET_SCHEMA_VERSION:
+        raise CompileBlocked(["registered strategy sheet schema_version mismatch"])
+    if row.get("sheet_sha256") != sheet_sha:
+        raise CompileBlocked(["registered strategy sheet digest mismatch"])
+    if row.get("execution_projection_sha256") != projection_sha:
+        raise CompileBlocked(["registered strategy execution projection digest mismatch"])
+    registered_topology = _registered_topology(row)
+    runtime_topology = _runtime_topology(dispatch)
+    if registered_topology != runtime_topology:
+        raise CompileBlocked(["registered strategy topology does not match executable runtime waves"])
+
+    close_rows = [row for row in rows if row.get("close_of") == dispatch_id]
+    if require_close:
+        if (root / close_rel).exists():
+            raise CompileBlocked(["strategy close record was not consumed"])
+        if len(close_rows) != 1:
+            raise CompileBlocked(
+                [f"strategy ledger must contain exactly one close row for {dispatch_id}"]
+            )
+        if rows.index(close_rows[0]) <= rows.index(dispatch_rows[0]):
+            raise CompileBlocked(["strategy close row must follow its dispatch row"])
+        close_row = close_rows[0]
+        if close_row.get("exit_reason") != "resolved":
+            raise CompileBlocked(["strategy close row is not resolved"])
+        if re.fullmatch(r"[0-9a-f]{64}", str(close_row.get("close_sha256", ""))) is None:
+            raise CompileBlocked(["strategy close row has no content digest"])
+        agents_spawned = close_row.get("agents_spawned")
+        expected_agents = sum(item["agent_count"] for item in registered_topology)
+        if not isinstance(agents_spawned, dict) or agents_spawned.get("total") != expected_agents:
+            raise CompileBlocked(["strategy close agent total does not match the registered topology"])
+        tree = agents_spawned.get("tree", {})
+        if (
+            not isinstance(tree, dict)
+            or any(not isinstance(value, int) or value < 0 for value in tree.values())
+            or sum(tree.values()) != agents_spawned.get("total")
+        ):
+            raise CompileBlocked(["strategy close agent tree does not sum to its total"])
+        if agents_spawned.get("loops_used", -1) > row.get("max_loops", -1):
+            raise CompileBlocked(["strategy close loops_used exceeds registered max_loops"])
+
+    return {
+        "status": "pass",
+        "dispatch_id": dispatch_id,
+        "sheet_sha256": sheet_sha,
+        "execution_projection_sha256": projection_sha,
+        "topology": runtime_topology,
+        "ledger": str(ledger_path),
+        "dispatch_registered": True,
+        "close_registered": len(close_rows) == 1,
+        "temporary_sheet_consumed": not (root / sheet_rel).exists(),
+        "temporary_close_consumed": not (root / close_rel).exists(),
+    }
 
 
 def _canonical_payload_sha256(value: Any) -> str:
@@ -418,6 +687,7 @@ def compile_to_directory(
     run_id: str,
     output_dir: Path,
     validator_path: Path | None = None,
+    project_root: Path | None = None,
 ) -> dict[str, Any]:
     """Validate, compile, and persist one first-wave run plan."""
 
@@ -432,6 +702,25 @@ def compile_to_directory(
         raise CompileBlocked(blockers + [f"validator flag: {flag}" for flag in flags] or ["dispatch did not validate"])
 
     dispatch = _load_json(dispatch_path)
+    try:
+        registration = verify_strategy_registration(
+            dispatch, dispatch_path, project_root
+        )
+    except CompileBlocked as exc:
+        strategy = dispatch.get("subagent_strategy") if isinstance(dispatch.get("subagent_strategy"), dict) else {}
+        authorization = str(strategy.get("authorization", ""))
+        _write_json(
+            output_dir / "state.json",
+            _blocked_state(
+                str(dispatch.get("dispatch_id", "")),
+                run_id,
+                "blocked",
+                authorization,
+                exc.blockers,
+            ),
+        )
+        raise
+    _write_json(output_dir / "strategy-registration.json", registration)
     try:
         state, run_plan = compile_first_wave(dispatch, run_id)
     except CompileBlocked as exc:
@@ -1022,6 +1311,21 @@ def main() -> int:
     compile_parser.add_argument("--run-id", required=True)
     compile_parser.add_argument("--output-dir", required=True, type=Path)
     compile_parser.add_argument("--validator", type=Path)
+    compile_parser.add_argument("--project-root", type=Path)
+    verify_parser = subparsers.add_parser(
+        "verify-registration", help="Verify exact-sheet registration before spawn"
+    )
+    verify_parser.add_argument("dispatch", type=Path)
+    verify_parser.add_argument("--project-root", type=Path)
+    close_parser = subparsers.add_parser(
+        "verify-close", help="Verify the paired strategy close row after agent closeout"
+    )
+    close_parser.add_argument("dispatch", type=Path)
+    close_parser.add_argument("--project-root", type=Path)
+    digest_parser = subparsers.add_parser(
+        "projection-digest", help="Compute the canonical executable strategy projection digest"
+    )
+    digest_parser.add_argument("dispatch", type=Path)
     reduce_parser = subparsers.add_parser("reduce", help="Reduce bound wave receipts into one gate decision")
     reduce_parser.add_argument("dispatch", type=Path)
     reduce_parser.add_argument("--state", required=True, type=Path)
@@ -1032,8 +1336,21 @@ def main() -> int:
 
     try:
         if args.command == "compile":
-            result = compile_to_directory(args.dispatch, args.run_id, args.output_dir, args.validator)
-        else:
+            result = compile_to_directory(
+                args.dispatch,
+                args.run_id,
+                args.output_dir,
+                args.validator,
+                args.project_root,
+            )
+        elif args.command == "projection-digest":
+            dispatch = _load_json(args.dispatch)
+            result = {
+                "status": "pass",
+                "execution_projection_sha256": strategy_execution_projection_sha256(dispatch),
+                "projection": strategy_execution_projection(dispatch),
+            }
+        elif args.command == "reduce":
             result = reduce_to_directory(
                 args.dispatch,
                 args.state,
@@ -1041,10 +1358,20 @@ def main() -> int:
                 args.receipts_dir,
                 args.output_dir,
             )
+        else:
+            dispatch = _load_json(args.dispatch)
+            result = verify_strategy_registration(
+                dispatch,
+                args.dispatch,
+                args.project_root,
+                require_close=args.command == "verify-close",
+            )
     except CompileBlocked as exc:
         print(json.dumps({"status": "block", "blockers": exc.blockers}, indent=2, sort_keys=True))
         return 2
-    if args.command == "compile":
+    if args.command in {"verify-registration", "verify-close", "projection-digest"}:
+        summary = result
+    elif args.command == "compile":
         summary = {
             "status": result["status"],
             "state": result["state"]["state"],

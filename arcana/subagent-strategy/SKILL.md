@@ -4,7 +4,7 @@ description: "Use when deciding whether work merits a governed multi-agent dispa
 argument-hint: "<goal> [--type <dispatch-type>] [--profile <path>] [--propose | --run | --close]"
 tier: arcana
 domain: multi-agent-governance
-version: 0.3.0
+version: 0.4.0
 origin: extracted from a governed repository-local subagent dispatch router and generalized for public reuse
 allowed-tools: Read, Write, Glob, Grep, Task, Bash
 ---
@@ -54,7 +54,7 @@ Expected inputs, when available:
 - non-mutating confirmation-readiness validation mode,
 - deterministic agent-eligibility and final-approver admission rules,
 - digest-owned tension-evidence representation,
-- material-strategy projection and deterministic equivalence validation,
+- temporary-sheet storage and deterministic append-only registration,
 - callable subagent mechanism,
 - tension-check, registration, ledger, inventory, and observability bindings.
 </inputs>
@@ -84,45 +84,33 @@ A single helper spawned inside one agent's bounded scope is not a dispatch. Repo
 </dispatch-trigger>
 
 <confirmation-semantics>
-Human confirmation binds the material strategy that was presented, not the
-serialization bytes of its dispatch sheet. The local runtime must define and
-persist a deterministic material-strategy projection containing every choice
-that could change what the human authorized: objective and evidence boundary,
-dispatch type, lanes and purposes, agent identities and roles, angles and
-prompts, source scope, expected outputs, dependency topology, loop ceilings,
-final approver, destination, publication or privacy boundary, validation, and
-stop conditions.
+Human confirmation binds the exact admitted strategy sheet that was presented.
+The sheet is frozen after confirmation. Any byte change, including mechanical
+reserialization, invalidates readiness, tension verdicts, and confirmation and
+returns the lifecycle to validation and explicit reconfirmation.
 
-Whitespace, key ordering, machine digests, evidence handles, derived counts,
-schema-default materialization, and canonical encoding of already-presented
-content are mechanical only when a deterministic equivalence check proves that
-the material projection is unchanged. Unknown or unprovable equivalence fails
-closed as material.
-
-Exact sheet digests remain mandatory machine-integrity evidence. Every byte
-change invalidates the old readiness digest, tension verdicts, and registration
-attachment, so those machine gates rerun against the current bytes. A prior
-human confirmation may carry forward only after the current sheet passes those
-gates and the configured equivalence check proves the material strategy is
-unchanged. Material changes require the revised strategy to be presented and
-explicitly reconfirmed.
+The sheet is a UTF-8 temporary JSON record under the runtime profile's governed
+temporary root. It is not durable evidence. The deterministic registrar
+appends the confirmed dispatch row to the configured YAML ledger and consumes
+the temporary JSON before any working agent is launched. The YAML row
+is the durable confirmed strategy; no separate material-strategy artifact exists.
 </confirmation-semantics>
 
 <process>
 1. Resolve the active repository and the nearest applicable runtime profile. Treat generated adapters as non-authoritative when a canonical local owner exists.
 2. Make the preliminary trigger decision before designing groups. If no trigger holds, work inline and return the reason.
 3. Resolve the dispatch type. Read only its named owner contract and run only its configured read-only preflights. Preflight evidence informs strategy design but never authorizes the dispatch.
-4. Draft and persist the strategy sheet using the local form owner. Include goal, evidence boundary, groups, agents, roles, angles, expected outputs, artifact destination, dependency edges, loop ceilings, final approver, validation, and stop conditions required by the local schema. Persist the runtime's deterministic material-strategy projection beside the sheet. Every load-bearing tension claim, including each predicted pairwise disagreement, must live inside the digest-bound sheet rather than companion prose.
-5. Run the form owner's non-mutating confirmation-readiness validator against the exact persisted sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. Confirmation readiness is one composite checkpoint: form and version, live type-owner prerequisites, agent eligibility and identity uniqueness, final-approver admission, complete digest-owned tension evidence, and configured publication boundaries must all close before the human gate. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
+4. Draft the strategy sheet as a UTF-8 temporary JSON record under the configured runtime temporary root. Use the local form owner's direct fields: `dispatch_id`, `schema_version`, `dispatch_type`, `goal`, `context`, `max_loops`, `final_approver`, `groups`, optional `connections`, tension fields, output mode and destination, lineage, and invocation metadata. Every load-bearing tension claim, including each predicted pairwise disagreement, must live inside the exact sheet bytes rather than companion prose. Do not persist a per-dispatch strategy JSON or material-strategy file in the working folder. When native capability-bound Orchestrate execution is required, also prepare its separate Dispatch Spec runtime document; treat it as execution state, never as the confirmed strategy or durable ledger.
+5. Run the form owner's non-mutating confirmation-readiness validator against the exact temporary sheet. Continue only when the current schema and all deterministic admission rules pass and the validator returns the exact sheet digest without writing registration state. For native Orchestrate execution, compute the canonical executable projection digest with `native_dispatch_coordinator.py projection-digest`, place it in both the exact sheet and `subagent_strategy.registration`, add the sheet digest and governed temporary dispatch/close paths to that registration, then require the Dispatch Spec validator to pass. Confirmation readiness is one composite checkpoint: form and version, live type-owner prerequisites, agent eligibility and identity uniqueness, final-approver admission, complete digest-owned tension evidence, configured publication boundaries, and any native runtime binding must all close before the human gate. If a runtime or candidate declares a stale form version, emit a visible warning, rematerialize the temporary sheet from the canonical local owner, and rerun this step before tension or confirmation. Other admission errors block.
 6. For every group with two or more agents, name the anti-bias axis and the concrete question on which the agents are expected to disagree. Persist one predicted-disagreement record for every unordered pair in the sheet representation owned by the local schema. Reject redundant angles, nominal disagreement, incomplete pair coverage, or companion-only evidence.
 7. Run the configured tension gate against only the admitted sheet bytes and the gate rubric; companion files, parent summaries, and unstored chat context cannot satisfy the gate. Phase 1 launches two independent checkers in parallel and preserves each independent verdict bound to the same sheet digest. If either reports defects, Phase 2 may give the frozen checker report to the reviewer solely to compare the apontamentos; the reviewer must not revise its independent verdict. Both independent verdicts must pass. Any byte revision returns to Step 5 before both checks rerun against the current digest. If the runtime cannot call independent checkers, stop at an explicitly ungated proposal.
 8. Present the complete admitted strategy in chat, including the trigger decision, lanes, agents, dependency flow, preflight consequences, artifact destination, readiness state, gate state, ledger state, and next human action.
-9. Wait for explicit human confirmation of the complete material strategy. Silence, discussion, a question, or authorization to revise the draft is not dispatch confirmation. Ask only after composite readiness and both independent tension verdicts pass, so a normal run presents exactly one confirmation request. If bytes later change, return to Step 5 and rerun both tension checks. Carry the prior confirmation only when the configured deterministic equivalence check proves the material-strategy projection unchanged; record the equivalence receipt and attach the carried confirmation to the current machine digest. Present and reconfirm any material revision. Treat unknown or unprovable equivalence as material.
-10. Validate and append the dispatch event through the profile's deterministic registrar before launching working agents. Never hand-edit an append-only ledger when a registrar exists.
+9. Wait for explicit human confirmation of the complete exact strategy sheet. Silence, discussion, a question, or authorization to revise the draft is not dispatch confirmation. Ask only after composite readiness and both independent tension verdicts pass. If the temporary sheet bytes change for any reason, return to Step 5, rerun both tension checks, present the sheet again, and require explicit reconfirmation.
+10. Validate and append the confirmed dispatch row through the profile's deterministic registrar with temporary-record consumption enabled. The registrar serializes concurrent writers, records the exact sheet digest and optional executable projection digest in the YAML ledger, and deletes the JSON only after a durable append or exact-content idempotent match succeeds. Launch no working agent before registration passes. For native Orchestrate execution, run its registration verifier or compile preflight next; it must recompute the projection digest, match registration and ledger, compare registered group topology to executable waves, and prove the temporary sheet is gone before emitting actions. The runtime document may remain temporary execution state, but it must not replace the consumed sheet or durable YAML evidence. Never hand-edit the append-only ledger.
 11. Launch groups by dependency. A group is ready only when every incoming blocking edge has produced what the target must answer **and** the dispatch type owner's declared stage-handoff gate returns `ready` for those exact upstream artifacts. Output existence alone is not readiness. A gate may return `needs_feedback` only with a typed defect, repair-owner stage, eligible already-confirmed edge, and remaining loop capacity; otherwise it returns `blocked`. `sequential` and forward `zig-zag` edges block by default; `feedback` edges do not. On `needs_feedback`, traverse only the named declared feedback or revision edge and keep the consumer blocked. On `blocked`, propagate the gap and confidence limit to the final approver without inventing a new edge or exceeding a loop ceiling. Agents within a ready group run in parallel.
 12. Preserve partial results. If an agent fails or a stage-handoff gate blocks, downstream groups and the final approver receive the failure or typed gap, available evidence, and resulting confidence limit.
 13. Enforce final approval. The parent approves by default; a dedicated one-agent auditor may approve only when the local profile and deterministic registrar admit that exact shape. Working-group members do not self-approve their collective result.
-14. Join and close every spawned agent. Report open, joined, failed, and closed counts plus the configured exit reason. Append exactly one close event paired to the dispatch event.
+14. Join and close every spawned agent. Report open, joined, failed, and closed counts plus the configured exit reason. Build the declared temporary close JSON, append exactly one close row paired to the dispatch row through the same registrar, and consume the close JSON after success. When native Orchestrate was used, run its `verify-close` gate and do not report resolved closeout until the paired row and close-record consumption both pass.
 15. Run configured post-result hooks. Inventory and other read models record the strategy result and evidence links, not merely the dispatch machinery. Observability records behavior without becoming dispatch authority.
 16. Return the result using the output contract and name any unresolved residue.
 </process>
@@ -150,17 +138,17 @@ Emit or preserve:
 - trigger decision and matching triggers,
 - group, agent, role, angle, and dependency counts,
 - preflight status and its concrete design consequence,
-- confirmation-readiness status and obligations closed, expected and observed form versions, projection-drift warnings, and pre-confirmation revision count,
+- confirmation-readiness status and obligations closed, expected and observed form versions, exact sheet digest, and pre-confirmation revision count,
 - tension-check results and revision count,
-- confirmation request count, avoidable confirmation request count, preventable post-confirmation revision count, sheet-byte revision count, material-strategy revision count, carried-confirmation count, equivalence verdict, and material confirmation state,
-- registration and close event identifiers,
+- confirmation request count, avoidable confirmation request count, preventable post-confirmation revision count, sheet-byte revision count, and exact-sheet confirmation state,
+- registration and close row identifiers, YAML ledger path, and temporary-record consumption status,
 - stage-handoff readiness verdicts, typed gaps, feedback or revision routes used, and remaining loop capacity,
 - agent lifecycle counts and partial failures,
 - final approver and approval status,
 - result artifacts and validation,
 - Quality Bar status, Anti-Pattern hits, workflow gaps, output-contract drift, and reflection trigger.
 
-Use `templates/usage-telemetry.md`. Reflect after five meaningful executions, ten generated artifacts, three related workflow gaps, or one severe gap. Missing confirmation, unregistered execution, unpaired ledger events, unsafe scope expansion, private evidence leakage, unclosed agents, companion-only gate evidence, or a repeated confirmation caused by a deterministically discoverable pre-confirmation defect are severe gaps.
+Use `templates/usage-telemetry.md`. Reflect after five meaningful executions, ten generated artifacts, three related workflow gaps, or one severe gap. Missing confirmation, unregistered execution, unpaired ledger rows, orphaned successful temporary records, unsafe scope expansion, private evidence leakage, unclosed agents, companion-only gate evidence, or a repeated confirmation caused by a deterministically discoverable pre-confirmation defect are severe gaps.
 </observability>
 
 <quality-bar>
@@ -169,24 +157,25 @@ A successful execution must:
 - decide and explain whether a dispatch trigger holds before fan-out,
 - keep a bounded one-helper case outside the dispatch lifecycle,
 - resolve a live type owner and valid runtime profile before registration,
-- persist and pass the exact sheet through the live form owner's non-mutating confirmation-readiness validator before tension or confirmation,
+- create the exact sheet only under the governed temporary root and pass it through the live form owner's non-mutating confirmation-readiness validator before tension or confirmation,
 - close every configured deterministic admission obligation at one composite readiness point,
 - treat stale runtime or schema projections as visible pre-confirmation warnings that still fail closed until rematerialized,
 - expose the full strategy and artifact destination to the human,
 - define real anti-bias tension for every multi-agent group,
 - keep all load-bearing tension evidence inside the admitted sheet bytes,
 - receive two independent PASS results before confirmation,
-- require at most one explicit confirmation request while the material strategy remains unchanged,
-- rerun readiness, tension, and registration integrity checks after every byte change,
-- carry confirmation only with deterministic material-equivalence evidence and reconfirm material or unclassifiable changes,
+- require at most one explicit confirmation request while the exact sheet bytes remain unchanged,
+- rerun readiness and tension checks and require reconfirmation after every byte change,
 - register before spawning working groups,
+- consume the dispatch temporary JSON only after registration succeeds,
 - honor blocking and non-blocking dependency semantics,
 - require the type owner's stage-handoff readiness verdict before launching a consuming group,
 - route correctable handoff gaps only through declared edges and remaining loop capacity,
 - propagate partial failures and confidence limits,
 - use an independent final approver,
 - join and close every agent,
-- append one dispatch event and one paired close event,
+- append one dispatch row and one paired close row to the configured YAML ledger,
+- consume the temporary close JSON after the close row is admitted,
 - keep project-specific and private authority in the consuming profile,
 - update configured result and observability hooks,
 - return evidence, residue, and the next human action.
@@ -200,23 +189,25 @@ Avoid:
 - inventing sheet fields or type-specific judgment inside this router,
 - using duplicated roles as fake tension,
 - presenting a sheet before its tension checks pass,
-- asking for confirmation before the exact persisted sheet passes the live form owner,
+- asking for confirmation before the exact temporary sheet passes the live form owner,
 - treating syntactic form validation as complete when agent eligibility, approver admission, tension-evidence coverage, type-owner prerequisites, or publication checks are still unresolved,
 - satisfying a tension gate with companion prose, parent summaries, or evidence not included in the admitted sheet digest,
 - treating a form-version warning as permission to admit a stale sheet,
 - treating silence, continued discussion, or draft-revision authorization as dispatch confirmation,
 - making a reviewer react to checker findings before preserving the reviewer's independent verdict,
 - editing sheet bytes without rerunning readiness and both tension checks,
-- asking the human to reconfirm a deterministically equivalent material strategy merely because serialization bytes changed,
-- carrying confirmation across a material change or when equivalence is unknown,
+- carrying confirmation across any sheet-byte change,
 - spawning working agents before deterministic registration,
+- persisting dispatch sheets, material-strategy projections, runtime profiles, or per-topic ledgers beside result artifacts,
+- deleting an invalid temporary record before its validation failure can be diagnosed,
+- leaving a successfully registered or closed temporary JSON behind,
 - treating an upstream file or return as stage-ready merely because it exists,
 - spending a downstream approval or revision loop on an upstream evidence gap when the declared feedback route can still repair it,
 - inventing a feedback edge or exceeding a loop ceiling to repair a handoff,
 - treating read-model or Inventory evidence as authority,
 - hiding agent failures from downstream groups,
 - letting working agents approve their own collective result,
-- leaving agents open or ledger events unpaired,
+- leaving agents open or ledger rows unpaired,
 - copying a consuming repository's private names, paths, or evidence into Arcanum,
 - claiming promotion readiness from contract prose without experiment evidence.
 </anti-patterns>
@@ -239,12 +230,13 @@ Return:
 - Subagents: <names or handles, roles, angles, expected outputs>
 - Dependency flow: <sequential, zig-zag, feedback, final approval>
 - Tension gate: <PASS/PASS | revision required | unavailable | not applicable>
-- Human gate: <awaiting confirmation | confirmed/materially-bound | carried-by-equivalence | not applicable>
-- Registration: <unregistered | registered with evidence | blocked | not applicable>
+- Human gate: <awaiting confirmation | confirmed/exact-sheet-bound | invalidated-by-byte-change | not applicable>
+- Registration: <unregistered | registered in YAML with sheet digest | blocked | not applicable>
 - Execution: <not started | completed | partial | failed | not applicable>
 - Stage handoffs: <ready | needs_feedback with typed gaps, repair owner, edge, and loops remaining | blocked | not applicable>
 - Agent closeout: <open/joined/failed/closed counts and residue>
-- Ledger closeout: <paired | pending | blocked | not applicable>
+- Ledger closeout: <paired in YAML | pending | blocked | not applicable>
+- Temporary records: <dispatch consumed; close consumed | preserved after failure | not applicable>
 - Result artifacts: <paths or inline>
 - Validation: <checks and status>
 - Reflection trigger: none | manual | usage-threshold | output-threshold | gap-threshold | severe-gap

@@ -4,14 +4,14 @@
 
 Propose a governed research dispatch. The first draft contains two pooled
 explorers, a named external final approver, and pairwise disagreement prose in
-`STRATEGY.md` rather than the persisted dispatch sheet. The human has not been
+`STRATEGY.md` rather than the temporary dispatch sheet. The human has not been
 asked to confirm.
 
 ## Inputs
 
 - P1 trigger: synthesis and parallelism.
 - Dispatch type owner: live research capability.
-- Canonical form owner: schema `0.8.0`.
+- Canonical form owner: schema `0.6.1`.
 - Agent pool: readable; both explorers are eligible and unique.
 - First draft final approver: `Independent Maintainer`, not pooled and not a
   singleton auditor group.
@@ -32,5 +32,5 @@ asked to confirm.
 - Ask for confirmation exactly once after PASS/PASS.
 - Register immediately if the confirmed digest remains unchanged.
 - If bytes change after confirmation, rerun readiness and both tension checks.
-- Carry confirmation only when a deterministic material-projection comparison
-  proves the strategy unchanged; otherwise require reconfirmation.
+- Invalidate confirmation and require reconfirmation after any sheet-byte
+  change.

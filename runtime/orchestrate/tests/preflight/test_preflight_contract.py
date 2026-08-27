@@ -21,6 +21,7 @@ HOST = ARCANUM_ROOT / "runtime/orchestrate/hosts/codex-native.md"
 COORDINATOR_PATH = ARCANUM_ROOT / "runtime/orchestrate/scripts/native_dispatch_coordinator.py"
 VALIDATOR = ARCANUM_ROOT / "formulae/dispatch-spec/scripts/validate-dispatch.py"
 COMPILE_FIXTURES = ARCANUM_ROOT / "runtime/orchestrate/tests/fixtures/compile"
+PROJECT_ROOT = COMPILE_FIXTURES / "project-root"
 PREFLIGHT_FIXTURES = Path(__file__).resolve().parent / "fixtures"
 RECEIPT_SCHEMA = Path(__file__).resolve().parent / "preflight-receipt.schema.json"
 ACCEPTANCE_RECEIPTS = {
@@ -57,6 +58,7 @@ def evaluate_preflight(
     run_id: str,
     available_operations: set[str],
     output_dir: Path,
+    project_root: Path = PROJECT_ROOT,
 ) -> dict[str, Any]:
     skill = load_frontmatter(SKILL)
     host = load_frontmatter(HOST)
@@ -116,7 +118,9 @@ def evaluate_preflight(
             "blockers": ["native_host_operations_missing"],
         }
 
-    result = coordinator.compile_to_directory(dispatch_path, run_id, output_dir, VALIDATOR)
+    result = coordinator.compile_to_directory(
+        dispatch_path, run_id, output_dir, VALIDATOR, project_root
+    )
     return {
         **base,
         "status": "pass",

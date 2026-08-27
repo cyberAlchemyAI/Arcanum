@@ -7,21 +7,24 @@ metadata:
   generated_by: tools/bootstrap_arcanum.sh --profile
   mutation_policy: regenerate-from-canonical-source
 name: orchestrate
-description: "Route repository work through installed Arcanum capabilities and execute validated capability-bound dispatches through host-native operations."
-argument_hint: "execute <dispatch.json>"
+description: Route repository work through installed Arcanum capabilities and execute validated capability-bound dispatches through host-native operations.
+argument_hint: execute <dispatch.json>
 execute_contract:
-  grammar: "orchestrate execute <dispatch.json>"
+  grammar: orchestrate execute <dispatch.json>
   verb: execute
   argument_count: 1
   argument_kind: dispatch-json-path
   validation_owner: dispatch-spec
   required_validation_result: pass
   authorization_satisfied:
-    - approved
-    - not_needed
+  - approved
+  - not_needed
   host_profile: hosts/codex-native.md
   ready_state: wave_ready
   preflight_spawn_attempt_count: 0
+  strategy_registration_required: true
+  strategy_registration_schema: arcanum.subagent-strategy-registration.v0.2
+  strategy_ledger: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
   missing_host_behavior: block
   nested_model_cli_fallback: forbidden
 native_spawn_contract:
@@ -36,8 +39,8 @@ native_spawn_contract:
   unknown_action_policy: block
   replay_policy: block
   returned_binding:
-    - action_id
-    - agent_id
+  - action_id
+  - agent_id
   driver: scripts/native_dispatch_driver.py
 native_join_contract:
   input_receipt_schema: schemas/receipt.schema.json
@@ -107,7 +110,8 @@ Run these checks in order:
 3. Read `subagent_strategy.authorization`. Continue only for `approved` or `not_needed`. Use `authorization_pending` for `requires_user_permission`; use `blocked` for `blocked` or missing authorization.
 4. Load the selected host profile and compare every `required_execute_operation` with the active host tool catalog. The active host catalog is runtime evidence; a shell executable or prose claim is not a substitute.
 5. If any required operation is missing, emit `state=blocked`, name the missing operations, set `spawn_attempt_count=0`, and stop.
-6. Ask the deterministic coordinator to compile the first eligible wave. A passing preflight ends at `state=wave_ready` with action documents and `spawn_attempt_count=0`.
+6. Ask the deterministic coordinator to verify `subagent_strategy.registration` against the canonical append-only strategy ledger. It must find exactly one dispatch row with the same `dispatch_id`, `sheet_schema_version`, `sheet_sha256`, and executable projection digest; recompute that projection from the current Dispatch Spec; compare registered group cardinality and blocking dependencies to executable waves; and prove that the declared temporary sheet no longer exists. Missing, stale, mismatched, duplicate, or unconsumed registration blocks before actions are emitted.
+7. Ask the deterministic coordinator to compile the first eligible wave. A passing preflight persists `strategy-registration.json` beside the state and run plan and ends at `state=wave_ready` with action documents and `spawn_attempt_count=0`.
 
 Preflight never invokes `spawn`, `wait`, `join`, `close`, message delivery, or a model-backed CLI.
 </execute-preflight>
@@ -179,6 +183,18 @@ Consume one persisted wave plan and the complete action-to-native-agent bindings
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.
 </native-join-wave>
 
+<strategy-registration-closeout>
+After every spawned agent has a terminal close state, create the declared
+`temporary_close` JSON under `.arcanum/runtime/subagents-strategy/`. Its total
+and role tree must agree, its total must equal the registered strategy topology,
+and its loop count cannot exceed `max_loops`. Append it
+through the Subagent Strategy registrar with consumption enabled; never edit
+the ledger directly. Then run coordinator `verify-close <dispatch.json>`.
+Resolved closeout requires exactly one paired `close_of` row after the dispatch
+row and absence of the temporary close JSON. A missing, duplicate, out-of-order,
+or unconsumed close record blocks a resolved report.
+</strategy-registration-closeout>
+
 <native-next-wave-plan>
 `prepare-next-wave-plan` is a deterministic, non-causal transition. It writes
 no event and performs no host operation. It requires the validator-clean event
@@ -240,6 +256,7 @@ not be rewritten into a passing causal stream.
 
 <failure-policy>
 - Invalid dispatch: `block`, no plan, no actions, zero spawn attempts.
+- Missing, mismatched, duplicate, or unconsumed strategy registration: `block`, no actions, zero spawn attempts.
 - Authorization pending or blocked: `authorization_pending|blocked`, no actions, zero spawn attempts.
 - Missing host operation: `block`, no native call, zero spawn attempts.
 - Coordinator failure: preserve its blockers, zero spawn attempts.
@@ -252,4 +269,5 @@ not be rewritten into a passing causal stream.
 - Unresolved known agent: interrupt once under the wave's incomplete policy, record residue, and return an explicit `timed_out` receipt.
 - Receipt directory contamination, missing exact receipt, closed-schema violation, or identity mismatch: block before reduction and emit no dependent action.
 - Invalid causal prefix or terminal stream: preserve raw evidence, emit no dependent action, and close with error; never derive or synthesize missing history.
+- Missing paired strategy close row or an unconsumed close JSON: block resolved closeout.
 </failure-policy>

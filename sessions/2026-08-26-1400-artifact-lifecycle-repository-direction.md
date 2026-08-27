@@ -4,7 +4,7 @@ artifact_kind: session
 layer: project
 version: 0.1.0
 created_at: 2026-08-26T14:00:56-03:00
-updated_at: 2026-08-26T14:00:56-03:00
+updated_at: 2026-08-26T22:06:26-03:00
 expires: 2026-10-25
 decisions_made: true
 contradictions_found: true
@@ -24,8 +24,8 @@ The session investigated why Arcanum creates many Markdown and JSON artifacts an
 
 | Document | Type | Description |
 |----------|------|-------------|
-| [Arcanum Composition Analysis](../docs/analysis/arcanum-composition-analysis/analysis.md) | `derives-from` | The product purpose and central work-state relation used in this session come from the composition analysis. |
-| [Arcanum Composition Findings](../docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md) | `derives-from` | The decision preserves the findings that current composition is plural, authority-bound, and unevenly implemented. |
+| [Arcanum Migration Analysis](../docs/analysis/arcanum-migration/analysis.md) | `derives-from` | The product purpose and central work-state relation used in this session are preserved in the migration analysis. |
+| [Arcanum Composition Findings](../docs/analysis/arcanum-migration/research/arcanum-composition/findings.md) | `derives-from` | The decision preserves the findings that current composition is plural, authority-bound, and unevenly implemented. |
 | [Artifact Constitution](../framework/ARTIFACT-CONSTITUTION.md) | `contradicts` | The session records that current storage and enforcement do not yet operationally satisfy the constitution's declared lifecycle separation and validation boundary. |
 
 ## Open questions

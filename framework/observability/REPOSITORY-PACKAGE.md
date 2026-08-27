@@ -37,11 +37,18 @@ When Arcanum is installed through bootstrap, `.arcanum/necronomicon/OBSERVABILIT
     dedupe.jsonl
     reflections/
       .gitkeep
+  subagents-strategy/
+    .gitkeep
   runs/
     .gitkeep
   reflections/
     .gitkeep
 ```
+
+`subagents-strategy/subagents-dispatch.yaml` is a separate authored-governance
+ledger. It records the confirmed dispatch design and paired closeout; it does
+not replace behavioral invocation signals under `signals/` or native execution
+receipts under `runs/`.
 
 ## Storage Options
 

@@ -13,29 +13,30 @@
 - one-helper exception,
 - router-versus-type-owner boundary,
 - pairwise anti-bias and dual tension checks,
-- deterministic confirmation readiness against the exact persisted sheet,
+- deterministic confirmation readiness against the exact temporary sheet,
 - type-owner stage-handoff readiness before a consuming group launches,
 - explicit confirmation and frozen-sheet rule,
 - register-before-run sequencing,
 - dependency-aware group scheduling,
 - partial-result propagation and independent final approval,
-- paired dispatch and close events,
+- paired dispatch and close rows in one append-only YAML ledger,
+- DomainSpec v0.6.1 direct-field form and JSON-column encoding,
+- safe successful consumption of governed temporary JSON records,
 - result read models and behavior observability.
 
 ## Consumer Bindings Not Imported
 
 - constitutions and premise documents,
 - type-specific owner prose,
-- dispatch sheet fields and schemas,
 - agent identities and pools,
-- registrar commands and ledger locations,
 - project artifact paths,
 - personal data,
 - runtime-vendor installation assumptions.
 
-Consumers bind those concerns through `templates/runtime-profile.md`. A consumer
-adapter may use a different local name, but it does not become canonical public
-authority over this package.
+The package now ships the DomainSpec-derived v0.6.1 default form, registrar, and
+`.arcanum/observability/subagents-strategy/subagents-dispatch.yaml` convention.
+Consumers may override those bindings through `templates/runtime-profile.md`;
+an adapter does not become canonical public authority over this package.
 
 ## Evidence Boundary
 

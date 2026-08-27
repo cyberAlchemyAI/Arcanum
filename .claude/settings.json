@@ -11,6 +11,17 @@
             "statusMessage": "Checking skill-authoring guard"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/enforce-append-only-dispatch.cjs\"",
+            "timeout": 10,
+            "statusMessage": "Protecting append-only subagent ledger"
+          }
+        ]
       }
     ]
   }

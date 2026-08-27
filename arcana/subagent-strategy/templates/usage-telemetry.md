@@ -27,19 +27,20 @@ Record one compact JSON object for each meaningful strategy execution.
   },
   "form_schema_expected": "<version-or-unknown>",
   "form_schema_observed": "<version-or-unknown>",
-  "projection_drift_warning": "<summary-or-none>",
+  "schema_drift_warning": "<summary-or-none>",
   "preconfirm_revision_count": 0,
   "sheet_byte_revision_count": 0,
-  "material_strategy_revision_count": 0,
   "tension_gate": "pass-pass | revision | unavailable | not_applicable",
   "confirmation_request_count": 0,
   "avoidable_confirmation_request_count": 0,
   "preventable_post_confirmation_revision_count": 0,
-  "carried_confirmation_count": 0,
   "required_reconfirmation_count": 0,
-  "material_equivalence": "same | changed | unknown | not_checked | not_applicable",
-  "confirmation_state": "awaiting | confirmed-materially-bound | carried-by-equivalence | not_applicable",
+  "confirmation_state": "awaiting | confirmed-exact-sheet | invalidated-by-byte-change | not_applicable",
   "registration_state": "unregistered | registered | blocked | not_applicable",
+  "native_registration_proof": "pass | block | not_applicable",
+  "ledger_path": "<yaml-path-or-none>",
+  "dispatch_temp_state": "absent | pending | consumed | preserved-after-failure | not_applicable",
+  "close_temp_state": "absent | pending | consumed | preserved-after-failure | not_applicable",
   "execution_state": "not_started | completed | partial | failed | not_applicable",
   "agents": {
     "open": 0,
@@ -48,6 +49,7 @@ Record one compact JSON object for each meaningful strategy execution.
     "closed": 0
   },
   "ledger_pair_state": "paired | pending | blocked | not_applicable",
+  "native_close_proof": "pass | block | not_applicable",
   "generated_output_count": 0,
   "quality_bar_status": "pass | partial | fail | not_checked",
   "anti_pattern_hits": [],
@@ -66,11 +68,7 @@ Record one compact JSON object for each meaningful strategy execution.
 ```
 
 Severe gaps include execution without confirmation or registration, unpaired
-dispatch/close events, unsafe scope expansion, private evidence leakage,
+dispatch/close rows, orphaned successful temporary records, unsafe scope expansion, private evidence leakage,
 companion-only gate evidence, a repeated confirmation caused by a
 deterministically discoverable pre-confirmation defect, and agents left open
 after the parent returns.
-
-A repeated confirmation requested only because mechanically different sheet
-bytes encode the same deterministically proven material strategy is also a
-severe gap. Machine readiness and tension evidence still rerun for those bytes.

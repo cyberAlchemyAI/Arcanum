@@ -21,6 +21,15 @@ Review does not create research verdicts on new candidates and does not apply
 its own fixes. Fixes require a subsequent authorized change task.
 </ownership-boundary>
 
+<stage-handoff-contract>
+Before a blocking sequential or zig-zag edge advances, the producing group must
+emit an `arcanum.stage-handoff.v0.1` JSON record and pass
+`node arcana/subagent-strategy/scripts/validate-stage-handoff.cjs <handoff.json>`.
+The record binds the dispatch and edge identities, verdict, and evidence refs.
+`needs_feedback` also binds the typed defect, repair owner group, feedback edge,
+and remaining loop budget. Only `ready` unlocks the downstream group.
+</stage-handoff-contract>
+
 <output-mode>
 Produce exactly one synthesis document named `review.md`:
 

@@ -39,32 +39,34 @@ tension_gate:
   input_boundary: exact-sheet-bytes-and-rubric-only
   protocol: parallel-independent-verdicts-then-optional-frozen-report-comparison
 
-material_confirmation:
-  projection_owner: <capability-or-file>
-  projection_artifact: <path>
-  equivalence_validator: <deterministic-command>
-  material_fields:
-    - objective-and-evidence-boundary
-    - dispatch-type
-    - lanes-agents-roles-angles-prompts-and-source-scope
-    - expected-outputs-and-destination
-    - dependency-topology-and-loop-ceilings
-    - final-approver
-    - publication-privacy-validation-and-stop-conditions
-  mechanical_fields:
-    - whitespace-and-key-order
-    - machine-digests-and-evidence-handles
-    - derived-counts-and-schema-defaults
+sheet_lifecycle:
+  format: json
+  temporary_root: .arcanum/runtime/subagents-strategy
+  filename_pattern: <dispatch-id>.tmp.json
+  confirmation_binds: exact-sheet-bytes
+  byte_change_policy: rerun-readiness-tension-and-human-confirmation
+  consume_after: ledger-append
+  preserve_on_failure: true
 
 agent_pool:
   source: <path-or-runtime-provider>
   selection_rules: <summary>
 
 registration:
-  registrar: <deterministic-command-or-capability>
-  ledger: <append-only-path>
-  dispatch_events: 1
-  close_events: 1
+  registrar: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
+  ledger: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
+  ledger_format: yaml-with-json-columns
+  dispatch_rows: 1
+  close_rows: 1
+
+native_runtime_binding:
+  schema_version: arcanum.subagent-strategy-registration.v0.2
+  dispatch_field: subagent_strategy.registration
+  compile_command: <command-or-none>
+  verify_registration_command: <command-or-none>
+  verify_close_command: <command-or-none>
+  portable_paths: forward-slash-project-relative
+  temporary_close_pattern: <dispatch-id>.close.tmp.json
 
 dependency_semantics:
   blocking: [sequential, zig-zag]
@@ -78,9 +80,8 @@ final_approval:
 human_gate:
   revision_authorization_is_confirmation: false
   normal_confirmation_request_count: 1
-  confirmation_binds: material-strategy-projection
-  byte_change_policy: rerun-machine-gates
-  material_or_unknown_change_policy: require-reconfirmation
+  confirmation_binds: exact-sheet-bytes
+  byte_change_policy: require-reconfirmation
 
 result_hooks:
   inventory: <capability-and-mode | none>
@@ -97,10 +98,10 @@ publication:
 - Every live dispatch type names one readable owner capability.
 - Reserved types cannot be dispatched.
 - Registration and closeout use one deterministic registrar.
-- The ledger is append-only and receives exactly one dispatch event and one
-  paired close event per dispatch.
+- The ledger is append-only and receives exactly one dispatch row and one
+  paired close row per dispatch.
 - The tension gate can run two independent checks.
-- The confirmation-readiness validator accepts the exact persisted sheet without
+- The confirmation-readiness validator accepts the exact temporary sheet without
   confirmation evidence, returns its current schema version and digest, performs
   no registration or ledger write, and blocks invalid sheets.
 - Confirmation readiness is composite: every configured form, type-owner,
@@ -118,10 +119,12 @@ publication:
   sheet schema and registrar.
 - Draft revision authorization is not dispatch confirmation; a normal ready
   proposal asks once.
-- Human confirmation binds the material-strategy projection, not exact sheet
-  bytes. Every byte revision reruns machine readiness and tension checks.
-- A prior confirmation carries only when the configured deterministic
-  equivalence validator proves the material projection unchanged. Unknown
-  equivalence fails closed and requires reconfirmation.
+- Human confirmation binds the exact sheet bytes. Every byte revision reruns
+  machine readiness and tension checks and requires explicit reconfirmation.
+- A successful registrar call records the sheet digest in the YAML ledger and
+  consumes only a `*.tmp.json` beneath the configured temporary root.
+- Invalid records and failed appends preserve their temporary JSON for diagnosis.
+- No per-dispatch sheet, material projection, runtime profile, or ledger is
+  persisted beside result artifacts.
 - Post-result hooks are explicitly configured or explicitly absent.
 - Publication rules prevent private evidence from crossing into public paths.

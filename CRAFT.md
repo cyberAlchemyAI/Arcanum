@@ -4,11 +4,13 @@
 > this file is a linked rendering only.
 
 - **Governed contexts:** Arcanum Manual; Craft ledger-integrity research; Arcanum composition analysis;
-  Lens and resolution routing
+  Lens and resolution routing; Subagent strategy runtime hardening
 - **Root contexts:** `CTX-ARCANUM-MANUAL-ROOT`, `CTX-CRAFT-LEDGER-INTEGRITY`,
-  `CTX-ARCANUM-COMPOSITION-ANALYSIS`, `CTX-LENS-RESOLUTION-ROUTING`
+  `CTX-ARCANUM-COMPOSITION-ANALYSIS`, `CTX-LENS-RESOLUTION-ROUTING`,
+  `CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING`
 - **Stage / gate:** manual `validate / pass`; ledger-integrity research `plan / flag`;
-  composition analysis `execute / flag`; routing `review-audit / flag`
+  composition analysis `execute / flag`; routing `review-audit / flag`; subagent strategy
+  hardening `validate / flag`
 - **Source of truth:** [`.craft/ledger.yml`](.craft/ledger.yml)
 
 ## Quick links
@@ -18,12 +20,15 @@
   `research.md` and `findings.md` before proposing canonical Craft changes; for composition, expand
   the analysis from the accepted per-RQ findings while preserving the four unresolved boundaries,
   then run a separate adversarial review; for routing, decide whether to repair the four
-  platform-neutral MAJOR findings while preserving the explicit Windows-repair deferral.
+  platform-neutral MAJOR findings while preserving the explicit Windows-repair deferral; for
+  subagent strategy hardening, run the Windows and Ubuntu matrix and close or preserve the Linux
+  evidence gap from its result.
 - **Blocking decisions:** none
 - **Active blockers:** none
 - **Active gaps:** `GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001` (research prepared but not executed);
   `GAP-ARCANUM-COMPOSITION-RESIDUE-001` (four research boundaries remain unresolved);
-  `GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001` (four verified platform-neutral findings remain open)
+  `GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001` (four verified platform-neutral findings remain open);
+  `GAP-SUBAGENT-STRATEGY-LINUX-CI-001` (Ubuntu matrix result has not yet been observed)
 - **Deliverables:** [**ARCANUM-MANUAL.md**](development/user-guide/ARCANUM-MANUAL.md) (pass) ·
   [validation evidence](development/user-guide/ARCANUM-MANUAL.validation.md) ·
   [surface x-ray HTML](development/user-guide/arcanum-surface-xray.html) ·
@@ -40,6 +45,11 @@
 
 - **Routing evidence:** [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md)
   · [closing session](sessions/2026-08-25-2130-lens-resolution-routing.md)
+
+- **Subagent strategy evidence:** [capability contract](arcana/subagent-strategy/SKILL.md),
+  [native verifier](runtime/orchestrate/scripts/native_dispatch_coordinator.py),
+  [cross-platform workflow](.github/workflows/subagent-strategy-runtime.yml), and
+  [closing session](sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md)
 
 ## Purpose
 
@@ -120,6 +130,20 @@ by parent synthesis → distill → whisper authoring → source validation (**p
   focused runtime tests passed. The review still returned `FIX` because promotion/evidence and
   authoring-governance findings remain. Windows-specific repairs were explicitly deferred.
 
+### <a id="context-ctx-subagent-strategy-runtime-hardening"></a>CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING â€” Subagent strategy runtime hardening
+
+- Stage / gate: validate / **flag**
+- Next move: run the configured Windows and Ubuntu workflow matrix; on dual pass, mark this context
+  `pass` and resolve `GAP-SUBAGENT-STRATEGY-LINUX-CI-001`, otherwise preserve the failure and open a
+  bounded repair.
+- Owns: [capability contract](arcana/subagent-strategy/SKILL.md),
+  [native projection and topology verifier](runtime/orchestrate/scripts/native_dispatch_coordinator.py),
+  [cross-platform workflow](.github/workflows/subagent-strategy-runtime.yml), and
+  [closing session](sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md).
+- Evidence boundary: 102 registrar tests, eight-process concurrency, runtime and Dispatch Spec
+  suites, generation checks, guards, syntax checks, and junction confinement passed locally on
+  Windows; Linux is configured but not yet witnessed.
+
 ## Decisions
 
 - **<a id="decision-dec-routing-windows-portability-001"></a>DEC-ROUTING-WINDOWS-PORTABILITY-001**
@@ -164,6 +188,12 @@ by parent synthesis → distill → whisper authoring → source validation (**p
   authoring surfaces remain open. Evidence:
   [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md).
 
+- **<a id="gap-gap-subagent-strategy-linux-ci-001"></a>GAP-SUBAGENT-STRATEGY-LINUX-CI-001**
+  (**active / flag**): the hardened lifecycle passes its local Windows evidence, but the configured
+  Ubuntu execution has not yet been observed. Evidence:
+  [cross-platform workflow](.github/workflows/subagent-strategy-runtime.yml) and
+  [closing session](sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md).
+
 ## Boundary check
 
 Craft governed local state and residue; `dispatch-spec` validated route shape only. The manual route was
@@ -181,3 +211,6 @@ The lens/resolution routing work added canonical capability packages and reposit
 under explicit user authorization. Its Windows-specific failures remain intentionally unrepaired;
 the platform-neutral review findings remain visible as an active Craft gap rather than being
 silently converted to pass.
+The subagent-strategy work changed canonical capability and runtime surfaces under explicit user
+authorization. It records local Windows validation as evidence, not as proof that the configured
+Ubuntu job passed; that distinction remains visible in the Craft gate and active gap.

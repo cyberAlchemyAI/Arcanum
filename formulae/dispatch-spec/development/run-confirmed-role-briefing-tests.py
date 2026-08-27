@@ -28,6 +28,12 @@ def canonical_sha(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def portable_text_sha(raw: bytes) -> str:
+    return hashlib.sha256(
+        raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    ).hexdigest()
+
+
 def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
@@ -35,7 +41,7 @@ def write_json(path: Path, value: Any) -> None:
 def refresh_exact_binding(dispatch: dict[str, Any], source: dict[str, Any], root: Path) -> None:
     source_path = root / "confirmed-briefings.json"
     write_json(source_path, source)
-    artifact_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    artifact_sha = portable_text_sha(source_path.read_bytes())
     for role in dispatch["subagent_strategy"]["roles"]:
         binding = role["briefing_binding"]
         briefing = source["roles"][role["role_id"]]

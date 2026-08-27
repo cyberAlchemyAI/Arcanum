@@ -14,10 +14,10 @@
 - Dependency flow: explorer sequential edges to synthesis; one bounded zig-zag to skeptic; feedback to parent; parent final approval
 - Tension gate: PASS/PASS
 - Human gate: confirmed/frozen
-- Registration: registered with one dispatch event
+- Registration: registered with one dispatch YAML row; dispatch temp consumed
 - Execution: partial
 - Agent closeout: 0 open, 4 joined, 1 failed, 4 closed
-- Ledger closeout: paired with one close event
+- Ledger closeout: paired with one close YAML row; close temp consumed
 - Result artifacts: partial findings and closeout receipt
 - Validation: dependency readiness, partial propagation, parent approval, agent join, and event cardinality checked
 - Reflection trigger: none

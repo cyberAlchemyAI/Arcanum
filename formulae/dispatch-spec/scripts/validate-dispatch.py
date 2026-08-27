@@ -80,6 +80,11 @@ BOUNDARY_EVIDENCE_TECHNIQUES = {
     "state_namespace_boundary",
     "memory_promotion_split",
 }
+
+STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.2"
+STRATEGY_LEDGER = ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml"
+STRATEGY_TEMP_ROOT = ".arcanum/runtime/subagents-strategy/"
+SHEET_SCHEMA_VERSION = "0.6.1"
 CANONICAL_PROMOTION_TARGETS = {
     "inventory",
     "ontology",
@@ -367,6 +372,69 @@ def canonical_payload_sha256(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def portable_text_sha256(raw: bytes) -> str:
+    """Hash UTF-8 text after the Git-canonical CRLF/CR-to-LF transform."""
+
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")).hexdigest()
+
+
+def validate_strategy_registration(
+    dispatch_id: Any,
+    strategy: dict[str, Any],
+    blocks: list[str],
+) -> None:
+    """Validate the portable registration proof shape before native execution."""
+
+    if strategy.get("status") not in {"recommended", "required"}:
+        return
+    if strategy.get("authorization") != "approved":
+        return
+
+    registration = strategy.get("registration")
+    if not isinstance(registration, dict):
+        # Historical and design-only dispatches remain structurally valid. The
+        # native Orchestrate preflight requires and verifies this proof before
+        # it emits executable actions.
+        return
+
+    if registration.get("schema_version") != STRATEGY_REGISTRATION_SCHEMA_VERSION:
+        blocks.append("subagent_strategy.registration has an unsupported schema_version")
+    if registration.get("ledger") != STRATEGY_LEDGER:
+        blocks.append("subagent_strategy.registration must use the canonical strategy ledger")
+    if registration.get("sheet_schema_version") != SHEET_SCHEMA_VERSION:
+        blocks.append("subagent_strategy.registration has an unsupported sheet_schema_version")
+
+    sheet_sha = registration.get("sheet_sha256")
+    if not isinstance(sheet_sha, str) or re.fullmatch(r"[0-9a-f]{64}", sheet_sha) is None:
+        blocks.append("subagent_strategy.registration.sheet_sha256 must be lowercase SHA-256")
+
+    projection_sha = registration.get("execution_projection_sha256")
+    if not isinstance(projection_sha, str) or re.fullmatch(r"[0-9a-f]{64}", projection_sha) is None:
+        blocks.append(
+            "subagent_strategy.registration.execution_projection_sha256 must be lowercase SHA-256"
+        )
+
+    for field, suffix in (
+        ("temporary_sheet", ".tmp.json"),
+        ("temporary_close", ".close.tmp.json"),
+    ):
+        value = registration.get(field)
+        normalized = normalize_relative_scope(value) if isinstance(value, str) else None
+        if (
+            normalized is None
+            or "\\" in value
+            or not normalized.startswith(STRATEGY_TEMP_ROOT)
+            or not normalized.endswith(suffix)
+        ):
+            blocks.append(
+                f"subagent_strategy.registration.{field} must stay under "
+                f"{STRATEGY_TEMP_ROOT} and end with {suffix}"
+            )
+
+    if not isinstance(dispatch_id, str) or not dispatch_id:
+        blocks.append("subagent_strategy.registration requires a non-empty dispatch_id")
+
+
 def select_json_pointer(value: Any, selector: str) -> Any:
     if not isinstance(selector, str) or not selector.startswith("/"):
         raise ValueError("selector must be a non-empty JSON pointer")
@@ -422,7 +490,7 @@ def validate_role_briefing_binding(
                 blocks.append(f"{prefix}.source_binding artifact does not exist: {normalized}")
             else:
                 raw = source_path.read_bytes()
-                actual_artifact_sha = hashlib.sha256(raw).hexdigest()
+                actual_artifact_sha = portable_text_sha256(raw)
                 if source.get("artifact_sha256") != actual_artifact_sha:
                     blocks.append(f"{prefix}.source_binding artifact digest mismatch")
                 try:
@@ -1099,6 +1167,7 @@ def validate(
             flags.append("blocked subagent_strategy should use authorization=blocked")
 
     validate_subagent_lifecycle(subagent_strategy, subagent_lifecycle, blocks, flags)
+    validate_strategy_registration(doc.get("dispatch_id"), subagent_strategy, blocks)
     validate_capability_bound_strategy(
         subagent_strategy,
         subagent_lifecycle,

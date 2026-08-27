@@ -8,6 +8,15 @@ description: >
 
 # research — operating guide for `dispatch_type: research`
 
+<stage-handoff-contract>
+Before a blocking sequential or zig-zag edge advances, the producing group must
+emit an `arcanum.stage-handoff.v0.1` JSON record and pass
+`node arcana/subagent-strategy/scripts/validate-stage-handoff.cjs <handoff.json>`.
+The record binds the dispatch and edge identities, verdict, and evidence refs.
+`needs_feedback` also binds the typed defect, repair owner group, feedback edge,
+and remaining loop budget. Only `ready` unlocks the downstream group.
+</stage-handoff-contract>
+
 **What this is.** You are running a research dispatch: a fan-out of subagents that finds what
 **already exists and can be used**, then records it.
 

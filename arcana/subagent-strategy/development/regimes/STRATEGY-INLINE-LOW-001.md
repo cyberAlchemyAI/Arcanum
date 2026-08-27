@@ -32,7 +32,7 @@ Verify that coordination overhead is rejected when no dispatch trigger holds.
 
 ## Observability
 
-- Record one meaningful inline trigger decision without a dispatch event.
+- Record one meaningful inline trigger decision without a dispatch row.
 
 ## Lessons To Capture
 

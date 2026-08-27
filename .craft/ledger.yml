@@ -42,6 +42,13 @@ indexes:
     ART-LENS-RESOLUTION-ROUTING-SESSION: artifacts[20]
     DEC-ROUTING-WINDOWS-PORTABILITY-001: decisions[0]
     GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001: gaps[4]
+    CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING: contexts[4]
+    ART-SUBAGENT-STRATEGY-CAPABILITY: artifacts[21]
+    ART-SUBAGENT-STRATEGY-RUNTIME: artifacts[22]
+    ART-SUBAGENT-STRATEGY-CI-WORKFLOW: artifacts[23]
+    ART-SUBAGENT-STRATEGY-HARDENING-SESSION: artifacts[24]
+    DESC-SUBAGENT-STRATEGY-HARDENING-001: descriptions[3]
+    GAP-SUBAGENT-STRATEGY-LINUX-CI-001: gaps[5]
   open_decisions: []
   blocking_decisions: []
   active_blockers: []
@@ -49,6 +56,7 @@ indexes:
     - GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001
     - GAP-ARCANUM-COMPOSITION-RESIDUE-001
     - GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001
+    - GAP-SUBAGENT-STRATEGY-LINUX-CI-001
   next_moves:
     - context_id: CTX-ARCANUM-MANUAL-ROOT
       next_move: >
@@ -67,6 +75,10 @@ indexes:
       next_move: >
         Obtain an operator decision on whether to repair the four platform-neutral MAJOR findings;
         preserve the installed trio and do not alter Windows-specific failure paths meanwhile.
+    - context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+      next_move: >
+        Run the configured Windows and Ubuntu CI matrix; on dual pass, mark the context pass and
+        resolve GAP-SUBAGENT-STRATEGY-LINUX-CI-001, otherwise preserve the failure and repair it.
   trace_events:
     - dispatch-authored
     - subagent-strategy-approved
@@ -86,6 +98,9 @@ indexes:
     - routing-post-promotion-review-closed
     - routing-windows-portability-repair-deferred
     - lens-resolution-routing-session-closed
+    - subagent-strategy-runtime-hardened
+    - subagent-strategy-local-validation-passed
+    - subagent-strategy-linux-ci-pending
   artifacts_by_path:
     .craft/ledger.yml: ART-ARCANUM-MANUAL-LEDGER
     CRAFT.md: ART-ARCANUM-MANUAL-VIEW
@@ -108,6 +123,10 @@ indexes:
     sessions/2026-08-25-2056-arcanum-composition-research.md: ART-ARCANUM-COMPOSITION-RESEARCH-SESSION
     transmutations/resolution-router/development/validation/post-promotion-review/review.md: ART-ROUTING-POST-PROMOTION-REVIEW
     sessions/2026-08-25-2130-lens-resolution-routing.md: ART-LENS-RESOLUTION-ROUTING-SESSION
+    arcana/subagent-strategy/SKILL.md: ART-SUBAGENT-STRATEGY-CAPABILITY
+    runtime/orchestrate/scripts/native_dispatch_coordinator.py: ART-SUBAGENT-STRATEGY-RUNTIME
+    .github/workflows/subagent-strategy-runtime.yml: ART-SUBAGENT-STRATEGY-CI-WORKFLOW
+    sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
 
 contexts:
   - context_id: CTX-ARCANUM-MANUAL-ROOT
@@ -244,6 +263,40 @@ contexts:
       The routing architecture and installation checks passed, but the independent review returned
       FIX. Windows-specific repair was explicitly deferred by the operator; four platform-neutral
       evidence, lifecycle, and authoring-governance findings remain open.
+
+  - context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    parent_id: root
+    title: Subagent strategy runtime hardening
+    purpose: >
+      Keep confirmed multi-agent strategy, append-only registration, executable Dispatch Spec,
+      stage handoffs, closeout evidence, observability, and cross-platform enforcement mutually
+      bound so working agents cannot launch from stale or mismatched authority.
+    stage: validate
+    gate: flag
+    next_move: >
+      Run the configured Windows and Ubuntu CI matrix; on dual pass, mark the context pass and
+      resolve GAP-SUBAGENT-STRATEGY-LINUX-CI-001, otherwise preserve the failure and repair it.
+    owned_artifacts:
+      - ART-SUBAGENT-STRATEGY-CAPABILITY
+      - ART-SUBAGENT-STRATEGY-RUNTIME
+      - ART-SUBAGENT-STRATEGY-CI-WORKFLOW
+      - ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+    links:
+      - label: Canonical capability contract
+        target: ART-SUBAGENT-STRATEGY-CAPABILITY
+        kind: artifact-id
+      - label: Native projection and topology verifier
+        target: ART-SUBAGENT-STRATEGY-RUNTIME
+        kind: artifact-id
+      - label: Cross-platform validation route
+        target: ART-SUBAGENT-STRATEGY-CI-WORKFLOW
+        kind: artifact-id
+      - label: Governed closeout
+        target: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+        kind: artifact-id
+    notes: >
+      Local Windows tests pass, including concurrent registration and junction confinement. The
+      Ubuntu job is configured but has not yet produced observed evidence in this session.
 
 artifacts:
   - artifact_id: ART-ARCANUM-MANUAL-LEDGER
@@ -442,6 +495,39 @@ artifacts:
       Governed closeout for the router implementation, installation and test evidence, review
       verdict, explicit Windows-repair deferral, and remaining platform-neutral decision.
 
+  - artifact_id: ART-SUBAGENT-STRATEGY-CAPABILITY
+    owner_context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    path: arcana/subagent-strategy/SKILL.md
+    artifact_type: capability-contract
+    status: active
+    notes: >
+      Canonical lifecycle contract for temporary strategy sheets, readiness, confirmation,
+      append-only registration, dependency execution, stage handoff, and paired closeout.
+  - artifact_id: ART-SUBAGENT-STRATEGY-RUNTIME
+    owner_context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    path: runtime/orchestrate/scripts/native_dispatch_coordinator.py
+    artifact_type: native-runtime-verifier
+    status: pass
+    notes: >
+      Local tests prove v0.2 registration, executable projection digest, topology comparison,
+      temporary-sheet consumption, and semantic close verification on Windows.
+  - artifact_id: ART-SUBAGENT-STRATEGY-CI-WORKFLOW
+    owner_context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    path: .github/workflows/subagent-strategy-runtime.yml
+    artifact_type: cross-platform-validation-route
+    status: flag
+    notes: >
+      Runs the registrar, locking, guards, Dispatch Spec, and runtime suites on Windows and Ubuntu;
+      the configured Linux execution was not observed during this session.
+  - artifact_id: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+    owner_context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    path: sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed closeout containing the implementation decisions, verified tests, evidence boundary,
+      affected files, and the remaining Linux CI obligation.
+
 descriptions:
   - description_id: DESC-ARCANUM-MANUAL-001
     context_id: CTX-ARCANUM-MANUAL-ROOT
@@ -474,6 +560,17 @@ descriptions:
       classification unresolved for later work.
     status: active
     evidence: ART-ARCANUM-COMPOSITION-FINDINGS
+
+  - description_id: DESC-SUBAGENT-STRATEGY-HARDENING-001
+    context_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    description: >
+      Arcanum now treats the exact confirmed JSON as temporary authority and the append-only YAML
+      dispatch/close pair as durable evidence. Native execution additionally binds a canonical
+      projection digest and independently checks group-to-wave topology, while locking,
+      content-based idempotency, path confinement, handoff validation, and semantic close rules
+      protect the lifecycle across Windows and Linux-compatible code paths.
+    status: active
+    evidence: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
 
 definitions:
   - definition_id: DEF-ARCANUM-MANUAL-001
@@ -617,4 +714,22 @@ gaps:
         kind: artifact-id
       - label: Session boundary and next move
         target: ART-LENS-RESOLUTION-ROUTING-SESSION
+        kind: artifact-id
+  - gap_id: GAP-SUBAGENT-STRATEGY-LINUX-CI-001
+    scope_id: CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING
+    summary: >
+      The implementation and tests pass locally on Windows and the same suite is configured for
+      Ubuntu, but this session contains no observed Linux CI result; full cross-platform closure is
+      therefore not yet evidenced.
+    severity: flag
+    treatment: plan
+    owner: repository CI followed by a bounded repair task if either matrix job fails
+    status: active
+    evidence: ART-SUBAGENT-STRATEGY-CI-WORKFLOW and ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+    links:
+      - label: Cross-platform workflow
+        target: ART-SUBAGENT-STRATEGY-CI-WORKFLOW
+        kind: artifact-id
+      - label: Local validation and closeout boundary
+        target: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
         kind: artifact-id

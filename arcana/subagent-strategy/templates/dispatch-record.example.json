@@ -1,0 +1,61 @@
+{
+  "dispatch_id": "2026-08-26-example-review",
+  "schema_version": "0.6.1",
+  "dispatch_type": "review",
+  "goal": "Verify an existing artifact and return bounded change requests.",
+  "context": "The target already exists. Attack fidelity and operability independently, verify surviving findings, and return one inline review report.",
+  "max_loops": 1,
+  "final_approver": "parent",
+  "anti_bias_global": "normative fidelity versus executable operability",
+  "output_mode": "inline",
+  "groups": [
+    {
+      "group_id": "attackers",
+      "n": 2,
+      "anti_bias": "attack-vector",
+      "predicted_disagreements": [
+        {
+          "between": [0, 1],
+          "question": "Does contract fidelity or runtime operability control the blocking verdict?"
+        }
+      ],
+      "agents": [
+        {
+          "agent_name": null,
+          "role": "explorer",
+          "model": "gpt-5.6-sol",
+          "token_budget": 1800,
+          "angle": "fidelity and governance",
+          "initial_prompt": "Attack the target for contradictions with its governing authority. Return exact evidence and bounded fixes."
+        },
+        {
+          "agent_name": null,
+          "role": "explorer",
+          "model": "gpt-5.6-sol",
+          "token_budget": 1800,
+          "angle": "mechanics and operability",
+          "initial_prompt": "Attack the target for behavior a fresh operator cannot execute. Return reproduced evidence and bounded fixes."
+        }
+      ]
+    },
+    {
+      "group_id": "writer",
+      "agents": [
+        {
+          "agent_name": null,
+          "role": "writer",
+          "model": "gpt-5.6-sol",
+          "token_budget": 2200,
+          "initial_prompt": "Verify, deduplicate, severity-rank, and render the surviving change requests."
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "attackers",
+      "to": "writer",
+      "type": "sequential"
+    }
+  ]
+}

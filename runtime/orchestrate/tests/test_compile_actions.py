@@ -18,6 +18,7 @@ ARCanum_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ARCanum_ROOT / "runtime/orchestrate/scripts/native_dispatch_coordinator.py"
 DRIVER = ARCanum_ROOT / "runtime/orchestrate/scripts/native_dispatch_driver.py"
 FIXTURES = Path(__file__).resolve().parent / "fixtures/compile"
+PROJECT_ROOT = FIXTURES / "project-root"
 SCHEMAS = ARCanum_ROOT / "runtime/orchestrate/schemas"
 VALIDATOR = ARCanum_ROOT / "formulae/dispatch-spec/scripts/validate-dispatch.py"
 
@@ -61,7 +62,7 @@ class CompileFirstWaveTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "run"
             result = coordinator.compile_to_directory(
-                FIXTURES / "valid-two-wave.json", "run-fixture-001", output, VALIDATOR
+                FIXTURES / "valid-two-wave.json", "run-fixture-001", output, VALIDATOR, PROJECT_ROOT
             )
 
             actions = result["run_plan"]["actions"]
@@ -76,7 +77,9 @@ class CompileFirstWaveTests(unittest.TestCase):
     def test_outputs_validate_against_runtime_schemas(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "run"
-            coordinator.compile_to_directory(FIXTURES / "valid-two-wave.json", "run-schema-001", output, VALIDATOR)
+            coordinator.compile_to_directory(
+                FIXTURES / "valid-two-wave.json", "run-schema-001", output, VALIDATOR, PROJECT_ROOT
+            )
 
             action_schema = load_json(SCHEMAS / "action.schema.json")
             state_schema = load_json(SCHEMAS / "state.schema.json")
@@ -99,7 +102,7 @@ class CompileFirstWaveTests(unittest.TestCase):
             output = Path(temp_dir) / "run"
             with self.assertRaises(coordinator.CompileBlocked):
                 coordinator.compile_to_directory(
-                    FIXTURES / "invalid-dispatch.json", "run-invalid-001", output, VALIDATOR
+                    FIXTURES / "invalid-dispatch.json", "run-invalid-001", output, VALIDATOR, PROJECT_ROOT
                 )
 
             self.assertEqual(load_json(output / "validation.json")["validation"], "block")
@@ -112,8 +115,12 @@ class CompileFirstWaveTests(unittest.TestCase):
             root = Path(temp_dir)
             first = root / "first"
             second = root / "second"
-            coordinator.compile_to_directory(FIXTURES / "valid-two-wave.json", "run-repeat-001", first, VALIDATOR)
-            coordinator.compile_to_directory(FIXTURES / "valid-two-wave.json", "run-repeat-001", second, VALIDATOR)
+            coordinator.compile_to_directory(
+                FIXTURES / "valid-two-wave.json", "run-repeat-001", first, VALIDATOR, PROJECT_ROOT
+            )
+            coordinator.compile_to_directory(
+                FIXTURES / "valid-two-wave.json", "run-repeat-001", second, VALIDATOR, PROJECT_ROOT
+            )
             self.assertEqual(directory_snapshot(first), directory_snapshot(second))
 
     def test_confirmed_role_briefing_survives_dispatch_compile_and_host_projection(self) -> None:
@@ -125,7 +132,7 @@ class CompileFirstWaveTests(unittest.TestCase):
             root = Path(temp_dir)
             output = root / "compiled"
             result = coordinator.compile_to_directory(
-                FIXTURES / "valid-two-wave.json", "run-briefing-fidelity", output, VALIDATOR
+                FIXTURES / "valid-two-wave.json", "run-briefing-fidelity", output, VALIDATOR, PROJECT_ROOT
             )
             role_digests: dict[str, str] = {}
             for action in result["run_plan"]["actions"]:

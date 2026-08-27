@@ -1,0 +1,64 @@
+{
+  "schema_version": "arcanum.current-system-map.v0.1",
+  "map_id": "MAP-EXAMPLE",
+  "baseline": {
+    "kind": "clean-git",
+    "repository_head": "e3f67a7e728dce1504cfb7b04f521d363c4873f9",
+    "git_ref": "e3f67a7e728dce1504cfb7b04f521d363c4873f9"
+  },
+  "discovery": {
+    "roots": ["arcana/craft"],
+    "exclusions": [],
+    "methods": ["Inspect the owner contract and enumerate its declared inputs, outputs, writes, and consumers."],
+    "edges": [
+      {
+        "edge_id": "EDGE-CRAFT-LEDGER-001",
+        "producer": "caller with a validated Craft operation",
+        "write_location": "selected Craft ledger",
+        "artifact_family": "Craft ledger transition",
+        "consumer": "Craft readers",
+        "status": "mapped",
+        "relation_ids": ["REL-INV-CRAFT-001"]
+      }
+    ]
+  },
+  "inventory_ids": ["INV-CRAFT"],
+  "relation_records": [
+    {
+      "relation_id": "REL-INV-CRAFT-001",
+      "inventory_id": "INV-CRAFT",
+      "owner": {
+        "canonical_source": "arcana/craft/SKILL.md",
+        "responsibility": "Validate and apply scoped operations to the selected Craft ledger.",
+        "non_responsibility": "Own native artifacts or verdicts produced by other capabilities."
+      },
+      "exchange": {
+        "inputs": ["validated scoped Craft operation"],
+        "outputs": ["ledger transition and operation result"],
+        "schemas": ["owner contract in arcana/craft/SKILL.md"],
+        "validators": ["Craft-owned operation validation"],
+        "allowed_write_scopes": ["selected Craft ledger"]
+      },
+      "upstream_producers": ["authorized caller"],
+      "downstream_consumers": ["Craft readers"],
+      "evidence": [
+        {
+          "status": "documented",
+          "locator": "arcana/craft/SKILL.md",
+          "source_sha256": "f3f5d9deabc5c8630513590ccfc8eb0ae0d99e16ea3bf90d910bef27eb9558b3",
+          "scope": "Owner boundary only; the example does not claim universal external-result write-back."
+        }
+      ],
+      "contradictions": [],
+      "missing_bindings": ["No universal external-result write-back binding is established."],
+      "compatibility_obligations": ["Preserve existing Craft ledger readers and operation semantics."],
+      "disposition": "preserve",
+      "unknowns": []
+    }
+  ],
+  "open_items": [],
+  "completion": {
+    "structurally_complete": true,
+    "decision_ready": true
+  }
+}

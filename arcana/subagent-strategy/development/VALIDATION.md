@@ -1,11 +1,11 @@
 # Validation
 
-- Latest deterministic maintenance run: `2026-08-02`
+- Latest deterministic maintenance run: `2026-08-26`
 - Prior live report: `development/runs/20260722T131259Z.md` (local generated evidence)
 - Status: flag
-- Reason: semantic confirmation now distinguishes material strategy authority
-  from exact-byte machine integrity, but a preserved live carried-confirmation
-  dispatch and medium and complex runtime bodies are still missing.
+- Reason: the DomainSpec-derived temporary-JSON to append-only-YAML registrar
+  is implemented, but a migrated historical ledger and a live end-to-end
+  register/run/close execution are still missing.
 
 ## Checks
 
@@ -23,23 +23,18 @@
   unpooled approver rejection, companion-only tension-evidence rejection,
   complete canonical pair coverage, and exactly one normal confirmation
   request.
-- Material-confirmation fixture: pass for refreshed exact-byte machine gates,
-  deterministic material equivalence, carried confirmation, material-change
-  reconfirmation, and unknown-field fail-closed behavior.
+- Exact-sheet confirmation fixture: pass for refreshed exact-byte machine
+  gates, confirmation invalidation after any byte change, and required
+  reconfirmation before registration.
 - Stage-handoff readiness fixture: pass for `needs_feedback`, repair-owner
   routing, declared-edge enforcement, and preservation of downstream revision
   capacity.
-- Material projection tests: pass (`5` cases), including key-order, dispatch-id,
-  evidence-binding, material-goal, material-prompt, and unknown-field controls.
-- Registrar readiness tests: pass (`125` cases), including exact digest output,
-  no ledger mutation, schema 0.8.0 pair coverage, pool eligibility, identity
-  uniqueness, approver admission, reserved-type rejection, grandfathering,
-  and post-confirmation mutation rejection. The battery requires an
-  unrestricted child-process environment; the in-sandbox nested-spawn result
-  is not product evidence.
-- Runtime composition: pass (`42` cases) for public core plus declared DomainSpec
-  Codex and Claude overlays, including protected semantic-confirmation and
-  equivalence rules.
+- Default registrar battery: pass (`94` cases) for strict v0.6.1 dispatch and
+  close validation, JSON-column YAML emission, structural self-check,
+  grandfathering, idempotency, exact sheet digest, non-mutating `--check`,
+  governed `--consume`, failure preservation, and temp-path containment.
+- Runtime composition evidence predating v0.4.0 is historical and does not
+  validate the new exact-sheet/YAML lifecycle.
 - Contract check: pass for the tracked low-complexity native output.
 - Anti-Pattern hits: none in the low-complexity output.
 - Workflow gaps: none in the low-complexity output.
@@ -49,10 +44,9 @@
 - Incident fixture: the prior unpooled-approver and companion-evidence shape is
   now rejected before confirmation. This is deterministic evidence, not a live
   dispatch receipt.
-- Redundant-confirmation incident fixture: mechanically changed bytes rerun all
-  machine gates while the human confirmation carries only through a verified
-  unchanged material projection. This is deterministic evidence, not a live
-  dispatch receipt.
+- Byte-change incident fixture: mechanically changed bytes rerun all machine
+  gates and invalidate the prior confirmation. This is deterministic evidence,
+  not a live dispatch receipt.
 - Runtime deployment: regenerated Codex and Claude packages match their
   canonical sources; the explicitly requested personal Codex
   `domainspec-subagents-strategy` copy matches the generated Codex overlay.
@@ -64,8 +58,9 @@
 - Preserve one repaired research run where the type owner returns
   `needs_feedback`, the declared explorer route supplies the missing binding,
   and the rechecked handoff returns `ready`.
-- Prove one schema 0.8.0 post-repair dispatch event and one paired close event
-  through the deterministic registrar without an avoidable second
-  confirmation.
-- Preserve one live byte-revision run whose material-equivalence receipt carries
-  a prior confirmation to the current registered digest.
+- Prove one v0.6.1 confirmed dispatch row and one paired close row through the
+  deterministic registrar with both temporary JSON records consumed.
+- Import the eligible current per-topic JSON/JSONL lifecycle evidence into the
+  central YAML ledger without rewriting or deleting historical sources.
+- Integrate registrar admission with the native orchestration path so no host
+  spawn can precede a confirmed YAML dispatch row.

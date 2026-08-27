@@ -1,0 +1,109 @@
+profile_id: arcanum.subagent-strategy.v1
+version: 1.0.0
+repository_root: runtime-resolved
+
+dispatch_types:
+  research:
+    status: live
+    owner_capability: .agents/skills/research/SKILL.md
+    preflights: []
+    stage_handoff_validator: node arcana/subagent-strategy/scripts/validate-stage-handoff.cjs
+  review:
+    status: live
+    owner_capability: .agents/skills/review/SKILL.md
+    preflights: []
+    stage_handoff_validator: node arcana/subagent-strategy/scripts/validate-stage-handoff.cjs
+  experiment:
+    status: reserved
+    owner_capability: null
+    preflights: []
+  code:
+    status: reserved
+    owner_capability: null
+    preflights: []
+  plan:
+    status: reserved
+    owner_capability: null
+    preflights: []
+  suggestion:
+    status: reserved
+    owner_capability: null
+    preflights: []
+
+form_owner:
+  capability: arcana/subagent-strategy/scripts/append-dispatch.cjs
+  schema_version: 0.6.1
+  confirmation_readiness_validator: node arcana/subagent-strategy/scripts/validate-readiness.cjs
+  registration_validator: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
+  version_drift_policy: warn-rematerialize-and-revalidate-before-confirmation
+  composite_admission:
+    - form-and-version
+    - live-type-owner-prerequisites
+    - agent-eligibility-and-identity-uniqueness
+    - final-approver-admission
+    - digest-owned-tension-evidence
+    - publication-boundary
+
+tension_gate:
+  capability: arcana/subagent-strategy/SKILL.md#process-step-7
+  independent_checks: 2
+  input_boundary: exact-sheet-bytes-and-rubric-only
+  protocol: parallel-independent-verdicts-then-optional-frozen-report-comparison
+
+sheet_lifecycle:
+  format: json
+  temporary_root: .arcanum/runtime/subagents-strategy
+  filename_pattern: <dispatch-id>.tmp.json
+  confirmation_binds: exact-sheet-bytes
+  byte_change_policy: rerun-readiness-tension-and-human-confirmation
+  consume_after: ledger-append
+  preserve_on_failure: true
+
+agent_pool:
+  source: telemetry/agents/agent-pool.yaml
+  allowed_models: [gpt-5.6-sol, gpt-5.6-terra, claude-sonnet-4-6, claude-opus-4-8]
+  selection_rules: every non-null identity is unique and declares the assigned role
+
+registration:
+  registrar: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
+  ledger: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
+  ledger_format: yaml-with-json-columns
+  dispatch_rows: 1
+  close_rows: 1
+
+native_runtime_binding:
+  schema_version: arcanum.subagent-strategy-registration.v0.2
+  dispatch_field: subagent_strategy.registration
+  compile_command: python runtime/orchestrate/scripts/native_dispatch_coordinator.py compile
+  verify_registration_command: python runtime/orchestrate/scripts/native_dispatch_coordinator.py verify-registration
+  verify_close_command: python runtime/orchestrate/scripts/native_dispatch_coordinator.py verify-close
+  portable_paths: forward-slash-project-relative
+  temporary_close_pattern: <dispatch-id>.close.tmp.json
+
+dependency_semantics:
+  blocking: [sequential, zig-zag]
+  non_blocking: [feedback]
+
+final_approval:
+  default_owner: parent
+  dedicated_auditor_allowed: true
+  eligibility_validator: parent or one dedicated auditor outside working groups
+
+human_gate:
+  revision_authorization_is_confirmation: false
+  normal_confirmation_request_count: 1
+  confirmation_binds: exact-sheet-bytes
+  byte_change_policy: require-reconfirmation
+
+result_hooks:
+  inventory: none
+  observability: .arcanum/observability/signals/sigil-invocations.jsonl
+
+publication:
+  public_paths: []
+  private_paths: []
+  forbidden_evidence:
+    - credentials
+    - tokens
+    - secrets
+    - unnecessary personal data

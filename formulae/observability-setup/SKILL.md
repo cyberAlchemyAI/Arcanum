@@ -1,6 +1,6 @@
 ---
 name: observability-setup
-description: "Use when: installing or verifying the standard sigil observability package in a repository so sigils can append post-run JSON telemetry and reflection state."
+description: "Use when: installing or verifying the standard observability package in a repository so sigils can append post-run JSON telemetry, reflection state, and dedicated governance ledgers."
 argument-hint: "[--path <repo-root>] [--storage central|per-sigil|hybrid] [--repair]"
 tier: formulae
 domain: observability
@@ -12,7 +12,7 @@ allowed-tools: Read, Write, Glob, Grep
 # Sigil: Observability Setup
 
 <objective>
-Install or verify a deterministic repository-local observability package for sigil usage telemetry.
+Install or verify a deterministic repository-local observability package for sigil usage telemetry and dedicated governance ledgers.
 </objective>
 
 <logic-type>
@@ -54,6 +54,7 @@ Create or verify this package at the repository root:
    - `.arcanum/observability/by-sigil/`,
    - `.arcanum/observability/hooks/`,
    - `.arcanum/observability/hooks/reflections/`,
+   - `.arcanum/observability/subagents-strategy/`,
    - `.arcanum/observability/runs/`,
    - `.arcanum/observability/reflections/`.
 5. Create missing files:
@@ -77,6 +78,7 @@ A successful execution of this sigil must:
 - preserve existing telemetry by default,
 - produce valid JSON config and reflection-state files,
 - create an append-only JSONL ledger path,
+- create the dedicated home for the append-only subagent dispatch YAML ledger,
 - state the selected storage model,
 - avoid requiring a specific application framework or agent runtime.
   </quality-bar>

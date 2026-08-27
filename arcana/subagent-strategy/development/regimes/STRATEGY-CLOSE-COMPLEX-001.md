@@ -22,20 +22,20 @@ agent closeout, and ledger event cardinality.
 
 - `Execution: completed`
 - `agents left open`
-- `three close events`
+- `three close rows`
 
 ## Quality Bar
 
 - Downstream agents and the parent must receive the partial failure.
 - Feedback must remain non-blocking and the parent must approve independently.
 - Every agent must be joined and closed.
-- The ledger must contain exactly one dispatch event and one paired close event.
+- The ledger must contain exactly one dispatch row and one paired close row.
 
 ## Anti-Patterns
 
 - Do not convert the confidence-limited result into clean success.
 - Do not hide failed-agent evidence or leave agents open.
-- Do not add extra close events as retries.
+- Do not add extra close rows as retries.
 
 ## Observability
 

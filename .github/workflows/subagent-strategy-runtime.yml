@@ -1,0 +1,66 @@
+name: Subagent strategy runtime
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".gitattributes"
+      - ".github/workflows/subagent-strategy-runtime.yml"
+      - "AGENTS.md"
+      - ".arcanum/observability/**"
+      - ".agents/skills/orchestrate/**"
+      - ".claude/hooks/**"
+      - ".claude/settings.json"
+      - "arcana/subagent-strategy/**"
+      - "formulae/dispatch-spec/**"
+      - "formulae/observability-setup/**"
+      - "framework/observability/**"
+      - "runtime/orchestrate/**"
+  push:
+    paths:
+      - ".gitattributes"
+      - ".github/workflows/subagent-strategy-runtime.yml"
+      - "AGENTS.md"
+      - ".arcanum/observability/**"
+      - ".agents/skills/orchestrate/**"
+      - ".claude/hooks/**"
+      - ".claude/settings.json"
+      - "arcana/subagent-strategy/**"
+      - "formulae/dispatch-spec/**"
+      - "formulae/observability-setup/**"
+      - "framework/observability/**"
+      - "runtime/orchestrate/**"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python test dependencies
+        run: python -m pip install --disable-pip-version-check jsonschema pyyaml pytest
+      - name: Test strategy registrar
+        run: node arcana/subagent-strategy/development/test-append-dispatch.cjs
+      - name: Test concurrent strategy registration
+        run: node arcana/subagent-strategy/development/test-append-concurrency.cjs
+      - name: Test ledger and handoff guards
+        run: node arcana/subagent-strategy/development/test-runtime-guards.cjs
+      - name: Protect append-only ledger history
+        env:
+          ARCANUM_LEDGER_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node arcana/subagent-strategy/scripts/check-ledger-history.cjs
+      - name: Test Dispatch Spec contracts
+        run: python formulae/dispatch-spec/development/run_validation_fixtures.py
+      - name: Test native runtime
+        run: python -m pytest runtime/orchestrate/tests -q

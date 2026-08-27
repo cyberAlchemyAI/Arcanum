@@ -10,6 +10,7 @@ This package stores local telemetry for sigil usage in this repository.
 - `by-sigil/` and `by-capability/` hold rebuildable indexes that point back to central ledger rows.
 - `hooks/hook-operations.jsonl` tracks background extraction, observer, append, and dedupe hook work.
 - `hooks/failures.jsonl` tracks hook failures without changing primary task results.
+- `subagents-strategy/subagents-dispatch.yaml` is the append-only governance ledger for confirmed subagent dispatch and close rows; its registrar creates it lazily.
 - `runs/` stores observed run bundles and checkpoints for long-running work.
 - `reflections/` can hold reflection reports.
 

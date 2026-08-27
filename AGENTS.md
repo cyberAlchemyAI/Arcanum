@@ -10,5 +10,10 @@ Core rules:
 - Use `formulae/dispatch-spec/` for route-shape validation when installed.
 - Use `spells/invoke/` for lifecycle authoring artifacts.
 - Use `arcana/task-session/` for bounded execution.
+- Route every real multi-agent fan-out through `$subagent-strategy`; register the
+  confirmed temporary JSON in the configured append-only YAML ledger before
+  spawning and append the paired close row after all agents are closed.
+- For native capability-bound execution, require Orchestrate registration proof
+  before spawn and its paired close proof before reporting resolved closeout.
 - Keep `tools/arcanum` deterministic: resolve, validate, handoff, and legacy adapter compatibility.
 - Prefer native Codex skill execution over nested model-backed CLI execution.
