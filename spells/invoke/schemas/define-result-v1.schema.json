@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/define-result-v1",
+  "title": "Invoke Define Stage Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "owner_capability", "mode", "producer", "profile_id", "source_ref", "outputs", "result", "next_route", "authority_effect", "receipt_digest"],
+  "properties": {
+    "schema_version": {"const": "invoke.define-stage-receipt.v1"},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "define"},
+    "producer": {"type": "object", "additionalProperties": false, "required": ["identity", "path", "sha256"], "properties": {"identity": {"const": "invoke.compile-define-source.v1"}, "path": {"const": "arcanum/spells/invoke/scripts/compile_define_source.py"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}},
+    "profile_id": {"const": "invoke.generic-spec-baseline.v1"},
+    "source_ref": {"$ref": "#/$defs/exact_ref"},
+    "outputs": {"type": "array", "minItems": 8, "uniqueItems": true, "items": {"$ref": "#/$defs/output_ref"}},
+    "result": {"const": "pass"},
+    "next_route": {"enum": ["design", "spellcraft", "sigil-development", "deferred"]},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "exact_ref": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "size": {"type": "integer", "minimum": 0}}},
+    "output_ref": {"type": "object", "additionalProperties": false, "required": ["kind", "path", "sha256", "size"], "properties": {"kind": {"enum": ["spec", "glossary", "layering", "template-selection", "dispatch-trace", "distill", "identity-denominator", "transport"]}, "path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "size": {"type": "integer", "minimum": 0}}}
+  }
+}

@@ -1,0 +1,1051 @@
+{
+  "semantic_context": {
+    "$schema": "https://arcanum.dev/schemas/invoke/define-semantic-context/v1",
+    "schema_version": "invoke.define-semantic-context.v1",
+    "context_id": "fixture:define-semantic-context",
+    "authored_by": "fixture-context-author",
+    "assessed_by": "fixture-semantic-assessor",
+    "target": {
+      "id": "fixture:target",
+      "objective": "Author a drift-aware feature definition bundle.",
+      "authority_scope": {"kind": "feature", "ref": "fixture-feature"},
+      "visibility": "public"
+    },
+    "discovery": {
+      "kind": "artifact",
+      "ref": {
+        "path": "fixtures/discovery.md",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1,
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "# Purpose",
+        "visibility": "public"
+      }
+    },
+    "discovery_contract": {
+      "profile": "semantic-surface-v1",
+      "claim_scope": "configured-roots-complete",
+      "roots": [
+        {
+          "root_id": "root:arcanum",
+          "path": "arcanum",
+          "registry_globs": ["**/DEFINITIONS.md", "**/DEFINITIONS-INDEX.md", "**/DEFINITIONS.json", "**/GLOSSARY.md"],
+          "consumer_globs": ["**/*.md"],
+          "visibility": "public"
+        },
+        {
+          "root_id": "root:fixtures",
+          "path": "fixtures",
+          "registry_globs": ["**/DEFINITIONS.md", "**/DEFINITIONS-INDEX.md", "**/DEFINITIONS.json", "**/GLOSSARY.md"],
+          "consumer_globs": ["**/*.md"],
+          "visibility": "public"
+        }
+      ]
+    },
+    "concept_probes": [
+      {
+        "probe_id": "probe:reuse-contract",
+        "term": "contract",
+        "aliases": ["artifact contract"],
+        "intent": "Reuse the repository-wide contract definition without copying it.",
+        "intended_scope": {"kind": "feature", "ref": "fixture-feature"},
+        "evidence_refs": [
+          {
+            "path": "fixtures/discovery.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "# Contract",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "reuse-existing",
+        "claimed_matches": [
+          {
+            "match_id": "match:reuse-contract",
+            "kind": "term",
+            "authority_class": "canonical",
+            "definition_id": "DEF-ARC-CONTRACT",
+            "term": "contract",
+            "authority_scope": {"kind": "repository", "ref": "arcanum"},
+            "source_ref": {
+              "path": "arcanum/definitions/DEFINITIONS.md",
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1,
+              "format": "markdown",
+              "selector_type": "heading",
+              "selector": "# DEF-ARC-CONTRACT: contract",
+              "visibility": "public"
+            }
+          }
+        ],
+        "proposed_basis_ids": ["DEF-ARC-CONTRACT"],
+        "assessment_rationale": "The canonical contract definition already owns the requested meaning."
+      },
+      {
+        "probe_id": "probe:new-closure",
+        "term": "semantic closure",
+        "aliases": ["definition context closure"],
+        "intent": "Name the feature-local evidence boundary used before authoring definitions.",
+        "intended_scope": {"kind": "feature", "ref": "fixture-feature"},
+        "evidence_refs": [
+          {
+            "path": "fixtures/discovery.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "# Semantic closure",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical or adjacent term owns this feature-local meaning."
+      },
+      {
+        "probe_id": "probe:specialized-contract",
+        "term": "feature contract",
+        "aliases": ["scoped contract"],
+        "intent": "Specialize the repository-wide contract for one feature boundary.",
+        "intended_scope": {"kind": "feature", "ref": "fixture-feature"},
+        "evidence_refs": [
+          {
+            "path": "fixtures/discovery.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "# Feature contract",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "specialize-existing",
+        "claimed_matches": [
+          {
+            "match_id": "match:specialized-contract",
+            "kind": "semantic-overlap",
+            "authority_class": "canonical",
+            "definition_id": "DEF-ARC-CONTRACT",
+            "term": "contract",
+            "authority_scope": {"kind": "repository", "ref": "arcanum"},
+            "source_ref": {
+              "path": "arcanum/definitions/DEFINITIONS.md",
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1,
+              "format": "markdown",
+              "selector_type": "heading",
+              "selector": "# DEF-ARC-CONTRACT: contract",
+              "visibility": "public"
+            }
+          }
+        ],
+        "proposed_basis_ids": ["DEF-ARC-CONTRACT"],
+        "assessment_rationale": "The feature term narrows the canonical contract without changing it."
+      }
+    ],
+    "authority_boundary": {
+      "declaration": "configured",
+      "profile": "markdown-index-v1",
+      "declared_owner": "definitions-governance",
+      "canonical_scope": {"kind": "repository", "ref": "arcanum"},
+      "canonical_source_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "# Arcanum Canonical Definitions",
+          "visibility": "public"
+        }
+      ],
+      "index_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "# Arcanum Definitions Index",
+          "visibility": "public"
+        }
+      ],
+      "resolution_evidence_refs": [
+        {
+          "path": "arcanum/arcana/definitions-governance/README.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "# Definitions Governance",
+          "visibility": "public"
+        }
+      ]
+    },
+    "adjacent_registries": [
+      {
+        "registry_id": "fixture:adjacent-registry",
+        "authority_class": "candidate",
+        "format_profile": "definitions-json-v1",
+        "source_ref": {
+          "path": "fixtures/adjacent/DEFINITIONS.json",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "format": "json",
+          "selector_type": "json-pointer",
+          "selector": "/definitions",
+          "visibility": "public"
+        },
+        "reason_in_scope": "The adjacent feature uses the same contract vocabulary."
+      }
+    ],
+    "consumer_boundary": {
+      "classification": "catalogued",
+      "consumers": [
+        {
+          "consumer_id": "consumer:feature-spec",
+          "kind": "narrative",
+          "source_ref": {
+            "path": "fixtures/consumer/SPEC.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "# Vocabulary",
+            "visibility": "public"
+          },
+          "reason_in_scope": "The feature specification consumes all three probed terms."
+        }
+      ],
+      "rationale": null
+    },
+    "exclusions": [],
+    "authority_effect": "none"
+  },
+  "semantic_closure_receipt": {
+    "$schema": "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v1",
+    "schema_version": "invoke.define-semantic-closure-receipt.v1",
+    "receipt_id": "fixture:define-semantic-closure-receipt",
+    "validator": {
+      "identity": "invoke.validate-define-semantic-closure.v1",
+      "owner": "invoke-define-semantic-closure-validator",
+      "path": "arcanum/spells/invoke/scripts/validate_define_semantic_closure.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "schema_bindings": {
+      "context_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/define-semantic-context-v1.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "receipt_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/define-semantic-closure-receipt-v1.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      }
+    },
+    "context_ref": {
+      "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size": 1
+    },
+    "assessment": {
+      "authored_by": "fixture-context-author",
+      "assessed_by": "fixture-semantic-assessor"
+    },
+    "claim_scope": "configured-roots-complete",
+    "visibility_boundary": {
+      "repository_root": ".",
+      "discovery_roots": ["arcanum", "fixtures"],
+      "public_roots": ["arcanum", "fixtures"],
+      "source": "validator-invocation"
+    },
+    "discovery_snapshots": [
+      {
+        "root_id": "root:arcanum",
+        "path": "arcanum",
+        "registry_paths": ["arcanum/definitions/DEFINITIONS-INDEX.md", "arcanum/definitions/DEFINITIONS.md"],
+        "consumer_paths": [],
+        "excluded_paths": [],
+        "content_refs": [
+          {"path": "arcanum/definitions/DEFINITIONS-INDEX.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+          {"path": "arcanum/definitions/DEFINITIONS.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+        ],
+        "membership_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "root_id": "root:fixtures",
+        "path": "fixtures",
+        "registry_paths": ["fixtures/adjacent/DEFINITIONS.json"],
+        "consumer_paths": ["fixtures/consumer/SPEC.md", "fixtures/discovery.md"],
+        "excluded_paths": [],
+        "content_refs": [
+          {"path": "fixtures/adjacent/DEFINITIONS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+          {"path": "fixtures/consumer/SPEC.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+          {"path": "fixtures/discovery.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+        ],
+        "membership_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "authority_resolution": {
+      "status": "resolved",
+      "owner": "definitions-governance",
+      "canonical_source_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        }
+      ],
+      "index_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        }
+      ],
+      "evidence_refs": [
+        {
+          "path": "arcanum/arcana/definitions-governance/README.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        }
+      ]
+    },
+    "inspected_sources": [
+      {
+        "inspection_id": "inspection:canonical-source",
+        "role": "canonical-source",
+        "declared_path": "arcanum/definitions/DEFINITIONS.md",
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "# Arcanum Canonical Definitions",
+        "visibility": "public",
+        "observed_ref": {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        },
+        "status": "current",
+        "causal_blocker_ids": []
+      },
+      {
+        "inspection_id": "inspection:canonical-index",
+        "role": "canonical-index",
+        "declared_path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "# Arcanum Definitions Index",
+        "visibility": "public",
+        "observed_ref": {
+          "path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        },
+        "status": "current",
+        "causal_blocker_ids": []
+      },
+      {
+        "inspection_id": "inspection:adjacent-registry",
+        "role": "candidate-registry",
+        "declared_path": "fixtures/adjacent/DEFINITIONS.json",
+        "format": "json",
+        "selector_type": "json-pointer",
+        "selector": "/definitions",
+        "visibility": "public",
+        "observed_ref": {
+          "path": "fixtures/adjacent/DEFINITIONS.json",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        },
+        "status": "current",
+        "causal_blocker_ids": []
+      },
+      {
+        "inspection_id": "inspection:feature-spec",
+        "role": "consumer",
+        "declared_path": "fixtures/consumer/SPEC.md",
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "# Vocabulary",
+        "visibility": "public",
+        "observed_ref": {
+          "path": "fixtures/consumer/SPEC.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1
+        },
+        "status": "current",
+        "causal_blocker_ids": []
+      }
+    ],
+    "probe_results": [
+      {
+        "probe_id": "probe:reuse-contract",
+        "matches": [
+          {
+            "match_id": "match:reuse-contract",
+            "kind": "term",
+            "authority_class": "canonical",
+            "definition_id": "DEF-ARC-CONTRACT",
+            "term": "contract",
+            "authority_scope": {"kind": "repository", "ref": "arcanum"},
+            "source_ref": {
+              "path": "arcanum/definitions/DEFINITIONS.md",
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1,
+              "format": "markdown",
+              "selector_type": "heading",
+              "selector": "# DEF-ARC-CONTRACT: contract",
+              "visibility": "public"
+            }
+          }
+        ],
+        "disposition": "reuse-existing",
+        "basis_ids": ["DEF-ARC-CONTRACT"],
+        "rationale": "The canonical contract definition already owns the requested meaning.",
+        "causal_blocker_ids": []
+      },
+      {
+        "probe_id": "probe:new-closure",
+        "matches": [],
+        "disposition": "new-scoped-term",
+        "basis_ids": [],
+        "rationale": "No canonical or adjacent term owns this feature-local meaning.",
+        "causal_blocker_ids": []
+      },
+      {
+        "probe_id": "probe:specialized-contract",
+        "matches": [
+          {
+            "match_id": "match:specialized-contract",
+            "kind": "semantic-overlap",
+            "authority_class": "canonical",
+            "definition_id": "DEF-ARC-CONTRACT",
+            "term": "contract",
+            "authority_scope": {"kind": "repository", "ref": "arcanum"},
+            "source_ref": {
+              "path": "arcanum/definitions/DEFINITIONS.md",
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1,
+              "format": "markdown",
+              "selector_type": "heading",
+              "selector": "# DEF-ARC-CONTRACT: contract",
+              "visibility": "public"
+            }
+          }
+        ],
+        "disposition": "specialize-existing",
+        "basis_ids": ["DEF-ARC-CONTRACT"],
+        "rationale": "The feature term narrows the canonical contract without changing it.",
+        "causal_blocker_ids": []
+      }
+    ],
+    "checks": [
+      {
+        "check_id": "check:authority-resolution",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "arcanum/definitions/DEFINITIONS.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:source-freshness",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "arcanum/definitions/DEFINITIONS.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:probe-coverage",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:canonical-index-parity",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:normalized-collision",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:semantic-overlap",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:consumer-coverage",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "arcanum/spells/invoke/define.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      },
+      {
+        "check_id": "check:independent-owner",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "causal_blocker_ids": []
+      }
+    ],
+    "blockers": [],
+    "outcome": "ready-for-define",
+    "next_route": "define-v3",
+    "authority_effect": "none",
+    "receipt_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "definitions_artifact": {
+    "$schema": "https://arcanum.dev/schemas/invoke/definitions/v2",
+    "schema_version": "definitions/v2",
+    "registry_id": "fixture.definitions.v3",
+    "title": "Fixture Candidate Definitions",
+    "registry_status": "candidate",
+    "owner_route": "definitions-governance",
+    "authority_kind": "kind.definition",
+    "authority_scope": {"kind": "feature", "ref": "fixture-feature"},
+    "visibility": "public",
+    "semantic_evidence": {
+      "context_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "closure_receipt_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      }
+    },
+    "definitions": [
+      {
+        "id": "FIX-D1",
+        "term": "semantic closure",
+        "aliases": ["definition context closure"],
+        "status": "candidate",
+        "status_detail": null,
+        "deferred_as": null,
+        "supersedes": [],
+        "superseded_by": null,
+        "source_kinds": ["local-inference"],
+        "voices": {
+          "normative": "A bounded inspection result that must pass before feature definitions are authored.",
+          "formal": null,
+          "operational": "Inspect relevant semantic authorities and route conflicts before compilation.",
+          "plain_language": "A checked boundary around the meanings this feature must respect.",
+          "domain_context": "Used by the fixture feature before Invoke Define v3 authoring."
+        },
+        "notation": [],
+        "boundary": {
+          "includes": ["Exact authority and consumer inspection."],
+          "excludes": ["Definition promotion."],
+          "conditions": []
+        },
+        "source_refs": [
+          {
+            "role": "evidence",
+            "path": "fixtures/discovery.md",
+            "visibility": "public",
+            "selector_type": "heading",
+            "selector": "Semantic closure",
+            "start_line": null,
+            "end_line": null,
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "primary_consumers": ["SPEC.md", "GLOSSARY.md"],
+        "relations": [],
+        "use_carefully": null,
+        "misuse_warning": "A passing closure does not make candidate definitions canonical.",
+        "challenge_contract": null,
+        "promotion_boundary": "Definitions Governance owns any later canonical promotion.",
+        "drift_route": "definitions-governance",
+        "definition_version": "1",
+        "structural_schema": null
+      },
+      {
+        "id": "FIX-D2",
+        "term": "feature contract",
+        "aliases": ["scoped contract"],
+        "status": "candidate",
+        "status_detail": null,
+        "deferred_as": null,
+        "supersedes": [],
+        "superseded_by": null,
+        "source_kinds": ["synthesis"],
+        "voices": {
+          "normative": "A contract whose obligations and authority are limited to one named feature.",
+          "formal": null,
+          "operational": "Bind each feature obligation to the canonical contract definition and feature scope.",
+          "plain_language": "The feature-specific version of a broader contract concept.",
+          "domain_context": "Used only by the fixture feature and its immediate consumers."
+        },
+        "notation": [],
+        "boundary": {
+          "includes": ["Feature-local obligations."],
+          "excludes": ["Repository-wide contract redefinition."],
+          "conditions": ["The canonical contract remains unchanged."]
+        },
+        "source_refs": [
+          {
+            "role": "evidence",
+            "path": "fixtures/discovery.md",
+            "visibility": "public",
+            "selector_type": "heading",
+            "selector": "Feature contract",
+            "start_line": null,
+            "end_line": null,
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1
+          }
+        ],
+        "primary_consumers": ["SPEC.md"],
+        "relations": [{"id": "FIX-D1", "type": "depends-on"}],
+        "use_carefully": "Keep its scope visibly narrower than the canonical contract.",
+        "misuse_warning": null,
+        "challenge_contract": null,
+        "promotion_boundary": "Definitions Governance owns any later canonical promotion.",
+        "drift_route": "definitions-governance",
+        "definition_version": "1",
+        "structural_schema": null
+      }
+    ],
+    "authority_bindings": [
+      {
+        "binding_id": "binding:contract-reuse",
+        "probe_id": "probe:reuse-contract",
+        "role": "reuse",
+        "definition_id": "DEF-ARC-CONTRACT",
+        "term": "contract",
+        "authority_scope": {"kind": "repository", "ref": "arcanum"},
+        "authority_status": "active",
+        "authority_ref": {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "selector": "# DEF-ARC-CONTRACT: contract",
+          "visibility": "public"
+        }
+      },
+      {
+        "binding_id": "binding:contract-specialization",
+        "probe_id": "probe:specialized-contract",
+        "role": "specialization-basis",
+        "definition_id": "DEF-ARC-CONTRACT",
+        "term": "contract",
+        "authority_scope": {"kind": "repository", "ref": "arcanum"},
+        "authority_status": "active",
+        "authority_ref": {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "selector": "# DEF-ARC-CONTRACT: contract",
+          "visibility": "public"
+        }
+      }
+    ],
+    "semantic_applications": [
+      {
+        "probe_id": "probe:reuse-contract",
+        "disposition": "reuse-existing",
+        "definition_ids": [],
+        "authority_binding_ids": ["binding:contract-reuse"],
+        "rationale": "Reuse the canonical definition by exact binding."
+      },
+      {
+        "probe_id": "probe:new-closure",
+        "disposition": "new-scoped-term",
+        "definition_ids": ["FIX-D1"],
+        "authority_binding_ids": [],
+        "rationale": "Emit one feature-scoped candidate definition."
+      },
+      {
+        "probe_id": "probe:specialized-contract",
+        "disposition": "specialize-existing",
+        "definition_ids": ["FIX-D2"],
+        "authority_binding_ids": ["binding:contract-specialization"],
+        "rationale": "Emit one candidate specialization bound to the canonical basis."
+      }
+    ],
+    "authority_effect": "none"
+  },
+  "define_source": {
+    "$schema": "https://arcanum.dev/schemas/invoke/define-source/v3",
+    "schema_version": "invoke.define-source.v3",
+    "source_id": "fixture:define-source-v3",
+    "profile_id": "invoke.generic-definitions-baseline.v3",
+    "upstream_bindings": {
+      "semantic_context_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "semantic_closure_receipt_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      }
+    },
+    "template_selection": {
+      "profile_id": "invoke.generic-definitions-baseline.v3",
+      "selected": "invoke.generic-definitions-baseline.v3",
+      "eligible": ["invoke.generic-definitions-baseline.v3"],
+      "tie": false
+    },
+    "spec_declarations": [
+      {
+        "id": "declaration:semantic-closure",
+        "title": "Semantic closure",
+        "statement": "Every probed concept is reconciled before candidate definition compilation."
+      }
+    ],
+    "definition_registry": {
+      "registry_id": "fixture.definitions.v3",
+      "title": "Fixture Candidate Definitions",
+      "owner_route": "definitions-governance",
+      "authority_scope": {"kind": "feature", "ref": "fixture-feature"},
+      "visibility": "public",
+      "definitions": [
+        {
+          "id": "FIX-D1",
+          "term": "semantic closure",
+          "aliases": ["definition context closure"],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": ["local-inference"],
+          "voices": {
+            "normative": "A bounded inspection result that must pass before feature definitions are authored.",
+            "formal": null,
+            "operational": "Inspect relevant semantic authorities and route conflicts before compilation.",
+            "plain_language": "A checked boundary around the meanings this feature must respect.",
+            "domain_context": "Used by the fixture feature before Invoke Define v3 authoring."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": ["Exact authority and consumer inspection."],
+            "excludes": ["Definition promotion."],
+            "conditions": []
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "fixtures/discovery.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Semantic closure",
+              "start_line": null,
+              "end_line": null,
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1
+            }
+          ],
+          "primary_consumers": ["SPEC.md", "GLOSSARY.md"],
+          "relations": [],
+          "use_carefully": null,
+          "misuse_warning": "A passing closure does not make candidate definitions canonical.",
+          "challenge_contract": null,
+          "promotion_boundary": "Definitions Governance owns any later canonical promotion.",
+          "drift_route": "definitions-governance",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "FIX-D2",
+          "term": "feature contract",
+          "aliases": ["scoped contract"],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": ["synthesis"],
+          "voices": {
+            "normative": "A contract whose obligations and authority are limited to one named feature.",
+            "formal": null,
+            "operational": "Bind each feature obligation to the canonical contract definition and feature scope.",
+            "plain_language": "The feature-specific version of a broader contract concept.",
+            "domain_context": "Used only by the fixture feature and its immediate consumers."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": ["Feature-local obligations."],
+            "excludes": ["Repository-wide contract redefinition."],
+            "conditions": ["The canonical contract remains unchanged."]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "fixtures/discovery.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Feature contract",
+              "start_line": null,
+              "end_line": null,
+              "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "size": 1
+            }
+          ],
+          "primary_consumers": ["SPEC.md"],
+          "relations": [{"id": "FIX-D1", "type": "depends-on"}],
+          "use_carefully": "Keep its scope visibly narrower than the canonical contract.",
+          "misuse_warning": null,
+          "challenge_contract": null,
+          "promotion_boundary": "Definitions Governance owns any later canonical promotion.",
+          "drift_route": "definitions-governance",
+          "definition_version": "1",
+          "structural_schema": null
+        }
+      ],
+      "authority_bindings": [
+        {
+          "binding_id": "binding:contract-reuse",
+          "probe_id": "probe:reuse-contract",
+          "role": "reuse",
+          "definition_id": "DEF-ARC-CONTRACT",
+          "term": "contract",
+          "authority_scope": {"kind": "repository", "ref": "arcanum"},
+          "authority_status": "active",
+          "authority_ref": {
+            "path": "arcanum/definitions/DEFINITIONS.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "selector": "# DEF-ARC-CONTRACT: contract",
+            "visibility": "public"
+          }
+        },
+        {
+          "binding_id": "binding:contract-specialization",
+          "probe_id": "probe:specialized-contract",
+          "role": "specialization-basis",
+          "definition_id": "DEF-ARC-CONTRACT",
+          "term": "contract",
+          "authority_scope": {"kind": "repository", "ref": "arcanum"},
+          "authority_status": "active",
+          "authority_ref": {
+            "path": "arcanum/definitions/DEFINITIONS.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "selector": "# DEF-ARC-CONTRACT: contract",
+            "visibility": "public"
+          }
+        }
+      ]
+    },
+    "semantic_applications": [
+      {
+        "probe_id": "probe:reuse-contract",
+        "disposition": "reuse-existing",
+        "definition_ids": [],
+        "authority_binding_ids": ["binding:contract-reuse"],
+        "rationale": "Reuse the canonical definition by exact binding."
+      },
+      {
+        "probe_id": "probe:new-closure",
+        "disposition": "new-scoped-term",
+        "definition_ids": ["FIX-D1"],
+        "authority_binding_ids": [],
+        "rationale": "Emit one feature-scoped candidate definition."
+      },
+      {
+        "probe_id": "probe:specialized-contract",
+        "disposition": "specialize-existing",
+        "definition_ids": ["FIX-D2"],
+        "authority_binding_ids": ["binding:contract-specialization"],
+        "rationale": "Emit one candidate specialization bound to the canonical basis."
+      }
+    ],
+    "layering": {
+      "kind": "gap",
+      "rationale": "Implementation layering remains a downstream planning concern."
+    },
+    "dispatch_trace": {
+      "techniques": ["sequence", "owner_boundary_check", "concrete_path_evidence"]
+    },
+    "distill": {
+      "classification": "not-required",
+      "rationale": "The fixture contains one bounded semantic reconciliation unit."
+    },
+    "identity_denominator": {
+      "classification": "not-applicable",
+      "rationale": "No new exact ID-to-label denominator is asserted."
+    },
+    "output_contracts": {
+      "semantic_context": "DEFINE-SEMANTIC-CONTEXT.json",
+      "semantic_closure_receipt": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+      "spec": "SPEC.md",
+      "definitions": "DEFINITIONS.json",
+      "definitions_view": "DEFINITIONS.md",
+      "glossary": "GLOSSARY.md",
+      "layering": "LAYERING-GAP.md",
+      "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+      "dispatch_trace": "DISPATCH-TRACE.json",
+      "distill": "DISTILL-RECEIPT.json",
+      "identity_denominator": "IDENTITY-DENOMINATOR-RECEIPT.json",
+      "transport": "DEFINE-TRANSPORT-REPORT.json",
+      "stage_receipt": "INVOKE-DEFINE-STAGE-RECEIPT.json"
+    },
+    "transport_policy": {
+      "append_existing_only": true,
+      "upstream_mutation": false,
+      "targets": []
+    },
+    "next_route": "design",
+    "authority_effect": "none"
+  },
+  "profile": {
+    "$schema": "https://arcanum.dev/schemas/invoke/define-profile/v3",
+    "schema_version": "invoke.define-profile.v3",
+    "profile_id": "invoke.generic-definitions-baseline.v3",
+    "public_contract": true,
+    "v2_compatibility_policy": "preserve-byte-and-validate-only",
+    "outputs": [
+      "semantic-context",
+      "semantic-closure-receipt",
+      "spec",
+      "definitions",
+      "definitions-view",
+      "glossary",
+      "layering",
+      "template-selection",
+      "dispatch-trace",
+      "distill",
+      "identity-denominator",
+      "transport",
+      "stage-receipt"
+    ]
+  },
+  "result": {
+    "$schema": "https://arcanum.dev/schemas/invoke/define-result/v3",
+    "schema_version": "invoke.define-stage-receipt.v3",
+    "receipt_id": "fixture:define-stage-receipt-v3",
+    "owner_capability": "invoke",
+    "mode": "define",
+    "producer": {
+      "identity": "invoke.compile-define-source.v3",
+      "path": "arcanum/spells/invoke/scripts/compile_define_source_v3.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "schema_bindings": {
+      "source_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/define-source-v3.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "profile_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/define-profile-v3.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "definitions_v1_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/definitions.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "definitions_v2_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/definitions-v2.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "result_schema_ref": {
+        "path": "arcanum/spells/invoke/schemas/define-result-v3.schema.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      }
+    },
+    "profile_id": "invoke.generic-definitions-baseline.v3",
+    "source_ref": {
+      "path": "fixtures/DEFINE-SOURCE-v3.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size": 1
+    },
+    "semantic_evidence": {
+      "context_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CONTEXT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      },
+      "closure_receipt_ref": {
+        "path": "fixtures/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1
+      }
+    },
+    "structural_schema_refs": [],
+    "semantic_outcome": "mixed",
+    "outputs": [
+      {"kind": "semantic-context", "path": "DEFINE-SEMANTIC-CONTEXT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "semantic-closure-receipt", "path": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "spec", "path": "SPEC.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "definitions", "path": "DEFINITIONS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "definitions-view", "path": "DEFINITIONS.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "glossary", "path": "GLOSSARY.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "layering", "path": "LAYERING-GAP.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "template-selection", "path": "TEMPLATE-SELECTION-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "dispatch-trace", "path": "DISPATCH-TRACE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "distill", "path": "DISTILL-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "identity-denominator", "path": "IDENTITY-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "transport", "path": "DEFINE-TRANSPORT-REPORT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    ],
+    "result": "pass",
+    "next_route": "design",
+    "authority_effect": "none",
+    "receipt_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

@@ -1,0 +1,385 @@
+[
+  {
+    "case_id": "context-configured-without-canonical-source",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["authority_boundary", "canonical_source_refs"],
+      "value": []
+    }
+  },
+  {
+    "case_id": "context-none-consumer-declaration-with-catalogued-consumers",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["consumer_boundary", "classification"],
+      "value": "none-with-rationale"
+    }
+  },
+  {
+    "case_id": "ready-receipt-with-governance-disposition",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "set",
+      "path": ["probe_results", 0, "disposition"],
+      "value": "canonical-change-proposal"
+    }
+  },
+  {
+    "case_id": "ready-receipt-with-blocker",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "set",
+      "path": ["blockers"],
+      "value": [
+        {
+          "blocker_id": "blocker:unexpected",
+          "code": "UNEXPECTED_BLOCKER",
+          "message": "A ready receipt cannot carry a blocker.",
+          "owner": "semantic-closure-owner",
+          "repair_route": "Resolve the blocker and rerun closure."
+        }
+      ]
+    }
+  },
+  {
+    "case_id": "not-evaluable-check-without-causal-blocker",
+    "schema_key": "semantic_closure_receipt",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["outcome"],
+        "value": "blocked"
+      },
+      {
+        "operation": "set",
+        "path": ["next_route"],
+        "value": "stop"
+      },
+      {
+        "operation": "set",
+        "path": ["checks", 0, "status"],
+        "value": "not_evaluable"
+      },
+      {
+        "operation": "set",
+        "path": ["blockers"],
+        "value": [
+          {
+            "blocker_id": "blocker:dependency",
+            "code": "DEPENDENCY_MISSING",
+            "message": "A dependency is missing.",
+            "owner": "semantic-closure-owner",
+            "repair_route": "Restore the dependency."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case_id": "definitions-without-candidates-or-authority-bindings",
+    "schema_key": "definitions_artifact",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["definitions"],
+        "value": []
+      },
+      {
+        "operation": "set",
+        "path": ["authority_bindings"],
+        "value": []
+      }
+    ]
+  },
+  {
+    "case_id": "reuse-application-emits-candidate-definition",
+    "schema_key": "definitions_artifact",
+    "mutation": {
+      "operation": "set",
+      "path": ["semantic_applications", 0, "definition_ids"],
+      "value": ["FIX-D1"]
+    }
+  },
+  {
+    "case_id": "public-registry-binds-private-authority",
+    "schema_key": "definitions_artifact",
+    "mutation": {
+      "operation": "set",
+      "path": ["authority_bindings", 0, "authority_ref", "visibility"],
+      "value": "private"
+    }
+  },
+  {
+    "case_id": "source-uses-v2-profile",
+    "schema_key": "define_source",
+    "mutation": {
+      "operation": "set",
+      "path": ["profile_id"],
+      "value": "invoke.generic-definitions-baseline.v2"
+    }
+  },
+  {
+    "case_id": "source-compiles-governance-disposition",
+    "schema_key": "define_source",
+    "mutation": {
+      "operation": "set",
+      "path": ["semantic_applications", 0, "disposition"],
+      "value": "canonical-change-proposal"
+    }
+  },
+  {
+    "case_id": "source-with-empty-registry",
+    "schema_key": "define_source",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["definition_registry", "definitions"],
+        "value": []
+      },
+      {
+        "operation": "set",
+        "path": ["definition_registry", "authority_bindings"],
+        "value": []
+      }
+    ]
+  },
+  {
+    "case_id": "profile-omits-stage-receipt",
+    "schema_key": "profile",
+    "mutation": {
+      "operation": "remove-last",
+      "path": ["outputs"]
+    }
+  },
+  {
+    "case_id": "result-omits-transport-output",
+    "schema_key": "result",
+    "mutation": {
+      "operation": "remove-last",
+      "path": ["outputs"]
+    }
+  },
+  {
+    "case_id": "result-misnames-definitions-output",
+    "schema_key": "result",
+    "mutation": {
+      "operation": "set",
+      "path": ["outputs", 3, "path"],
+      "value": "DEFINITION-RECEIPT.json"
+    }
+  },
+  {
+    "case_id": "public-source-embeds-private-candidate-evidence",
+    "schema_key": "define_source",
+    "mutation": {
+      "operation": "set",
+      "path": ["definition_registry", "definitions", 0, "source_refs", 0, "visibility"],
+      "value": "private"
+    }
+  },
+  {
+    "case_id": "public-source-embeds-private-authority-binding",
+    "schema_key": "define_source",
+    "mutation": {
+      "operation": "set",
+      "path": ["definition_registry", "authority_bindings", 0, "authority_ref", "visibility"],
+      "value": "private"
+    }
+  },
+  {
+    "case_id": "public-context-consumes-private-concept-evidence",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["concept_probes", 0, "evidence_refs", 0, "visibility"],
+      "value": "private"
+    }
+  },
+  {
+    "case_id": "ready-receipt-with-ambiguous-authority",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "set",
+      "path": ["authority_resolution", "status"],
+      "value": "ambiguous"
+    }
+  },
+  {
+    "case_id": "ready-receipt-with-stale-inspected-source",
+    "schema_key": "semantic_closure_receipt",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["inspected_sources", 0, "status"],
+        "value": "stale"
+      },
+      {
+        "operation": "set",
+        "path": ["inspected_sources", 0, "causal_blocker_ids"],
+        "value": ["blocker:stale-source"]
+      }
+    ]
+  },
+  {
+    "case_id": "ready-receipt-with-incomplete-check-roster",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "remove-last",
+      "path": ["checks"]
+    }
+  },
+  {
+    "case_id": "context-without-independent-assessor-field",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "remove",
+      "path": ["assessed_by"]
+    }
+  },
+  {
+    "case_id": "context-with-unbounded-discovery-claim",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["discovery_contract", "claim_scope"],
+      "value": "repository-complete"
+    }
+  },
+  {
+    "case_id": "context-whole-file-selector-is-not-dollar",
+    "schema_key": "semantic_context",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["discovery", "ref", "selector_type"],
+        "value": "whole-file"
+      },
+      {
+        "operation": "set",
+        "path": ["discovery", "ref", "selector"],
+        "value": "Purpose"
+      }
+    ]
+  },
+  {
+    "case_id": "context-json-pointer-uses-markdown-format",
+    "schema_key": "semantic_context",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["adjacent_registries", 0, "source_ref", "format"],
+        "value": "markdown"
+      },
+      {
+        "operation": "set",
+        "path": ["adjacent_registries", 0, "source_ref", "selector_type"],
+        "value": "json-pointer"
+      }
+    ]
+  },
+  {
+    "case_id": "reuse-proposal-without-source-owned-basis",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["concept_probes", 0, "proposed_basis_ids"],
+      "value": []
+    }
+  },
+  {
+    "case_id": "configured-context-with-multiple-canonical-sources",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["authority_boundary", "canonical_source_refs"],
+      "value": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "# Arcanum Canonical Definitions",
+          "visibility": "public"
+        },
+        {
+          "path": "fixtures/other/DEFINITIONS.md",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 2,
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "# Other Definitions",
+          "visibility": "public"
+        }
+      ]
+    }
+  },
+  {
+    "case_id": "receipt-without-schema-bindings",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "remove",
+      "path": ["schema_bindings"]
+    }
+  },
+  {
+    "case_id": "receipt-match-without-authority-scope",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "remove",
+      "path": ["probe_results", 0, "matches", 0, "authority_scope"]
+    }
+  },
+  {
+    "case_id": "receipt-match-with-untyped-source-selector",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "remove",
+      "path": ["probe_results", 0, "matches", 0, "source_ref", "selector_type"]
+    }
+  },
+  {
+    "case_id": "receipt-overstates-discovery-claim",
+    "schema_key": "semantic_closure_receipt",
+    "mutation": {
+      "operation": "set",
+      "path": ["claim_scope"],
+      "value": "repository-complete"
+    }
+  },
+  {
+    "case_id": "context-narrows-fixed-registry-discovery-profile",
+    "schema_key": "semantic_context",
+    "mutation": {
+      "operation": "set",
+      "path": ["discovery_contract", "roots", 0, "registry_globs"],
+      "value": ["definitions/DEFINITIONS.md", "definitions/DEFINITIONS-INDEX.md"]
+    }
+  },
+  {
+    "case_id": "context-json-symbol-selector-is-not-textual",
+    "schema_key": "semantic_context",
+    "mutations": [
+      {
+        "operation": "set",
+        "path": ["consumer_boundary", "consumers", 0, "source_ref", "format"],
+        "value": "json"
+      },
+      {
+        "operation": "set",
+        "path": ["consumer_boundary", "consumers", 0, "source_ref", "selector_type"],
+        "value": "symbol"
+      }
+    ]
+  },
+  {
+    "case_id": "result-without-schema-bindings",
+    "schema_key": "result",
+    "mutation": {
+      "operation": "remove",
+      "path": ["schema_bindings"]
+    }
+  }
+]

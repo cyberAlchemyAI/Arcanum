@@ -1,0 +1,470 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/define-semantic-context/v1",
+  "title": "Invoke Define Semantic Context v1",
+    "description": "Finite context for cross-registry semantic inspection before Define v3 authoring. Discovery roots are admitted independently by the validator invocation and use one fixed semantic-surface profile; this document cannot establish repository visibility, a collision verdict, definition authority, or promotion by declaration alone.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "context_id",
+    "authored_by",
+    "assessed_by",
+    "target",
+    "discovery",
+    "discovery_contract",
+    "concept_probes",
+    "authority_boundary",
+    "adjacent_registries",
+    "consumer_boundary",
+    "exclusions",
+    "authority_effect"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/define-semantic-context/v1"},
+    "schema_version": {"const": "invoke.define-semantic-context.v1"},
+    "context_id": {"$ref": "#/$defs/id"},
+    "authored_by": {"$ref": "#/$defs/id"},
+    "assessed_by": {"$ref": "#/$defs/id"},
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "objective", "authority_scope", "visibility"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "objective": {"$ref": "#/$defs/nonEmpty"},
+        "authority_scope": {"$ref": "#/$defs/authorityScope"},
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "discovery": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": {"const": "artifact"},
+            "ref": {"$ref": "#/$defs/materialRef"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "waiver_reason", "waiver_owner"],
+          "properties": {
+            "kind": {"const": "waiver"},
+            "waiver_reason": {"type": "string", "minLength": 8, "pattern": ".*\\S.*"},
+            "waiver_owner": {"$ref": "#/$defs/id"}
+          }
+        }
+      ]
+    },
+    "discovery_contract": {"$ref": "#/$defs/discoveryContract"},
+    "concept_probes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/conceptProbe"}
+    },
+    "authority_boundary": {"$ref": "#/$defs/authorityBoundary"},
+    "adjacent_registries": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/adjacentRegistry"}
+    },
+    "consumer_boundary": {"$ref": "#/$defs/consumerBoundary"},
+    "exclusions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exclusion"}
+    },
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "target": {
+            "properties": {"visibility": {"const": "public"}},
+            "required": ["visibility"]
+          }
+        },
+        "required": ["target"]
+      },
+      "then": {
+        "properties": {
+          "discovery": {
+            "if": {"properties": {"kind": {"const": "artifact"}}, "required": ["kind"]},
+            "then": {
+              "properties": {"ref": {"$ref": "#/$defs/publicMaterialRef"}},
+              "required": ["ref"]
+            }
+          },
+          "concept_probes": {
+            "items": {
+              "properties": {
+                "evidence_refs": {"items": {"$ref": "#/$defs/publicMaterialRef"}},
+                "claimed_matches": {
+                  "items": {
+                    "properties": {"source_ref": {"$ref": "#/$defs/publicMaterialRef"}}
+                  }
+                }
+              }
+            }
+          },
+          "discovery_contract": {
+            "properties": {
+              "roots": {
+                "items": {
+                  "properties": {"visibility": {"const": "public"}},
+                  "required": ["visibility"]
+                }
+              }
+            }
+          },
+          "authority_boundary": {
+            "properties": {
+              "canonical_source_refs": {"items": {"$ref": "#/$defs/publicMaterialRef"}},
+              "index_refs": {"items": {"$ref": "#/$defs/publicMaterialRef"}},
+              "resolution_evidence_refs": {"items": {"$ref": "#/$defs/publicMaterialRef"}}
+            }
+          },
+          "adjacent_registries": {
+            "items": {
+              "properties": {"source_ref": {"$ref": "#/$defs/publicMaterialRef"}}
+            }
+          },
+          "consumer_boundary": {
+            "properties": {
+              "consumers": {
+                "items": {
+                  "properties": {"source_ref": {"$ref": "#/$defs/publicMaterialRef"}}
+                }
+              }
+            }
+          },
+          "exclusions": {
+            "items": {
+              "properties": {"evidence_ref": {"$ref": "#/$defs/publicMaterialRef"}}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "The independent semantic-closure validator must resolve the repository authority model and prove boundary completeness. It must not trust declared roles or an empty adjacent-registry list by themselves.",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "authorityScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": {"enum": ["repository", "project", "feature", "artifact"]},
+        "ref": {"$ref": "#/$defs/nonEmpty"}
+      }
+    },
+    "materialRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size", "format", "selector_type", "selector", "visibility"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0},
+        "format": {"enum": ["markdown", "json", "yaml", "text"]},
+        "selector_type": {"enum": ["whole-file", "heading", "anchor", "json-pointer", "yaml-path", "symbol"]},
+        "selector": {"$ref": "#/$defs/nonEmpty"},
+        "visibility": {"enum": ["public", "private"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"selector_type": {"const": "whole-file"}}, "required": ["selector_type"]},
+          "then": {"properties": {"selector": {"const": "$"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"enum": ["heading", "anchor"]}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"const": "markdown"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "json-pointer"}}, "required": ["selector_type"]},
+          "then": {
+            "properties": {
+              "format": {"const": "json"},
+              "selector": {"type": "string", "pattern": "^/"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "yaml-path"}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"const": "yaml"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "symbol"}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"enum": ["markdown", "yaml", "text"]}}}
+        }
+      ]
+    },
+    "publicMaterialRef": {
+      "allOf": [
+        {"$ref": "#/$defs/materialRef"},
+        {
+          "properties": {"visibility": {"const": "public"}},
+          "required": ["visibility"]
+        }
+      ]
+    },
+    "conceptProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "probe_id",
+        "term",
+        "aliases",
+        "intent",
+        "intended_scope",
+        "evidence_refs",
+        "proposed_disposition",
+        "claimed_matches",
+        "proposed_basis_ids",
+        "assessment_rationale"
+      ],
+      "properties": {
+        "probe_id": {"$ref": "#/$defs/id"},
+        "term": {"$ref": "#/$defs/nonEmpty"},
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/nonEmpty"}
+        },
+        "intent": {"$ref": "#/$defs/nonEmpty"},
+        "intended_scope": {"$ref": "#/$defs/authorityScope"},
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/materialRef"}
+        },
+        "proposed_disposition": {
+          "enum": ["reuse-existing", "new-scoped-term", "specialize-existing", "canonical-change-proposal", "blocked-conflict"]
+        },
+        "claimed_matches": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/claimedMatch"}
+        },
+        "proposed_basis_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "assessment_rationale": {"$ref": "#/$defs/nonEmpty"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"proposed_disposition": {"const": "new-scoped-term"}}, "required": ["proposed_disposition"]},
+          "then": {"properties": {"proposed_basis_ids": {"maxItems": 0}}}
+        },
+        {
+          "if": {"properties": {"proposed_disposition": {"enum": ["reuse-existing", "specialize-existing", "canonical-change-proposal"]}}, "required": ["proposed_disposition"]},
+          "then": {
+            "properties": {
+              "proposed_basis_ids": {"minItems": 1, "maxItems": 1},
+              "claimed_matches": {
+                "contains": {
+                  "properties": {
+                    "authority_class": {"const": "canonical"},
+                    "definition_id": {"$ref": "#/$defs/id"}
+                  },
+                  "required": ["authority_class", "definition_id"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"proposed_disposition": {"const": "blocked-conflict"}}, "required": ["proposed_disposition"]},
+          "then": {"properties": {"claimed_matches": {"minItems": 1}}}
+        }
+      ]
+    },
+    "claimedMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "kind", "authority_class", "definition_id", "term", "authority_scope", "source_ref"],
+      "properties": {
+        "match_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["id", "term", "alias", "normalized-collision", "semantic-overlap", "consumer-use"]},
+        "authority_class": {"enum": ["canonical", "candidate", "local", "narrative", "historical"]},
+        "definition_id": {
+          "oneOf": [
+            {"$ref": "#/$defs/id"},
+            {"type": "null"}
+          ]
+        },
+        "term": {"$ref": "#/$defs/nonEmpty"},
+        "authority_scope": {"$ref": "#/$defs/authorityScope"},
+        "source_ref": {"$ref": "#/$defs/materialRef"}
+      }
+    },
+    "discoveryContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "claim_scope", "roots"],
+      "properties": {
+        "profile": {"const": "semantic-surface-v1"},
+        "claim_scope": {"const": "configured-roots-complete"},
+        "roots": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/discoveryRoot"}
+        }
+      }
+    },
+    "discoveryRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "path", "registry_globs", "consumer_globs", "visibility"],
+      "properties": {
+        "root_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "registry_globs": {
+          "type": "array",
+          "const": ["**/DEFINITIONS.md", "**/DEFINITIONS-INDEX.md", "**/DEFINITIONS.json", "**/GLOSSARY.md"]
+        },
+        "consumer_globs": {
+          "type": "array",
+          "const": ["**/*.md"]
+        },
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declaration", "profile", "declared_owner", "canonical_scope", "canonical_source_refs", "index_refs", "resolution_evidence_refs"],
+      "properties": {
+        "declaration": {"enum": ["configured", "no-canonical-source", "unresolved"]},
+        "profile": {"const": "markdown-index-v1"},
+        "declared_owner": {"$ref": "#/$defs/id"},
+        "canonical_scope": {"$ref": "#/$defs/authorityScope"},
+        "canonical_source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/materialRef"}
+        },
+        "index_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/materialRef"}
+        },
+        "resolution_evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/materialRef"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"declaration": {"const": "configured"}}, "required": ["declaration"]},
+          "then": {
+            "properties": {
+              "canonical_source_refs": {"minItems": 1, "maxItems": 1},
+              "index_refs": {"minItems": 1, "maxItems": 1}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"declaration": {"const": "no-canonical-source"}}, "required": ["declaration"]},
+          "then": {
+            "properties": {
+              "canonical_source_refs": {"maxItems": 0},
+              "index_refs": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    },
+    "adjacentRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_id", "authority_class", "format_profile", "source_ref", "reason_in_scope"],
+      "properties": {
+        "registry_id": {"$ref": "#/$defs/id"},
+        "authority_class": {"enum": ["candidate", "local", "advisory", "historical"]},
+        "format_profile": {"enum": ["definitions-json-v1", "definitions-json-v2"]},
+        "source_ref": {"$ref": "#/$defs/materialRef"},
+        "reason_in_scope": {"$ref": "#/$defs/nonEmpty"}
+      }
+    },
+    "consumerBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "consumers", "rationale"],
+      "properties": {
+        "classification": {"enum": ["catalogued", "none-with-rationale"]},
+        "consumers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/consumer"}
+        },
+        "rationale": {
+          "oneOf": [
+            {"$ref": "#/$defs/nonEmpty"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"classification": {"const": "catalogued"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "consumers": {"minItems": 1},
+              "rationale": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"classification": {"const": "none-with-rationale"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "consumers": {"maxItems": 0},
+              "rationale": {"$ref": "#/$defs/nonEmpty"}
+            }
+          }
+        }
+      ]
+    },
+    "consumer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consumer_id", "kind", "source_ref", "reason_in_scope"],
+      "properties": {
+        "consumer_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["narrative", "protocol", "schema", "runtime", "index", "other"]},
+        "source_ref": {"$ref": "#/$defs/materialRef"},
+        "reason_in_scope": {"$ref": "#/$defs/nonEmpty"}
+      }
+    },
+    "exclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exclusion_id", "selector", "reason", "evidence_ref", "owner"],
+      "properties": {
+        "exclusion_id": {"$ref": "#/$defs/id"},
+        "selector": {"$ref": "#/$defs/relativePath"},
+        "reason": {"$ref": "#/$defs/nonEmpty"},
+        "evidence_ref": {"$ref": "#/$defs/materialRef"},
+        "owner": {"$ref": "#/$defs/id"}
+      }
+    }
+  }
+}

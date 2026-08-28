@@ -1,0 +1,900 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/definitions/v1",
+  "title": "Invoke Definitions Artifact",
+  "description": "Schema for a definition-bearing machine artifact. Validation proves structural conformance only; it does not grant promotion, publication, execution, or authority outside the declared scope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "registry_id",
+    "title",
+    "registry_status",
+    "owner_route",
+    "authority_kind",
+    "authority_scope",
+    "visibility",
+    "authority_effect",
+    "definitions"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://arcanum.dev/schemas/invoke/definitions/v1"
+    },
+    "schema_version": {
+      "const": "definitions/v1"
+    },
+    "registry_id": {
+      "$ref": "#/$defs/stable_id"
+    },
+    "title": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "registry_status": {
+      "enum": [
+        "candidate",
+        "active",
+        "deprecated",
+        "retired"
+      ]
+    },
+    "owner_route": {
+      "$ref": "#/$defs/non_empty_string"
+    },
+    "authority_kind": {
+      "const": "kind.definition"
+    },
+    "authority_scope": {
+      "$ref": "#/$defs/authority_scope"
+    },
+    "visibility": {
+      "enum": [
+        "public",
+        "private"
+      ]
+    },
+    "authority_effect": {
+      "enum": [
+        "none",
+        "normative-within-scope"
+      ]
+    },
+    "definitions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/definition"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "registry_status": {
+            "const": "candidate"
+          }
+        },
+        "required": [
+          "registry_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authority_effect": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "authority_effect": {
+            "const": "normative-within-scope"
+          }
+        },
+        "required": [
+          "authority_effect"
+        ]
+      },
+      "then": {
+        "properties": {
+          "registry_status": {
+            "const": "active"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "registry_status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "registry_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authority_effect": {
+            "const": "normative-within-scope"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "registry_status": {
+            "enum": [
+              "deprecated",
+              "retired"
+            ]
+          }
+        },
+        "required": [
+          "registry_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authority_effect": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "registry_status": {
+            "const": "candidate"
+          }
+        },
+        "required": [
+          "registry_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "definitions": {
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "candidate"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "visibility": {
+            "const": "public"
+          }
+        },
+        "required": [
+          "visibility"
+        ]
+      },
+      "then": {
+        "properties": {
+          "definitions": {
+            "items": {
+              "properties": {
+                "source_refs": {
+                  "items": {
+                    "properties": {
+                      "visibility": {
+                        "const": "public"
+                      }
+                    },
+                    "required": [
+                      "visibility"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "Consumers must additionally enforce unique definition IDs, relation resolution, selector resolution, digest verification, and synchronization of generated indexes. Those cross-record checks are not expressible completely in portable JSON Schema.",
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullable_non_empty_string": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stable_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,127}$"
+    },
+    "definition_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$"
+    },
+    "sha256_or_null": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "repository",
+            "project",
+            "feature",
+            "artifact"
+          ]
+        },
+        "ref": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      }
+    },
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "term",
+        "aliases",
+        "status",
+        "status_detail",
+        "deferred_as",
+        "supersedes",
+        "superseded_by",
+        "source_kinds",
+        "voices",
+        "notation",
+        "boundary",
+        "source_refs",
+        "primary_consumers",
+        "relations",
+        "use_carefully",
+        "misuse_warning",
+        "challenge_contract",
+        "promotion_boundary",
+        "drift_route",
+        "definition_version",
+        "structural_schema"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "term": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/non_empty_string"
+          }
+        },
+        "status": {
+          "enum": [
+            "candidate",
+            "active",
+            "deferred",
+            "superseded",
+            "deprecated"
+          ]
+        },
+        "status_detail": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "deferred_as": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "supersedes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/stable_id"
+          }
+        },
+        "superseded_by": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/stable_id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "operator-reading",
+              "local-inference",
+              "synthesis",
+              "method-vocabulary",
+              "domain-vocabulary",
+              "historical"
+            ]
+          }
+        },
+        "voices": {
+          "$ref": "#/$defs/voices"
+        },
+        "notation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/notation_entry"
+          }
+        },
+        "boundary": {
+          "$ref": "#/$defs/boundary"
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          },
+          "contains": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "normative",
+                  "provenance",
+                  "evidence"
+                ]
+              }
+            },
+            "required": [
+              "role"
+            ]
+          }
+        },
+        "primary_consumers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "use_carefully": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "misuse_warning": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "challenge_contract": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/challenge_contract"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "promotion_boundary": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "drift_route": {
+          "$ref": "#/$defs/reference"
+        },
+        "definition_version": {
+          "$ref": "#/$defs/definition_version"
+        },
+        "structural_schema": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/structural_schema"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "deferred"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "deferred_as": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "deferred_as": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "superseded"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "superseded_by": {
+                "$ref": "#/$defs/stable_id"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "candidate",
+                  "active",
+                  "deferred"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "superseded_by": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "voices": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "normative",
+        "formal",
+        "operational",
+        "plain_language",
+        "domain_context"
+      ],
+      "properties": {
+        "normative": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "formal": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "operational": {
+          "$ref": "#/$defs/nullable_non_empty_string"
+        },
+        "plain_language": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "domain_context": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      }
+    },
+    "notation_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "meaning"
+      ],
+      "properties": {
+        "symbol": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "meaning": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "includes",
+        "excludes",
+        "conditions"
+      ],
+      "properties": {
+        "includes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/non_empty_string"
+          }
+        },
+        "excludes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/non_empty_string"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/non_empty_string"
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "includes": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "excludes": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "conditions": {
+              "minItems": 1
+            }
+          }
+        }
+      ]
+    },
+    "source_path": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^https://[^\\s]+$"
+        },
+        {
+          "type": "string",
+          "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        }
+      ]
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "path",
+        "visibility",
+        "selector_type",
+        "selector",
+        "start_line",
+        "end_line",
+        "sha256",
+        "size"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "normative",
+            "provenance",
+            "evidence",
+            "example"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/source_path"
+        },
+        "visibility": {
+          "enum": [
+            "public",
+            "private"
+          ]
+        },
+        "selector_type": {
+          "enum": [
+            "heading",
+            "anchor",
+            "line-span",
+            "json-pointer",
+            "yaml-path",
+            "symbol"
+          ]
+        },
+        "selector": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "start_line": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end_line": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256_or_null"
+        },
+        "size": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "selector_type": {
+                "const": "line-span"
+              }
+            },
+            "required": [
+              "selector_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start_line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "start_line": {
+                "type": "null"
+              },
+              "end_line": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "normative",
+                  "provenance",
+                  "evidence"
+                ]
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "type": {
+          "enum": [
+            "references",
+            "depends-on",
+            "contrasts-with",
+            "supersedes"
+          ]
+        }
+      }
+    },
+    "challenge_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modes",
+        "claim_or_edge",
+        "owner_route",
+        "gate",
+        "blocking_question",
+        "residue_route"
+      ],
+      "properties": {
+        "modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "contradiction",
+              "scope",
+              "evidence",
+              "authority"
+            ]
+          }
+        },
+        "claim_or_edge": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "owner_route": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "gate": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "blocking_question": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "residue_route": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "structural_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handle",
+        "status",
+        "ref"
+      ],
+      "properties": {
+        "handle": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*-SCHEMA(?:-[1-9][0-9]*)?$"
+        },
+        "status": {
+          "enum": [
+            "documentary",
+            "machine-checkable"
+          ]
+        },
+        "ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "machine-checkable"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "ref": {
+                "$ref": "#/$defs/reference"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
