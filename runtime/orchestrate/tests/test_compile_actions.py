@@ -181,6 +181,26 @@ class CompileFirstWaveTests(unittest.TestCase):
             coordinator._validated_agent_binding(role, role["role_id"], 0)
         self.assertIn("role briefing agent identity does not match agent_name", raised.exception.blockers[0])
 
+    def test_host_projection_blocks_when_confirmed_prompt_body_differs(self) -> None:
+        dispatch = load_json(FIXTURES / "valid-two-wave.json")
+        role = dispatch["subagent_strategy"]["roles"][0]
+        _, _, binding = coordinator._validated_agent_binding(role, role["role_id"], 0)
+        action = {
+            "agent_name": role["agents"][0]["agent_name"],
+            "initial_prompt": "You are Abramsky, Samson.\n\nDifferent instructions.",
+            "briefing_binding": binding,
+            "input_refs": role["input_refs"],
+            "mutation_policy": role["mutation_policy"],
+            "write_scope": role["write_scope"],
+            "forbidden_write_scopes": role["forbidden_write_scopes"],
+        }
+        with self.assertRaises(driver.DriverBlocked) as raised:
+            driver._validated_action_briefing(action)
+        self.assertIn(
+            "persisted action briefing instructions do not match initial_prompt",
+            raised.exception.blockers,
+        )
+
 
 def load_json_from_text(value: str):
     return json.loads(value)

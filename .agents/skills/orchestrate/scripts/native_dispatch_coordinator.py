@@ -28,10 +28,10 @@ GATE_DECISION_SCHEMA_VERSION = "arcanum.native-dispatch-runner.gate-decision.v0.
 ACTION_SET_SCHEMA_VERSION = "arcanum.native-dispatch-runner.action-set.v0.1"
 MAX_ACTION_NUMBER = 9999
 BRIEFING_CONTRACT_VERSION = "arcanum.confirmed-role-briefing.v0.1"
-STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.2"
+STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.3"
 STRATEGY_LEDGER = Path(".arcanum/observability/subagents-strategy/subagents-dispatch.yaml")
 STRATEGY_TEMP_ROOT = Path(".arcanum/runtime/subagents-strategy")
-SHEET_SCHEMA_VERSION = "0.6.1"
+SHEET_SCHEMA_VERSION = "0.7.0"
 EXECUTION_PROJECTION_FIELDS = (
     "binding_mode",
     "execution_owner",
@@ -168,7 +168,25 @@ def _registered_topology(row: dict[str, Any]) -> list[dict[str, Any]]:
                 if not isinstance(source, str):
                     raise CompileBlocked(["registered strategy topology has an invalid dependency"])
                 dependencies.append(source)
-        topology.append({"wave_id": group_id, "agent_count": len(agents), "depends_on_waves": sorted(dependencies)})
+        registered_agents = []
+        for agent in agents:
+            if not isinstance(agent, dict):
+                raise CompileBlocked(["registered strategy topology has an invalid agent"])
+            agent_name = agent.get("agent_name")
+            initial_prompt = agent.get("initial_prompt")
+            if not isinstance(agent_name, str) or not isinstance(initial_prompt, str):
+                raise CompileBlocked(["registered strategy topology has an incomplete agent binding"])
+            registered_agents.append(
+                {"agent_name": agent_name, "initial_prompt": initial_prompt}
+            )
+        topology.append(
+            {
+                "wave_id": group_id,
+                "agent_count": len(agents),
+                "agents": registered_agents,
+                "depends_on_waves": sorted(dependencies),
+            }
+        )
     return topology
 
 
@@ -176,8 +194,8 @@ def _runtime_topology(dispatch: dict[str, Any]) -> list[dict[str, Any]]:
     strategy = dispatch.get("subagent_strategy", {})
     roles = strategy.get("roles", [])
     waves = strategy.get("execution_waves", [])
-    role_counts = {
-        role.get("role_id"): role.get("agent_count")
+    role_bindings = {
+        role.get("role_id"): role.get("agents")
         for role in roles
         if isinstance(role, dict)
     }
@@ -187,14 +205,26 @@ def _runtime_topology(dispatch: dict[str, Any]) -> list[dict[str, Any]]:
             raise CompileBlocked(["runtime strategy topology has an invalid execution wave"])
         wave_roles = wave.get("role_ids", [])
         if not isinstance(wave_roles, list) or any(
-            not isinstance(role_counts.get(role_id), int) or role_counts[role_id] < 1
+            not isinstance(role_bindings.get(role_id), list) or not role_bindings[role_id]
             for role_id in wave_roles
         ):
             raise CompileBlocked(["runtime strategy topology has invalid role cardinality"])
+        agents = []
+        for role_id in wave_roles:
+            for agent in role_bindings[role_id]:
+                if not isinstance(agent, dict):
+                    raise CompileBlocked(["runtime strategy topology has an invalid agent binding"])
+                agents.append(
+                    {
+                        "agent_name": agent.get("agent_name"),
+                        "initial_prompt": agent.get("initial_prompt"),
+                    }
+                )
         topology.append(
             {
                 "wave_id": wave.get("wave_id"),
-                "agent_count": sum(role_counts[role_id] for role_id in wave_roles),
+                "agent_count": len(agents),
+                "agents": agents,
                 "depends_on_waves": sorted(wave.get("depends_on_waves", []) or []),
             }
         )
@@ -330,10 +360,25 @@ def _canonical_payload_sha256(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _validated_briefing_binding(
-    role: dict[str, Any], role_id: str
-) -> dict[str, Any]:
-    binding = role.get("briefing_binding")
+def _validated_agent_binding(
+    role: dict[str, Any], role_id: str, agent_ordinal: int
+) -> tuple[str, str, dict[str, Any]]:
+    agents = role.get("agents")
+    if not isinstance(agents, list) or len(agents) != role.get("agent_count"):
+        raise CompileBlocked([f"role agent bindings do not match agent_count: {role_id}"])
+    agent = agents[agent_ordinal]
+    if not isinstance(agent, dict):
+        raise CompileBlocked([f"role has an invalid agent binding: {role_id}"])
+    agent_name = agent.get("agent_name")
+    initial_prompt = agent.get("initial_prompt")
+    if not isinstance(agent_name, str) or not agent_name:
+        raise CompileBlocked([f"role agent has no agent_name: {role_id}"])
+    if not isinstance(initial_prompt, str) or not initial_prompt:
+        raise CompileBlocked([f"role agent has no initial_prompt: {role_id}"])
+    prefix = f"You are {agent_name}.\n\n"
+    if not initial_prompt.startswith(prefix) or not initial_prompt[len(prefix):]:
+        raise CompileBlocked([f"role agent initial_prompt has an invalid identity prefix: {role_id}"])
+    binding = agent.get("briefing_binding")
     if not isinstance(binding, dict):
         raise CompileBlocked([f"role has no briefing_binding: {role_id}"])
     if binding.get("contract_version") != BRIEFING_CONTRACT_VERSION:
@@ -342,9 +387,10 @@ def _validated_briefing_binding(
     source = binding.get("source_binding")
     if not isinstance(briefing, dict) or not isinstance(source, dict):
         raise CompileBlocked([f"role briefing binding is incomplete: {role_id}"])
-    agent_name = role.get("agent_name")
-    if agent_name is not None and briefing.get("agent_identity") != agent_name:
+    if briefing.get("agent_identity") != agent_name:
         raise CompileBlocked([f"role briefing agent identity does not match agent_name: {role_id}"])
+    if briefing.get("instructions") != initial_prompt[len(prefix):]:
+        raise CompileBlocked([f"role briefing instructions do not match initial_prompt: {role_id}"])
     briefing_sha = _canonical_payload_sha256(briefing)
     if binding.get("briefing_sha256") != briefing_sha:
         raise CompileBlocked([f"role briefing digest mismatch: {role_id}"])
@@ -375,7 +421,7 @@ def _validated_briefing_binding(
         or receipt.get("completion_requires_all_fields") is not True
     ):
         raise CompileBlocked([f"role briefing status/receipt contract mismatch: {role_id}"])
-    return copy.deepcopy(binding)
+    return agent_name, initial_prompt, copy.deepcopy(binding)
 
 
 def _format_action_id(action_number: int) -> str:
@@ -621,7 +667,9 @@ def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str,
             raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
 
         for agent_ordinal in range(agent_count):
-            briefing_binding = _validated_briefing_binding(role, role_id)
+            agent_name, initial_prompt, briefing_binding = _validated_agent_binding(
+                role, role_id, agent_ordinal
+            )
             action_number = len(actions) + 1
             action = {
                 "schema_version": ACTION_SCHEMA_VERSION,
@@ -635,6 +683,8 @@ def compile_first_wave(dispatch: dict[str, Any], run_id: str) -> tuple[dict[str,
                 "role": role_id,
                 "agent_ordinal": agent_ordinal,
                 "agent_count": agent_count,
+                "agent_name": agent_name,
+                "initial_prompt": initial_prompt,
                 "capability_ref": str(role.get("capability_ref")),
                 "target": str(role.get("capability_target")),
                 "mode": str(role.get("capability_mode")),
@@ -788,7 +838,9 @@ def _compile_named_wave_actions(
             raise CompileBlocked([f"role has invalid agent_count: {role_id}"])
 
         for agent_ordinal in range(agent_count):
-            briefing_binding = _validated_briefing_binding(role, role_id)
+            agent_name, initial_prompt, briefing_binding = _validated_agent_binding(
+                role, role_id, agent_ordinal
+            )
             action_number = start_action_number + len(actions)
             actions.append(
                 {
@@ -803,6 +855,8 @@ def _compile_named_wave_actions(
                     "role": role_id,
                     "agent_ordinal": agent_ordinal,
                     "agent_count": agent_count,
+                    "agent_name": agent_name,
+                    "initial_prompt": initial_prompt,
                     "capability_ref": str(role.get("capability_ref")),
                     "target": str(role.get("capability_target")),
                     "mode": str(role.get("capability_mode")),

@@ -11,7 +11,7 @@ asked to confirm.
 
 - P1 trigger: synthesis and parallelism.
 - Dispatch type owner: live research capability.
-- Canonical form owner: schema `0.6.1`.
+- Canonical form owner: schema `0.7.0`.
 - Agent pool: readable; both explorers are eligible and unique.
 - First draft final approver: `Independent Maintainer`, not pooled and not a
   singleton auditor group.

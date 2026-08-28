@@ -23,7 +23,7 @@ execute_contract:
   ready_state: wave_ready
   preflight_spawn_attempt_count: 0
   strategy_registration_required: true
-  strategy_registration_schema: arcanum.subagent-strategy-registration.v0.2
+  strategy_registration_schema: arcanum.subagent-strategy-registration.v0.3
   strategy_ledger: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
   missing_host_behavior: block
   nested_model_cli_fallback: forbidden
@@ -110,7 +110,7 @@ Run these checks in order:
 3. Read `subagent_strategy.authorization`. Continue only for `approved` or `not_needed`. Use `authorization_pending` for `requires_user_permission`; use `blocked` for `blocked` or missing authorization.
 4. Load the selected host profile and compare every `required_execute_operation` with the active host tool catalog. The active host catalog is runtime evidence; a shell executable or prose claim is not a substitute.
 5. If any required operation is missing, emit `state=blocked`, name the missing operations, set `spawn_attempt_count=0`, and stop.
-6. Ask the deterministic coordinator to verify `subagent_strategy.registration` against the canonical append-only strategy ledger. It must find exactly one dispatch row with the same `dispatch_id`, `sheet_schema_version`, `sheet_sha256`, and executable projection digest; recompute that projection from the current Dispatch Spec; compare registered group cardinality and blocking dependencies to executable waves; and prove that the declared temporary sheet no longer exists. Missing, stale, mismatched, duplicate, or unconsumed registration blocks before actions are emitted.
+6. Ask the deterministic coordinator to verify `subagent_strategy.registration` against the canonical append-only strategy ledger. It must find exactly one dispatch row with the same `dispatch_id`, `sheet_schema_version`, `sheet_sha256`, and executable projection digest; recompute that projection from the current Dispatch Spec; compare registered agent names, exact initial prompts, group cardinality, and blocking dependencies to executable waves; and prove that the declared temporary sheet no longer exists. Missing, stale, mismatched, duplicate, or unconsumed registration blocks before actions are emitted.
 7. Ask the deterministic coordinator to compile the first eligible wave. A passing preflight persists `strategy-registration.json` beside the state and run plan and ends at `state=wave_ready` with action documents and `spawn_attempt_count=0`.
 
 Preflight never invokes `spawn`, `wait`, `join`, `close`, message delivery, or a model-backed CLI.
@@ -143,13 +143,12 @@ the partial stream and close with error; never reconstruct the missing event.
 Consume exactly one persisted action document whose `action` is `spawn` and whose complete shape validates against `schemas/action.schema.json`.
 
 1. Admit the action only when its `action_id` exists in the current run plan, its persisted document matches that plan entry, and no attempt event already exists for the identifier.
-2. Revalidate the action's canonical `briefing_binding` digest and exact
-   read/write-policy equality, then build bounded host context from the action's
-   role, capability, target, mode, mutation policy, references, and complete
-   typed briefing. Begin the host message with the exact sentence
-   `You are {agent_identity}.`, followed by a blank line; when the executable
-   role declares `agent_name`, require it to equal `agent_identity`. Preserve task-completion status separately from domain-gate
-   status. Never infer forbidden reads from forbidden-write scopes.
+2. Revalidate the action's canonical `briefing_binding` digest, exact
+   read/write-policy equality, `agent_name`, and exact confirmed
+   `initial_prompt`. Require the briefing identity and instructions to equal
+   the prompt identity and body, then pass `initial_prompt` unchanged as the
+   complete host message. Preserve task-completion status separately from
+   domain-gate status. Never infer forbidden reads from forbidden-write scopes.
    The host task name must be an opaque deterministic function of dispatch ID,
    run ID, and action ID. It must differ across fresh runs and must not include
    raw role, target, reference, dispatch, or run prose.

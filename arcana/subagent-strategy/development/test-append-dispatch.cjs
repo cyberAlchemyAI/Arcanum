@@ -150,7 +150,7 @@ console.log('\n[1] valid full v0.7.0 row appends; emitted lines pass the self-ch
   check('1a valid dispatch row appends (exit 0)', r1.status === 0, r1.stderr || r1.stdout);
   const text = readLedger(root);
   check('1b row start emitted', /^  - dispatch_id: "2026-06-12-battery-main"$/m.test(text), text);
-  check('1c schema_version block key', /^    schema_version: "0\.6\.1"$/m.test(text), text);
+  check('1c schema_version block key', /^    schema_version: "0\.7\.0"$/m.test(text), text);
   check('1d invoked_by taken from record', /^    invoked_by: "tester@example\.com"$/m.test(text), text);
   check('1e created stamped by appender', /^    created: "\d{4}-\d{2}-\d{2}T/m.test(text), text);
   check('1f exact temporary sheet digest emitted', /^    sheet_sha256: "[a-f0-9]{64}"$/m.test(text), text);
@@ -174,7 +174,7 @@ console.log('\n[2] each missing required dispatch field is rejected (exit 2)');
   const root = freshRoot();
   const fieldPattern = {
     dispatch_id: /dispatch_id is required/,
-    schema_version: /schema_version must be exactly "0\.6\.1"/,
+    schema_version: /schema_version must be exactly "0\.7\.0"/,
     dispatch_type: /dispatch_type must be one of/,
     goal: /goal is required/,
     context: /context is required/,
@@ -204,9 +204,9 @@ console.log('\n[2] each missing required dispatch field is rejected (exit 2)');
 console.log('\n[3] wrong schema_version rejected');
 {
   const root = freshRoot();
-  expectReject('3a schema_version "0.3.0"', root, validDispatch({ schema_version: '0.3.0' }), /schema_version must be exactly "0\.6\.1"/);
+  expectReject('3a schema_version "0.3.0"', root, validDispatch({ schema_version: '0.3.0' }), /schema_version must be exactly "0\.7\.0"/);
   expectReject('3b schema_version 0.6.0 as number', root, validDispatch({ schema_version: 0.6 }), /schema_version/);
-  expectReject('3c old schema_version "0.5.2" now rejected', root, validDispatch({ schema_version: '0.5.2' }), /schema_version must be exactly "0\.6\.1"/);
+  expectReject('3c old schema_version "0.5.2" now rejected', root, validDispatch({ schema_version: '0.5.2' }), /schema_version must be exactly "0\.7\.0"/);
 }
 
 console.log('\n[4] bad enum values rejected');

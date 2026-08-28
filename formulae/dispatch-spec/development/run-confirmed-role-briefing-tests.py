@@ -43,13 +43,15 @@ def refresh_exact_binding(dispatch: dict[str, Any], source: dict[str, Any], root
     write_json(source_path, source)
     artifact_sha = portable_text_sha(source_path.read_bytes())
     for role in dispatch["subagent_strategy"]["roles"]:
-        binding = role["briefing_binding"]
-        briefing = source["roles"][role["role_id"]]
-        digest = canonical_sha(briefing)
-        binding["briefing"] = copy.deepcopy(briefing)
-        binding["briefing_sha256"] = digest
-        binding["source_binding"]["artifact_sha256"] = artifact_sha
-        binding["source_binding"]["selected_payload_sha256"] = digest
+        for agent in role["agents"]:
+            binding = agent["briefing_binding"]
+            selector = binding["source_binding"]["selector"].removeprefix("/roles/")
+            briefing = source["roles"][selector]
+            digest = canonical_sha(briefing)
+            binding["briefing"] = copy.deepcopy(briefing)
+            binding["briefing_sha256"] = digest
+            binding["source_binding"]["artifact_sha256"] = artifact_sha
+            binding["source_binding"]["selected_payload_sha256"] = digest
 
 
 def run_case(
@@ -84,6 +86,10 @@ def role(dispatch: dict[str, Any], role_id: str) -> dict[str, Any]:
     return next(item for item in dispatch["subagent_strategy"]["roles"] if item["role_id"] == role_id)
 
 
+def agent(dispatch: dict[str, Any], role_id: str, ordinal: int = 0) -> dict[str, Any]:
+    return role(dispatch, role_id)["agents"][ordinal]
+
+
 def no_change(dispatch: dict[str, Any], source: dict[str, Any], root: Path) -> None:
     del dispatch, source, root
 
@@ -91,23 +97,24 @@ def no_change(dispatch: dict[str, Any], source: dict[str, Any], root: Path) -> N
 def allowed_read_forbidden_write_overlap(dispatch: dict[str, Any], source: dict[str, Any], root: Path) -> None:
     target = role(dispatch, "beta-check")
     target["forbidden_write_scopes"].append("restricted-input/")
-    briefing = source["roles"]["beta-check"]
-    briefing["read_policy"]["allowed_read_scopes"].append("restricted-input/")
-    briefing["write_policy"]["forbidden_write_scopes"].append("restricted-input/")
+    for selector in ("beta-check-0", "beta-check-1"):
+        briefing = source["roles"][selector]
+        briefing["read_policy"]["allowed_read_scopes"].append("restricted-input/")
+        briefing["write_policy"]["forbidden_write_scopes"].append("restricted-input/")
     refresh_exact_binding(dispatch, source, root)
 
 
 def main() -> int:
     cases: list[tuple[str, str, Callable[[dict[str, Any], dict[str, Any], Path], None]]] = [
         ("exact binding", "pass", no_change),
-        ("missing briefing", "block", lambda d, s, r: role(d, "beta-check").pop("briefing_binding")),
-        ("wrong artifact digest", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("artifact_sha256", "0" * 64)),
-        ("wrong selector", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("selector", "/roles/alpha-check")),
-        ("wrong selected payload digest", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("selected_payload_sha256", "0" * 64)),
-        ("changed instructions", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["briefing"].__setitem__("instructions", "changed")),
-        ("changed status semantics", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["briefing"]["status_semantics"].__setitem__("task_complete_value", "done")),
-        ("changed receipt shape", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["briefing"]["receipt_shape"]["required_fields"].pop()),
-        ("read write boundary mismatch", "block", lambda d, s, r: role(d, "beta-check")["briefing_binding"]["briefing"]["write_policy"].__setitem__("forbidden_write_scopes", [])),
+        ("missing briefing", "block", lambda d, s, r: agent(d, "beta-check").pop("briefing_binding")),
+        ("wrong artifact digest", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("artifact_sha256", "0" * 64)),
+        ("wrong selector", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("selector", "/roles/alpha-check-0")),
+        ("wrong selected payload digest", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["source_binding"].__setitem__("selected_payload_sha256", "0" * 64)),
+        ("changed instructions", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["briefing"].__setitem__("instructions", "changed")),
+        ("changed status semantics", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["briefing"]["status_semantics"].__setitem__("task_complete_value", "done")),
+        ("changed receipt shape", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["briefing"]["receipt_shape"]["required_fields"].pop()),
+        ("read write boundary mismatch", "block", lambda d, s, r: agent(d, "beta-check")["briefing_binding"]["briefing"]["write_policy"].__setitem__("forbidden_write_scopes", [])),
         ("allowed read and forbidden write overlap", "pass", allowed_read_forbidden_write_overlap),
     ]
     passed = all(run_case(*case) for case in cases)

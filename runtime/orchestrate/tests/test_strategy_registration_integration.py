@@ -260,6 +260,26 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
             raised.exception.blockers,
         )
 
+    def test_registered_initial_prompt_mismatch_blocks_without_actions(self) -> None:
+        registered = self.appender(self.sheet)
+        self.assertEqual(registered.returncode, 0, registered.stderr)
+        ledger = self.project_root / ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml"
+        text = ledger.read_text(encoding="utf-8")
+        text = text.replace("Run beta check.", "Run a different beta check.")
+        ledger.write_text(text, encoding="utf-8")
+        with self.assertRaises(coordinator.CompileBlocked) as raised:
+            coordinator.compile_to_directory(
+                self.dispatch,
+                "strategy-prompt-mismatch",
+                self.project_root / "run",
+                VALIDATOR,
+                self.project_root,
+            )
+        self.assertIn(
+            "registered strategy topology does not match executable runtime waves",
+            raised.exception.blockers,
+        )
+
     def test_briefing_artifact_digest_is_equal_for_lf_and_crlf(self) -> None:
         source = self.project_root / "confirmed-briefings.json"
         lf = source.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")

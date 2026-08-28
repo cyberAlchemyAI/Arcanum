@@ -100,10 +100,13 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 34. A passing capability-bound closeout must contain exactly the declared number of agent records for every role.
 35. Every agent in a passing capability-bound closeout must have spawned, completed its join, closed, and returned its declared receipt; every applied step must also have a passing native-stage receipt containing the role output.
 36. An approved dispatch entering native Orchestrate execution must include `subagent_strategy.registration` bound to the canonical ledger, exact v0.7.0 sheet digest, canonical executable projection digest, and governed temporary dispatch/close paths. Dispatch Spec validates the proof shape; Orchestrate recomputes the projection, verifies the live ledger digest, agent names, exact initial prompts, and topology, and proves the temporary sheet was consumed before emitting actions.
-37. Every confirmation-ready or executable capability-bound role must bind one
-    versioned typed briefing to an immutable dispatch-relative JSON artifact and
-    selector. The validator recomputes the artifact, selected-payload, and
-    canonical briefing digests and requires exact payload equality.
+37. Every confirmation-ready or executable capability-bound role must declare
+    one agent binding per planned instance. Each binding carries `agent_name`,
+    the exact confirmed `initial_prompt`, and a versioned typed briefing bound
+    to an immutable dispatch-relative JSON artifact and selector. The validator
+    recomputes the artifact, selected-payload, and canonical briefing digests,
+    requires exact payload equality, and proves the briefing identity and
+    instructions equal the prompt identity and body.
 38. The briefing must preserve identity, angle, instructions, distinct task and
     domain-gate status semantics, explicit read policy, exact write policy,
     receipt shape, and authority ceiling. Forbidden-write scopes never imply

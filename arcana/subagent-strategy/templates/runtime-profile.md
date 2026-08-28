@@ -60,7 +60,7 @@ registration:
   close_rows: 1
 
 native_runtime_binding:
-  schema_version: arcanum.subagent-strategy-registration.v0.2
+  schema_version: arcanum.subagent-strategy-registration.v0.3
   dispatch_field: subagent_strategy.registration
   compile_command: <command-or-none>
   verify_registration_command: <command-or-none>

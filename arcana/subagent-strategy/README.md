@@ -182,8 +182,10 @@ as separate runtime state and add:
 }
 ```
 
-`orchestrate compile` and `verify-registration` block until the ledger contains
-the matching dispatch row and the temporary sheet is gone. After close append,
+Each capability-bound role declares one `agents` entry per planned instance;
+each entry binds `agent_name`, the exact confirmed `initial_prompt`, and its own
+typed `briefing_binding`. `orchestrate compile` and `verify-registration` block
+until the ledger contains the matching identities and prompts and the temporary sheet is gone. After close append,
 `verify-close` requires one later paired close row and a consumed close JSON.
 Use forward-slash project-relative paths on Windows and Linux.
 
