@@ -1,0 +1,33 @@
+schema_version: "1.0"
+id: 20260828-craft-ledger-mutation-boundaries
+title: Fronteiras da mutação do Craft ledger
+created_at: "2026-08-28"
+diagram:
+  kind: relationship-map
+  source: diagram.mmd
+  render: diagram.png
+business:
+  represents: As responsabilidades e transferências entre interpretação, enforcement e persistência durante uma mutação do Craft ledger.
+  process:
+    name: Mutação do Craft ledger
+    description: Separa quem propõe e autoriza significado, quem valida regras admitidas e qual superfície persiste o estado autoritativo.
+  applies_to:
+    - runtime/craft-ledger
+    - planejamento de mutações Craft
+  reader_question: Quais fronteiras possuem interpretação, enforcement e persistência durante uma mutação?
+scope:
+  includes:
+    - caller interpretativo e autoridade de apply
+    - perfil operacional, planner e apply
+    - ledger autoritativo e índice externo derivado
+  excludes:
+    - mecanismo concreto de lock
+    - política final de autorização
+status: confirmed
+sources:
+  - ref: runtime/craft-ledger/docs/features/ledger-mutation/discovery.md
+    locator: seção 4
+    note: Define as responsabilidades e fronteiras representadas.
+  - ref: arcana/craft/ARCHITECTURE.md
+    locator: Source Authority
+    note: Sustenta a autoridade do ledger e o caráter derivado do índice.

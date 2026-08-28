@@ -1,0 +1,24 @@
+flowchart LR
+    subgraph interpretation["Fronteira interpretativa"]
+        caller["Caller autorizado<br/>propõe significado"]
+        authorizer["Autoridade de apply<br/>conforme política local"]
+    end
+
+    subgraph enforcement["Fronteira de enforcement"]
+        profile["Perfil operacional<br/>versionado"]
+        planner["Planner<br/>normaliza, constrói e valida"]
+        apply["Apply<br/>verifica plano e autorização"]
+    end
+
+    subgraph persistence["Fronteira de persistência"]
+        ledger[".craft/ledger.yml<br/>fonte autoritativa"]
+        index[".craft/index.json<br/>derivado opcional"]
+    end
+
+    caller -->|request estruturada| planner
+    profile -->|regras admitidas| planner
+    ledger -->|bytes e revisão| planner
+    planner -->|plano identificado| apply
+    authorizer -->|autorização vinculada ao plano| apply
+    apply -->|compare-and-commit| ledger
+    ledger -.->|reconstrução ou invalidação| index

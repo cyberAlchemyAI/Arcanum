@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant C as Caller
+    participant P as Planner
+    participant A as Apply
+    participant L as ledger.yml
+
+    C->>P: request + expected_revision
+    P->>L: ler bytes autoritativos
+    L-->>P: fonte + revisão
+    P->>P: resolver perfil, normalizar e validar candidato
+    alt request ou política não admitida
+        P-->>C: INVALID, UNKNOWN ou UNSUPPORTED
+    else candidato admitido
+        P-->>C: plan_id + identidades vinculadas
+        C->>A: plan_id + autorização
+        A->>A: verificar plano, perfil, candidato e autorização
+        alt identidade divergente
+            A-->>C: PLAN_MISMATCH sem escrita
+        else identidade íntegra
+            A->>L: compare-and-commit da revisão
+            alt fonte mudou
+                L-->>A: STALE_SOURCE sem escrita
+                A-->>C: diagnóstico
+            else revisão confere
+                A->>L: ledger + prova durável de replay
+                A-->>C: APPLIED + receipt
+            end
+        end
+    end

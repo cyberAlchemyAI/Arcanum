@@ -1,0 +1,30 @@
+schema_version: "1.0"
+id: 20260828-craft-ledger-plan-apply-flow
+title: Fluxo de plan e apply do Craft ledger
+created_at: "2026-08-28"
+diagram:
+  kind: sequence
+  source: diagram.mmd
+  render: diagram.png
+business:
+  represents: A sequência entre caller, planner, apply e ledger desde a request até um diagnóstico ou commit atômico.
+  process:
+    name: Planejamento e aplicação de mutação
+    description: Mostra onde o candidato é validado e onde identidade, autorização e revisão podem impedir a escrita.
+  applies_to:
+    - runtime/craft-ledger
+    - contrato plan e apply
+  reader_question: Em que ordem o runtime valida o candidato e recusa planos divergentes ou fontes obsoletas?
+scope:
+  includes:
+    - planejamento sem escrita
+    - verificação da identidade do plano
+    - compare-and-commit e prova durável de replay
+  excludes:
+    - implementação concreta do lock
+    - atualização detalhada do índice externo
+status: confirmed
+sources:
+  - ref: runtime/craft-ledger/docs/features/ledger-mutation/discovery.md
+    locator: seções 4.4 a 5.3
+    note: Define o fluxo, os diagnósticos e a fronteira de commit representados.
