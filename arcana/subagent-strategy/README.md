@@ -163,6 +163,11 @@ At termination, write a temporary close record containing `close_of`,
 then call the same command. Successful and idempotent appends consume the temp;
 validation or append failures preserve it for diagnosis.
 
+`agents_spawned` records `planned_total`, actual launched `total`,
+`not_launched`, the launched-agent `tree`, and `loops_used`. Its tree sums to
+`total`, while `total + not_launched` equals `planned_total`; a `resolved`
+close requires every planned agent to have launched.
+
 For native capability-bound execution, keep the richer Dispatch Spec document
 as separate runtime state and add:
 

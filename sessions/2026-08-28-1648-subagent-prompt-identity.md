@@ -4,7 +4,7 @@ artifact_kind: session
 layer: capability
 version: 0.1.0
 created_at: 2026-08-28T16:48:42-03:00
-updated_at: 2026-08-28T16:48:42-03:00
+updated_at: 2026-08-28T17:49:25-03:00
 expires: 2026-10-27
 decisions_made: true
 contradictions_found: true
@@ -18,7 +18,11 @@ importance_rationale: "The session established and enforced a cross-runtime iden
 
 ## Summary
 
-The session first inspected whether governed subagent dispatch JSON records were temporary and whether durable history was confined to telemetry. It established that successful strategy and close temporary records are consumed, while failed close records and other runtime JSON can remain for diagnosis, and that a recent migration left historical and active dispatch ledgers at different paths. The session then traced how `agent_name`, `initial_prompt`, confirmed briefings, and native host requests relate. It decided that every new governed agent must have a pool-backed name and that the exact initial prompt must begin with `You are {agent_name}.`, followed by a blank line and bounded instructions. The Subagent Strategy registrar and readiness gate now reject missing names, mismatched prefixes, and empty instruction bodies. Native Orchestrate requests now begin with the confirmed briefing identity and reject a declared `agent_name` that differs from `agent_identity`; the generated Codex package was regenerated from the canonical runtime. Validation passed with 105 registrar tests, the eight-writer concurrency check, and 39 targeted Orchestrate tests, while existing append-only ledgers and already-confirmed dispatches were not rewritten.
+The session first inspected whether governed subagent dispatch JSON records were temporary and whether durable history was confined to telemetry. It established that successful strategy and close temporary records are consumed, while failed close records and other runtime JSON can remain for diagnosis, and that a recent migration left historical and active dispatch ledgers at different paths. The session then traced how `agent_name`, `initial_prompt`, confirmed briefings, and native host requests relate. It decided that every new governed agent must have a pool-backed name and that the exact initial prompt must begin with `You are {agent_name}.`, followed by a blank line and bounded instructions. The Subagent Strategy registrar and readiness gate now reject missing names, mismatched prefixes, and empty instruction bodies. Native Orchestrate requests now begin with the confirmed briefing identity and reject a declared `agent_name` that differs from `agent_identity`; the generated Codex package was regenerated from the canonical runtime. The original validation passed with 105 registrar tests, the eight-writer concurrency check, and 34 tests across the three named targeted Orchestrate modules, while existing append-only ledgers and already-confirmed dispatches were not rewritten.
+
+## Review remediation applied
+
+The follow-up review established that beginning the native request with the right identity was insufficient because the host projection rebuilt the prompt instead of carrying the confirmed `initial_prompt` exactly. The executable contract now binds each planned agent's `agent_name`, exact `initial_prompt`, and typed briefing through Dispatch Spec, registration proof, compiled action, and host request. Strategy sheet schema `0.7.0` and registration proof `v0.3` make that breaking admission boundary explicit. Close records now distinguish planned, launched, and unlaunched agents; Shannon admits the `synthesizer` role; and current tests cover prompt drift and partial launch accounting. Historical append-only ledger rows remain grandfathered and untouched.
 
 ## Connections
 
@@ -29,16 +33,16 @@ The session first inspected whether governed subagent dispatch JSON records were
 
 ## Open questions
 
-- Should the stricter admission semantics trigger a strategy-sheet schema bump from `0.6.1`, or remain a grandfathered validator hardening under the current version?
-- Should `synthesizer` remain in the admitted role enum when no current agent-pool identity declares that role, or should the pool or enum be aligned?
+None from the review: the version boundary and synthesizer-pool alignment were resolved in the follow-up remediation.
 
 ## Recommendation
 
-Resolve the schema-version question before distributing the updated registrar beyond this repository, because it controls whether external `0.6.1` producers receive a compatible hardening or an explicit migration boundary.
+Treat `0.7.0`/registration `v0.3` as the migration boundary for new producers. Preserve existing append-only `0.6.1` rows as historical evidence rather than rewriting them.
 
 ## Files touched
 
 - `.agents/skills/orchestrate/SKILL.md`
+- `.agents/skills/orchestrate/generation-manifest.json`
 - `.agents/skills/orchestrate/scripts/native_dispatch_coordinator.py`
 - `.agents/skills/orchestrate/scripts/native_dispatch_driver.py`
 - `arcana/subagent-strategy/README.md`

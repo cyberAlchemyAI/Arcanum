@@ -512,16 +512,28 @@ console.log('\n[18] traversal and semantic close hardening');
     validClose({ agents_spawned: validSpawn({ tree: { explorer: 1, writer: 1 }, loops_used: 0 }) }), /sum exactly/);
   expectReject('18e close loop count cannot exceed registered max_loops', root,
     validClose({ agents_spawned: validSpawn({ loops_used: 3 }) }), /exceeds registered max_loops/);
+  const partialRoot = freshRoot();
+  run(partialRoot, validDispatch());
+  const partial = run(partialRoot, validClose({
+    exit_reason: 'error',
+    agents_spawned: validSpawn({ total: 1, not_launched: 2, tree: { explorer: 1 }, loops_used: 0 }),
+  }));
+  check('18f non-resolved close preserves actual partial launch count', partial.status === 0, partial.stderr || partial.stdout);
+  const resolvedRoot = freshRoot();
+  run(resolvedRoot, validDispatch());
+  expectReject('18g resolved close rejects unlaunched planned agents', resolvedRoot,
+    validClose({ agents_spawned: validSpawn({ total: 1, not_launched: 2, tree: { explorer: 1 }, loops_used: 0 }) }),
+    /resolved close requires every registered agent/);
   const linkRoot = freshRoot();
   const outsideRoot = freshRoot();
   fs.mkdirSync(path.join(linkRoot, '.arcanum'), { recursive: true });
   try {
     fs.symlinkSync(outsideRoot, path.join(linkRoot, '.arcanum', 'observability'), process.platform === 'win32' ? 'junction' : 'dir');
     const escaped = run(linkRoot, validDispatch({ dispatch_id: 'junction-escape' }));
-    check('18f ledger junction/symlink escape is blocked',
+    check('18h ledger junction/symlink escape is blocked',
       escaped.status === 2 && escaped.tempExists && /escapes the real project root/.test(escaped.stderr), escaped.stderr);
   } catch (error) {
-    note('18f ledger junction/symlink escape is blocked', `link creation unavailable: ${error.code || error.message}`);
+    note('18h ledger junction/symlink escape is blocked', `link creation unavailable: ${error.code || error.message}`);
   }
 }
 

@@ -327,8 +327,13 @@ def verify_strategy_registration(
             raise CompileBlocked(["strategy close row has no content digest"])
         agents_spawned = close_row.get("agents_spawned")
         expected_agents = sum(item["agent_count"] for item in registered_topology)
-        if not isinstance(agents_spawned, dict) or agents_spawned.get("total") != expected_agents:
-            raise CompileBlocked(["strategy close agent total does not match the registered topology"])
+        if (
+            not isinstance(agents_spawned, dict)
+            or agents_spawned.get("planned_total") != expected_agents
+            or agents_spawned.get("total") != expected_agents
+            or agents_spawned.get("not_launched") != 0
+        ):
+            raise CompileBlocked(["resolved strategy close does not account for the registered agents"])
         tree = agents_spawned.get("tree", {})
         if (
             not isinstance(tree, dict)
