@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-coherence-policy/v1",
+  "title": "Invoke Design Coherence Policy v1",
+  "description": "Versioned rule catalog consumed by the independent Design coherence validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "policy_id",
+    "validator_owner",
+    "rules",
+    "rule_order",
+    "rule_set_digest",
+    "pass_requires",
+    "authority_effect",
+    "policy_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-coherence-policy/v1"},
+    "schema_version": {"const": "invoke.design-coherence-policy.v1"},
+    "policy_id": {"$ref": "#/$defs/id"},
+    "validator_owner": {"const": "invoke-design-coherence-validator"},
+    "rules": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:w1-entry"}, "diagnostic_code": {"const": "DESIGN_W1_ENTRY_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:application-denominator"}, "diagnostic_code": {"const": "DESIGN_APPLICATION_DENOMINATOR_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:profile-closure"}, "diagnostic_code": {"const": "DESIGN_PROFILE_CLOSURE_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:registry-integrity"}, "diagnostic_code": {"const": "DESIGN_FACT_REGISTRY_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:view-projection"}, "diagnostic_code": {"const": "DESIGN_VIEW_PROJECTION_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:artifact-projection"}, "diagnostic_code": {"const": "DESIGN_ARTIFACT_PROJECTION_MISMATCH"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:contract-preservation"}, "diagnostic_code": {"const": "DESIGN_CONTRACT_PRESERVATION_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:selection-closure"}, "diagnostic_code": {"const": "DESIGN_SELECTION_CLOSURE_INVALID"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:glossary-consistency"}, "diagnostic_code": {"const": "DESIGN_GLOSSARY_CONFLICT"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:evolution-delta"}, "diagnostic_code": {"const": "DESIGN_EVOLUTION_DELTA_INCOMPLETE"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:plan-evidence-separation"}, "diagnostic_code": {"const": "DESIGN_PLAN_EVIDENCE_OVERCLAIM"}}}]},
+        {"allOf": [{"$ref": "#/$defs/rule"}, {"properties": {"rule_id": {"const": "rule:authority-ceiling"}, "diagnostic_code": {"const": "DESIGN_AUTHORITY_CEILING_EXCEEDED"}}}]}
+      ],
+      "items": false
+    },
+    "rule_order": {"const": ["rule:w1-entry", "rule:application-denominator", "rule:profile-closure", "rule:registry-integrity", "rule:view-projection", "rule:artifact-projection", "rule:contract-preservation", "rule:selection-closure", "rule:glossary-consistency", "rule:evolution-delta", "rule:plan-evidence-separation", "rule:authority-ceiling"]},
+    "rule_set_digest": {"$ref": "#/$defs/digest"},
+    "pass_requires": {"const": "all-blocking-rules-pass"},
+    "authority_effect": {"const": "none"},
+    "policy_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "stringSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmpty"}},
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "category", "severity", "applies_to", "diagnostic_code", "description", "repair_route"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/id"},
+        "category": {
+          "enum": [
+            "input-coverage",
+            "w1-entry",
+            "application-denominator",
+            "profile-closure",
+            "registry-integrity",
+            "view-projection",
+            "artifact-projection",
+            "manifest-coverage",
+            "cross-view-identity",
+            "ownership",
+            "contract-preservation",
+            "selection-closure",
+            "glossary-consistency",
+            "evolution-delta",
+            "plan-evidence-separation",
+            "authority-ceiling",
+            "output-closure"
+          ]
+        },
+        "severity": {"enum": ["block", "flag"]},
+        "applies_to": {"$ref": "#/$defs/stringSet"},
+        "diagnostic_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,127}$"},
+        "description": {"$ref": "#/$defs/nonEmpty"},
+        "repair_route": {"$ref": "#/$defs/nonEmpty"}
+      }
+    }
+  }
+}

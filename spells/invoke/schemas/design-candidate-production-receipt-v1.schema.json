@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-candidate-production-receipt/v1",
+  "title": "Invoke Design Candidate Production Receipt v1",
+  "description": "Failure-capable receipt for deterministic W2 candidate projection, independent coherence validation, and atomic candidate closure.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "producer",
+    "bindings",
+    "source_ref",
+    "w1_production_receipt_ref",
+    "coherence_block_receipt",
+    "stage_results",
+    "outputs",
+    "result",
+    "next_route",
+    "blockers",
+    "evidence_ceiling",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-candidate-production-receipt/v1"},
+    "schema_version": {"const": "invoke.design-candidate-production-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-candidate.v1"},
+        "owner": {"const": "invoke-design-candidate-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_candidate.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process", "profile", "policy"],
+      "properties": {
+        "process": {"$ref": "#/$defs/exactRef"},
+        "profile": {"$ref": "#/$defs/exactRef"},
+        "policy": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "source_ref": {"$ref": "#/$defs/exactRef"},
+    "w1_production_receipt_ref": {"$ref": "#/$defs/exactRef"},
+    "coherence_block_receipt": {"oneOf": [{"$ref": "https://arcanum.dev/schemas/invoke/design-coherence-receipt/v1"}, {"type": "null"}]},
+    "stage_results": {
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "source-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "artifact-projection"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "coherence-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "candidate-output-closure"}}}]}
+      ],
+      "items": false
+    },
+    "outputs": {
+      "type": "array",
+      "maxItems": 2,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "design-artifact"}, "path": {"const": "DESIGN.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "coherence-receipt"}, "path": {"const": "DESIGN-COHERENCE-RECEIPT.json"}}}]}
+      ],
+      "items": false
+    },
+    "result": {"enum": ["pass", "block"]},
+    "next_route": {"enum": ["design-bundle-production", "repair-w1-input", "repair-installed-contract", "repair-design-source"]},
+    "blockers": {"type": "array", "items": {"$ref": "#/$defs/blocker"}},
+    "evidence_ceiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["normal_w1_bound", "source_complete", "candidate_projected", "coherence_validated", "human_views_produced", "design_stage_pass", "plan_evidence", "acceptance", "execution", "publication", "deployment", "external_effect"],
+      "properties": {
+        "normal_w1_bound": {"type": "boolean"},
+        "source_complete": {"type": "boolean"},
+        "candidate_projected": {"type": "boolean"},
+        "coherence_validated": {"type": "boolean"},
+        "human_views_produced": {"const": false},
+        "design_stage_pass": {"const": false},
+        "plan_evidence": {"const": false},
+        "acceptance": {"const": false},
+        "execution": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false},
+        "external_effect": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]},
+      "then": {"properties": {
+        "stage_results": {"items": {"properties": {"status": {"const": "pass"}}}},
+        "outputs": {"minItems": 2, "maxItems": 2},
+        "next_route": {"const": "design-bundle-production"},
+        "blockers": {"maxItems": 0},
+        "coherence_block_receipt": {"type": "null"},
+        "evidence_ceiling": {"properties": {"normal_w1_bound": {"const": true}, "source_complete": {"const": true}, "candidate_projected": {"const": true}, "coherence_validated": {"const": true}}}
+      }}
+    },
+    {
+      "if": {"properties": {"result": {"const": "block"}}, "required": ["result"]},
+      "then": {"properties": {"outputs": {"maxItems": 0}, "next_route": {"enum": ["repair-w1-input", "repair-installed-contract", "repair-design-source"]}, "blockers": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"], "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}},
+    "outputRef": {"type": "object", "additionalProperties": false, "required": ["kind", "path", "sha256", "size"], "properties": {"kind": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}},
+    "stageResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "status", "causal_blocker_ids"],
+      "properties": {"stage_id": {"$ref": "#/$defs/id"}, "status": {"enum": ["pass", "block", "not_evaluable"]}, "causal_blocker_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}},
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"maxItems": 0}}}},
+        {"if": {"properties": {"status": {"enum": ["block", "not_evaluable"]}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}}
+      ]
+    },
+    "diagnosticCode": {"enum": ["SOURCE_SCHEMA_INVALID", "SOURCE_DIGEST_MISMATCH", "SOURCE_PATH_UNSAFE", "W1_RECEIPT_INVALID", "W1_RECEIPT_NOT_NORMAL", "W1_OUTPUT_BINDING_MISMATCH", "TARGET_BINDING_MISMATCH", "PROFILE_INVALID", "PROFILE_BINDING_MISMATCH", "APPLICATION_DENOMINATOR_MISMATCH", "APPLICATION_INVALID", "FACT_REGISTRY_INVALID", "VIEW_PROJECTION_INVALID", "SELECTION_CLOSURE_INVALID", "EVOLUTION_INVALID", "GOVERNANCE_OVERCLAIM", "ARTIFACT_PROJECTION_FAILED", "ARTIFACT_PROJECTION_MISMATCH", "COHERENCE_BLOCKED", "LATE_VALIDATION_FAILED", "OUTPUT_INVENTORY_MISMATCH"]},
+    "blocker": {"type": "object", "additionalProperties": false, "required": ["blocker_id", "code", "message", "selector", "owner", "repair_route"], "properties": {"blocker_id": {"$ref": "#/$defs/id"}, "code": {"$ref": "#/$defs/diagnosticCode"}, "message": {"$ref": "#/$defs/nonEmpty"}, "selector": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]}, "owner": {"$ref": "#/$defs/id"}, "repair_route": {"$ref": "#/$defs/nonEmpty"}}}
+  }
+}

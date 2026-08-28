@@ -1,0 +1,484 @@
+{
+  "design_input_closure": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-input-closure/v1",
+    "schema_version": "invoke.design-input-closure.v1",
+    "closure_id": "fixture:design-input-closure",
+    "target": {
+      "id": "fixture:target",
+      "title": "Schema family fixture target",
+      "objective": "Prove the Design contract family is structurally closed.",
+      "owner": "fixture-owner",
+      "visibility": "public"
+    },
+    "activation": {
+      "kind": "normal",
+      "define_stage_receipt_ref": {
+        "path": "fixtures/define/INVOKE-DEFINE-STAGE-RECEIPT.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1,
+        "selector": "$",
+        "visibility": "public",
+        "expected_schema_kind": "InvokeDefineStageReceipt",
+        "expected_schema_version": "invoke.define-stage-receipt.v2"
+      },
+      "approval_ref": {
+        "path": "fixtures/approval.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1,
+        "selector": "$",
+        "visibility": "public",
+        "expected_schema_kind": null,
+        "expected_schema_version": null
+      }
+    },
+    "discovery_boundary": {
+      "roots": [
+        {
+          "path": "fixtures/repository-root",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "selector": "$",
+          "visibility": "public",
+          "expected_schema_kind": null,
+          "expected_schema_version": null
+        }
+      ],
+      "selectors": [
+        {
+          "selector_id": "selector:define",
+          "source_ref": {
+            "path": "fixtures/define/SPEC.md",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "size": 1,
+            "selector": "# Objective",
+            "visibility": "public",
+            "expected_schema_kind": null,
+            "expected_schema_version": null
+          },
+          "purpose": "Locate the approved intent contract."
+        }
+      ],
+      "required_input_classes": ["define-artifact"],
+      "boundary_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "scope_manifest_contract_ref": {
+      "path": "arcanum/spells/invoke/schemas/design-scope-manifest.schema.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size": 1,
+      "selector": "$",
+      "visibility": "public",
+      "expected_schema_kind": "DesignScopeManifest",
+      "expected_schema_version": "invoke.design-scope-manifest.v1"
+    },
+    "input_catalog": [
+      {
+        "input_id": "input:define",
+        "kind": "define-artifact",
+        "authority_class": "normative",
+        "authority_owner": "define-owner",
+        "applicability_owner": "design-owner",
+        "classification": "required",
+        "source_ref": {
+          "path": "fixtures/define/SPEC.md",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 1,
+          "selector": "# Objective",
+          "visibility": "public",
+          "expected_schema_kind": null,
+          "expected_schema_version": null
+        },
+        "freshness": {"status": "current", "observed_epoch": "fixture-epoch-1"},
+        "applies_to": ["architecture"],
+        "exclusion_evidence_ref": null
+      }
+    ],
+    "constraints": [
+      {
+        "obligation_id": "constraint:atomic",
+        "class": "constraint",
+        "statement": "Publish the final Design bundle atomically.",
+        "source_input_ids": ["input:define"],
+        "owner": "design-owner"
+      }
+    ],
+    "invariants": [
+      {
+        "obligation_id": "invariant:no-authority",
+        "class": "invariant",
+        "statement": "Design grants no later lifecycle authority.",
+        "source_input_ids": ["input:define"],
+        "owner": "design-owner"
+      }
+    ],
+    "prior_decisions": [],
+    "exclusions": [],
+    "design_kind": {
+      "kind": "greenfield",
+      "no_prior_design_determination_ref": {
+        "path": "fixtures/no-prior-design.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1,
+        "selector": "$",
+        "visibility": "public",
+        "expected_schema_kind": null,
+        "expected_schema_version": null
+      }
+    },
+    "selection_inputs": {
+      "authored_concerns": [],
+      "predicate_inputs": [],
+      "planned_witness_requirements": [
+        {
+          "witness_id": "witness:atomic",
+          "claim_id": "claim:atomic",
+          "concern_id": "concern:validation",
+          "evidence_state": "planned-contract"
+        }
+      ]
+    },
+    "resolved_conflicts": [],
+    "authority_effect": "none",
+    "closure_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_input_closure_receipt": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-input-closure-receipt/v1",
+    "schema_version": "invoke.design-input-closure-receipt.v1",
+    "receipt_id": "fixture:input-closure-receipt",
+    "validator": {
+      "identity": "invoke.validate-design-input-closure.v1",
+      "owner": "invoke-design-input-closure-validator",
+      "path": "arcanum/spells/invoke/scripts/validate_design_input_closure.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "bindings": {
+      "process_ref": {"path": "fixtures/DESIGN-PRODUCTION-PROCESS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "closure_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "discovery_boundary_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "activation_kind": "normal",
+    "inspected_boundary": {
+      "root_refs": [{"path": "fixtures/repository-root", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}],
+      "selector_ids": ["selector:define"],
+      "required_input_classes": ["define-artifact"]
+    },
+    "findings": {
+      "found_input_ids": ["input:define"],
+      "excluded_input_ids": [],
+      "missing_input_ids": [],
+      "stale_input_ids": [],
+      "conflicting_input_ids": []
+    },
+    "prior_design_determination": {
+      "kind": "greenfield",
+      "status": "pass",
+      "evidence_ref": {"path": "fixtures/no-prior-design.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    },
+    "checks": [
+      {
+        "check_id": "check:boundary-complete",
+        "status": "pass",
+        "evidence_refs": [{"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}],
+        "causal_blocker_ids": []
+      }
+    ],
+    "verdict": "pass",
+    "blockers": [],
+    "authority_effect": "none",
+    "receipt_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_source": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-source/v1",
+    "schema_version": "invoke.design-source.v1",
+    "source_id": "fixture:design-source",
+    "profile_id": "invoke.generic-design-baseline.v1",
+    "target_id": "fixture:target",
+    "upstream_bindings": {
+      "design_input_closure_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_receipt_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "scope_manifest_ref": {"path": "fixtures/DESIGN-SCOPE-MANIFEST.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "denominator_receipt_ref": {"path": "fixtures/DESIGN-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "selection_result_ref": {"path": "fixtures/DESIGN-SELECTION-RESULT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    },
+    "input_applications": [
+      {
+        "input_id": "input:define",
+        "disposition": "satisfied",
+        "design_element_ids": ["component:system"],
+        "rationale": "The system component implements the approved objective.",
+        "decision_ref": null
+      }
+    ],
+    "model": {
+      "actors": [
+        {"actor_id": "actor:operator", "name": "Operator", "role": "Submits governed intent", "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "systems": [
+        {"system_id": "system:invoke", "name": "Invoke", "responsibility": "Produce a governed Design bundle", "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "relationships": [
+        {"relationship_id": "relationship:operator-invoke", "from_id": "actor:operator", "to_id": "system:invoke", "kind": "submits", "input_ids": ["input:define"]}
+      ],
+      "components": [
+        {"component_id": "component:system", "name": "Design producer", "level": "high-level", "parent_component_id": null, "responsibility": "Coordinate Design production", "contracts": ["atomic-output"], "owner": "design-owner", "input_ids": ["input:define"]},
+        {"component_id": "component:compiler", "name": "Design compiler", "level": "low-level", "parent_component_id": "component:system", "responsibility": "Compile the normalized artifact", "contracts": ["deterministic-compile"], "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "interfaces": [
+        {"interface_id": "interface:submit", "provider_id": "component:system", "consumer_id": "actor:operator", "direction": "inbound", "contract": "Accept one exact source", "versioning": "v1 additive", "failure_boundary": "No final output on failure", "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "workflow_steps": [
+        {"step_id": "step:compile", "actor_or_component_id": "component:compiler", "action": "Compile the staged artifact", "next_step_ids": [], "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "states": [
+        {"state_id": "state:staged", "subject_id": "component:system", "name": "staged", "allowed_next_state_ids": [], "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "decisions": [
+        {"decision_id": "decision:atomic", "question": "How is the final bundle published?", "decision": "Publish atomically after coherence PASS.", "rationale": "Partial output is misleading evidence.", "outcomes": [{"condition": "coherence passes", "result": "publish complete bundle", "next_id": null}], "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "dependencies": [
+        {"dependency_id": "dependency:selection", "consumer_id": "component:compiler", "target_id": "invoke-design-selection-validator", "kind": "evidence", "failure_policy": "block compilation", "owner": "design-owner", "input_ids": ["input:define"]}
+      ]
+    },
+    "views": {
+      "context": {"view_id": "view:context", "summary": "Operator and Invoke boundary.", "actor_ids": ["actor:operator"], "system_ids": ["system:invoke"], "relationship_ids": ["relationship:operator-invoke"]},
+      "high_level_structure": {"view_id": "view:high-level-structure", "summary": "Producer boundary.", "component_ids": ["component:system"]},
+      "low_level_components": {"view_id": "view:low-level-components", "summary": "Compiler detail.", "component_ids": ["component:compiler"]},
+      "workflow_process": {"view_id": "view:workflow-process", "summary": "Compilation workflow.", "workflow_step_ids": ["step:compile"], "state_ids": ["state:staged"]},
+      "decision_flow": {"view_id": "view:decision-flow", "summary": "Atomic publication decision.", "decision_ids": ["decision:atomic"]},
+      "dependency_interface": {"view_id": "view:dependency-interface", "summary": "Selection dependency and source interface.", "interface_ids": ["interface:submit"], "dependency_ids": ["dependency:selection"]}
+    },
+    "selected_outputs": ["architecture"],
+    "selected_companions": [],
+    "glossary_application": {
+      "source_glossary_ref": {"path": "fixtures/define/GLOSSARY.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "mappings": [{"term": "Design", "design_element_ids": ["system:invoke"], "intended_usage": "A governed architecture artifact", "rationale": "Uses the approved Define meaning."}],
+      "unmapped_terms": []
+    },
+    "risks": [],
+    "planned_witnesses": [
+      {"witness_id": "witness:atomic", "claim_id": "claim:atomic", "concern_id": "concern:validation", "polarity": "negative", "target": "Design producer", "input_or_violation": "Late output failure", "expected_result": "No final output directory", "execution_owner": "plan-owner", "execution_phase": "validation", "evidence_state": "planned-contract"}
+    ],
+    "unresolved_gaps": [],
+    "layering": {"kind": "seed", "decision": "Build schema before validator and producer.", "minimum_unit": "One exact source through one consumer."},
+    "template_selection": {"profile_id": "invoke.generic-design-baseline.v1", "selected": "invoke.generic-design-baseline.v1", "eligible": ["invoke.generic-design-baseline.v1"], "tie": false},
+    "dispatch_trace": {"techniques": ["machine-source-first"]},
+    "distill_contract": {"classification": "required", "validator_owner": "distill", "coherent_unit_candidate": "One Design artifact family", "split_pressure_question": "Would any output require a different owner?", "expected_receipt": "DISTILL-RECEIPT.json"},
+    "transport_policy": {"append_existing_only": true, "upstream_mutation": false, "targets": []},
+    "output_contracts": {
+      "design_artifact": "DESIGN.json",
+      "architecture": "ARCHITECTURE.md",
+      "selected_companions": "SELECTED-COMPANIONS.md",
+      "glossary_consistency": "GLOSSARY-CONSISTENCY-REPORT.json",
+      "planned_witnesses": "PLANNED-WITNESS-CONTRACTS.json",
+      "layering": "IMPLEMENTATION-LAYERING.md",
+      "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+      "dispatch_trace": "DISPATCH-TRACE.json",
+      "distill": "DISTILL-RECEIPT.json",
+      "scope_manifest": "DESIGN-SCOPE-MANIFEST.json",
+      "denominator_receipt": "DESIGN-DENOMINATOR-RECEIPT.json",
+      "selection_result": "DESIGN-SELECTION-RESULT.json",
+      "coherence_receipt": "DESIGN-COHERENCE-RECEIPT.json",
+      "transport": "DESIGN-TRANSPORT-REPORT.json",
+      "stage_receipt": "INVOKE-DESIGN-STAGE-RECEIPT.json"
+    },
+    "next_route": "plan",
+    "authority_effect": "none",
+    "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_artifact": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-artifact/v1",
+    "schema_version": "invoke.design-artifact.v1",
+    "artifact_id": "fixture:design-artifact",
+    "artifact_status": "candidate",
+    "owner_route": "invoke-design",
+    "target_id": "fixture:target",
+    "profile_id": "invoke.generic-design-baseline.v1",
+    "evidence_bindings": {
+      "process_ref": {"path": "fixtures/DESIGN-PRODUCTION-PROCESS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "coherence_policy_ref": {"path": "fixtures/DESIGN-COHERENCE-POLICY.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_receipt_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "scope_manifest_ref": {"path": "fixtures/DESIGN-SCOPE-MANIFEST.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "denominator_receipt_ref": {"path": "fixtures/DESIGN-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "selection_result_ref": {"path": "fixtures/DESIGN-SELECTION-RESULT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_source_ref": {"path": "fixtures/DESIGN-SOURCE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    },
+    "input_applications": [
+      {"input_id": "input:define", "disposition": "satisfied", "design_element_ids": ["component:system"], "rationale": "The system component implements the approved objective.", "decision_ref": null}
+    ],
+    "model": {
+      "actors": [{"actor_id": "actor:operator", "name": "Operator", "role": "Submits governed intent", "owner": "design-owner", "input_ids": ["input:define"]}],
+      "systems": [{"system_id": "system:invoke", "name": "Invoke", "responsibility": "Produce a governed Design bundle", "owner": "design-owner", "input_ids": ["input:define"]}],
+      "relationships": [{"relationship_id": "relationship:operator-invoke", "from_id": "actor:operator", "to_id": "system:invoke", "kind": "submits", "input_ids": ["input:define"]}],
+      "components": [
+        {"component_id": "component:system", "name": "Design producer", "level": "high-level", "parent_component_id": null, "responsibility": "Coordinate Design production", "contracts": ["atomic-output"], "owner": "design-owner", "input_ids": ["input:define"]},
+        {"component_id": "component:compiler", "name": "Design compiler", "level": "low-level", "parent_component_id": "component:system", "responsibility": "Compile the normalized artifact", "contracts": ["deterministic-compile"], "owner": "design-owner", "input_ids": ["input:define"]}
+      ],
+      "interfaces": [{"interface_id": "interface:submit", "provider_id": "component:system", "consumer_id": "actor:operator", "direction": "inbound", "contract": "Accept one exact source", "versioning": "v1 additive", "failure_boundary": "No final output on failure", "owner": "design-owner", "input_ids": ["input:define"]}],
+      "workflow_steps": [{"step_id": "step:compile", "actor_or_component_id": "component:compiler", "action": "Compile the staged artifact", "next_step_ids": [], "owner": "design-owner", "input_ids": ["input:define"]}],
+      "states": [{"state_id": "state:staged", "subject_id": "component:system", "name": "staged", "allowed_next_state_ids": [], "owner": "design-owner", "input_ids": ["input:define"]}],
+      "decisions": [{"decision_id": "decision:atomic", "question": "How is the final bundle published?", "decision": "Publish atomically after coherence PASS.", "rationale": "Partial output is misleading evidence.", "outcomes": [{"condition": "coherence passes", "result": "publish complete bundle", "next_id": null}], "owner": "design-owner", "input_ids": ["input:define"]}],
+      "dependencies": [{"dependency_id": "dependency:selection", "consumer_id": "component:compiler", "target_id": "invoke-design-selection-validator", "kind": "evidence", "failure_policy": "block compilation", "owner": "design-owner", "input_ids": ["input:define"]}]
+    },
+    "views": {
+      "context": {"view_id": "view:context", "summary": "Operator and Invoke boundary.", "actor_ids": ["actor:operator"], "system_ids": ["system:invoke"], "relationship_ids": ["relationship:operator-invoke"]},
+      "high_level_structure": {"view_id": "view:high-level-structure", "summary": "Producer boundary.", "component_ids": ["component:system"]},
+      "low_level_components": {"view_id": "view:low-level-components", "summary": "Compiler detail.", "component_ids": ["component:compiler"]},
+      "workflow_process": {"view_id": "view:workflow-process", "summary": "Compilation workflow.", "workflow_step_ids": ["step:compile"], "state_ids": ["state:staged"]},
+      "decision_flow": {"view_id": "view:decision-flow", "summary": "Atomic publication decision.", "decision_ids": ["decision:atomic"]},
+      "dependency_interface": {"view_id": "view:dependency-interface", "summary": "Selection dependency and source interface.", "interface_ids": ["interface:submit"], "dependency_ids": ["dependency:selection"]}
+    },
+    "selected_outputs": ["architecture"],
+    "selected_companions": [],
+    "concern_trace": [{"concern_id": "concern:validation", "input_ids": ["input:define"], "view_ids": ["view:workflow-process"], "disposition": "required", "selected_output_id": "architecture"}],
+    "glossary_application": {
+      "source_glossary_ref": {"path": "fixtures/define/GLOSSARY.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "mappings": [{"term": "Design", "design_element_ids": ["system:invoke"], "intended_usage": "A governed architecture artifact", "rationale": "Uses the approved Define meaning."}],
+      "unmapped_terms": []
+    },
+    "risks": [],
+    "planned_witnesses": [{"witness_id": "witness:atomic", "claim_id": "claim:atomic", "concern_id": "concern:validation", "polarity": "negative", "target": "Design producer", "input_or_violation": "Late output failure", "expected_result": "No final output directory", "execution_owner": "plan-owner", "execution_phase": "validation", "evidence_state": "planned-contract"}],
+    "unresolved_gaps": [],
+    "selection_evidence_state": "design-validator-pass",
+    "coherence_evidence_state": "pending-external-receipt",
+    "plan_evidence_state": "plan-evidence-pending",
+    "evidence_ceiling": "design-artifact-authored-only",
+    "authority_effect": "none",
+    "artifact_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_coherence_receipt": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-coherence-receipt/v1",
+    "schema_version": "invoke.design-coherence-receipt.v1",
+    "receipt_id": "fixture:coherence-receipt",
+    "validator": {
+      "identity": "invoke.validate-design-coherence.v1",
+      "owner": "invoke-design-coherence-validator",
+      "path": "arcanum/spells/invoke/scripts/validate_design_coherence.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "bindings": {
+      "process_ref": {"path": "fixtures/DESIGN-PRODUCTION-PROCESS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "coherence_policy_ref": {"path": "fixtures/DESIGN-COHERENCE-POLICY.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_receipt_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "scope_manifest_ref": {"path": "fixtures/DESIGN-SCOPE-MANIFEST.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "denominator_receipt_ref": {"path": "fixtures/DESIGN-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "selection_result_ref": {"path": "fixtures/DESIGN-SELECTION-RESULT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_source_ref": {"path": "fixtures/DESIGN-SOURCE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_artifact_ref": {"path": "fixtures/DESIGN.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    },
+    "evaluated_rules": [{"rule_id": "rule:input-coverage", "status": "pass", "evidence_refs": [{"path": "fixtures/DESIGN.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}], "causal_blocker_ids": []}],
+    "verdict": "pass",
+    "diagnostics": [],
+    "selection_evidence_state": "design-validator-pass",
+    "coherence_state": "pass",
+    "design_stage_state": "pending-bundle-closure",
+    "plan_evidence_state": "plan-evidence-pending",
+    "authority_effect": "none",
+    "receipt_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_result": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-result/v1",
+    "schema_version": "invoke.design-stage-receipt.v1",
+    "receipt_id": "fixture:design-stage-receipt",
+    "owner_capability": "invoke",
+    "mode": "design",
+    "producer": {
+      "identity": "invoke.compile-design-source.v1",
+      "owner": "invoke-design-producer",
+      "path": "arcanum/spells/invoke/scripts/compile_design_source.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "profile_id": "invoke.generic-design-baseline.v1",
+    "activation_kind": "normal",
+    "bindings": {
+      "process_ref": {"path": "fixtures/DESIGN-PRODUCTION-PROCESS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "coherence_policy_ref": {"path": "fixtures/DESIGN-COHERENCE-POLICY.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_input_closure_receipt_ref": {"path": "fixtures/DESIGN-INPUT-CLOSURE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "scope_manifest_ref": {"path": "fixtures/DESIGN-SCOPE-MANIFEST.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "denominator_receipt_ref": {"path": "fixtures/DESIGN-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "selection_result_ref": {"path": "fixtures/DESIGN-SELECTION-RESULT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_source_ref": {"path": "fixtures/DESIGN-SOURCE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "design_artifact_ref": {"path": "fixtures/DESIGN.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      "coherence_receipt_ref": {"path": "fixtures/DESIGN-COHERENCE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    },
+    "outputs": [
+      {"kind": "design-artifact", "path": "out/DESIGN.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "architecture", "path": "out/ARCHITECTURE.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "selected-companions", "path": "out/SELECTED-COMPANIONS.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "glossary-consistency", "path": "out/GLOSSARY-CONSISTENCY-REPORT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "planned-witnesses", "path": "out/PLANNED-WITNESS-CONTRACTS.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "layering", "path": "out/IMPLEMENTATION-LAYERING.md", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "template-selection", "path": "out/TEMPLATE-SELECTION-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "dispatch-trace", "path": "out/DISPATCH-TRACE.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "distill", "path": "out/DISTILL-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "scope-manifest", "path": "out/DESIGN-SCOPE-MANIFEST.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "denominator-receipt", "path": "out/DESIGN-DENOMINATOR-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "selection-result", "path": "out/DESIGN-SELECTION-RESULT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "coherence-receipt", "path": "out/DESIGN-COHERENCE-RECEIPT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+      {"kind": "transport", "path": "out/DESIGN-TRANSPORT-REPORT.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}
+    ],
+    "result": "pass",
+    "selection_evidence_state": "design-validator-pass",
+    "coherence_state": "pass",
+    "evidence_state": "design-stage-pass",
+    "plan_evidence_state": "plan-evidence-pending",
+    "next_route": "plan",
+    "evidence_ceiling": {
+      "artifact_authored": true,
+      "coherence_validated": true,
+      "plan_evidence": false,
+      "registry_released": false,
+      "mutation_runtime_ready": false,
+      "acceptance": false,
+      "execution": false,
+      "publication": false,
+      "deployment": false,
+      "external_effect": false
+    },
+    "authority_effect": "none",
+    "receipt_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "design_validation_matrix": {
+    "$schema": "https://arcanum.dev/schemas/invoke/design-validation-matrix/v1",
+    "schema_version": "invoke.design-validation-matrix.v1",
+    "matrix_id": "fixture:design-validation-matrix",
+    "schema_family": [
+      "invoke.design-production-process.v1",
+      "invoke.design-input-boundary-approval.v1",
+      "invoke.design-input-closure.v1",
+      "invoke.design-input-closure-receipt.v1",
+      "invoke.design-input-production-receipt.v1",
+      "invoke.design-source.v1",
+      "invoke.design-artifact.v1",
+      "invoke.design-coherence-policy.v1",
+      "invoke.design-coherence-receipt.v1",
+      "invoke.design-stage-receipt.v1",
+      "invoke.design-validation-matrix.v1"
+    ],
+    "cases": [
+      {
+        "case_id": "case:source-positive",
+        "polarity": "positive",
+        "target_schema": "invoke.design-source.v1",
+        "fixture_ref": {"path": "fixtures/schema-family/positive-family.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+        "mutation": null,
+        "expected": {"valid": true, "diagnostic_code": null, "owner_stage": "schema"},
+        "no_publication_on_failure": false
+      },
+      {
+        "case_id": "case:source-missing-view",
+        "polarity": "negative",
+        "target_schema": "invoke.design-source.v1",
+        "fixture_ref": {"path": "fixtures/schema-family/positive-family.json", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1},
+        "mutation": {"operation": "remove", "selector": "$.design_source.views.context", "value": null},
+        "expected": {"valid": false, "diagnostic_code": "DESIGN_VIEW_MISSING", "owner_stage": "schema"},
+        "no_publication_on_failure": true
+      }
+    ],
+    "execution_state": "planned-unexecuted",
+    "authority_effect": "none",
+    "matrix_digest": "b2baf24fcef2a1b78f3706352b20c589fc10e260eeb428ac9bfce4cfa011ef11"
+  }
+}

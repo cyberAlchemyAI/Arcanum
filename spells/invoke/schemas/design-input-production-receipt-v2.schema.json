@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v2",
+  "title": "Invoke Design Input Production Receipt v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "receipt_id", "producer", "source_ref", "activation_kind", "input_closure_receipt", "stage_results", "outputs", "result", "next_route", "blockers", "evidence_ceiling", "authority_effect", "receipt_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v2"},
+    "schema_version": {"const": "invoke.design-input-production-receipt.v2"},
+    "receipt_id": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/id"},
+    "producer": {"type": "object", "additionalProperties": false, "required": ["identity", "owner", "path", "sha256"], "properties": {"identity": {"const": "invoke.compile-design-input-bundle.v2"}, "owner": {"const": "invoke-design-input-producer"}, "path": {"const": "arcanum/spells/invoke/scripts/compile_design_input_bundle_v2.py"}, "sha256": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/digest"}}},
+    "source_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/exactRef"},
+    "activation_kind": {"enum": ["normal", "discovery", "invalid"]},
+    "input_closure_receipt": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure-receipt/v2"},
+    "stage_results": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/stageResult"}},
+    "outputs": {"type": "array", "maxItems": 4, "prefixItems": [{"allOf": [{"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/outputRef"}, {"properties": {"kind": {"const": "input-closure-receipt"}, "path": {"const": "DESIGN-INPUT-CLOSURE-RECEIPT.json"}}}]}, {"allOf": [{"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/outputRef"}, {"properties": {"kind": {"const": "scope-manifest"}, "path": {"const": "DESIGN-SCOPE-MANIFEST.json"}}}]}, {"allOf": [{"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/outputRef"}, {"properties": {"kind": {"const": "denominator-receipt"}, "path": {"const": "DESIGN-DENOMINATOR-RECEIPT.json"}}}]}, {"allOf": [{"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/outputRef"}, {"properties": {"kind": {"const": "selection-result"}, "path": {"const": "DESIGN-SELECTION-RESULT.json"}}}]}], "items": false},
+    "result": {"enum": ["pass", "block"]},
+    "next_route": {"enum": ["design-authoring", "input-review", "repair-input"]},
+    "blockers": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/blocker"}},
+    "evidence_ceiling": {"$ref": "#/$defs/ceiling"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1#/$defs/digest"}
+  },
+  "allOf": [
+    {"if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]}, "then": {"properties": {"activation_kind": {"enum": ["normal", "discovery"]}, "input_closure_receipt": {"properties": {"verdict": {"const": "pass"}}}, "stage_results": {"items": {"properties": {"status": {"const": "pass"}}}}, "outputs": {"minItems": 4}, "blockers": {"maxItems": 0}}}},
+    {"if": {"properties": {"result": {"const": "block"}}, "required": ["result"]}, "then": {"properties": {"outputs": {"maxItems": 0}, "next_route": {"const": "repair-input"}, "blockers": {"minItems": 1}}}},
+    {"if": {"properties": {"result": {"const": "pass"}, "activation_kind": {"const": "normal"}}, "required": ["result", "activation_kind"]}, "then": {"properties": {"next_route": {"const": "design-authoring"}}}},
+    {"if": {"properties": {"result": {"const": "pass"}, "activation_kind": {"const": "discovery"}}, "required": ["result", "activation_kind"]}, "then": {"properties": {"next_route": {"const": "input-review"}}}}
+  ],
+  "$defs": {"ceiling": {"type": "object", "additionalProperties": false, "required": ["boundary_relative_input_closure", "manifest_projection", "denominator_compatibility", "selection_fixed_point", "artifact_authored", "plan_evidence", "acceptance", "execution", "publication", "deployment", "external_effect"], "properties": {"boundary_relative_input_closure": {"type": "boolean"}, "manifest_projection": {"type": "boolean"}, "denominator_compatibility": {"type": "boolean"}, "selection_fixed_point": {"type": "boolean"}, "artifact_authored": {"const": false}, "plan_evidence": {"const": false}, "acceptance": {"const": false}, "execution": {"const": false}, "publication": {"const": false}, "deployment": {"const": false}, "external_effect": {"const": false}}}}
+}

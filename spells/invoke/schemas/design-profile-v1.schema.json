@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-profile/v1",
+  "title": "Invoke Design Profile v1",
+  "description": "Public machine contract for the generic six-view Design fact registry and view projection rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "profile_id",
+    "fact_kinds",
+    "core_requirements",
+    "view_order",
+    "view_rules",
+    "required_output_ids",
+    "authority_effect",
+    "profile_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-profile/v1"},
+    "schema_version": {"const": "invoke.design-profile.v1"},
+    "profile_id": {"const": "invoke.generic-design-baseline.v1"},
+    "fact_kinds": {"const": ["actor", "system", "relationship", "component", "rendered-surface", "contract", "interface", "workflow-step", "state", "decision", "dependency", "store", "queue", "writer", "normative-rule", "effect", "data-log-sink", "deployment", "compatibility-boundary", "quality-claim", "acceptance-readiness-claim", "risk"]},
+    "core_requirements": {"const": [
+      {"fact_kind": "actor", "minimum": 0}, {"fact_kind": "system", "minimum": 1},
+      {"fact_kind": "relationship", "minimum": 0}, {"fact_kind": "component", "minimum": 1},
+      {"fact_kind": "rendered-surface", "minimum": 0}, {"fact_kind": "contract", "minimum": 1},
+      {"fact_kind": "interface", "minimum": 0}, {"fact_kind": "workflow-step", "minimum": 0},
+      {"fact_kind": "state", "minimum": 0}, {"fact_kind": "decision", "minimum": 0},
+      {"fact_kind": "dependency", "minimum": 0}, {"fact_kind": "store", "minimum": 0},
+      {"fact_kind": "queue", "minimum": 0}, {"fact_kind": "writer", "minimum": 0},
+      {"fact_kind": "normative-rule", "minimum": 0}, {"fact_kind": "effect", "minimum": 0},
+      {"fact_kind": "data-log-sink", "minimum": 0}, {"fact_kind": "deployment", "minimum": 0},
+      {"fact_kind": "compatibility-boundary", "minimum": 0}, {"fact_kind": "quality-claim", "minimum": 0},
+      {"fact_kind": "acceptance-readiness-claim", "minimum": 0}, {"fact_kind": "risk", "minimum": 0}
+    ]},
+    "view_order": {
+      "const": [
+        "view:context",
+        "view:high-level-structure",
+        "view:low-level-components",
+        "view:workflow-process",
+        "view:decision-flow",
+        "view:dependency-interface"
+      ]
+    },
+    "view_rules": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {"$ref": "#/$defs/contextRule"},
+        {"$ref": "#/$defs/highLevelRule"},
+        {"$ref": "#/$defs/lowLevelRule"},
+        {"$ref": "#/$defs/workflowRule"},
+        {"$ref": "#/$defs/decisionRule"},
+        {"$ref": "#/$defs/dependencyRule"}
+      ],
+      "items": false
+    },
+    "required_output_ids": {"const": ["architecture"]},
+    "authority_effect": {"const": "none"},
+    "profile_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "factKind": {
+      "enum": [
+        "actor",
+        "system",
+        "relationship",
+        "component",
+        "rendered-surface",
+        "contract",
+        "interface",
+        "workflow-step",
+        "state",
+        "decision",
+        "dependency",
+        "store",
+        "queue",
+        "writer",
+        "normative-rule",
+        "effect",
+        "data-log-sink",
+        "deployment",
+        "compatibility-boundary",
+        "quality-claim",
+        "acceptance-readiness-claim",
+        "risk"
+      ]
+    },
+    "viewRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["view_id", "allowed_fact_kinds", "allow_evidence_backed_na"],
+      "properties": {
+        "view_id": {"type": "string"},
+        "allowed_fact_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/factKind"}
+        },
+        "allow_evidence_backed_na": {"const": true}
+      }
+    },
+    "contextRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:context"}, "allowed_fact_kinds": {"const": ["actor", "system", "relationship", "rendered-surface"]}}}]},
+    "highLevelRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:high-level-structure"}, "allowed_fact_kinds": {"const": ["system", "component", "contract", "interface", "deployment"]}}}]},
+    "lowLevelRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:low-level-components"}, "allowed_fact_kinds": {"const": ["component", "rendered-surface", "contract", "interface", "store", "queue", "writer", "data-log-sink"]}}}]},
+    "workflowRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:workflow-process"}, "allowed_fact_kinds": {"const": ["actor", "workflow-step", "state", "effect"]}}}]},
+    "decisionRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:decision-flow"}, "allowed_fact_kinds": {"const": ["decision", "normative-rule", "quality-claim", "acceptance-readiness-claim", "risk"]}}}]},
+    "dependencyRule": {"allOf": [{"$ref": "#/$defs/viewRule"}, {"properties": {"view_id": {"const": "view:dependency-interface"}, "allowed_fact_kinds": {"const": ["relationship", "contract", "interface", "dependency", "compatibility-boundary"]}}}]}
+  }
+}

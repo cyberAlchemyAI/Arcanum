@@ -13,24 +13,23 @@ Usage:
   tools/arcanum --set-default-adapter <adapter-id>
   tools/arcanum [--print-prompt] <command> [arguments...]
   tools/arcanum --exec [--adapter <adapter-id>] [--output <path>] [--timeout <seconds>] <command> [arguments...]
+  tools/arcanum invoke modes
+  tools/arcanum invoke <define|design> describe [stage]
+  tools/arcanum invoke <define|design> <check|author|produce|admit|status> ...
 
 Examples:
-  tools/arcanum /invoke define a cache invalidation sigil
-  tools/arcanum /invoke refresh with REFRESH-REPORT.md from latest session evidence
-  tools/arcanum --exec invoke define a cache invalidation sigil
+  tools/arcanum invoke modes
+  tools/arcanum /invoke define describe source
+  tools/arcanum invoke define check source --request request.json --repo-root .
   tools/arcanum --exec --timeout 1800 refine run a bounded refinement loop
-  tools/arcanum --exec --adapter codex-skill invoke define a cache invalidation sigil
-  tools/arcanum --exec --adapter claude-skill invoke define a cache invalidation sigil
-  tools/arcanum --exec --adapter copilot-instructions invoke define a cache invalidation sigil
-  tools/arcanum --exec --adapter dry-run invoke define a cache invalidation sigil
   tools/arcanum --resolve interrogation
   tools/arcanum --list-adapters
 
 This is the repository-local Arcanum command surface. It accepts bare aliases
 such as invoke and slash-like aliases such as /invoke, resolves them through
-.codex/commands, and can prepare or run the selected command through a runtime
-adapter. Runtime-native adapters emit handoff and receipt contracts; legacy
-model CLI adapters are explicit opt-in.
+.codex/commands, and can prepare or run most selected commands through a runtime
+adapter. Invoke is the exception: it is a deterministic, stateless JSON
+authoring and consumer CLI. Free-form Invoke work uses the native Invoke skill.
 USAGE
 }
 
@@ -42,6 +41,10 @@ native_skills_dir="$repo_root/.agents/skills"
 observability_dir="$repo_root/.arcanum/observability"
 runtime_config_file="$repo_root/.arcanum/runtime/config.json"
 runtime_adapters_dir="$repo_root/.arcanum/runtime/adapters"
+invoke_cli="$repo_root/arcanum/spells/invoke/scripts/invoke_cli.py"
+if [[ ! -f "$invoke_cli" ]]; then
+	invoke_cli="$repo_root/.agents/skills/invoke/scripts/invoke_cli.py"
+fi
 observer="$repo_root/framework/observability/scripts/observe-invocation.sh"
 reflector="$repo_root/framework/observability/scripts/reflect-invocation-signals.sh"
 source_codex_home="${ARCANUM_SOURCE_CODEX_HOME:-${CODEX_HOME:-$HOME/.codex}}"
@@ -51,6 +54,9 @@ output_path=""
 command_name=""
 adapter_id="${ARCANUM_RUNTIME_ADAPTER:-}"
 adapter_explicit="false"
+prompt_explicit="false"
+output_explicit="false"
+timeout_explicit="false"
 runtime_timeout_seconds="${ARCANUM_EXEC_TIMEOUT_SECONDS:-${ARCANUM_CODEX_EXEC_TIMEOUT_SECONDS:-1800}}"
 
 timestamp() {
@@ -1865,6 +1871,7 @@ while [[ "$#" -gt 0 ]]; do
 			;;
 		--print-prompt)
 			mode="prompt"
+			prompt_explicit="true"
 			shift
 			;;
 		--exec)
@@ -1877,10 +1884,12 @@ while [[ "$#" -gt 0 ]]; do
 			shift 2
 			;;
 			--output)
+				output_explicit="true"
 				output_path="$2"
 				shift 2
 				;;
 			--timeout)
+				timeout_explicit="true"
 				if [[ "$#" -lt 2 ]]; then
 					printf 'ERROR: --timeout requires seconds\n' >&2
 					usage >&2
@@ -1950,6 +1959,10 @@ fi
 if [[ "$mode" == "resolve" ]]; then
 	printf 'COMMAND=%s\n' "$command_name"
 	printf 'COMMAND_FILE=%s\n' "$command_rel"
+	if [[ "$command_name" == "invoke" ]]; then
+		printf 'EXECUTION=deterministic-cli\n'
+		printf 'ENTRYPOINT=%s\n' "${invoke_cli#$repo_root/}"
+	fi
 	exit 0
 fi
 
@@ -1962,6 +1975,17 @@ if [[ "$mode" == "inspect" ]]; then
 	printf 'CAPABILITY_TIER=%s\n' "$(detect_tier "$command_abs")"
 	printf 'CAPABILITY_ALIAS=%s\n' "$(detect_alias "$command_abs" "$command_name")"
 	exit 0
+fi
+
+if [[ "$command_name" == "invoke" ]]; then
+	if [[ ! -f "$invoke_cli" ]]; then
+		printf 'ERROR: deterministic Invoke CLI not found: %s\n' "${invoke_cli#$repo_root/}" >&2
+		exit 2
+	fi
+	if [[ "$mode" != "prompt" || "$prompt_explicit" == "true" || "$adapter_explicit" == "true" || "$output_explicit" == "true" || "$timeout_explicit" == "true" ]]; then
+		exec python3 "$invoke_cli" --legacy-adapter-error
+	fi
+	exec python3 "$invoke_cli" "$@"
 fi
 
 request="$*"

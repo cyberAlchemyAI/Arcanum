@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-source/v2",
+  "title": "Invoke Design Source v2",
+  "description": "Authored W2 architecture authority bound only to a normal passing Design W1 v2 bundle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "source_id", "target_id", "activation_kind", "profile_binding", "upstream_bindings", "design_kind", "applications", "facts", "views", "selected_outputs", "selected_companions", "glossary_application", "planned_witnesses", "unresolved_gaps", "layering", "template_selection", "dispatch_trace", "distill_contract", "transport_policy", "next_route", "authority_effect", "source_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-source/v2"},
+    "schema_version": {"const": "invoke.design-source.v2"},
+    "source_id": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/id"},
+    "target_id": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/id"},
+    "activation_kind": {"const": "normal"},
+    "profile_binding": {"type": "object", "additionalProperties": false, "required": ["profile_id", "profile_ref"], "properties": {"profile_id": {"const": "invoke.generic-design-baseline.v1"}, "profile_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}}},
+    "upstream_bindings": {"type": "object", "additionalProperties": false, "required": ["design_input_production_receipt_ref", "design_input_closure_ref", "design_input_closure_receipt_ref", "scope_manifest_ref", "denominator_receipt_ref", "selection_result_ref"], "properties": {"design_input_production_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "design_input_closure_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "design_input_closure_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "scope_manifest_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "denominator_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "selection_result_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}}},
+    "design_kind": {"$ref": "#/$defs/designKind"},
+    "applications": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/application"}},
+    "facts": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/fact"}},
+    "views": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/views"},
+    "selected_outputs": {"type": "array", "minItems": 1, "uniqueItems": true, "contains": {"const": "architecture"}, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/id"}},
+    "selected_companions": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/companion"}},
+    "glossary_application": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/glossaryApplication"},
+    "planned_witnesses": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/plannedWitness"}},
+    "unresolved_gaps": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/gap"}},
+    "layering": {"oneOf": [{"type": "object", "additionalProperties": false, "required": ["kind", "decision", "minimum_unit"], "properties": {"kind": {"const": "seed"}, "decision": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/nonEmpty"}, "minimum_unit": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/nonEmpty"}}}, {"type": "object", "additionalProperties": false, "required": ["kind", "rationale"], "properties": {"kind": {"const": "gap"}, "rationale": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/nonEmpty"}}}]},
+    "template_selection": {"type": "object", "additionalProperties": false, "required": ["selected_profile_id", "evidence_ref"], "properties": {"selected_profile_id": {"const": "invoke.generic-design-baseline.v1"}, "evidence_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}}},
+    "dispatch_trace": {"type": "object", "additionalProperties": false, "required": ["techniques", "evidence_ref"], "properties": {"techniques": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/stringSet"}, "evidence_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}}},
+    "distill_contract": {"type": "object", "additionalProperties": false, "required": ["classification", "validator_owner", "coherent_unit_candidate", "split_pressure_question", "expected_receipt"], "properties": {"classification": {"const": "required"}, "validator_owner": {"const": "distill"}, "coherent_unit_candidate": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/nonEmpty"}, "split_pressure_question": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/nonEmpty"}, "expected_receipt": {"const": "DISTILL-RECEIPT.json"}}},
+    "transport_policy": {"type": "object", "additionalProperties": false, "required": ["append_existing_only", "upstream_mutation", "targets"], "properties": {"append_existing_only": {"const": true}, "upstream_mutation": {"const": false}, "targets": {"type": "array", "maxItems": 0}}},
+    "next_route": {"const": "design-bundle-production"},
+    "authority_effect": {"const": "none"},
+    "source_digest": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/digest"}
+  },
+  "$defs": {"designKind": {"oneOf": [
+    {"type": "object", "additionalProperties": false, "required": ["kind", "determination_ref"], "properties": {"kind": {"const": "greenfield"}, "determination_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}}},
+    {"type": "object", "additionalProperties": false, "required": ["kind", "predecessor_artifact_ref", "predecessor_stage_receipt_ref", "predecessor_admission_receipt_ref", "deltas"], "properties": {"kind": {"const": "evolution"}, "predecessor_artifact_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "predecessor_stage_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "predecessor_admission_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/exactRef"}, "deltas": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/delta"}}}}
+  ]}}
+}

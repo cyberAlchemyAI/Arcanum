@@ -1,0 +1,266 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/cli-stage-catalog/v1",
+  "schema_version": "invoke.cli-stage-catalog.v1",
+  "cli_version": "0.5.0",
+  "modes": {
+    "define": {
+      "status": "active",
+      "native_skill_route": ".agents/skills/invoke/SKILL.md",
+      "stages": {
+        "semantic-context": {
+          "operations": ["check", "author"],
+          "description": "Materialize a canonical Define semantic-context source from authored values and exact repository evidence.",
+          "next_stage": "semantic-closure",
+          "request_schema": "define-semantic-context-authoring-request-v1.schema.json",
+          "output_schema": "define-semantic-context-v1.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/define-semantic-context/v1"},
+            {"pointer": "/schema_version", "value": "invoke.define-semantic-context.v1"},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/context_id", "prefix": "define-context:"}],
+          "derived_digests": [],
+          "runner": null
+        },
+        "semantic-closure": {
+          "operations": ["produce"],
+          "description": "Run the independent semantic-closure validator over one exact context.",
+          "next_stage": "source",
+          "request_schema": null,
+          "output_schema": "define-semantic-closure-receipt-v1.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "validate_define_semantic_closure.py"
+        },
+        "source": {
+          "operations": ["check", "author"],
+          "description": "Materialize the sole authored Define v3 source without producer or promotion fields.",
+          "next_stage": "bundle",
+          "request_schema": "define-source-v3-authoring-request-v1.schema.json",
+          "output_schema": "define-source-v3.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/define-source/v3"},
+            {"pointer": "/schema_version", "value": "invoke.define-source.v3"},
+            {"pointer": "/profile_id", "value": "invoke.generic-definitions-baseline.v3"},
+            {"pointer": "/template_selection/profile_id", "value": "invoke.generic-definitions-baseline.v3"},
+            {"pointer": "/template_selection/selected", "value": "invoke.generic-definitions-baseline.v3"},
+            {"pointer": "/template_selection/tie", "value": false},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/source_id", "prefix": "define-source:"}],
+          "derived_digests": [],
+          "runner": null
+        },
+        "bundle": {
+          "operations": ["produce"],
+          "description": "Compile one exact Define v3 source into an atomic thirteen-file candidate bundle.",
+          "next_stage": "admission",
+          "request_schema": null,
+          "output_schema": "define-result-v3.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "compile_define_source_v3.py"
+        },
+        "admission": {
+          "operations": ["admit"],
+          "description": "Independently replay and admit one exact Define v3 bundle.",
+          "next_stage": "status",
+          "request_schema": null,
+          "output_schema": "define-bundle-admission-receipt-v1.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "validate_define_bundle_admission.py"
+        },
+        "status": {
+          "operations": ["status"],
+          "description": "Resolve the independent Invoke capability axes from an exact status request.",
+          "next_stage": null,
+          "request_schema": "capability-status-request.schema.json",
+          "output_schema": "capability-status-result.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "capability_status_resolver.py"
+        }
+      }
+    },
+    "design": {
+      "status": "active",
+      "native_skill_route": ".agents/skills/invoke/SKILL.md",
+      "stages": {
+        "boundary": {
+          "operations": ["check", "author"],
+          "description": "Materialize an owner-supplied Design input boundary without manufacturing approval.",
+          "next_stage": "input-closure",
+          "request_schema": "design-input-boundary-authoring-request-v1.schema.json",
+          "output_schema": "design-input-boundary-approval-v1.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"},
+            {"pointer": "/schema_version", "value": "invoke.design-input-boundary-approval.v1"},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/approval_id", "prefix": "design-boundary:"}],
+          "derived_digests": [
+            {
+              "pointer": "/boundary_digest",
+              "projection": [
+                "/observation_epoch",
+                "/roots",
+                "/discovery_rules",
+                "/required_input_classes",
+                "/permitted_exclusions"
+              ]
+            },
+            {"pointer": "/approval_digest", "projection": null}
+          ],
+          "runner": null
+        },
+        "input-closure": {
+          "operations": ["check", "author"],
+          "description": "Materialize the successor Design input closure bound to current Define stage and admission evidence.",
+          "next_stage": "input-bundle",
+          "request_schema": "design-input-closure-v2-authoring-request-v1.schema.json",
+          "output_schema": "design-input-closure-v2.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/design-input-closure/v2"},
+            {"pointer": "/schema_version", "value": "invoke.design-input-closure.v2"},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/closure_id", "prefix": "design-input-closure:"}],
+          "derived_digests": [{"pointer": "/closure_digest", "projection": null}],
+          "runner": null
+        },
+        "input-bundle": {
+          "operations": ["produce"],
+          "description": "Validate and compile the successor W1 Design input bundle.",
+          "next_stage": "source",
+          "request_schema": null,
+          "output_schema": "design-input-production-receipt-v2.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "compile_design_input_bundle_v2.py"
+        },
+        "source": {
+          "operations": ["check", "author"],
+          "description": "Materialize the canonical successor Design source from complete architecture decisions.",
+          "next_stage": "candidate",
+          "request_schema": "design-source-v2-authoring-request-v1.schema.json",
+          "output_schema": "design-source-v2.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/design-source/v2"},
+            {"pointer": "/schema_version", "value": "invoke.design-source.v2"},
+            {"pointer": "/activation_kind", "value": "normal"},
+            {"pointer": "/profile_binding/profile_id", "value": "invoke.generic-design-baseline.v1"},
+            {"pointer": "/template_selection/selected_profile_id", "value": "invoke.generic-design-baseline.v1"},
+            {"pointer": "/transport_policy/append_existing_only", "value": true},
+            {"pointer": "/transport_policy/upstream_mutation", "value": false},
+            {"pointer": "/transport_policy/targets", "value": []},
+            {"pointer": "/next_route", "value": "design-bundle-production"},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/source_id", "prefix": "design-source:"}],
+          "derived_digests": [{"pointer": "/source_digest", "projection": null}],
+          "runner": null
+        },
+        "candidate": {
+          "operations": ["produce"],
+          "description": "Compile and independently validate the successor W2 Design candidate.",
+          "next_stage": "bundle-closure",
+          "request_schema": null,
+          "output_schema": "design-candidate-production-receipt-v2.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "compile_design_candidate_v2.py"
+        },
+        "bundle-closure": {
+          "operations": ["check", "author"],
+          "description": "Materialize the final closure binding one exact candidate and independent Distill evidence.",
+          "next_stage": "final-bundle",
+          "request_schema": "design-bundle-closure-v2-authoring-request-v1.schema.json",
+          "output_schema": "design-bundle-closure-v2.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/design-bundle-closure/v2"},
+            {"pointer": "/schema_version", "value": "invoke.design-bundle-closure.v2"},
+            {
+              "pointer": "/output_contracts",
+              "value": {
+                "design_artifact": "DESIGN.json",
+                "architecture": "ARCHITECTURE.md",
+                "selected_companions": "SELECTED-COMPANIONS.md",
+                "glossary_consistency": "GLOSSARY-CONSISTENCY-REPORT.json",
+                "planned_witnesses": "PLANNED-WITNESS-CONTRACTS.json",
+                "layering": "IMPLEMENTATION-LAYERING.md",
+                "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+                "dispatch_trace": "DISPATCH-TRACE.json",
+                "distill": "DISTILL-RECEIPT.json",
+                "scope_manifest": "DESIGN-SCOPE-MANIFEST.json",
+                "denominator_receipt": "DESIGN-DENOMINATOR-RECEIPT.json",
+                "selection_result": "DESIGN-SELECTION-RESULT.json",
+                "coherence_receipt": "DESIGN-COHERENCE-RECEIPT.json",
+                "transport": "DESIGN-TRANSPORT-REPORT.json",
+                "stage_receipt": "INVOKE-DESIGN-STAGE-RECEIPT.json"
+              }
+            },
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/closure_id", "prefix": "design-bundle-closure:"}],
+          "derived_digests": [{"pointer": "/closure_digest", "projection": null}],
+          "runner": null
+        },
+        "final-bundle": {
+          "operations": ["produce"],
+          "description": "Compile the successor W3 Design bundle and v3 stage receipt atomically.",
+          "next_stage": "admission",
+          "request_schema": null,
+          "output_schema": "design-result-v3.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "compile_design_source_v3.py"
+        },
+        "admission": {
+          "operations": ["admit"],
+          "description": "Independently replay and admit one exact successor Design bundle.",
+          "next_stage": "status",
+          "request_schema": null,
+          "output_schema": "design-bundle-admission-receipt-v2.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "validate_design_bundle_admission_v2.py"
+        },
+        "status": {
+          "operations": ["status"],
+          "description": "Resolve the independent Invoke capability axes from an exact status request.",
+          "next_stage": null,
+          "request_schema": "capability-status-request.schema.json",
+          "output_schema": "capability-status-result.schema.json",
+          "fixed_fields": [],
+          "derived_ids": [],
+          "derived_digests": [],
+          "runner": "capability_status_resolver.py"
+        }
+      }
+    },
+    "plan": {
+      "status": "unsupported",
+      "native_skill_route": ".agents/skills/invoke/SKILL.md",
+      "reason": "The deterministic Plan source contract is not yet exposed through this CLI; use the native Invoke skill."
+    },
+    "handoff": {
+      "status": "unsupported",
+      "native_skill_route": ".agents/skills/invoke/SKILL.md",
+      "reason": "Handoff does not yet have a deterministic source and admission chain; use the native Invoke skill."
+    },
+    "refresh": {
+      "status": "unsupported",
+      "native_skill_route": ".agents/skills/invoke/SKILL.md",
+      "reason": "Refresh does not yet have a deterministic source and admission chain; use the native Invoke skill."
+    }
+  }
+}

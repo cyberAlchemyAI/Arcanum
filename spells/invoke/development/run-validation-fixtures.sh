@@ -649,7 +649,7 @@ run_quality_antipattern_fixture() {
 	require_pattern "$expected" 'reflection_trigger' "$label expected telemetry trigger"
 
 	require_pattern "$DEFINE_CONTRACT" 'block on missing core goal or contradictory scope' "$label define quality missing goal"
-	require_pattern "$DEFINE_CONTRACT" 'Candidate glossary promotion is never automatic' "$label define anti-pattern glossary promotion"
+	require_pattern "$DEFINE_CONTRACT" 'Candidate definition promotion is never automatic' "$label define anti-pattern definition promotion"
 	require_pattern "$DESIGN_CONTRACT" 'Normal design blocks without approved define outputs unless discovery mode is explicitly approved' "$label design anti-pattern source approval"
 	require_pattern "$DESIGN_CONTRACT" 'Design mode must not create work-pack tasks' "$label design anti-pattern deferred plan behavior"
 	require_pattern "$DESIGN_CONTRACT" 'Spell and sigil lifecycle work routes to `spellcraft` or `sigil-development`' "$label design anti-pattern downstream mutation"
@@ -876,17 +876,18 @@ require_pattern "$INVOKE_CONTRACT" 'Design selection receipt' 'invoke Design sel
 require_pattern "$INVOKE_CONTRACT" 'Design evidence state' 'invoke Design evidence state output'
 require_pattern "$INVOKE_CONTRACT" 'Design evidence ceiling' 'invoke Design evidence ceiling output'
 require_pattern "$INVOKE_CONTRACT" 'Plan evidence' 'invoke separate Plan evidence output'
-require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 contract, candidate template-family scaffold coverage\)' 'define contract status'
+require_pattern "$DEFINE_CONTRACT" 'Status: implemented \(L0 definitions-bearing atomic producer\)' 'define contract status'
 require_pattern "$DEFINE_CONTRACT" 'block on missing core goal or contradictory scope' 'define missing-goal block'
 require_pattern "$DEFINE_CONTRACT" 'flag when no eligible template exists and candidate creation is unapproved' 'define candidate-template flag'
-require_pattern "$DEFINE_CONTRACT" 'Candidate glossary promotion is never automatic' 'define glossary promotion gate'
+require_pattern "$DEFINE_CONTRACT" '`DEFINITIONS.json` is the machine artifact' 'define machine definitions artifact gate'
+require_pattern "$DEFINE_CONTRACT" 'Candidate definition promotion is never automatic' 'define candidate promotion gate'
 require_pattern "$DEFINE_CONTRACT" 'Define-stage transport appends stage reports' 'define transport coverage'
 require_pattern "$DEFINE_CONTRACT" 'Define mode must record a Dispatch Spec technique trace' 'define dispatch technique trace'
 require_pattern "$DEFINE_CONTRACT" 'Define mode runs a Distill sanity check' 'define distill sanity check'
 require_pattern "$INVOKE_CONTRACT" 'Every Define output must classify identity-denominator validation' 'invoke Define identity-denominator trigger gate'
 require_pattern "$DEFINE_CONTRACT" 'A required identity-denominator gate uses' 'define identity-denominator validator gate'
 require_pattern "$DEFINE_CONTRACT" 'blocking required receipt stops Design and Plan activation' 'define identity-denominator downstream block'
-require_pattern "$DESIGN_CONTRACT" 'Status: implemented \(L1 contract with deterministic selection validation\)' 'design contract status'
+require_pattern "$DESIGN_CONTRACT" 'Status: deterministic W1 v2, W2 v2, and W3 v3 bundle/admission chain implemented for Define v3 inputs' 'design contract status'
 require_pattern "$DESIGN_CONTRACT" 'Context view' 'design six-view coverage'
 require_pattern "$DESIGN_CONTRACT" 'Glossary consistency' 'design glossary coverage'
 require_pattern "$DESIGN_CONTRACT" 'Design-stage transport' 'design transport coverage'
@@ -938,7 +939,7 @@ run_fixture \
 	'Phase status: pass' \
 	"$DEFINE_CONTRACT" \
 	'Mode contract: arcanum/spells/invoke/define.md' \
-	'DomainSpec template' \
+	'invoke.generic-definitions-baseline.v3' \
 	'INV-DEFINE-PASS-001'
 
 run_fixture \
@@ -968,7 +969,7 @@ run_fixture \
 	'Phase status: pass' \
 	"$DEFINE_CONTRACT" \
 	'Mode contract: arcanum/spells/invoke/define.md' \
-	'Candidate glossary promotion is never automatic' \
+	'Candidate definition promotion is never automatic' \
 	'INV-DEFINE-GLOSSARY-001'
 
 run_fixture \
@@ -978,7 +979,7 @@ run_fixture \
 	'Phase status: pass' \
 	"$DESIGN_CONTRACT" \
 	'Mode contract: arcanum/spells/invoke/design.md' \
-	'DomainSpec architecture profile' \
+	'invoke.generic-design-baseline.v1' \
 	'INV-DESIGN-PASS-001'
 
 run_fixture \

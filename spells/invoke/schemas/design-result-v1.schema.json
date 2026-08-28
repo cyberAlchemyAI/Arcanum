@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-result/v1",
+  "title": "Invoke Design Stage Receipt v1",
+  "description": "Success-only receipt closing the exact atomic Design output bundle produced by the installed Invoke Design producer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "owner_capability",
+    "mode",
+    "producer",
+    "profile_id",
+    "activation_kind",
+    "bindings",
+    "outputs",
+    "result",
+    "selection_evidence_state",
+    "coherence_state",
+    "evidence_state",
+    "plan_evidence_state",
+    "next_route",
+    "evidence_ceiling",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-result/v1"},
+    "schema_version": {"const": "invoke.design-stage-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "design"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-source.v1"},
+        "owner": {"const": "invoke-design-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_source.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "profile_id": {"const": "invoke.generic-design-baseline.v1"},
+    "activation_kind": {"const": "normal"},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_ref",
+        "coherence_policy_ref",
+        "design_input_closure_ref",
+        "design_input_closure_receipt_ref",
+        "scope_manifest_ref",
+        "denominator_receipt_ref",
+        "selection_result_ref",
+        "design_source_ref",
+        "design_artifact_ref",
+        "coherence_receipt_ref"
+      ],
+      "properties": {
+        "process_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_policy_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "scope_manifest_ref": {"$ref": "#/$defs/exactRef"},
+        "denominator_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "selection_result_ref": {"$ref": "#/$defs/exactRef"},
+        "design_source_ref": {"$ref": "#/$defs/exactRef"},
+        "design_artifact_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_receipt_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/$defs/designArtifactOutput"},
+        {"$ref": "#/$defs/architectureOutput"},
+        {"$ref": "#/$defs/selectedCompanionsOutput"},
+        {"$ref": "#/$defs/glossaryOutput"},
+        {"$ref": "#/$defs/plannedWitnessesOutput"},
+        {"$ref": "#/$defs/layeringOutput"},
+        {"$ref": "#/$defs/templateSelectionOutput"},
+        {"$ref": "#/$defs/dispatchTraceOutput"},
+        {"$ref": "#/$defs/distillOutput"},
+        {"$ref": "#/$defs/scopeManifestOutput"},
+        {"$ref": "#/$defs/denominatorOutput"},
+        {"$ref": "#/$defs/selectionOutput"},
+        {"$ref": "#/$defs/coherenceOutput"},
+        {"$ref": "#/$defs/transportOutput"}
+      ],
+      "items": false,
+      "minItems": 14,
+      "maxItems": 14
+    },
+    "result": {"const": "pass"},
+    "selection_evidence_state": {"const": "design-validator-pass"},
+    "coherence_state": {"const": "pass"},
+    "evidence_state": {"const": "design-stage-pass"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "next_route": {"enum": ["plan", "spellcraft", "sigil-development", "deferred"]},
+    "evidence_ceiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_authored",
+        "coherence_validated",
+        "plan_evidence",
+        "registry_released",
+        "mutation_runtime_ready",
+        "acceptance",
+        "execution",
+        "publication",
+        "deployment",
+        "external_effect"
+      ],
+      "properties": {
+        "artifact_authored": {"const": true},
+        "coherence_validated": {"const": true},
+        "plan_evidence": {"const": false},
+        "registry_released": {"const": false},
+        "mutation_runtime_ready": {"const": false},
+        "acceptance": {"const": false},
+        "execution": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false},
+        "external_effect": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "outputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "size"],
+      "properties": {
+        "kind": {"type": "string"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "designArtifactOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "design-artifact"}}}]},
+    "architectureOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "architecture"}}}]},
+    "selectedCompanionsOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selected-companions"}}}]},
+    "glossaryOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "glossary-consistency"}}}]},
+    "plannedWitnessesOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "planned-witnesses"}}}]},
+    "layeringOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "layering"}}}]},
+    "templateSelectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "template-selection"}}}]},
+    "dispatchTraceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "dispatch-trace"}}}]},
+    "distillOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "distill"}}}]},
+    "scopeManifestOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "scope-manifest"}}}]},
+    "denominatorOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "denominator-receipt"}}}]},
+    "selectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selection-result"}}}]},
+    "coherenceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "coherence-receipt"}}}]},
+    "transportOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "transport"}}}]}
+  }
+}

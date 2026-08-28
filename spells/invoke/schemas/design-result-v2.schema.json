@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-result/v2",
+  "title": "Invoke Design Stage Receipt v2",
+  "description": "Success-only receipt closing the exact W3 Design bundle from one W2 candidate and independently validated Distill evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "receipt_id", "owner_capability", "mode", "target_id",
+    "producer", "profile_id", "activation_kind", "bindings", "outputs", "result",
+    "selection_evidence_state", "coherence_state", "human_views_state", "distill_state",
+    "evidence_state", "plan_evidence_state", "next_route", "evidence_ceiling",
+    "authority_effect", "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-result/v2"},
+    "schema_version": {"const": "invoke.design-stage-receipt.v2"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "design"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "producer": {"$ref": "#/$defs/producer"},
+    "profile_id": {"const": "invoke.generic-design-baseline.v1"},
+    "activation_kind": {"const": "normal"},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_closure_ref", "process_ref", "profile_ref", "coherence_policy_ref",
+        "w1_production_receipt_ref", "candidate_production_receipt_ref", "design_source_ref",
+        "design_artifact_ref", "coherence_receipt_ref", "distill_evidence"
+      ],
+      "properties": {
+        "bundle_closure_ref": {"$ref": "#/$defs/exactRef"},
+        "process_ref": {"$ref": "#/$defs/exactRef"},
+        "profile_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_policy_ref": {"$ref": "#/$defs/exactRef"},
+        "w1_production_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "candidate_production_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "design_source_ref": {"$ref": "#/$defs/exactRef"},
+        "design_artifact_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "distill_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["request_ref", "events_ref", "execution_receipt_ref", "validation_result_ref"],
+          "properties": {
+            "request_ref": {"$ref": "#/$defs/exactRef"},
+            "events_ref": {"$ref": "#/$defs/exactRef"},
+            "execution_receipt_ref": {"$ref": "#/$defs/exactRef"},
+            "validation_result_ref": {"$ref": "#/$defs/exactRef"}
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/$defs/designArtifactOutput"},
+        {"$ref": "#/$defs/architectureOutput"},
+        {"$ref": "#/$defs/selectedCompanionsOutput"},
+        {"$ref": "#/$defs/glossaryOutput"},
+        {"$ref": "#/$defs/plannedWitnessesOutput"},
+        {"$ref": "#/$defs/layeringOutput"},
+        {"$ref": "#/$defs/templateSelectionOutput"},
+        {"$ref": "#/$defs/dispatchTraceOutput"},
+        {"$ref": "#/$defs/distillOutput"},
+        {"$ref": "#/$defs/scopeManifestOutput"},
+        {"$ref": "#/$defs/denominatorOutput"},
+        {"$ref": "#/$defs/selectionOutput"},
+        {"$ref": "#/$defs/coherenceOutput"},
+        {"$ref": "#/$defs/transportOutput"}
+      ],
+      "items": false,
+      "minItems": 14,
+      "maxItems": 14
+    },
+    "result": {"const": "pass"},
+    "selection_evidence_state": {"const": "design-validator-pass"},
+    "coherence_state": {"const": "pass"},
+    "human_views_state": {"const": "pass"},
+    "distill_state": {"const": "pass"},
+    "evidence_state": {"const": "design-stage-pass"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "next_route": {"enum": ["plan", "spellcraft", "sigil-development", "deferred"]},
+    "evidence_ceiling": {"$ref": "#/$defs/evidenceCeiling"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-source.v2"},
+        "owner": {"const": "invoke-design-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_source_v2.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "outputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "size"],
+      "properties": {
+        "kind": {"type": "string"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "designArtifactOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "design-artifact"}, "path": {"const": "DESIGN.json"}}}]},
+    "architectureOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "architecture"}, "path": {"const": "ARCHITECTURE.md"}}}]},
+    "selectedCompanionsOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selected-companions"}, "path": {"const": "SELECTED-COMPANIONS.md"}}}]},
+    "glossaryOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "glossary-consistency"}, "path": {"const": "GLOSSARY-CONSISTENCY-REPORT.json"}}}]},
+    "plannedWitnessesOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "planned-witnesses"}, "path": {"const": "PLANNED-WITNESS-CONTRACTS.json"}}}]},
+    "layeringOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "layering"}, "path": {"const": "IMPLEMENTATION-LAYERING.md"}}}]},
+    "templateSelectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "template-selection"}, "path": {"const": "TEMPLATE-SELECTION-RECEIPT.json"}}}]},
+    "dispatchTraceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "dispatch-trace"}, "path": {"const": "DISPATCH-TRACE.json"}}}]},
+    "distillOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "distill"}, "path": {"const": "DISTILL-RECEIPT.json"}}}]},
+    "scopeManifestOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "scope-manifest"}, "path": {"const": "DESIGN-SCOPE-MANIFEST.json"}}}]},
+    "denominatorOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "denominator-receipt"}, "path": {"const": "DESIGN-DENOMINATOR-RECEIPT.json"}}}]},
+    "selectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selection-result"}, "path": {"const": "DESIGN-SELECTION-RESULT.json"}}}]},
+    "coherenceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "coherence-receipt"}, "path": {"const": "DESIGN-COHERENCE-RECEIPT.json"}}}]},
+    "transportOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "transport"}, "path": {"const": "DESIGN-TRANSPORT-REPORT.json"}}}]},
+    "evidenceCeiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_authored", "coherence_validated", "human_views_produced", "design_stage_pass",
+        "plan_evidence", "registry_released", "mutation_runtime_ready", "acceptance", "execution",
+        "publication", "deployment", "external_effect"
+      ],
+      "properties": {
+        "artifact_authored": {"const": true},
+        "coherence_validated": {"const": true},
+        "human_views_produced": {"const": true},
+        "design_stage_pass": {"const": true},
+        "plan_evidence": {"const": false},
+        "registry_released": {"const": false},
+        "mutation_runtime_ready": {"const": false},
+        "acceptance": {"const": false},
+        "execution": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false},
+        "external_effect": {"const": false}
+      }
+    }
+  }
+}

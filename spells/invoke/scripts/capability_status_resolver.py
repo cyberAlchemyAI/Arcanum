@@ -17,6 +17,64 @@ class CapabilityStatusError(ValueError):
     pass
 
 
+INVOKE_ROOT = Path(__file__).resolve().parent.parent
+if str(INVOKE_ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(INVOKE_ROOT / "scripts"))
+
+from design_stage_contract_v2 import (  # noqa: E402
+    validate_admission_receipt as validate_design_admission_contract,
+    validate_stage_receipt as validate_design_stage_contract,
+)
+from define_stage_contract import (  # noqa: E402
+    ADMISSION_CHECK_IDS as DEFINE_ADMISSION_CHECK_IDS,
+    validate_admission_receipt as validate_define_admission_contract,
+    validate_stage_receipt as validate_define_stage_contract,
+)
+
+REPO_ROOT = INVOKE_ROOT.parents[2]
+
+
+def canonical_digest(document: dict[str, Any], omitted: str) -> str:
+    projection = {key: value for key, value in document.items() if key != omitted}
+    return hashlib.sha256(
+        json.dumps(
+            projection,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def canonical_value_digest(value: Any) -> str:
+    return hashlib.sha256(
+        (
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            + "\n"
+        ).encode("utf-8")
+    ).hexdigest()
+def validate_design_producer_receipt(receipt: Any) -> list[str]:
+    return validate_design_stage_contract(
+        receipt,
+        REPO_ROOT,
+        INVOKE_ROOT / "schemas",
+    )
+
+
+def validate_design_admission_receipt(receipt: Any, producer: Any) -> list[str]:
+    return validate_design_admission_contract(
+        receipt,
+        producer,
+        REPO_ROOT,
+        INVOKE_ROOT / "schemas",
+    )
+
+
 def load_json(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
         return json.load(handle)
@@ -114,6 +172,55 @@ def resolve_capability_status(
     elif artifact_receipt["mode"] != mode:
         artifact_status = "block"
         artifact_diagnostics.append("artifact receipt mode mismatch")
+    elif mode == "define" and artifact_receipt["status"] == "pass":
+        producer_receipt = artifact_receipt.get("producer_receipt")
+        artifact_diagnostics.extend(
+            validate_define_stage_contract(
+                producer_receipt,
+                REPO_ROOT,
+                INVOKE_ROOT / "schemas",
+            )
+        )
+        artifact_diagnostics.extend(
+            validate_define_admission_contract(
+                artifact_receipt.get("producer_admission_receipt"),
+                producer_receipt,
+                REPO_ROOT,
+                INVOKE_ROOT / "schemas",
+            )
+        )
+        if artifact_diagnostics:
+            artifact_status = "block"
+            artifact_diagnostics.append(
+                "historical or generic Define artifact receipts cannot establish a new PASS"
+            )
+        else:
+            artifact_status = "pass"
+            artifact_evidence = [
+                artifact_receipt["receipt_id"],
+                artifact_receipt["producer_receipt"]["receipt_id"],
+                artifact_receipt["producer_admission_receipt"]["receipt_id"],
+            ]
+    elif mode == "design" and artifact_receipt["status"] == "pass":
+        producer_receipt = artifact_receipt.get("producer_receipt")
+        artifact_diagnostics.extend(validate_design_producer_receipt(producer_receipt))
+        artifact_diagnostics.extend(
+            validate_design_admission_receipt(
+                artifact_receipt.get("producer_admission_receipt"), producer_receipt
+            )
+        )
+        if artifact_diagnostics:
+            artifact_status = "block"
+            artifact_diagnostics.append(
+                "historical or generic Design artifact receipts cannot establish a new PASS"
+            )
+        else:
+            artifact_status = "pass"
+            artifact_evidence = [
+                artifact_receipt["receipt_id"],
+                artifact_receipt["producer_receipt"]["receipt_id"],
+                artifact_receipt["producer_admission_receipt"]["receipt_id"],
+            ]
     else:
         artifact_status = artifact_receipt["status"]
         artifact_evidence = [artifact_receipt["receipt_id"]]

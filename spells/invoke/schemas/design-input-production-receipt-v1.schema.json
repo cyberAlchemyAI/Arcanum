@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1",
+  "title": "Invoke Design Input Production Receipt v1",
+  "description": "Failure-capable receipt for the atomic W1 closure, manifest, denominator, and fixed-point selection bundle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "receipt_id", "producer", "source_ref", "activation_kind", "input_closure_receipt", "stage_results", "outputs", "result", "next_route", "blockers", "evidence_ceiling", "authority_effect", "receipt_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-production-receipt/v1"},
+    "schema_version": {"const": "invoke.design-input-production-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "producer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-input-bundle.v1"},
+        "owner": {"const": "invoke-design-input-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_input_bundle.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "source_ref": {"$ref": "#/$defs/exactRef"},
+    "activation_kind": {"enum": ["normal", "discovery", "invalid"]},
+    "input_closure_receipt": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure-receipt/v1"},
+    "stage_results": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "input-closure-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "scope-projection"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "denominator-extraction"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "selection"}}}]}
+      ],
+      "items": false
+    },
+    "outputs": {
+      "type": "array", "maxItems": 4, "uniqueItems": true,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "input-closure-receipt"}, "path": {"const": "DESIGN-INPUT-CLOSURE-RECEIPT.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "scope-manifest"}, "path": {"const": "DESIGN-SCOPE-MANIFEST.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "denominator-receipt"}, "path": {"const": "DESIGN-DENOMINATOR-RECEIPT.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selection-result"}, "path": {"const": "DESIGN-SELECTION-RESULT.json"}}}]}
+      ],
+      "items": false
+    },
+    "result": {"enum": ["pass", "block"]},
+    "next_route": {"enum": ["design-authoring", "input-review", "repair-input"]},
+    "blockers": {"type": "array", "items": {"$ref": "#/$defs/blocker"}},
+    "evidence_ceiling": {
+      "type": "object", "additionalProperties": false,
+      "required": ["boundary_relative_input_closure", "manifest_projection", "denominator_compatibility", "selection_fixed_point", "artifact_authored", "plan_evidence", "acceptance", "execution", "publication", "deployment", "external_effect"],
+      "properties": {
+        "boundary_relative_input_closure": {"type": "boolean"},
+        "manifest_projection": {"type": "boolean"},
+        "denominator_compatibility": {"type": "boolean"},
+        "selection_fixed_point": {"type": "boolean"},
+        "artifact_authored": {"const": false},
+        "plan_evidence": {"const": false},
+        "acceptance": {"const": false},
+        "execution": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false},
+        "external_effect": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]},
+      "then": {"properties": {
+        "activation_kind": {"enum": ["normal", "discovery"]},
+        "input_closure_receipt": {"properties": {"verdict": {"const": "pass"}}},
+        "stage_results": {"items": {"properties": {"status": {"const": "pass"}}}},
+        "outputs": {"minItems": 4, "maxItems": 4},
+        "blockers": {"maxItems": 0},
+        "evidence_ceiling": {"properties": {"boundary_relative_input_closure": {"const": true}, "manifest_projection": {"const": true}, "denominator_compatibility": {"const": true}, "selection_fixed_point": {"const": true}}}
+      }}
+    },
+    {
+      "if": {"properties": {"result": {"const": "block"}}, "required": ["result"]},
+      "then": {"properties": {"outputs": {"maxItems": 0}, "next_route": {"const": "repair-input"}, "blockers": {"minItems": 1}}}
+    },
+    {
+      "if": {"properties": {"result": {"const": "pass"}, "activation_kind": {"const": "normal"}}, "required": ["result", "activation_kind"]},
+      "then": {"properties": {"next_route": {"const": "design-authoring"}}}
+    },
+    {
+      "if": {"properties": {"result": {"const": "pass"}, "activation_kind": {"const": "discovery"}}, "required": ["result", "activation_kind"]},
+      "then": {"properties": {"next_route": {"const": "input-review"}}}
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"], "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}},
+    "outputRef": {"type": "object", "additionalProperties": false, "required": ["kind", "path", "sha256", "size"], "properties": {"kind": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}},
+    "stageResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "status", "causal_blocker_ids"],
+      "properties": {
+        "stage_id": {"$ref": "#/$defs/id"},
+        "status": {"enum": ["pass", "block", "not_evaluable"]},
+        "causal_blocker_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"maxItems": 0}}}},
+        {"if": {"properties": {"status": {"enum": ["block", "not_evaluable"]}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}}
+      ]
+    },
+    "diagnosticCode": {"enum": ["CLOSURE_SCHEMA_INVALID", "CLOSURE_DIGEST_MISMATCH", "PROCESS_REF_STALE", "ACTIVATION_RECEIPT_INVALID", "BOUNDARY_APPROVAL_INVALID", "BOUNDARY_APPROVAL_MISMATCH", "BOUNDARY_REF_ESCAPE", "BOUNDARY_REF_MISSING", "BOUNDARY_REF_STALE", "SYMLINK_UNSUPPORTED", "DISCOVERY_RULE_EMPTY", "DISCOVERY_INPUT_UNDECLARED", "DISCOVERY_INPUT_AMBIGUOUS", "CATALOG_INPUT_OUTSIDE_BOUNDARY", "REQUIRED_INPUT_CLASS_MISSING", "INPUT_DUPLICATE", "INPUT_REF_STALE", "INPUT_SCHEMA_ID_MISMATCH", "INPUT_SCHEMA_VERSION_MISMATCH", "INPUT_VISIBILITY_LEAK", "INPUT_AUTHORITY_UNRESOLVED", "CONDITIONAL_INPUT_UNRESOLVED", "EXCLUSION_UNJUSTIFIED", "CONFLICT_UNRESOLVED", "PRIOR_DESIGN_MISSING", "PRIOR_DESIGN_AMBIGUOUS", "PRIOR_DESIGN_RECEIPT_INVALID", "GREENFIELD_CONTRADICTED", "SCOPE_SIGNAL_INVALID", "MANIFEST_PROJECTION_MISMATCH", "DENOMINATOR_BLOCKED", "PREDICATE_ASSERTION_MISMATCH", "SELECTION_BLOCKED", "LATE_VALIDATION_FAILED", "OUTPUT_INVENTORY_MISMATCH"]},
+    "blocker": {"type": "object", "additionalProperties": false, "required": ["blocker_id", "code", "message", "selector", "owner", "repair_route"], "properties": {"blocker_id": {"$ref": "#/$defs/id"}, "code": {"$ref": "#/$defs/diagnosticCode"}, "message": {"$ref": "#/$defs/nonEmpty"}, "selector": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]}, "owner": {"$ref": "#/$defs/id"}, "repair_route": {"$ref": "#/$defs/nonEmpty"}}}
+  }
+}

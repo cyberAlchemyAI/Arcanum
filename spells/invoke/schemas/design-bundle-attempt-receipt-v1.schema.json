@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-bundle-attempt-receipt/v1",
+  "title": "Invoke Design Bundle Attempt Receipt v1",
+  "description": "Block-only W3 receipt. It records one governed failure and can never represent a published bundle or Design stage PASS.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "receipt_id", "producer", "bundle_closure_ref",
+    "candidate_receipt_ref", "stage_results", "outputs", "result", "next_route",
+    "blockers", "evidence_ceiling", "authority_effect", "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-bundle-attempt-receipt/v1"},
+    "schema_version": {"const": "invoke.design-bundle-attempt-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "producer": {"$ref": "#/$defs/producer"},
+    "bundle_closure_ref": {"$ref": "#/$defs/exactRef"},
+    "candidate_receipt_ref": {"$ref": "#/$defs/exactRef"},
+    "stage_results": {
+      "type": "array",
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "bundle-closure-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "view-projection"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "distill-evidence-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "bundle-output-closure"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stageResult"}, {"properties": {"stage_id": {"const": "late-finalization"}}}]}
+      ],
+      "items": false,
+      "minItems": 5,
+      "maxItems": 5,
+      "contains": {"type": "object", "properties": {"status": {"const": "block"}}, "required": ["status"]},
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "outputs": {"type": "array", "maxItems": 0},
+    "result": {"const": "block"},
+    "next_route": {"enum": ["repair-w2-candidate", "repair-distill-evidence", "repair-installed-contract", "repair-design-bundle"]},
+    "blockers": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/blocker"}},
+    "evidence_ceiling": {"$ref": "#/$defs/blockEvidenceCeiling"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    },
+    "producer": {
+      "type": "object", "additionalProperties": false, "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-source.v2"},
+        "owner": {"const": "invoke-design-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_source_v2.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "stageResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "status", "causal_blocker_ids"],
+      "properties": {
+        "stage_id": {"enum": ["bundle-closure-validation", "view-projection", "distill-evidence-validation", "bundle-output-closure", "late-finalization"]},
+        "status": {"enum": ["pass", "block", "not_evaluable"]},
+        "causal_blocker_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"maxItems": 0}}}, "else": {"properties": {"causal_blocker_ids": {"minItems": 1}}}}
+      ]
+    },
+    "diagnosticCode": {
+      "enum": [
+        "BUNDLE_CLOSURE_SCHEMA_INVALID", "BUNDLE_CLOSURE_DIGEST_MISMATCH", "PATH_UNSAFE",
+        "REFERENCE_UNAVAILABLE", "REFERENCE_DIGEST_MISMATCH", "W2_CANDIDATE_INVALID",
+        "W2_CANDIDATE_BINDING_MISMATCH", "DISTILL_REQUEST_INVALID", "DISTILL_EVENTS_INVALID",
+        "DISTILL_EXECUTION_RECEIPT_INVALID", "DISTILL_VALIDATION_RESULT_INVALID",
+        "DISTILL_BINDING_MISMATCH", "DISTILL_NOT_PASSING", "PROJECTION_FAILED",
+        "PROJECTION_SCHEMA_INVALID", "ROUTE_AMBIGUOUS", "PREEXISTING_DESTINATION",
+        "OUTPUT_INVENTORY_MISMATCH", "INSTALLED_CONTRACT_DRIFT", "LATE_VALIDATION_FAILED"
+      ]
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocker_id", "code", "message", "stage_id", "selector", "repair_route"],
+      "properties": {
+        "blocker_id": {"$ref": "#/$defs/id"},
+        "code": {"$ref": "#/$defs/diagnosticCode"},
+        "message": {"$ref": "#/$defs/nonEmpty"},
+        "stage_id": {"enum": ["bundle-closure-validation", "view-projection", "distill-evidence-validation", "bundle-output-closure", "late-finalization"]},
+        "selector": {"type": ["string", "null"]},
+        "repair_route": {"enum": ["repair-w2-candidate", "repair-distill-evidence", "repair-installed-contract", "repair-design-bundle"]}
+      }
+    },
+    "blockEvidenceCeiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_authored", "coherence_validated", "human_views_produced", "design_stage_pass",
+        "plan_evidence", "registry_released", "mutation_runtime_ready", "acceptance", "execution",
+        "publication", "deployment", "external_effect"
+      ],
+      "properties": {
+        "artifact_authored": {"const": false}, "coherence_validated": {"const": false},
+        "human_views_produced": {"const": false}, "design_stage_pass": {"const": false},
+        "plan_evidence": {"const": false}, "registry_released": {"const": false},
+        "mutation_runtime_ready": {"const": false}, "acceptance": {"const": false},
+        "execution": {"const": false}, "publication": {"const": false},
+        "deployment": {"const": false}, "external_effect": {"const": false}
+      }
+    }
+  }
+}

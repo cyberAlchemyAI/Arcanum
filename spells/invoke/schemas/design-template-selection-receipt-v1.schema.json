@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-template-selection-receipt/v1",
+  "title": "Invoke Design Template Selection Receipt v1",
+  "description": "Deterministic projection of the W2 installed-profile selection without template promotion authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "receipt_id", "target_id", "design_artifact_ref",
+    "selected_profile_id", "selection_evidence_ref", "selected_companion_ids",
+    "selection_state", "promotion_state", "plan_evidence_state", "authority_effect", "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-template-selection-receipt/v1"},
+    "schema_version": {"const": "invoke.design-template-selection-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "design_artifact_ref": {"$ref": "#/$defs/exactRef"},
+    "selected_profile_id": {"const": "invoke.generic-design-baseline.v1"},
+    "selection_evidence_ref": {"$ref": "#/$defs/exactRef"},
+    "selected_companion_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "selection_state": {"const": "authored-complete"},
+    "promotion_state": {"const": "not-promoted"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    }
+  }
+}

@@ -1,10 +1,10 @@
 ---
 name: invoke
 description: "Use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution."
-argument-hint: "<define|design|plan|handoff|refresh|full|validate> <target-or-intent> [--output <path>] [--dry-run]"
+argument-hint: "modes | <define|design> <describe|check|author|produce|admit|status> ..."
 tier: spells
 domain: lifecycle-authoring
-version: 0.3.1
+version: 0.5.0
 origin: canonical Arcanum spell for intent-to-artifact authoring
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -24,6 +24,19 @@ Invoke turns vague development intent into governed authoring artifacts. The roo
 Invoke is an authoring front door, not the lifecycle owner for every artifact it can describe. It discovers intent, shapes definitions, designs, and plans, then hands off to the capability that owns the target lifecycle.
 
 Invoke does not require deprecated command files, slash commands, or command-resolution bridges as authoring readiness evidence. When an Invoke-authored plan prepares later execution, it should name native capability handles, expected receipts, validation surfaces, and subagent/local fallback boundaries. Legacy command adapters may remain as explicit example-runner compatibility only.
+
+## Deterministic CLI
+
+`tools/arcanum invoke` is the stateless machine authoring surface for Define
+and Design. It converts a complete authoring request into canonical JSON, then
+invokes the existing closure, producer, admission, and capability consumers.
+It never calls a model or runtime adapter and never infers definitions,
+architecture, approvals, reviewer evidence, promotion, or execution authority.
+
+Start with `tools/arcanum invoke modes`, then inspect one exact stage with
+`tools/arcanum invoke <mode> describe [stage]`. Plan, Handoff, and Refresh use
+the native Invoke skill until they expose equivalent deterministic source and
+admission contracts.
 
 ## Human Result Contract
 
@@ -49,8 +62,8 @@ remaining uncertainty, any exact user decision, and the next bounded action.
 
 | Mode       | Status           | Contract File                              | Notes                                                  |
 | ---------- | ---------------- | ------------------------------------------ | ------------------------------------------------------ |
-| `define`   | implemented (L0) | [define.md](./define.md)     | Active authoring baseline mode with the DomainSpec template (`templates/domainspec-spec/`), standalone companions, and dedicated candidate family scaffolds. |
-| `design`   | implemented (L1 contract with deterministic selection validation) | [design.md](./design.md)     | Converts approved define outputs into governed architecture/design artifacts through a closed scope manifest, extracted denominator, total two-pass selection result, and separate Plan evidence. |
+| `define`   | implemented (L0) | [define.md](./define.md)     | [Human overview](./define/README.md). Closure-bound v3 authoring: one source produces a thirteen-file candidate bundle, then independent admission proves current replay parity and typed semantic-drift closure. |
+| `design`   | W1 v2, W2 v2, and W3 v3 bundle/admission implemented | [design.md](./design.md)     | [Human overview](./design/README.md). [Agent authoring guide](./design-authoring-guide.md). Requires admitted Define v3, closes approved inputs, compiles one typed six-view candidate, binds independent Distill PASS, publishes a deterministic fifteen-file bundle, and admits only `artifact_authored` after byte-equal replay. |
 | `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
 | `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
 | `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas while separating phase completion from handoff readiness. |
@@ -82,12 +95,37 @@ single capability `status` or `mutation_handoff_allowed`.
 This capability result is distinct from a mode run's `phase_status` and
 handoff decision. Active-mode validation may consume evidence before routing,
 but it cannot substitute its run verdict for any of the three capability axes.
+Define PASS additionally requires the exact v3 compiler receipt and matching
+current bundle-admission receipt declared by the capability table. Valid v1/v2
+producer receipts are historical/read-only. Even a valid v3 stage/admission
+pair opens only `artifact_authored`.
+Agents author that v3 source through the closure-first, ownership-aware
+[Define authoring guide](./define-authoring-guide.md) and its
+[compiler-and-admission-valid mixed example](./examples/define-v3/DEFINE-SOURCE.json);
+the guide never replaces the JSON Schemas as shape authority.
 
-Design selection adds another independent evidence family. Its
-`DesignScopeManifest`, `DesignDenominatorReceipt`, and
-`DesignSelectionResult` establish only the selected Design contract and its
-evidence ceiling. They do not imply that the artifact is registry-released or
-runtime-ready, and they never count planned witnesses as Plan evidence.
+Design input production adds another independent evidence family. Its
+`DesignInputBoundaryApproval`, `DesignInputClosureReceipt`,
+`DesignScopeManifest`, `DesignDenominatorReceipt`, `DesignSelectionResult`, and
+`DesignInputProductionReceipt` establish only approved-boundary-relative input
+closure and the selected Design contract. They do not establish a six-view
+Design artifact or final Design stage PASS. The production receipt carries the
+exact evidence ceiling. These artifacts imply neither registry release nor
+runtime readiness, and they never count planned witnesses as Plan evidence.
+
+Design W2 adds one canonical architecture source, deterministic candidate
+projection, independent coherence validation, and atomic candidate closure.
+W3 then accepts only that exact passing candidate plus independently validated
+Distill evidence through `DESIGN-BUNDLE-CLOSURE.json`. It publishes fourteen
+payloads plus a v3 stage receipt atomically; an independent v2 validator recompiles
+the bundle and emits an external admission receipt only when all fifteen files
+are byte-equal. The capability resolver requires both receipts. Generic Design
+PASS envelopes and v1/v2 Design stage receipts remain blocked.
+Agents author the complete chain through the
+[Design authoring guide](./design-authoring-guide.md), which links the detailed
+W1, W2, and W3 guides and explains each formal stage with concrete components,
+interfaces, workflows, decisions, and dependencies. The guide does not replace
+the JSON Schemas or the stage catalog as machine authority.
 
 ## Core Required Sigils
 
@@ -225,9 +263,14 @@ result, or mutation authority.
 | define intent record        | spell | `structured-interview-kits` and `invoke define` | define synthesis, decision routing    |
 | template selection record   | spell | `inventory` and `invoke define`                 | define synthesis, validation, handoff |
 | spec artifact               | spell | `invoke define`                                 | downstream design or plan routing     |
-| glossary artifact           | spell | `invoke define`                                 | downstream design or plan routing     |
+| candidate definition registry (`DEFINITIONS.json`) | spell | `invoke define` | deterministic views and downstream definition-aware routing |
+| definition view (`DEFINITIONS.md`) | spell | `invoke define` | human review; derived from the machine registry |
+| glossary view (`GLOSSARY.md`) | spell | `invoke define` | downstream design or plan routing; derived from the machine registry |
 | Define identity denominator request and result | spell | `invoke define` and identity denominator validator | Define pass and downstream Design/Plan activation |
 | design artifact             | spell | `invoke design`                                 | downstream plan routing and validation |
+| Design input boundary approval | target owner | owner-approved W1 input process | Design input closure validator |
+| Design input closure | Design input author | W1 authoring | closure validator and scope projector |
+| Design input production receipt | spell | W1 atomic input producer | input review or later normal Design authoring |
 | Design scope manifest       | spell | `invoke design`                                 | denominator extraction and exact source closure |
 | Design denominator receipt  | spell | Design scope extractor                          | total Design selection and stale-input diagnostics |
 | Design selection receipt    | spell | Design selection validator                      | evidence-state reporting and handoff routing |
@@ -283,6 +326,7 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
 - glossary consistency report
 - mode selection evidence
 - Define identity-denominator passing receipt, or a not-applicable classification and rationale
+- Define v3 stage receipt and exact current bundle-admission receipt
 - implementation plan artifact path
 - implementation layering artifact path and layer decision snapshot
 - per-layer planning slice coverage when complexity is medium or high
@@ -310,6 +354,11 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   filters, and exact coverage rule. Missing, stale, blocking, or source-
   disagreeing evidence remains an upstream blocker; downstream modes cannot
   reconstruct identity proof from counts, prose, or stable whole-file digests.
+- Every new Define PASS requires a current independent semantic closure before
+  authoring and a matching independent bundle admission after compilation.
+  Meaning, authority, registry/consumer topology, structural-schema, identity-
+  denominator, or unprojected source changes require reassessment; derived-view
+  drift alone requires recompilation. v1/v2 receipts remain validate-only.
 - `plan`, `full`, and `validate` must include an implementation-layering artifact; `define` and `design` may emit a seed or explicit gap.
 - `plan`, `full`, and `validate` must include a work-pack artifact mapped from implementation-plan tasks and layer decisions.
 - `plan`, `full`, and `validate` must validate any machine-readable
@@ -336,6 +385,20 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   `scripts/preacceptance_closure.py validate-request` on the emitted artifact
   before presentation; a direct base request, v1 request, or hand-authored v2
   wrapper is not an alternate mutation-capable request path.
+- Preacceptance must exercise the finalized Task Session projection in two
+  modes through `prepare_live_execution_entry.py`: deterministic no-effect
+  success closure and bounded shadow/live-topology preparation followed by a
+  deliberate pre-execution block. Both use versioned deterministic invocation
+  input closures, exact declared control locators, and the same isolated
+  transaction engine. Any write outside the complete material, executor,
+  control, terminal, lifecycle, and transient authority ceiling blocks request
+  emission. The failure path must validate Task Session terminal, Invoke owner
+  block, and continuity receipts without claiming unavailable phases.
+- An owner request is still pending evidence. Actual Task Session preparation
+  requires a separate `invoke.owner-acceptance-response.v1` whose literal token
+  equals `ACCEPT-{request_id}-{request_digest}`, whose request is canonically
+  re-emittable with closure/review/adoption PASS, and whose requested-effect and
+  authority-write-ceiling digests match the one accepted attempt.
 - `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
 - `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
 - Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
@@ -379,6 +442,10 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   brief is output-contract drift and cannot be reported as a complete result.
 
 ## Global Failure Policy
+
+`scripts/rehearse_execution_entry_consumers.py` extends preacceptance closure for a finalized Work-Pack projection. It feeds one versioned source through real WPRA, Implementation Readiness, Context Builder, Task Session admission, the live first-write coordinator, precloseout, heterogeneous owner-closeout, terminal, and continuity consumers. Its no-effect receipt binds the exact source, WPRA configuration, unit, ordered consumer identities, consumer artifact references, deterministic input closures, successful control-write topology, and truthful pre-execution failure topology.
+
+Request emission additionally requires a digest-valid `invoke.request-emission-eligibility-receipt.v1` bound to that exact rehearsal and requested effect. This receipt permits only generation of the owner decision request. Owner acceptance remains pending until the later owner decision and is still mandatory before selection or admission; request eligibility never grants execution authority.
 
 - Return `block` when blocker ambiguity, missing mandatory inputs, or governance violations prevent safe mode output.
 - Return `flag` when mode output is usable but includes unresolved non-blocker gaps.

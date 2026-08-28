@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-closure/v1",
+  "title": "Invoke Design Input Closure v1",
+  "description": "Canonical Design input source. Completeness is relative to one approved discovery boundary and requires an independent closure receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "closure_id", "authored_by", "target", "activation", "discovery_boundary", "scope_manifest_contract_ref", "input_catalog", "conditional_input_resolutions", "constraints", "invariants", "prior_decisions", "exclusions", "design_kind", "selection_inputs", "input_conflicts", "scope_signals", "authority_effect", "closure_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-closure/v1"},
+    "schema_version": {"const": "invoke.design-input-closure.v1"},
+    "closure_id": {"$ref": "#/$defs/id"},
+    "authored_by": {"$ref": "#/$defs/id"},
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "objective", "owner", "visibility"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"$ref": "#/$defs/nonEmpty"},
+        "objective": {"$ref": "#/$defs/nonEmpty"},
+        "owner": {"$ref": "#/$defs/id"},
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "activation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "define_stage_receipt_ref", "approval_ref"],
+          "properties": {
+            "kind": {"const": "normal"},
+            "define_stage_receipt_ref": {"$ref": "#/$defs/fileRef"},
+            "approval_ref": {"$ref": "#/$defs/boundaryApprovalRef"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "approval_ref", "rationale"],
+          "properties": {
+            "kind": {"const": "discovery"},
+            "approval_ref": {"$ref": "#/$defs/boundaryApprovalRef"},
+            "rationale": {"$ref": "#/$defs/nonEmpty"}
+          }
+        }
+      ]
+    },
+    "discovery_boundary": {"$ref": "#/$defs/discoveryBoundary"},
+    "scope_manifest_contract_ref": {
+      "allOf": [
+        {"$ref": "#/$defs/fileRef"},
+        {"properties": {
+          "path": {"const": "arcanum/spells/invoke/schemas/design-scope-manifest.schema.json"},
+          "visibility": {"const": "public"},
+          "expected_schema_id": {"const": "https://arcanum.dev/schemas/invoke/design-scope-manifest/1-0-0"},
+          "expected_schema_version": {"const": "1.0.0"}
+        }}
+      ]
+    },
+    "input_catalog": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/inputEntry"}},
+    "conditional_input_resolutions": {"type": "array", "items": {"$ref": "#/$defs/conditionalResolution"}},
+    "constraints": {"type": "array", "items": {"$ref": "#/$defs/obligation"}},
+    "invariants": {"type": "array", "items": {"$ref": "#/$defs/obligation"}},
+    "prior_decisions": {"type": "array", "items": {"$ref": "#/$defs/priorDecision"}},
+    "exclusions": {"type": "array", "items": {"$ref": "#/$defs/exclusion"}},
+    "design_kind": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "no_prior_design_determination_ref"],
+          "properties": {"kind": {"const": "greenfield"}, "no_prior_design_determination_ref": {"$ref": "#/$defs/fileRef"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "prior_design_artifact_ref", "prior_design_stage_receipt_ref", "current_state_input_ids", "declared_delta_ids"],
+          "properties": {
+            "kind": {"const": "evolution"},
+            "prior_design_artifact_ref": {"$ref": "#/$defs/fileRef"},
+            "prior_design_stage_receipt_ref": {"$ref": "#/$defs/fileRef"},
+            "current_state_input_ids": {"$ref": "#/$defs/idSet"},
+            "declared_delta_ids": {"$ref": "#/$defs/idSet"}
+          }
+        }
+      ]
+    },
+    "selection_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authored_concerns", "predicate_inputs", "planned_witness_requirements"],
+      "properties": {
+        "authored_concerns": {"type": "array", "items": {"$ref": "#/$defs/authoredConcern"}},
+        "predicate_inputs": {"type": "array", "items": {"$ref": "#/$defs/predicateInput"}},
+        "planned_witness_requirements": {"type": "array", "items": {"$ref": "#/$defs/witnessRequirement"}}
+      }
+    },
+    "input_conflicts": {"type": "array", "items": {"$ref": "#/$defs/inputConflict"}},
+    "scope_signals": {"$ref": "#/$defs/scopeSignals"},
+    "authority_effect": {"const": "none"},
+    "closure_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "wholeFileSelector": {"type": "string", "pattern": "^file:(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "idSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "stringSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmpty"}},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size", "visibility", "expected_schema_id", "expected_schema_version"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0},
+        "visibility": {"enum": ["public", "private"]},
+        "expected_schema_id": {"oneOf": [{"type": "string", "format": "uri"}, {"type": "null"}]},
+        "expected_schema_version": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]}
+      }
+    },
+    "boundaryApprovalRef": {
+      "allOf": [
+        {"$ref": "#/$defs/fileRef"},
+        {"properties": {
+          "expected_schema_id": {"const": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"},
+          "expected_schema_version": {"const": "invoke.design-input-boundary-approval.v1"}
+        }}
+      ]
+    },
+    "rootBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["root_id", "path", "sha256", "size"],
+      "properties": {"root_id": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    },
+    "discoveryRule": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_id", "root_id", "input_class", "include_globs"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/id"}, "root_id": {"$ref": "#/$defs/id"}, "input_class": {"$ref": "#/$defs/inputKind"},
+        "include_globs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).*\\S.*"}}
+      }
+    },
+    "permittedExclusion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "evidence_ref"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "evidence_ref": {"$ref": "#/$defs/exactRef"}}
+    },
+    "discoveryBoundary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["observation_epoch", "roots", "discovery_rules", "required_input_classes", "permitted_exclusions", "boundary_digest"],
+      "properties": {
+        "observation_epoch": {"$ref": "#/$defs/nonEmpty"},
+        "roots": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rootBinding"}},
+        "discovery_rules": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/discoveryRule"}},
+        "required_input_classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/inputKind"}},
+        "permitted_exclusions": {"type": "array", "items": {"$ref": "#/$defs/permittedExclusion"}},
+        "boundary_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "inputKind": {"enum": ["define-artifact", "current-design", "current-implementation", "interface-contract", "state-workflow", "data-store", "queue-writer", "deployment-topology", "authority-policy", "security-policy", "privacy-policy", "compatibility-policy", "quality-constraint", "observability-contract", "architecture-pattern", "research-evidence", "ux-evidence", "owner-decision", "other"]},
+    "inputEntry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_id", "kind", "authority_class", "authority_owner", "applicability_owner", "classification", "selector", "source_ref", "freshness", "applies_to", "exclusion_evidence_ref"],
+      "properties": {
+        "input_id": {"$ref": "#/$defs/id"}, "kind": {"$ref": "#/$defs/inputKind"},
+        "authority_class": {"enum": ["normative", "owner-decision", "observed-current-state", "advisory", "historical"]},
+        "authority_owner": {"$ref": "#/$defs/id"}, "applicability_owner": {"$ref": "#/$defs/id"},
+        "classification": {"enum": ["required", "conditional", "excluded"]},
+        "selector": {"$ref": "#/$defs/wholeFileSelector"}, "source_ref": {"$ref": "#/$defs/fileRef"},
+        "freshness": {"type": "object", "additionalProperties": false, "required": ["status", "observed_epoch"], "properties": {"status": {"enum": ["current", "historical"]}, "observed_epoch": {"$ref": "#/$defs/nonEmpty"}}},
+        "applies_to": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmpty"}},
+        "exclusion_evidence_ref": {"oneOf": [{"$ref": "#/$defs/fileRef"}, {"type": "null"}]}
+      },
+      "allOf": [
+        {"if": {"properties": {"classification": {"const": "excluded"}}, "required": ["classification"]}, "then": {"properties": {"exclusion_evidence_ref": {"$ref": "#/$defs/fileRef"}}}},
+        {"if": {"properties": {"classification": {"enum": ["required", "conditional"]}}, "required": ["classification"]}, "then": {"properties": {"exclusion_evidence_ref": {"type": "null"}}}}
+      ]
+    },
+    "conditionalResolution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_id", "outcome", "evidence_ref", "owner"],
+      "properties": {"input_id": {"$ref": "#/$defs/id"}, "outcome": {"enum": ["included", "excluded"]}, "evidence_ref": {"$ref": "#/$defs/fileRef"}, "owner": {"$ref": "#/$defs/id"}}
+    },
+    "obligation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["obligation_id", "class", "statement", "source_input_ids", "owner"],
+      "properties": {"obligation_id": {"$ref": "#/$defs/id"}, "class": {"enum": ["constraint", "invariant"]}, "statement": {"$ref": "#/$defs/nonEmpty"}, "source_input_ids": {"$ref": "#/$defs/idSet"}, "owner": {"$ref": "#/$defs/id"}}
+    },
+    "priorDecision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "status", "owner", "decision_ref"],
+      "properties": {"decision_id": {"$ref": "#/$defs/id"}, "status": {"enum": ["preserved", "eligible-for-supersession"]}, "owner": {"$ref": "#/$defs/id"}, "decision_ref": {"$ref": "#/$defs/fileRef"}}
+    },
+    "exclusion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["exclusion_id", "path", "reason", "evidence_ref"],
+      "properties": {"exclusion_id": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/relativePath"}, "reason": {"$ref": "#/$defs/nonEmpty"}, "evidence_ref": {"$ref": "#/$defs/fileRef"}}
+    },
+    "ownership": {
+      "type": "object", "additionalProperties": false,
+      "required": ["accountable_owner", "contributing_owners", "artifact_owner", "validator_owner"],
+      "properties": {"accountable_owner": {"$ref": "#/$defs/id"}, "contributing_owners": {"$ref": "#/$defs/idSet"}, "artifact_owner": {"$ref": "#/$defs/id"}, "validator_owner": {"const": "invoke-design-selection-validator"}}
+    },
+    "authoredConcern": {
+      "type": "object", "additionalProperties": false,
+      "required": ["concern_id", "primary_class", "disposition", "required_predicate", "evidence_selectors", "ownership", "selected", "rationale", "revisit_condition"],
+      "properties": {
+        "concern_id": {"$ref": "#/$defs/id"}, "primary_class": {"enum": ["authority", "security", "state-event", "persistence", "failure", "reliability", "integration", "migration", "rollout", "privacy-data", "performance", "ux", "validation"]},
+        "disposition": {"enum": ["required", "recommended", "not-applicable-with-rationale", "block"]}, "required_predicate": {"type": "boolean"},
+        "evidence_selectors": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/wholeFileSelector"}}, "ownership": {"$ref": "#/$defs/ownership"},
+        "selected": {"type": "boolean"}, "rationale": {"$ref": "#/$defs/nonEmpty"}, "revisit_condition": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]}
+      }
+    },
+    "predicateInput": {
+      "type": "object", "additionalProperties": false,
+      "required": ["predicate_id", "concern_id", "source_input_ids", "expected"],
+      "properties": {"predicate_id": {"$ref": "#/$defs/id"}, "concern_id": {"$ref": "#/$defs/id"}, "source_input_ids": {"$ref": "#/$defs/idSet"}, "expected": {"type": "boolean"}}
+    },
+    "witnessRequirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["witness_id", "claim_id", "concern_id", "evidence_state"],
+      "properties": {"witness_id": {"$ref": "#/$defs/id"}, "claim_id": {"$ref": "#/$defs/id"}, "concern_id": {"$ref": "#/$defs/id"}, "evidence_state": {"const": "planned-contract"}}
+    },
+    "inputConflict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["conflict_id", "input_ids", "resolution_status", "decision_ref"],
+      "properties": {"conflict_id": {"$ref": "#/$defs/id"}, "input_ids": {"$ref": "#/$defs/idSet"}, "resolution_status": {"enum": ["resolved", "unresolved"]}, "decision_ref": {"oneOf": [{"$ref": "#/$defs/fileRef"}, {"type": "null"}]}},
+      "allOf": [
+        {"if": {"properties": {"resolution_status": {"const": "resolved"}}, "required": ["resolution_status"]}, "then": {"properties": {"decision_ref": {"$ref": "#/$defs/fileRef"}}}},
+        {"if": {"properties": {"resolution_status": {"const": "unresolved"}}, "required": ["resolution_status"]}, "then": {"properties": {"decision_ref": {"type": "null"}}}}
+      ]
+    },
+    "scopeSignals": {
+      "type": "object", "additionalProperties": false,
+      "required": ["human_actors", "rendered_surfaces", "interfaces", "stores", "queues", "writers", "normative_rules", "effects", "data_and_log_sinks", "deployment_targets", "compatibility_boundaries", "quality_claims", "acceptance_and_readiness_claims"],
+      "properties": {
+        "human_actors": {"type": "array", "items": {"$ref": "#/$defs/humanActorSignal"}}, "rendered_surfaces": {"type": "array", "items": {"$ref": "#/$defs/renderedSurfaceSignal"}},
+        "interfaces": {"type": "array", "items": {"$ref": "#/$defs/interfaceSignal"}}, "stores": {"type": "array", "items": {"$ref": "#/$defs/storeSignal"}},
+        "queues": {"type": "array", "items": {"$ref": "#/$defs/queueSignal"}}, "writers": {"type": "array", "items": {"$ref": "#/$defs/writerSignal"}},
+        "normative_rules": {"type": "array", "items": {"$ref": "#/$defs/normativeRuleSignal"}}, "effects": {"type": "array", "items": {"$ref": "#/$defs/effectSignal"}},
+        "data_and_log_sinks": {"type": "array", "items": {"$ref": "#/$defs/sinkSignal"}}, "deployment_targets": {"type": "array", "items": {"$ref": "#/$defs/deploymentSignal"}},
+        "compatibility_boundaries": {"type": "array", "items": {"$ref": "#/$defs/compatibilitySignal"}}, "quality_claims": {"type": "array", "items": {"$ref": "#/$defs/qualityClaimSignal"}},
+        "acceptance_and_readiness_claims": {"type": "array", "items": {"$ref": "#/$defs/acceptanceClaimSignal"}}
+      }
+    },
+    "humanActorSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "actor_id", "natural_person", "reads", "decides", "acts", "recovers", "navigates", "assistive_operation", "surfaces"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "actor_id": {"$ref": "#/$defs/id"}, "natural_person": {"type": "boolean"}, "reads": {"type": "boolean"}, "decides": {"type": "boolean"}, "acts": {"type": "boolean"}, "recovers": {"type": "boolean"}, "navigates": {"type": "boolean"}, "assistive_operation": {"type": "boolean"}, "surfaces": {"$ref": "#/$defs/stringSet"}}},
+    "renderedSurfaceSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "surface_id", "modality", "semantic_contract_ref", "semantic_change"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "surface_id": {"$ref": "#/$defs/id"}, "modality": {"$ref": "#/$defs/nonEmpty"}, "semantic_contract_ref": {"$ref": "#/$defs/nonEmpty"}, "semantic_change": {"enum": ["none", "new", "changed"]}}},
+    "interfaceSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "interface_id", "kind", "peer", "direction", "contract_ref"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "interface_id": {"$ref": "#/$defs/id"}, "kind": {"$ref": "#/$defs/nonEmpty"}, "peer": {"$ref": "#/$defs/nonEmpty"}, "direction": {"enum": ["inbound", "outbound", "bidirectional"]}, "contract_ref": {"$ref": "#/$defs/nonEmpty"}}},
+    "storeSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "store_id", "authority", "data_classes", "writers"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "store_id": {"$ref": "#/$defs/id"}, "authority": {"$ref": "#/$defs/nonEmpty"}, "data_classes": {"$ref": "#/$defs/stringSet"}, "writers": {"$ref": "#/$defs/stringSet"}}},
+    "queueSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "queue_id", "producers", "consumers", "ordering"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "queue_id": {"$ref": "#/$defs/id"}, "producers": {"$ref": "#/$defs/stringSet"}, "consumers": {"$ref": "#/$defs/stringSet"}, "ordering": {"$ref": "#/$defs/nonEmpty"}}},
+    "writerSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "writer_id", "targets", "concurrency"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "writer_id": {"$ref": "#/$defs/id"}, "targets": {"$ref": "#/$defs/stringSet"}, "concurrency": {"$ref": "#/$defs/nonEmpty"}}},
+    "normativeRuleSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "rule_id", "verb", "subject", "object", "enforcement_hint"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "rule_id": {"$ref": "#/$defs/id"}, "verb": {"$ref": "#/$defs/nonEmpty"}, "subject": {"$ref": "#/$defs/nonEmpty"}, "object": {"$ref": "#/$defs/nonEmpty"}, "enforcement_hint": {"$ref": "#/$defs/nonEmpty"}}},
+    "effectSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "effect_id", "reversible", "external", "privileged"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "effect_id": {"$ref": "#/$defs/id"}, "reversible": {"type": "boolean"}, "external": {"type": "boolean"}, "privileged": {"type": "boolean"}}},
+    "sinkSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "sink_id", "data_classes", "retention_hint"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "sink_id": {"$ref": "#/$defs/id"}, "data_classes": {"$ref": "#/$defs/stringSet"}, "retention_hint": {"$ref": "#/$defs/nonEmpty"}}},
+    "deploymentSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "deployment_id", "environment", "release_mode"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "deployment_id": {"$ref": "#/$defs/id"}, "environment": {"$ref": "#/$defs/nonEmpty"}, "release_mode": {"$ref": "#/$defs/nonEmpty"}}},
+    "compatibilitySignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "boundary_id", "old_contract", "new_contract"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "boundary_id": {"$ref": "#/$defs/id"}, "old_contract": {"$ref": "#/$defs/nonEmpty"}, "new_contract": {"$ref": "#/$defs/nonEmpty"}}},
+    "qualityClaimSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "claim_id", "source_kind", "threshold_or_tradeoff", "required"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "claim_id": {"$ref": "#/$defs/id"}, "source_kind": {"$ref": "#/$defs/nonEmpty"}, "threshold_or_tradeoff": {"$ref": "#/$defs/nonEmpty"}, "required": {"type": "boolean"}}},
+    "acceptanceClaimSignal": {"type": "object", "additionalProperties": false, "required": ["signal_id", "source_input_id", "claim_id", "selector", "evidence_state"], "properties": {"signal_id": {"$ref": "#/$defs/id"}, "source_input_id": {"$ref": "#/$defs/id"}, "claim_id": {"$ref": "#/$defs/id"}, "selector": {"$ref": "#/$defs/nonEmpty"}, "evidence_state": {"const": "authored-complete"}}}
+  }
+}

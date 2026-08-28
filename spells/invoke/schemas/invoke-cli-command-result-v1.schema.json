@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/cli-command-result/v1",
+  "title": "Invoke CLI Command Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "command",
+    "mode",
+    "operation",
+    "stage",
+    "status",
+    "inputs",
+    "outputs",
+    "diagnostics",
+    "authority_effect",
+    "data"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/cli-command-result/v1"},
+    "schema_version": {"const": "invoke.cli-command-result.v1"},
+    "command": {"const": "invoke"},
+    "mode": {"type": ["string", "null"]},
+    "operation": {"enum": ["modes", "describe", "check", "author", "produce", "admit", "status"]},
+    "stage": {"type": ["string", "null"]},
+    "status": {"enum": ["pass", "block", "error"]},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}},
+    "authority_effect": {"const": "none"},
+    "data": {}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["file", "directory", "stdout"]},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "size": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "location", "message", "causes", "repair_route"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+        "location": {"type": ["string", "null"]},
+        "message": {"type": "string", "minLength": 1},
+        "causes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "repair_route": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

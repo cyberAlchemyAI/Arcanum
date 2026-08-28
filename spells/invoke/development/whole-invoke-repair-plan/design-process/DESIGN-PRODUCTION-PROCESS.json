@@ -1,0 +1,181 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/design-production-process/v1",
+  "schema_version": "invoke.design-production-process.v1",
+  "process_id": "invoke.design-production-process.v1",
+  "owner_capability": "invoke",
+  "mode": "design",
+  "artifact_chain": [
+    "define-stage-receipt",
+    "design-input-boundary-approval",
+    "design-input-closure",
+    "design-input-closure-receipt",
+    "design-scope-manifest",
+    "design-denominator-receipt",
+    "design-selection-result",
+    "design-input-production-receipt",
+    "design-profile",
+    "design-source",
+    "design-artifact-staged",
+    "design-coherence-receipt",
+    "design-candidate-production-receipt",
+    "design-bundle-closure",
+    "distill-execution-evidence",
+    "deterministic-views",
+    "design-stage-receipt-v2",
+    "design-bundle-admission-receipt",
+    "capability-artifact-admission"
+  ],
+  "stages": [
+    {
+      "stage_id": "input-closure-validation",
+      "owner": "invoke-design-input-closure-validator",
+      "input_kinds": ["define-stage-receipt", "design-input-boundary-approval", "design-input-closure"],
+      "output_kinds": ["design-input-closure-receipt"],
+      "entry_gate": "Normal activation binds an exact Define stage receipt; discovery activation binds explicit approval.",
+      "exit_gate": "All reachable closure checks are recorded and pass or return one complete block receipt.",
+      "failure_state": "input-closure-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "scope-projection",
+      "owner": "invoke-design-input-producer",
+      "input_kinds": ["design-input-closure", "design-input-closure-receipt"],
+      "output_kinds": ["design-scope-manifest"],
+      "entry_gate": "Input closure receipt passes and pins the exact discovery boundary.",
+      "exit_gate": "Manifest projection covers the closure catalog without adding authority.",
+      "failure_state": "scope-projection-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "denominator-extraction",
+      "owner": "invoke-design-scope-extractor",
+      "input_kinds": ["design-scope-manifest"],
+      "output_kinds": ["design-denominator-receipt"],
+      "entry_gate": "The exact existing DesignScopeManifest v1 contract validates.",
+      "exit_gate": "Every declared selector is independently inspected and digest-current.",
+      "failure_state": "denominator-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "selection",
+      "owner": "invoke-design-selection-validator",
+      "input_kinds": ["design-input-closure", "design-scope-manifest", "design-denominator-receipt"],
+      "output_kinds": ["design-selection-result"],
+      "entry_gate": "Manifest and denominator bind the same immutable selection denominator.",
+      "exit_gate": "Every signal and concern is owned, legally disposed, and stable across two passes.",
+      "failure_state": "selection-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "input-bundle-closure",
+      "owner": "invoke-design-input-producer",
+      "input_kinds": ["design-input-closure-receipt", "design-scope-manifest", "design-denominator-receipt", "design-selection-result"],
+      "output_kinds": ["design-input-production-receipt"],
+      "entry_gate": "All four W1 stages pass against one closure digest and exact manifest binding.",
+      "exit_gate": "Exactly four payloads plus the success receipt publish in one atomic directory replacement.",
+      "failure_state": "input-bundle-publication-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "design-authoring",
+      "owner": "design-author",
+      "input_kinds": ["design-input-production-receipt", "design-selection-result", "design-profile"],
+      "output_kinds": ["design-source"],
+      "entry_gate": "One exact normal W1 production receipt passes, routes to design-authoring, and binds the exact installed public Design profile.",
+      "exit_gate": "One typed model and six ID-based views apply every input and selection obligation.",
+      "failure_state": "design-source-incomplete",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "artifact-staging",
+      "owner": "invoke-design-candidate-producer",
+      "input_kinds": ["design-source", "design-production-process", "design-profile", "design-coherence-policy"],
+      "output_kinds": ["design-artifact-staged"],
+      "entry_gate": "The source and installed static contracts are schema-valid and digest-bound.",
+      "exit_gate": "A deterministic normalized candidate artifact exists only in the staging area.",
+      "failure_state": "artifact-staging-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "coherence-validation",
+      "owner": "invoke-design-coherence-validator",
+      "input_kinds": ["design-artifact-staged", "design-source", "design-coherence-policy"],
+      "output_kinds": ["design-coherence-receipt"],
+      "entry_gate": "The staged artifact and every upstream binding are exact and readable.",
+      "exit_gate": "Every blocking installed coherence rule passes with exact evidence.",
+      "failure_state": "coherence-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "candidate-output-closure",
+      "owner": "invoke-design-candidate-producer",
+      "input_kinds": ["design-artifact-staged", "design-coherence-receipt"],
+      "output_kinds": ["design-candidate-production-receipt"],
+      "entry_gate": "Normal W1, source validation, deterministic projection, and every installed coherence rule pass.",
+      "exit_gate": "Exactly DESIGN.json, the independent coherence receipt, and the production receipt publish atomically.",
+      "failure_state": "candidate-output-closure-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "atomic-bundle-closure",
+      "owner": "invoke-design-producer",
+      "input_kinds": ["design-bundle-closure", "design-candidate-production-receipt", "distill-execution-evidence"],
+      "output_kinds": ["deterministic-views", "design-stage-receipt-v2"],
+      "entry_gate": "One exact passing W2 candidate and independently validated passing Distill evidence bind one Design bundle closure.",
+      "exit_gate": "Exactly fourteen payloads and the v2 success-only stage receipt publish as fifteen regular files in one atomic directory replacement.",
+      "failure_state": "bundle-publication-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "bundle-admission",
+      "owner": "invoke-design-bundle-admission-validator",
+      "input_kinds": ["design-stage-receipt-v2", "deterministic-views"],
+      "output_kinds": ["design-bundle-admission-receipt"],
+      "entry_gate": "The complete fifteen-file bundle and installed v2 producer identity validate.",
+      "exit_gate": "An independent clean replay is byte-equal and the admission receipt remains outside the submitted bundle.",
+      "failure_state": "bundle-admission-blocked",
+      "authority_effect": "none"
+    },
+    {
+      "stage_id": "artifact-admission",
+      "owner": "invoke-capability-resolver",
+      "input_kinds": ["design-stage-receipt-v2", "design-bundle-admission-receipt"],
+      "output_kinds": ["capability-artifact-admission"],
+      "entry_gate": "The installed v2 producer receipt and independent replay admission receipt exact-bind the same bundle.",
+      "exit_gate": "Only artifact_authored is admitted; every later authority axis remains false.",
+      "failure_state": "artifact-admission-blocked",
+      "authority_effect": "none"
+    }
+  ],
+  "transitions": [
+    {"from": "input-closure-validation", "to": "scope-projection", "condition": "closure receipt verdict is pass", "on_failure": "input-closure-blocked"},
+    {"from": "scope-projection", "to": "denominator-extraction", "condition": "manifest projection is exact", "on_failure": "scope-projection-blocked"},
+    {"from": "denominator-extraction", "to": "selection", "condition": "denominator receipt passes", "on_failure": "denominator-blocked"},
+    {"from": "selection", "to": "input-bundle-closure", "condition": "selection evidence state is design-validator-pass", "on_failure": "selection-blocked"},
+    {"from": "input-bundle-closure", "to": "design-authoring", "condition": "W1 production receipt closes the exact atomic output inventory", "on_failure": "input-bundle-publication-blocked"},
+    {"from": "design-authoring", "to": "artifact-staging", "condition": "source is structurally complete", "on_failure": "design-source-incomplete"},
+    {"from": "artifact-staging", "to": "coherence-validation", "condition": "normalized candidate artifact is staged", "on_failure": "artifact-staging-blocked"},
+    {"from": "coherence-validation", "to": "candidate-output-closure", "condition": "coherence state is pass", "on_failure": "coherence-blocked"},
+    {"from": "candidate-output-closure", "to": "atomic-bundle-closure", "condition": "W2 candidate production receipt closes the exact three-file inventory", "on_failure": "candidate-output-closure-blocked"},
+    {"from": "atomic-bundle-closure", "to": "bundle-admission", "condition": "v2 design-stage-pass receipt closes the exact fifteen-file output family", "on_failure": "bundle-publication-blocked"},
+    {"from": "bundle-admission", "to": "artifact-admission", "condition": "independent clean replay and exact inventory comparison pass", "on_failure": "bundle-admission-blocked"}
+  ],
+  "compatibility": {
+    "historical_evidence": "read-only",
+    "new_pass_requires": "invoke.design-stage-receipt.v2 plus invoke.design-bundle-admission-receipt.v1",
+    "supersession_policy": "restart-from-earliest-changed-binding"
+  },
+  "evidence_ceiling": {
+    "artifact_authored": false,
+    "plan_evidence": false,
+    "registry_released": false,
+    "mutation_runtime_ready": false,
+    "acceptance": false,
+    "execution": false,
+    "publication": false,
+    "deployment": false,
+    "external_effect": false
+  },
+  "authority_effect": "none",
+  "process_digest": "015cf8c953a1a6a3eff82c5d775a274fc46a3461c84d969fc101830c762466a8"
+}

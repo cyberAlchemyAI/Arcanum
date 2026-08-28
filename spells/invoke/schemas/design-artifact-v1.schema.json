@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-artifact/v1",
+  "title": "Invoke Design Artifact v1",
+  "description": "Deterministic W2 candidate read model projected without semantic duplication from one Design source.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "artifact_id", "artifact_status", "owner_route", "target_id",
+    "activation_kind", "profile_id", "design_kind", "evidence_bindings", "applications", "facts",
+    "views", "selected_outputs", "selected_companions", "concern_trace", "glossary_application",
+    "planned_witnesses", "unresolved_gaps", "layering", "template_selection", "dispatch_trace",
+    "distill_contract", "transport_policy", "selection_evidence_state", "coherence_evidence_state",
+    "plan_evidence_state", "next_route", "evidence_ceiling", "authority_effect", "artifact_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-artifact/v1"},
+    "schema_version": {"const": "invoke.design-artifact.v1"},
+    "artifact_id": {"$ref": "#/$defs/id"},
+    "artifact_status": {"const": "candidate"},
+    "owner_route": {"const": "invoke-design-candidate-producer"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "activation_kind": {"const": "normal"},
+    "profile_id": {"const": "invoke.generic-design-baseline.v1"},
+    "design_kind": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/designKind"},
+    "evidence_bindings": {
+      "type": "object", "additionalProperties": false,
+      "required": ["process_ref", "profile_ref", "coherence_policy_ref", "design_input_production_receipt_ref", "design_input_closure_ref", "design_input_closure_receipt_ref", "scope_manifest_ref", "denominator_receipt_ref", "selection_result_ref", "design_source_ref"],
+      "properties": {
+        "process_ref": {"$ref": "#/$defs/exactRef"}, "profile_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_policy_ref": {"$ref": "#/$defs/exactRef"}, "design_input_production_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_ref": {"$ref": "#/$defs/exactRef"}, "design_input_closure_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "scope_manifest_ref": {"$ref": "#/$defs/exactRef"}, "denominator_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "selection_result_ref": {"$ref": "#/$defs/exactRef"}, "design_source_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "applications": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/application"}},
+    "facts": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/fact"}},
+    "views": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/views"},
+    "selected_outputs": {"type": "array", "minItems": 1, "uniqueItems": true, "contains": {"const": "architecture"}, "items": {"$ref": "#/$defs/id"}},
+    "selected_companions": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/companion"}},
+    "concern_trace": {"type": "array", "items": {"$ref": "#/$defs/concernTrace"}},
+    "glossary_application": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/glossaryApplication"},
+    "planned_witnesses": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/plannedWitness"}},
+    "unresolved_gaps": {"type": "array", "items": {"$ref": "#/$defs/flagGap"}},
+    "layering": {"$ref": "#/$defs/layering"}, "template_selection": {"$ref": "#/$defs/templateSelection"},
+    "dispatch_trace": {"$ref": "#/$defs/dispatchTrace"}, "distill_contract": {"$ref": "#/$defs/distillContract"},
+    "transport_policy": {"$ref": "#/$defs/transportPolicy"},
+    "selection_evidence_state": {"const": "design-validator-pass"},
+    "coherence_evidence_state": {"const": "pending-independent-receipt"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "next_route": {"const": "design-bundle-production"},
+    "evidence_ceiling": {"const": "w2-candidate-coherence-only"}, "authority_effect": {"const": "none"},
+    "artifact_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"], "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}},
+    "idSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "optionalIdSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "concernTrace": {"type": "object", "additionalProperties": false, "required": ["concern_id", "primary_class", "disposition", "signal_ids", "application_ref", "fact_ids", "selected_output_id"], "properties": {"concern_id": {"$ref": "#/$defs/id"}, "primary_class": {"$ref": "#/$defs/nonEmpty"}, "disposition": {"enum": ["required", "recommended", "not-applicable-with-rationale"]}, "signal_ids": {"$ref": "#/$defs/optionalIdSet"}, "application_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-source/v1#/$defs/requirementRef"}, "fact_ids": {"$ref": "#/$defs/optionalIdSet"}, "selected_output_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}}},
+    "flagGap": {"type": "object", "additionalProperties": false, "required": ["gap_id", "severity", "owner", "repair_route", "effect"], "properties": {"gap_id": {"$ref": "#/$defs/id"}, "severity": {"const": "flag"}, "owner": {"$ref": "#/$defs/id"}, "repair_route": {"$ref": "#/$defs/nonEmpty"}, "effect": {"$ref": "#/$defs/nonEmpty"}}},
+    "layering": {"oneOf": [{"type": "object", "additionalProperties": false, "required": ["kind", "decision", "minimum_unit"], "properties": {"kind": {"const": "seed"}, "decision": {"$ref": "#/$defs/nonEmpty"}, "minimum_unit": {"$ref": "#/$defs/nonEmpty"}}}, {"type": "object", "additionalProperties": false, "required": ["kind", "rationale"], "properties": {"kind": {"const": "gap"}, "rationale": {"$ref": "#/$defs/nonEmpty"}}}]},
+    "templateSelection": {"type": "object", "additionalProperties": false, "required": ["selected_profile_id", "evidence_ref"], "properties": {"selected_profile_id": {"const": "invoke.generic-design-baseline.v1"}, "evidence_ref": {"$ref": "#/$defs/exactRef"}}},
+    "dispatchTrace": {"type": "object", "additionalProperties": false, "required": ["techniques", "evidence_ref"], "properties": {"techniques": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmpty"}}, "evidence_ref": {"$ref": "#/$defs/exactRef"}}},
+    "distillContract": {"type": "object", "additionalProperties": false, "required": ["classification", "validator_owner", "coherent_unit_candidate", "split_pressure_question", "expected_receipt"], "properties": {"classification": {"const": "required"}, "validator_owner": {"const": "distill"}, "coherent_unit_candidate": {"$ref": "#/$defs/nonEmpty"}, "split_pressure_question": {"$ref": "#/$defs/nonEmpty"}, "expected_receipt": {"const": "DISTILL-RECEIPT.json"}}},
+    "transportPolicy": {"type": "object", "additionalProperties": false, "required": ["append_existing_only", "upstream_mutation", "targets"], "properties": {"append_existing_only": {"const": true}, "upstream_mutation": {"const": false}, "targets": {"type": "array", "maxItems": 0}}}
+  }
+}
