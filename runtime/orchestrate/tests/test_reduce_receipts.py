@@ -63,34 +63,34 @@ def bind_test_briefing(role):
             "agent_identity": agent_name,
             "angle": "Exercise run-global allocation without widening authority.",
             "instructions": instructions,
-        "status_semantics": {
-            "task_status_field": "task_status",
-            "task_complete_value": "completed",
-            "task_blocked_value": "blocked",
-            "domain_gate_status_field": "domain_gate_status",
-            "domain_gate_is_separate": True,
-        },
-        "read_policy": {
-            "input_refs": list(role.get("input_refs", []) or []),
-            "allowed_read_scopes": ["tmp/native-dispatch/"],
-            "forbidden_read_scopes": [],
-            "required_input_refs_readable": True,
-        },
-        "write_policy": {
-            "mutation_policy": role["mutation_policy"],
-            "write_scope": list(role.get("write_scope", []) or []),
-            "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
-        },
-        "receipt_shape": {
-            "required_fields": ["task_status", "domain_gate_status", "findings"],
-            "completion_requires_all_fields": True,
-        },
-        "authority_ceiling": {
-            "summary": "Review only the declared frontier.",
-            "allowed_actions": ["read_declared_inputs"],
-            "forbidden_actions": ["write", "promotion"],
-        },
-    }
+            "status_semantics": {
+                "task_status_field": "task_status",
+                "task_complete_value": "completed",
+                "task_blocked_value": "blocked",
+                "domain_gate_status_field": "domain_gate_status",
+                "domain_gate_is_separate": True,
+            },
+            "read_policy": {
+                "input_refs": list(role.get("input_refs", []) or []),
+                "allowed_read_scopes": ["tmp/native-dispatch/"],
+                "forbidden_read_scopes": [],
+                "required_input_refs_readable": True,
+            },
+            "write_policy": {
+                "mutation_policy": role["mutation_policy"],
+                "write_scope": list(role.get("write_scope", []) or []),
+                "forbidden_write_scopes": list(role.get("forbidden_write_scopes", []) or []),
+            },
+            "receipt_shape": {
+                "required_fields": ["task_status", "domain_gate_status", "findings"],
+                "completion_requires_all_fields": True,
+            },
+            "authority_ceiling": {
+                "summary": "Review only the declared frontier.",
+                "allowed_actions": ["read_declared_inputs"],
+                "forbidden_actions": ["write", "promotion"],
+            },
+        }
         digest = hashlib.sha256(
             json.dumps(briefing, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
