@@ -1,10 +1,10 @@
 {
   "schema_version": "arcanum.confirmed-briefings.v0.1",
   "roles": {
-    "beta-check": {
-      "agent_identity": "Beta check verifier",
+    "beta-check-0": {
+      "agent_identity": "Abramsky, Samson",
       "angle": "Test the beta evidence independently.",
-      "instructions": "Read the declared beta input, write only the declared beta receipt, and report the bounded verification result.",
+      "instructions": "Run beta check.",
       "status_semantics": {
         "task_status_field": "task_status",
         "task_complete_value": "completed",
@@ -13,30 +13,49 @@
         "domain_gate_is_separate": true
       },
       "read_policy": {
-        "input_refs": ["tmp/native-dispatch/inputs/beta.json"],
-        "allowed_read_scopes": ["tmp/native-dispatch/inputs/"],
+        "input_refs": [
+          "tmp/native-dispatch/inputs/beta.json"
+        ],
+        "allowed_read_scopes": [
+          "tmp/native-dispatch/inputs/"
+        ],
         "forbidden_read_scopes": [],
         "required_input_refs_readable": true
       },
       "write_policy": {
         "mutation_policy": "lifecycle-owned",
-        "write_scope": ["tmp/native-dispatch/receipts/beta.json"],
-        "forbidden_write_scopes": ["arcana/"]
+        "write_scope": [
+          "tmp/native-dispatch/receipts/beta.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcana/"
+        ]
       },
       "receipt_shape": {
-        "required_fields": ["task_status", "domain_gate_status", "findings", "validation"],
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "findings",
+          "validation"
+        ],
         "completion_requires_all_fields": true
       },
       "authority_ceiling": {
         "summary": "Verify the beta input and own only the declared receipt.",
-        "allowed_actions": ["read_declared_inputs", "write_declared_scope"],
-        "forbidden_actions": ["promotion", "publication"]
+        "allowed_actions": [
+          "read_declared_inputs",
+          "write_declared_scope"
+        ],
+        "forbidden_actions": [
+          "promotion",
+          "publication"
+        ]
       }
     },
-    "alpha-check": {
-      "agent_identity": "Alpha reflection verifier",
-      "angle": "Reflect on the alpha evidence without borrowing beta conclusions.",
-      "instructions": "Read the declared alpha input, write only the declared alpha receipt, and report the bounded reflection result.",
+    "beta-check-1": {
+      "agent_identity": "Hewitt, Carl",
+      "angle": "Test the beta evidence independently.",
+      "instructions": "Run beta peer check.",
       "status_semantics": {
         "task_status_field": "task_status",
         "task_complete_value": "completed",
@@ -45,30 +64,49 @@
         "domain_gate_is_separate": true
       },
       "read_policy": {
-        "input_refs": ["tmp/native-dispatch/inputs/alpha.json"],
-        "allowed_read_scopes": ["tmp/native-dispatch/inputs/"],
+        "input_refs": [
+          "tmp/native-dispatch/inputs/beta.json"
+        ],
+        "allowed_read_scopes": [
+          "tmp/native-dispatch/inputs/"
+        ],
         "forbidden_read_scopes": [],
         "required_input_refs_readable": true
       },
       "write_policy": {
         "mutation_policy": "lifecycle-owned",
-        "write_scope": ["tmp/native-dispatch/receipts/alpha.json"],
-        "forbidden_write_scopes": ["spells/"]
+        "write_scope": [
+          "tmp/native-dispatch/receipts/beta.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcana/"
+        ]
       },
       "receipt_shape": {
-        "required_fields": ["task_status", "domain_gate_status", "findings", "validation"],
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "findings",
+          "validation"
+        ],
         "completion_requires_all_fields": true
       },
       "authority_ceiling": {
-        "summary": "Reflect on the alpha input and own only the declared receipt.",
-        "allowed_actions": ["read_declared_inputs", "write_declared_scope"],
-        "forbidden_actions": ["promotion", "publication"]
+        "summary": "Verify the beta input and own only the declared receipt.",
+        "allowed_actions": [
+          "read_declared_inputs",
+          "write_declared_scope"
+        ],
+        "forbidden_actions": [
+          "promotion",
+          "publication"
+        ]
       }
     },
-    "artifact-writer": {
-      "agent_identity": "Dependent artifact writer",
-      "angle": "Apply only conclusions proved by both upstream receipts.",
-      "instructions": "Read both declared receipts and write only the declared artifact and artifact receipt after the upstream gate passes.",
+    "alpha-check-0": {
+      "agent_identity": "Peirce, Charles Sanders",
+      "angle": "Reflect on the alpha evidence without borrowing beta conclusions.",
+      "instructions": "Run alpha check.",
       "status_semantics": {
         "task_status_field": "task_status",
         "task_complete_value": "completed",
@@ -77,24 +115,97 @@
         "domain_gate_is_separate": true
       },
       "read_policy": {
-        "input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
-        "allowed_read_scopes": ["tmp/native-dispatch/receipts/"],
+        "input_refs": [
+          "tmp/native-dispatch/inputs/alpha.json"
+        ],
+        "allowed_read_scopes": [
+          "tmp/native-dispatch/inputs/"
+        ],
+        "forbidden_read_scopes": [],
+        "required_input_refs_readable": true
+      },
+      "write_policy": {
+        "mutation_policy": "lifecycle-owned",
+        "write_scope": [
+          "tmp/native-dispatch/receipts/alpha.json"
+        ],
+        "forbidden_write_scopes": [
+          "spells/"
+        ]
+      },
+      "receipt_shape": {
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "findings",
+          "validation"
+        ],
+        "completion_requires_all_fields": true
+      },
+      "authority_ceiling": {
+        "summary": "Reflect on the alpha input and own only the declared receipt.",
+        "allowed_actions": [
+          "read_declared_inputs",
+          "write_declared_scope"
+        ],
+        "forbidden_actions": [
+          "promotion",
+          "publication"
+        ]
+      }
+    },
+    "artifact-writer-0": {
+      "agent_identity": "Shannon, Claude",
+      "angle": "Apply only conclusions proved by both upstream receipts.",
+      "instructions": "Write the dependent artifact.",
+      "status_semantics": {
+        "task_status_field": "task_status",
+        "task_complete_value": "completed",
+        "task_blocked_value": "blocked",
+        "domain_gate_status_field": "domain_gate_status",
+        "domain_gate_is_separate": true
+      },
+      "read_policy": {
+        "input_refs": [
+          "tmp/native-dispatch/receipts/beta.json",
+          "tmp/native-dispatch/receipts/alpha.json"
+        ],
+        "allowed_read_scopes": [
+          "tmp/native-dispatch/receipts/"
+        ],
         "forbidden_read_scopes": [],
         "required_input_refs_readable": true
       },
       "write_policy": {
         "mutation_policy": "artifact-only",
-        "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"],
-        "forbidden_write_scopes": ["arcana/", "spells/"]
+        "write_scope": [
+          "tmp/native-dispatch/artifact.json",
+          "tmp/native-dispatch/receipts/artifact.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcana/",
+          "spells/"
+        ]
       },
       "receipt_shape": {
-        "required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"],
+        "required_fields": [
+          "task_status",
+          "domain_gate_status",
+          "artifacts",
+          "validation"
+        ],
         "completion_requires_all_fields": true
       },
       "authority_ceiling": {
         "summary": "Apply admitted receipts to the bounded artifact only.",
-        "allowed_actions": ["read_declared_inputs", "write_declared_scope"],
-        "forbidden_actions": ["promotion", "publication"]
+        "allowed_actions": [
+          "read_declared_inputs",
+          "write_declared_scope"
+        ],
+        "forbidden_actions": [
+          "promotion",
+          "publication"
+        ]
       }
     }
   }

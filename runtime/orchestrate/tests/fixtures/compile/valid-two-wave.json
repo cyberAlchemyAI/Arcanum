@@ -5,7 +5,10 @@
     "objective": "Prove dependency filtering, declared role order, and agent cardinality."
   },
   "mode": "mixed",
-  "techniques": ["sequence", "observability_grouping"],
+  "techniques": [
+    "sequence",
+    "observability_grouping"
+  ],
   "subagent_strategy": {
     "status": "required",
     "trigger": "Two independent checks gate one dependent artifact role.",
@@ -13,11 +16,11 @@
     "binding_mode": "capability-bound",
     "execution_owner": "orchestrate",
     "registration": {
-      "schema_version": "arcanum.subagent-strategy-registration.v0.2",
+      "schema_version": "arcanum.subagent-strategy-registration.v0.3",
       "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
-      "sheet_schema_version": "0.6.1",
+      "sheet_schema_version": "0.7.0",
       "sheet_sha256": "af5287d5b9a1d817990b00b501826fdbc3a4005b842da7ffa5df354f82f75258",
-      "execution_projection_sha256": "893884e7ce03cf5ce3a93a2b1b495c6b68300a3d4c2a9a0d4ea9beb53bb2863e",
+      "execution_projection_sha256": "466d446726ab098b23199cb9a4f6b8fd5f4cf91dafea045135c9edf645c512ec",
       "temporary_sheet": ".arcanum/runtime/subagents-strategy/fixture-native-dispatch-two-wave.tmp.json",
       "temporary_close": ".arcanum/runtime/subagents-strategy/fixture-native-dispatch-two-wave.close.tmp.json"
     },
@@ -31,27 +34,154 @@
         "capability_mode": "observe",
         "agent_count": 2,
         "mutation_policy": "lifecycle-owned",
-        "write_scope": ["tmp/native-dispatch/receipts/beta.json"],
-        "forbidden_write_scopes": ["arcana/"],
-        "briefing_binding": {
-          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
-          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "6b387b808c53ac2d0e48888a891f48fdcf872b7845876001dffd90432b4e282e", "selector": "/roles/beta-check", "selected_payload_sha256": "b75a2462502e327a853ef3fdd242b52937e9eeb3888dbd865cc4e112881db2b9"},
-          "briefing": {
-            "agent_identity": "Beta check verifier",
-            "angle": "Test the beta evidence independently.",
-            "instructions": "Read the declared beta input, write only the declared beta receipt, and report the bounded verification result.",
-            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
-            "read_policy": {"input_refs": ["tmp/native-dispatch/inputs/beta.json"], "allowed_read_scopes": ["tmp/native-dispatch/inputs/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
-            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["tmp/native-dispatch/receipts/beta.json"], "forbidden_write_scopes": ["arcana/"]},
-            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "findings", "validation"], "completion_requires_all_fields": true},
-            "authority_ceiling": {"summary": "Verify the beta input and own only the declared receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
-          },
-          "briefing_sha256": "b75a2462502e327a853ef3fdd242b52937e9eeb3888dbd865cc4e112881db2b9"
-        },
+        "write_scope": [
+          "tmp/native-dispatch/receipts/beta.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcana/"
+        ],
         "depends_on_roles": [],
-        "input_refs": ["tmp/native-dispatch/inputs/beta.json"],
-        "output_refs": ["tmp/native-dispatch/receipts/beta.json"],
-        "applies_to_steps": ["s-beta"]
+        "input_refs": [
+          "tmp/native-dispatch/inputs/beta.json"
+        ],
+        "output_refs": [
+          "tmp/native-dispatch/receipts/beta.json"
+        ],
+        "applies_to_steps": [
+          "s-beta"
+        ],
+        "agents": [
+          {
+            "agent_name": "Abramsky, Samson",
+            "initial_prompt": "You are Abramsky, Samson.\n\nRun beta check.",
+            "briefing_binding": {
+              "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+              "source_binding": {
+                "artifact_path": "confirmed-briefings.json",
+                "artifact_sha256": "6134466ffab7cf3f65429a073ce63154e34c4850678a212a9538dd3032941074",
+                "selector": "/roles/beta-check-0",
+                "selected_payload_sha256": "bb2a47d46d1f2cba0b2118fccd1ed1aad427d1f0df44cbae2b2c60c2ac64fa29"
+              },
+              "briefing": {
+                "agent_identity": "Abramsky, Samson",
+                "angle": "Test the beta evidence independently.",
+                "instructions": "Run beta check.",
+                "status_semantics": {
+                  "task_status_field": "task_status",
+                  "task_complete_value": "completed",
+                  "task_blocked_value": "blocked",
+                  "domain_gate_status_field": "domain_gate_status",
+                  "domain_gate_is_separate": true
+                },
+                "read_policy": {
+                  "input_refs": [
+                    "tmp/native-dispatch/inputs/beta.json"
+                  ],
+                  "allowed_read_scopes": [
+                    "tmp/native-dispatch/inputs/"
+                  ],
+                  "forbidden_read_scopes": [],
+                  "required_input_refs_readable": true
+                },
+                "write_policy": {
+                  "mutation_policy": "lifecycle-owned",
+                  "write_scope": [
+                    "tmp/native-dispatch/receipts/beta.json"
+                  ],
+                  "forbidden_write_scopes": [
+                    "arcana/"
+                  ]
+                },
+                "receipt_shape": {
+                  "required_fields": [
+                    "task_status",
+                    "domain_gate_status",
+                    "findings",
+                    "validation"
+                  ],
+                  "completion_requires_all_fields": true
+                },
+                "authority_ceiling": {
+                  "summary": "Verify the beta input and own only the declared receipt.",
+                  "allowed_actions": [
+                    "read_declared_inputs",
+                    "write_declared_scope"
+                  ],
+                  "forbidden_actions": [
+                    "promotion",
+                    "publication"
+                  ]
+                }
+              },
+              "briefing_sha256": "bb2a47d46d1f2cba0b2118fccd1ed1aad427d1f0df44cbae2b2c60c2ac64fa29"
+            }
+          },
+          {
+            "agent_name": "Hewitt, Carl",
+            "initial_prompt": "You are Hewitt, Carl.\n\nRun beta peer check.",
+            "briefing_binding": {
+              "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+              "source_binding": {
+                "artifact_path": "confirmed-briefings.json",
+                "artifact_sha256": "6134466ffab7cf3f65429a073ce63154e34c4850678a212a9538dd3032941074",
+                "selector": "/roles/beta-check-1",
+                "selected_payload_sha256": "6440cb0d114427c42ae22dd8ce92363aa4153ece337957c623ef57662d56d0a7"
+              },
+              "briefing": {
+                "agent_identity": "Hewitt, Carl",
+                "angle": "Test the beta evidence independently.",
+                "instructions": "Run beta peer check.",
+                "status_semantics": {
+                  "task_status_field": "task_status",
+                  "task_complete_value": "completed",
+                  "task_blocked_value": "blocked",
+                  "domain_gate_status_field": "domain_gate_status",
+                  "domain_gate_is_separate": true
+                },
+                "read_policy": {
+                  "input_refs": [
+                    "tmp/native-dispatch/inputs/beta.json"
+                  ],
+                  "allowed_read_scopes": [
+                    "tmp/native-dispatch/inputs/"
+                  ],
+                  "forbidden_read_scopes": [],
+                  "required_input_refs_readable": true
+                },
+                "write_policy": {
+                  "mutation_policy": "lifecycle-owned",
+                  "write_scope": [
+                    "tmp/native-dispatch/receipts/beta.json"
+                  ],
+                  "forbidden_write_scopes": [
+                    "arcana/"
+                  ]
+                },
+                "receipt_shape": {
+                  "required_fields": [
+                    "task_status",
+                    "domain_gate_status",
+                    "findings",
+                    "validation"
+                  ],
+                  "completion_requires_all_fields": true
+                },
+                "authority_ceiling": {
+                  "summary": "Verify the beta input and own only the declared receipt.",
+                  "allowed_actions": [
+                    "read_declared_inputs",
+                    "write_declared_scope"
+                  ],
+                  "forbidden_actions": [
+                    "promotion",
+                    "publication"
+                  ]
+                }
+              },
+              "briefing_sha256": "6440cb0d114427c42ae22dd8ce92363aa4153ece337957c623ef57662d56d0a7"
+            }
+          }
+        ]
       },
       {
         "role_id": "alpha-check",
@@ -62,27 +192,89 @@
         "capability_mode": "reflect",
         "agent_count": 1,
         "mutation_policy": "lifecycle-owned",
-        "write_scope": ["tmp/native-dispatch/receipts/alpha.json"],
-        "forbidden_write_scopes": ["spells/"],
-        "briefing_binding": {
-          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
-          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "6b387b808c53ac2d0e48888a891f48fdcf872b7845876001dffd90432b4e282e", "selector": "/roles/alpha-check", "selected_payload_sha256": "6e9d0764d4543f7a88b6d745e01b29af73e349aaec44444ef1911bf70b986a16"},
-          "briefing": {
-            "agent_identity": "Alpha reflection verifier",
-            "angle": "Reflect on the alpha evidence without borrowing beta conclusions.",
-            "instructions": "Read the declared alpha input, write only the declared alpha receipt, and report the bounded reflection result.",
-            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
-            "read_policy": {"input_refs": ["tmp/native-dispatch/inputs/alpha.json"], "allowed_read_scopes": ["tmp/native-dispatch/inputs/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
-            "write_policy": {"mutation_policy": "lifecycle-owned", "write_scope": ["tmp/native-dispatch/receipts/alpha.json"], "forbidden_write_scopes": ["spells/"]},
-            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "findings", "validation"], "completion_requires_all_fields": true},
-            "authority_ceiling": {"summary": "Reflect on the alpha input and own only the declared receipt.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
-          },
-          "briefing_sha256": "6e9d0764d4543f7a88b6d745e01b29af73e349aaec44444ef1911bf70b986a16"
-        },
+        "write_scope": [
+          "tmp/native-dispatch/receipts/alpha.json"
+        ],
+        "forbidden_write_scopes": [
+          "spells/"
+        ],
         "depends_on_roles": [],
-        "input_refs": ["tmp/native-dispatch/inputs/alpha.json"],
-        "output_refs": ["tmp/native-dispatch/receipts/alpha.json"],
-        "applies_to_steps": ["s-alpha"]
+        "input_refs": [
+          "tmp/native-dispatch/inputs/alpha.json"
+        ],
+        "output_refs": [
+          "tmp/native-dispatch/receipts/alpha.json"
+        ],
+        "applies_to_steps": [
+          "s-alpha"
+        ],
+        "agents": [
+          {
+            "agent_name": "Peirce, Charles Sanders",
+            "initial_prompt": "You are Peirce, Charles Sanders.\n\nRun alpha check.",
+            "briefing_binding": {
+              "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+              "source_binding": {
+                "artifact_path": "confirmed-briefings.json",
+                "artifact_sha256": "6134466ffab7cf3f65429a073ce63154e34c4850678a212a9538dd3032941074",
+                "selector": "/roles/alpha-check-0",
+                "selected_payload_sha256": "0d7be2e6173949faea090065666a26bd04764c2498cf11901f774d54d3e5c8b7"
+              },
+              "briefing": {
+                "agent_identity": "Peirce, Charles Sanders",
+                "angle": "Reflect on the alpha evidence without borrowing beta conclusions.",
+                "instructions": "Run alpha check.",
+                "status_semantics": {
+                  "task_status_field": "task_status",
+                  "task_complete_value": "completed",
+                  "task_blocked_value": "blocked",
+                  "domain_gate_status_field": "domain_gate_status",
+                  "domain_gate_is_separate": true
+                },
+                "read_policy": {
+                  "input_refs": [
+                    "tmp/native-dispatch/inputs/alpha.json"
+                  ],
+                  "allowed_read_scopes": [
+                    "tmp/native-dispatch/inputs/"
+                  ],
+                  "forbidden_read_scopes": [],
+                  "required_input_refs_readable": true
+                },
+                "write_policy": {
+                  "mutation_policy": "lifecycle-owned",
+                  "write_scope": [
+                    "tmp/native-dispatch/receipts/alpha.json"
+                  ],
+                  "forbidden_write_scopes": [
+                    "spells/"
+                  ]
+                },
+                "receipt_shape": {
+                  "required_fields": [
+                    "task_status",
+                    "domain_gate_status",
+                    "findings",
+                    "validation"
+                  ],
+                  "completion_requires_all_fields": true
+                },
+                "authority_ceiling": {
+                  "summary": "Reflect on the alpha input and own only the declared receipt.",
+                  "allowed_actions": [
+                    "read_declared_inputs",
+                    "write_declared_scope"
+                  ],
+                  "forbidden_actions": [
+                    "promotion",
+                    "publication"
+                  ]
+                }
+              },
+              "briefing_sha256": "0d7be2e6173949faea090065666a26bd04764c2498cf11901f774d54d3e5c8b7"
+            }
+          }
+        ]
       },
       {
         "role_id": "artifact-writer",
@@ -93,33 +285,107 @@
         "capability_mode": "execute",
         "agent_count": 1,
         "mutation_policy": "artifact-only",
-        "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"],
-        "forbidden_write_scopes": ["arcana/", "spells/"],
-        "briefing_binding": {
-          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
-          "source_binding": {"artifact_path": "confirmed-briefings.json", "artifact_sha256": "6b387b808c53ac2d0e48888a891f48fdcf872b7845876001dffd90432b4e282e", "selector": "/roles/artifact-writer", "selected_payload_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c"},
-          "briefing": {
-            "agent_identity": "Dependent artifact writer",
-            "angle": "Apply only conclusions proved by both upstream receipts.",
-            "instructions": "Read both declared receipts and write only the declared artifact and artifact receipt after the upstream gate passes.",
-            "status_semantics": {"task_status_field": "task_status", "task_complete_value": "completed", "task_blocked_value": "blocked", "domain_gate_status_field": "domain_gate_status", "domain_gate_is_separate": true},
-            "read_policy": {"input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"], "allowed_read_scopes": ["tmp/native-dispatch/receipts/"], "forbidden_read_scopes": [], "required_input_refs_readable": true},
-            "write_policy": {"mutation_policy": "artifact-only", "write_scope": ["tmp/native-dispatch/artifact.json", "tmp/native-dispatch/receipts/artifact.json"], "forbidden_write_scopes": ["arcana/", "spells/"]},
-            "receipt_shape": {"required_fields": ["task_status", "domain_gate_status", "artifacts", "validation"], "completion_requires_all_fields": true},
-            "authority_ceiling": {"summary": "Apply admitted receipts to the bounded artifact only.", "allowed_actions": ["read_declared_inputs", "write_declared_scope"], "forbidden_actions": ["promotion", "publication"]}
-          },
-          "briefing_sha256": "ebd5362d3e5e1176ce5b008ca278a7f037479ea37b99cc93a6e7b98756eb6f6c"
-        },
-        "depends_on_roles": ["beta-check", "alpha-check"],
-        "input_refs": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
-        "output_refs": ["tmp/native-dispatch/receipts/artifact.json"],
-        "applies_to_steps": ["s-artifact"]
+        "write_scope": [
+          "tmp/native-dispatch/artifact.json",
+          "tmp/native-dispatch/receipts/artifact.json"
+        ],
+        "forbidden_write_scopes": [
+          "arcana/",
+          "spells/"
+        ],
+        "depends_on_roles": [
+          "beta-check",
+          "alpha-check"
+        ],
+        "input_refs": [
+          "tmp/native-dispatch/receipts/beta.json",
+          "tmp/native-dispatch/receipts/alpha.json"
+        ],
+        "output_refs": [
+          "tmp/native-dispatch/receipts/artifact.json"
+        ],
+        "applies_to_steps": [
+          "s-artifact"
+        ],
+        "agents": [
+          {
+            "agent_name": "Shannon, Claude",
+            "initial_prompt": "You are Shannon, Claude.\n\nWrite the dependent artifact.",
+            "briefing_binding": {
+              "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+              "source_binding": {
+                "artifact_path": "confirmed-briefings.json",
+                "artifact_sha256": "6134466ffab7cf3f65429a073ce63154e34c4850678a212a9538dd3032941074",
+                "selector": "/roles/artifact-writer-0",
+                "selected_payload_sha256": "c3a68f4f3eabc0f84a100bb6593164e92fd17fdc91f734de49d3be40942bed6c"
+              },
+              "briefing": {
+                "agent_identity": "Shannon, Claude",
+                "angle": "Apply only conclusions proved by both upstream receipts.",
+                "instructions": "Write the dependent artifact.",
+                "status_semantics": {
+                  "task_status_field": "task_status",
+                  "task_complete_value": "completed",
+                  "task_blocked_value": "blocked",
+                  "domain_gate_status_field": "domain_gate_status",
+                  "domain_gate_is_separate": true
+                },
+                "read_policy": {
+                  "input_refs": [
+                    "tmp/native-dispatch/receipts/beta.json",
+                    "tmp/native-dispatch/receipts/alpha.json"
+                  ],
+                  "allowed_read_scopes": [
+                    "tmp/native-dispatch/receipts/"
+                  ],
+                  "forbidden_read_scopes": [],
+                  "required_input_refs_readable": true
+                },
+                "write_policy": {
+                  "mutation_policy": "artifact-only",
+                  "write_scope": [
+                    "tmp/native-dispatch/artifact.json",
+                    "tmp/native-dispatch/receipts/artifact.json"
+                  ],
+                  "forbidden_write_scopes": [
+                    "arcana/",
+                    "spells/"
+                  ]
+                },
+                "receipt_shape": {
+                  "required_fields": [
+                    "task_status",
+                    "domain_gate_status",
+                    "artifacts",
+                    "validation"
+                  ],
+                  "completion_requires_all_fields": true
+                },
+                "authority_ceiling": {
+                  "summary": "Apply admitted receipts to the bounded artifact only.",
+                  "allowed_actions": [
+                    "read_declared_inputs",
+                    "write_declared_scope"
+                  ],
+                  "forbidden_actions": [
+                    "promotion",
+                    "publication"
+                  ]
+                }
+              },
+              "briefing_sha256": "c3a68f4f3eabc0f84a100bb6593164e92fd17fdc91f734de49d3be40942bed6c"
+            }
+          }
+        ]
       }
     ],
     "execution_waves": [
       {
         "wave_id": "checks",
-        "role_ids": ["beta-check", "alpha-check"],
+        "role_ids": [
+          "beta-check",
+          "alpha-check"
+        ],
         "parallel": true,
         "join_policy": "all",
         "gate_after": "g-checks",
@@ -127,10 +393,14 @@
       },
       {
         "wave_id": "artifact",
-        "role_ids": ["artifact-writer"],
+        "role_ids": [
+          "artifact-writer"
+        ],
         "parallel": false,
         "join_policy": "all",
-        "depends_on_waves": ["checks"],
+        "depends_on_waves": [
+          "checks"
+        ],
         "on_incomplete": "block"
       }
     ],
@@ -161,7 +431,10 @@
       "handoff_note"
     ]
   },
-  "subagent_lifecycle": {"status": "none", "agents": []},
+  "subagent_lifecycle": {
+    "status": "none",
+    "agents": []
+  },
   "steps": [
     {
       "step_id": "s-beta",
@@ -170,10 +443,22 @@
       "mode": "observe",
       "pattern": "sequential",
       "parallel": true,
-      "inputs": [{"kind": "external_context", "ref": "tmp/native-dispatch/inputs/beta.json"}],
-      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/beta.json"}],
+      "inputs": [
+        {
+          "kind": "external_context",
+          "ref": "tmp/native-dispatch/inputs/beta.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "tmp/native-dispatch/receipts/beta.json"
+        }
+      ],
       "join_policy": "all",
-      "stop_conditions": ["stop when beta input is invalid"]
+      "stop_conditions": [
+        "stop when beta input is invalid"
+      ]
     },
     {
       "step_id": "s-alpha",
@@ -182,10 +467,22 @@
       "mode": "reflect",
       "pattern": "sequential",
       "parallel": true,
-      "inputs": [{"kind": "external_context", "ref": "tmp/native-dispatch/inputs/alpha.json"}],
-      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/alpha.json"}],
+      "inputs": [
+        {
+          "kind": "external_context",
+          "ref": "tmp/native-dispatch/inputs/alpha.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "tmp/native-dispatch/receipts/alpha.json"
+        }
+      ],
       "join_policy": "all",
-      "stop_conditions": ["stop when alpha input is invalid"]
+      "stop_conditions": [
+        "stop when alpha input is invalid"
+      ]
     },
     {
       "step_id": "s-artifact",
@@ -194,14 +491,33 @@
       "mode": "execute",
       "pattern": "sequential",
       "parallel": false,
-      "depends_on_steps": ["s-beta", "s-alpha"],
-      "techniques": ["sequence", "observability_grouping"],
-      "inputs": [
-        {"kind": "receipt", "ref": "tmp/native-dispatch/receipts/beta.json"},
-        {"kind": "receipt", "ref": "tmp/native-dispatch/receipts/alpha.json"}
+      "depends_on_steps": [
+        "s-beta",
+        "s-alpha"
       ],
-      "outputs": [{"kind": "receipt", "ref": "tmp/native-dispatch/receipts/artifact.json"}],
-      "stop_conditions": ["stop unless both receipts pass"]
+      "techniques": [
+        "sequence",
+        "observability_grouping"
+      ],
+      "inputs": [
+        {
+          "kind": "receipt",
+          "ref": "tmp/native-dispatch/receipts/beta.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "tmp/native-dispatch/receipts/alpha.json"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "tmp/native-dispatch/receipts/artifact.json"
+        }
+      ],
+      "stop_conditions": [
+        "stop unless both receipts pass"
+      ]
     }
   ],
   "gates": [
@@ -211,15 +527,23 @@
       "owner": "orchestrate",
       "condition": "Both check receipts pass before the artifact wave starts.",
       "applies_after_wave": "checks",
-      "requires_role_receipts": ["tmp/native-dispatch/receipts/beta.json", "tmp/native-dispatch/receipts/alpha.json"],
+      "requires_role_receipts": [
+        "tmp/native-dispatch/receipts/beta.json",
+        "tmp/native-dispatch/receipts/alpha.json"
+      ],
       "on_fail": "block"
     }
   ],
   "native_stage_receipts": [],
   "observability": {
     "dispatch_id_required": true,
-    "trace_events": ["dispatch_validated", "first_wave_compiled"],
+    "trace_events": [
+      "dispatch_validated",
+      "first_wave_compiled"
+    ],
     "signal_grouping": "dispatch_id and run_id"
   },
-  "promotion_guardrails": ["Fixture execution evidence grants no lifecycle authority."]
+  "promotion_guardrails": [
+    "Fixture execution evidence grants no lifecycle authority."
+  ]
 }

@@ -81,10 +81,10 @@ BOUNDARY_EVIDENCE_TECHNIQUES = {
     "memory_promotion_split",
 }
 
-STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.2"
+STRATEGY_REGISTRATION_SCHEMA_VERSION = "arcanum.subagent-strategy-registration.v0.3"
 STRATEGY_LEDGER = ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml"
 STRATEGY_TEMP_ROOT = ".arcanum/runtime/subagents-strategy/"
-SHEET_SCHEMA_VERSION = "0.6.1"
+SHEET_SCHEMA_VERSION = "0.7.0"
 CANONICAL_PROMOTION_TARGETS = {
     "inventory",
     "ontology",
@@ -162,6 +162,7 @@ CAPABILITY_BOUND_ROLE_FIELDS = {
     "capability_target",
     "capability_mode",
     "agent_count",
+    "agents",
     "mutation_policy",
     "applies_to_steps",
     "output_refs",
@@ -454,11 +455,12 @@ def select_json_pointer(value: Any, selector: str) -> Any:
     return selected
 
 
-def validate_role_briefing_binding(
-    role: dict[str, Any], role_id: str, dispatch_path: Path, blocks: list[str]
+def validate_agent_briefing_binding(
+    role: dict[str, Any], role_id: str, agent: dict[str, Any], agent_index: int,
+    dispatch_path: Path, blocks: list[str]
 ) -> None:
-    prefix = f"subagent_strategy:{role_id}: briefing_binding"
-    binding = role.get("briefing_binding")
+    prefix = f"subagent_strategy:{role_id}:agents[{agent_index}]:briefing_binding"
+    binding = agent.get("briefing_binding")
     if not isinstance(binding, dict):
         blocks.append(f"{prefix} is required for confirmation-ready capability execution")
         return
@@ -470,6 +472,25 @@ def validate_role_briefing_binding(
     if not isinstance(source, dict) or not isinstance(briefing, dict):
         blocks.append(f"{prefix} requires source_binding and briefing objects")
         return
+
+    agent_name = agent.get("agent_name")
+    initial_prompt = agent.get("initial_prompt")
+    if not isinstance(agent_name, str) or not agent_name.strip():
+        blocks.append(f"{prefix}: agent_name must be a non-empty string")
+    if not isinstance(initial_prompt, str) or not initial_prompt:
+        blocks.append(f"{prefix}: initial_prompt must be a non-empty string")
+    elif isinstance(agent_name, str) and agent_name.strip():
+        identity_prefix = f"You are {agent_name}."
+        if not initial_prompt.startswith(identity_prefix + "\n\n"):
+            blocks.append(f"{prefix}: initial_prompt does not preserve agent_name")
+        else:
+            instruction_body = initial_prompt[len(identity_prefix) + 2:]
+            if not instruction_body.strip():
+                blocks.append(f"{prefix}: initial_prompt has no bounded instruction body")
+            if briefing.get("agent_identity") != agent_name:
+                blocks.append(f"{prefix}: briefing agent_identity does not match agent_name")
+            if briefing.get("instructions") != instruction_body:
+                blocks.append(f"{prefix}: briefing instructions do not equal the confirmed prompt body")
 
     artifact_path = source.get("artifact_path")
     normalized = (
@@ -626,10 +647,22 @@ def validate_capability_bound_strategy(
             continue
         role_by_id[role_id] = role
 
-        if briefing_required:
-            validate_role_briefing_binding(role, role_id, dispatch_path, blocks)
-        elif role.get("briefing_binding") is not None:
-            validate_role_briefing_binding(role, role_id, dispatch_path, blocks)
+        agents = role.get("agents")
+        if role.get("briefing_binding") is not None:
+            blocks.append(f"subagent_strategy:{role_id}: role-level briefing_binding is unsupported; bind each agent separately")
+        if not isinstance(agents, list) or not agents:
+            blocks.append(f"subagent_strategy:{role_id}: agents must be a non-empty array")
+        else:
+            if role.get("agent_count") != len(agents):
+                blocks.append(f"subagent_strategy:{role_id}: agent_count must equal agents.length")
+            for agent_index, agent in enumerate(agents):
+                if not isinstance(agent, dict):
+                    blocks.append(f"subagent_strategy:{role_id}:agents[{agent_index}] must be an object")
+                    continue
+                if briefing_required or agent.get("briefing_binding") is not None:
+                    validate_agent_briefing_binding(
+                        role, role_id, agent, agent_index, dispatch_path, blocks
+                    )
 
         missing = sorted(field for field in CAPABILITY_BOUND_ROLE_FIELDS if not role.get(field))
         if missing:

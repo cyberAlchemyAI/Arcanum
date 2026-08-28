@@ -3,21 +3,22 @@
 > Human view of [`.craft/ledger.yml`](.craft/ledger.yml). The ledger is the source of truth;
 > this file is a linked rendering only.
 
-- **Governed contexts:** Arcanum Manual; Craft ledger-integrity research; Arcanum composition analysis;
-  Lens and resolution routing; Subagent strategy runtime hardening
+- **Governed contexts:** Arcanum Manual; Craft ledger-integrity research; Craft ledger deterministic
+  mutation; Arcanum composition analysis; Lens and resolution routing; Subagent strategy runtime hardening
 - **Root contexts:** `CTX-ARCANUM-MANUAL-ROOT`, `CTX-CRAFT-LEDGER-INTEGRITY`,
   `CTX-ARCANUM-COMPOSITION-ANALYSIS`, `CTX-LENS-RESOLUTION-ROUTING`,
   `CTX-SUBAGENT-STRATEGY-RUNTIME-HARDENING`
 - **Stage / gate:** manual `validate / pass`; ledger-integrity research `plan / flag`;
-  composition analysis `execute / flag`; routing `review-audit / flag`; subagent strategy
-  hardening `validate / flag`
+  ledger mutation `design / flag`; composition analysis `execute / flag`; routing
+  `review-audit / flag`; subagent strategy hardening `validate / flag`
 - **Source of truth:** [`.craft/ledger.yml`](.craft/ledger.yml)
 
 ## Quick links
 
 - **Next moves:** review [ARCANUM-MANUAL.md](development/user-guide/ARCANUM-MANUAL.md); for ledger
-  integrity, explicitly confirm and execute the prepared governed research dispatch, then produce
-  `research.md` and `findings.md` before proposing canonical Craft changes; for composition, expand
+  integrity, treat the mutation discovery as candidate-local and execute or supersede the pending
+  research before canonical promotion; for ledger mutation, resolve the discovery's policy boundaries
+  and select one complete `0.3.0` operation profile before DomainSpec authoring; for composition, expand
   the analysis from the accepted per-RQ findings while preserving the four unresolved boundaries,
   then run a separate adversarial review; for routing, decide whether to repair the four
   platform-neutral MAJOR findings while preserving the explicit Windows-repair deferral; for
@@ -28,7 +29,8 @@
 - **Active gaps:** `GAP-CRAFT-LEDGER-INTEGRITY-RESEARCH-001` (research prepared but not executed);
   `GAP-ARCANUM-COMPOSITION-RESIDUE-001` (four research boundaries remain unresolved);
   `GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001` (four verified platform-neutral findings remain open);
-  `GAP-SUBAGENT-STRATEGY-LINUX-CI-001` (Ubuntu matrix result has not yet been observed)
+  `GAP-SUBAGENT-STRATEGY-LINUX-CI-001` (Ubuntu matrix result has not yet been observed);
+  `GAP-CRAFT-LEDGER-MUTATION-POLICY-001` (runtime and mutation policies remain open)
 - **Deliverables:** [**ARCANUM-MANUAL.md**](development/user-guide/ARCANUM-MANUAL.md) (pass) ·
   [validation evidence](development/user-guide/ARCANUM-MANUAL.validation.md) ·
   [surface x-ray HTML](development/user-guide/arcanum-surface-xray.html) ·
@@ -42,6 +44,9 @@
   [research returns](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/research.md) ·
   [accepted findings](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/findings.md) ·
   [dispatch lifecycle ledger](docs/analysis/arcanum-composition-analysis/research/arcanum-composition/dispatch-ledger.jsonl)
+
+- **Craft ledger mutation evidence:** [discovery](runtime/craft-ledger/docs/features/ledger-mutation/discovery.md)
+  and [closing session](sessions/2026-08-28-1718-craft-ledger-mutation-discovery.md)
 
 - **Routing evidence:** [post-promotion review](transmutations/resolution-router/development/validation/post-promotion-review/review.md)
   · [closing session](sessions/2026-08-25-2130-lens-resolution-routing.md)
@@ -92,13 +97,27 @@ by parent synthesis → distill → whisper authoring → source validation (**p
 ### <a id="context-ctx-craft-ledger-integrity"></a>CTX-CRAFT-LEDGER-INTEGRITY — Craft ledger-integrity research
 
 - Stage / gate: plan / **flag**
-- Next move: obtain explicit operator confirmation; execute the prepared internal/external governed
-  dispatch; produce `research.md` and `findings.md`; only then evaluate contract, validator, runtime,
-  migration, or operator-discipline changes.
+- Next move: treat the ledger-mutation discovery as candidate-local evidence; execute or explicitly
+  supersede the pending integrity research before promoting any canonical Craft contract or
+  authorizing implementation.
 - Owns: [prepared dispatch](research/craft-ledger-integrity/craft-ledger-integrity-research.dispatch.json)
   and [closing session](sessions/2026-08-25-1645-craft-ledger-integrity-review-and-dispatch.md).
 - Evidence boundary: route validation, material readiness, and two tension checks passed, but no
-  research agents were launched and no dispatch event or research findings exist.
+  research agents were launched and no dispatch event or research findings exist. The child
+  discovery does not close or bypass that research gap.
+
+### <a id="context-ctx-craft-ledger-mutation"></a>CTX-CRAFT-LEDGER-MUTATION — Craft ledger deterministic mutation
+
+- Stage / gate: design / **flag**
+- Parent: `CTX-CRAFT-LEDGER-INTEGRITY`
+- Next move: review the [discovery](runtime/craft-ledger/docs/features/ledger-mutation/discovery.md),
+  select one fully specified `0.3.0` operation profile, and record the required authority decisions
+  before authoring a DomainSpec.
+- Owns: [discovery](runtime/craft-ledger/docs/features/ledger-mutation/discovery.md) and
+  [closing session](sessions/2026-08-28-1718-craft-ledger-mutation-discovery.md).
+- Evidence boundary: the document is candidate-local and contains no diagrams by operator direction.
+  Runtime ownership, ID policy, index completeness, apply authority, legacy compatibility,
+  compare-and-commit mechanics, and receipt persistence remain open.
 
 ### <a id="context-ctx-arcanum-composition-analysis"></a>CTX-ARCANUM-COMPOSITION-ANALYSIS — Arcanum composition analysis
 
@@ -194,6 +213,13 @@ by parent synthesis → distill → whisper authoring → source validation (**p
   [cross-platform workflow](.github/workflows/subagent-strategy-runtime.yml) and
   [closing session](sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md).
 
+- **<a id="gap-gap-craft-ledger-mutation-policy-001"></a>GAP-CRAFT-LEDGER-MUTATION-POLICY-001**
+  (**active / flag**): runtime ownership, first-operation scope, ID allocation and uniqueness,
+  embedded-index completeness, apply authorization, `0.2.0` compatibility, compare-and-commit
+  mechanics, and receipt persistence remain open. Evidence:
+  [discovery](runtime/craft-ledger/docs/features/ledger-mutation/discovery.md) and
+  [closing session](sessions/2026-08-28-1718-craft-ledger-mutation-discovery.md).
+
 ## Boundary check
 
 Craft governed local state and residue; `dispatch-spec` validated route shape only. The manual route was
@@ -214,3 +240,6 @@ silently converted to pass.
 The subagent-strategy work changed canonical capability and runtime surfaces under explicit user
 authorization. It records local Windows validation as evidence, not as proof that the configured
 Ubuntu job passed; that distinction remains visible in the Craft gate and active gap.
+The ledger-mutation discovery is non-governing feature evidence and authorizes no runtime or
+canonical Craft mutation. Its proposed review dispatch was never confirmed or registered, so no
+working reviewer agents ran and no review verdict is claimed.

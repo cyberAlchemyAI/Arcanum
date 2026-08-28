@@ -1,197 +1,118 @@
 ---
 name: lens-router
-description: Select, load, apply, and compose epistemic, systemic, and categorical investigative lenses over complex work. Use when the user explicitly requests one or more lenses, when research, review, or design requires a validated lens packet, or when another skill invokes this router for evidence-bounded analysis. Do not use as the natural-language entrypoint for a reader-facing explanation; resolution-router owns that entry.
+description: Select, apply, and compose epistemic, systemic, and categorical perspectives over an object without requiring structured packets or schemas. Use when explanation routing, research, review, or design needs evidence-aware analysis before a human-facing result.
 ---
 
 # Lens Router
 
 <objective>
-Inspect one object through the smallest useful set of investigative lenses and
-return an evidence-bounded `lens_packet` for downstream work.
+Inspect an object through the required investigative perspectives and return
+concise analysis notes that downstream work can use directly.
 
-A lens determines what to make salient, which questions to ask, and which
-inferential jumps to avoid. It does not assert that the inspected object
-contains the structure the lens seeks.
+A lens controls what becomes salient and which inferential jumps to avoid. It
+does not prove that the inspected object contains the structure the lens seeks.
 </objective>
 
-<logic-type>
-Transmutation: bounded evidence-grounded selection and relational synthesis
-across independent investigative views.
-</logic-type>
-
 <ownership>
-Own lens selection, reference loading, independent lens application, and
-multi-lens composition.
+Own lens selection when the caller has not fixed it, reference loading,
+independent lens application, and multi-lens composition. Do not choose
+explanation resolution or write the final reader-facing explanation.
 
-Do not choose explanation resolution or write the final reader-facing
-explanation. Do not replace governed research or review verdicts; provide an
-investigative packet those capabilities may consume.
+Do not require JSON, schemas, digests, packets, or persisted intermediate
+artifacts.
 </ownership>
 
 <lens-map>
-- `epistemic`: inspect claims, evidence, uncertainty, justification, authority,
-  permission, and what may responsibly be believed or done.
-- `systemic`: inspect state, change, constraints, feedback, recurrence,
-  downstream effects, and local-to-global consequences.
-- `categorical`: inspect relevant things, relations, transformations,
-  composition, interfaces, transport, preservation, and loss.
+- `epistemic`: claims, evidence, uncertainty, justification, authority,
+  permission, and what may responsibly be believed or done;
+- `systemic`: state, change, constraints, feedback, recurrence, downstream
+  effects, and local-to-global consequences;
+- `categorical`: relevant things, relations, transformations, composition,
+  interfaces, transport, preservation, and loss.
 </lens-map>
 
 <inputs>
-Bind:
-
-- `object`;
-- `consumer` and `purpose`;
-- `evidence_boundary` with stable source locators;
-- `known_terms`;
-- `reserved_terms` whose precise meaning must be preserved;
-- any explicitly requested lenses;
-- required confidence or consequence level.
-
-Do not ask again for values that are clear from context.
-Represent every evidence scope using the structured forms in
-`references/lens-packet.md`; never translate a free-form phrase such as
-"relevant lines" into an unbounded locator.
+Use the object, reader or consumer, purpose, available evidence and its limits,
+known or precision-sensitive terms, any explicitly required lenses, and the
+consequence of getting the analysis wrong. Infer what is clear from context.
 </inputs>
 
 <selection-policy>
-Select a lens only when its core question could materially change what the
-consumer can understand, verify, decide, implement, or ask next.
+Honor lenses fixed by the caller. Otherwise select only perspectives whose core
+questions can materially change what the consumer can understand, verify,
+decide, implement, or ask next.
 
-Use one lens when the material question remains within one regime:
-
-- select `epistemic` for claim support, uncertainty, falsification, authority,
-  approval, or permission boundaries;
-- select `systemic` for state transitions, constraints, feedback, recurrence,
+- use `epistemic` for claim support, uncertainty, falsification, authority,
+  approval, or permission;
+- use `systemic` for state transitions, constraints, feedback, recurrence,
   closure, or local-to-global effects;
-- select `categorical` for type boundaries, relations, transformations,
+- use `categorical` for type boundaries, relations, transformations,
   interfaces, composition, equivalence, preservation, or loss.
 
-Select multiple lenses when:
+When invoked by `resolution-router`, follow its cumulative policy exactly:
 
-- a conclusion under one lens depends on a distinction owned by another;
-- evidence or authority constrains a system transition;
-- a transformation must preserve meaning, evidence, or state downstream;
-- local effects must compose into a larger structure;
-- the task requests a cross-regime explanation, design, audit, or
-  high-confidence assessment.
-
-Select all three only when each core question is material or when the user asks
-for the full set. Do not add lenses merely because they are available.
-
-Record one concrete trigger and rationale for every selected lens in the packet.
-For higher-confidence work, prefer independent runs when independent agents are
-available and authorized. Otherwise run the lenses sequentially while keeping
-their findings separate until composition.
+- low: epistemic and systemic;
+- medium: epistemic, systemic, and categorical;
+- high: epistemic, systemic, and categorical.
 </selection-policy>
 
 <reference-loading>
-Read `references/lens-packet.md` completely on every invocation.
+Before analysis, read each selected reference completely:
 
-After selection and before inspecting the object, read each selected reference
-completely:
+- epistemic -> `references/epistemic.md`;
+- systemic -> `references/systemic.md`;
+- categorical -> `references/categorical.md`.
 
-- `epistemic` -> `references/epistemic.md`;
-- `systemic` -> `references/systemic.md`;
-- `categorical` -> `references/categorical.md`.
-
-When two or more lenses are selected, first finish their independent views,
-then read `references/composition.md` completely and apply it.
-
-The packet exchanged between skills is a JSON-compatible object. Validate it
-structurally against `references/lens-packet.schema.json` and semantically with
-`scripts/validate_lens_packet.py`. A schema pass alone is not a valid packet.
-The validator dependency is declared in `requirements.txt`. If `jsonschema` is
-missing, return the script's actionable dependency error and do not claim a
-validated packet or install packages without user authority.
+When two or more lenses are selected, finish each independent view before
+reading and applying `references/composition.md`.
 </reference-loading>
 
 <process>
-1. Bind the inputs and evidence boundary.
-2. Select the smallest useful lens set using the observable triggers above.
-3. Record the selection rationale before reading substantive lens prompts.
-4. Load every selected lens reference completely.
-5. Apply each lens independently to the same task and evidence boundary.
-6. Represent every material finding using the status and evidence fields owned
-   by `references/lens-packet.md`.
-7. When multiple lenses are selected, compose their relations only after the
-   individual views are complete.
-8. Preserve all material single-lens findings. Composition augments and never
-   replaces `per_lens_findings`.
-9. Compute `packet_digest` exactly as defined by the packet contract, using
-   `scripts/validate_lens_packet.py <packet> --compute-digest` when the packet
-   is file- or stdin-backed. Insert the returned value, then run normal packet
-   validation. Fix every structural and cross-field semantic failure.
-10. Complete the qualitative audit required by `references/lens-packet.md`.
-    Check claim language against status and reapply each selected lens's
-    forbidden jumps. A deterministic validator cannot decide these language
-    judgments.
-11. Return the packet without silently performing resolution routing.
+1. Bind the object, purpose, reader, evidence limits, and required lenses.
+2. Load and apply each lens independently to the same object and evidence.
+3. Keep only findings that can change understanding or action.
+4. Preserve the evidence basis, claim status, and material uncertainty for each
+   finding in concise prose notes.
+5. Compose cross-lens relations only after the independent views are complete.
+6. Preserve material findings even when they do not participate in composition.
+7. Return the analysis to the caller without choosing resolution or writing the
+   final explanation.
 </process>
 
 <invariants>
-- Keep `claim <= evidence` for every finding.
-- Do not infer truth or authority from evidence alone.
-- Do not infer feedback or causality from sequence alone.
-- Do not infer composability, equivalence, or preservation from adjacency or
-  successful forward movement alone.
-- Preserve uncertainty and unsupported hypotheses explicitly.
-- Keep lens names and vocabulary internal to authoring unless the consumer's
-  purpose requires them.
+- Keep every claim at or below its evidence.
+- Do not infer authority from evidence, causality from sequence, or correctness
+  from successful execution.
+- Do not infer composability, equivalence, reversibility, or preservation from
+  adjacency or forward movement.
+- Preserve hypotheses, conflicts, and uncertainty that can change the result.
+- Keep lens vocabulary out of the final reader-facing prose unless useful to
+  the stated purpose.
 </invariants>
 
 <output-contract>
-Return one valid `lens_packet` as defined by `references/lens-packet.md`.
+Return concise analysis notes containing:
 
-The packet must preserve:
+- the lenses used;
+- the few load-bearing findings from each lens;
+- their evidence basis or explicit evidentiary limitation;
+- material cross-lens relations;
+- remaining uncertainty and open questions.
 
-- selection rationale;
-- evidence-linked individual findings;
-- a canonical digest binding consumer, purpose, selected lenses, evidence
-  boundary, vocabulary, findings, composition, audit, and open questions;
-- cross-lens relations when composition ran;
-- material single-lens findings without cross-lens matches;
-- open questions and uncertainty;
-- reader vocabulary constraints required downstream.
+This is an internal reasoning handoff, not a prescribed user-facing format.
+Downstream skills may consume it directly without serialization.
 </output-contract>
 
-<observability>
-A meaningful execution is an attempted or completed lens selection that
-returns a packet, a validation failure, or a bounded missing-input result.
-
-When repository observability is available, record the selected lens IDs,
-rationale count, individual and composed finding counts, open-question count,
-validation status, qualitative-audit status, forbidden-jump hits, and caller.
-Do not copy finding statements or private evidence into telemetry.
-
-Reflect after 5 meaningful executions, 10 packets, 3 related routing or packet
-gaps, or 1 severe gap. Severe gaps include unsupported claims passing as facts,
-composition erasing a material finding, or a lens result exceeding its evidence
-or authority boundary.
-</observability>
-
 <quality-bar>
-A successful execution must:
-
-- select the smallest lens set that covers every material core question;
-- record one observable trigger and rationale for every selected lens;
-- apply selected lenses independently before composition;
-- preserve every material individual finding and its evidence status;
-- make every composed relation resolve to findings from different lenses;
-- keep every evidence reference within the declared boundary;
-- pass structural, semantic, and qualitative packet validation;
-- preserve uncertainty, vocabulary constraints, and caller ownership.
+Every required lens was applied independently; findings remain evidence-bounded;
+composition adds relations without replacing individual findings; material
+uncertainty survives; and the result is concise enough to support downstream
+human writing without becoming that writing.
 </quality-bar>
 
 <anti-patterns>
-Avoid:
-
-- selecting all lenses by default instead of proving materiality;
-- using lens vocabulary as proof that the inspected structure exists;
-- letting one lens see or revise another lens's findings before its independent pass;
-- replacing individual findings with a composed summary;
-- inferring authority, causality, correctness, equivalence, or preservation from
-  evidence, sequence, successful execution, adjacency, or forward movement alone;
-- reconstructing missing evidence or silently extending the evidence boundary;
-- choosing explanation resolution or writing the final explanation inside this router.
+Avoid selecting all lenses without reason outside resolution routing, forcing
+machine-shaped records, letting one lens rewrite another before composition,
+reconstructing missing evidence, silently expanding the evidence boundary, or
+writing the final explanation inside this skill.
 </anti-patterns>

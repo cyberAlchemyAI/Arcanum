@@ -55,10 +55,14 @@ def pass_receipt_for_action(action):
 
 
 def bind_test_briefing(role):
-    briefing = {
-        "agent_identity": role["role_id"],
-        "angle": "Exercise run-global allocation without widening authority.",
-        "instructions": "Read the declared inputs and return the complete bounded review receipt.",
+    instructions = "Read the declared inputs and return the complete bounded review receipt."
+    role["agents"] = []
+    for ordinal in range(role["agent_count"]):
+        agent_name = f"{role['role_id']}-{ordinal + 1}"
+        briefing = {
+            "agent_identity": agent_name,
+            "angle": "Exercise run-global allocation without widening authority.",
+            "instructions": instructions,
         "status_semantics": {
             "task_status_field": "task_status",
             "task_complete_value": "completed",
@@ -87,20 +91,26 @@ def bind_test_briefing(role):
             "forbidden_actions": ["write", "promotion"],
         },
     }
-    digest = hashlib.sha256(
-        json.dumps(briefing, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
-    role["briefing_binding"] = {
-        "contract_version": "arcanum.confirmed-role-briefing.v0.1",
-        "source_binding": {
-            "artifact_path": "test-only.json",
-            "artifact_sha256": "0" * 64,
-            "selector": "/briefing",
-            "selected_payload_sha256": digest,
-        },
-        "briefing": briefing,
-        "briefing_sha256": digest,
-    }
+        digest = hashlib.sha256(
+            json.dumps(briefing, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        role["agents"].append(
+            {
+                "agent_name": agent_name,
+                "initial_prompt": f"You are {agent_name}.\n\n{instructions}",
+                "briefing_binding": {
+                    "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+                    "source_binding": {
+                        "artifact_path": "test-only.json",
+                        "artifact_sha256": "0" * 64,
+                        "selector": f"/briefings/{ordinal}",
+                        "selected_payload_sha256": digest,
+                    },
+                    "briefing": briefing,
+                    "briefing_sha256": digest,
+                },
+            }
+        )
 
 
 def run_plan_for_wave(dispatch, state, actions):

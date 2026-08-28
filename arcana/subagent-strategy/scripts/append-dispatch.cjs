@@ -9,22 +9,27 @@
  * <record.json> is a UTF-8 JSON file (a file arg, not stdin, so shell encoding
  * — e.g. PowerShell's UTF-16 pipes — can't corrupt the payload).
  *
- * SCHEMA — subagents-strategy schema v0.6.1 (`output_mode` added for review;
- * group `role` was removed at v0.6.0). Two row kinds, both appended by this script
+ * SCHEMA — subagents-strategy schema v0.7.0 (`agent_name` and the exact
+ * identity-prefixed `initial_prompt` became mandatory; `output_mode` was added
+ * for review at v0.6.1 and group `role` was removed at v0.6.0). Two row kinds,
+ * both appended by this script
  * (two appends, one place):
  *
  *   DISPATCH ROW — keyed by `dispatch_id`. Required: dispatch_id,
- *     schema_version ("0.6.1" exactly), dispatch_type
+ *     schema_version ("0.7.0" exactly), dispatch_type
  *     (research|code|review|plan|suggestion|experiment), goal, context, max_loops (1..5),
  *     final_approver, groups[] (each group: group_id, agents[] — NO group
- *     `role` field; each agent: role explorer|synthesizer|skeptic|writer|auditor, model,
- *     token_budget, initial_prompt). Optional: meta (true), parent_dispatch_id,
+ *     `role` field; each agent: agent_name, role
+ *     explorer|synthesizer|skeptic|writer|auditor, model, token_budget,
+ *     initial_prompt beginning with `You are {agent_name}.`). Optional: meta (true), parent_dispatch_id,
  *     anti_bias_global, working_folder (REQUIRED for LIVE types research/review/experiment; never vault/),
  *     invoked_by (tooling extension, not part of the core schema),
  *     connections[] ({from,to,type,loop_cap?}).
  *   CLOSE ROW — keyed by `close_of`. Required: exit_reason
  *     (resolved|loop_ceiling_reached|dissent_irreconcilable|user_abort|error)
- *     and agents_spawned ({total, tree, loops_used}). Optional:
+ *     and agents_spawned ({planned_total, total, not_launched, tree,
+ *     loops_used}). `total` is the number actually launched; `tree` sums to
+ *     `total`; `total + not_launched` equals `planned_total`. Optional:
  *     feedback_prompts[] (verbatim feedback-edge asks),
  *     invoked_by (tooling extension, not part of the core schema).
  *
@@ -43,7 +48,7 @@
  * `project_dir` is a control key (repo-root fallback), never emitted.
  *
  * VALIDATION SPLIT (grandfathering):
- *   - The INCOMING record is validated STRICTLY against the v0.6.1 schema
+ *   - The INCOMING record is validated STRICTLY against the v0.7.0 schema
  *     before append: required fields, closed enums, conditional fields
  *     (working_folder on research; anti_bias/angle at n >= 2;
  *     anti_bias_global when >= 2 groups have >= 2 agents; n ==
@@ -110,7 +115,7 @@ const isNonEmptyStr = (v) => isStr(v) && v.trim() !== '';
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // ---------------------------------------------------------------- schema
-const SCHEMA_VERSION = '0.6.1';   // row schema: review `output_mode` added at v0.6.1
+const SCHEMA_VERSION = '0.7.0';   // mandatory pool identity and exact prompt prefix
 const DISPATCH_TYPES = ['research', 'code', 'review', 'plan', 'suggestion', 'experiment'];
 // LIVE (review 2026-06-12; experiment 2026-06-14, owner decisions); others
 // RESERVED (code, plan, suggestion) — recorded but not yet dispatchable.
@@ -146,6 +151,7 @@ const LEGACY_LEDGER_KEYS = new Set([
 const GROUP_KEYS = new Set(['group_id', 'agents', 'n', 'robot_talks', 'layers', 'anti_bias', 'predicted_disagreements']);
 const AGENT_KEYS = new Set(['role', 'model', 'token_budget', 'initial_prompt', 'agent_name', 'angle']);
 const CONN_KEYS = new Set(['from', 'to', 'type', 'loop_cap']);
+const SPAWN_KEYS = new Set(['planned_total', 'total', 'not_launched', 'tree', 'loops_used']);
 
 function validateDispatch(rec) {
   const errs = [];
@@ -235,7 +241,17 @@ function validateDispatch(rec) {
         if (!isNonEmptyStr(a.model)) errs.push(`${aw}.model is required and must be a non-empty string`);
         if (!Number.isInteger(a.token_budget) || a.token_budget <= 0) errs.push(`${aw}.token_budget is required and must be a positive integer — no unlimited default`);
         if (!isNonEmptyStr(a.initial_prompt)) errs.push(`${aw}.initial_prompt is required and must be a non-empty string`);
-        if (a.agent_name !== undefined && a.agent_name !== null && !isNonEmptyStr(a.agent_name)) errs.push(`${aw}.agent_name must be a string or null`);
+        if (!isNonEmptyStr(a.agent_name)) {
+          errs.push(`${aw}.agent_name is required and must be a non-empty string`);
+        } else if (isNonEmptyStr(a.initial_prompt)) {
+          const identityPrefix = `You are ${a.agent_name}.`;
+          const instructionBody = a.initial_prompt.startsWith(identityPrefix + '\n\n')
+            ? a.initial_prompt.slice(identityPrefix.length + 2).trim()
+            : '';
+          if (!instructionBody) {
+            errs.push(`${aw}.initial_prompt must start exactly with ${J(identityPrefix)} followed by a blank line`);
+          }
+        }
         if (fanout && !isNonEmptyStr(a.angle)) errs.push(`${aw}.angle is required when the group has >= 2 agents`);
         if (!fanout && a.angle !== undefined && !isNonEmptyStr(a.angle)) errs.push(`${aw}.angle, when present, must be a non-empty string`);
       });
@@ -279,9 +295,12 @@ function validateClose(rec) {
   if (!EXIT_REASONS.includes(rec.exit_reason)) errs.push(`exit_reason must be one of ${EXIT_REASONS.join(' | ')} (got ${J(rec.exit_reason)})`);
   const s = rec.agents_spawned;
   if (!isObj(s)) {
-    errs.push('agents_spawned is required and must be an object: {total, tree, loops_used}');
+    errs.push('agents_spawned is required and must be an object: {planned_total, total, not_launched, tree, loops_used}');
   } else {
+    for (const k of Object.keys(s)) if (!SPAWN_KEYS.has(k)) errs.push(`agents_spawned: unknown key "${k}"`);
+    if (!Number.isInteger(s.planned_total) || s.planned_total < 0) errs.push('agents_spawned.planned_total must be a non-negative integer');
     if (!Number.isInteger(s.total) || s.total < 0) errs.push('agents_spawned.total must be a non-negative integer');
+    if (!Number.isInteger(s.not_launched) || s.not_launched < 0) errs.push('agents_spawned.not_launched must be a non-negative integer');
     if (!isObj(s.tree)) errs.push('agents_spawned.tree must be an object (keyed by role-category, helpers in their own bucket)');
     else {
       const counts = Object.values(s.tree);
@@ -292,6 +311,10 @@ function validateClose(rec) {
       }
     }
     if (!Number.isInteger(s.loops_used) || s.loops_used < 0) errs.push('agents_spawned.loops_used is required and must be a non-negative integer (loop iterations used are a component of agents_spawned)');
+    if (Number.isInteger(s.planned_total) && Number.isInteger(s.total) && Number.isInteger(s.not_launched) &&
+        s.total + s.not_launched !== s.planned_total) {
+      errs.push('agents_spawned.total + agents_spawned.not_launched must equal agents_spawned.planned_total');
+    }
   }
   if (rec.feedback_prompts !== undefined &&
       (!Array.isArray(rec.feedback_prompts) || rec.feedback_prompts.some((p) => !isStr(p)))) {
@@ -533,8 +556,12 @@ function validateCloseAgainstDispatch(dispatchRow) {
   if (!dispatchRow) throw new RegistrationError(`close_of ${J(rec.close_of)} has no matching dispatch row`);
   const groups = Array.isArray(dispatchRow.groups) ? dispatchRow.groups : [];
   const expectedAgents = groups.reduce((sum, group) => sum + (Array.isArray(group.agents) ? group.agents.length : 0), 0);
-  if (rec.agents_spawned.total !== expectedAgents) {
-    throw new RegistrationError(`agents_spawned.total (${rec.agents_spawned.total}) must equal the registered strategy agent count (${expectedAgents})`);
+  if (rec.agents_spawned.planned_total !== expectedAgents) {
+    throw new RegistrationError(`agents_spawned.planned_total (${rec.agents_spawned.planned_total}) must equal the registered strategy agent count (${expectedAgents})`);
+  }
+  if (rec.exit_reason === 'resolved' &&
+      (rec.agents_spawned.total !== expectedAgents || rec.agents_spawned.not_launched !== 0)) {
+    throw new RegistrationError('resolved close requires every registered agent to be launched and not_launched to be zero');
   }
   if (Number.isInteger(dispatchRow.max_loops) && rec.agents_spawned.loops_used > dispatchRow.max_loops) {
     throw new RegistrationError(`agents_spawned.loops_used exceeds registered max_loops ${dispatchRow.max_loops}`);

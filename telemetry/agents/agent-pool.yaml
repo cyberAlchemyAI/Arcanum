@@ -1,16 +1,17 @@
 ---
 profile: subagents-strategy
 name: Agent pool — scientists, philosophers, thinkers for agent dispatch
-description: Allowed-names pool for subagent dispatch. Each spawned agent gets an `agent_name` from this list, ideally semantically aligned with `role` (explorer / skeptic / writer / auditor). The companion to domainspec-subagents-strategy-constitution.md — the pool the constitution's `agent_name` field draws from. Project authors (Boscaro, Rondelli) excluded by construction.
+description: Allowed-names pool for subagent dispatch. Each spawned agent gets an `agent_name` from this list whose `role_fit` authorizes the assigned role. The companion to domainspec-subagents-strategy-constitution.md — the pool the constitution's `agent_name` field draws from. Project authors (Boscaro, Rondelli) excluded by construction.
 node_type: agent-pool
 layer: meta
 nature: reference
 status: active
-version: 0.3.1
-last_updated: 2026-06-12
+version: 0.4.0
+last_updated: 2026-08-28
 source: ported from domainspec-lean-formalization/theorem/agents-strategy/agent-pool.yaml (v0.3.0); originally subagent-extracted over domainspec-theorem
 notes:
-  - role_fit is a default suggestion; the dispatch may override per-agent.
+  - role_fit is deterministic admission authority; a dispatch may assign only a role declared by the selected identity.
+  - "v0.4.0: made role_fit authoritative and admitted Shannon, Claude for synthesizer so every live strategy role has a pool-backed identity."
   - Where a person appears in many files, only top-3 are listed in where_cited.
   - "v0.3.1: ported into domainspec/telemetry/agents/ (alongside the dispatch ledger subagents-dispatch.yaml) as the allowed-names pool the subagents-strategy constitution's `agent_name` field draws from (proposal §2/§5). where_cited paths point at the source repo and are kept for provenance, not as local links."
   - "Upstream fixes carried over: 'Newt, Isaac' → 'Newton, Isaac'; duplicate Bekenstein entries deduped; 'KCBS' (acronym, not person) removed."
@@ -1185,7 +1186,7 @@ scientists:
   - name: "Shannon, Claude"
     field: cs
     era: mid-20c
-    role_fit: [writer, explorer]
+    role_fit: [writer, synthesizer, explorer]
     where_cited: [LEAN-ARCHITECTURE.md, domainspec/GOVERNANCE-ATTENUATION.md]
 
   - name: "Smithe, Toby"

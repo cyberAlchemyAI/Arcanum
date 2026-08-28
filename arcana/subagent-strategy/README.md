@@ -140,7 +140,7 @@ or a proposed strategy, but it blocks registration and execution.
 
 ## Default Dispatch Form And Registrar
 
-The default form is the DomainSpec v0.6.1 shape: top-level `dispatch_id`,
+The default form is the DomainSpec v0.7.0 shape: top-level `dispatch_id`,
 `schema_version`, `dispatch_type`, `goal`, `context`, `max_loops`,
 `final_approver`, and `groups`; optional `meta`, `parent_dispatch_id`,
 `anti_bias_global`, `output_mode`, `working_folder`, `invoked_by`, and
@@ -148,6 +148,11 @@ The default form is the DomainSpec v0.6.1 shape: top-level `dispatch_id`,
 written as JSON flow columns inside the YAML row.
 
 Write the confirmed candidate beneath the governed temp root and register it:
+
+Every agent in a new candidate must have a non-null pool-backed `agent_name`.
+Its `initial_prompt` begins with `You are {agent_name}.`, then one blank line,
+then the bounded instructions. Confirmation binds that identity sentence as
+part of the exact sheet bytes.
 
 ```text
 node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume .arcanum/runtime/subagents-strategy/<dispatch-id>.tmp.json
@@ -165,9 +170,9 @@ as separate runtime state and add:
 {
   "subagent_strategy": {
     "registration": {
-      "schema_version": "arcanum.subagent-strategy-registration.v0.2",
+      "schema_version": "arcanum.subagent-strategy-registration.v0.3",
       "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
-      "sheet_schema_version": "0.6.1",
+      "sheet_schema_version": "0.7.0",
       "sheet_sha256": "<digest returned by --check>",
       "execution_projection_sha256": "<digest returned by native_dispatch_coordinator.py projection-digest>",
       "temporary_sheet": ".arcanum/runtime/subagents-strategy/<dispatch-id>.tmp.json",

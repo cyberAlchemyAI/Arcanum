@@ -32,7 +32,7 @@ dispatch_types:
 
 form_owner:
   capability: arcana/subagent-strategy/scripts/append-dispatch.cjs
-  schema_version: 0.6.1
+  schema_version: 0.7.0
   confirmation_readiness_validator: node arcana/subagent-strategy/scripts/validate-readiness.cjs
   registration_validator: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
   version_drift_policy: warn-rematerialize-and-revalidate-before-confirmation
@@ -62,7 +62,7 @@ sheet_lifecycle:
 agent_pool:
   source: telemetry/agents/agent-pool.yaml
   allowed_models: [gpt-5.6-sol, gpt-5.6-terra, claude-sonnet-4-6, claude-opus-4-8]
-  selection_rules: every non-null identity is unique and declares the assigned role
+  selection_rules: every agent has one unique pool identity that declares the assigned role and prefixes its initial prompt
 
 registration:
   registrar: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume

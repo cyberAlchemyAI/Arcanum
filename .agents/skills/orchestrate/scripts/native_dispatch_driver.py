@@ -455,6 +455,8 @@ def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
         f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
     ).hexdigest()
     lines = [
+        f"You are {briefing['agent_identity']}.",
+        "",
         "Execute one bounded host-native action.",
         f"Action: {action['action_id']}",
         f"Role: {action['role']}",

@@ -329,6 +329,15 @@ def _canonical_payload_sha256(value: Any) -> str:
 
 
 def _validated_action_briefing(action: dict[str, Any]) -> dict[str, Any]:
+    agent_name = action.get("agent_name")
+    initial_prompt = action.get("initial_prompt")
+    if not isinstance(agent_name, str) or not agent_name:
+        raise DriverBlocked(["persisted action has no agent_name"])
+    if not isinstance(initial_prompt, str) or not initial_prompt:
+        raise DriverBlocked(["persisted action has no initial_prompt"])
+    prefix = f"You are {agent_name}.\n\n"
+    if not initial_prompt.startswith(prefix) or not initial_prompt[len(prefix):]:
+        raise DriverBlocked(["persisted action initial_prompt has an invalid identity prefix"])
     binding = action.get("briefing_binding")
     if not isinstance(binding, dict):
         raise DriverBlocked(["persisted action has no briefing_binding"])
@@ -338,6 +347,10 @@ def _validated_action_briefing(action: dict[str, Any]) -> dict[str, Any]:
     source = binding.get("source_binding")
     if not isinstance(briefing, dict) or not isinstance(source, dict):
         raise DriverBlocked(["persisted action briefing binding is incomplete"])
+    if briefing.get("agent_identity") != agent_name:
+        raise DriverBlocked(["persisted action briefing identity does not match agent_name"])
+    if briefing.get("instructions") != initial_prompt[len(prefix):]:
+        raise DriverBlocked(["persisted action briefing instructions do not match initial_prompt"])
     briefing_sha = _canonical_payload_sha256(briefing)
     if binding.get("briefing_sha256") != briefing_sha:
         raise DriverBlocked(["persisted action briefing digest mismatch"])
@@ -449,43 +462,17 @@ def validate_raw_task_results(
 
 def _spawn_request(action: dict[str, Any]) -> dict[str, Any]:
     binding = _validated_action_briefing(action)
-    briefing = binding["briefing"]
     action_stem = action["action_id"].replace("-", "_")
     run_scope = hashlib.sha256(
         f"{action['dispatch_id']}\0{action['run_id']}".encode("utf-8")
     ).hexdigest()
-    lines = [
-        "Execute one bounded host-native action.",
-        f"Action: {action['action_id']}",
-        f"Role: {action['role']}",
-        f"Capability: {action['capability_ref']}",
-        f"Target: {action['target']}",
-        f"Mode: {action['mode']}",
-        f"Mutation policy: {action['mutation_policy']}",
-        f"Write scope: {_compact(action['write_scope'])}",
-        f"Forbidden write scopes: {_compact(action['forbidden_write_scopes'])}",
-        f"Input refs: {_compact(action['input_refs'])}",
-        f"Output refs: {_compact(action['output_refs'])}",
-        f"Briefing digest: {binding['briefing_sha256']}",
-        f"Agent identity: {briefing['agent_identity']}",
-        f"Angle: {briefing['angle']}",
-        "Instructions (exact):",
-        briefing["instructions"],
-        "Task status semantics (canonical JSON): " + json.dumps(briefing["status_semantics"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        "Read policy (canonical JSON): " + json.dumps(briefing["read_policy"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        "Write policy (canonical JSON): " + json.dumps(briefing["write_policy"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        "Required receipt shape (canonical JSON): " + json.dumps(briefing["receipt_shape"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        "Authority ceiling (canonical JSON): " + json.dumps(briefing["authority_ceiling"], ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        "Forbidden write scopes do not imply forbidden reads. Follow only the explicit read policy.",
-        "Return every required receipt field. Do not widen scope or merge task completion with domain-gate status.",
-    ]
     return {
         "action_id": action["action_id"],
         "operation": "collaboration.spawn_agent",
         "task_name": f"orchestrate_{run_scope}_{action_stem}",
         "fork_turns": "none",
         "briefing_binding": binding,
-        "message": "\n".join(lines),
+        "message": action["initial_prompt"],
     }
 
 

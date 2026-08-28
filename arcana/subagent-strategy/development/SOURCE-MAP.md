@@ -20,7 +20,7 @@
 - dependency-aware group scheduling,
 - partial-result propagation and independent final approval,
 - paired dispatch and close rows in one append-only YAML ledger,
-- DomainSpec v0.6.1 direct-field form and JSON-column encoding,
+- DomainSpec v0.7.0 direct-field form and JSON-column encoding,
 - safe successful consumption of governed temporary JSON records,
 - result read models and behavior observability.
 
@@ -33,7 +33,7 @@
 - personal data,
 - runtime-vendor installation assumptions.
 
-The package now ships the DomainSpec-derived v0.6.1 default form, registrar, and
+The package now ships the DomainSpec-derived v0.7.0 default form, registrar, and
 `.arcanum/observability/subagents-strategy/subagents-dispatch.yaml` convention.
 Consumers may override those bindings through `templates/runtime-profile.md`;
 an adapter does not become canonical public authority over this package.

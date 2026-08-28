@@ -136,27 +136,21 @@ class CompileFirstWaveTests(unittest.TestCase):
             )
             role_digests: dict[str, str] = {}
             for action in result["run_plan"]["actions"]:
-                expected = role_by_id[action["role"]]["briefing_binding"]
+                expected_agent = role_by_id[action["role"]]["agents"][action["agent_ordinal"]]
+                expected = expected_agent["briefing_binding"]
                 self.assertEqual(action["briefing_binding"], expected)
-                role_digests[action["role"]] = action["briefing_binding"]["briefing_sha256"]
+                role_digests[action["agent_name"]] = action["briefing_binding"]["briefing_sha256"]
                 request = driver._spawn_request(action)
                 self.assertEqual(request["briefing_binding"], expected)
-                briefing = expected["briefing"]
-                for value in (
-                    briefing["agent_identity"],
-                    briefing["angle"],
-                    briefing["instructions"],
-                    expected["briefing_sha256"],
-                ):
-                    self.assertIn(value, request["message"])
-            self.assertEqual(len(set(role_digests.values())), 2)
+                self.assertEqual(request["message"], expected_agent["initial_prompt"])
+            self.assertEqual(len(set(role_digests.values())), 3)
 
             dependent = coordinator._compile_named_wave_actions(
                 dispatch, "run-briefing-fidelity", "artifact", 4
             )
             self.assertEqual(
                 dependent[0]["briefing_binding"],
-                role_by_id["artifact-writer"]["briefing_binding"],
+                role_by_id["artifact-writer"]["agents"][0]["briefing_binding"],
             )
             self.assertNotIn(
                 dependent[0]["briefing_binding"]["briefing_sha256"],
@@ -178,6 +172,14 @@ class CompileFirstWaveTests(unittest.TestCase):
                 driver.prepare_spawn(action_path, plan_path, events, request_path, None)
             self.assertFalse(events.exists())
             self.assertFalse(request_path.exists())
+
+    def test_named_role_blocks_when_briefing_identity_differs(self) -> None:
+        dispatch = load_json(FIXTURES / "valid-two-wave.json")
+        role = copy.deepcopy(dispatch["subagent_strategy"]["roles"][0])
+        role["agents"][0]["briefing_binding"]["briefing"]["agent_identity"] = "Hewitt, Carl"
+        with self.assertRaises(coordinator.CompileBlocked) as raised:
+            coordinator._validated_agent_binding(role, role["role_id"], 0)
+        self.assertIn("role briefing agent identity does not match agent_name", raised.exception.blockers[0])
 
 
 def load_json_from_text(value: str):

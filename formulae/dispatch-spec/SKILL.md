@@ -99,7 +99,7 @@ formulae/dispatch-spec/development/run-validation-fixtures.sh
 33. A capability-bound lifecycle closeout requires prior authorization and must identify each agent's capability, target, mode, wave, and effective write scope.
 34. A passing capability-bound closeout must contain exactly the declared number of agent records for every role.
 35. Every agent in a passing capability-bound closeout must have spawned, completed its join, closed, and returned its declared receipt; every applied step must also have a passing native-stage receipt containing the role output.
-36. An approved dispatch entering native Orchestrate execution must include `subagent_strategy.registration` bound to the canonical ledger, exact v0.6.1 sheet digest, canonical executable projection digest, and governed temporary dispatch/close paths. Dispatch Spec validates the proof shape; Orchestrate recomputes the projection, verifies the live ledger digest and topology, and proves the temporary sheet was consumed before emitting actions.
+36. An approved dispatch entering native Orchestrate execution must include `subagent_strategy.registration` bound to the canonical ledger, exact v0.7.0 sheet digest, canonical executable projection digest, and governed temporary dispatch/close paths. Dispatch Spec validates the proof shape; Orchestrate recomputes the projection, verifies the live ledger digest, agent names, exact initial prompts, and topology, and proves the temporary sheet was consumed before emitting actions.
 37. Every confirmation-ready or executable capability-bound role must bind one
     versioned typed briefing to an immutable dispatch-relative JSON artifact and
     selector. The validator recomputes the artifact, selected-payload, and

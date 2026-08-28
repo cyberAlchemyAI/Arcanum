@@ -342,6 +342,9 @@ def _validated_briefing_binding(
     source = binding.get("source_binding")
     if not isinstance(briefing, dict) or not isinstance(source, dict):
         raise CompileBlocked([f"role briefing binding is incomplete: {role_id}"])
+    agent_name = role.get("agent_name")
+    if agent_name is not None and briefing.get("agent_identity") != agent_name:
+        raise CompileBlocked([f"role briefing agent identity does not match agent_name: {role_id}"])
     briefing_sha = _canonical_payload_sha256(briefing)
     if binding.get("briefing_sha256") != briefing_sha:
         raise CompileBlocked([f"role briefing digest mismatch: {role_id}"])

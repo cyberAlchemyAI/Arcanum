@@ -4,6 +4,8 @@
 
 The objective of this document is to map what exists on Arcanum today and what we want for the near future, so we can migrate the application to a new branch on this repo.
 
+The first migration will be the MVP for Arcanum. This still needs to be well defined, but the idea is to have a system that allow users to build code and to keep track of what is being done.
+
 ## Context
 
 Agents are making software production cheaper and superficially easier. A person can now produce considerably more code with the help of agents than would previously have been practical.

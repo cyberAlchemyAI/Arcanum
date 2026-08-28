@@ -191,6 +191,25 @@ properties:
               type: integer
               minimum: 1
               maximum: 16
+            agents:
+              type: array
+              minItems: 1
+              items:
+                type: object
+                required:
+                - agent_name
+                - initial_prompt
+                - briefing_binding
+                properties:
+                  agent_name:
+                    type: string
+                    minLength: 1
+                  initial_prompt:
+                    type: string
+                    minLength: 1
+                  briefing_binding:
+                    $ref: '#/$defs/role_briefing_binding'
+                additionalProperties: false
             mutation_policy:
               type: string
               enum:
@@ -310,11 +329,11 @@ properties:
         - temporary_close
         properties:
           schema_version:
-            const: arcanum.subagent-strategy-registration.v0.2
+            const: arcanum.subagent-strategy-registration.v0.3
           ledger:
             const: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
           sheet_schema_version:
-            const: 0.6.1
+            const: 0.7.0
           sheet_sha256:
             type: string
             pattern: ^[0-9a-f]{64}$
@@ -359,6 +378,7 @@ properties:
               - capability_target
               - capability_mode
               - agent_count
+              - agents
               - mutation_policy
               - applies_to_steps
               - output_refs

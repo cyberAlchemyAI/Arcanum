@@ -285,6 +285,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
     def test_spawn_request_name_is_stable_within_and_distinct_across_runs(self) -> None:
         action = copy.deepcopy(self.run_plan["actions"][0])
         first = driver._spawn_request(action)
+        self.assertEqual(first["message"], action["initial_prompt"])
         self.assertEqual(first, driver._spawn_request(action))
         other_run = copy.deepcopy(action)
         other_run["run_id"] = "run-fixture-002"

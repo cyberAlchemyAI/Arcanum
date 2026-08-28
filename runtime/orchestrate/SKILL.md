@@ -143,7 +143,9 @@ Consume exactly one persisted action document whose `action` is `spawn` and whos
 2. Revalidate the action's canonical `briefing_binding` digest and exact
    read/write-policy equality, then build bounded host context from the action's
    role, capability, target, mode, mutation policy, references, and complete
-   typed briefing. Preserve task-completion status separately from domain-gate
+   typed briefing. Begin the host message with the exact sentence
+   `You are {agent_identity}.`, followed by a blank line; when the executable
+   role declares `agent_name`, require it to equal `agent_identity`. Preserve task-completion status separately from domain-gate
    status. Never infer forbidden reads from forbidden-write scopes.
    The host task name must be an opaque deterministic function of dispatch ID,
    run ID, and action ID. It must differ across fresh runs and must not include

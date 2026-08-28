@@ -61,7 +61,7 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
             self.sheet,
             {
                 "dispatch_id": "2026-08-26-example-review",
-                "schema_version": "0.6.1",
+                "schema_version": "0.7.0",
                 "dispatch_type": "review",
                 "goal": "Exercise registered native strategy binding.",
                 "context": "A synthetic integration sheet whose topology matches the executable runtime waves.",
@@ -81,15 +81,15 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
                             {"between": [1, 2], "question": "Can the third check overturn the second?"},
                         ],
                         "agents": [
-                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta", "initial_prompt": "Run beta check."},
-                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta peer", "initial_prompt": "Run beta peer check."},
-                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "alpha", "initial_prompt": "Run alpha check."},
+                            {"agent_name": "Abramsky, Samson", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta", "initial_prompt": "You are Abramsky, Samson.\n\nRun beta check."},
+                            {"agent_name": "Hewitt, Carl", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta peer", "initial_prompt": "You are Hewitt, Carl.\n\nRun beta peer check."},
+                            {"agent_name": "Peirce, Charles Sanders", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "alpha", "initial_prompt": "You are Peirce, Charles Sanders.\n\nRun alpha check."},
                         ],
                     },
                     {
                         "group_id": "artifact",
                         "agents": [
-                            {"agent_name": None, "role": "writer", "model": "gpt-5.6-sol", "token_budget": 800, "initial_prompt": "Write the dependent artifact."}
+                            {"agent_name": "Shannon, Claude", "role": "writer", "model": "gpt-5.6-sol", "token_budget": 800, "initial_prompt": "You are Shannon, Claude.\n\nWrite the dependent artifact."}
                         ],
                     },
                 ],
@@ -98,9 +98,9 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
         )
         self.sheet_sha = hashlib.sha256(self.sheet.read_bytes()).hexdigest()
         runtime_dispatch["subagent_strategy"]["registration"] = {
-            "schema_version": "arcanum.subagent-strategy-registration.v0.2",
+            "schema_version": "arcanum.subagent-strategy-registration.v0.3",
             "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
-            "sheet_schema_version": "0.6.1",
+            "sheet_schema_version": "0.7.0",
             "sheet_sha256": self.sheet_sha,
             "execution_projection_sha256": projection_sha,
             "temporary_sheet": ".arcanum/runtime/subagents-strategy/2026-08-26-example-review.tmp.json",
@@ -147,7 +147,9 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
                 "close_of": "2026-08-26-example-review",
                 "exit_reason": "resolved",
                 "agents_spawned": {
+                    "planned_total": 4,
                     "total": 4,
+                    "not_launched": 0,
                     "tree": {"explorer": 3, "writer": 1, "helpers": 0},
                     "loops_used": 0,
                 },

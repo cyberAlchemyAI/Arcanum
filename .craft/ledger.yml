@@ -49,6 +49,11 @@ indexes:
     ART-SUBAGENT-STRATEGY-HARDENING-SESSION: artifacts[24]
     DESC-SUBAGENT-STRATEGY-HARDENING-001: descriptions[3]
     GAP-SUBAGENT-STRATEGY-LINUX-CI-001: gaps[5]
+    CTX-CRAFT-LEDGER-MUTATION: contexts[5]
+    DESC-CRAFT-LEDGER-MUTATION-001: descriptions[4]
+    GAP-CRAFT-LEDGER-MUTATION-POLICY-001: gaps[6]
+    ART-CRAFT-LEDGER-MUTATION-DISCOVERY: artifacts[25]
+    ART-CRAFT-LEDGER-MUTATION-SESSION: artifacts[26]
   open_decisions: []
   blocking_decisions: []
   active_blockers: []
@@ -57,6 +62,7 @@ indexes:
     - GAP-ARCANUM-COMPOSITION-RESIDUE-001
     - GAP-ROUTING-PLATFORM-NEUTRAL-REVIEW-001
     - GAP-SUBAGENT-STRATEGY-LINUX-CI-001
+    - GAP-CRAFT-LEDGER-MUTATION-POLICY-001
   next_moves:
     - context_id: CTX-ARCANUM-MANUAL-ROOT
       next_move: >
@@ -64,9 +70,13 @@ indexes:
         companion and commit inside the arcanum submodule before bumping the parent gitlink.
     - context_id: CTX-CRAFT-LEDGER-INTEGRITY
       next_move: >
-        Obtain explicit operator confirmation, execute the prepared internal/external governed
-        research dispatch, and produce research.md plus findings.md before proposing any canonical
-        Craft contract, validator, runtime, migration, or operator-discipline change.
+        Treat the ledger-mutation discovery as candidate-local evidence; execute or explicitly
+        supersede the pending integrity research before promoting any canonical Craft contract or
+        authorizing implementation.
+    - context_id: CTX-CRAFT-LEDGER-MUTATION
+      next_move: >
+        Review the discovery's open policy boundaries, select one fully specified 0.3.0 operation
+        profile, and record the required authority decisions before authoring a DomainSpec.
     - context_id: CTX-ARCANUM-COMPOSITION-ANALYSIS
       next_move: >
         Expand analysis.md from the accepted per-RQ findings while preserving the four unresolved
@@ -101,6 +111,9 @@ indexes:
     - subagent-strategy-runtime-hardened
     - subagent-strategy-local-validation-passed
     - subagent-strategy-linux-ci-pending
+    - craft-ledger-mutation-discovery-authored
+    - craft-ledger-mutation-review-not-confirmed
+    - craft-ledger-mutation-session-closed
   artifacts_by_path:
     .craft/ledger.yml: ART-ARCANUM-MANUAL-LEDGER
     CRAFT.md: ART-ARCANUM-MANUAL-VIEW
@@ -127,6 +140,8 @@ indexes:
     runtime/orchestrate/scripts/native_dispatch_coordinator.py: ART-SUBAGENT-STRATEGY-RUNTIME
     .github/workflows/subagent-strategy-runtime.yml: ART-SUBAGENT-STRATEGY-CI-WORKFLOW
     sessions/2026-08-27-1312-subagent-strategy-runtime-hardening.md: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+    runtime/craft-ledger/docs/features/ledger-mutation/discovery.md: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    sessions/2026-08-28-1718-craft-ledger-mutation-discovery.md: ART-CRAFT-LEDGER-MUTATION-SESSION
 
 contexts:
   - context_id: CTX-ARCANUM-MANUAL-ROOT
@@ -169,9 +184,9 @@ contexts:
     stage: plan
     gate: flag
     next_move: >
-      Obtain explicit operator confirmation, execute the prepared internal/external governed
-      research dispatch, and produce research.md plus findings.md before proposing any canonical
-      Craft contract, validator, runtime, migration, or operator-discipline change.
+      Treat the ledger-mutation discovery as candidate-local evidence; execute or explicitly
+      supersede the pending integrity research before promoting any canonical Craft contract or
+      authorizing implementation.
     owned_artifacts:
       - ART-CRAFT-LEDGER-INTEGRITY-DISPATCH
       - ART-CRAFT-LEDGER-INTEGRITY-SESSION
@@ -297,6 +312,35 @@ contexts:
     notes: >
       Local Windows tests pass, including concurrent registration and junction confinement. The
       Ubuntu job is configured but has not yet produced observed evidence in this session.
+
+  - context_id: CTX-CRAFT-LEDGER-MUTATION
+    parent_id: CTX-CRAFT-LEDGER-INTEGRITY
+    title: Craft ledger deterministic mutation
+    purpose: >
+      Define how an interpretive caller can propose Craft state while a deterministic runtime plans,
+      validates, and atomically applies ledger mutations without assuming semantic or native-verdict
+      authority.
+    stage: design
+    gate: flag
+    next_move: >
+      Review the discovery's open policy boundaries, select one fully specified 0.3.0 operation
+      profile, and record the required authority decisions before authoring a DomainSpec.
+    owned_artifacts:
+      - ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+      - ART-CRAFT-LEDGER-MUTATION-SESSION
+    links:
+      - label: Candidate-local discovery
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+      - label: Session boundary and unresolved policies
+        target: ART-CRAFT-LEDGER-MUTATION-SESSION
+        kind: artifact-id
+      - label: Open policy gap
+        target: GAP-CRAFT-LEDGER-MUTATION-POLICY-001
+        kind: row-id
+    notes: >
+      The discovery contains no diagrams by explicit operator direction. Its proposed runtime
+      boundary is non-governing and does not authorize implementation or canonical Craft changes.
 
 artifacts:
   - artifact_id: ART-ARCANUM-MANUAL-LEDGER
@@ -528,6 +572,32 @@ artifacts:
       Governed closeout containing the implementation decisions, verified tests, evidence boundary,
       affected files, and the remaining Linux CI obligation.
 
+  - artifact_id: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    owner_context_id: CTX-CRAFT-LEDGER-MUTATION
+    path: runtime/craft-ledger/docs/features/ledger-mutation/discovery.md
+    artifact_type: discovery
+    status: active
+    notes: >
+      Candidate-local discovery separating semantic proposal from deterministic planning,
+      validation, explicit apply, compare-and-commit, and atomic ledger persistence. It is
+      non-governing evidence and intentionally contains no diagrams.
+    links:
+      - label: Closing session
+        target: ART-CRAFT-LEDGER-MUTATION-SESSION
+        kind: artifact-id
+  - artifact_id: ART-CRAFT-LEDGER-MUTATION-SESSION
+    owner_context_id: CTX-CRAFT-LEDGER-MUTATION
+    path: sessions/2026-08-28-1718-craft-ledger-mutation-discovery.md
+    artifact_type: session-record
+    status: active
+    notes: >
+      Governed closeout recording the discovery, rejected diagrams, unconfirmed review dispatch,
+      evidence boundary, open policies, and next design move.
+    links:
+      - label: Discovery produced in the session
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+
 descriptions:
   - description_id: DESC-ARCANUM-MANUAL-001
     context_id: CTX-ARCANUM-MANUAL-ROOT
@@ -571,6 +641,17 @@ descriptions:
       protect the lifecycle across Windows and Linux-compatible code paths.
     status: active
     evidence: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+
+  - description_id: DESC-CRAFT-LEDGER-MUTATION-001
+    context_id: CTX-CRAFT-LEDGER-MUTATION
+    description: >
+      The proposed feature keeps semantic choices with the model, human, or governed caller while a
+      runtime receives a structured mutation request, builds and validates a candidate, returns a
+      dry-run plan, requires explicit apply, and commits source rows plus embedded indexes under an
+      expected source revision. ID allocation, index completeness, apply authority, legacy
+      compatibility, receipt persistence, and runtime ownership remain open policies.
+    status: active
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
 
 definitions:
   - definition_id: DEF-ARCANUM-MANUAL-001
@@ -732,4 +813,22 @@ gaps:
         kind: artifact-id
       - label: Local validation and closeout boundary
         target: ART-SUBAGENT-STRATEGY-HARDENING-SESSION
+        kind: artifact-id
+  - gap_id: GAP-CRAFT-LEDGER-MUTATION-POLICY-001
+    scope_id: CTX-CRAFT-LEDGER-MUTATION
+    summary: >
+      The discovery does not yet settle runtime ownership, first-operation scope, ID allocation and
+      uniqueness, embedded-index completeness, apply authorization, 0.2.0 compatibility,
+      compare-and-commit mechanics, or receipt persistence.
+    severity: flag
+    treatment: plan
+    owner: authority decisions followed by DomainSpec authoring
+    status: active
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY and ART-CRAFT-LEDGER-MUTATION-SESSION
+    links:
+      - label: Candidate-local discovery
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+      - label: Session evidence boundary
+        target: ART-CRAFT-LEDGER-MUTATION-SESSION
         kind: artifact-id
