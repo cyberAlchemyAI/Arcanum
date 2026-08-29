@@ -260,7 +260,6 @@ Use these distinctions when extending the method.
 | One Question At A Time | Resolve ambiguity without flooding the user. | Ask the highest-discrimination question, update the artifact when the answer changes it, then continue only if another blocker remains. |
 | Human Gate | Preserve user authority over consequential judgment. | Agents may prepare options and trade-offs, but blocker decisions, scope approval, and contract changes require human validation. |
 | Delegation Health | Treat subagent execution as a governed stage. | Long-running delegated work needs a stage id, terminal outcome, evidence, retry policy, and stuck-state handling. |
-| Governance Flow | Keep deterministic validation from multiplying owner prompts without weakening effect boundaries. | Use schema-first source, collect-all no-effect rehearsal, one idempotent request for one frozen graph, and fail-fast effectful execution to a terminal receipt. |
 
 ### Evolution Primitives
 
@@ -343,10 +342,6 @@ A CyberAlchemy run should:
 - include validation or an explicit validation gap,
 - preserve observability when available,
 - recommend a concrete next route.
-- distinguish local PASS from terminal completion and name the promised terminal boundary;
-- treat bounded work as the smallest complete vertical slice, not merely the fewest changed files;
-- derive human decision views deterministically from schema-valid machine graphs; and
-- preserve the [Governance Flow Contract](GOVERNANCE-FLOW-CONTRACT.md) whenever a run crosses preacceptance, owner decision, and effectful execution.
 
 ## Anti-Patterns
 
