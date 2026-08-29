@@ -9,6 +9,7 @@ Use this folder when you are changing the rules of the system rather than adding
 - [CyberAlchemy Method](CYBERALCHEMY-METHOD.md) - governed synthesis method for creating and working with agent capabilities.
 - [Quality Bar](QUALITY-BAR.md) - observable completion criteria for sigil execution.
 - [Outcome Brief Contract](OUTCOME-BRIEF-CONTRACT.md) - human-facing result order: explain the outcome, state boundaries and decisions, then present technical details and receipts.
+- [Governance Flow Contract](GOVERNANCE-FLOW-CONTRACT.md) - schema-first, three-mode choreography from collect-all no-effect rehearsal through one owner request to fail-fast terminal execution.
 - [Anti-Patterns](ANTI-PATTERNS.md) - failure modes and misuse boundaries.
 - [Validation Experiment Protocol](VALIDATION-EXPERIMENT-PROTOCOL.md) - repeatable release-gate experiments for spells, sigils, and canonical templates.
 - [Experiment Harness Standard](EXPERIMENT-HARNESS-STANDARD.md) - artifact-local test harness layout for fixtures, prompts, outputs, runs, and promotion evidence.
@@ -44,3 +45,7 @@ Use `.arcanum/` for repository-local installed spells, observability ledgers, in
 Framework changes alter how sigils are created or judged. Registry changes add, remove, rename, or revise reusable sigils and spells.
 
 Use the [Arcanum Registry](../registry/) to browse available artifacts.
+
+Framework preparation never grants lifecycle or execution authority. In particular,
+validation, rehearsal, rendering, review, and owner-request preparation do not imply
+selection, admission, Git mutation, publication, deployment, or external effects.

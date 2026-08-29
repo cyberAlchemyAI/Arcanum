@@ -1,0 +1,173 @@
+{
+  "authority": {
+    "admission_required": true,
+    "credentials": false,
+    "deployment": false,
+    "destructive_actions": false,
+    "execution": true,
+    "external_effects": false,
+    "git": false,
+    "publication": false,
+    "selection_required": true,
+    "successor_execution": false,
+    "write_paths": [
+      "outputs/result.txt"
+    ]
+  },
+  "consumers": [
+    {
+      "consumer_id": "source-schema",
+      "depends_on": [],
+      "kind": "source_schema"
+    },
+    {
+      "consumer_id": "graph-schema",
+      "depends_on": [
+        "source-schema"
+      ],
+      "kind": "graph_schema"
+    },
+    {
+      "consumer_id": "human-renderer",
+      "depends_on": [
+        "graph-schema"
+      ],
+      "kind": "human_renderer"
+    },
+    {
+      "consumer_id": "executable-identity",
+      "depends_on": [
+        "graph-schema"
+      ],
+      "kind": "executable_identity"
+    },
+    {
+      "consumer_id": "terminal-contract",
+      "depends_on": [
+        "graph-schema"
+      ],
+      "kind": "terminal_contract"
+    }
+  ],
+  "executable": {
+    "argv": [
+      "--target",
+      "outputs/result.txt",
+      "--content",
+      "governance-flow-terminal\n"
+    ],
+    "cwd": "{isolated_root}",
+    "environment_allowlist": [],
+    "mode": "python_script",
+    "path": "development/fixtures/positive/terminal-boundary-executor.py",
+    "sha256": "c77054bf9e9a87bc41e7f01f00cb6b5d442106f0f10331d2e9eeb851e5266cd9"
+  },
+  "flow_id": "terminal-boundary-fixture-v1",
+  "independent_review": {
+    "required": true,
+    "reviewer_id": "fixture-independent-reviewer",
+    "reviewer_role": "independent-governance-review"
+  },
+  "metrics": [
+    {
+      "event": "governance_flow.consumer_defect.v1",
+      "metric_id": "postacceptance_consumer_defects",
+      "target": 0
+    },
+    {
+      "event": "governance_flow.owner_prompt.v1",
+      "metric_id": "prompts_per_immutable_graph",
+      "target": 1
+    },
+    {
+      "event": "governance_flow.request_retry.v1",
+      "metric_id": "unchanged_byte_approval_retries",
+      "target": 0
+    },
+    {
+      "event": "governance_flow.late_blocker.v1",
+      "metric_id": "blockers_discovered_after_request",
+      "target": 0
+    },
+    {
+      "event": "governance_flow.receipt_transfer.v1",
+      "metric_id": "manual_receipt_transfers",
+      "target": 0
+    }
+  ],
+  "owner": {
+    "lifecycle_route": "fixture-local-route",
+    "owner_id": "fixture-owner"
+  },
+  "protected_inputs": [
+    "development/fixtures/positive/terminal-boundary-executor.py",
+    "development/fixtures/positive/terminal-boundary-source.json",
+    "scripts/compile_governance_flow.py",
+    "scripts/render_governance_flow.py",
+    "scripts/run_governance_flow.py"
+  ],
+  "request_budget": 1,
+  "retry_policy": [
+    {
+      "classification": "environmental",
+      "maximum_attempts": 1,
+      "owner_prompt": "none"
+    },
+    {
+      "classification": "mechanical_evidence_only",
+      "maximum_attempts": 1,
+      "owner_prompt": "none"
+    },
+    {
+      "classification": "semantic_or_authority",
+      "maximum_attempts": 0,
+      "owner_prompt": "new_graph_only"
+    }
+  ],
+  "risk": {
+    "class": "low",
+    "reasons": [
+      "isolated local fixture output only",
+      "no external calls or successor execution"
+    ]
+  },
+  "schema_version": "arcanum.governance-flow.source.v1",
+  "sidecar_resume": {
+    "independent_review_required": true,
+    "maximum_resumes": 1,
+    "required_classification": "mechanical_evidence_only",
+    "unchanged_fields": [
+      "decision_graph_digest",
+      "target_byte_digest",
+      "authority_bearing_executable_digest"
+    ]
+  },
+  "targets": [
+    {
+      "baseline_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "outputs/result.txt",
+      "postimage_sha256": "5e2b18710851f48a53f68bd4932f4a167c34a967ad399d59539d2006facac418",
+      "visibility": "public"
+    }
+  ],
+  "terminal_outcome": {
+    "completion_predicate": "exact_terminal_match",
+    "expected_postimages": {
+      "outputs/result.txt": "5e2b18710851f48a53f68bd4932f4a167c34a967ad399d59539d2006facac418"
+    },
+    "prohibited_effects": [
+      "external_call",
+      "successor_execution",
+      "write_outside_ceiling"
+    ],
+    "promised_boundary_id": "local-output-materialized",
+    "required_effects": [
+      "write:outputs/result.txt"
+    ],
+    "required_terminal_receipt_schema": "governance-flow-stage-receipt-v1.schema.yml",
+    "terminal_observer": {
+      "observer_id": "governance-flow-runner-v1",
+      "sha256": "fe0b1b655cbf5a07e9f309d524c8ec20a5610793c0050c3e932cc96b7ee48f6c"
+    }
+  }
+}

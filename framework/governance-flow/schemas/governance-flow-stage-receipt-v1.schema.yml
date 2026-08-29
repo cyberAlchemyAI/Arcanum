@@ -1,0 +1,84 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://arcanum.dev/framework/governance-flow/schemas/governance-flow-stage-receipt-v1.schema.yml
+title: Governance Flow Stage Receipt v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - receipt_id
+  - stage
+  - mode
+  - status
+  - decision_graph_digest
+  - predecessor_digest
+  - authority_effect
+  - permissions
+  - blockers
+  - first_nonzero
+  - evaluated_checks
+  - details
+  - receipt_digest
+properties:
+  schema_version: {const: arcanum.governance-flow.stage-receipt.v1}
+  receipt_id: {type: string, pattern: '^gfr-[a-z-]+-[a-f0-9]{16}$'}
+  stage:
+    enum: [rehearsal, freeze, review, acceptance, selection, admission, execution, terminal, retry, sidecar]
+  mode:
+    enum: [preacceptance_no_effect, human_decision, effectful_execution]
+  status:
+    enum: [pass, block, not_evaluable, pending, accepted, rejected, complete]
+  decision_graph_digest: {$ref: '#/$defs/hash'}
+  predecessor_digest:
+    oneOf:
+      - {$ref: '#/$defs/hash'}
+      - {type: 'null'}
+  authority_effect:
+    enum: [none, fixture_acceptance, fixture_selection, fixture_admission, declared_local_effect]
+  permissions: {$ref: '#/$defs/permissions'}
+  blockers:
+    type: array
+    items: {$ref: '#/$defs/blocker'}
+  first_nonzero: {type: integer, minimum: 0, maximum: 255}
+  evaluated_checks:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [check_id, status, exit_code, causal_blockers]
+      properties:
+        check_id: {type: string, minLength: 1}
+        status: {enum: [pass, block, not_evaluable]}
+        exit_code: {type: integer, minimum: 0, maximum: 255}
+        causal_blockers:
+          type: array
+          items: {type: string, minLength: 1}
+  details: {type: object}
+  receipt_digest: {$ref: '#/$defs/hash'}
+$defs:
+  hash:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+  blocker:
+    type: object
+    additionalProperties: false
+    required: [blocker_id, check_id, message, exit_code]
+    properties:
+      blocker_id: {type: string, minLength: 1}
+      check_id: {type: string, minLength: 1}
+      message: {type: string, minLength: 1}
+      exit_code: {type: integer, minimum: 1, maximum: 255}
+  permissions:
+    type: object
+    additionalProperties: false
+    required: [selection, admission, execution, publication, git, deployment, credentials, destructive_actions, external_effects, successor_execution]
+    properties:
+      selection: {type: boolean}
+      admission: {type: boolean}
+      execution: {type: boolean}
+      publication: {type: boolean}
+      git: {type: boolean}
+      deployment: {type: boolean}
+      credentials: {type: boolean}
+      destructive_actions: {type: boolean}
+      external_effects: {type: boolean}
+      successor_execution: {type: boolean}

@@ -1,0 +1,62 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://arcanum.dev/framework/governance-flow/schemas/governance-flow-owner-request-v1.schema.yml
+title: Governance Flow Owner Request v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - request_id
+  - idempotency_key
+  - decision_graph_digest
+  - source_digest
+  - human_view_digest
+  - review_receipt_digest
+  - terminal_contract_digest
+  - owner_id
+  - decision
+  - request_count
+  - prompt_event_count
+  - authority_effect
+  - permissions
+  - request_digest
+properties:
+  schema_version: {const: arcanum.governance-flow.owner-request.v1}
+  request_id: {type: string, pattern: '^gfr-request-[a-f0-9]{20}$'}
+  idempotency_key: {$ref: '#/$defs/hash'}
+  decision_graph_digest: {$ref: '#/$defs/hash'}
+  source_digest: {$ref: '#/$defs/hash'}
+  human_view_digest: {$ref: '#/$defs/hash'}
+  review_receipt_digest: {$ref: '#/$defs/hash'}
+  terminal_contract_digest: {$ref: '#/$defs/hash'}
+  owner_id: {type: string, minLength: 1}
+  decision:
+    type: object
+    additionalProperties: false
+    required: [question, allowed_responses]
+    properties:
+      question: {const: 'Accept or reject this exact immutable decision graph?'}
+      allowed_responses:
+        const: [accept, reject]
+  request_count: {const: 1}
+  prompt_event_count: {const: 1}
+  authority_effect: {const: none}
+  permissions:
+    type: object
+    additionalProperties: false
+    required: [selection, admission, execution, publication, git, deployment, credentials, destructive_actions, external_effects, successor_execution]
+    properties:
+      selection: {const: false}
+      admission: {const: false}
+      execution: {const: false}
+      publication: {const: false}
+      git: {const: false}
+      deployment: {const: false}
+      credentials: {const: false}
+      destructive_actions: {const: false}
+      external_effects: {const: false}
+      successor_execution: {const: false}
+  request_digest: {$ref: '#/$defs/hash'}
+$defs:
+  hash:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
