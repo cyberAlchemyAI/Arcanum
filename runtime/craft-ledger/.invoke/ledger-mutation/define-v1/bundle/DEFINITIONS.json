@@ -1,0 +1,367 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/definitions/v2",
+  "authority_bindings": [],
+  "authority_effect": "none",
+  "authority_kind": "kind.definition",
+  "authority_scope": {
+    "kind": "feature",
+    "ref": "runtime/craft-ledger:ledger-mutation"
+  },
+  "definitions": [
+    {
+      "aliases": [
+        "inspection snapshot",
+        "snapshot de inspeção"
+      ],
+      "boundary": {
+        "conditions": [
+          "It is produced by a fresh read of the authoritative ledger."
+        ],
+        "excludes": [
+          "A mutation request",
+          "Write authorization",
+          "A derived CRAFT.md view as source of truth"
+        ],
+        "includes": [
+          "Resolved workspace and authoritative ledger identity",
+          "Current source revision",
+          "Selected context and relevant current state",
+          "Known constraints needed by a supported operation"
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "runtime/craft-ledger",
+      "id": "DEF-CRAFT-LEDGER-INSPECTION-SNAPSHOT",
+      "misuse_warning": "Do not treat a snapshot as permission to write or as a replacement for the apply-time revision check.",
+      "notation": [
+        {
+          "meaning": "The inspection snapshot of ledger L for context c at source revision r.",
+          "symbol": "S(L,c,r)"
+        }
+      ],
+      "primary_consumers": [
+        "ledger mutation caller",
+        "ledger mutation planner"
+      ],
+      "promotion_boundary": "Definitions Governance or the accepted project definition owner must review promotion beyond this feature-local candidate bundle.",
+      "relations": [],
+      "source_kinds": [
+        "operator-reading",
+        "synthesis"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md",
+          "role": "evidence",
+          "selector": "5.4 Tratamento do contexto",
+          "selector_type": "heading",
+          "sha256": "fe6069cbe682d6f484042d9d7ea2db2bb6e450b571c21f99f7b7fcaa02072250",
+          "size": 28615,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": "Candidate feature-local meaning pending owner review.",
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "ledger inspection snapshot",
+      "use_carefully": "The snapshot is point-in-time evidence; it becomes stale when the authoritative ledger revision changes.",
+      "voices": {
+        "domain_context": "In Craft ledger mutation, the snapshot prevents a model from relying only on conversation memory or CRAFT.md and gives the later request an exact expected_revision.",
+        "formal": "For ledger L at revision r and context c, inspect(L,c) yields S=(ledger_ref,r,c,relevant_state,constraints) without changing L; any request derived from S binds expected_revision=r.",
+        "normative": "A ledger inspection snapshot is the read-only, revision-bound representation of the authoritative ledger state and selected context that a caller must consume before proposing a mutation.",
+        "operational": "Resolve the workspace, read .craft/ledger.yml, verify the requested context, calculate the source revision, and return only the current facts needed to form a supported request.",
+        "plain_language": "It is the fresh read the caller gets before asking to change the ledger."
+      }
+    },
+    {
+      "aliases": [
+        "mutation request",
+        "requisição de mutação"
+      ],
+      "boundary": {
+        "conditions": [
+          "The operation must be supported by the selected profile.",
+          "The payload must conform to the operation-selected contract."
+        ],
+        "excludes": [
+          "The whole conversation",
+          "A free ledger filesystem path",
+          "Apply authorization",
+          "A generic record body shared by all ledger families"
+        ],
+        "includes": [
+          "Protocol version and logical request identity",
+          "Operation discriminator",
+          "Resolved workspace, context ID, and expected source revision",
+          "Exactly one operation-specific payload"
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "runtime/craft-ledger",
+      "id": "DEF-CRAFT-LEDGER-MUTATION-REQUEST",
+      "misuse_warning": "Do not let the runtime invent missing semantic fields or reinterpret one family payload as another.",
+      "notation": [
+        {
+          "meaning": "A mutation request whose operation selects the matching payload contract.",
+          "symbol": "R(op,payload_op)"
+        }
+      ],
+      "primary_consumers": [
+        "ledger mutation planner",
+        "model-facing caller adapter"
+      ],
+      "promotion_boundary": "Definitions Governance or the accepted project definition owner must review promotion beyond this feature-local candidate bundle.",
+      "relations": [
+        {
+          "id": "DEF-CRAFT-LEDGER-INSPECTION-SNAPSHOT",
+          "type": "depends-on"
+        },
+        {
+          "id": "DEF-CRAFT-OPERATION-PAYLOAD",
+          "type": "depends-on"
+        }
+      ],
+      "source_kinds": [
+        "operator-reading",
+        "synthesis"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md",
+          "role": "evidence",
+          "selector": "4.2 Requisição de mutação",
+          "selector_type": "heading",
+          "sha256": "fe6069cbe682d6f484042d9d7ea2db2bb6e450b571c21f99f7b7fcaa02072250",
+          "size": 28615,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": "Candidate feature-local meaning pending owner review.",
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "ledger mutation request",
+      "use_carefully": "Mechanical fields may be injected by a trusted adapter, but the full assembled request is the validated and fingerprinted object.",
+      "voices": {
+        "domain_context": "In the first Craft slice, operation is add_gap and payload carries gap semantics; decision and blocker payloads do not exist until separately defined.",
+        "formal": "R=(v,id,op,target(workspace,context,expected_revision),payload_op), where payload_op conforms to the schema selected by op and the normalized R is the unit fingerprinted for idempotence.",
+        "normative": "A ledger mutation request is the complete versioned proposal passed to the deterministic runtime, consisting of a common envelope and exactly one payload selected by operation; it proposes meaning but does not authorize or perform a write.",
+        "operational": "Assemble mechanical envelope values with the caller's semantic choice, reject unknown fields or a payload that does not match operation, and pass the complete request to planning.",
+        "plain_language": "It is one change request with shared addressing fields and a type-specific body."
+      }
+    },
+    {
+      "aliases": [
+        "family payload",
+        "payload de operação"
+      ],
+      "boundary": {
+        "conditions": [
+          "Exactly one supported operation owns the payload shape."
+        ],
+        "excludes": [
+          "Request identity and protocol version",
+          "Workspace and expected revision",
+          "Fields from another ledger family"
+        ],
+        "includes": [
+          "Family-specific semantic fields",
+          "Family-specific enums and invariants",
+          "Operation-specific mapping into ledger rows"
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "runtime/craft-ledger",
+      "id": "DEF-CRAFT-OPERATION-PAYLOAD",
+      "misuse_warning": "Do not create a permissive values object that accepts the union of all family fields.",
+      "notation": [
+        {
+          "meaning": "The payload contract selected by operation op.",
+          "symbol": "P_op"
+        }
+      ],
+      "primary_consumers": [
+        "operation-specific request validator",
+        "ledger mutation planner"
+      ],
+      "promotion_boundary": "Definitions Governance or the accepted project definition owner must review promotion beyond this feature-local candidate bundle.",
+      "relations": [],
+      "source_kinds": [
+        "operator-reading",
+        "synthesis"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md",
+          "role": "evidence",
+          "selector": "5.5 Validação por família",
+          "selector_type": "heading",
+          "sha256": "fe6069cbe682d6f484042d9d7ea2db2bb6e450b571c21f99f7b7fcaa02072250",
+          "size": 28615,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": "Candidate feature-local meaning pending owner review.",
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "operation payload",
+      "use_carefully": "A shared envelope does not imply shared family semantics.",
+      "voices": {
+        "domain_context": "For v1, only P_add_gap exists and requires gap_id, summary, severity, treatment, owner_route, status, and evidence.",
+        "formal": "For discriminator op, payload must belong to P_op; P_gap, P_blocker, and P_decision are distinct shapes, and payload in P_x with op not equal to x is invalid.",
+        "normative": "An operation payload is the operation-selected semantic body of a ledger mutation request, with fields and invariants owned by exactly one supported ledger mutation operation.",
+        "operational": "Select the payload validator from operation, validate only that family's required fields and enums, and reject unsupported operations before candidate construction.",
+        "plain_language": "The outside of the request stays the same; the inside changes according to the kind of ledger entry."
+      }
+    },
+    {
+      "aliases": [
+        "mutation result",
+        "resultado de mutação"
+      ],
+      "boundary": {
+        "conditions": [
+          "Every attempted supported protocol request returns one classified outcome."
+        ],
+        "excludes": [
+          "Implicit success inferred only from exit code",
+          "Write authorization",
+          "Silent normalization of unsupported or unknown semantics"
+        ],
+        "includes": [
+          "Result status",
+          "Request and plan bindings where applicable",
+          "Diagnostics",
+          "Explicit persistence effect"
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "runtime/craft-ledger",
+      "id": "DEF-CRAFT-LEDGER-MUTATION-OUTCOME",
+      "misuse_warning": "Do not collapse UNKNOWN, UNSUPPORTED, INVALID, and CONFLICT into one generic error because their repair routes differ.",
+      "notation": [
+        {
+          "meaning": "The stable classified outcome for mutation request R.",
+          "symbol": "O(R)"
+        }
+      ],
+      "primary_consumers": [
+        "ledger mutation caller",
+        "ledger mutation audit trail"
+      ],
+      "promotion_boundary": "Definitions Governance or the accepted project definition owner must review promotion beyond this feature-local candidate bundle.",
+      "relations": [
+        {
+          "id": "DEF-CRAFT-LEDGER-MUTATION-REQUEST",
+          "type": "references"
+        }
+      ],
+      "source_kinds": [
+        "operator-reading",
+        "synthesis"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md",
+          "role": "evidence",
+          "selector": "4.6 Resultado e idempotência",
+          "selector_type": "heading",
+          "sha256": "fe6069cbe682d6f484042d9d7ea2db2bb6e450b571c21f99f7b7fcaa02072250",
+          "size": 28615,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": "Candidate feature-local meaning pending owner review.",
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "ledger mutation outcome",
+      "use_carefully": "PLAN is a successful non-writing result, not evidence that apply occurred.",
+      "voices": {
+        "domain_context": "Craft uses the outcome to distinguish a valid dry-run, a committed mutation, a harmless replay, and every fail-closed case.",
+        "formal": "O=(request_id,fingerprint,status,effect,bindings,diagnostics), with status in {PLAN,APPLIED,NO_OP,ALREADY_APPLIED,CONFLICT,PLAN_MISMATCH,INVALID,UNKNOWN,UNSUPPORTED,STALE_SOURCE} and effect explicitly write or no-write.",
+        "normative": "A ledger mutation outcome is the stable, non-ambiguous response that identifies the attempted request and reports its classified result, diagnostics, bound identities, and whether authoritative ledger bytes changed.",
+        "operational": "Return the same classified response shape for planning, application, replay, conflict, stale state, unsupported input, and unknown policy so the caller never infers persistence from process exit alone.",
+        "plain_language": "It tells the caller exactly what happened and whether the ledger changed."
+      }
+    }
+  ],
+  "owner_route": "definitions-governance",
+  "registry_id": "craft-ledger-mutation-definitions-v1",
+  "registry_status": "candidate",
+  "schema_version": "definitions/v2",
+  "semantic_applications": [
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "DEF-CRAFT-LEDGER-INSPECTION-SNAPSHOT"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:ledger-inspection-snapshot",
+      "rationale": "The configured feature surface describes the required read but contains no canonical definition registry for this scoped concept."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "DEF-CRAFT-LEDGER-MUTATION-REQUEST"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:ledger-mutation-request",
+      "rationale": "The discovery proposes this boundary locally and the configured surface has no canonical registry owning it."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "DEF-CRAFT-OPERATION-PAYLOAD"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:operation-payload",
+      "rationale": "The family-specific part is required by the discovery but is not yet a canonical repository term in the configured surface."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "DEF-CRAFT-LEDGER-MUTATION-OUTCOME"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:ledger-mutation-outcome",
+      "rationale": "The stable result vocabulary is feature-local and has no canonical registry entry in the configured surface."
+    }
+  ],
+  "semantic_evidence": {
+    "closure_receipt_ref": {
+      "path": "runtime/craft-ledger/.invoke/ledger-mutation/define-v1/source/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+      "sha256": "47360da0b40d7dafea9f9ec73cd224d534f71ddee088431e992693d68cfa47ca",
+      "size": 10928
+    },
+    "context_ref": {
+      "path": "runtime/craft-ledger/.invoke/ledger-mutation/define-v1/source/DEFINE-SEMANTIC-CONTEXT.json",
+      "sha256": "f75c61015ad25a075a7aa16481c627b918377063c222426ae93fde135da6f309",
+      "size": 8507
+    }
+  },
+  "title": "Craft Ledger Mutation Candidate Definitions",
+  "visibility": "public"
+}

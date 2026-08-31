@@ -1,0 +1,238 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/define-semantic-context-authoring-request/v1",
+  "schema_version": "invoke.cli-authoring-request.v1",
+  "mode": "define",
+  "stage": "semantic-context",
+  "document": {
+    "authored_by": "codex-invoke-define-author",
+    "assessed_by": "invoke-semantic-closure-validator",
+    "target": {
+      "id": "feature:craft-ledger-mutation-input",
+      "objective": "Define the smallest trustworthy protocol boundary for inspecting and mutating a Craft ledger, with one common request envelope and operation-specific payloads.",
+      "authority_scope": {
+        "kind": "feature",
+        "ref": "runtime/craft-ledger:ledger-mutation"
+      },
+      "visibility": "public"
+    },
+    "discovery": {
+      "kind": "artifact",
+      "ref": {
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "Discovery — Mutação determinística do Craft ledger",
+        "visibility": "public"
+      }
+    },
+    "discovery_contract": {
+      "profile": "semantic-surface-v1",
+      "claim_scope": "configured-roots-complete",
+      "roots": [
+        {
+          "root_id": "root:craft-ledger-mutation-discovery",
+          "path": "runtime/craft-ledger/docs/features/ledger-mutation",
+          "registry_globs": [
+            "**/DEFINITIONS.md",
+            "**/DEFINITIONS-INDEX.md",
+            "**/DEFINITIONS.json",
+            "**/GLOSSARY.md"
+          ],
+          "consumer_globs": [
+            "**/*.md"
+          ],
+          "visibility": "public"
+        },
+        {
+          "root_id": "root:arcanum-definitions-authority",
+          "path": "definitions",
+          "registry_globs": [
+            "**/DEFINITIONS.md",
+            "**/DEFINITIONS-INDEX.md",
+            "**/DEFINITIONS.json",
+            "**/GLOSSARY.md"
+          ],
+          "consumer_globs": [
+            "**/*.md"
+          ],
+          "visibility": "public"
+        }
+      ]
+    },
+    "concept_probes": [
+      {
+        "probe_id": "probe:ledger-inspection-snapshot",
+        "term": "ledger inspection snapshot",
+        "aliases": [
+          "inspection snapshot",
+          "snapshot de inspeção"
+        ],
+        "intent": "Name the authoritative pre-mutation reading that gives the caller the current ledger revision, target context, and relevant constraints before it proposes a mutation.",
+        "intended_scope": {
+          "kind": "feature",
+          "ref": "runtime/craft-ledger:ledger-mutation"
+        },
+        "evidence_refs": [
+          {
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "5.4 Tratamento do contexto",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The configured feature surface describes the required read but contains no canonical definition registry for this scoped concept."
+      },
+      {
+        "probe_id": "probe:ledger-mutation-request",
+        "term": "ledger mutation request",
+        "aliases": [
+          "mutation request",
+          "requisição de mutação"
+        ],
+        "intent": "Name the model-authored proposal that binds a logical request, a supported operation, a resolved target, an expected source revision, and a family-specific payload without granting write authority.",
+        "intended_scope": {
+          "kind": "feature",
+          "ref": "runtime/craft-ledger:ledger-mutation"
+        },
+        "evidence_refs": [
+          {
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "4.2 Requisição de mutação",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The discovery proposes this boundary locally and the configured surface has no canonical registry owning it."
+      },
+      {
+        "probe_id": "probe:operation-payload",
+        "term": "operation payload",
+        "aliases": [
+          "family payload",
+          "payload de operação"
+        ],
+        "intent": "Name the operation-selected portion of a mutation request whose fields preserve the semantics of one ledger family instead of collapsing gaps, blockers, decisions, and other families into one generic record.",
+        "intended_scope": {
+          "kind": "feature",
+          "ref": "runtime/craft-ledger:ledger-mutation"
+        },
+        "evidence_refs": [
+          {
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "5.5 Validação por família",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The family-specific part is required by the discovery but is not yet a canonical repository term in the configured surface."
+      },
+      {
+        "probe_id": "probe:ledger-mutation-outcome",
+        "term": "ledger mutation outcome",
+        "aliases": [
+          "mutation result",
+          "resultado de mutação"
+        ],
+        "intent": "Name the stable response that reports a plan, successful application, no-op, replay, conflict, validation failure, unsupported operation, unknown policy, stale source, or plan mismatch and its persistence effect.",
+        "intended_scope": {
+          "kind": "feature",
+          "ref": "runtime/craft-ledger:ledger-mutation"
+        },
+        "evidence_refs": [
+          {
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "4.6 Resultado e idempotência",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The stable result vocabulary is feature-local and has no canonical registry entry in the configured surface."
+      }
+    ],
+    "authority_boundary": {
+      "declaration": "configured",
+      "profile": "markdown-index-v1",
+      "declared_owner": "definitions-governance",
+      "canonical_scope": {
+        "kind": "repository",
+        "ref": "Arcanum"
+      },
+      "canonical_source_refs": [
+        {
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Arcanum Canonical Definitions",
+          "visibility": "public"
+        }
+      ],
+      "index_refs": [
+        {
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Arcanum Definitions Index",
+          "visibility": "public"
+        }
+      ],
+      "resolution_evidence_refs": [
+        {
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Authority Model",
+          "visibility": "public"
+        }
+      ]
+    },
+    "adjacent_registries": [],
+    "consumer_boundary": {
+      "classification": "none-with-rationale",
+      "consumers": [],
+      "rationale": "No Markdown document under the configured roots independently consumes the four proposed feature-local terms; the feature discovery is source evidence, and the remaining definitions documents do not use those terms."
+    },
+    "exclusions": []
+  },
+  "evidence_paths": [
+    {
+      "pointer": "/discovery/ref",
+      "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md"
+    },
+    {
+      "pointer": "/concept_probes/0/evidence_refs/0",
+      "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md"
+    },
+    {
+      "pointer": "/concept_probes/1/evidence_refs/0",
+      "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md"
+    },
+    {
+      "pointer": "/concept_probes/2/evidence_refs/0",
+      "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md"
+    },
+    {
+      "pointer": "/concept_probes/3/evidence_refs/0",
+      "path": "runtime/craft-ledger/docs/features/ledger-mutation/discovery.md"
+    },
+    {
+      "pointer": "/authority_boundary/canonical_source_refs/0",
+      "path": "definitions/DEFINITIONS.md"
+    },
+    {
+      "pointer": "/authority_boundary/index_refs/0",
+      "path": "definitions/DEFINITIONS-INDEX.md"
+    },
+    {
+      "pointer": "/authority_boundary/resolution_evidence_refs/0",
+      "path": "arcana/definitions-governance/README.md"
+    }
+  ]
+}

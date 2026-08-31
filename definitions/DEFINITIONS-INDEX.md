@@ -30,6 +30,7 @@ Canonical source: [DEFINITIONS.md](DEFINITIONS.md)
 | Alias | Definition ID |
 | --- | --- |
 | artifact contract | DEF-ARC-CONTRACT |
+| artifact schema | DEF-ARC-SCHEMA |
 | apply token | DEF-ARC-APPROVAL-TOKEN |
 | authoritative artifact | DEF-ARC-CANONICAL-ARTIFACT |
 | autonomous goal loop | DEF-ARC-GOAL-SPELL |

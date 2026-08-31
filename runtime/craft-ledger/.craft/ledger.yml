@@ -1,0 +1,439 @@
+ledger_id: craft.runtime.craft_ledger
+schema_ref: ../../../arcana/craft/templates/ledger.schema.yml
+schema_version: 0.3.0
+status: candidate-local
+source_of_truth: .craft/ledger.yml
+human_view: CRAFT.md
+notes:
+  - Root Craft ledger for the runtime/craft-ledger project scope.
+  - The existing ledger-mutation discovery is the initial source contract.
+
+indexes:
+  by_id:
+    CTX-CRAFT-LEDGER-RUNTIME: contexts[0]
+    DESC-CRAFT-LEDGER-RUNTIME-001: descriptions[0]
+    DESC-CRAFT-LEDGER-RUNTIME-002: descriptions[1]
+    DESC-CRAFT-LEDGER-RUNTIME-003: descriptions[2]
+    DESC-CRAFT-LEDGER-RUNTIME-004: descriptions[3]
+    DESC-CRAFT-LEDGER-RUNTIME-005: descriptions[4]
+    ART-CRAFT-LEDGER-SOURCE: artifacts[0]
+    ART-CRAFT-LEDGER-VIEW: artifacts[1]
+    ART-CRAFT-LEDGER-MUTATION-DISCOVERY: artifacts[2]
+    ART-LEDGER-MUTATION-DEFINE-SPEC: artifacts[3]
+    ART-LEDGER-MUTATION-DEFINE-DEFINITIONS: artifacts[4]
+    ART-LEDGER-MUTATION-DEFINE-ADMISSION: artifacts[5]
+    ART-LEDGER-MUTATION-DEFINE-STATUS: artifacts[6]
+    ART-CRAFT-OPERATIONS-ROBOT-TALKS: artifacts[7]
+    DEF-CRAFT-LEDGER-INSPECTION-SNAPSHOT: definitions[0]
+    DEF-CRAFT-LEDGER-MUTATION-REQUEST: definitions[1]
+    DEF-CRAFT-OPERATION-PAYLOAD: definitions[2]
+    DEF-CRAFT-LEDGER-MUTATION-OUTCOME: definitions[3]
+    DEC-LEDGER-MUTATION-RUNTIME-OWNER: decisions[0]
+    DEC-LEDGER-MUTATION-OPERATION-INVENTORY: decisions[1]
+    DEC-LEDGER-MUTATION-ID-POLICY: decisions[2]
+    DEC-LEDGER-MUTATION-APPLY-AUTHORITY: decisions[3]
+    DEC-LEDGER-MUTATION-EMBEDDED-INDEX: decisions[4]
+    DEC-LEDGER-MUTATION-LEGACY-020: decisions[5]
+    DEC-LEDGER-MUTATION-ATOMIC-COMMIT: decisions[6]
+    DEC-LEDGER-MUTATION-DERIVED-INDEX: decisions[7]
+    DEC-LEDGER-MUTATION-REPLAY-EVIDENCE: decisions[8]
+    DEC-LEDGER-MUTATION-DRY-RUN-PLAN: decisions[9]
+    DEC-LEDGER-MUTATION-YAML-SERIALIZATION: decisions[10]
+    GAP-LEDGER-MUTATION-DESIGN: gaps[0]
+    GAP-LEDGER-MUTATION-DEFINITION-OVERHEAD: gaps[1]
+  open_decisions:
+    - DEC-LEDGER-MUTATION-ID-POLICY
+    - DEC-LEDGER-MUTATION-APPLY-AUTHORITY
+    - DEC-LEDGER-MUTATION-EMBEDDED-INDEX
+    - DEC-LEDGER-MUTATION-LEGACY-020
+    - DEC-LEDGER-MUTATION-ATOMIC-COMMIT
+    - DEC-LEDGER-MUTATION-DERIVED-INDEX
+    - DEC-LEDGER-MUTATION-REPLAY-EVIDENCE
+    - DEC-LEDGER-MUTATION-DRY-RUN-PLAN
+    - DEC-LEDGER-MUTATION-YAML-SERIALIZATION
+  blocking_decisions: []
+  active_blockers: []
+  active_gaps:
+    - GAP-LEDGER-MUTATION-DESIGN
+    - GAP-LEDGER-MUTATION-DEFINITION-OVERHEAD
+  next_moves:
+    - context_id: CTX-CRAFT-LEDGER-RUNTIME
+      next_move: Design and implement the S0 add_gap transaction kernel under runtime/craft-ledger/implementation with subdirectories separated by responsibility; constrain add_gap to active-row creation; reuse inspect/plan/apply/outcome mechanics; then admit S1 operation contracts for transition_gap, next, open_decision, and decide while reducing and measuring definition overhead.
+  artifacts_by_path:
+    .craft/ledger.yml: ART-CRAFT-LEDGER-SOURCE
+    CRAFT.md: ART-CRAFT-LEDGER-VIEW
+    docs/features/ledger-mutation/discovery.md: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    .invoke/ledger-mutation/define-v1/bundle/SPEC.md: ART-LEDGER-MUTATION-DEFINE-SPEC
+    .invoke/ledger-mutation/define-v1/bundle/DEFINITIONS.json: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+    .invoke/ledger-mutation/define-v1/DEFINE-BUNDLE-ADMISSION-RECEIPT.json: ART-LEDGER-MUTATION-DEFINE-ADMISSION
+    .invoke/ledger-mutation/define-v1/CAPABILITY-STATUS.json: ART-LEDGER-MUTATION-DEFINE-STATUS
+    robot-talks/craft-operations-decision/review.md: ART-CRAFT-OPERATIONS-ROBOT-TALKS
+
+contexts:
+  - context_id: CTX-CRAFT-LEDGER-RUNTIME
+    parent_id: root
+    title: Craft Ledger Runtime
+    purpose: Design and implement deterministic, fail-closed mutation of Craft ledgers.
+    stage: design
+    gate: flag
+    next_move: Design and implement the S0 add_gap transaction kernel under runtime/craft-ledger/implementation with subdirectories separated by responsibility; constrain add_gap to active-row creation; reuse inspect/plan/apply/outcome mechanics; then admit S1 operation contracts for transition_gap, next, open_decision, and decide while reducing and measuring definition overhead.
+    owned_artifacts:
+      - ART-CRAFT-LEDGER-SOURCE
+      - ART-CRAFT-LEDGER-VIEW
+      - ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+      - ART-LEDGER-MUTATION-DEFINE-SPEC
+      - ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+      - ART-LEDGER-MUTATION-DEFINE-ADMISSION
+      - ART-LEDGER-MUTATION-DEFINE-STATUS
+      - ART-CRAFT-OPERATIONS-ROBOT-TALKS
+    links:
+      - label: Ledger mutation discovery
+        target: docs/features/ledger-mutation/discovery.md
+        kind: path
+      - label: Admitted Define specification
+        target: .invoke/ledger-mutation/define-v1/bundle/SPEC.md
+        kind: path
+      - label: Define admission receipt
+        target: .invoke/ledger-mutation/define-v1/DEFINE-BUNDLE-ADMISSION-RECEIPT.json
+        kind: path
+      - label: Robot-Talks operation decision
+        target: robot-talks/craft-operations-decision/review.md
+        kind: path
+    notes: Define v1 is admitted as the add_gap-only S0 kernel and the phased operation inventory is closed; design, registry release, mutation runtime, and S1 contracts remain pending.
+
+artifacts:
+  - artifact_id: ART-CRAFT-LEDGER-SOURCE
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: .craft/ledger.yml
+    artifact_type: craft-ledger
+    status: active
+    notes: Authoritative structured state for this Craft scope.
+  - artifact_id: ART-CRAFT-LEDGER-VIEW
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: CRAFT.md
+    artifact_type: human-view
+    status: active
+    notes: Human-readable projection of the source ledger.
+  - artifact_id: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: docs/features/ledger-mutation/discovery.md
+    artifact_type: discovery
+    status: active
+    notes: Initial source contract for deterministic ledger mutation.
+  - artifact_id: ART-LEDGER-MUTATION-DEFINE-SPEC
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: .invoke/ledger-mutation/define-v1/bundle/SPEC.md
+    artifact_type: invoke-define-spec
+    status: pass
+    notes: Admitted definition of one request envelope, discriminated operation payloads, mandatory inspection, explicit plan/apply, and the add_gap-only first slice.
+  - artifact_id: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: .invoke/ledger-mutation/define-v1/bundle/DEFINITIONS.json
+    artifact_type: candidate-definitions
+    status: pass
+    notes: Candidate feature-local definitions; authority_effect remains none.
+  - artifact_id: ART-LEDGER-MUTATION-DEFINE-ADMISSION
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: .invoke/ledger-mutation/define-v1/DEFINE-BUNDLE-ADMISSION-RECEIPT.json
+    artifact_type: admission-receipt
+    status: pass
+    notes: Independent replay found the thirteen-file Define bundle current and byte-identical.
+  - artifact_id: ART-LEDGER-MUTATION-DEFINE-STATUS
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: .invoke/ledger-mutation/define-v1/CAPABILITY-STATUS.json
+    artifact_type: capability-status
+    status: flag
+    notes: artifact_authored is pass; registry release and mutation runtime readiness were not claimed and remain false.
+  - artifact_id: ART-CRAFT-OPERATIONS-ROBOT-TALKS
+    owner_context_id: CTX-CRAFT-LEDGER-RUNTIME
+    path: robot-talks/craft-operations-decision/review.md
+    artifact_type: robot-talks-review
+    status: pass
+    notes: Four-perspective investigation and synthesis accepted by the operator as the operation-boundary and phased-inventory evidence.
+
+descriptions:
+  - description_id: DESC-CRAFT-LEDGER-RUNTIME-001
+    context_id: CTX-CRAFT-LEDGER-RUNTIME
+    description: The project is defining a runtime that accepts structured Craft operations, validates candidate state, and applies admitted ledger mutations without partial writes or silent policy invention.
+    status: active
+    evidence: docs/features/ledger-mutation/discovery.md
+
+  - description_id: DESC-CRAFT-LEDGER-RUNTIME-002
+    context_id: CTX-CRAFT-LEDGER-RUNTIME
+    description: Define v1 closes the input idea as one versioned protocol with a common envelope, an operation-discriminated payload, a mandatory pre-proposal ledger inspection snapshot, a non-writing plan, an explicit apply boundary, and stable outcomes. Only add_gap is supported in the first slice.
+    status: active
+    evidence: ART-LEDGER-MUTATION-DEFINE-ADMISSION
+
+  - description_id: DESC-CRAFT-LEDGER-RUNTIME-003
+    context_id: CTX-CRAFT-LEDGER-RUNTIME
+    description: The operator observed that producing and admitting the add_gap-only Define v1 took 38 minutes. This cost is disproportionate for one supported operation and should not be repeated unchanged for every additional ledger family.
+    status: active
+    evidence: "operator-observation: 2026-08-31; elapsed=38m; scope=add_gap-only Define v1"
+
+  - description_id: DESC-CRAFT-LEDGER-RUNTIME-004
+    context_id: CTX-CRAFT-LEDGER-RUNTIME
+    description: The canonical persisted gap-row schema already exists in arcana/craft/templates/schemas/ledger-core.schema.yml. The remaining design work is limited to the machine-checkable mutation request envelope, the add_gap payload contract, deterministic mapping into the existing gap row, and inspect/plan/apply/outcome contracts.
+    status: active
+    evidence: ../../../arcana/craft/templates/schemas/ledger-core.schema.yml#row_families.gaps
+
+  - description_id: DESC-CRAFT-LEDGER-RUNTIME-005
+    context_id: CTX-CRAFT-LEDGER-RUNTIME
+    description: The mutation runtime supports authoritative semantic mutations through shared inspect, plan, apply, and outcome mechanics without treating read, standalone validation, projection, orchestration, or external execution as mutation operations. add_gap remains the create-active S0 transaction kernel; the first useful lifecycle slice adds transition_gap, next, open_decision, and decide, followed by evidence, typed-item, and recursive-context slices only after their contracts are admitted.
+    status: active
+    evidence: ART-CRAFT-OPERATIONS-ROBOT-TALKS
+
+definitions:
+  - definition_id: DEF-CRAFT-LEDGER-INSPECTION-SNAPSHOT
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    term: ledger inspection snapshot
+    statement: Fresh, read-only, revision-bound ledger context consumed before a mutation request is proposed.
+    status: candidate
+    evidence: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+  - definition_id: DEF-CRAFT-LEDGER-MUTATION-REQUEST
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    term: ledger mutation request
+    statement: Complete versioned proposal formed by a common envelope and exactly one payload selected by operation; it does not authorize a write.
+    status: candidate
+    evidence: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+  - definition_id: DEF-CRAFT-OPERATION-PAYLOAD
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    term: operation payload
+    statement: Operation-selected semantic body whose fields and invariants belong to one supported ledger family mutation.
+    status: candidate
+    evidence: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+  - definition_id: DEF-CRAFT-LEDGER-MUTATION-OUTCOME
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    term: ledger mutation outcome
+    statement: Stable classified result that states what happened, its diagnostics and bindings, and whether authoritative ledger bytes changed.
+    status: candidate
+    evidence: ART-LEDGER-MUTATION-DEFINE-DEFINITIONS
+
+gaps:
+  - gap_id: GAP-LEDGER-MUTATION-DESIGN
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    summary: The persisted gap-row schema already exists. Missing are the machine-checkable mutation request envelope, add_gap payload contract, deterministic mapping into the existing row schema, and inspect/plan/apply/outcome contracts.
+    severity: flag
+    treatment: plan
+    owner: planner
+    status: active
+    evidence: ART-LEDGER-MUTATION-DEFINE-SPEC
+    links:
+      - label: Admitted Define specification
+        target: ART-LEDGER-MUTATION-DEFINE-SPEC
+        kind: artifact-id
+  - gap_id: GAP-LEDGER-MUTATION-DEFINITION-OVERHEAD
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    summary: Producing and admitting the definition for only add_gap took 38 minutes, making the current workflow too expensive to repeat independently for blocker, decision, and every other operation.
+    severity: flag
+    treatment: plan
+    owner: operations
+    status: active
+    evidence: "operator-observation: 2026-08-31; elapsed=38m; scope=add_gap-only Define v1"
+    links:
+      - label: Admitted add_gap-only Define
+        target: ART-LEDGER-MUTATION-DEFINE-ADMISSION
+        kind: artifact-id
+relations: []
+typed_items: []
+decisions:
+  - decision_id: DEC-LEDGER-MUTATION-RUNTIME-OWNER
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual componente será o owner canônico do runtime mutável: o pacote Craft, um adapter separado ou uma superfície compartilhada de runtime?"
+    description: The runtime is project-local to runtime/craft-ledger and its implementation tree separates responsibilities into subdirectories.
+    options:
+      - runtime/craft-ledger/implementation
+      - Craft package root
+      - separate runtime adapter
+      - shared runtime surface
+    selected: runtime/craft-ledger/implementation
+    rationale: The operator selected a project-local implementation root and explicitly allowed subdirectories there to separate runtime responsibilities.
+    evidence: "operator-direction: 2026-08-31; runtime_root=runtime/craft-ledger/implementation; layout=responsibility-separated-subdirectories"
+    status: closed
+    blocking: false
+    impact: Runtime code, responsibility boundaries, tests, and implementation-local schemas now have one project-owned root; the concrete subdirectory layout remains Design work.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-OPERATION-INVENTORY
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual é o inventário inicial de operações suportadas e qual delas fornece o menor slice útil sem fingir cobertura completa?"
+    description: The runtime admits authoritative semantic mutations in coherent slices and keeps read, standalone validation, projection, orchestration, and external-owner execution outside the mutation discriminator.
+    options:
+      - mirror all declared Craft methods in the mutation runtime
+      - stop at the add_gap-only transaction kernel
+      - phase coherent mutation lifecycles after the add_gap kernel
+    selected: phase coherent mutation lifecycles after the add_gap kernel
+    rationale: The operator accepted the Robot-Talks synthesis. add_gap remains S0 and creates only active gaps. S1 adds transition_gap, next, open_decision, and decide so the runtime exercises creation, transition, context update, and a complete decision lifecycle without claiming all-method support. Later slices cover evidence and local knowledge, typed items and gates, then recursive contexts. New lifecycle operations require canonical Craft maintenance before runtime admission.
+    evidence: ART-CRAFT-OPERATIONS-ROBOT-TALKS
+    status: closed
+    blocking: false
+    impact: Bounds the runtime surface and prevents partial coverage from being represented as complete ledger support.
+    owner: product
+    links:
+      - label: Updated discovery operation boundary
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+      - label: Admitted add_gap-only Define
+        target: ART-LEDGER-MUTATION-DEFINE-SPEC
+        kind: artifact-id
+      - label: Robot-Talks operation decision
+        target: ART-CRAFT-OPERATIONS-ROBOT-TALKS
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-ID-POLICY
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual autoridade fecha o domínio de unicidade e a política de alocação de IDs por família?"
+    description: Open governance question for proposed row IDs, collision handling, and allocation authority across ledger families.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate governance-compatible allocation models and bind the selected model to each supported family.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines whether callers may propose IDs and how the runtime rejects collisions without inventing policy.
+    owner: governance
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-APPLY-AUTHORITY
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Quem pode autorizar apply em cada ambiente: o mesmo caller, um humano, uma policy engine ou uma combinação deles?"
+    description: Open authority question for the explicit apply boundary in each execution environment.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate environment-specific authorization models and the evidence each must bind to a plan.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Controls who can cross from a non-writing plan to an authoritative ledger mutation.
+    owner: governance
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-EMBEDDED-INDEX
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Quais famílias compõem cada índice embutido e quais filtros definem itens ativos por versão?"
+    description: Open design question for versioned embedded-index membership and active-item filters.
+    options: []
+    selected: pending
+    rationale: Pending; derive candidate rules from the canonical index contract and enumerate version-specific differences.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines the atomic index effects that every admitted mutation plan must validate and publish with its row changes.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-LEGACY-020
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual é a semântica operacional definitiva para ledgers 0.2.0?"
+    description: Open compatibility question for reading, planning, rejecting, or migrating legacy Craft ledgers.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate compatible read, mutation, and migration behaviors without silently upgrading authoritative state.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines whether the runtime can safely target schema version 0.2.0 and which outcomes it returns when it cannot.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-ATOMIC-COMMIT
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual mecanismo fornecerá compare-and-commit e substituição atômica nas plataformas suportadas?"
+    description: Open implementation-design question for concurrency checks and all-or-nothing publication.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate platform-supported persistence mechanisms and prove their failure behavior before selection.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines whether apply can enforce STALE_SOURCE and guarantee that partial ledger writes never become authoritative.
+    owner: tech
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-DERIVED-INDEX
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Como .craft/index.json será atualizado ou invalidado após o commit sem ampliar a transação autoritativa?"
+    description: Open projection-maintenance question for the optional generated index after authoritative ledger mutation.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate invalidation and rebuild strategies that preserve the ledger as the sole authority.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines how consumers avoid trusting a stale derived index after a successful commit.
+    owner: tech
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-REPLAY-EVIDENCE
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Qual superfície admitida pelo schema guardará a prova durável de replay na mesma unidade atômica do ledger, e por quanto tempo ela será retida?"
+    description: Open design and governance question for durable idempotency evidence and its retention policy.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate schema-owned storage and retention models that can prove replay without duplicating effects.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines whether retries after ambiguous completion can recover the original result safely.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-DRY-RUN-PLAN
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "O plano de dry-run será um artefato serializado estável ou uma resposta efêmera sem perder a identidade imutável exigida por apply?"
+    description: Open interface question for plan persistence and immutable plan identity across the apply boundary.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate durable and ephemeral representations and prove that either preserves the exact admitted plan identity.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines how callers inspect, transport, authorize, and later apply a non-writing plan.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+  - decision_id: DEC-LEDGER-MUTATION-YAML-SERIALIZATION
+    scope_id: CTX-CRAFT-LEDGER-RUNTIME
+    decision_type: selection
+    question: "Quais perfis preservarão a representação YAML existente e quais adotarão serialização canônica?"
+    description: Open compatibility question for byte preservation versus canonical serialization across mutation profiles.
+    options: []
+    selected: pending
+    rationale: Pending; enumerate profile-specific serialization policies and their compatibility and determinism consequences.
+    evidence: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+    status: active
+    blocking: false
+    impact: Determines candidate-byte identity, formatting preservation, plan fingerprints, and cross-platform reproducibility.
+    owner: architecture
+    links:
+      - label: Discovery open questions
+        target: ART-CRAFT-LEDGER-MUTATION-DISCOVERY
+        kind: artifact-id
+recomposition: []

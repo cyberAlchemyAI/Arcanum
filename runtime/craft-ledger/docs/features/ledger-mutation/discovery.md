@@ -138,9 +138,14 @@ operações baseadas em receipts, não autoridade canônica do runtime
 ## 4. Direção de design
 
 Não há registros aplicáveis em `authority/decisions/` no estado observado deste
-repositório. Consequentemente, as escolhas abaixo são direção provisória deste
-discovery. Elas não autorizam implementação nem alteram o contrato canônico do
-Craft.
+repositório. Há, porém, duas decisões operator-approved no ledger Craft deste
+escopo: o runtime pertence a `runtime/craft-ledger/implementation/` e sua
+cobertura será uma sequência de slices coerentes, não a reprodução automática
+dos 16 métodos declarados pelo Craft. A segunda decisão foi formada pela
+[investigação Robot-Talks](../../../robot-talks/craft-operations-decision/review.md)
+e fechada pelo operador em 2026-08-31. As demais escolhas deste discovery
+continuam provisórias. Nenhuma delas altera por si só o contrato canônico do
+Craft ou autoriza implementação além de um lifecycle admitido.
 
 O desenho separa três fronteiras. O caller e a autoridade de `apply` fornecem
 julgamento e permissão; o runtime aplica somente regras admitidas por um perfil
@@ -223,10 +228,13 @@ resolvido, verifica contenção pelo caminho canônico e volta a verificar a
 identidade do arquivo dentro da fronteira de commit.
 
 O exemplo pressupõe um perfil aceito que traduz `context_id` para `scope_id` e
-`owner_route` para `owner`. O ID é uma proposta explícita do caller, `status` não
-é preenchido silenciosamente e `evidence` conserva a forma string exigida pela
-linha de gap atual. Se esse perfil ou qualquer dessas traduções não existir, o
-resultado esperado é `UNKNOWN`, não um plano parcialmente inferido.
+`owner_route` para `owner`. O ID é uma proposta explícita do caller e `evidence`
+conserva a forma string exigida pela linha de gap atual. No slice S0, `add_gap`
+tem exclusivamente semântica de criação e só admite `status: active`: enquanto
+o Define v1 mantiver `status` no payload, qualquer outro valor será rejeitado em
+vez de reinterpretado como transição. Se o perfil ou qualquer tradução exigida
+não existir, o resultado esperado é `UNKNOWN`, não um plano parcialmente
+inferido.
 
 ### 4.3 Perfil operacional versionado
 
@@ -364,6 +372,54 @@ Essa separação preserva duas necessidades diferentes: IDs podem continuar
 semanticamente úteis para humanos, enquanto unicidade e colisões são verificadas
 deterministicamente.
 
+### 4.8 Fronteira e cobertura das operações
+
+O discriminador de operação deste runtime contém somente mutações semânticas do
+estado autoritativo. `inspect`, `plan` e `apply` são fases compartilhadas de
+controle: elas relêem, constroem, validam e publicam uma mutação selecionada, mas
+não são operações Craft adicionais. Adapters distintos podem reutilizar essas
+fases sem compartilhar payloads, mappings ou regras de lifecycle.
+
+Também ficam fora do discriminador de mutações:
+
+- `state` e descoberta de workspace, que são leitura e inspeção;
+- `validate` quando chamado como avaliação autônoma de prontidão, distinto da
+  validação obrigatória do candidato durante `plan`;
+- `export_ledger`, a atualização de `CRAFT.md` e a construção ou invalidação de
+  `.craft/index.json`, que são projeções derivadas;
+- seleção e execução de rotas, que pertencem à orquestração;
+- execução de capabilities externas e produção de seus vereditos nativos, que
+  permanecem sob responsabilidade de seus owners.
+
+Os índices embutidos são derivados em significado, mas estão dentro do arquivo
+autoritativo. Por isso, não constituem operações semânticas separadas: cada
+mutação admitida deve reconstruir e validar seus efeitos nos índices dentro do
+mesmo candidato e do mesmo compare-and-commit.
+
+A cobertura aceita é incremental:
+
+| Slice | Mutações semânticas | Coerência fornecida |
+|---|---|---|
+| S0 | `add_gap` | Prova do kernel transacional; cria somente gap `active` e não alega lifecycle útil completo. |
+| S1 | `transition_gap`, `next`, `open_decision`, `decide` | Acrescenta transição, atualização de contexto e lifecycle completo de decisão ao formato de criação já exercitado. |
+| S2 | registro e transição de artefato, `link`, `describe` com sucessão, `add_definition` e avanço local de definição | Registra evidência e conhecimento local sem promover autoridade canônica. |
+| S3 | `add_blocker`, `refine_blocker`, transição de typed item, `add_enabler` e criação de gate quando governada | Cobre impedimentos, habilitadores, resolução e gates sem fechamento manual oculto. |
+| S4 | `open_child_context`, transição de estágio/gate do contexto, `recompose` e `start_project` como bootstrap especial | Cobre lifecycle recursivo e recomposição. |
+
+`transition_gap` é uma operação semanticamente necessária porque o schema modela
+`planned`, `resolved`, `waived` e `superseded`, enquanto `add_gap` só cria
+`active`. Ela ainda não existe na lista canônica de métodos; portanto, exige
+manutenção separada do contrato Craft antes que um perfil do runtime possa
+declará-la suportada. O mesmo princípio vale para outras transições novas dos
+slices posteriores. Não há evidência para adicionar delete, edição arbitrária,
+rollback, reopen ou CRUD genérico.
+
+Essa ordem define cobertura, não uma sequência automática de implementação. Um
+slice só é suportado quando seus adapters, invariantes, índices, recusas e provas
+de lifecycle estiverem admitidos. Até lá, o runtime deve responder
+`UNSUPPORTED` ou `UNKNOWN`, sem representar cobertura parcial como suporte
+completo.
+
 ## 5. Especificações técnicas
 
 ### 5.1 Contrato funcional
@@ -375,10 +431,11 @@ O runtime deve expor, no mínimo, duas capacidades conceitualmente separadas:
 | `plan` | requisição estruturada e fonte esperada | plano ou diagnóstico | Não |
 | `apply` | plano admitido, revisão esperada e autorização | receipt ou diagnóstico | Somente por compare-and-commit |
 
-Uma interface futura pode oferecer comandos específicos como `add-gap` ou
-`open-decision`, mas eles devem convergir para o mesmo contrato interno de
-candidato, validação, plano e apply. A escolha entre CLI, biblioteca ou adapter
-de skill permanece aberta; nenhuma delas deve criar semântica paralela.
+Uma interface futura pode oferecer comandos para as mutações admitidas em cada
+slice, mas todos devem convergir para o mesmo contrato interno de candidato,
+validação, plano e apply. A escolha entre CLI, biblioteca ou adapter de skill
+permanece aberta; nenhuma delas deve criar semântica paralela ou expor uma
+operação de slice posterior como se já estivesse suportada.
 
 #### Identidade de bytes e serialização
 
@@ -521,28 +578,24 @@ evidência de que o contrato consegue especificar, sem invenção:
 - migrar automaticamente ledgers `0.2.0`;
 - escolher neste discovery linguagem, biblioteca, lock ou formato final de CLI.
 
-## Questões abertas
+## Questões ainda abertas
 
-1. Qual componente será o owner canônico do runtime mutável: o pacote Craft, um
-   adapter separado ou uma superfície compartilhada de runtime?
-2. Qual é o inventário inicial de operações suportadas e qual delas fornece o
-   menor slice útil sem fingir cobertura completa?
-3. Qual autoridade fecha o domínio de unicidade e a política de alocação de IDs
+1. Qual autoridade fecha o domínio de unicidade e a política de alocação de IDs
    por família?
-4. Quem pode autorizar `apply` em cada ambiente: o mesmo caller, um humano, uma
+2. Quem pode autorizar `apply` em cada ambiente: o mesmo caller, um humano, uma
    policy engine ou uma combinação deles?
-5. Quais famílias compõem cada índice embutido e quais filtros definem itens
+3. Quais famílias compõem cada índice embutido e quais filtros definem itens
    ativos por versão?
-6. Qual é a semântica operacional definitiva para ledgers `0.2.0`?
-7. Qual mecanismo fornecerá compare-and-commit e substituição atômica nas
+4. Qual é a semântica operacional definitiva para ledgers `0.2.0`?
+5. Qual mecanismo fornecerá compare-and-commit e substituição atômica nas
    plataformas suportadas?
-8. Como `.craft/index.json` será atualizado ou invalidado após o commit sem
+6. Como `.craft/index.json` será atualizado ou invalidado após o commit sem
    ampliar a transação autoritativa?
-9. Qual superfície admitida pelo schema guardará a prova durável de replay na
+7. Qual superfície admitida pelo schema guardará a prova durável de replay na
    mesma unidade atômica do ledger, e por quanto tempo ela será retida?
-10. O plano de dry-run será um artefato serializado estável ou uma resposta
+8. O plano de dry-run será um artefato serializado estável ou uma resposta
     efêmera sem perder a identidade imutável exigida por `apply`?
-11. Quais perfis preservarão a representação YAML existente e quais adotarão
+9. Quais perfis preservarão a representação YAML existente e quais adotarão
     serialização canônica?
 
 ## Evidência consultada
@@ -556,3 +609,4 @@ evidência de que o contrato consegue especificar, sem invenção:
 - [Review da análise](../../../../../docs/analysis/craft-ledger-evaluation/review/analysis-assessment/review.md)
 - [Handoff histórico de lifecycle](../../../../../development/craft/CRAFT-HANDOFF-AUTO-ARTIFACT-LIFECYCLE-2026-06-13.md)
 - [Interaction contract candidate-local](../../../../../development/craft/CRAFT-INTERACTION-CONTRACT.md)
+- [Robot-Talks — Craft Operations Decision](../../../robot-talks/craft-operations-decision/review.md)
