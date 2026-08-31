@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/owner-acceptance-request/2-0-0",
+  "title": "InvokeOwnerAcceptanceRequestV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "base_request_ref",
+    "base_request",
+    "preacceptance_closure",
+    "emission_gate",
+    "authority_effect",
+    "claim_ceiling",
+    "request_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.owner-acceptance-request.v2"
+    },
+    "request_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "base_request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "base_request": {
+      "type": "object"
+    },
+    "preacceptance_closure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_ref",
+        "closure_receipt_ref",
+        "review_attestation_ref",
+        "adoption_ref",
+        "closure_graph_digest"
+      ],
+      "properties": {
+        "manifest_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "closure_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "review_attestation_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "adoption_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "closure_graph_digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "emission_gate": {
+      "const": "pass"
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "claim_ceiling": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_digest": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

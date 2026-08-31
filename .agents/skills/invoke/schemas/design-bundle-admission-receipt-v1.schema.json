@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-bundle-admission-receipt/v1",
+  "title": "Invoke Design Bundle Admission Receipt v1",
+  "description": "Failure-capable independent consumer receipt for exact W3 bundle replay and artifact-authored admission only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "receipt_id", "validator", "bundle_root", "stage_receipt_ref",
+    "producer_binding", "output_inventory", "checks", "replay", "result", "blockers",
+    "evidence_ceiling", "authority_effect", "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-bundle-admission-receipt/v1"},
+    "schema_version": {"const": "invoke.design-bundle-admission-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.validate-design-bundle-admission.v1"},
+        "owner": {"const": "invoke-design-bundle-admission-validator"},
+        "path": {"const": "arcanum/spells/invoke/scripts/validate_design_bundle_admission.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "bundle_root": {"$ref": "#/$defs/relativePath"},
+    "stage_receipt_ref": {"$ref": "#/$defs/exactRef"},
+    "producer_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_id", "receipt_digest", "profile_id", "producer"],
+      "properties": {
+        "receipt_id": {"$ref": "#/$defs/id"},
+        "receipt_digest": {"$ref": "#/$defs/digest"},
+        "profile_id": {"const": "invoke.generic-design-baseline.v1"},
+        "producer": {"$ref": "#/$defs/producer"}
+      }
+    },
+    "output_inventory": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/$defs/designArtifactOutput"},
+        {"$ref": "#/$defs/architectureOutput"},
+        {"$ref": "#/$defs/selectedCompanionsOutput"},
+        {"$ref": "#/$defs/glossaryOutput"},
+        {"$ref": "#/$defs/plannedWitnessesOutput"},
+        {"$ref": "#/$defs/layeringOutput"},
+        {"$ref": "#/$defs/templateSelectionOutput"},
+        {"$ref": "#/$defs/dispatchTraceOutput"},
+        {"$ref": "#/$defs/distillOutput"},
+        {"$ref": "#/$defs/scopeManifestOutput"},
+        {"$ref": "#/$defs/denominatorOutput"},
+        {"$ref": "#/$defs/selectionOutput"},
+        {"$ref": "#/$defs/coherenceOutput"},
+        {"$ref": "#/$defs/transportOutput"},
+        {"$ref": "#/$defs/stageReceiptOutput"}
+      ],
+      "items": false,
+      "minItems": 15,
+      "maxItems": 15
+    },
+    "checks": {
+      "type": "array",
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "stage-receipt-validation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "producer-identity"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "bundle-closure-binding"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "output-inventory"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "projection-replay"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "distill-evidence"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "authority-ceiling"}}}]}
+      ],
+      "items": false,
+      "minItems": 7,
+      "maxItems": 7
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_closure_ref", "candidate_receipt_ref", "comparison", "output_inventory_digest", "differences"],
+      "properties": {
+        "bundle_closure_ref": {"$ref": "#/$defs/exactRef"},
+        "candidate_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "comparison": {"enum": ["pass", "block", "not-evaluable"]},
+        "output_inventory_digest": {"$ref": "#/$defs/digest"},
+        "differences": {"type": "array", "items": {"$ref": "#/$defs/difference"}}
+      }
+    },
+    "result": {"enum": ["pass", "block"]},
+    "blockers": {"type": "array", "items": {"$ref": "#/$defs/blocker"}},
+    "evidence_ceiling": {"$ref": "#/$defs/admissionEvidenceCeiling"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]},
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "checks": {"items": {"properties": {"status": {"const": "pass"}}}},
+          "replay": {"properties": {"comparison": {"const": "pass"}, "differences": {"maxItems": 0}}},
+          "evidence_ceiling": {"properties": {"artifact_authored": {"const": true}}}
+        }
+      },
+      "else": {
+        "properties": {
+          "blockers": {"minItems": 1},
+          "checks": {"contains": {"type": "object", "properties": {"status": {"const": "block"}}, "required": ["status"]}, "minContains": 1},
+          "evidence_ceiling": {"properties": {"artifact_authored": {"const": false}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    },
+    "producer": {
+      "type": "object", "additionalProperties": false, "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-design-source.v2"},
+        "owner": {"const": "invoke-design-producer"},
+        "path": {"const": "arcanum/spells/invoke/scripts/compile_design_source_v2.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "outputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "size"],
+      "properties": {
+        "kind": {"type": "string"}, "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "designArtifactOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "design-artifact"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN\\.json$"}}}]},
+    "architectureOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "architecture"}, "path": {"pattern": "^(?:[^/]+/)*ARCHITECTURE\\.md$"}}}]},
+    "selectedCompanionsOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selected-companions"}, "path": {"pattern": "^(?:[^/]+/)*SELECTED-COMPANIONS\\.md$"}}}]},
+    "glossaryOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "glossary-consistency"}, "path": {"pattern": "^(?:[^/]+/)*GLOSSARY-CONSISTENCY-REPORT\\.json$"}}}]},
+    "plannedWitnessesOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "planned-witnesses"}, "path": {"pattern": "^(?:[^/]+/)*PLANNED-WITNESS-CONTRACTS\\.json$"}}}]},
+    "layeringOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "layering"}, "path": {"pattern": "^(?:[^/]+/)*IMPLEMENTATION-LAYERING\\.md$"}}}]},
+    "templateSelectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "template-selection"}, "path": {"pattern": "^(?:[^/]+/)*TEMPLATE-SELECTION-RECEIPT\\.json$"}}}]},
+    "dispatchTraceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "dispatch-trace"}, "path": {"pattern": "^(?:[^/]+/)*DISPATCH-TRACE\\.json$"}}}]},
+    "distillOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "distill"}, "path": {"pattern": "^(?:[^/]+/)*DISTILL-RECEIPT\\.json$"}}}]},
+    "scopeManifestOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "scope-manifest"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN-SCOPE-MANIFEST\\.json$"}}}]},
+    "denominatorOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "denominator-receipt"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN-DENOMINATOR-RECEIPT\\.json$"}}}]},
+    "selectionOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "selection-result"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN-SELECTION-RESULT\\.json$"}}}]},
+    "coherenceOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "coherence-receipt"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN-COHERENCE-RECEIPT\\.json$"}}}]},
+    "transportOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "transport"}, "path": {"pattern": "^(?:[^/]+/)*DESIGN-TRANSPORT-REPORT\\.json$"}}}]},
+    "stageReceiptOutput": {"allOf": [{"$ref": "#/$defs/outputRef"}, {"properties": {"kind": {"const": "stage-receipt"}, "path": {"pattern": "^(?:[^/]+/)*INVOKE-DESIGN-STAGE-RECEIPT\\.json$"}}}]},
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_id", "status", "evidence_refs", "causal_blocker_ids"],
+      "properties": {
+        "check_id": {"enum": ["stage-receipt-validation", "producer-identity", "bundle-closure-binding", "output-inventory", "projection-replay", "distill-evidence", "authority-ceiling"]},
+        "status": {"enum": ["pass", "block", "not_evaluable"]},
+        "evidence_refs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/exactRef"}},
+        "causal_blocker_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]}, "then": {"properties": {"evidence_refs": {"minItems": 1}, "causal_blocker_ids": {"maxItems": 0}}}, "else": {"properties": {"causal_blocker_ids": {"minItems": 1}}}}
+      ]
+    },
+    "difference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "expected", "observed"],
+      "properties": {
+        "kind": {"enum": ["missing", "unexpected", "digest-mismatch", "size-mismatch", "schema-mismatch", "content-mismatch"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "expected": {"type": ["string", "integer", "null"]},
+        "observed": {"type": ["string", "integer", "null"]}
+      }
+    },
+    "diagnosticCode": {"enum": ["STAGE_RECEIPT_INVALID", "PRODUCER_IDENTITY_MISMATCH", "BUNDLE_CLOSURE_BINDING_MISMATCH", "OUTPUT_INVENTORY_MISMATCH", "PROJECTION_REPLAY_MISMATCH", "DISTILL_EVIDENCE_INVALID", "AUTHORITY_CEILING_INVALID", "REFERENCE_UNAVAILABLE", "REFERENCE_DIGEST_MISMATCH"]},
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocker_id", "code", "message", "check_id", "selector", "repair_route"],
+      "properties": {
+        "blocker_id": {"$ref": "#/$defs/id"}, "code": {"$ref": "#/$defs/diagnosticCode"},
+        "message": {"$ref": "#/$defs/nonEmpty"},
+        "check_id": {"enum": ["stage-receipt-validation", "producer-identity", "bundle-closure-binding", "output-inventory", "projection-replay", "distill-evidence", "authority-ceiling"]},
+        "selector": {"type": ["string", "null"]},
+        "repair_route": {"enum": ["repair-design-bundle", "repair-installed-contract", "repair-distill-evidence", "recompile-design-bundle"]}
+      }
+    },
+    "admissionEvidenceCeiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_authored", "registry_released", "mutation_runtime_ready", "acceptance", "execution", "publication", "deployment", "external_effect"],
+      "properties": {
+        "artifact_authored": {"type": "boolean"}, "registry_released": {"const": false},
+        "mutation_runtime_ready": {"const": false}, "acceptance": {"const": false},
+        "execution": {"const": false}, "publication": {"const": false},
+        "deployment": {"const": false}, "external_effect": {"const": false}
+      }
+    }
+  }
+}

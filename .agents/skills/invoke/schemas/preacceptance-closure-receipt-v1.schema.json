@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/preacceptance-closure-receipt/1-0-0",
+  "title": "InvokePreacceptanceClosureReceiptV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "closure_id",
+    "manifest_ref",
+    "closure_graph_digest",
+    "runner_ref",
+    "result",
+    "blockers",
+    "stage_results",
+    "protected_inputs",
+    "repository_state",
+    "write_observation",
+    "determinism",
+    "authority_effect",
+    "claim_ceiling",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.preacceptance-closure-receipt.v1"
+    },
+    "closure_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "manifest_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "closure_graph_digest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "runner_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "stage_results": {
+      "type": "array",
+      "maxItems": 11,
+      "items": {
+        "$ref": "#/$defs/stageResult"
+      }
+    },
+    "protected_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "before_digest",
+        "after_digest",
+        "unchanged"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "before_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "after_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "unchanged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "repository_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "before_digest",
+        "after_digest",
+        "unchanged"
+      ],
+      "properties": {
+        "before_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "after_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "unchanged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "write_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_writes",
+        "protected_writes",
+        "external_effects_observed",
+        "effect_monitor"
+      ],
+      "properties": {
+        "repository_writes": {
+          "const": 0
+        },
+        "protected_writes": {
+          "const": 0
+        },
+        "external_effects_observed": {
+          "type": "boolean"
+        },
+        "effect_monitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "event_count",
+            "network_policy",
+            "write_policy",
+            "subprocess_policy"
+          ],
+          "properties": {
+            "status": {
+              "enum": ["pass", "block"]
+            },
+            "event_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "network_policy": {
+              "const": "deny"
+            },
+            "write_policy": {
+              "const": "rehearsal-root-only"
+            },
+            "subprocess_policy": {
+              "const": "exact-python-only"
+            }
+          }
+        }
+      }
+    },
+    "determinism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runs",
+        "run_result_digest",
+        "run_output_digests",
+        "byte_stable"
+      ],
+      "properties": {
+        "runs": {
+          "const": 2
+        },
+        "run_result_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "run_output_digests": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "byte_stable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "claim_ceiling": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "receipt_digest": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "stageResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_id",
+        "runner_ref",
+        "invocation_digest",
+        "exit_code",
+        "stdout_sha256",
+        "stderr_sha256",
+        "schema_checks",
+        "result"
+      ],
+      "properties": {
+        "stage_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runner_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "invocation_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "stdout_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "stderr_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "schema_checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "block"
+          ]
+        }
+      }
+    }
+  }
+}

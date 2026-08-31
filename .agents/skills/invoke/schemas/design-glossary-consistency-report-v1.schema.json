@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-glossary-consistency-report/v1",
+  "title": "Invoke Design Glossary Consistency Report v1",
+  "description": "Deterministic W3 projection of the already-coherent W2 glossary application; it grants no glossary promotion authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "report_id", "target_id", "design_artifact_ref",
+    "source_glossary_ref", "mappings", "unmapped_terms", "conflicts", "result",
+    "evidence_state", "plan_evidence_state", "promotion_state", "authority_effect", "report_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-glossary-consistency-report/v1"},
+    "schema_version": {"const": "invoke.design-glossary-consistency-report.v1"},
+    "report_id": {"$ref": "#/$defs/id"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "design_artifact_ref": {"$ref": "#/$defs/exactRef"},
+    "source_glossary_ref": {"$ref": "#/$defs/exactRef"},
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term", "fact_ids"],
+        "properties": {
+          "term": {"$ref": "#/$defs/nonEmpty"},
+          "fact_ids": {"$ref": "#/$defs/idSet"}
+        }
+      }
+    },
+    "unmapped_terms": {"type": "array", "maxItems": 0},
+    "conflicts": {"type": "array", "maxItems": 0},
+    "result": {"const": "pass"},
+    "evidence_state": {"const": "authored-complete"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "promotion_state": {"const": "not-promoted"},
+    "authority_effect": {"const": "none"},
+    "report_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "idSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/cli-authoring-request/v1",
+  "title": "Invoke CLI Authoring Request v1",
+  "description": "Stage-bound authored values and explicit evidence selectors. Fixed fields, exact bytes, receipts, and authority effects are not authored here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "mode", "stage", "document", "evidence_paths"],
+  "properties": {
+    "$schema": {"type": "string", "format": "uri"},
+    "schema_version": {"const": "invoke.cli-authoring-request.v1"},
+    "mode": {"enum": ["define", "design"]},
+    "stage": {"type": "string", "minLength": 1},
+    "document": {"type": "object"},
+    "evidence_paths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pointer", "path"],
+        "properties": {
+          "pointer": {"type": "string", "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"},
+          "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+          "kind": {"enum": ["file", "directory"]}
+        }
+      }
+    }
+  }
+}

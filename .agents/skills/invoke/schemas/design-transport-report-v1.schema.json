@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-transport-report/v1",
+  "title": "Invoke Design Transport Report v1",
+  "description": "W3 no-effect transport projection. It records the W2 append-only policy without performing transport or promotion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema_version", "report_id", "target_id", "design_artifact_ref",
+    "policy", "transport_state", "mutation_performed", "promotion_state",
+    "plan_evidence_state", "authority_effect", "report_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-transport-report/v1"},
+    "schema_version": {"const": "invoke.design-transport-report.v1"},
+    "report_id": {"$ref": "#/$defs/id"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "design_artifact_ref": {"$ref": "#/$defs/exactRef"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["append_existing_only", "upstream_mutation", "targets"],
+      "properties": {
+        "append_existing_only": {"const": true},
+        "upstream_mutation": {"const": false},
+        "targets": {"type": "array", "maxItems": 0}
+      }
+    },
+    "transport_state": {"const": "no-op"},
+    "mutation_performed": {"const": false},
+    "promotion_state": {"const": "not-promoted"},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "authority_effect": {"const": "none"},
+    "report_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    }
+  }
+}

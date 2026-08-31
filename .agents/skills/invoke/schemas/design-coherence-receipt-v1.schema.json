@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-coherence-receipt/v1",
+  "title": "Invoke Design Coherence Receipt v1",
+  "description": "Independent semantic-coherence verdict bound to the exact staged Design artifact and its installed process and policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "validator",
+    "bindings",
+    "policy_rule_ids",
+    "policy_rule_set_digest",
+    "evaluated_rules",
+    "verdict",
+    "diagnostics",
+    "selection_evidence_state",
+    "coherence_state",
+    "design_stage_state",
+    "plan_evidence_state",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-coherence-receipt/v1"},
+    "schema_version": {"const": "invoke.design-coherence-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.validate-design-coherence.v1"},
+        "owner": {"const": "invoke-design-coherence-validator"},
+        "path": {"const": "arcanum/spells/invoke/scripts/validate_design_coherence.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_ref",
+        "profile_ref",
+        "coherence_policy_ref",
+        "design_input_production_receipt_ref",
+        "design_input_closure_ref",
+        "design_input_closure_receipt_ref",
+        "scope_manifest_ref",
+        "denominator_receipt_ref",
+        "selection_result_ref",
+        "design_source_ref",
+        "design_artifact_ref"
+      ],
+      "properties": {
+        "process_ref": {"$ref": "#/$defs/exactRef"},
+        "profile_ref": {"$ref": "#/$defs/exactRef"},
+        "coherence_policy_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_production_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "scope_manifest_ref": {"$ref": "#/$defs/exactRef"},
+        "denominator_receipt_ref": {"$ref": "#/$defs/exactRef"},
+        "selection_result_ref": {"$ref": "#/$defs/exactRef"},
+        "design_source_ref": {"$ref": "#/$defs/exactRef"},
+        "design_artifact_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "policy_rule_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "policy_rule_set_digest": {"$ref": "#/$defs/digest"},
+    "evaluated_rules": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/ruleResult"}},
+    "verdict": {"enum": ["pass", "flag", "block"]},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}},
+    "selection_evidence_state": {"const": "design-validator-pass"},
+    "coherence_state": {"enum": ["pass", "flag", "block"]},
+    "design_stage_state": {"enum": ["pending-bundle-closure", "ineligible"]},
+    "plan_evidence_state": {"const": "plan-evidence-pending"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"verdict": {"const": "pass"}}, "required": ["verdict"]},
+      "then": {
+        "properties": {
+          "evaluated_rules": {"items": {"properties": {"status": {"const": "pass"}}}},
+          "diagnostics": {"maxItems": 0},
+          "coherence_state": {"const": "pass"},
+          "design_stage_state": {"const": "pending-bundle-closure"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"verdict": {"const": "flag"}}, "required": ["verdict"]},
+      "then": {"properties": {"diagnostics": {"minItems": 1}, "coherence_state": {"const": "flag"}, "design_stage_state": {"const": "ineligible"}}}
+    },
+    {
+      "if": {"properties": {"verdict": {"const": "block"}}, "required": ["verdict"]},
+      "then": {"properties": {"diagnostics": {"minItems": 1}, "coherence_state": {"const": "block"}, "design_stage_state": {"const": "ineligible"}}}
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "optionalIdSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "ruleResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "status", "evidence_refs", "causal_blocker_ids"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/id"},
+        "status": {"enum": ["pass", "flag", "block", "not_evaluable"]},
+        "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/exactRef"}},
+        "causal_blocker_ids": {"$ref": "#/$defs/optionalIdSet"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]},
+          "then": {"properties": {"evidence_refs": {"minItems": 1}, "causal_blocker_ids": {"maxItems": 0}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["flag", "block", "not_evaluable"]}}, "required": ["status"]},
+          "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}
+        }
+      ]
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["diagnostic_id", "code", "message", "selector", "owner", "repair", "causal_blocker_ids"],
+      "properties": {
+        "diagnostic_id": {"$ref": "#/$defs/id"},
+        "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,127}$"},
+        "message": {"$ref": "#/$defs/nonEmpty"},
+        "selector": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]},
+        "owner": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+        "repair": {"$ref": "#/$defs/nonEmpty"},
+        "causal_blocker_ids": {"$ref": "#/$defs/optionalIdSet"}
+      }
+    }
+  }
+}

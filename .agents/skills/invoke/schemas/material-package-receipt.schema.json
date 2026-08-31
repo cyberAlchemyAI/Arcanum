@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/material-package-receipt/1-0-0",
+  "title": "InvokeMaterialPackageReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "patchVerdict",
+    "mutationHandoff",
+    "packageDigest",
+    "validatedPaths",
+    "dependencyResult",
+    "ownerBoundaryResult",
+    "publicationBoundaryResult",
+    "validationCommands",
+    "lifecycleOwner",
+    "authorityClass",
+    "publicationClass",
+    "reasons"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "packageId": {"type": "string", "minLength": 1},
+    "patchVerdict": {"enum": ["pass", "reject", "not-applicable"]},
+    "mutationHandoff": {"enum": ["ready", "gated", "deferred", "blocked"]},
+    "packageDigest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "validatedPaths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "dependencyResult": {"enum": ["pass", "reject", "not-applicable"]},
+    "ownerBoundaryResult": {"enum": ["pass", "reject"]},
+    "publicationBoundaryResult": {"enum": ["pass", "reject"]},
+    "validationCommands": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "lifecycleOwner": {"type": ["string", "null"], "minLength": 1},
+    "authorityClass": {"enum": ["public", "private", null]},
+    "publicationClass": {"enum": ["public", "private", "internal", null]},
+    "planBinding": {
+      "oneOf": [
+        {"$ref": "#/$defs/planBinding"},
+        {"type": "null"}
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "$defs": {
+    "baselineEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "state", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "state": {"enum": ["absent", "present"]},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "planBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "swu_id",
+        "plan_epoch_id",
+        "unit_contract_digest",
+        "selection_receipt_digest",
+        "attempt_id",
+        "validation_contract_digest",
+        "validation_contracts",
+        "target_baselines"
+      ],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "swu_id": {"type": "string", "minLength": 1},
+        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "unit_contract_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "selection_receipt_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "attempt_id": {"type": "string", "minLength": 1},
+        "validation_contract_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "validation_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/structuredValidationCommand"}
+        },
+        "target_baselines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/baselineEntry"}
+        }
+      }
+    },
+    "structuredValidationCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_id", "argv", "cwd", "timeout_seconds", "max_output_bytes"],
+      "properties": {
+        "command_id": {"type": "string", "minLength": 1},
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "cwd": {"type": "string", "minLength": 1},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
+        "max_output_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    }
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-closure-receipt/v1",
+  "title": "Invoke Design Input Closure Receipt v1",
+  "description": "Independent, failure-capable evidence for approved-boundary-relative discovery, exact input closure, and the one legal DesignScopeManifest projection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "receipt_id", "validator", "bindings", "activation_kind", "inspected_boundary", "discovery", "conditional_resolutions", "prior_design_determination", "expected_manifest", "checks", "verdict", "blockers", "authority_effect", "receipt_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-closure-receipt/v1"},
+    "schema_version": {"const": "invoke.design-input-closure-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "validator": {
+      "type": "object", "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.validate-design-input-closure.v1"},
+        "owner": {"const": "invoke-design-input-closure-validator"},
+        "path": {"const": "arcanum/spells/invoke/scripts/validate_design_input_closure.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "bindings": {
+      "type": "object", "additionalProperties": false,
+      "required": ["process_ref", "design_input_closure_ref", "boundary_approval_ref", "closure_digest", "discovery_boundary_digest"],
+      "properties": {
+        "process_ref": {"$ref": "#/$defs/exactRef"},
+        "design_input_closure_ref": {"$ref": "#/$defs/exactRef"},
+        "boundary_approval_ref": {"oneOf": [{"$ref": "#/$defs/exactRef"}, {"type": "null"}]},
+        "closure_digest": {"$ref": "#/$defs/digest"},
+        "discovery_boundary_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "activation_kind": {"enum": ["normal", "discovery", "invalid"]},
+    "inspected_boundary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["root_refs", "rule_ids", "required_input_classes"],
+      "properties": {
+        "root_refs": {"type": "array", "items": {"$ref": "#/$defs/exactRef"}},
+        "rule_ids": {"$ref": "#/$defs/optionalIdSet"},
+        "required_input_classes": {"$ref": "#/$defs/optionalIdSet"}
+      }
+    },
+    "discovery": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inventory", "inventory_digest", "cataloged_paths", "excluded_paths", "unclassified_paths", "ambiguous_paths", "per_class"],
+      "properties": {
+        "inventory": {"type": "array", "items": {"$ref": "#/$defs/discoveredCandidate"}},
+        "inventory_digest": {"$ref": "#/$defs/digest"},
+        "cataloged_paths": {"$ref": "#/$defs/pathSet"},
+        "excluded_paths": {"$ref": "#/$defs/pathSet"},
+        "unclassified_paths": {"$ref": "#/$defs/pathSet"},
+        "ambiguous_paths": {"$ref": "#/$defs/pathSet"},
+        "per_class": {"type": "array", "items": {"$ref": "#/$defs/classResult"}}
+      }
+    },
+    "conditional_resolutions": {"type": "array", "items": {"$ref": "#/$defs/conditionalResult"}},
+    "prior_design_determination": {"$ref": "#/$defs/priorDesignResult"},
+    "expected_manifest": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["manifest_id", "input_digest"],
+          "properties": {"manifest_id": {"$ref": "#/$defs/id"}, "input_digest": {"$ref": "#/$defs/digest"}}
+        },
+        {"type": "null"}
+      ]
+    },
+    "checks": {
+      "type": "array", "minItems": 15, "maxItems": 15,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "closure-schema"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "closure-digest"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "process-binding"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "boundary-approval"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "path-safety"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "boundary-freshness"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "discovery-enumeration"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "catalog-closure"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "input-freshness"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "visibility"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "conditional-resolution"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "conflict-closure"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "prior-design"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "scope-signal-coverage"}}}]},
+        {"allOf": [{"$ref": "#/$defs/checkResult"}, {"properties": {"check_id": {"const": "manifest-projection"}}}]}
+      ],
+      "items": false
+    },
+    "verdict": {"enum": ["pass", "block"]},
+    "blockers": {"type": "array", "items": {"$ref": "#/$defs/blocker"}},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"verdict": {"const": "pass"}}, "required": ["verdict"]},
+      "then": {"properties": {
+        "activation_kind": {"enum": ["normal", "discovery"]},
+        "bindings": {"properties": {"boundary_approval_ref": {"$ref": "#/$defs/exactRef"}}},
+        "discovery": {"properties": {"unclassified_paths": {"maxItems": 0}, "ambiguous_paths": {"maxItems": 0}}},
+        "prior_design_determination": {"properties": {"status": {"const": "pass"}}},
+        "expected_manifest": {"type": "object"},
+        "checks": {"items": {"properties": {"status": {"const": "pass"}}}},
+        "blockers": {"maxItems": 0}
+      }}
+    },
+    {
+      "if": {"properties": {"verdict": {"const": "block"}}, "required": ["verdict"]},
+      "then": {"properties": {"blockers": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "optionalIdSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "pathSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/relativePath"}},
+    "exactRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}}
+    },
+    "discoveredCandidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "size", "input_class", "rule_id"],
+      "properties": {"path": {"$ref": "#/$defs/relativePath"}, "sha256": {"$ref": "#/$defs/digest"}, "size": {"type": "integer", "minimum": 0}, "input_class": {"$ref": "#/$defs/id"}, "rule_id": {"$ref": "#/$defs/id"}}
+    },
+    "classResult": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_class", "candidate_count", "included_count", "excluded_count", "status"],
+      "properties": {"input_class": {"$ref": "#/$defs/id"}, "candidate_count": {"type": "integer", "minimum": 0}, "included_count": {"type": "integer", "minimum": 0}, "excluded_count": {"type": "integer", "minimum": 0}, "status": {"enum": ["pass", "block"]}}
+    },
+    "conditionalResult": {
+      "type": "object", "additionalProperties": false,
+      "required": ["input_id", "outcome", "evidence_ref", "owner"],
+      "properties": {"input_id": {"$ref": "#/$defs/id"}, "outcome": {"enum": ["included", "excluded"]}, "evidence_ref": {"$ref": "#/$defs/exactRef"}, "owner": {"$ref": "#/$defs/id"}}
+    },
+    "priorDesignResult": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "status", "candidate_paths", "evidence_refs"],
+      "properties": {"kind": {"enum": ["greenfield", "evolution", "invalid"]}, "status": {"enum": ["pass", "block", "not_evaluable"]}, "candidate_paths": {"$ref": "#/$defs/pathSet"}, "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/exactRef"}}}
+    },
+    "checkResult": {
+      "type": "object", "additionalProperties": false,
+      "required": ["check_id", "status", "evidence_refs", "causal_blocker_ids"],
+      "properties": {"check_id": {"$ref": "#/$defs/id"}, "status": {"enum": ["pass", "block", "not_evaluable"]}, "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/exactRef"}}, "causal_blocker_ids": {"$ref": "#/$defs/optionalIdSet"}},
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"maxItems": 0}}}},
+        {"if": {"properties": {"status": {"enum": ["block", "not_evaluable"]}}, "required": ["status"]}, "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}}
+      ]
+    },
+    "diagnosticCode": {"enum": ["CLOSURE_SCHEMA_INVALID", "CLOSURE_DIGEST_MISMATCH", "PROCESS_REF_STALE", "ACTIVATION_RECEIPT_INVALID", "BOUNDARY_APPROVAL_INVALID", "BOUNDARY_APPROVAL_MISMATCH", "BOUNDARY_REF_ESCAPE", "BOUNDARY_REF_MISSING", "BOUNDARY_REF_STALE", "SYMLINK_UNSUPPORTED", "DISCOVERY_RULE_EMPTY", "DISCOVERY_INPUT_UNDECLARED", "DISCOVERY_INPUT_AMBIGUOUS", "CATALOG_INPUT_OUTSIDE_BOUNDARY", "REQUIRED_INPUT_CLASS_MISSING", "INPUT_DUPLICATE", "INPUT_REF_STALE", "INPUT_SCHEMA_ID_MISMATCH", "INPUT_SCHEMA_VERSION_MISMATCH", "INPUT_VISIBILITY_LEAK", "INPUT_AUTHORITY_UNRESOLVED", "CONDITIONAL_INPUT_UNRESOLVED", "EXCLUSION_UNJUSTIFIED", "CONFLICT_UNRESOLVED", "PRIOR_DESIGN_MISSING", "PRIOR_DESIGN_AMBIGUOUS", "PRIOR_DESIGN_RECEIPT_INVALID", "GREENFIELD_CONTRADICTED", "SCOPE_SIGNAL_INVALID", "MANIFEST_PROJECTION_MISMATCH"]},
+    "blocker": {
+      "type": "object", "additionalProperties": false,
+      "required": ["blocker_id", "code", "message", "selector", "owner", "repair_route"],
+      "properties": {"blocker_id": {"$ref": "#/$defs/id"}, "code": {"$ref": "#/$defs/diagnosticCode"}, "message": {"$ref": "#/$defs/nonEmpty"}, "selector": {"oneOf": [{"$ref": "#/$defs/nonEmpty"}, {"type": "null"}]}, "owner": {"$ref": "#/$defs/id"}, "repair_route": {"$ref": "#/$defs/nonEmpty"}}
+    }
+  }
+}

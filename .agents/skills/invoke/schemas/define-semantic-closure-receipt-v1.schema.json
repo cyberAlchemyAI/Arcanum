@@ -1,0 +1,560 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v1",
+  "title": "Invoke Define Semantic Closure Receipt v1",
+  "description": "Independent, failure-capable inspection of one exact Define semantic context. The receipt classifies the finite denominator and returns a typed routing outcome without defining or promoting terminology.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "validator",
+    "schema_bindings",
+    "context_ref",
+    "assessment",
+    "claim_scope",
+    "visibility_boundary",
+    "discovery_snapshots",
+    "authority_resolution",
+    "inspected_sources",
+    "probe_results",
+    "checks",
+    "blockers",
+    "outcome",
+    "next_route",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v1"},
+    "schema_version": {"const": "invoke.define-semantic-closure-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "owner", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.validate-define-semantic-closure.v1"},
+        "owner": {"const": "invoke-define-semantic-closure-validator"},
+        "path": {"const": ".agents/skills/invoke/scripts/validate_define_semantic_closure.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "schema_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context_schema_ref", "receipt_schema_ref"],
+      "properties": {
+        "context_schema_ref": {"$ref": "#/$defs/exactRef"},
+        "receipt_schema_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "context_ref": {"$ref": "#/$defs/exactRef"},
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authored_by", "assessed_by"],
+      "properties": {
+        "authored_by": {"$ref": "#/$defs/id"},
+        "assessed_by": {"$ref": "#/$defs/id"}
+      }
+    },
+    "claim_scope": {"const": "configured-roots-complete"},
+    "visibility_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_root", "discovery_roots", "public_roots", "source"],
+      "properties": {
+        "repository_root": {"const": "."},
+        "discovery_roots": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/relativePath"}
+        },
+        "public_roots": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/relativePath"}
+        },
+        "source": {"const": "validator-invocation"}
+      }
+    },
+    "discovery_snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/discoverySnapshot"}
+    },
+    "authority_resolution": {"$ref": "#/$defs/authorityResolution"},
+    "inspected_sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/inspectedSource"}
+    },
+    "probe_results": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/probeResult"}
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "prefixItems": [
+        {"$ref": "#/$defs/authorityResolutionCheck"},
+        {"$ref": "#/$defs/sourceFreshnessCheck"},
+        {"$ref": "#/$defs/probeCoverageCheck"},
+        {"$ref": "#/$defs/canonicalIndexParityCheck"},
+        {"$ref": "#/$defs/normalizedCollisionCheck"},
+        {"$ref": "#/$defs/semanticOverlapCheck"},
+        {"$ref": "#/$defs/consumerCoverageCheck"},
+        {"$ref": "#/$defs/independentOwnerCheck"}
+      ],
+      "items": false
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/blocker"}
+    },
+    "outcome": {"enum": ["ready-for-define", "definitions-governance-required", "blocked"]},
+    "next_route": {"enum": ["define-v3", "definitions-governance", "stop"]},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"outcome": {"const": "ready-for-define"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "next_route": {"const": "define-v3"},
+          "blockers": {"maxItems": 0},
+          "authority_resolution": {
+            "properties": {"status": {"const": "resolved"}},
+            "required": ["status"]
+          },
+          "inspected_sources": {
+            "items": {
+              "properties": {
+                "status": {"enum": ["current", "excluded"]},
+                "causal_blocker_ids": {"maxItems": 0}
+              },
+              "required": ["status", "causal_blocker_ids"]
+            }
+          },
+          "checks": {
+            "items": {
+              "properties": {"status": {"const": "pass"}},
+              "required": ["status"]
+            }
+          },
+          "probe_results": {
+            "items": {
+              "properties": {
+                "disposition": {"enum": ["reuse-existing", "new-scoped-term", "specialize-existing"]},
+                "causal_blocker_ids": {"maxItems": 0}
+              },
+              "required": ["disposition", "causal_blocker_ids"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "definitions-governance-required"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "next_route": {"const": "definitions-governance"},
+          "blockers": {"maxItems": 0},
+          "authority_resolution": {
+            "properties": {"status": {"const": "resolved"}},
+            "required": ["status"]
+          },
+          "inspected_sources": {
+            "items": {
+              "properties": {
+                "status": {"enum": ["current", "excluded"]},
+                "causal_blocker_ids": {"maxItems": 0}
+              },
+              "required": ["status", "causal_blocker_ids"]
+            }
+          },
+          "checks": {
+            "items": {
+              "properties": {"status": {"const": "pass"}},
+              "required": ["status"]
+            }
+          },
+          "probe_results": {
+            "contains": {
+              "properties": {"disposition": {"const": "canonical-change-proposal"}},
+              "required": ["disposition"]
+            },
+            "items": {
+              "properties": {
+                "disposition": {
+                  "enum": ["reuse-existing", "new-scoped-term", "specialize-existing", "canonical-change-proposal"]
+                },
+                "causal_blocker_ids": {"maxItems": 0}
+              },
+              "required": ["disposition", "causal_blocker_ids"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "blocked"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "next_route": {"const": "stop"},
+          "blockers": {"minItems": 1}
+        }
+      }
+    }
+  ],
+  "$comment": "Executable validation verifies the assessor's exact proposal; it does not invent semantic dispositions. It owns total probe equality, source freshness, authority resolution, normalized collisions, semantic overlap, consumer coverage within the declared-root denominator, independent-owner admission, and causal blocker closure.",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "materialRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size", "format", "selector_type", "selector", "visibility"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0},
+        "format": {"enum": ["markdown", "json", "yaml", "text"]},
+        "selector_type": {"enum": ["whole-file", "heading", "anchor", "json-pointer", "yaml-path", "symbol"]},
+        "selector": {"$ref": "#/$defs/nonEmpty"},
+        "visibility": {"enum": ["public", "private"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"selector_type": {"const": "whole-file"}}, "required": ["selector_type"]},
+          "then": {"properties": {"selector": {"const": "$"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"enum": ["heading", "anchor"]}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"const": "markdown"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "json-pointer"}}, "required": ["selector_type"]},
+          "then": {
+            "properties": {
+              "format": {"const": "json"},
+              "selector": {"type": "string", "pattern": "^/"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "yaml-path"}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"const": "yaml"}}}
+        },
+        {
+          "if": {"properties": {"selector_type": {"const": "symbol"}}, "required": ["selector_type"]},
+          "then": {"properties": {"format": {"enum": ["markdown", "yaml", "text"]}}}
+        }
+      ]
+    },
+    "discoverySnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "path", "registry_paths", "consumer_paths", "excluded_paths", "content_refs", "membership_digest"],
+      "properties": {
+        "root_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "registry_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/relativePath"}
+        },
+        "consumer_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/relativePath"}
+        },
+        "excluded_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/relativePath"}
+        },
+        "content_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactRef"}
+        },
+        "membership_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "authorityResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "owner", "canonical_source_refs", "index_refs", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["resolved", "absent", "ambiguous"]},
+        "owner": {"$ref": "#/$defs/id"},
+        "canonical_source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactRef"}
+        },
+        "index_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactRef"}
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactRef"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "resolved"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "canonical_source_refs": {"minItems": 1},
+              "index_refs": {"minItems": 1},
+              "evidence_refs": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "absent"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "canonical_source_refs": {"maxItems": 0},
+              "index_refs": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    },
+    "inspectedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inspection_id", "role", "declared_path", "format", "selector_type", "selector", "visibility", "observed_ref", "status", "causal_blocker_ids"],
+      "properties": {
+        "inspection_id": {"$ref": "#/$defs/id"},
+        "role": {"enum": ["canonical-source", "canonical-index", "candidate-registry", "local-glossary", "consumer", "resolution-evidence", "discovery-source", "probe-evidence", "exclusion-evidence", "historical"]},
+        "declared_path": {"$ref": "#/$defs/relativePath"},
+        "format": {"enum": ["markdown", "json", "yaml", "text"]},
+        "selector_type": {"enum": ["whole-file", "heading", "anchor", "json-pointer", "yaml-path", "symbol"]},
+        "selector": {"$ref": "#/$defs/nonEmpty"},
+        "visibility": {"enum": ["public", "private"]},
+        "observed_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/exactRef"},
+            {"type": "null"}
+          ]
+        },
+        "status": {"enum": ["current", "missing", "stale", "excluded", "conflicting"]},
+        "causal_blocker_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"enum": ["current", "excluded"]}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "observed_ref": {"$ref": "#/$defs/exactRef"},
+              "causal_blocker_ids": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["missing", "stale", "conflicting"]}}, "required": ["status"]},
+          "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}
+        }
+      ]
+    },
+    "probeResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["probe_id", "matches", "disposition", "basis_ids", "rationale", "causal_blocker_ids"],
+      "properties": {
+        "probe_id": {"$ref": "#/$defs/id"},
+        "matches": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/match"}
+        },
+        "disposition": {
+          "enum": ["reuse-existing", "new-scoped-term", "specialize-existing", "canonical-change-proposal", "blocked-conflict"]
+        },
+        "basis_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "rationale": {"$ref": "#/$defs/nonEmpty"},
+        "causal_blocker_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"disposition": {"const": "new-scoped-term"}}, "required": ["disposition"]},
+          "then": {
+            "properties": {
+              "basis_ids": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"disposition": {"enum": ["reuse-existing", "specialize-existing", "canonical-change-proposal"]}}, "required": ["disposition"]},
+          "then": {
+            "properties": {
+              "basis_ids": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"disposition": {"const": "blocked-conflict"}}, "required": ["disposition"]},
+          "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}
+        }
+      ]
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "kind", "authority_class", "definition_id", "term", "authority_scope", "source_ref"],
+      "properties": {
+        "match_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["id", "term", "alias", "normalized-collision", "semantic-overlap", "consumer-use"]},
+        "authority_class": {"enum": ["canonical", "candidate", "local", "narrative", "historical"]},
+        "definition_id": {
+          "oneOf": [
+            {"$ref": "#/$defs/id"},
+            {"type": "null"}
+          ]
+        },
+        "term": {"$ref": "#/$defs/nonEmpty"},
+        "authority_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": {"enum": ["repository", "project", "feature", "artifact"]},
+            "ref": {"$ref": "#/$defs/nonEmpty"}
+          }
+        },
+        "source_ref": {"$ref": "#/$defs/materialRef"}
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_id", "status", "evidence_refs", "causal_blocker_ids"],
+      "properties": {
+        "check_id": {"$ref": "#/$defs/id"},
+        "status": {"enum": ["pass", "block", "not_evaluable"]},
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactRef"}
+        },
+        "causal_blocker_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/id"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]},
+          "then": {"properties": {"causal_blocker_ids": {"maxItems": 0}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["block", "not_evaluable"]}}, "required": ["status"]},
+          "then": {"properties": {"causal_blocker_ids": {"minItems": 1}}}
+        }
+      ]
+    },
+    "authorityResolutionCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:authority-resolution"}}}
+      ]
+    },
+    "sourceFreshnessCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:source-freshness"}}}
+      ]
+    },
+    "probeCoverageCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:probe-coverage"}}}
+      ]
+    },
+    "canonicalIndexParityCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:canonical-index-parity"}}}
+      ]
+    },
+    "normalizedCollisionCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:normalized-collision"}}}
+      ]
+    },
+    "semanticOverlapCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:semantic-overlap"}}}
+      ]
+    },
+    "consumerCoverageCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:consumer-coverage"}}}
+      ]
+    },
+    "independentOwnerCheck": {
+      "allOf": [
+        {"$ref": "#/$defs/check"},
+        {"properties": {"check_id": {"const": "check:independent-owner"}}}
+      ]
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocker_id", "code", "message", "owner", "repair_route"],
+      "properties": {
+        "blocker_id": {"$ref": "#/$defs/id"},
+        "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,127}$"},
+        "message": {"$ref": "#/$defs/nonEmpty"},
+        "owner": {"$ref": "#/$defs/id"},
+        "repair_route": {"$ref": "#/$defs/nonEmpty"}
+      }
+    }
+  }
+}

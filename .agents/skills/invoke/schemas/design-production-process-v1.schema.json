@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-production-process/v1",
+  "title": "Invoke Design Production Process v1",
+  "description": "Machine contract for the ordered, authority-free Invoke Design production process.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "process_id",
+    "owner_capability",
+    "mode",
+    "artifact_chain",
+    "stages",
+    "transitions",
+    "compatibility",
+    "evidence_ceiling",
+    "authority_effect",
+    "process_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-production-process/v1"},
+    "schema_version": {"const": "invoke.design-production-process.v1"},
+    "process_id": {"$ref": "#/$defs/id"},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "design"},
+    "artifact_chain": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "define-stage-receipt"},
+        {"const": "design-input-boundary-approval"},
+        {"const": "design-input-closure"},
+        {"const": "design-input-closure-receipt"},
+        {"const": "design-scope-manifest"},
+        {"const": "design-denominator-receipt"},
+        {"const": "design-selection-result"},
+        {"const": "design-input-production-receipt"},
+        {"const": "design-profile"},
+        {"const": "design-source"},
+        {"const": "design-artifact-staged"},
+        {"const": "design-coherence-receipt"},
+        {"const": "design-candidate-production-receipt"},
+        {"const": "design-bundle-closure"},
+        {"const": "distill-execution-evidence"},
+        {"const": "deterministic-views"},
+        {"const": "design-stage-receipt-v2"},
+        {"const": "design-bundle-admission-receipt"},
+        {"const": "capability-artifact-admission"}
+      ],
+      "items": false,
+      "minItems": 19,
+      "maxItems": 19
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/stage"}
+    },
+    "transitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/transition"}
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["historical_evidence", "new_pass_requires", "supersession_policy"],
+      "properties": {
+        "historical_evidence": {"const": "read-only"},
+        "new_pass_requires": {"const": "invoke.design-stage-receipt.v2 plus invoke.design-bundle-admission-receipt.v1"},
+        "supersession_policy": {"const": "restart-from-earliest-changed-binding"}
+      }
+    },
+    "evidence_ceiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_authored",
+        "plan_evidence",
+        "registry_released",
+        "mutation_runtime_ready",
+        "acceptance",
+        "execution",
+        "publication",
+        "deployment",
+        "external_effect"
+      ],
+      "properties": {
+        "artifact_authored": {"type": "boolean"},
+        "plan_evidence": {"const": false},
+        "registry_released": {"const": false},
+        "mutation_runtime_ready": {"const": false},
+        "acceptance": {"const": false},
+        "execution": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false},
+        "external_effect": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "process_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nonEmpty": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "stringSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/nonEmpty"}
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_id",
+        "owner",
+        "input_kinds",
+        "output_kinds",
+        "entry_gate",
+        "exit_gate",
+        "failure_state",
+        "authority_effect"
+      ],
+      "properties": {
+        "stage_id": {"$ref": "#/$defs/id"},
+        "owner": {"$ref": "#/$defs/id"},
+        "input_kinds": {"$ref": "#/$defs/stringSet"},
+        "output_kinds": {"$ref": "#/$defs/stringSet"},
+        "entry_gate": {"$ref": "#/$defs/nonEmpty"},
+        "exit_gate": {"$ref": "#/$defs/nonEmpty"},
+        "failure_state": {"$ref": "#/$defs/id"},
+        "authority_effect": {"const": "none"}
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "condition", "on_failure"],
+      "properties": {
+        "from": {"$ref": "#/$defs/id"},
+        "to": {"$ref": "#/$defs/id"},
+        "condition": {"$ref": "#/$defs/nonEmpty"},
+        "on_failure": {"$ref": "#/$defs/id"}
+      }
+    }
+  }
+}

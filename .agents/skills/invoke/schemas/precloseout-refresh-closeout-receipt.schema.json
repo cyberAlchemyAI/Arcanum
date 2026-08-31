@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/precloseout-refresh-closeout-receipt/1-0-0",
+  "title": "InvokePrecloseoutRefreshCloseoutReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "owner_identity",
+    "task_identity",
+    "precloseout_source",
+    "closeout_output",
+    "validation_inventory",
+    "result",
+    "final_owner_write",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.precloseout-refresh-closeout-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/invokeRefreshOwner"
+    },
+    "task_identity": {
+      "$ref": "#/$defs/taskIdentity"
+    },
+    "precloseout_source": {
+      "$ref": "#/$defs/precloseoutSource"
+    },
+    "closeout_output": {
+      "$ref": "#/$defs/closeoutOutputDeclaration"
+    },
+    "validation_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/validationEntry"
+      }
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "no-op"
+      ]
+    },
+    "final_owner_write": {
+      "$ref": "#/$defs/finalOwnerWrite"
+    },
+    "receipt_digest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        }
+      ],
+      "description": "SHA-256 of the UTF-8 canonical JSON projection of this receipt with only receipt_digest omitted. The projection uses JSON object keys sorted lexicographically, ensure_ascii=false, and separators ',' and ':'. It deliberately does not claim to be the SHA-256 of the containing receipt file."
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "repositoryRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\/])\\.\\.(?:[\\/]|$))(?!.*\\\\)[^\\u0000]+$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "taskIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "run_id",
+        "swu_id",
+        "attempt_id",
+        "idempotency_key"
+      ],
+      "properties": {
+        "task_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "run_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "swu_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "invokeRefreshOwner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "mode",
+        "mutation_mode",
+        "activation_source",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "const": "invoke"
+        },
+        "mode": {
+          "const": "refresh"
+        },
+        "mutation_mode": {
+          "const": "apply-approved"
+        },
+        "activation_source": {
+          "const": "delegated"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "precloseoutReceiptRef": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "precloseoutSchemaRef": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "precloseoutSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_ref",
+        "schema_ref",
+        "task_identity"
+      ],
+      "properties": {
+        "receipt_ref": {
+          "$ref": "#/$defs/precloseoutReceiptRef"
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/precloseoutSchemaRef"
+        },
+        "task_identity": {
+          "$ref": "#/$defs/taskIdentity"
+        }
+      }
+    },
+    "closeoutOutputDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryRelativePath"
+        }
+      },
+      "description": "Path-only declaration for the containing closeout receipt. Hash and size of the actual written receipt are bound later by the final Task Session terminal receipt, avoiding an impossible self-reference."
+    },
+    "validationEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_id",
+        "kind",
+        "result",
+        "evidence_ref"
+      ],
+      "properties": {
+        "validation_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "kind": {
+          "enum": [
+            "source-precloseout",
+            "material-reconciliation",
+            "target-validation"
+          ]
+        },
+        "result": {
+          "const": "pass"
+        },
+        "evidence_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "finalOwnerWrite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "write_class",
+        "owner_capability",
+        "completed",
+        "output_ref"
+      ],
+      "properties": {
+        "write_class": {
+          "const": "invoke-closeout-receipt"
+        },
+        "owner_capability": {
+          "const": "invoke"
+        },
+        "completed": {
+          "const": true
+        },
+        "output_ref": {
+          "$ref": "#/$defs/closeoutOutputDeclaration"
+        }
+      }
+    }
+  }
+}

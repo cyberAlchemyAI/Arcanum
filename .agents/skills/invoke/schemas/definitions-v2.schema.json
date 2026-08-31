@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/definitions/v2",
+  "title": "Invoke Define Definitions Artifact v2",
+  "description": "Candidate-only Define v3 registry. It may contain new or specialized candidate definitions and exact authority bindings to existing canonical definitions without copying their normative prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "registry_id",
+    "title",
+    "registry_status",
+    "owner_route",
+    "authority_kind",
+    "authority_scope",
+    "visibility",
+    "semantic_evidence",
+    "definitions",
+    "authority_bindings",
+    "semantic_applications",
+    "authority_effect"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/definitions/v2"},
+    "schema_version": {"const": "definitions/v2"},
+    "registry_id": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/stable_id"},
+    "title": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/non_empty_string"},
+    "registry_status": {"const": "candidate"},
+    "owner_route": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/non_empty_string"},
+    "authority_kind": {"const": "kind.definition"},
+    "authority_scope": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/authority_scope"},
+    "visibility": {"enum": ["public", "private"]},
+    "semantic_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context_ref", "closure_receipt_ref"],
+      "properties": {
+        "context_ref": {"$ref": "#/$defs/exactRef"},
+        "closure_receipt_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "definitions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/candidateDefinition"}
+    },
+    "authority_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/authorityBinding"}
+    },
+    "semantic_applications": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/semanticApplication"}
+    },
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {"properties": {"definitions": {"minItems": 1}}},
+        {"properties": {"authority_bindings": {"minItems": 1}}}
+      ]
+    },
+    {
+      "if": {"properties": {"visibility": {"const": "public"}}, "required": ["visibility"]},
+      "then": {
+        "properties": {
+          "definitions": {
+            "items": {
+              "properties": {
+                "source_refs": {
+                  "items": {
+                    "properties": {"visibility": {"const": "public"}},
+                    "required": ["visibility"]
+                  }
+                }
+              }
+            }
+          },
+          "authority_bindings": {
+            "items": {
+              "properties": {
+                "authority_ref": {
+                  "properties": {"visibility": {"const": "public"}},
+                  "required": ["visibility"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$comment": "Consumers must enforce normalized uniqueness, exact closure/application equality, canonical-source truth, scope ordering, binding resolution, selector and digest freshness, and view synchronization.",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "idSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/id"}
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "authorityMaterialRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size", "selector", "visibility"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0},
+        "selector": {"$ref": "#/$defs/nonEmpty"},
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "candidateDefinition": {
+      "allOf": [
+        {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/definition"},
+        {
+          "properties": {
+            "term": {"type": "string", "pattern": ".*\\S.*"},
+            "aliases": {"items": {"type": "string", "pattern": ".*\\S.*"}},
+            "status": {"const": "candidate"},
+            "deferred_as": {"type": "null"},
+            "supersedes": {"maxItems": 0},
+            "superseded_by": {"type": "null"},
+            "voices": {
+              "properties": {
+                "normative": {"type": "string", "pattern": ".*\\S.*"},
+                "formal": {
+                  "oneOf": [
+                    {"type": "string", "pattern": ".*\\S.*"},
+                    {"type": "null"}
+                  ]
+                },
+                "operational": {
+                  "oneOf": [
+                    {"type": "string", "pattern": ".*\\S.*"},
+                    {"type": "null"}
+                  ]
+                },
+                "plain_language": {"type": "string", "pattern": ".*\\S.*"},
+                "domain_context": {"type": "string", "pattern": ".*\\S.*"}
+              }
+            },
+            "source_refs": {
+              "items": {
+                "properties": {
+                  "path": {"$ref": "#/$defs/relativePath"},
+                  "sha256": {"$ref": "#/$defs/digest"},
+                  "size": {"type": "integer", "minimum": 0}
+                }
+              }
+            },
+            "relations": {
+              "items": {
+                "properties": {
+                  "type": {"enum": ["references", "depends-on", "contrasts-with"]}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "authorityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_id", "probe_id", "role", "definition_id", "term", "authority_scope", "authority_status", "authority_ref"],
+      "properties": {
+        "binding_id": {"$ref": "#/$defs/id"},
+        "probe_id": {"$ref": "#/$defs/id"},
+        "role": {"enum": ["reuse", "specialization-basis"]},
+        "definition_id": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/stable_id"},
+        "term": {"$ref": "#/$defs/nonEmpty"},
+        "authority_scope": {"$ref": "https://arcanum.dev/schemas/invoke/definitions/v1#/$defs/authority_scope"},
+        "authority_status": {"const": "active"},
+        "authority_ref": {"$ref": "#/$defs/authorityMaterialRef"}
+      }
+    },
+    "semanticApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["probe_id", "disposition", "definition_ids", "authority_binding_ids", "rationale"],
+      "properties": {
+        "probe_id": {"$ref": "#/$defs/id"},
+        "disposition": {"enum": ["reuse-existing", "new-scoped-term", "specialize-existing"]},
+        "definition_ids": {"$ref": "#/$defs/idSet"},
+        "authority_binding_ids": {"$ref": "#/$defs/idSet"},
+        "rationale": {"$ref": "#/$defs/nonEmpty"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"disposition": {"const": "reuse-existing"}}, "required": ["disposition"]},
+          "then": {
+            "properties": {
+              "definition_ids": {"maxItems": 0},
+              "authority_binding_ids": {"minItems": 1, "maxItems": 1}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"disposition": {"const": "new-scoped-term"}}, "required": ["disposition"]},
+          "then": {
+            "properties": {
+              "definition_ids": {"minItems": 1, "maxItems": 1},
+              "authority_binding_ids": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"disposition": {"const": "specialize-existing"}}, "required": ["disposition"]},
+          "then": {
+            "properties": {
+              "definition_ids": {"minItems": 1, "maxItems": 1},
+              "authority_binding_ids": {"minItems": 1, "maxItems": 1}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

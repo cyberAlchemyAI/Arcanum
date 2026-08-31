@@ -1,0 +1,955 @@
+schema_id: craft.recursive_ledger
+schema_version: 0.3.0
+status: canonical-first
+owner_context_id: CTX-LEDGER
+purpose: >
+  Define the compatibility entrypoint for Craft recursive ledger schemas. The
+  ledger is machine-readable authority; human views and generated indexes are
+  derived from it. Layer-specific schemas live under templates/schemas/.
+
+compatibility_versions:
+  - 0.2.0
+  - 0.3.0
+
+source_artifacts:
+  - arcana/craft/SKILL.md
+  - arcana/craft/README.md
+  - arcana/craft/ARCHITECTURE.md
+  - arcana/craft/templates/schemas/ledger-core.schema.yml
+  - arcana/craft/templates/schemas/index.schema.yml
+  - arcana/craft/examples/product-launch-ledger.yml
+  - arcana/craft/examples/platform-governance-ledger.yml
+  - development/craft/CRAFT-LEDGER-SCHEMA.yml
+
+schema_stack:
+  entrypoint: arcana/craft/templates/ledger.schema.yml
+  current_layer_schemas:
+    ledger_core: arcana/craft/templates/schemas/ledger-core.schema.yml
+    index: arcana/craft/templates/schemas/index.schema.yml
+  deferred_layer_schemas:
+    interface: arcana/craft/templates/schemas/interface.schema.yml
+    route_exchange: arcana/craft/templates/schemas/route-exchange.schema.yml
+    projection: arcana/craft/templates/schemas/projection.schema.yml
+    row_update: arcana/craft/templates/schemas/row-update.schema.yml
+    validation: arcana/craft/templates/schemas/validation.schema.yml
+    artifact_manifest: arcana/craft/templates/schemas/artifact-manifest.schema.yml
+
+source_of_truth_policy:
+  schema_contract: arcana/craft/templates/ledger.schema.yml
+  source_ledger_schema: arcana/craft/templates/schemas/ledger-core.schema.yml
+  index_schema: arcana/craft/templates/schemas/index.schema.yml
+  human_view: CRAFT.md
+  generated_index: .craft/index.json
+  notes:
+    - YAML owns field names, required fields, enums, and validation rules.
+    - Markdown owns only the human-readable view.
+    - Generated indexes are rebuildable lookup surfaces, not source authority.
+    - Projection, route-exchange, row-update, validation-report, and artifact-manifest schemas are deferred until later slices.
+
+linking_contract:
+  row_id_policy: Every row family uses stable IDs and must preserve IDs across view regeneration.
+  row_link_shape:
+    label: string
+    target: string
+    kind: row-id|artifact-id|path|section|external
+  path_policy: Paths are relative to the Craft scope unless marked [repo-root] or absolute.
+  human_anchor_policy:
+    context: "#context-<lowercase-id>"
+    artifact: "#artifact-<lowercase-id>"
+    blocker: "#blocker-<lowercase-id>"
+    enabler: "#enabler-<lowercase-id>"
+    decision: "#decision-<lowercase-id>"
+    gap: "#gap-<lowercase-id>"
+  evidence_policy: Evidence may be an artifact ID, receipt ID, path, selector, or link object; prefer artifact IDs when the target is already in the ledger.
+
+index_contract:
+  required_ledger_indexes:
+    - by_id
+    - open_decisions
+    - blocking_decisions
+    - active_blockers
+    - active_gaps
+    - next_moves
+    - artifacts_by_path
+  optional_ledger_indexes:
+    - by_family
+    - row_selectors
+    - pending_by_node
+    - reverse_links
+    - references
+    - evidence_refs
+  generated_index_path: .craft/index.json
+  generated_index_status: optional-rebuildable-derived
+  generated_index_metadata:
+    - schema_version
+    - ledger_sha256
+    - generated_at
+    - generator_version
+    - source_ledger
+  stale_status_values:
+    - fresh
+    - stale
+    - unknown
+  rule: Indexes point to row IDs and paths; they must not redefine row content.
+
+enums:
+  context_stage:
+    - idea
+    - define
+    - design
+    - plan
+    - execute
+    - validate
+    - review-audit
+    - reflect
+    - blocked
+    - closed
+  gate_status:
+    - pass
+    - flag
+    - block
+  artifact_status:
+    - planned
+    - active
+    - pass
+    - flag
+    - block
+    - blocked
+    - resolved
+    - stale
+    - superseded
+    - closed
+  relation_type:
+    - contains
+    - blocks
+    - enables
+    - depends_on
+    - informs
+    - supersedes
+  relation_status:
+    - active
+    - proposed
+    - resolved
+    - rejected
+    - superseded
+  typed_item_kind:
+    - blocker
+    - gate
+    - enabler
+  typed_item_status:
+    - active
+    - proposed
+    - pass
+    - flag
+    - block
+    - resolution_proposed
+    - resolved
+    - rejected
+    - waived
+  refinement_status:
+    - raw
+    - typed
+    - refined
+    - resolution_proposed
+    - resolved
+    - waived
+  decision_type:
+    - blocker
+    - selection
+    - waiver
+    - deferral
+    - approval
+    - rejection
+  decision_status:
+    - active
+    - superseded
+    - closed
+  operational_lane:
+    - architecture
+    - business
+    - tech
+    - product
+    - qa
+    - validator
+    - auditor
+    - governance
+    - planner
+    - operations
+    - integrator
+    - blocker_refiner
+  definition_status:
+    - candidate
+    - active-local
+    - superseded
+    - promoted-by-owner
+  gap_status:
+    - active
+    - planned
+    - resolved
+    - waived
+    - superseded
+  gap_severity:
+    - info
+    - flag
+    - block
+    - deferred
+  gap_treatment:
+    - plan
+    - defer
+    - waive
+    - delegate
+    - split
+  description_status:
+    - active
+    - superseded
+  role_mapping_confidence:
+    - candidate
+    - active-local
+    - promoted-by-owner
+    - deprecated
+
+base_condition_types:
+  blocker:
+    - architecture_blocker
+    - decision_blocker
+    - definition_blocker
+    - design_blocker
+    - dependency_blocker
+    - evidence_blocker
+    - artifact_blocker
+    - governance_blocker
+    - validator_blocker
+    - vocabulary_blocker
+    - validation_blocker
+    - authority_blocker
+    - resource_blocker
+    - sequence_blocker
+    - recomposition_blocker
+  gate:
+    - definition_gate
+    - design_gate
+    - plan_gate
+    - artifact_gate
+    - validation_gate
+    - authority_gate
+    - blocker_refinement_gate
+    - recomposition_gate
+    - risk_gate
+    - readiness_gate
+  enabler:
+    - definition_enabler
+    - design_enabler
+    - dependency_enabler
+    - knowledge_enabler
+    - route_enabler
+    - route_shape_enabler
+    - artifact_enabler
+    - validation_enabler
+    - authority_enabler
+    - resource_enabler
+    - sequence_enabler
+    - recomposition_enabler
+
+blocker_schema:
+  row_family: typed_items
+  kind: blocker
+  purpose: >
+    Keep unsafe or impossible motion visible until the blocker is typed,
+    owned by a responsibility lane, and closed by evidence or an explicit
+    waiver decision.
+  lifecycle:
+    ordered_states:
+      - raw
+      - typed
+      - refined
+      - resolution_proposed
+      - resolved
+    terminal_states:
+      - resolved
+      - waived
+      - rejected
+    prohibited_transitions:
+      - from: raw
+        to: resolved
+      - from: typed
+        to: resolved
+    waiver_transition:
+      from:
+        - raw
+        - typed
+        - refined
+      to: waived
+      requires_decision_type: waiver
+  refinement_minimum_fields:
+    - item_id
+    - kind
+    - base_type
+    - primary_lane
+    - source_id
+    - target_id
+    - status
+    - refinement_status
+    - closure_condition
+    - evidence
+    - reason
+  refinement_policy:
+    raw: The blocker is observed but not yet typed or owned.
+    typed: The blocker has base_type and primary_lane but may still lack closure evidence.
+    refined: The blocker has enough lane, role, evidence, and closure detail to route.
+    resolution_proposed: A lane or role claims the closure condition has been satisfied.
+    resolved: Evidence, receipt, or linked decision proves the closure condition.
+    waived: A human or governance decision explicitly accepts the unresolved residue.
+  closure_evidence_policy:
+    required_for_resolved: true
+    accepted_shapes:
+      - artifact ID
+      - receipt ID
+      - decision_ref
+      - path
+      - selector
+      - link object
+    route_shape_warning: Dispatch validation proves route shape only; it is not execution proof.
+  role_boundary:
+    blocker_refiner: Clarifies raw or typed blockers before closure can be claimed.
+    responsible_lane: Resolves the blocker or proposes a resolution.
+    validator_or_auditor: Confirms closure evidence when independent review is required.
+    governance: Waives blockers or resolves authority questions through decisions.
+
+role_schema:
+  purpose: >
+    Separate responsibility classification from assignment. Lanes say what kind
+    of responsibility is needed; roles say who or what may take that
+    responsibility in this repository.
+  lane_semantics: Operational lanes are responsibility types, not people, agents, or tools.
+  role_semantics: Roles are local handlers and may be human, team, agent, or route names.
+  assignment_policy: Role fields are advisory until backed by a decision, owner policy, or local route contract.
+  typed_item_role_fields:
+    primary_lane: Main responsibility lane for the item.
+    secondary_lanes: Supporting, review, or contributor lanes.
+    default_role: Suggested local role for the type/lane pair.
+    allowed_roles: Local roles allowed to handle the item.
+    delegation_route: Suggested route such as decision-gate, refine, invoke, task-session, or human review.
+    requires_human: True when the item cannot close from automation evidence alone.
+    role_confidence: Maturity of the role mapping.
+    owner_ref: Optional local owner, team, policy, or row reference.
+    role_notes: Freeform notes explaining why this role mapping is appropriate.
+  lane_resolution_hints:
+    decision_blocker:
+      likely_lanes:
+        - business
+        - governance
+      route: decision-gate
+    definition_blocker:
+      likely_lanes:
+        - business
+        - product
+      route: refine
+    design_blocker:
+      likely_lanes:
+        - architecture
+        - tech
+      route: invoke
+    validation_blocker:
+      likely_lanes:
+        - qa
+        - validator
+      route: task-session
+    authority_blocker:
+      likely_lanes:
+        - governance
+        - auditor
+      route: decision-gate
+    resource_blocker:
+      likely_lanes:
+        - operations
+      route: human review
+    recomposition_blocker:
+      likely_lanes:
+        - integrator
+        - tech
+      route: refine
+
+row_families:
+  contexts:
+    id_field: context_id
+    description: Recursive project-like units.
+    required_fields:
+      - context_id
+      - parent_id
+      - title
+      - purpose
+      - stage
+      - gate
+      - next_move
+    optional_fields:
+      - owned_artifacts
+      - links
+      - notes
+    fields:
+      context_id:
+        type: string
+        pattern: "^CTX-[A-Z0-9-]+$"
+      parent_id:
+        type: reference
+        references: contexts.context_id
+        allow_literal:
+          - root
+      title:
+        type: string
+      purpose:
+        type: string
+      stage:
+        type: enum
+        enum_ref: context_stage
+      gate:
+        type: enum
+        enum_ref: gate_status
+      next_move:
+        type: string
+      owned_artifacts:
+        type: list
+        item_type: reference
+        references: artifacts.artifact_id
+      links:
+        type: list
+        item_type: link
+      notes:
+        type: string
+
+  artifacts:
+    id_field: artifact_id
+    description: Files, records, work-packs, validations, and handoffs owned by contexts.
+    required_fields:
+      - artifact_id
+      - owner_context_id
+      - path
+      - artifact_type
+      - status
+    optional_fields:
+      - links
+      - notes
+    fields:
+      artifact_id:
+        type: string
+        pattern: "^ART-[A-Z0-9-]+$"
+      owner_context_id:
+        type: reference
+        references: contexts.context_id
+      path:
+        type: string
+      artifact_type:
+        type: string
+      status:
+        type: enum
+        enum_ref: artifact_status
+      notes:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  descriptions:
+    id_field: description_id
+    description: Versioned working descriptions for Craft contexts.
+    required_fields:
+      - description_id
+      - context_id
+      - description
+      - status
+    optional_fields:
+      - evidence
+      - links
+    fields:
+      description_id:
+        type: string
+        pattern: "^DESC-[A-Z0-9-]+$"
+      context_id:
+        type: reference
+        references: contexts.context_id
+      description:
+        type: string
+      status:
+        type: enum
+        enum_ref: description_status
+      evidence:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  definitions:
+    id_field: definition_id
+    description: Local candidate definitions scoped to a Craft context or artifact.
+    required_fields:
+      - definition_id
+      - scope_id
+      - term
+      - statement
+      - status
+      - evidence
+    optional_fields:
+      - links
+    fields:
+      definition_id:
+        type: string
+        pattern: "^DEF-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+      term:
+        type: string
+      statement:
+        type: string
+      status:
+        type: enum
+        enum_ref: definition_status
+      evidence:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  gaps:
+    id_field: gap_id
+    description: Missing, deferred, weak, or unresolved areas that remain visible in Craft.
+    required_fields:
+      - gap_id
+      - scope_id
+      - summary
+      - severity
+      - treatment
+      - owner
+      - status
+      - evidence
+    optional_fields:
+      - links
+    fields:
+      gap_id:
+        type: string
+        pattern: "^GAP-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - typed_items.item_id
+          - decisions.decision_id
+      summary:
+        type: string
+      severity:
+        type: enum
+        enum_ref: gap_severity
+      treatment:
+        type: enum
+        enum_ref: gap_treatment
+      owner:
+        type: string
+      status:
+        type: enum
+        enum_ref: gap_status
+      evidence:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  relations:
+    id_field: relation_id
+    description: Links between contexts, artifacts, decisions, typed items, and source-ledger rows.
+    required_fields:
+      - relation_id
+      - source_id
+      - target_id
+      - type
+      - status
+      - reason
+    optional_fields:
+      - evidence
+      - links
+    fields:
+      relation_id:
+        type: string
+        pattern: "^REL-[A-Z0-9-]+$"
+      source_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - descriptions.description_id
+          - definitions.definition_id
+          - gaps.gap_id
+          - typed_items.item_id
+          - decisions.decision_id
+        references_deferred_any:
+          - route_handoffs.handoff_id
+          - receipts.receipt_id
+      target_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - descriptions.description_id
+          - definitions.definition_id
+          - gaps.gap_id
+          - typed_items.item_id
+          - decisions.decision_id
+        references_deferred_any:
+          - route_handoffs.handoff_id
+          - receipts.receipt_id
+      type:
+        type: enum
+        enum_ref: relation_type
+      status:
+        type: enum
+        enum_ref: relation_status
+      reason:
+        type: string
+      evidence:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  typed_items:
+    id_field: item_id
+    description: Unified blocker, gate, and enabler rows.
+    required_fields:
+      - item_id
+      - kind
+      - base_type
+      - primary_lane
+      - source_id
+      - target_id
+      - status
+      - reason
+    conditionally_required_fields:
+      - when:
+          kind: blocker
+        require:
+          - refinement_status
+          - closure_condition
+      - when:
+          kind: gate
+        require:
+          - closure_condition
+    optional_fields:
+      - context_type
+      - secondary_lanes
+      - refinement_status
+      - default_role
+      - allowed_roles
+      - delegation_route
+      - requires_human
+      - role_confidence
+      - owner_ref
+      - role_notes
+      - closure_condition
+      - evidence
+      - decision_ref
+      - links
+    fields:
+      item_id:
+        type: string
+        pattern: "^(BLK|GATE|ENA)-[A-Z0-9-]+$"
+      kind:
+        type: enum
+        enum_ref: typed_item_kind
+      base_type:
+        type: enum_by_kind
+        enum_map_ref: base_condition_types
+      context_type:
+        type: string
+        nullable: true
+      primary_lane:
+        type: enum
+        enum_ref: operational_lane
+      secondary_lanes:
+        type: list
+        item_type: enum
+        enum_ref: operational_lane
+      source_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - descriptions.description_id
+          - definitions.definition_id
+          - gaps.gap_id
+          - typed_items.item_id
+          - decisions.decision_id
+      target_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - descriptions.description_id
+          - definitions.definition_id
+          - gaps.gap_id
+          - typed_items.item_id
+          - decisions.decision_id
+      status:
+        type: enum
+        enum_ref: typed_item_status
+      refinement_status:
+        type: enum
+        enum_ref: refinement_status
+      default_role:
+        type: string
+      allowed_roles:
+        type: list
+        item_type: string
+      delegation_route:
+        type: string
+      requires_human:
+        type: boolean
+      role_confidence:
+        type: enum
+        enum_ref: role_mapping_confidence
+      owner_ref:
+        type: string
+      role_notes:
+        type: string
+      closure_condition:
+        type: string
+      evidence:
+        type: string
+      decision_ref:
+        type: reference
+        references: decisions.decision_id
+        allow_literal:
+          - none
+      links:
+        type: list
+        item_type: link
+      reason:
+        type: string
+
+  decisions:
+    id_field: decision_id
+    description: Explicit human or governance decisions with enough detail to navigate and audit later.
+    required_fields:
+      - decision_id
+      - scope_id
+      - decision_type
+      - question
+      - selected
+      - rationale
+      - status
+    optional_fields:
+      - description
+      - options
+      - default_option
+      - evidence
+      - blocking
+      - impact
+      - owner
+      - links
+    fields:
+      decision_id:
+        type: string
+        pattern: "^DEC-[A-Z0-9-]+$"
+      scope_id:
+        type: reference
+        references_any:
+          - contexts.context_id
+          - artifacts.artifact_id
+          - descriptions.description_id
+          - definitions.definition_id
+          - gaps.gap_id
+          - relations.relation_id
+          - typed_items.item_id
+      decision_type:
+        type: enum
+        enum_ref: decision_type
+      question:
+        type: string
+      description:
+        type: string
+      options:
+        type: list
+        item_type: string
+      default_option:
+        type: string
+      selected:
+        type: string
+      rationale:
+        type: string
+      evidence:
+        type: string
+      status:
+        type: enum
+        enum_ref: decision_status
+      blocking:
+        type: boolean
+      impact:
+        type: string
+      owner:
+        type: string
+      links:
+        type: list
+        item_type: link
+
+  recomposition:
+    identity: composite
+    composite_id_fields:
+      - child_id
+      - parent_id
+    description: Evidence that a child context has been recomposed into a parent context.
+    required_fields:
+      - child_id
+      - parent_id
+      - summary
+      - evidence
+      - residue
+      - next_parent_move
+      - status
+    optional_fields:
+      - links
+    fields:
+      child_id:
+        type: reference
+        references: contexts.context_id
+      parent_id:
+        type: reference
+        references: contexts.context_id
+      summary:
+        type: string
+      evidence:
+        type: string
+      residue:
+        type: string
+      next_parent_move:
+        type: string
+      status:
+        type: enum
+        enum_ref: gate_status
+      links:
+        type: list
+        item_type: link
+
+validation_rules:
+  - id: VAL-001
+    description: Every context has a unique context_id.
+    severity: block
+  - id: VAL-002
+    description: Every non-root context references an existing parent_id.
+    severity: block
+  - id: VAL-003
+    description: Every artifact references an existing owner_context_id.
+    severity: block
+  - id: VAL-004
+    description: Every relation source and target references an existing ID.
+    severity: block
+  - id: VAL-005
+    description: Every typed item includes kind, base_type, primary_lane, source_id, target_id, status, and reason.
+    severity: block
+  - id: VAL-006
+    description: Every blocker includes refinement_status and closure_condition.
+    severity: block
+  - id: VAL-007
+    description: A blocker with status resolved has refinement evidence or a linked waiver decision.
+    severity: block
+  - id: VAL-008
+    description: Every gate includes a closure_condition.
+    severity: block
+  - id: VAL-009
+    description: Every enabler includes evidence or a reason explaining what it enables.
+    severity: flag
+  - id: VAL-010
+    description: Work-pack artifacts are artifacts, not the ledger root.
+    severity: block
+  - id: VAL-011
+    description: Every decision includes a question plus enough description, rationale, evidence, and impact to understand the decision without the original conversation.
+    severity: block
+  - id: VAL-012
+    description: Row references resolve to known row IDs or explicit path/external links.
+    severity: block
+  - id: VAL-013
+    description: Human views render current decisions, blockers, gaps, next moves, and artifacts with navigable links or anchors.
+    severity: flag
+  - id: VAL-014
+    description: Ledgers include indexes for by_id, open_decisions, blocking_decisions, active_blockers, active_gaps, next_moves, and artifacts_by_path.
+    severity: flag
+  - id: VAL-015
+    description: Every description references an existing context and keeps active or superseded status.
+    severity: block
+  - id: VAL-016
+    description: Every definition remains local-candidate unless promoted by an owner route.
+    severity: block
+  - id: VAL-017
+    description: Every gap has severity, treatment, owner, status, evidence, and a known scope.
+    severity: block
+  - id: VAL-018
+    description: Every recomposition row references an existing child context and parent context.
+    severity: block
+  - id: VAL-019
+    description: A closed child context requires recomposition evidence before parent closure claims.
+    severity: block
+  - id: VAL-020
+    description: A blocker cannot move from raw or typed directly to resolved; it must be refined, resolution_proposed, or waived first.
+    severity: block
+  - id: VAL-021
+    description: A blocker marked waived requires a linked waiver decision or explicit governance evidence.
+    severity: block
+  - id: VAL-022
+    description: A typed item with requires_human true cannot close from route-shape evidence alone.
+    severity: block
+  - id: VAL-023
+    description: Role fields are advisory unless backed by owner_ref, decision_ref, local policy, or route evidence.
+    severity: flag
+  - id: VAL-024
+    description: When primary and secondary lanes imply different owners, the next move names the coordination or decision route instead of silently choosing one lane.
+    severity: flag
+
+blocker_lifecycle:
+  normal:
+    - raw
+    - typed
+    - refined
+    - resolution_proposed
+    - resolved
+  waiver:
+    from:
+      - raw
+      - typed
+    to: waived
+    requires_decision_type: waiver
+  prohibited_transitions:
+    - from: raw
+      to: resolved
+    - from: typed
+      to: resolved
+
+conflict_policy:
+  - primary_lane owns the next move.
+  - secondary_lanes are required reviewers or contributors.
+  - blocker_refiner as primary_lane means the item is not ready for final resolution.
+  - auditor or validator as secondary lane requires review evidence before closure.
+  - business and tech disagreement keeps status flag or block until a decision row records the selected interpretation.
+  - Role fields suggest local handlers but do not assign authority without owner, policy, route, or decision evidence.
+  - MVP rows should use one base_type; mixed causes go in reason.
+
+deferrals:
+  scoring:
+    status: deferred
+    reason: Requires several valid ledger states first.
+  generated_index:
+    status: schema-defined
+    reason: index.schema.yml defines generated index shape; generator implementation remains deferred.
+  role_delegation:
+    status: deferred
+    reason: Type plus lane mappings need broader examples before automation.
+  interface_schema:
+    status: deferred
+    reason: CRAFT.md, state all, and Craft Result output need a dedicated interface schema slice.
+  route_exchange_schema:
+    status: deferred
+    reason: Handoffs, receipts, and route events need a dedicated route-exchange schema slice.
+  projection_schema:
+    status: deferred
+    reason: CSV projections need index/source schema stability before promotion.
+  row_update_schema:
+    status: deferred
+    reason: Patch plans and dry-run reports need source/index/projection contracts first.

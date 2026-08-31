@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-closure/v2",
+  "title": "Invoke Design Input Closure v2",
+  "description": "Successor Design input source. Normal activation exact-binds a current Define v3 stage and its independent v1 admission; evolution also exact-binds a current Design v3 stage and v2 admission.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "closure_id", "authored_by", "target", "activation", "discovery_boundary", "scope_manifest_contract_ref", "input_catalog", "conditional_input_resolutions", "constraints", "invariants", "prior_decisions", "exclusions", "design_kind", "selection_inputs", "input_conflicts", "scope_signals", "authority_effect", "closure_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-closure/v2"},
+    "schema_version": {"const": "invoke.design-input-closure.v2"},
+    "closure_id": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/id"},
+    "authored_by": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/id"},
+    "target": {"$ref": "#/$defs/target"},
+    "activation": {"$ref": "#/$defs/activation"},
+    "discovery_boundary": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/discoveryBoundary"},
+    "scope_manifest_contract_ref": {
+      "allOf": [
+        {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"},
+        {"properties": {"path": {"const": "arcanum/spells/invoke/schemas/design-scope-manifest.schema.json"}, "visibility": {"const": "public"}, "expected_schema_id": {"const": "https://arcanum.dev/schemas/invoke/design-scope-manifest/1-0-0"}, "expected_schema_version": {"const": "1.0.0"}}}
+      ]
+    },
+    "input_catalog": {"type": "array", "minItems": 1, "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/inputEntry"}},
+    "conditional_input_resolutions": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/conditionalResolution"}},
+    "constraints": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/obligation"}},
+    "invariants": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/obligation"}},
+    "prior_decisions": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/priorDecision"}},
+    "exclusions": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/exclusion"}},
+    "design_kind": {"$ref": "#/$defs/designKind"},
+    "selection_inputs": {"$ref": "#/$defs/selectionInputs"},
+    "input_conflicts": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/inputConflict"}},
+    "scope_signals": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/scopeSignals"},
+    "authority_effect": {"const": "none"},
+    "closure_digest": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/digest"}
+  },
+  "$defs": {
+    "target": {"type": "object", "additionalProperties": false, "required": ["id", "title", "objective", "owner", "visibility"], "properties": {"id": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/id"}, "title": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/nonEmpty"}, "objective": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/nonEmpty"}, "owner": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/id"}, "visibility": {"enum": ["public", "private"]}}},
+    "activation": {"oneOf": [
+      {"type": "object", "additionalProperties": false, "required": ["kind", "define_stage_receipt_ref", "define_admission_receipt_ref", "approval_ref"], "properties": {"kind": {"const": "normal"}, "define_stage_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}, "define_admission_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}, "approval_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/boundaryApprovalRef"}}},
+      {"type": "object", "additionalProperties": false, "required": ["kind", "approval_ref", "rationale"], "properties": {"kind": {"const": "discovery"}, "approval_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/boundaryApprovalRef"}, "rationale": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/nonEmpty"}}}
+    ]},
+    "designKind": {"oneOf": [
+      {"type": "object", "additionalProperties": false, "required": ["kind", "no_prior_design_determination_ref"], "properties": {"kind": {"const": "greenfield"}, "no_prior_design_determination_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}}},
+      {"type": "object", "additionalProperties": false, "required": ["kind", "prior_design_artifact_ref", "prior_design_stage_receipt_ref", "prior_design_admission_receipt_ref", "current_state_input_ids", "declared_delta_ids"], "properties": {"kind": {"const": "evolution"}, "prior_design_artifact_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}, "prior_design_stage_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}, "prior_design_admission_receipt_ref": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/fileRef"}, "current_state_input_ids": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/idSet"}, "declared_delta_ids": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/idSet"}}}
+    ]},
+    "selectionInputs": {"type": "object", "additionalProperties": false, "required": ["authored_concerns", "predicate_inputs", "planned_witness_requirements"], "properties": {"authored_concerns": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/authoredConcern"}}, "predicate_inputs": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/predicateInput"}}, "planned_witness_requirements": {"type": "array", "items": {"$ref": "https://arcanum.dev/schemas/invoke/design-input-closure/v1#/$defs/witnessRequirement"}}}}
+  }
+}

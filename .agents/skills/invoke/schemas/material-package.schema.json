@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/material-package/1-0-0",
+  "title": "InvokeMaterialPackage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "mutation_mode",
+    "mutation_state",
+    "lifecycle_owner",
+    "authority_class",
+    "publication_class",
+    "source_artifacts",
+    "changes",
+    "target_inventory",
+    "dependencies",
+    "mirror_groups",
+    "approval",
+    "validation_commands"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "package_id": {"type": "string", "minLength": 1},
+    "mutation_mode": {"enum": ["proposal-only", "apply-approved"]},
+    "mutation_state": {"enum": ["proposal-only", "materialized"]},
+    "lifecycle_owner": {"type": "string", "minLength": 1},
+    "authority_class": {"enum": ["public", "private"]},
+    "publication_class": {"enum": ["public", "private", "internal"]},
+    "source_artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/sourceArtifact"}
+    },
+    "changes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/change"}
+    },
+    "target_inventory": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/targetInventoryEntry"}
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dependency"}
+    },
+    "mirror_groups": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/mirrorGroup"}
+    },
+    "approval": {"$ref": "#/$defs/approval"},
+    "validation_commands": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "plan_binding": {"$ref": "#/$defs/planBinding"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"mutation_state": {"const": "materialized"}},
+        "required": ["mutation_state"]
+      },
+      "then": {
+        "properties": {
+          "mutation_mode": {"const": "apply-approved"},
+          "source_artifacts": {"minItems": 1},
+          "changes": {"minItems": 1},
+          "target_inventory": {"minItems": 1},
+          "approval": {
+            "properties": {"class": {"const": "explicit-apply"}}
+          },
+          "validation_commands": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"mutation_state": {"const": "proposal-only"}},
+        "required": ["mutation_state"]
+      },
+      "then": {
+        "properties": {
+          "mutation_mode": {"const": "proposal-only"},
+          "changes": {"maxItems": 0},
+          "target_inventory": {"maxItems": 0},
+          "dependencies": {"maxItems": 0},
+          "mirror_groups": {"maxItems": 0},
+          "approval": {
+            "properties": {"class": {"const": "none"}}
+          },
+          "validation_commands": {"maxItems": 0}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "sourceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes", "authority_class"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "authority_class": {"enum": ["public", "private"]}
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_path", "operation", "output_ref"],
+      "properties": {
+        "target_path": {"type": "string", "minLength": 1},
+        "operation": {"enum": ["create", "update"]},
+        "output_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "targetInventoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "lifecycle_owner",
+        "authority_class",
+        "publication_class",
+        "dependency_ids"
+      ],
+      "properties": {
+        "target_path": {"type": "string", "minLength": 1},
+        "lifecycle_owner": {"type": "string", "minLength": 1},
+        "authority_class": {"enum": ["public", "private"]},
+        "publication_class": {"enum": ["public", "private", "internal"]},
+        "dependency_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dependency_id", "artifact_ref"],
+      "properties": {
+        "dependency_id": {"type": "string", "minLength": 1},
+        "artifact_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    },
+    "mirrorGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group_id",
+        "parity",
+        "canonical_target",
+        "generated_targets"
+      ],
+      "properties": {
+        "group_id": {"type": "string", "minLength": 1},
+        "parity": {"const": "exact"},
+        "canonical_target": {"type": "string", "minLength": 1},
+        "generated_targets": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "owner",
+        "scope_paths",
+        "authority_classes",
+        "publication_classes"
+      ],
+      "properties": {
+        "class": {"enum": ["none", "explicit-apply"]},
+        "owner": {"type": ["string", "null"], "minLength": 1},
+        "scope_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "authority_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["public", "private"]}
+        },
+        "publication_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["public", "private", "internal"]}
+        }
+      }
+    },
+    "baselineEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "state", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "state": {"enum": ["absent", "present"]},
+        "sha256": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            {"type": "null"}
+          ]
+        },
+        "size_bytes": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "absent"}}},
+          "then": {"properties": {"sha256": {"type": "null"}, "size_bytes": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"state": {"const": "present"}}},
+          "then": {
+            "properties": {
+              "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+              "size_bytes": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      ]
+    },
+    "planBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "swu_id",
+        "plan_epoch_id",
+        "unit_contract_digest",
+        "selection_receipt_digest",
+        "attempt_id",
+        "validation_contract_digest",
+        "validation_contracts",
+        "target_baselines"
+      ],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "swu_id": {"type": "string", "minLength": 1},
+        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "unit_contract_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "selection_receipt_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "attempt_id": {"type": "string", "minLength": 1},
+        "validation_contract_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "validation_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/structuredValidationCommand"}
+        },
+        "target_baselines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/baselineEntry"}
+        }
+      }
+    },
+    "structuredValidationCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_id", "argv", "cwd", "timeout_seconds", "max_output_bytes"],
+      "properties": {
+        "command_id": {"type": "string", "minLength": 1},
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "cwd": {"type": "string", "minLength": 1},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
+        "max_output_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216}
+      }
+    }
+  }
+}

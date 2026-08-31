@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/capability-status-request/1-0-0",
+  "title": "InvokeCapabilityStatusRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.capability-status.request.v1"
+    },
+    "mode": {
+      "enum": [
+        "define",
+        "design",
+        "plan",
+        "handoff",
+        "refresh",
+        "full",
+        "validate"
+      ]
+    },
+    "artifact_receipt": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/artifact_receipt"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "registry_receipt": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/registry_receipt"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "material_package_receipt": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "runtime_receipt": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/runtime_receipt"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "artifact_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "axis",
+        "mode",
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "const": "artifact_authored"
+        },
+        "mode": {
+          "enum": [
+            "define",
+            "design",
+            "plan",
+            "handoff",
+            "refresh",
+            "full",
+            "validate"
+          ]
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "flag",
+            "block"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "producer_receipt": {
+          "type": "object"
+        },
+        "producer_admission_receipt": {
+          "type": "object"
+        }
+      }
+    },
+    "registry_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "axis",
+        "mode",
+        "status",
+        "owner",
+        "capability_sha256",
+        "deterministic_validation",
+        "live_regime"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "const": "registry_released"
+        },
+        "mode": {
+          "enum": [
+            "define",
+            "design",
+            "plan",
+            "handoff",
+            "refresh",
+            "full",
+            "validate"
+          ]
+        },
+        "status": {
+          "const": "released"
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capability_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "deterministic_validation": {
+          "$ref": "#/$defs/pass_evidence"
+        },
+        "live_regime": {
+          "$ref": "#/$defs/pass_evidence"
+        }
+      }
+    },
+    "runtime_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "axis",
+        "mode",
+        "status",
+        "capability_sha256",
+        "material_package_id",
+        "material_package_digest",
+        "gates"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "const": "mutation_runtime_ready"
+        },
+        "mode": {
+          "enum": [
+            "define",
+            "design",
+            "plan",
+            "handoff",
+            "refresh",
+            "full",
+            "validate"
+          ]
+        },
+        "status": {
+          "const": "ready"
+        },
+        "capability_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "material_package_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_package_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "gates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "gate",
+              "status",
+              "evidence"
+            ],
+            "properties": {
+              "gate": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "enum": [
+                  "pass",
+                  "block"
+                ]
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "pass_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "const": "pass"
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

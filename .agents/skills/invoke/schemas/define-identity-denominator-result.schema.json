@@ -1,0 +1,352 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/schemas/define-identity-denominator-result.schema.json",
+  "title": "Invoke Define Identity Denominator Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "validator",
+    "request",
+    "schemas",
+    "selector",
+    "inputs",
+    "expected_count",
+    "observed_count",
+    "matched_count",
+    "identities",
+    "verdict",
+    "diagnostics",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.define-identity-denominator-result/v1"
+    },
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"const": "invoke-define-identity-denominator-validator"},
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "request": {"$ref": "#/$defs/input_binding"},
+    "schemas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_schema", "result_schema"],
+      "properties": {
+        "request_schema": {"$ref": "#/$defs/input_binding"},
+        "result_schema": {"$ref": "#/$defs/input_binding"}
+      }
+    },
+    "selector": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["heading", "heading_level", "id_column", "label_column", "coverage"],
+          "properties": {
+            "heading": {"type": "string", "minLength": 1},
+            "heading_level": {"type": "integer", "minimum": 1, "maximum": 6},
+            "id_column": {"type": "string", "minLength": 1},
+            "label_column": {"type": "string", "minLength": 1},
+            "coverage": {"const": "exact"}
+          }
+        },
+        {"type": "null"}
+      ]
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "authority_source", "corroborating_sources"],
+      "properties": {
+        "artifact": {
+          "oneOf": [
+            {"$ref": "#/$defs/artifact_binding"},
+            {"type": "null"}
+          ]
+        },
+        "authority_source": {
+          "oneOf": [
+            {"$ref": "#/$defs/source_binding"},
+            {"type": "null"}
+          ]
+        },
+        "corroborating_sources": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/source_binding"}
+        }
+      }
+    },
+    "expected_count": {"type": "integer", "minimum": 0},
+    "observed_count": {"type": "integer", "minimum": 0},
+    "matched_count": {"type": "integer", "minimum": 0},
+    "identities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/identity"}
+    },
+    "verdict": {"enum": ["pass", "block"]},
+    "diagnostics": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/diagnostic"}
+    },
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"verdict": {"const": "pass"}},
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "selector": {"type": "object"},
+          "request": {"$ref": "#/$defs/proof_input_binding"},
+          "schemas": {
+            "type": "object",
+            "properties": {
+              "request_schema": {"$ref": "#/$defs/proof_input_binding"},
+              "result_schema": {"$ref": "#/$defs/proof_input_binding"}
+            }
+          },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "artifact": {"$ref": "#/$defs/proof_artifact_binding"},
+              "authority_source": {
+                "allOf": [
+                  {"$ref": "#/$defs/proof_source_binding"},
+                  {"properties": {"role": {"const": "authority"}}}
+                ]
+              },
+              "corroborating_sources": {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {"$ref": "#/$defs/proof_source_binding"},
+                    {"properties": {"role": {"const": "corroborating"}}}
+                  ]
+                }
+              }
+            }
+          },
+          "expected_count": {"minimum": 1},
+          "observed_count": {"minimum": 1},
+          "matched_count": {"minimum": 1},
+          "identities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/proof_identity"}
+          },
+          "diagnostics": {"maxItems": 0}
+        }
+      },
+      "else": {
+        "properties": {"diagnostics": {"minItems": 1}}
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "input_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "expected_sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "expected_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        }
+      }
+    },
+    "proof_input_binding": {
+      "allOf": [
+        {"$ref": "#/$defs/input_binding"},
+        {
+          "properties": {
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "expected_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "expected_sha256", "format"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "expected_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "format": {"const": "markdown"}
+      }
+    },
+    "proof_artifact_binding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifact_binding"},
+        {
+          "properties": {
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "expected_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "filter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "equals"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "equals": {
+          "type": ["string", "number", "integer", "boolean", "null"]
+        }
+      }
+    },
+    "source_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "expected_sha256",
+        "source_id",
+        "role",
+        "format",
+        "collection_pointer",
+        "fields",
+        "filters"
+      ],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "expected_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "source_id": {"type": "string", "minLength": 1},
+        "role": {"enum": ["authority", "corroborating"]},
+        "format": {"enum": ["json", "yaml"]},
+        "collection_pointer": {"type": "string"},
+        "fields": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "label"],
+          "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "label": {"type": "string", "minLength": 1}
+          }
+        },
+        "filters": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/filter"}
+        }
+      }
+    },
+    "proof_source_binding": {
+      "allOf": [
+        {"$ref": "#/$defs/source_binding"},
+        {
+          "properties": {
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "expected_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "corroborating_match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "match"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "match": {"type": "boolean"}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "row",
+        "expected_label",
+        "authority_match",
+        "corroborating_matches"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "row": {"type": "integer", "minimum": 1},
+        "expected_label": {
+          "oneOf": [
+            {"type": "string", "minLength": 1},
+            {"type": "null"}
+          ]
+        },
+        "authority_match": {"type": "boolean"},
+        "corroborating_matches": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/corroborating_match"}
+        }
+      }
+    },
+    "proof_identity": {
+      "allOf": [
+        {"$ref": "#/$defs/identity"},
+        {
+          "properties": {
+            "expected_label": {"type": "string", "minLength": 1},
+            "authority_match": {"const": true},
+            "corroborating_matches": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {"$ref": "#/$defs/corroborating_match"},
+                  {"properties": {"match": {"const": true}}}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "selector", "details"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^DEFINE_IDENTITY_[A-Z0-9_]+$"
+        },
+        "message": {"type": "string", "minLength": 1},
+        "selector": {
+          "oneOf": [
+            {"type": "string", "minLength": 1},
+            {"type": "null"}
+          ]
+        },
+        "details": {"type": "object"}
+      }
+    }
+  }
+}

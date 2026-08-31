@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1",
+  "title": "Invoke Design Input Boundary Approval v1",
+  "description": "Owner-issued, authority-free evidence that binds the finite roots and discovery rules within which Design input completeness may be claimed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "approval_id",
+    "target_id",
+    "target_visibility",
+    "approved_by",
+    "observation_epoch",
+    "roots",
+    "discovery_rules",
+    "required_input_classes",
+    "permitted_exclusions",
+    "boundary_digest",
+    "authority_effect",
+    "approval_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"},
+    "schema_version": {"const": "invoke.design-input-boundary-approval.v1"},
+    "approval_id": {"$ref": "#/$defs/id"},
+    "target_id": {"$ref": "#/$defs/id"},
+    "target_visibility": {"enum": ["public", "private"]},
+    "approved_by": {"$ref": "#/$defs/id"},
+    "observation_epoch": {"$ref": "#/$defs/nonEmpty"},
+    "roots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/rootBinding"}
+    },
+    "discovery_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/discoveryRule"}
+    },
+    "required_input_classes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/inputKind"}
+    },
+    "permitted_exclusions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/permittedExclusion"}
+    },
+    "boundary_digest": {"$ref": "#/$defs/digest"},
+    "authority_effect": {"const": "none"},
+    "approval_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "glob": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).*\\S.*"},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "rootBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "path", "sha256", "size"],
+      "properties": {
+        "root_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "discoveryRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "root_id", "input_class", "include_globs"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/id"},
+        "root_id": {"$ref": "#/$defs/id"},
+        "input_class": {"$ref": "#/$defs/inputKind"},
+        "include_globs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/glob"}
+        }
+      }
+    },
+    "permittedExclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "evidence_ref"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "evidence_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "inputKind": {
+      "enum": [
+        "define-artifact",
+        "current-design",
+        "current-implementation",
+        "interface-contract",
+        "state-workflow",
+        "data-store",
+        "queue-writer",
+        "deployment-topology",
+        "authority-policy",
+        "security-policy",
+        "privacy-policy",
+        "compatibility-policy",
+        "quality-constraint",
+        "observability-contract",
+        "architecture-pattern",
+        "research-evidence",
+        "ux-evidence",
+        "owner-decision",
+        "other"
+      ]
+    }
+  }
+}

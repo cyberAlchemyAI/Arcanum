@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/cli-stage-catalog/v1",
+  "title": "Invoke CLI Stage Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "cli_version", "modes"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/cli-stage-catalog/v1"},
+    "schema_version": {"const": "invoke.cli-stage-catalog.v1"},
+    "cli_version": {"const": "0.5.0"},
+    "modes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["define", "design", "plan", "handoff", "refresh"],
+      "properties": {
+        "define": {"$ref": "#/$defs/activeMode"},
+        "design": {"$ref": "#/$defs/activeMode"},
+        "plan": {"$ref": "#/$defs/deferredMode"},
+        "handoff": {"$ref": "#/$defs/deferredMode"},
+        "refresh": {"$ref": "#/$defs/deferredMode"}
+      }
+    }
+  },
+  "$defs": {
+    "nonEmpty": {"type": "string", "pattern": ".*\\S.*"},
+    "operation": {"enum": ["check", "author", "produce", "admit", "status"]},
+    "fixedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointer", "value"],
+      "properties": {"pointer": {"$ref": "#/$defs/pointer"}, "value": {}}
+    },
+    "derivedId": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointer", "prefix"],
+      "properties": {
+        "pointer": {"$ref": "#/$defs/pointer"},
+        "prefix": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"}
+      }
+    },
+    "derivedDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointer", "projection"],
+      "properties": {
+        "pointer": {"$ref": "#/$defs/pointer"},
+        "projection": {
+          "type": ["array", "null"],
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/pointer"}
+        }
+      }
+    },
+    "pointer": {"type": "string", "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"},
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operations", "description", "next_stage", "request_schema", "output_schema", "fixed_fields", "derived_ids", "derived_digests", "runner"],
+      "properties": {
+        "operations": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/operation"}},
+        "description": {"$ref": "#/$defs/nonEmpty"},
+        "next_stage": {"type": ["string", "null"]},
+        "request_schema": {"type": ["string", "null"]},
+        "output_schema": {"type": ["string", "null"]},
+        "fixed_fields": {"type": "array", "items": {"$ref": "#/$defs/fixedValue"}},
+        "derived_ids": {"type": "array", "items": {"$ref": "#/$defs/derivedId"}},
+        "derived_digests": {"type": "array", "items": {"$ref": "#/$defs/derivedDigest"}},
+        "runner": {"type": ["string", "null"]}
+      }
+    },
+    "activeMode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "native_skill_route", "stages"],
+      "properties": {
+        "status": {"const": "active"},
+        "native_skill_route": {"const": ".agents/skills/invoke/SKILL.md"},
+        "stages": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/stage"}}
+      }
+    },
+    "deferredMode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "native_skill_route", "reason"],
+      "properties": {
+        "status": {"const": "unsupported"},
+        "native_skill_route": {"const": ".agents/skills/invoke/SKILL.md"},
+        "reason": {"$ref": "#/$defs/nonEmpty"}
+      }
+    }
+  }
+}

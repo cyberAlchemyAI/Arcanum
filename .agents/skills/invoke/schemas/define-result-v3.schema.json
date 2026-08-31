@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/define-result/v3",
+  "title": "Invoke Define Stage Receipt v3",
+  "description": "Success-only receipt for the installed Define v3 producer. It binds an exact ready semantic closure and a complete ordered output inventory while granting no registry or runtime authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "owner_capability",
+    "mode",
+    "producer",
+    "schema_bindings",
+    "profile_id",
+    "source_ref",
+    "semantic_evidence",
+    "structural_schema_refs",
+    "semantic_outcome",
+    "outputs",
+    "result",
+    "next_route",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/define-result/v3"},
+    "schema_version": {"const": "invoke.define-stage-receipt.v3"},
+    "receipt_id": {"$ref": "#/$defs/id"},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "define"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "path", "sha256"],
+      "properties": {
+        "identity": {"const": "invoke.compile-define-source.v3"},
+        "path": {"const": ".agents/skills/invoke/scripts/compile_define_source_v3.py"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "schema_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_schema_ref",
+        "profile_schema_ref",
+        "definitions_v1_schema_ref",
+        "definitions_v2_schema_ref",
+        "result_schema_ref"
+      ],
+      "properties": {
+        "source_schema_ref": {"$ref": "#/$defs/exactRef"},
+        "profile_schema_ref": {"$ref": "#/$defs/exactRef"},
+        "definitions_v1_schema_ref": {"$ref": "#/$defs/exactRef"},
+        "definitions_v2_schema_ref": {"$ref": "#/$defs/exactRef"},
+        "result_schema_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "profile_id": {"const": "invoke.generic-definitions-baseline.v3"},
+    "source_ref": {"$ref": "#/$defs/exactRef"},
+    "semantic_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context_ref", "closure_receipt_ref"],
+      "properties": {
+        "context_ref": {"$ref": "#/$defs/exactRef"},
+        "closure_receipt_ref": {"$ref": "#/$defs/exactRef"}
+      }
+    },
+    "structural_schema_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/structuralSchemaRef"}
+    },
+    "semantic_outcome": {"enum": ["candidate-definitions", "reference-only", "mixed"]},
+    "outputs": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "prefixItems": [
+        {"$ref": "#/$defs/semanticContextOutput"},
+        {"$ref": "#/$defs/semanticClosureOutput"},
+        {"$ref": "#/$defs/specOutput"},
+        {"$ref": "#/$defs/definitionsOutput"},
+        {"$ref": "#/$defs/definitionsViewOutput"},
+        {"$ref": "#/$defs/glossaryOutput"},
+        {"$ref": "#/$defs/layeringOutput"},
+        {"$ref": "#/$defs/templateSelectionOutput"},
+        {"$ref": "#/$defs/dispatchTraceOutput"},
+        {"$ref": "#/$defs/distillOutput"},
+        {"$ref": "#/$defs/identityDenominatorOutput"},
+        {"$ref": "#/$defs/transportOutput"}
+      ],
+      "items": false
+    },
+    "result": {"const": "pass"},
+    "next_route": {"enum": ["design", "spellcraft", "sigil-development", "deferred"]},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$comment": "Executable admission must recompute every digest, verify the semantic closure outcome is ready-for-define, prove semantic_outcome from the Definitions v2 payload, and validate exact path/kind equality with the v3 profile.",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "outputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "size"],
+      "properties": {
+        "kind": {"type": "string"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "structuralSchemaRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["definition_id", "path", "sha256", "size"],
+      "properties": {
+        "definition_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "semanticContextOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "semantic-context"}, "path": {"const": "DEFINE-SEMANTIC-CONTEXT.json"}}}
+      ]
+    },
+    "semanticClosureOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "semantic-closure-receipt"}, "path": {"const": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json"}}}
+      ]
+    },
+    "specOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "spec"}, "path": {"const": "SPEC.md"}}}
+      ]
+    },
+    "definitionsOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "definitions"}, "path": {"const": "DEFINITIONS.json"}}}
+      ]
+    },
+    "definitionsViewOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "definitions-view"}, "path": {"const": "DEFINITIONS.md"}}}
+      ]
+    },
+    "glossaryOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "glossary"}, "path": {"const": "GLOSSARY.md"}}}
+      ]
+    },
+    "layeringOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {
+          "properties": {
+            "kind": {"const": "layering"},
+            "path": {"enum": ["IMPLEMENTATION-LAYERING.md", "LAYERING-GAP.md"]}
+          }
+        }
+      ]
+    },
+    "templateSelectionOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "template-selection"}, "path": {"const": "TEMPLATE-SELECTION-RECEIPT.json"}}}
+      ]
+    },
+    "dispatchTraceOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "dispatch-trace"}, "path": {"const": "DISPATCH-TRACE.json"}}}
+      ]
+    },
+    "distillOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "distill"}, "path": {"const": "DISTILL-RECEIPT.json"}}}
+      ]
+    },
+    "identityDenominatorOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "identity-denominator"}, "path": {"const": "IDENTITY-DENOMINATOR-RECEIPT.json"}}}
+      ]
+    },
+    "transportOutput": {
+      "allOf": [
+        {"$ref": "#/$defs/outputRef"},
+        {"properties": {"kind": {"const": "transport"}, "path": {"const": "DEFINE-TRANSPORT-REPORT.json"}}}
+      ]
+    }
+  }
+}
