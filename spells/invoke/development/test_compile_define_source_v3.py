@@ -12,6 +12,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import Any, Callable
+from unittest import mock
 
 from jsonschema import Draft202012Validator, RefResolver
 
@@ -68,6 +69,51 @@ class CompileDefineSourceV3Test(unittest.TestCase):
         return json.loads(
             (fixture.output_dir / "INVOKE-DEFINE-STAGE-RECEIPT.json").read_text(encoding="utf-8")
         )
+
+    def test_publication_dispatches_to_linux_backend(self) -> None:
+        with (
+            mock.patch.object(COMPILER_MODULE.sys, "platform", "linux"),
+            mock.patch.object(COMPILER_MODULE, "publish_linux_no_replace") as publisher,
+        ):
+            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
+        publisher.assert_called_once_with(Path("stage"), Path("output"))
+
+    def test_publication_dispatches_to_macos_backend(self) -> None:
+        with (
+            mock.patch.object(COMPILER_MODULE.sys, "platform", "darwin"),
+            mock.patch.object(COMPILER_MODULE, "publish_macos_no_replace") as publisher,
+        ):
+            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
+        publisher.assert_called_once_with(Path("stage"), Path("output"))
+
+    def test_publication_dispatches_to_windows_backend(self) -> None:
+        with (
+            mock.patch.object(COMPILER_MODULE.sys, "platform", "win32"),
+            mock.patch.object(COMPILER_MODULE, "publish_windows_no_replace") as publisher,
+        ):
+            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
+        publisher.assert_called_once_with(Path("stage"), Path("output"))
+
+    def test_publication_fails_closed_on_unknown_platform(self) -> None:
+        with mock.patch.object(COMPILER_MODULE.sys, "platform", "unknown"):
+            with self.assertRaisesRegex(ValueError, "unavailable on unknown"):
+                COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
+
+    def test_linux_backend_requests_no_replace_rename(self) -> None:
+        renameat2 = mock.Mock(return_value=0)
+        libc = mock.Mock(renameat2=renameat2)
+        with mock.patch.object(COMPILER_MODULE.ctypes, "CDLL", return_value=libc):
+            COMPILER_MODULE.publish_linux_no_replace(Path("stage"), Path("output"))
+        self.assertEqual(-100, renameat2.call_args.args[0])
+        self.assertEqual(-100, renameat2.call_args.args[2])
+        self.assertEqual(1, renameat2.call_args.args[4])
+
+    def test_macos_backend_requests_exclusive_rename(self) -> None:
+        renamex_np = mock.Mock(return_value=0)
+        libc = mock.Mock(renamex_np=renamex_np)
+        with mock.patch.object(COMPILER_MODULE.ctypes, "CDLL", return_value=libc):
+            COMPILER_MODULE.publish_macos_no_replace(Path("stage"), Path("output"))
+        self.assertEqual(0x00000004, renamex_np.call_args.args[2])
 
     def test_mixed_bundle_is_exact_complete_and_schema_valid(self) -> None:
         temporary, fixture = self.fixture()

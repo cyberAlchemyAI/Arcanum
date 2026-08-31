@@ -600,49 +600,131 @@ def validate_staged_outputs(
         raise CompileError("glossary Markdown does not equal a clean deterministic render")
 
 
-def publish_no_replace(stage: Path, output_dir: Path) -> None:
-    """Atomically rename one directory without replacing a competing target."""
+def output_appeared() -> CompileError:
+    return CompileError("output directory appeared during publication and was not overwritten")
+
+
+def publish_with_exclusive_lock(stage: Path, output_dir: Path) -> None:
+    """Serialize cooperating publishers when an exclusive rename flag is unavailable."""
+
+    lock = output_dir.parent / f".{output_dir.name}.publish-lock"
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        if output_dir.exists() or output_dir.is_symlink():
+            raise output_appeared()
+        try:
+            os.rename(stage, output_dir)
+        except OSError as exc:
+            if (
+                exc.errno in {errno.EEXIST, errno.ENOTEMPTY}
+                or output_dir.exists()
+                or output_dir.is_symlink()
+            ):
+                raise output_appeared() from exc
+            raise CompileError(f"fallback publication failed: {exc}") from exc
+    except FileExistsError as exc:
+        raise CompileError("another publisher owns the output publication lock") from exc
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+            lock.unlink(missing_ok=True)
+
+
+def publish_linux_no_replace(stage: Path, output_dir: Path) -> None:
+    """Publish through Linux renameat2(RENAME_NOREPLACE)."""
 
     libc = ctypes.CDLL(None, use_errno=True)
     renameat2 = getattr(libc, "renameat2", None)
-    if renameat2 is None:  # pragma: no cover - fail closed on non-Linux hosts
-        raise CompileError("atomic no-replace directory publication is unavailable")
+    if renameat2 is None:
+        publish_with_exclusive_lock(stage, output_dir)
+        return
     renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
     renameat2.restype = ctypes.c_int
     result = renameat2(
-        -100,
+        -100,  # AT_FDCWD
         os.fsencode(stage),
-        -100,
+        -100,  # AT_FDCWD
         os.fsencode(output_dir),
-        1,
+        1,  # RENAME_NOREPLACE
     )
     if result == 0:
         return
     error = ctypes.get_errno()
-    if error == errno.EEXIST:
-        raise CompileError("output directory appeared during publication and was not overwritten")
-    if error in {errno.EINVAL, errno.ENOSYS, errno.EOPNOTSUPP}:
-        # Some WSL and older filesystems expose renameat2 but reject its
-        # no-replace flag. Serialize cooperating publishers with an exclusive
-        # sibling lock, then recheck the target immediately before a same-
-        # filesystem rename. Existing targets are never removed.
-        lock = output_dir.parent / f".{output_dir.name}.publish-lock"
-        descriptor: int | None = None
-        try:
-            descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-            if output_dir.exists() or output_dir.is_symlink():
-                raise CompileError("output directory appeared during publication and was not overwritten")
-            os.rename(stage, output_dir)
-            return
-        except FileExistsError as exc:
-            raise CompileError("another publisher owns the output publication lock") from exc
-        except OSError as exc:
-            raise CompileError(f"fallback publication failed: {exc}") from exc
-        finally:
-            if descriptor is not None:
-                os.close(descriptor)
-                lock.unlink(missing_ok=True)
+    if error in {errno.EEXIST, errno.ENOTEMPTY}:
+        raise output_appeared()
+    unsupported = {
+        errno.EINVAL,
+        errno.ENOSYS,
+        errno.EOPNOTSUPP,
+        getattr(errno, "ENOTSUP", errno.EOPNOTSUPP),
+    }
+    if error in unsupported:
+        publish_with_exclusive_lock(stage, output_dir)
+        return
     raise CompileError(f"atomic no-replace publication failed: {os.strerror(error)}")
+
+
+def publish_macos_no_replace(stage: Path, output_dir: Path) -> None:
+    """Publish through macOS renamex_np(RENAME_EXCL)."""
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    renamex_np = getattr(libc, "renamex_np", None)
+    if renamex_np is None:
+        publish_with_exclusive_lock(stage, output_dir)
+        return
+    renamex_np.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+    renamex_np.restype = ctypes.c_int
+    result = renamex_np(
+        os.fsencode(stage),
+        os.fsencode(output_dir),
+        0x00000004,  # RENAME_EXCL
+    )
+    if result == 0:
+        return
+    error = ctypes.get_errno()
+    if error in {errno.EEXIST, errno.ENOTEMPTY}:
+        raise output_appeared()
+    unsupported = {
+        errno.EINVAL,
+        errno.ENOSYS,
+        errno.EOPNOTSUPP,
+        getattr(errno, "ENOTSUP", errno.EOPNOTSUPP),
+    }
+    if error in unsupported:
+        publish_with_exclusive_lock(stage, output_dir)
+        return
+    raise CompileError(f"atomic no-replace publication failed: {os.strerror(error)}")
+
+
+def publish_windows_no_replace(stage: Path, output_dir: Path) -> None:
+    """Publish through Windows' native fail-if-destination-exists rename."""
+
+    try:
+        os.rename(stage, output_dir)
+    except OSError as exc:
+        if (
+            isinstance(exc, FileExistsError)
+            or output_dir.exists()
+            or output_dir.is_symlink()
+        ):
+            raise output_appeared() from exc
+        raise CompileError(f"atomic no-replace publication failed: {exc}") from exc
+
+
+def publish_no_replace(stage: Path, output_dir: Path) -> None:
+    """Atomically publish one directory without replacing a competing target."""
+
+    if sys.platform.startswith("linux"):
+        publish_linux_no_replace(stage, output_dir)
+        return
+    if sys.platform == "darwin":
+        publish_macos_no_replace(stage, output_dir)
+        return
+    if sys.platform == "win32":
+        publish_windows_no_replace(stage, output_dir)
+        return
+    raise CompileError(f"atomic no-replace directory publication is unavailable on {sys.platform}")
 
 
 def compile_source(

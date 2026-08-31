@@ -17,7 +17,7 @@ import re
 import sys
 import unicodedata
 from collections import Counter, defaultdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
 
 from jsonschema import Draft202012Validator
@@ -85,6 +85,46 @@ def canonical_bytes(value: Any) -> bytes:
 
 def exact_ref(path: str, data: bytes) -> dict[str, Any]:
     return {"path": path, "sha256": sha256_bytes(data), "size": len(data)}
+
+
+def repository_path_key(value: str, *, case_insensitive: bool | None = None) -> str:
+    """Return a comparison-only key without changing serialized path spelling."""
+
+    normalized = PurePosixPath(value).as_posix()
+    if case_insensitive is None:
+        case_insensitive = sys.platform == "win32"
+    return normalized.casefold() if case_insensitive else normalized
+
+
+def canonical_repo_relative(
+    actual_relative: str,
+    trusted_root_bindings: Iterable[tuple[str, str]],
+    *,
+    case_insensitive: bool | None = None,
+) -> str:
+    """Reuse trusted root spelling for the longest matching path prefix."""
+
+    actual_parts = PurePosixPath(actual_relative).parts
+    best_prefix = 0
+    best_parts = actual_parts
+    for declared_root, resolved_root in trusted_root_bindings:
+        declared_parts = PurePosixPath(declared_root).parts
+        resolved_parts = PurePosixPath(resolved_root).parts
+        common = 0
+        for index, (actual, resolved) in enumerate(zip(actual_parts, resolved_parts)):
+            if index >= len(declared_parts) or (
+                repository_path_key(actual, case_insensitive=case_insensitive)
+                != repository_path_key(resolved, case_insensitive=case_insensitive)
+            ) or (
+                repository_path_key(declared_parts[index], case_insensitive=case_insensitive)
+                != repository_path_key(resolved, case_insensitive=case_insensitive)
+            ):
+                break
+            common += 1
+        if common > best_prefix:
+            best_prefix = common
+            best_parts = (*declared_parts[:common], *actual_parts[common:])
+    return PurePosixPath(*best_parts).as_posix()
 
 
 def normalize(value: str) -> str:
@@ -375,7 +415,12 @@ def registry_entries(data: bytes, format_profile: str) -> list[dict[str, Any]]:
     return result
 
 
-def path_for_glob(root: Path, base: str, pattern: str) -> list[str]:
+def path_for_glob(
+    root: Path,
+    base: str,
+    pattern: str,
+    declared_paths: dict[str, str] | None = None,
+) -> list[str]:
     base_path = root / base
     try:
         resolved_base = base_path.resolve(strict=True)
@@ -393,7 +438,11 @@ def path_for_glob(root: Path, base: str, pattern: str) -> list[str]:
             resolved.relative_to(root)
         except ValueError as exc:
             raise ValueError(f"discovered path escapes repository: {candidate}") from exc
-        paths.append(candidate.relative_to(root).as_posix())
+        relative = candidate.relative_to(resolved_base)
+        discovered = PurePosixPath(base, *relative.parts).as_posix()
+        if declared_paths is not None:
+            discovered = declared_paths.get(repository_path_key(discovered), discovered)
+        paths.append(discovered)
     return sorted(set(paths))
 
 
@@ -478,6 +527,7 @@ def main(
 
     configured_discovery_roots: list[str] = []
     configured_public_roots: list[str] = []
+    trusted_root_bindings: list[tuple[str, str]] = []
     try:
         for configured, destination in (
             (args.discovery_root, configured_discovery_roots),
@@ -490,7 +540,9 @@ def main(
                 resolved.relative_to(root)
                 if not resolved.is_dir():
                     raise ValueError(f"configured root is not a directory: {relative}")
-                destination.append(Path(relative).as_posix())
+                declared = Path(relative).as_posix()
+                destination.append(declared)
+                trusted_root_bindings.append((declared, resolved.relative_to(root).as_posix()))
     except (OSError, ValueError) as exc:
         if _return_receipt:
             raise InvocationError(f"invalid trusted root configuration: {exc}") from exc
@@ -498,6 +550,10 @@ def main(
         return 2
     configured_discovery_roots = sorted(set(configured_discovery_roots))
     configured_public_roots = sorted(set(configured_public_roots))
+    trusted_root_bindings = sorted(set(trusted_root_bindings))
+    context_rel = canonical_repo_relative(context_rel, trusted_root_bindings)
+    context_schema_rel = canonical_repo_relative(context_schema_rel, trusted_root_bindings)
+    receipt_schema_rel = canonical_repo_relative(receipt_schema_rel, trusted_root_bindings)
     if context["target"]["visibility"] == "public" and not configured_public_roots:
         if _return_receipt:
             raise InvocationError("public contexts require at least one --public-root")
@@ -635,6 +691,18 @@ def main(
         for label in [probe["term"], *probe["aliases"]]
     }
     discovered_data: dict[str, bytes] = dict(observed_data)
+    declared_path_spellings = {
+        repository_path_key(path): path
+        for path in sorted(
+            {
+                context_rel,
+                context_schema_rel,
+                receipt_schema_rel,
+                *excluded_selectors,
+                *(ref["path"] for _role, ref in iter_material_refs(context)),
+            }
+        )
+    }
 
     def read_discovered(path: str) -> bytes:
         if path not in discovered_data:
@@ -646,9 +714,16 @@ def main(
         consumer_paths: set[str] = set()
         try:
             for pattern in item["registry_globs"]:
-                registry_paths.update(path_for_glob(root, item["path"], pattern))
+                registry_paths.update(
+                    path_for_glob(root, item["path"], pattern, declared_path_spellings)
+                )
             for pattern in item["consumer_globs"]:
-                for path in path_for_glob(root, item["path"], pattern):
+                for path in path_for_glob(
+                    root,
+                    item["path"],
+                    pattern,
+                    declared_path_spellings,
+                ):
                     if path in non_consumer_material:
                         continue
                     try:

@@ -1,0 +1,54 @@
+name: Invoke Define cross-platform
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/invoke-define-cross-platform.yml"
+      - "spells/invoke/invoke-cli-stage-catalog.json"
+      - "spells/invoke/schemas/define-**"
+      - "spells/invoke/schemas/definitions**"
+      - "spells/invoke/scripts/compile_define_source_v3.py"
+      - "spells/invoke/scripts/invoke_cli.py"
+      - "spells/invoke/scripts/validate_define_**"
+      - "spells/invoke/development/define_v3_test_fixture.py"
+      - "spells/invoke/development/test_compile_define_source_v3.py"
+      - "spells/invoke/development/test_validate_define_**"
+      - "spells/invoke/examples/define-v3/**"
+  push:
+    paths:
+      - ".github/workflows/invoke-define-cross-platform.yml"
+      - "spells/invoke/invoke-cli-stage-catalog.json"
+      - "spells/invoke/schemas/define-**"
+      - "spells/invoke/schemas/definitions**"
+      - "spells/invoke/scripts/compile_define_source_v3.py"
+      - "spells/invoke/scripts/invoke_cli.py"
+      - "spells/invoke/scripts/validate_define_**"
+      - "spells/invoke/development/define_v3_test_fixture.py"
+      - "spells/invoke/development/test_compile_define_source_v3.py"
+      - "spells/invoke/development/test_validate_define_**"
+      - "spells/invoke/examples/define-v3/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python test dependencies
+        run: python -m pip install --disable-pip-version-check jsonschema
+      - name: Test Invoke Define v3
+        run: >-
+          python -m unittest
+          spells.invoke.development.test_compile_define_source_v3
+          spells.invoke.development.test_validate_define_semantic_closure
+          spells.invoke.development.test_validate_define_bundle_admission

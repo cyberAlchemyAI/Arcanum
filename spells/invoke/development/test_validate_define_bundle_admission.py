@@ -435,7 +435,12 @@ class ValidateDefineBundleAdmissionTest(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.compile(fixture)
         alias = fixture.root / "bundle-alias"
-        alias.symlink_to(fixture.output_dir, target_is_directory=True)
+        try:
+            alias.symlink_to(fixture.output_dir, target_is_directory=True)
+        except OSError as exc:
+            if sys.platform == "win32" and getattr(exc, "winerror", None) == 1314:
+                self.skipTest("Windows process lacks symbolic-link creation privilege")
+            raise
         output = alias / "admission.json"
         result = subprocess.run(
             [

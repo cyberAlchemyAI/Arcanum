@@ -313,6 +313,53 @@ class DefineSemanticClosureValidatorTest(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         return temporary, RepositoryFixture(Path(temporary.name))
 
+    def test_windows_path_canonicalization_preserves_trusted_spelling(self) -> None:
+        actual = "Arcanum/spells/invoke/schemas/context.schema.json"
+        bindings = [
+            (
+                "arcanum/spells/invoke/examples/define-v3",
+                "Arcanum/spells/invoke/examples/define-v3",
+            )
+        ]
+        canonical = VALIDATOR_MODULE.canonical_repo_relative(
+            actual,
+            bindings,
+            case_insensitive=True,
+        )
+        self.assertEqual("arcanum/spells/invoke/schemas/context.schema.json", canonical)
+
+    def test_posix_path_canonicalization_keeps_case_distinct(self) -> None:
+        actual = "Arcanum/spells/invoke/schemas/context.schema.json"
+        bindings = [
+            (
+                "arcanum/spells/invoke/examples/define-v3",
+                "Arcanum/spells/invoke/examples/define-v3",
+            )
+        ]
+        canonical = VALIDATOR_MODULE.canonical_repo_relative(
+            actual,
+            bindings,
+            case_insensitive=False,
+        )
+        self.assertEqual(actual, canonical)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows case-insensitive path regression")
+    def test_checked_example_replays_when_checkout_case_differs(self) -> None:
+        checkout_root = INVOKE_DIR.parents[1]
+        example = INVOKE_DIR / "examples" / "define-v3"
+        replayed = VALIDATOR_MODULE.evaluate_context(
+            context_path=example / "DEFINE-SEMANTIC-CONTEXT.json",
+            repository_root=checkout_root.parent,
+            context_schema_path=CONTEXT_SCHEMA,
+            receipt_schema_path=RECEIPT_SCHEMA,
+            discovery_roots=["arcanum/spells/invoke/examples/define-v3"],
+            public_roots=["arcanum"],
+        )
+        checked = json.loads(
+            (example / "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(checked, replayed)
+
     def assert_receipt(self, fixture: RepositoryFixture, output_name: str = "receipt.json") -> dict[str, Any]:
         receipt = json.loads((fixture.root / output_name).read_text(encoding="utf-8"))
         schema = json.loads(fixture.receipt_schema.read_text(encoding="utf-8"))
@@ -761,7 +808,12 @@ class DefineSemanticClosureValidatorTest(unittest.TestCase):
         self.addCleanup(outside.unlink, missing_ok=True)
         consumer = fixture.root / "public/consumer/SPEC.md"
         consumer.unlink()
-        consumer.symlink_to(outside)
+        try:
+            consumer.symlink_to(outside)
+        except OSError as exc:
+            if sys.platform == "win32" and getattr(exc, "winerror", None) == 1314:
+                self.skipTest("Windows process lacks symbolic-link creation privilege")
+            raise
         fixture.refresh_path("public/consumer/SPEC.md")
         result = fixture.run()
         self.assertEqual(1, result.returncode, result.stderr)
